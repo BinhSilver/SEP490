@@ -1,0 +1,601 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店では魚はもちろん、野菜も買える。",
+       "ja_furigana": "この店(みせ)では魚(さかな)はもちろん、野菜(やさい)も買(か)える。",
+       "vi": "Quán này bán cả cá lẫn rau.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "山田さんは平日はもちろん、日曜日も働いている。",
+       "ja_furigana": "山田(やまだ)さんは平日(へいじつ)はもちろん、日曜日(にちようび)も働(はたら)いている。",
+       "vi": "Anh Yamada ngày thường thì đương nhiên rồi, cả chủ nhật cũng đi làm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は勉強はもちろんスポーツもよくできる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy việc học là đương nhiên rồi nhưng cả thể thao cũng có thể chơi tốt"
+     },
+     {
+      "ja": "キャベツは炒めて食べるのはもちろん、生で食べてもおいしいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bắp cải thì xào ăn là đương nhiên rồi nhưng ăn sống cũng ngon đấy"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は勉強はもちろんスポーツもよくできる。",
+     "FURIGANA_MISSING: キャベツは炒めて食べるのはもちろん、生で食べてもおいしいです。"
+    ],
+    "formation": "N1 + はもちろん + N2 + も",
+    "locked_fields": [],
+    "meaning_vi": "(Danh từ) là đương nhiên rồi nhưng cả (Danh từ ‘)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜勉強はもちろん",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện một sự vật sự việc cũng có một đặc điểm (tốt) tương tự như một đặc điểm đương nhiên khác. Thường thể hiện ý khen ngợi, hay ngạc nhiên"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2ef394bf1e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このかばんはかるいばかりか、じょうぶだ。",
+       "ja_furigana": "このかばんはかるいばかりか、じょうぶだ。",
+       "vi": "Chiếc túi này vừa nhẹ vừa bền.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "弟は宿題をしないばかりか、学校にも遅れる。",
+       "ja_furigana": "弟(おとうと)は宿題(しゅくだい)をしないばかりか、学校(がっこう)にも遅(おく)れる。",
+       "vi": "Em trai tôi không chỉ không làm bài tập mà còn đi học muộn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの店は、味が悪いばかりか、店員の態度もひどい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiệm đó thì không chỉ vị dở mà thái độ của nhân viên cũng tệ"
+     },
+     {
+      "ja": "私は、漢字ばかりか、まだひらがなも書けません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi thì không chỉ là chữ Hán mà cả Hiragana cũng không thể viết được"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの店は、味が悪いばかりか、店員の態度もひどい。",
+     "FURIGANA_MISSING: 私は、漢字ばかりか、まだひらがなも書けません。"
+    ],
+    "formation": "V / Aい / Aな(な) / N + ばかりか、〜も",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ có….mà còn…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜味が悪いばかりか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi thể hiện sự việc, sự vật có thêm một đặc điểm (không tốt) ngoài đặc điểm đã biết Thể hiện sự khó chịu, thất vọng, không hài lòng"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ba5b4da362"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "歩くのにくらべて、自転車は速い。",
+       "ja_furigana": "歩(ある)くのにくらべて、自転車(じてんしゃ)は速(はや)い。",
+       "vi": "So với đi bộ, xe đạp nhanh hơn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "去年にくらべて、今年の夏は暑い。",
+       "ja_furigana": "去年(きょねん)にくらべて、今年(ことし)の夏(なつ)は暑(あつ)い。",
+       "vi": "So với năm ngoái, mùa hè năm nay nóng hơn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "試験問題は昨年に比べて易しくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đề bài thi dễ hơn so với năm ngoái"
+     },
+     {
+      "ja": "店で買うのに比べ、通信販売は便利だが、欠点もある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "So với việc mua ở cửa tiệm, mua hàng qua thư tiện lợi nhưng mà cũng có khuyết điểm"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 試験問題は昨年に比べて易しくなった。",
+     "FURIGANA_MISSING: 店で買うのに比べ、通信販売は便利だが、欠点もある。"
+    ],
+    "formation": "N + に比べて / に比べ",
+    "locked_fields": [],
+    "meaning_vi": "So với, so sánh với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜昨年に比べて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp so sánh giữa hai sự vật, sự việc"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-860e90a733"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "姉に対して、妹はよく笑う。",
+       "ja_furigana": "姉(あね)に対(たい)して、妹(いもうと)はよく笑(わら)う。",
+       "vi": "Trái với chị gái, em gái hay cười.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中先生は学生に対して、いつもやさしい。",
+       "ja_furigana": "田中(たなか)先生(せんせい)は学生(がくせい)に対(たい)して、いつもやさしい。",
+       "vi": "Thầy Tanaka lúc nào cũng hiền với học sinh.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "田中先生は、生徒に対して厳しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thầy Tanaka nghiêm khắc với học trò"
+     },
+     {
+      "ja": "まじめな長男に対して、次男は遊んでばかりで学校もよく休む。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối lập với con trai trưởng chăm chỉ thì con trai thứ chỉ toàn chơi bời và thường hay nghỉ"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 田中先生は、生徒に対して厳しい。",
+     "FURIGANA_MISSING: まじめな長男に対して、次男は遊んでばかりで学校もよく休む。"
+    ],
+    "formation": "N + に対して / に対する + N",
+    "locked_fields": [],
+    "meaning_vi": "Đối với, đối với…thì, đối với…cũng, ….đối với….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜生徒に対して",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng thể hiện thái độ, hành động đối với một sự việc vấn đề Hoặc dùng khi thể hiện hai sự việc, sự vật đối lập nhau"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-22611aeddd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祖母にとって、庭の花は大切だ。",
+       "ja_furigana": "祖母(そぼ)にとって、庭(にわ)の花(はな)は大切(たいせつ)だ。",
+       "vi": "Với bà, hoa trong vườn rất quý.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "子どもにとって、この本は少し難しい。",
+       "ja_furigana": "子(こ)どもにとって、この本(ほん)は少(すこ)し難(むずか)しい。",
+       "vi": "Đối với trẻ em, cuốn sách này hơi khó.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "留学生にとって奨学金は大きな支えだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với du học sinh, học bổng là sự hỗ trợ lớn."
+     },
+     {
+      "ja": "この説明は初心者にとって分かりやすい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lời giải thích này dễ hiểu đối với người mới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 留学生にとって奨学金は大きな支えだ。",
+     "FURIGANA_MISSING: この説明は初心者にとって分かりやすい。"
+    ],
+    "formation": "N + にとって(は) / にとっての + N",
+    "locked_fields": [],
+    "meaning_vi": "Nêu quan điểm/lợi-hại/giá trị đối với chủ thể N: “đối với N thì …”. Thường dùng với nhận định chủ quan, nhưng có thể là đánh giá khách quan (đối tượng nhóm/tổ chức). Không dùng để biểu thị tác nhân thực hiện hành động.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đối với",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để đặt khung đánh giá; vị ngữ sau là tính chất/đánh giá. Thêm は để nhấn/đối chiếu; thêm も để mở rộng bao hàm. Không dùng “Nにとって + V hành động” theo nghĩa “N làm …”; thay bằng が/は. [6. Ghi chú mở rộng] Dùng tốt trong mở bài ý kiến: 私にとって、読書は心の栄養だ。 Trong khảo sát, câu hỏi kiểu “あなたにとって最も重要な要素は何ですか”。 Đối tượng N có thể là cá nhân, nhóm, tổ chức, quốc gia, thế hệ. [7. Biến thể & cụm cố định] N + にとって（は／も） N + にとっての + N ～はNにとって＋必要だ／重要だ／不利だ／ありがたい／負担だ [8. Lỗi thường gặp & bẫy JLPT] Dùng “にとって” để chỉ tác nhân thực hiện (sai chức năng). Dùng vị ngữ hành động trực tiếp (không tự nhiên): nên dùng tính từ/phán đoán. Nhầm với “に対して/について”: khác mục đích ngữ nghĩa. Quên “の” trong định ngữ: “NにとってのN2”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c727113d6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "新しい案に対して、父は反対した。",
+       "ja_furigana": "新(あたら)しい案(あん)に対(たい)して、父(ちち)は反対(はんたい)した。",
+       "vi": "Bố phản đối phương án mới.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先生の質問に対して、リンさんはすぐ答えた。",
+       "ja_furigana": "先生(せんせい)の質問(しつもん)に対(たい)して、リンさんはすぐ答(こた)えた。",
+       "vi": "Đối với câu hỏi của thầy, Linh đã trả lời ngay.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもに対して、もっと優しく話してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin hãy nói chuyện nhẹ nhàng hơn đối với trẻ em."
+     },
+     {
+      "ja": "彼の発言に対して、多くの反論が出た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đối với phát ngôn của anh ấy, đã có nhiều phản biện được đưa ra."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもに対して、もっと優しく話してください。",
+     "FURIGANA_MISSING: 彼の発言に対して、多くの反論が出た。"
+    ],
+    "formation": "N + に対して / V・A(thể thông thường) + のに対して",
+    "locked_fields": [],
+    "meaning_vi": "Đối tượng hướng đến: diễn tả hành vi/thái độ/biện pháp được hướng đối với một người/nhóm/sự vật. Đánh giá/khen chê: dùng khi đưa nhận xét nhắm vào đối tượng cụ thể (会社に対して厳しい意見, 親に対して失礼だ). Tương phản: nối hai vế để nhấn mạnh sự khác biệt rõ ràng giữa A và B. Gần nghĩa “trong khi/trái lại”. Tỉ lệ/ứng với: nêu tỉ lệ, phân phối (１人に対して２個, 男性１人に対して女性２人). Sắc thái: trang trọng, khách quan hơn について; không dùng cho cảm xúc thân mật đơn thuần.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đối với, trái với",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng với danh từ chỉ người/tổ chức/đối tượng cụ thể khi áp dụng chính sách, thái độ, hành động. Dùng cho tương phản khi hai vế có tính chất song hành rõ ràng; nếu chỉ so sánh hơn kém đơn thuần, dùng ～より/～に比べて tự nhiên hơn. Trong văn viết trang trọng có thể rút thành に対し; bổ nghĩa danh từ dùng に対するN. Ít dùng cho chủ đề thảo luận thuần túy; khi “về/liên quan đến” thì について/に関して tự nhiên hơn. [6. Ghi chú mở rộng] に対して thường đi với các động từ đánh giá/thái độ như 優しい, 厳しい, 失礼だ, 敬意を払う, 批判する. Vế tỉ lệ “N1に対してN2” xuất hiện nhiều trong số liệu/thống kê, báo cáo. Trong tương phản, có thể viết Aは…。それに対して、Bは… để tách câu rõ ràng. [7. Biến thể & cụm cố định] に対し（văn viết), に対しては（nhấn mạnh chủ đề), に対するN（bổ nghĩa danh từ） それに対して（liên từ trái lại） N1に対してN2（tỉ lệ/ứng với） [8. Lỗi thường gặp & bẫy JLPT] Lẫn với について/に関して: khi chỉ nói “về chủ đề”, ưu tiên について; に対して dễ nghe cứng/nghi thức quá. Dùng に対して để so sánh hơn kém: so sánh nên dùng ～より/～に比べて. Quên chuyển sang に対する khi bổ nghĩa danh từ: ×学生に対して支援制度 → ○学生に対する支援制度. Nhầm trật tự trong cấu trúc tương phản: phải là “Aに対して、B…”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e149381f08"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家で食べるにしても、野菜を買わないと。",
+       "ja_furigana": "家(いえ)で食(た)べるにしても、野菜(やさい)を買(か)わないと。",
+       "vi": "Dù ăn ở nhà thì cũng phải mua rau.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "休むにしても、会社に連絡はしてください。",
+       "ja_furigana": "休(やす)むにしても、会社(かいしゃ)に連絡(れんらく)はしてください。",
+       "vi": "Dù có nghỉ thì cũng hãy liên lạc với công ty.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "いくら忙しいにしても、睡眠は大事だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bận đến mấy, giấc ngủ vẫn quan trọng."
+     },
+     {
+      "ja": "行くにしても、準備してから行きなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có đi cũng hãy chuẩn bị rồi hãy đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: いくら忙しいにしても、睡眠は大事だ。",
+     "FURIGANA_MISSING: 行くにしても、準備してから行きなさい。"
+    ],
+    "formation": "(いくら) + V / Aい / Aな・N + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Nhượng bộ: Dù X thì Y (lập trường không đổi). Thừa nhận sự thật: Dẫu đã X, kết luận vẫn Y. Đánh giá theo chuẩn: Ngay cả đối với/mức N thì … (ngoài/khác mong đợi). Liệt kê: N1にしてもN2にしても: dù là A hay B thì kết luận như nhau.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù... cũng, ngay cả",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Kết hợp tốt với từ nhấn たとえ/いくら/どんなに. Mệnh đề sau thường là mệnh đề đánh giá/chủ trương của người nói. V-たにしても dùng khi thừa nhận sự đã rồi; V-るにしても khi giả định tương lai. So với としても: hơi trang trọng/cứng hơn; so với にしろ/にせよ: mềm hơn. [6. Ghi chú mở rộng] “Nにしても…” khi dịch sang tiếng Việt có thể linh hoạt: “ngay cả… thì…”, “dù… thì…”. Trong văn học/bài diễn thuyết, “であるにしても” tăng tính khách quan. Nối cặp có thể mở rộng hơn 2 phần tử: AにしてもBにしてもCにしても… [7. Biến thể & cụm cố định] たとえ／いくら／どんなに + ～にしても NにしてもNにしても ～にしたって（khẩu ngữ）／～にしろ／～にせよ（trang trọng） [8. Lỗi thường gặp & bẫy JLPT] Lẫn với ～にしては (lệch kỳ vọng) và ～としても (giả định trung tính). Không áp dụng một quy tắc máy móc “luôn phải có だ”. Với N/Na, Nにしても／Naにしても rất phổ biến; であるにしても rõ và trang trọng hơn. Dùng mệnh lệnh trực tiếp sau にしても có thể nghe gắt; cân nhắc tình huống. Dùng V-たにしても khi sự việc đã xảy ra; V-るにしても cho giả định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c88df52c9d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "町のれきしに関する本を借りた。",
+       "ja_furigana": "町(まち)のれきしに関(かん)する本(ほん)を借(か)りた。",
+       "vi": "Tôi mượn sách về lịch sử thị trấn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "日本の料理に関する番組をよく見る。",
+       "ja_furigana": "日本(にほん)の料理(りょうり)に関(かん)する番組(ばんぐみ)をよく見(み)る。",
+       "vi": "Tôi hay xem các chương trình liên quan đến ẩm thực Nhật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この問題に関して、ご意見を伺いたいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn hỏi ý kiến về vấn đề này."
+     },
+     {
+      "ja": "日本史に関する本を探しています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đang tìm sách liên quan đến lịch sử Nhật Bản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この問題に関して、ご意見を伺いたいです。",
+     "FURIGANA_MISSING: 日本史に関する本を探しています。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 日本史に関する本を探しています。 → 日本史"
+    ],
+    "formation": "N + に関して / に関する + N",
+    "locked_fields": [],
+    "meaning_vi": "“Liên quan đến, về” một chủ đề/phạm vi nhất định, thường mang sắc thái trang trọng, dùng trong thông báo, báo cáo, nghiên cứu. Khác について ở độ bao quát và trọng tâm: に関して gợi phạm vi rộng/khía cạnh chuyên môn hơn. Không dùng để diễn tả thái độ/hành vi hướng tới đối tượng (khi đó dùng に対して).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Liên quan đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Ưa dùng trong công việc/chính thức: email, thông báo, báo cáo, bài nghiên cứu. Gắn trực tiếp trước danh từ bằng に関するN để gọn và trang trọng. Thêm は sau に関して để biến thành chủ đề nhấn mạnh cho toàn câu. [6. Ghi chú mở rộng] に関して/に関する thường đi với 調査する, 報告, 質問, 情報, データ, 研究. Trong email công việc: 件名＋「〜に関してのご連絡」 là tiêu đề phổ biến. に関しては … に関しては … kiểu liệt kê từng hạng mục để so sánh/đối chiếu. [7. Biến thể & cụm cố định] ～に関して／～に関するN／～に関してのN 本件に関して／価格に関しては／詳細に関して 参考文献に関する一覧／～に関して質問がある [8. Lỗi thường gặp & bẫy JLPT] Dùng に関して cho thái độ đối với người: ×彼に関して優しい → ○彼に対して優しい. Lạm dụng trong hội thoại thường ngày làm câu cứng; nên đổi sang について khi nói chuyện thân mật. Sai dạng bổ nghĩa: ×環境に関して対策 → ○環境に関する対策."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6d61d6bf1b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅前にくらべて、この通りは静かだ。",
+       "ja_furigana": "駅前(えきまえ)にくらべて、この通(とお)りは静(しず)かだ。",
+       "vi": "So với trước ga, con phố này yên tĩnh.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "兄にくらべて、弟は背が高い。",
+       "ja_furigana": "兄(あに)にくらべて、弟(おとうと)は背(せ)が高(たか)い。",
+       "vi": "So với anh trai thì em trai cao hơn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今年は去年に比べて雨が少ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năm nay so với năm ngoái thì ít mưa hơn."
+     },
+     {
+      "ja": "都会に比べて、田舎は家賃が安い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "So với thành thị, nông thôn tiền thuê rẻ hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今年は去年に比べて雨が少ない。",
+     "FURIGANA_MISSING: 都会に比べて、田舎は家賃が安い。"
+    ],
+    "formation": "N + に比べて",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả so sánh hơn kém với một mốc chuẩn rõ ràng (Aに比べてBは…: B có mức độ khác A). Nhấn mạnh tiêu chí/khía cạnh so sánh; thường đi cùng ほう, より, ほど để làm rõ mức độ. Thường dùng với số liệu, thời điểm, địa điểm, sản phẩm, người/vật ở cùng loại để tránh so sánh khập khiễng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "So với",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Chỉ ra chuẩn mực cụ thể, nhằm nêu mức chênh lệch. Thích hợp cho bình luận, phân tích. Dùng được trong văn nói và viết; dạng に比べ là văn viết cô đọng. Tránh so sánh các phạm trù không tương thích; nên cùng hạng mục để tự nhiên. [6. Ghi chú mở rộng] Thường đi với chỉ số: 去年に比べて10％増, 昨日より2度高い. Khi rõ B là chủ ngữ, hay dùng “Aに比べて、Bのほうが…”. So sánh mệnh đề dùng の để danh từ hóa: 勉強するのに比べて… [7. Biến thể & cụm cố định] ～に比べ（văn viết), ～と比べて／と比べると（hội thoại) ～とは比べものにならない là cụm cố định mang nghĩa “không thể đem ra so sánh”. Trợ từ cơ bản trong cụm này là とは, không phải に. ～に比して（にひして, cổ/văn viết trang trọng) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với に対して: ×Aに対してBのほうが高い → ○Aに比べてBのほうが高い. Bỏ sót chủ thể so sánh làm mơ hồ: nên có Bのほうが để rõ vế hơn. So sánh khập khiễng (khác loại) gây thiếu tự nhiên. Nhầm trật tự: phải “Aに比べて、B…”, không đảo lộn ý mà thiếu chủ ngữ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d07d714996"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "冬にしては、今日はあたたかい。",
+       "ja_furigana": "冬(ふゆ)にしては、今日(きょう)はあたたかい。",
+       "vi": "So với mùa đông thì hôm nay ấm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "九月にしては、今日はすずしい。",
+       "ja_furigana": "九月(くがつ)にしては、今日(きょう)はすずしい。",
+       "vi": "Tháng chín mà hôm nay mát thật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本に10年住んでいるにしては日本語が下手だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sống ở Nhật 10 năm rồi mà tiếng Nhật vẫn kém."
+     },
+     {
+      "ja": "子どもにしては字がきれいだね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù là trẻ con mà chữ đẹp ghê."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本に10年住んでいるにしては日本語が下手だ。",
+     "FURIGANA_MISSING: 子どもにしては字がきれいだね。"
+    ],
+    "formation": "N / V / A(thể thông thường) + にしては",
+    "locked_fields": [],
+    "meaning_vi": "Dùng để nêu đánh giá trái với kỳ vọng dựa trên một chuẩn mực N/V: \"dù/so với việc là… mà…\". Tiêu chuẩn N là nhóm/danh tính/điều kiện chung chung (trẻ con, người mới, mùa xuân…). Mệnh đề sau thường là nhận xét, đánh giá chủ quan bất ngờ so với chuẩn. Khác với のに: không biểu thị quan hệ nhân quả thất vọng, mà là so sánh với \"chuẩn kỳ vọng\".",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "So với... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nêu cảm nhận \"khác thường\" dựa trên chuẩn chung của nhóm/điều kiện mà N biểu thị. Vế sau là phán đoán/đánh giá. Ít dùng cho mệnh lệnh/nguyện vọng. Hợp với từ chỉ số lượng/giá cả/tuổi tác để nhấn \"so với mặt bằng\": 値段にしては…, 年齢にしては… Sắc thái khách quan hơn わりに(は) với N cá nhân; nhấn \"chuẩn nhóm\" rõ rệt. [6. Ghi chú mở rộng] Nên dùng với chuẩn khách quan (tuổi, nghề, kinh nghiệm, mùa…); tránh dùng với chuẩn mơ hồ khó xác định. Vế sau thường là tính từ/động từ thể hiện đánh giá: いい／悪い／多い／少ない／うまい／下手など. Với số liệu cụ thể: 1000円にしては…, 3ヶ月にしては… giúp câu khách quan, thuyết phục. [7. Biến thể & cụm cố định] ～にしては（chuẩn): dùng cho N/普通形. ～にしてみれば／～にしてみても: “đối với quan điểm của … thì” (khác nghĩa, dễ nhầm). Kết hợp thường gặp: 値段／年齢／期間／経験＋にしては。 [8. Lỗi thường gặp & bẫy JLPT] Dùng với mệnh lệnh/nguyện vọng: 子どもにしては早く寝なさい（không tự nhiên). Nên dùng cho đánh giá. Nhầm với わりに(は): khi chuẩn là nhóm khách quan (初心者, 子ども), ưu tiên にしては. Dùng cho sự thật hiển nhiên không có tính bất ngờ → mất nghĩa \"khác thường\". Đặt N quá mơ hồ: 彼にしては… nhưng thiếu thông tin về \"chuẩn\" sẽ khó hiểu trong bài thi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f893bca7ee"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-059"
+}

@@ -10,4 +10,7 @@ public interface InteractivePaceReplanService {
 
     /** Applies a previewed change; retrying an already-applied request returns {@code changed=false}. */
     LearningPacePreviewResponse apply(Long userId, LearningPaceRequest request);
+
+    /** F1-6 (owner 2026-10-28): real study time of finished parts against their estimates, with a pace suggestion. */
+    com.jlas.learning.dto.LearningPaceMeasurement measure(Long userId);
 }

@@ -310,7 +310,7 @@
               '</button>' +
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
-                '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning/path" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
+                '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
                 '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
                 '<a id="jlabBaseVerbPracticeLink" class="dropdown__item" href="/practice/verbs" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
@@ -328,6 +328,7 @@
                 '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
+                '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
                 '<a id="jlabBaseKanjiMapAdminLink" class="dropdown__item" href="/admin/kanji-map" role="menuitem"><span aria-hidden="true">字</span><span>Lược đồ Kanji</span></a>' +
               '</div>' +
             '</div>' +
@@ -403,7 +404,7 @@
                     '</div>' +
                   '</div>' +
                   '<a id="' + ids.profileLink + '" class="dropdown__item" href="/profile" role="menuitem"><span id="' + ids.profileIcon + '" class="material-symbols-outlined" aria-hidden="true">person</span><span id="' + ids.profileLabel + '">Hồ sơ và cài đặt</span></a>' +
-                  '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning/path" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
+                  '<a id="' + ids.myLearningPathLink + '" class="dropdown__item" href="/learning" role="menuitem"><span id="' + ids.myLearningPathIcon + '" class="material-symbols-outlined" aria-hidden="true">route</span><span id="' + ids.myLearningPathLabel + '">Lộ trình của tôi</span></a>' +
                   '<a id="jlabBaseNotebookLink" class="dropdown__item" href="/learning/notebook" role="menuitem"><span id="' + ids.notebookIcon + '" class="material-symbols-outlined" aria-hidden="true">menu_book</span><span>Sổ tay của tôi</span></a>' +
                   '<a id="' + ids.streakLink + '" class="dropdown__item" href="/goals" role="menuitem"><span id="' + ids.streakIcon + '" class="material-symbols-outlined" aria-hidden="true">local_fire_department</span><span id="' + ids.streakLabel + '">Mục tiêu &amp; chuỗi ngày</span></a>' +
                   '<a id="' + ids.premiumLink + '" class="dropdown__item" href="/premium/billing" role="menuitem" hidden><span id="' + ids.premiumIcon + '" class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><span id="' + ids.premiumLabel + '">Gói &amp; thanh toán</span></a>' +
@@ -448,7 +449,9 @@
   function syncActiveLink() {
     var path = normalizePath(window.location.pathname);
     var isHome = path === '/' || path === '/index';
-    var isLearningPath = path === '/learning/path' ||
+    // [JLAS-W0108] /learning opens the JLPT or communication path (owner 07/11: the old path pages are gone)
+    var isLearningPath = path === '/learning' || path === '/learning/path' ||
+      path.indexOf('/learning/jlpt/') === 0 || path.indexOf('/learning/comm') === 0 ||
       path.indexOf('/learning/lesson/') === 0 ||
       path.indexOf('/learning/quiz/') === 0 ||
       path.indexOf('/learning/rules') === 0 ||

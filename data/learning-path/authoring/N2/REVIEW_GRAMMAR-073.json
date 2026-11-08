@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もっと早く家を出るんだった。",
+       "ja_furigana": "もっと早(はや)く家(いえ)を出(で)るんだった。",
+       "vi": "Giá mà tôi ra khỏi nhà sớm hơn."
+      },
+      {
+       "ja": "あの時、写真をとっておくんだった。",
+       "ja_furigana": "あの時(とき)、写真(しゃしん)をとっておくんだった。",
+       "vi": "Giá mà lúc đó tôi chụp lại ảnh."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "A: ホテル、まだ取れないの？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Khách sạn vẫn chưa đặt được à?"
+     },
+     {
+      "ja": "B: うん、すごく混んでて。こんなことなら、もっと早く予約しておくんだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Ừ, rất đông. Giá mà mình đã đặt sớm hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A: ホテル、まだ取れないの？",
+     "FURIGANA_MISSING: B: うん、すごく混んでて。こんなことなら、もっと早く予約しておくんだった。"
+    ],
+    "formation": "Vる + んだった",
+    "locked_fields": [],
+    "meaning_vi": "Biết thế thì đã làm rồi, diễn tả sự hối tiếc.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜んだった",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f7f2fa645f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は雨にぬれるのもかまわず、外で待っていた。",
+       "ja_furigana": "彼(かれ)は雨(あめ)にぬれるのもかまわず、外(そと)で待(ま)っていた。",
+       "vi": "Anh ấy chẳng màng bị ướt mưa, cứ đứng đợi bên ngoài."
+      },
+      {
+       "ja": "妹は人目もかまわず、大きな声を出した。",
+       "ja_furigana": "妹(いもうと)は人目(ひとめ)もかまわず、大(おお)きな声(こえ)を出(だ)した。",
+       "vi": "Em gái tôi chẳng màng ánh mắt mọi người, hét thật to."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は周囲の視線もかまわず、大声で友人を呼んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy chẳng màng ánh mắt xung quanh, lớn tiếng gọi bạn."
+     },
+     {
+      "ja": "子どもたちは服が汚れるのもかまわず、泥の中で遊んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bọn trẻ chơi trong bùn, chẳng quan tâm quần áo sẽ bị bẩn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は周囲の視線もかまわず、大声で友人を呼んだ。",
+     "FURIGANA_MISSING: 子どもたちは服が汚れるのもかまわず、泥の中で遊んだ。"
+    ],
+    "formation": "N + もかまわず; Vる・Vた + のもかまわず",
+    "locked_fields": [],
+    "meaning_vi": "Bất chấp, chẳng màng đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bất chấp, chẳng màng đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả hành động được làm mà không để ý đến điều đáng lẽ phải quan tâm. Cách dùng: 〜もかまわず cho biết một người tiếp tục hành động mà không quan tâm đến ánh mắt, hoàn cảnh, hậu quả hoặc trạng thái đáng lẽ phải cân nhắc. Phần đứng trước thường là điều xã hội cho rằng nên chú ý, như người xung quanh, quần áo bị bẩn hay thời gian đã muộn. Mẫu không chỉ có nghĩa trung tính “bất kể”; nó mô tả thái độ phớt lờ trong một hành động cụ thể. Người nói thường tỏ ra ngạc nhiên, phê bình hoặc khâm phục sự tập trung. Sắc thái: Có sắc thái chủ quan rõ: hành vi vượt qua sự dè dặt thông thường và có thể bị xem là thiếu ý tứ hoặc rất quyết liệt. Lưu ý: Danh từ thường đi với trợ từ も, không thay bằng を trong cấu trúc này. Không dùng cho quy định trung tính áp dụng cho mọi nhóm; trường hợp đó dùng 〜を問わず."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1e415205c6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年齢にかかわらず、だれでも参加できます。",
+       "ja_furigana": "年齢(ねんれい)にかかわらず、だれでも参加(さんか)できます。",
+       "vi": "Không phân biệt tuổi tác, ai cũng có thể tham gia."
+      },
+      {
+       "ja": "性別にかかわらず、応募できます。",
+       "ja_furigana": "性別(せいべつ)にかかわらず、応募(おうぼ)できます。",
+       "vi": "Không phân biệt giới tính, ai cũng có thể ứng tuyển."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "申し込みの順番にかかわらず、全員に同じ案内を送ります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bất kể thứ tự đăng ký, chúng tôi sẽ gửi cùng một hướng dẫn cho tất cả mọi người."
+     },
+     {
+      "ja": "参加するかどうかにかかわりなく、資料には目を通してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có tham gia hay không, xin hãy đọc qua tài liệu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 申し込みの順番にかかわらず、全員に同じ案内を送ります。",
+     "FURIGANA_MISSING: 参加するかどうかにかかわりなく、資料には目を通してください。"
+    ],
+    "formation": "N + にかかわらず／にかかわりなく; Vる・Vない + にかかわらず",
+    "locked_fields": [],
+    "meaning_vi": "Bất kể, không phụ thuộc vào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Bất kể, không phụ thuộc vào",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu rằng kết quả hoặc cách xử lý không thay đổi dù điều kiện đứng trước khác nhau. Cách dùng: Hai dạng này cho biết một hành động, quy tắc hoặc kết quả không bị chi phối bởi điều kiện đứng trước. Điều kiện có thể là danh từ, hai khả năng đối lập như tham gia hay không, hoặc một mệnh đề nghi vấn gián tiếp. 〜にかかわらず được dùng rộng hơn, còn 〜にかかわりなく nhấn rõ ý “không có liên quan, không phụ thuộc”. Cả hai thường gặp trong quy định và phát biểu khách quan, nhưng cũng có thể dùng trong lời nói thông thường tương đối trang trọng. Sắc thái: Trọng tâm là tính độc lập với điều kiện; sắc thái trung tính, không biểu lộ thái độ coi thường điều kiện ấy. Lưu ý: Không nhầm 〜にかかわらず với 〜にもかかわらず, vốn diễn tả kết quả trái với dự đoán. Điều đứng trước thường phải có các khả năng hoặc mức độ khác nhau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8583337f9d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あんなに高い店、だれが行くものか。",
+       "ja_furigana": "あんなに高(たか)い店(みせ)、だれが行(い)くものか。",
+       "vi": "Cái quán đắt thế thì ai mà thèm đến."
+      },
+      {
+       "ja": "こんなに難しい本、子どもに読めるものか。",
+       "ja_furigana": "こんなに難(むずか)しい本(ほん)、子(こ)どもに読(よ)めるものか。",
+       "vi": "Sách khó thế này thì trẻ con sao đọc nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "根拠のないうわさを、専門家が信じるものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đời nào chuyên gia lại tin một tin đồn không có căn cứ."
+     },
+     {
+      "ja": "こんな短い説明だけで、複雑な問題が解決できるものか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Làm sao một vấn đề phức tạp có thể được giải quyết chỉ bằng lời giải thích ngắn như vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 根拠のないうわさを、専門家が信じるものか。",
+     "FURIGANA_MISSING: こんな短い説明だけで、複雑な問題が解決できるものか。"
+    ],
+    "formation": "thể thường + ものか",
+    "locked_fields": [],
+    "meaning_vi": "Đời nào; làm sao có thể...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đời nào; làm sao có thể...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng câu hỏi tu từ để bác bỏ mạnh một khả năng, nhận định hoặc lời khẳng định. Cách dùng: Ở cách dùng phản ngữ, 〜ものか cho biết người nói tin rằng nội dung trước mẫu hoàn toàn không thể đúng hoặc không thể xảy ra. Câu có hình thức câu hỏi nhưng không cần câu trả lời; ý thực tế là phủ định mạnh. Mẫu thường dùng để phản bác một suy đoán, nghi ngờ tính khả thi hoặc bác bỏ đánh giá của người khác. Dạng 〜もんか mang tính khẩu ngữ hơn. Sắc thái: Tập trung bác bỏ nội dung của mệnh đề; dễ mang sắc thái bực bội hoặc thách thức. Lưu ý: Không phải câu hỏi thật và không dùng khi người nói chưa chắc chắn. Tránh dùng trong lời nói lịch sự vì mức độ phủ định rất mạnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-02c73c4dee"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段はさておき、まず味をみてみましょう。",
+       "ja_furigana": "値段(ねだん)はさておき、まず味(あじ)をみてみましょう。",
+       "vi": "Gác chuyện giá cả lại, trước hết hãy thử xem mùi vị thế nào."
+      },
+      {
+       "ja": "勝ち負けはさておき、みんなで楽しく遊ぼう。",
+       "ja_furigana": "勝(か)ち負(ま)けはさておき、みんなで楽(たの)しく遊(あそ)ぼう。",
+       "vi": "Gác chuyện thắng thua lại, mọi người cùng chơi vui vẻ đi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "原因の分析はさておき、まず被害の拡大を防ごう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tạm gác việc phân tích nguyên nhân, trước hết hãy ngăn thiệt hại lan rộng."
+     },
+     {
+      "ja": "冗談はさておき、来月の予算について話し合いましょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Gác chuyện đùa sang một bên, chúng ta hãy bàn về ngân sách tháng tới."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 原因の分析はさておき、まず被害の拡大を防ごう。",
+     "FURIGANA_MISSING: 冗談はさておき、来月の予算について話し合いましょう。"
+    ],
+    "formation": "N + はさておき／はさておいて",
+    "locked_fields": [],
+    "meaning_vi": "Gác chuyện… lại đã",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Gác chuyện... lại đã",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Chủ động đặt một đề tài sang bên để chuyển sang vấn đề cần bàn hoặc xử lý trước. Cách dùng: 〜はさておき báo hiệu rằng người nói sẽ chưa bàn đến hoặc chưa giải quyết nội dung đứng trước, mà chuyển sang vấn đề khác cấp thiết hay phù hợp với mục đích hiện tại hơn. Nó thường đóng vai trò tổ chức cuộc trò chuyện, cuộc họp hoặc lập luận, chẳng hạn gác nguyên nhân để xử lý thiệt hại trước. Chủ đề bị gác không nhất thiết bị đánh giá thấp; nó chỉ chưa phải trọng tâm lúc này. Cụm 冗談はさておき là cách chuyển từ lời đùa sang chuyện nghiêm túc. Sắc thái: Thể hiện sự chuyển đề tài rõ và có chủ ý; tùy ngữ cảnh có thể nghe dứt khoát hơn 〜はともかく. Lưu ý: Sau mẫu cần có một chủ đề hoặc hành động khác được đưa lên làm trọng tâm. Không nên dùng để gạt bỏ thiếu lịch sự vấn đề quan trọng của người nghe."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d06e4e4e72"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日勉強しているからといって、成績がいいわけではない。",
+       "ja_furigana": "毎日(まいにち)勉強(べんきょう)しているからといって、成績(せいせき)がいいわけではない。",
+       "vi": "Không phải cứ ngày nào cũng học là thành tích tốt."
+      },
+      {
+       "ja": "彼は反対しているわけではない。ただ、よく考えたいのだ。",
+       "ja_furigana": "彼(かれ)は反対(はんたい)しているわけではない。ただ、よく考(かんが)えたいのだ。",
+       "vi": "Không phải anh ấy phản đối. Chỉ là anh ấy muốn suy nghĩ kỹ hơn."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "甘い物が嫌いなわけではないが、毎日は食べない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không hẳn là tôi ghét đồ ngọt, nhưng tôi không ăn hằng ngày."
+     },
+     {
+      "ja": "在宅勤務だからといって、いつでも自由というわけではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Làm việc tại nhà không có nghĩa là lúc nào cũng tự do."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 甘い物が嫌いなわけではないが、毎日は食べない。",
+     "FURIGANA_MISSING: 在宅勤務だからといって、いつでも自由というわけではない。"
+    ],
+    "formation": "thể thường + わけではない",
+    "locked_fields": [],
+    "meaning_vi": "Không hẳn là; không có nghĩa là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không hẳn là; không có nghĩa là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Phủ định một phần, đính chính suy luận quá rộng hoặc bác bỏ cách hiểu do ngữ cảnh gợi ra. Cách dùng: Hai dạng này không phủ định đơn thuần một sự việc, mà sửa lại cách hiểu quá tuyệt đối hoặc kết luận mà người nghe có thể suy ra. 〜わけではない thường mang nghĩa “không hẳn là” và để ngỏ một phần đúng. 〜というわけではない làm rõ hơn nội dung suy luận bị bác bỏ, nhất là sau một lý do hay nhận định đã nêu. Mẫu thường đi với 〜からといって và có thể được theo sau bởi lời giải thích về thực tế chính xác hơn. Sắc thái: Sắc thái đính chính mềm, tránh phủ định sạch trơn; người nói thừa nhận rằng tình hình có thể đúng một phần nhưng không nên khái quát. Lưu ý: Không dùng thay cho 〜ない khi chỉ kể một sự thật phủ định đơn giản. Ngữ cảnh cần có một cách hiểu, kỳ vọng hoặc khái quát cần được điều chỉnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fe9555fbb9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急に客が来たので、昼ご飯を食べるどころではない。",
+       "ja_furigana": "急(きゅう)に客(きゃく)が来(き)たので、昼(ひる)ご飯(はん)を食(た)べるどころではない。",
+       "vi": "Khách đến đột ngột nên chẳng phải lúc ăn trưa."
+      },
+      {
+       "ja": "旅行どころか、この一か月は休みもない。",
+       "ja_furigana": "旅行(りょこう)どころか、この一(いっ)か月(げつ)は休(やす)みもない。",
+       "vi": "Nói gì đến du lịch, cả tháng nay tôi đến ngày nghỉ cũng không có."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "締め切りが明日なので、週末を楽しむどころではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hạn chót là ngày mai nên không phải lúc để tận hưởng cuối tuần."
+     },
+     {
+      "ja": "この部屋は静かなどころか、隣の工事の音で会話もできない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Căn phòng này chẳng những không yên tĩnh mà tiếng công trình bên cạnh còn khiến không thể trò chuyện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 締め切りが明日なので、週末を楽しむどころではない。",
+     "FURIGANA_MISSING: この部屋は静かなどころか、隣の工事の音で会話もできない。"
+    ],
+    "formation": "N・Vる + どころではない; N・thể thường + どころか",
+    "locked_fields": [],
+    "meaning_vi": "Không phải lúc để; không những không… mà còn",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải lúc để; không những không... mà còn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả hoàn cảnh không cho phép làm một việc, hoặc thực tế trái xa và mạnh hơn điều được nêu. Cách dùng: 〜どころではない cho biết hoàn cảnh quá bận, nghiêm trọng hoặc cấp bách nên không có dư địa làm hay nghĩ đến việc đứng trước. Ngược lại, 〜どころか bác bỏ mức độ hoặc nhận định đầu rồi đưa ra sự thật trái hẳn hay còn vượt xa hơn ở vế sau. Dạng thứ hai cũng có thể mang nghĩa tăng tiến “không chỉ A, đến B cũng…”. Vì hai dạng có chức năng khác nhau, cần nhìn xem câu nói về thiếu điều kiện hay sửa mạnh một đánh giá. Sắc thái: Cả hai đều nhấn mạnh khoảng cách lớn với điều được nêu; どころではない thiên về hoàn cảnh không cho phép, còn どころか tạo đảo ngược hoặc tăng tiến. Lưu ý: 〜どころか cần có nội dung sau để nêu thực tế đối lập hoặc mức độ cao hơn. Không dùng 〜どころではない nếu chỉ muốn phủ định một sự thật đơn giản."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8573b424c6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "天候を問わず、試合は行います。",
+       "ja_furigana": "天候(てんこう)を問(と)わず、試合(しあい)は行(おこな)います。",
+       "vi": "Bất kể thời tiết ra sao, trận đấu vẫn tiến hành."
+      },
+      {
+       "ja": "昼夜を問わず、この店は開いている。",
+       "ja_furigana": "昼夜(ちゅうや)を問(と)わず、この店(みせ)は開(あ)いている。",
+       "vi": "Không kể ngày hay đêm, cửa hàng này luôn mở."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "経験の有無を問わず、意欲のある方を募集します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi tuyển người có nhiệt huyết, không phân biệt có kinh nghiệm hay không."
+     },
+     {
+      "ja": "この図書室は年齢を問わず利用できます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phòng đọc này ai cũng có thể sử dụng, không phân biệt tuổi tác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 経験の有無を問わず、意欲のある方を募集します。",
+     "FURIGANA_MISSING: この図書室は年齢を問わず利用できます。"
+    ],
+    "formation": "N + を問わず",
+    "locked_fields": [],
+    "meaning_vi": "Không phân biệt, bất kể",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phân biệt, bất kể",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết một điều áp dụng đồng đều, không xét đến loại, phạm vi hay điều kiện được nêu. Cách dùng: 〜を問わず đặt sau danh từ chỉ tiêu chí phân loại như tuổi tác, giới tính, quốc tịch, kinh nghiệm, thời tiết hoặc sự có mặt hay không của một yếu tố. Mẫu cho biết quy định, cơ hội hay hành động ở vế sau áp dụng giống nhau cho mọi trường hợp, không lấy tiêu chí ấy làm điều kiện. Nó thường xuất hiện trong thông báo, tuyển dụng, quy định và văn bản trang trọng. Các cặp đối lập hoặc từ chỉ phạm vi toàn diện đặc biệt phù hợp với cấu trúc này. Sắc thái: Có sắc thái khách quan, chính thức và bao quát; trọng tâm là không dùng một tiêu chí để phân biệt các đối tượng. Lưu ý: Danh từ đứng trước phải là tiêu chí có thể phân loại hoặc tạo ra nhiều trường hợp. Không dùng 問わず với nghĩa đen “không đặt câu hỏi”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9566393c71"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんなに安い店で、味がいいわけがない。",
+       "ja_furigana": "こんなに安(やす)い店(みせ)で、味(あじ)がいいわけがない。",
+       "vi": "Quán rẻ thế này thì không thể nào ngon được."
+      },
+      {
+       "ja": "何も準備していないのに、うまくいくわけがない。",
+       "ja_furigana": "何(なに)も準備(じゅんび)していないのに、うまくいくわけがない。",
+       "vi": "Chẳng chuẩn bị gì mà muốn suôn sẻ thì không thể nào."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼が約束を忘れるわけがない。毎朝、予定を確認しているからだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy không thể nào quên lời hứa, vì sáng nào cũng kiểm tra lịch."
+     },
+     {
+      "ja": "こんな狭い箱に全部の資料が入るわけがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể nào toàn bộ tài liệu lại vừa trong chiếc hộp chật thế này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼が約束を忘れるわけがない。毎朝、予定を確認しているからだ。",
+     "FURIGANA_MISSING: こんな狭い箱に全部の資料が入るわけがない。"
+    ],
+    "formation": "thể thường + わけがない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể nào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể nào",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Phủ định mạnh một khả năng dựa trên lý lẽ hoặc hiểu biết mà người nói tin chắc. Cách dùng: 〜わけがない diễn tả sự tin chắc rằng một sự việc không thể xảy ra hoặc một nhận định không thể đúng. Kết luận thường dựa trên lý do, kiến thức hay hoàn cảnh mà người nói xem là hiển nhiên, dù lý do ấy có thể chỉ xuất hiện trong ngữ cảnh. Mẫu không đơn thuần nói rằng ai đó thiếu khả năng thực hiện; nó bác bỏ toàn bộ khả năng bằng lập luận “không có lý nào”. Trong lời nói, 〜わけない là dạng rút gọn thân mật. Sắc thái: Mức phủ định mạnh, thường dùng để phản bác sự nghi ngờ hoặc khẳng định niềm tin chắc chắn của người nói. Lưu ý: Không dùng thay cho thể khả năng phủ định khi chỉ muốn nói một người thực tế không làm được việc gì. Cần có căn cứ hoặc tiền đề khiến kết luận “không thể nào” hợp lý trong ngữ cảnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5b1827aaf1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な学校を出れば幸せになれるというものではない。",
+       "ja_furigana": "有名(ゆうめい)な学校(がっこう)を出(で)れば幸(しあわ)せになれるというものではない。",
+       "vi": "Không phải cứ tốt nghiệp trường nổi tiếng là sẽ hạnh phúc."
+      },
+      {
+       "ja": "高い物が必ずいいというものではない。",
+       "ja_furigana": "高(たか)い物(もの)が必(かなら)ずいいというものではない。",
+       "vi": "Không thể nói đồ đắt tiền nhất định là tốt."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "時間をかければ必ず良い作品になるというものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể nói cứ bỏ nhiều thời gian thì nhất định sẽ tạo ra tác phẩm hay."
+     },
+     {
+      "ja": "謝ればそれで責任がなくなるというものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải cứ xin lỗi là trách nhiệm sẽ vì thế mà biến mất."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 時間をかければ必ず良い作品になるというものではない。",
+     "FURIGANA_MISSING: 謝ればそれで責任がなくなるというものでもない。"
+    ],
+    "formation": "〜ば／〜たら + thể thường + というものではない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể nói cứ… là được",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không thể nói cứ... là được",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Bác bỏ một nguyên tắc đơn giản hóa hoặc quan niệm cho rằng một điều luôn dẫn đến kết quả nhất định. Cách dùng: Mẫu này dùng để bác bỏ một quan niệm chung, quy tắc tuyệt đối hoặc suy nghĩ đơn giản rằng chỉ cần có điều kiện A thì đương nhiên đạt B. 〜というものではない đưa ra phán đoán tương đối dứt khoát; 〜というものでもない thường mềm hơn, hàm ý vấn đề còn phụ thuộc hoàn cảnh hay mức độ. Nó hay xuất hiện trong nhận xét mang tính xã hội, đạo lý hoặc đánh giá phương pháp, chứ không dùng chủ yếu để phủ định một sự kiện cá biệt. Sắc thái: Mang tính khái quát và suy xét; người nói cảnh báo rằng thực tế phức tạp hơn một công thức hoặc chuẩn mực đơn giản. Lưu ý: Nội dung bị phủ định nên là một nguyên tắc, quan niệm hay quan hệ được khái quát hóa. Nếu chỉ phủ định danh tính hoặc sự việc riêng lẻ, dùng 〜ではない hay 〜わけではない phù hợp hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ea328860bd"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-073"
+}

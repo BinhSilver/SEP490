@@ -89,7 +89,8 @@ public class AssessmentServiceImpl implements AssessmentService {
         return surveyRepository.findById(userId).map(value ->
                 new com.jlas.assessment.dto.LearningSurveyResponse(true, new SmartTestStartRequest(
                         value.getGoal(), value.getTargetLevel(), value.getSelfReportedLevel(),
-                        value.getStudyDurationMonths(), value.getDailyStudyMinutes())))
+                        value.getStudyDurationMonths(), value.getDailyStudyMinutes(), value.getExamDate(),
+                        focusSkillList(value.getFocusSkills()))))
                 .orElseGet(() -> new com.jlas.assessment.dto.LearningSurveyResponse(false, null));
     }
 
@@ -113,6 +114,8 @@ public class AssessmentServiceImpl implements AssessmentService {
         survey.setSelfReportedLevel(self);
         survey.setStudyDurationMonths(duration);
         survey.setDailyStudyMinutes(request.dailyStudyMinutes());
+        survey.setExamDate("JLPT".equals(goal) ? validExamDate(request.examDate()) : null);
+        survey.setFocusSkills("JLPT".equals(goal) ? validFocusSkills(request.focusSkills()) : null);
         survey.setSkills(String.join(",", SKILL_ORDER));
         survey.setCompletedAt(LocalDateTime.now());
         surveyRepository.saveAndFlush(survey);
@@ -122,7 +125,8 @@ public class AssessmentServiceImpl implements AssessmentService {
             userRepository.save(user);
         }
         return new com.jlas.assessment.dto.LearningSurveyResponse(true, new SmartTestStartRequest(
-                goal, survey.getTargetLevel(), self, duration, request.dailyStudyMinutes()));
+                goal, survey.getTargetLevel(), self, duration, request.dailyStudyMinutes(), survey.getExamDate(),
+                focusSkillList(survey.getFocusSkills())));
     }
 
     @Override
@@ -770,6 +774,36 @@ public class AssessmentServiceImpl implements AssessmentService {
     private static String normalizeLevel(String value) {
         String normalized = value.trim().toUpperCase(Locale.ROOT);
         return SmartTestAdaptivePolicy.LEVELS.contains(normalized) ? normalized : "N5";
+    }
+
+    /** [JLAS-W0108] F1-3: an optional exam date must be after today (Vietnam time) and at most three years ahead. */
+    private static java.time.LocalDate validExamDate(java.time.LocalDate examDate) {
+        if (examDate == null) return null;
+        java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        if (!examDate.isAfter(today) || examDate.isAfter(today.plusYears(3))) {
+            throw badRequest("Ngày thi phải sau hôm nay và trong vòng 3 năm.");
+        }
+        return examDate;
+    }
+
+    /** [JLAS-W0108] F1-5 (owner 2026-10-28): the skills a learner may focus on; the others have nothing to trim. */
+    static final List<String> FOCUS_SKILLS = List.of("VOCABULARY", "READING", "LISTENING");
+
+    /** At most two distinct focus skills from {@link #FOCUS_SKILLS}, stored in that order; none → null. */
+    static String validFocusSkills(List<String> requested) {
+        if (requested == null || requested.isEmpty()) return null;
+        java.util.Set<String> chosen = new java.util.HashSet<>();
+        for (String skill : requested) {
+            String value = skill == null ? "" : skill.trim().toUpperCase(java.util.Locale.ROOT);
+            if (!FOCUS_SKILLS.contains(value)) throw badRequest("Kỹ năng ưu tiên chỉ có thể là Từ vựng, Đọc hoặc Nghe.");
+            chosen.add(value);
+        }
+        if (chosen.size() > 2) throw badRequest("Chỉ chọn tối đa 2 kỹ năng ưu tiên.");
+        return String.join(",", FOCUS_SKILLS.stream().filter(chosen::contains).toList());
+    }
+
+    private static List<String> focusSkillList(String stored) {
+        return stored == null || stored.isBlank() ? List.of() : List.of(stored.split(","));
     }
 
     /**

@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段はともかく、この店のケーキは本当においしい。",
+       "ja_furigana": "値段(ねだん)はともかく、この店(みせ)のケーキは本当(ほんとう)においしい。",
+       "vi": "Khoan bàn đến giá, bánh của quán này thật sự rất ngon."
+      },
+      {
+       "ja": "時間はともかく、お金の準備はもうできた。",
+       "ja_furigana": "時間(じかん)はともかく、お金(かね)の準備(じゅんび)はもうできた。",
+       "vi": "Thời gian thì để sau, chuyện tiền nong đã chuẩn bị xong."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana; mẫu trùng JG-5bb80b7a14",
+    "same_pattern_as": "JG-5bb80b7a14"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "見た目はともかく、味は最高だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khoan bàn về vẻ ngoài, hương vị thì tuyệt nhất."
+     },
+     {
+      "ja": "費用はともかく、期限は守ってください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chưa nói đến chi phí, xin hãy tuân thủ thời hạn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 見た目はともかく、味は最高だ。",
+     "FURIGANA_MISSING: 費用はともかく、期限は守ってください。"
+    ],
+    "formation": "N + はともかく(として)",
+    "locked_fields": [],
+    "meaning_vi": "Tạm gác A để bàn B: Người nói chủ đích bỏ qua/không xét A trong lúc này, chuyển trọng tâm sang B. Đối lập mềm: Không phủ định A hoàn toàn; chỉ ưu tiên B trong ngữ cảnh. Phạm vi: Phổ biến nhất với danh từ; với mệnh đề phải danh từ hóa bằng の/こと/かどうか.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khoan bàn đến..., chưa nói đến...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] N₂ đi sau thường là trọng điểm người nói muốn khẳng định/đánh giá. Sắc thái mềm, lịch sự; không phủ nhận giá trị của N₁. Hay dùng trong thảo luận, thương lượng, đánh giá sản phẩm/dịch vụ. [6. Ghi chú mở rộng] Dễ phối với cặp danh từ: 見た目／中身、価格／品質、量／質、形式／内容、結果／過程. Khi N₁ dài, dùng “～という点はともかく” để gọn câu. Trong thuyết trình, “前置きはともかく、本題は…” rất tự nhiên. [7. Biến thể & cụm cố định] N＋はともかくとして: 外見はともかくとして… …かどうか＋はともかく: 安全かどうかはともかく… Cụm nói nhanh: 「ともかく」 đơn lẻ để chốt “dù sao thì”. [8. Lỗi thường gặp & bẫy JLPT] Quên gắn trợ từ “は” sau N₂: phải là “N₁はともかく N₂は…”. Dùng với tính từ/động từ thô: cần danh từ hóa (～の/こと/かどうか). Nhầm với “どころか”: đề thi bẫy mức độ đối lập. “はともかく” không phủ định mạnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3094a98d91"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この歌は若い人のみならず、お年寄りにも人気がある。",
+       "ja_furigana": "この歌(うた)は若(わか)い人(ひと)のみならず、お年寄(としよ)りにも人気(にんき)がある。",
+       "vi": "Bài hát này không chỉ người trẻ mà cả người già cũng thích."
+      },
+      {
+       "ja": "その店は味のみならず、店員の対応もいい。",
+       "ja_furigana": "その店(みせ)は味(あじ)のみならず、店員(てんいん)の対応(たいおう)もいい。",
+       "vi": "Quán đó không chỉ ngon mà thái độ của nhân viên cũng tốt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この制度は都市部のみならず、地方でも広く受け入れられている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chế độ này không chỉ ở đô thị mà còn được chấp nhận rộng rãi ở địa phương."
+     },
+     {
+      "ja": "彼は英語のみならず、中国語も流暢に話す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy không chỉ tiếng Anh mà còn nói trôi chảy cả tiếng Trung."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この制度は都市部のみならず、地方でも広く受け入れられている。",
+     "FURIGANA_MISSING: 彼は英語のみならず、中国語も流暢に話す。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼は英語のみならず、中国語も流暢に話す。 → 暢"
+    ],
+    "formation": "N + のみならず + 〜も / 普通形 + のみならず",
+    "locked_fields": [],
+    "meaning_vi": "～のみならず～も diễn đạt “không chỉ A mà còn B (nữa)”, mang sắc thái trang trọng, văn viết. B thường mở rộng phạm vi so với A, hoặc nêu thêm khía cạnh tương đương/quan trọng không kém. Thường thấy dạng A＋のみならず、B＋も/まで/さえ… Tính liệt kê trang trọng: nhấn mạnh rằng A chỉ là một ví dụ, còn B (và có thể hơn thế) cũng đúng. 「も」 đặt ở mệnh đề sau để nhấn B; đôi khi dùng 「まで」「さえ」 thay 「も」 để tăng độ bất ngờ. Gần nghĩa với ～だけでなく・～ばかりか, nhưng 「のみならず」 trang trọng và mang sắc thái văn bản chính luận.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chỉ... mà còn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sử dụng trong báo cáo, bài viết học thuật, thông cáo, phát biểu trang trọng. Phần B nên cân đối loại từ/khía cạnh với A (tính song song); tránh kết hợp A và B khác loại quá xa trừ khi có chủ ý tu từ. 「も」 thường gắn vào danh từ/trợ từ của B: でも/にも/も. Có thể dùng với phạm vi: A（範囲）＋のみならず、B（範囲）＋も để mở rộng. [6. Ghi chú mở rộng] Trong văn rất trang trọng, có thể thấy「A のみならず、B に至るまで」 để nhấn phạm vi cực rộng. Nếu B gây bất ngờ mạnh, có thể dùng「も」→「まで/さえ」: 彼は英語のみならず、中国語さえ独学した。 Giữ tính song song ngữ pháp giữa A và B để câu mạch lạc: N với N, V với V (dạng danh hóa khi cần). [7. Biến thể & cụm cố định] N1のみならずN2も… (khuôn thường dùng, thay も bằng にも/でも tùy ngữ cảnh) V/A + のみならず、さらに/加えて/ひいては + B N + であるのみならず… (biến thể văn viết trang trọng) [8. Lỗi thường gặp & bẫy JLPT] Bỏ quên 「も」 ở vế sau: nên dùng B＋も/にも/でも để đúng mẫu. Dùng trong khẩu ngữ thân mật nghe cứng; với hội thoại thường dùng 「だけでなく」. Trộn loại từ không song song giữa A và B làm câu thiếu tự nhiên. Nối A quá dài mà không ngắt bằng dấu phẩy sau 「のみならず」 khiến khó đọc; nên có dấu ngắt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dc6e7fbdeb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この地域は冬はもとより、夏もすずしい。",
+       "ja_furigana": "この地域(ちいき)は冬(ふゆ)はもとより、夏(なつ)もすずしい。",
+       "vi": "Vùng này mùa đông thì khỏi nói, mùa hè cũng mát mẻ."
+      },
+      {
+       "ja": "準備はもとより、当日の動きまで確認しておいた。",
+       "ja_furigana": "準備(じゅんび)はもとより、当日(とうじつ)の動(うご)きまで確認(かくにん)しておいた。",
+       "vi": "Không chỉ khâu chuẩn bị, tôi đã kiểm tra cả các bước trong ngày."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本語はもとより、英語や中国語も話せる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chỉ tiếng Nhật mà cả tiếng Anh, tiếng Trung cũng nói được (Nhật thì khỏi phải nói)."
+     },
+     {
+      "ja": "安全はもとより、品質管理にも細心の注意を払っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "An toàn thì dĩ nhiên rồi, còn đặc biệt chú ý cả quản lý chất lượng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本語はもとより、英語や中国語も話せる。",
+     "FURIGANA_MISSING: 安全はもとより、品質管理にも細心の注意を払っている。"
+    ],
+    "formation": "N + はもとより + 〜も",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: “Nói gì đến…, khỏi phải nói…, đương nhiên …” dùng để nêu A là điều hiển nhiên, sau đó mở rộng phạm vi đến B, C (còn … nữa). Nghĩa 2: “Không chỉ A mà ngay cả B/C cũng …” với sắc thái nhấn mạnh mức độ bao quát, thường đi kèm も/まで/さえ ở vế sau. Ngữ cảm: trang trọng, thiên về văn viết, thông báo, bài thuyết trình; mạnh hơn ～はもちろん về mức “đương nhiên”. Cú pháp: Vế A (trước はもとより) thường là danh từ. Nếu là mệnh đề, cần danh hoá bằng の/こと. Logic: A là nền tảng/hiển nhiên → B cũng đáp ứng/bao gồm → nêu kết luận chung.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chỉ... mà còn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh “A thì đương nhiên, hơn nữa B cũng …” để mở rộng phạm vi hoặc nâng tầm tiêu chuẩn. Phong cách nghiêm túc, lịch sự; phù hợp báo cáo, bài viết, phát biểu chính thức. Vế sau nên có も/まで/さえ để thể hiện mở rộng; tránh tạo câu “trống” chỉ nêu A là hiển nhiên mà không có thông tin chính ở sau. Không dùng để nhấn mạnh cảm xúc cá nhân đời thường; khi hội thoại thân mật, dùng ～はもちろん/～は言うまでもなく tự nhiên hơn. [6. Ghi chú mở rộng] Thường kết hợp với các từ bao quát: も・まで・さえ để tăng độ nhấn mạnh. “もとより” còn có nghĩa từ vựng “ngay từ đầu/vốn dĩ”, khác với cấu trúc ngữ pháp này; phân biệt bằng có/không có は. Trong văn hành chính/quảng cáo: “安全はもとより、環境にも配慮しています。” là kiểu câu khuôn mẫu. Trật tự A-B nên theo cấp độ: A hiển nhiên hơn B. Đảo sẽ giảm tự nhiên. [7. Biến thể & cụm cố định] N はもとより、N も/まで/さえ … V/Adj + の/ことはもとより … Chính tả: もとより／元より（văn viết) Cụm hay gặp: 「安全はもとより」「基本はもとより」「礼儀はもとより」 [8. Lỗi thường gặp & bẫy JLPT] Dùng cho động từ mà quên danh hoá: × 努力するはもとより → ○ 努力するのはもとより Thiếu hạt mở rộng ở vế sau: × Aはもとより、B。 → nên dùng Bも/まで/さえ để rõ mở rộng. Nham với ～はもちろん trong văn phong: JLPT hay hỏi sắc thái trang trọng hơn của ～はもとより. Sai trật tự mức độ: thông tin “đương nhiên” phải đặt trước はもとより."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d2e9a58af9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅前の食堂は安い上に、量も多い。",
+       "ja_furigana": "駅前(えきまえ)の食堂(しょくどう)は安(やす)い上(うえ)に、量(りょう)も多(おお)い。",
+       "vi": "Quán ăn trước ga không những rẻ mà phần ăn còn nhiều."
+      },
+      {
+       "ja": "道が混んでいる上に、雨まで降ってきた。",
+       "ja_furigana": "道(みち)が混(こ)んでいる上(うえ)に、雨(あめ)まで降(ふ)ってきた。",
+       "vi": "Đường đã đông, lại còn đổ mưa nữa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このカメラは軽い上に、操作も簡単だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chiếc máy ảnh này không những nhẹ mà thao tác còn đơn giản."
+     },
+     {
+      "ja": "彼は約束を守らない上に、言い訳ばかりする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy đã không giữ lời hứa, lại còn toàn biện minh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このカメラは軽い上に、操作も簡単だ。",
+     "FURIGANA_MISSING: 彼は約束を守らない上に、言い訳ばかりする。"
+    ],
+    "formation": "普通形(Aな:〜な・Nの) + 上(に)",
+    "locked_fields": [],
+    "meaning_vi": "“Không những … mà còn …”: thêm vào một đặc điểm/điều kiện cùng chiều (tốt → tốt hơn, xấu → xấu hơn). Hai mệnh đề phải đồng hướng đánh giá (cùng tích cực hoặc cùng tiêu cực). Sắc thái trang trọng hơn “それに/しかも/さらに”; dùng nhiều trong viết/báo cáo/giới thiệu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không những... mà còn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi nhấn mạnh “cộng dồn” đặc điểm; tránh dùng cho quan hệ nguyên nhân-kết quả trực tiếp. Phù hợp văn trang trọng; trong văn nói thân mật có thể thay bằng “それに/しかも”. Tránh kết hợp hai mệnh đề trái chiều (tốt + xấu). [6. Ghi chú mở rộng] Văn viết hay dùng cặp: Aである上に、Bである。Tạo cảm giác trang trọng, nhất quán. Trong quảng cáo/PR, “A上にB” nâng sức thuyết phục khi cả A và B đều tích cực. Khi thêm mệnh đề thứ ba, nên dùng “その上/さらに” để tránh lặp “上に”. [7. Biến thể & cụm cố định] Aである上にB（である） Aな上にB（だ） その上（liên từ đồng nghĩa gần) [8. Lỗi thường gặp & bẫy JLPT] Kết hợp trái chiều: “安い上に味が悪い” → mâu thuẫn sắc thái; nên dùng “が/けれど”. Bỏ “である” với N/na trong văn trang trọng → thiếu tự nhiên: “専門家上に” → sai. Dùng để nêu nguyên nhân trực tiếp → sai chức năng; “上に” là thêm thông tin, không phải vì/cho nên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-756dc740ca"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎晩の電車の音がうるさくてかなわない。",
+       "ja_furigana": "毎晩(まいばん)の電車(でんしゃ)の音(おと)がうるさくてかなわない。",
+       "vi": "Tiếng tàu điện mỗi đêm ồn ào không chịu nổi."
+      },
+      {
+       "ja": "この部屋は夏は暑くてかなわない。",
+       "ja_furigana": "この部屋(へや)は夏(なつ)は暑(あつ)くてかなわない。",
+       "vi": "Căn phòng này mùa hè nóng không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "隣の工事がうるさくてかなわない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhà bên cạnh sửa chữa rất ồn ào, tôi không sao chịu nổi."
+     },
+     {
+      "ja": "私の家は、駅から遠くて不便でかなわない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhà tôi xa nhà ga, bất tiện quá chừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 隣の工事がうるさくてかなわない。",
+     "FURIGANA_MISSING: 私の家は、駅から遠くて不便でかなわない。"
+    ],
+    "formation": "Aい(〜くて) / Aな(〜で) / V-て + かなわない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể chịu đựng được~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜うるさくてかなわない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Được giới hạn các từ ngữ thể hiện cảm tình, cảm giác, mong muốn. Thể hiện ý nghĩa không thể chịu đựng được, ~ rất là. Và thường được sử dụng như là ấn tượng không tốt. Khi gắn はvào thì câu văn thể hiện mức độ không thể chịu được trở nên mạnh mẽ hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0b4dd859ea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一人で待つのは不安でたまらない。",
+       "ja_furigana": "一人(ひとり)で待(ま)つのは不安(ふあん)でたまらない。",
+       "vi": "Chờ đợi một mình khiến tôi lo lắng vô cùng."
+      },
+      {
+       "ja": "冷たい水が飲みたくてたまらない。",
+       "ja_furigana": "冷(つめ)たい水(みず)が飲(の)みたくてたまらない。",
+       "vi": "Tôi thèm uống nước lạnh không chịu được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どものことが心配でたまらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi lo cho đứa con của tôi quá."
+     },
+     {
+      "ja": "家族に会いたくてたまらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi muốn gặp gia đình quá."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どものことが心配でたまらない。",
+     "FURIGANA_MISSING: 家族に会いたくてたまらない。"
+    ],
+    "formation": "Aい(〜くて) / Aな(〜で) / V-たい(〜たくて) + たまらない",
+    "locked_fields": [],
+    "meaning_vi": "Rất…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜心配でたまらない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Vô cùng ~ (không thể kìm nén được) Chú ý: + Chủ ngữ giới hạn ở ngôi thứ nhất. + Giống với mẫu てしかたがない／てしようがない"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-918dd1c9a1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の病気のことが気がかりでならない。",
+       "ja_furigana": "母(はは)の病気(びょうき)のことが気(き)がかりでならない。",
+       "vi": "Tôi cứ băn khoăn mãi về bệnh của mẹ."
+      },
+      {
+       "ja": "あの日のことを思い出すと、恥ずかしくてならない。",
+       "ja_furigana": "あの日(ひ)のことを思(おも)い出(だ)すと、恥(は)ずかしくてならない。",
+       "vi": "Mỗi khi nhớ lại chuyện ngày đó, tôi lại thấy xấu hổ vô cùng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "親友の結婚式に出席できないのが、残念でならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không thể tham dự lễ kết hôn của đứa bạn thân, tiếc quá chừng."
+     },
+     {
+      "ja": "検査の結果が気になってならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lo lắng kết quả kiểm tra quá chừng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 親友の結婚式に出席できないのが、残念でならない。",
+     "FURIGANA_MISSING: 検査の結果が気になってならない。"
+    ],
+    "formation": "Aな(〜で) / V-て + ならない",
+    "locked_fields": [],
+    "meaning_vi": "Hết sức, vô cùng, chịu không nổi.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜残念でならない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả trạng thái có một tình cảm, cảm giác nào đó tự nhiên nảy sinh ra mà mình không kiểm soát được. Phần nhiều đó là những trường hợp diễn tả một trạng thái dù có muốn kiềm chế cũng không kiềm chế được, do vậy mức độ tình cảm cũng rất cao."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-12953d0519"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎朝の練習のかいがあって、大会で勝つことができた。",
+       "ja_furigana": "毎朝(まいあさ)の練習(れんしゅう)のかいがあって、大会(たいかい)で勝(か)つことができた。",
+       "vi": "Công luyện tập mỗi sáng đã được đền đáp, tôi đã thắng ở giải đấu."
+      },
+      {
+       "ja": "安い材料を選んだかいがあって、費用を半分にできた。",
+       "ja_furigana": "安(やす)い材料(ざいりょう)を選(えら)んだかいがあって、費用(ひよう)を半分(はんぶん)にできた。",
+       "vi": "Nhờ chọn nguyên liệu rẻ nên chi phí đã giảm được một nửa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana; mẫu trùng JG-edc011b724",
+    "same_pattern_as": "JG-edc011b724"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "3か月辛かったけど、食事を減らして運動したかいがあって、10キロやせた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuy ba tháng rất vất vả nhưng nhờ giảm ăn và tập thể dục nên tôi đã giảm được 10 kg。"
+     },
+     {
+      "ja": "A: 本物の絵をたくさん見られてよかったね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Thật tốt khi được xem nhiều tranh thật。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 3か月辛かったけど、食事を減らして運動したかいがあって、10キロやせた。",
+     "FURIGANA_MISSING: A: 本物の絵をたくさん見られてよかったね。"
+    ],
+    "formation": "Vた / Nの + かいがあって / かいあって",
+    "locked_fields": [],
+    "meaning_vi": "Nhờ công sức bỏ ra mà đạt kết quả xứng đáng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜かいがあって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc3bc2454c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金というものは、使うより貯めるほうが難しい。",
+       "ja_furigana": "お金(かね)というものは、使(つか)うより貯(た)めるほうが難(むずか)しい。",
+       "vi": "Tiền bạc thì khó tích cóp hơn là tiêu."
+      },
+      {
+       "ja": "言葉というものは、使い方を間違えると人をきずつける。",
+       "ja_furigana": "言葉(ことば)というものは、使(つか)い方(かた)を間違(まちが)えると人(ひと)をきずつける。",
+       "vi": "Lời nói, nếu dùng sai cách, có thể làm tổn thương người khác."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子供というものは、親のまねをするものです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trẻ con thường bắt chước bố mẹ。"
+     },
+     {
+      "ja": "人生というものは、思い通りに行かないものです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc đời thì không theo ý mình được。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子供というものは、親のまねをするものです。",
+     "FURIGANA_MISSING: 人生というものは、思い通りに行かないものです。"
+    ],
+    "formation": "N + というものは",
+    "locked_fields": [],
+    "meaning_vi": "Nói về điều gì thì nhìn chung là như vậy.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜というものは",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f3fca760c8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝ご飯を抜きにすると、昼まで力が出ない。",
+       "ja_furigana": "朝(あさ)ご飯(はん)を抜(ぬ)きにすると、昼(ひる)まで力(ちから)が出(で)ない。",
+       "vi": "Nếu bỏ bữa sáng thì đến trưa sẽ không có sức."
+      },
+      {
+       "ja": "この計画は費用のことを抜きには話せない。",
+       "ja_furigana": "この計画(けいかく)は費用(ひよう)のことを抜(ぬ)きには話(はな)せない。",
+       "vi": "Kế hoạch này không thể bàn mà bỏ qua chuyện chi phí."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今後の日本経済を考えるとき、消費税の問題を抜きにすることはできない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi xem xét tương lai kinh tế Nhật Bản, không thể tách vấn đề thuế tiêu dùng ra được。"
+     },
+     {
+      "ja": "A: カルロスが試合に出れないのは大きいですね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Carlos không thể thi đấu là một thiệt thòi lớn nhỉ。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今後の日本経済を考えるとき、消費税の問題を抜きにすることはできない。",
+     "FURIGANA_MISSING: A: カルロスが試合に出れないのは大きいですね。"
+    ],
+    "formation": "N + を抜きに(して) / を抜きにしては",
+    "locked_fields": [],
+    "meaning_vi": "Bỏ qua, nếu không có điều gì thì.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜を抜きに",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b7d8b7d362"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-023"
+}

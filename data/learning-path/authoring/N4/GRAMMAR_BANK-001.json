@@ -1,0 +1,2049 @@
+{
+ "header": {
+  "instructions": "check_bank ≥ 8 câu, mỗi dạng FILL/ORDER_STAR/MEANING/ERROR ≥ 2: {type, prompt_ja, options[4], answer_index, explanation_vi}; order_items 2 {pieces[], answer_order[]}; fill_items 2 {sentence_ja với ＿＿, answer}; extra_practice 3 (cùng dạng check_bank). Đáp án nhiễu không được cũng đúng."
+ },
+ "items": [
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "昼ご飯はまだ食べ（　　）。",
+      "options": [
+       "ていません",
+       "ながら",
+       "まま",
+       "てある"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ていません」 theo mẫu まだ〜ていません (Vẫn chưa làm gì đó.). Nghĩa cả câu: Tôi vẫn chưa ăn cơm trưa."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "宿題はまだ終わっ（　　）。",
+      "options": [
+       "ばかり",
+       "ていません",
+       "とおり",
+       "てみる"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc まだ〜ていません (Vẫn chưa làm gì đó.), chỗ trống cần điền 「ていません」. Nghĩa: Bài tập về nhà vẫn chưa xong."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "食べて",
+       "昼ご飯は",
+       "いません",
+       "まだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 昼ご飯はまだ食べていません。 (Tôi vẫn chưa ăn cơm trưa.). Theo cấu trúc まだ〜ていません, mảnh đứng ở vị trí ★ là 「食べて」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "まだ",
+       "いません",
+       "宿題は",
+       "終わって"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 宿題はまだ終わっていません。 (Bài tập về nhà vẫn chưa xong.). Theo cấu trúc まだ〜ていません, mảnh đứng ở vị trí ★ là 「まだ」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "昼ご飯はまだ食べていません。",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Tôi vẫn chưa ăn cơm trưa.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mẫu まだ〜ていません có nghĩa là \"Vẫn chưa làm gì đó.\". Câu này dịch là: \"Tôi vẫn chưa ăn cơm trưa.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "宿題はまだ終わっていません。",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bài tập về nhà vẫn chưa xong."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu まだ〜ていません (Vẫn chưa làm gì đó.), câu trên có nghĩa là: \"Bài tập về nhà vẫn chưa xong.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "昼ご飯はまだ食べますいません。",
+       "宿題はまだ終わっていません。",
+       "電車はまだ来ていませんよ。",
+       "毎朝公園を走っています。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Không ghép trực tiếp thể ます với いません; phải chia động từ sang thể て (〜ていません). Câu đúng: 昼ご飯はまだ食べていません。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "昼ご飯はまだ食べていません。",
+       "電車はまだ来ていませんよ。",
+       "宿題はをまだ終わっていません。",
+       "毎朝公園を走っています。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 宿題はまだ終わっていません。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "食べて",
+       "昼ご飯は",
+       "いません",
+       "まだ"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Tôi vẫn chưa ăn cơm trưa."
+     },
+     {
+      "pieces": [
+       "まだ",
+       "いません",
+       "宿題は",
+       "終わって"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Bài tập về nhà vẫn chưa xong."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "昼ご飯はまだ食べ＿＿。",
+      "answer": "ていません",
+      "translation_vi": "Tôi vẫn chưa ăn cơm trưa."
+     },
+     {
+      "sentence_ja": "宿題はまだ終わっ＿＿。",
+      "answer": "ていません",
+      "translation_vi": "Bài tập về nhà vẫn chưa xong."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "電車はまだ来（　　）よ。",
+      "options": [
+       "はず",
+       "ておく",
+       "ていません",
+       "ていく"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ていません」 theo cấu trúc まだ〜ていません (Vẫn chưa làm gì đó.). Nghĩa: Tàu điện vẫn chưa đến đâu."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "電車はまだ来ていませんよ。",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Tàu điện vẫn chưa đến đâu.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu まだ〜ていません (Vẫn chưa làm gì đó.), câu này nghĩa là: \"Tàu điện vẫn chưa đến đâu.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "昼ご飯はまだ食べていません。",
+       "宿題はまだ終わっていません。",
+       "姉は銀行で働いています。",
+       "電車はまだ来ていませんよだます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 電車はまだ来ていませんよ。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [],
+    "meaning_vi": null,
+    "pattern": "まだ〜ていません",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 1
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-a9e358ae62"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "音楽を聞き（　　）勉強します。",
+      "options": [
+       "ついでに",
+       "ている",
+       "すぎる",
+       "ながら"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「ながら」 theo mẫu 〜ながががら (Vừa làm A vừa làm B cùng lúc.). Nghĩa cả câu: Tôi vừa nghe nhạc vừa học bài."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "お茶を飲み（　　）話しましょう。",
+      "options": [
+       "ながら",
+       "てしまう",
+       "てくる",
+       "そうだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 〜ながががら (Vừa làm A vừa làm B cùng lúc.), chỗ trống cần điền 「ながら」. Nghĩa: Chúng ta vừa uống trà vừa nói chuyện nhé."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "音楽を",
+       "ら勉強し",
+       "聞きなが",
+       "ます"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 音楽を聞きながら勉強します。 (Tôi vừa nghe nhạc vừa học bài.). Theo cấu trúc 〜ながががら, mảnh đứng ở vị trí ★ là 「ら勉強し」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "ら",
+       "お茶を",
+       "話しましょう",
+       "飲みなが"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: お茶を飲みながら話しましょう。 (Chúng ta vừa uống trà vừa nói chuyện nhé.). Theo cấu trúc 〜ながががら, mảnh đứng ở vị trí ★ là 「飲みなが」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "音楽を聞きながら勉強します。",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Tôi vừa nghe nhạc vừa học bài.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 〜ながががら có nghĩa là \"Vừa làm A vừa làm B cùng lúc.\". Câu này dịch là: \"Tôi vừa nghe nhạc vừa học bài.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "お茶を飲みながら話しましょう。",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Chúng ta vừa uống trà vừa nói chuyện nhé.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 〜ながががら (Vừa làm A vừa làm B cùng lúc.), câu trên có nghĩa là: \"Chúng ta vừa uống trà vừa nói chuyện nhé.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "お茶を飲みながら話しましょう。",
+       "働きながら大学に通っています。",
+       "毎日まじめに日本語を勉強しています。",
+       "音楽を聞きてながら勉強します。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Trước ながら phải dùng V-ます bỏ ます, không dùng thể て (てながら là sai). Câu đúng: 音楽を聞きながら勉強します。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "音楽を聞きながら勉強します。",
+       "お茶をが飲みながら話しましょう。",
+       "働きながら大学に通っています。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc 〜ながががら. Câu đúng: お茶を飲みながら話しましょう。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "聞きなが",
+       "ます",
+       "音楽を",
+       "ら勉強し"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Tôi vừa nghe nhạc vừa học bài."
+     },
+     {
+      "pieces": [
+       "話しましょう",
+       "ら",
+       "お茶を",
+       "飲みなが"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Chúng ta vừa uống trà vừa nói chuyện nhé."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "音楽を聞き＿＿勉強します。",
+      "answer": "ながら",
+      "translation_vi": "Tôi vừa nghe nhạc vừa học bài."
+     },
+     {
+      "sentence_ja": "お茶を飲み＿＿話しましょう。",
+      "answer": "ながら",
+      "translation_vi": "Chúng ta vừa uống trà vừa nói chuyện nhé."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "働きながら大学に通（　　）。",
+      "options": [
+       "てみる",
+       "っています",
+       "にくい",
+       "かもしれない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Điền 「っています」 theo cấu trúc 〜ながががら (Vừa làm A vừa làm B cùng lúc.). Nghĩa: Tôi vừa đi làm vừa theo học đại học."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "働きながら大学に通っています。",
+      "options": [
+       "Tôi vừa đi làm vừa theo học đại học.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 〜ながががら (Vừa làm A vừa làm B cùng lúc.), câu này nghĩa là: \"Tôi vừa đi làm vừa theo học đại học.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "音楽を聞きながら勉強します。",
+       "お茶を飲みながら話しましょう。",
+       "働きながら大学にを通っています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 働きながら大学に通っています。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [],
+    "meaning_vi": null,
+    "pattern": "〜な���ら",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 1
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-d475586038"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "1000円（　　）の？",
+      "options": [
+       "ていく",
+       "ようだ",
+       "しかない",
+       "から"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「しかない」 theo mẫu 〜しか〜ない (Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.). Nghĩa cả câu: Bạn chỉ có 1000 yên thôi ư?"
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "かれはごはんを一杯しか食べ（　　）。",
+      "options": [
+       "やすい",
+       "らしい",
+       "ても",
+       "ません"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc 〜しか〜ない (Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.), chỗ trống cần điền 「ません」. Nghĩa: Anh ấy chỉ có thể ăn một chén cơm."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ないの",
+       "00円",
+       "しか",
+       "10"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 1000円しかないの？ (Bạn chỉ có 1000 yên thôi ư?). Theo cấu trúc 〜しか〜ない, mảnh đứng ở vị trí ★ là 「しか」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "かれは",
+       "一杯しか",
+       "ごはんを",
+       "食べません"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: かれはごはんを一杯しか食べません。 (Anh ấy chỉ có thể ăn một chén cơm.). Theo cấu trúc 〜しか〜ない, mảnh đứng ở vị trí ★ là 「ごはんを」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "1000円しかないの？",
+      "options": [
+       "Bạn chỉ có 1000 yên thôi ư?",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu 〜しか〜ない có nghĩa là \"Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.\". Câu này dịch là: \"Bạn chỉ có 1000 yên thôi ư?\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "かれはごはんを一杯しか食べません。",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Anh ấy chỉ có thể ăn một chén cơm.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu 〜しか〜ない (Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.), câu trên có nghĩa là: \"Anh ấy chỉ có thể ăn một chén cơm.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "かれはごはんを一杯しか食べません。",
+       "毎日まじめに日本語を勉強しています。",
+       "1000円しかないのますだ。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜しか〜ない). Câu đúng: 1000円しかないの？"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "かれはごはんをが一杯しか食べません。",
+       "1000円しかないの？",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc 〜しか〜ない. Câu đúng: かれはごはんを一杯しか食べません。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ないの",
+       "しか",
+       "10",
+       "00円"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Bạn chỉ có 1000 yên thôi ư?"
+     },
+     {
+      "pieces": [
+       "一杯しか",
+       "かれは",
+       "食べません",
+       "ごはんを"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Anh ấy chỉ có thể ăn một chén cơm."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "1000円＿＿の？",
+      "answer": "しかない",
+      "translation_vi": "Bạn chỉ có 1000 yên thôi ư?"
+     },
+     {
+      "sentence_ja": "かれはごはんを一杯しか食べ＿＿。",
+      "answer": "ません",
+      "translation_vi": "Anh ấy chỉ có thể ăn một chén cơm."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "options": [
+       "ています",
+       "そうだ",
+       "ので",
+       "ば"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc 〜しか〜ない (Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu 〜しか〜ない (Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "1000円しかないの？",
+       "毎日まじめにを日本語を勉強しています。",
+       "かれはごはんを一杯しか食べません。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "1000円しかないの？",
+      "vi": "Bạn chỉ có 1000 yên thôi ư?"
+     },
+     {
+      "ja": "かれはごはんを一杯しか食べません。",
+      "vi": "Anh ấy chỉ có thể ăn một chén cơm."
+     }
+    ],
+    "meaning_vi": "Biểu thị rằng người nói cảm thấy chưa đủ số lượng hoặc mức độ.",
+    "pattern": "〜しか〜ない",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 2
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-572f90304c"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "宿題を忘れ（　　）。",
+      "options": [
+       "かもしれない",
+       "てしまいました",
+       "たら",
+       "だけ"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「てしまいました」 theo mẫu 〜てしまう (Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.). Nghĩa cả câu: Tôi quên làm bài tập mất rồi."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "ねぼうして、会社にちこくし（　　）。",
+      "options": [
+       "のに",
+       "なら",
+       "てしまいました",
+       "ほど"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc 〜てしまう (Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.), chỗ trống cần điền 「てしまいました」. Nghĩa: Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "忘れて",
+       "ました",
+       "宿題を",
+       "しまい"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 宿題を忘れてしまいました。 (Tôi quên làm bài tập mất rồi.). Theo cấu trúc 〜てしまう, mảnh đứng ở vị trí ★ là 「しまい」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "ました",
+       "会社に",
+       "ちこくしてしまい",
+       "ねぼうして、"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: ねぼうして、会社にちこくしてしまいました。 (Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi.). Theo cấu trúc 〜てしまう, mảnh đứng ở vị trí ★ là 「会社に」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "宿題を忘れてしまいました。",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Tôi quên làm bài tập mất rồi."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mẫu 〜てしまう có nghĩa là \"Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.\". Câu này dịch là: \"Tôi quên làm bài tập mất rồi.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ねぼうして、会社にちこくしてしまいました。",
+      "options": [
+       "Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu 〜てしまう (Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.), câu trên có nghĩa là: \"Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ねぼうして、会社にちこくしてしまいました。",
+       "宿題を忘れてしまいましたますだ。",
+       "電車に傘を忘れてしまいました。",
+       "宿題はもう全部やってしまった。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜てしまう). Câu đúng: 宿題を忘れてしまいました。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "宿題を忘れてしまいました。",
+       "電車に傘を忘れてしまいました。",
+       "宿題はもう全部やってしまった。",
+       "ねぼうして、会社にちこくしてしまいましたですます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜てしまう). Câu đúng: ねぼうして、会社にちこくしてしまいました。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "しまい",
+       "宿題を",
+       "ました",
+       "忘れて"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Tôi quên làm bài tập mất rồi."
+     },
+     {
+      "pieces": [
+       "会社に",
+       "ました",
+       "ねぼうして、",
+       "ちこくしてしまい"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "宿題を忘れ＿＿。",
+      "answer": "てしまいました",
+      "translation_vi": "Tôi quên làm bài tập mất rồi."
+     },
+     {
+      "sentence_ja": "ねぼうして、会社にちこくし＿＿。",
+      "answer": "てしまいました",
+      "translation_vi": "Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "電車に傘を忘れ（　　）。",
+      "options": [
+       "ても",
+       "しか",
+       "とか",
+       "てしまいました"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Điền 「てしまいました」 theo cấu trúc 〜てしまう (Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.). Nghĩa: Tôi lỡ quên ô trên tàu điện mất rồi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "電車に傘を忘れてしまいました。",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Tôi lỡ quên ô trên tàu điện mất rồi.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu 〜てしまう (Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.), câu này nghĩa là: \"Tôi lỡ quên ô trên tàu điện mất rồi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "電車にを傘を忘れてしまいました。",
+       "宿題を忘れてしまいました。",
+       "ねぼうして、会社にちこくしてしまいました。",
+       "道に迷って遅れてしまいました。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 電車に傘を忘れてしまいました。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "宿題を忘れてしまいました。",
+      "vi": "Tôi quên làm bài tập mất rồi."
+     },
+     {
+      "ja": "ねぼうして、会社にちこくしてしまいました。",
+      "vi": "Tôi ngủ quên nên đã đến công ty muộn giờ mất rồi."
+     }
+    ],
+    "meaning_vi": "Biểu thị kết quả không mong muốn, đáng tiếc. Hoặc biểu thị sự hoàn tất của một sự việc.",
+    "pattern": "〜てしまう",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 3
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-c8176a2434"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "薬を飲んだ（　　）治りません。",
+      "options": [
+       "のに",
+       "ば",
+       "くらい",
+       "ながら"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「のに」 theo mẫu 〜のに (Mặc dù... thế mà lại...). Nghĩa cả câu: Mặc dù đã uống thuốc thế mà không khỏi."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "日曜日な（　　）仕事があります。",
+      "options": [
+       "と",
+       "のに",
+       "ずつ",
+       "ばかり"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc 〜のに (Mặc dù... thế mà lại...), chỗ trống cần điền 「のに」. Nghĩa: Mặc dù là Chủ nhật thế mà vẫn có việc phải làm."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "に治り",
+       "薬を",
+       "ません",
+       "飲んだの"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 薬を飲んだのに治りません。 (Mặc dù đã uống thuốc thế mà không khỏi.). Theo cấu trúc 〜のに, mảnh đứng ở vị trí ★ là 「に治り」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "に",
+       "あります",
+       "日曜日なの",
+       "仕事が"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 日曜日なのに仕事があります。 (Mặc dù là Chủ nhật thế mà vẫn có việc phải làm.). Theo cấu trúc 〜のに, mảnh đứng ở vị trí ★ là 「に」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "薬を飲んだのに治りません。",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Mặc dù đã uống thuốc thế mà không khỏi.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mẫu 〜のに có nghĩa là \"Mặc dù... thế mà lại...\". Câu này dịch là: \"Mặc dù đã uống thuốc thế mà không khỏi.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "日曜日なのに仕事があります。",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Mặc dù là Chủ nhật thế mà vẫn có việc phải làm."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu 〜のに (Mặc dù... thế mà lại...), câu trên có nghĩa là: \"Mặc dù là Chủ nhật thế mà vẫn có việc phải làm.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "薬を飲んだだのに治りません。",
+       "日曜日なのに仕事があります。",
+       "約束したのに彼は来なかった。",
+       "春なのにまだとても寒いです。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Trước のに không dùng だ (với danh từ/tính từ な phải đổi だ thành な: 〜なのに). Câu đúng: 薬を飲んだのに治りません。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "薬を飲んだのに治りません。",
+       "約束したのに彼は来なかった。",
+       "日曜日なのに仕事がありますですます。",
+       "春なのにまだとても寒いです。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜のに). Câu đúng: 日曜日なのに仕事があります。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "飲んだの",
+       "ません",
+       "薬を",
+       "に治り"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Mặc dù đã uống thuốc thế mà không khỏi."
+     },
+     {
+      "pieces": [
+       "あります",
+       "仕事が",
+       "日曜日なの",
+       "に"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Mặc dù là Chủ nhật thế mà vẫn có việc phải làm."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "薬を飲んだ＿＿治りません。",
+      "answer": "のに",
+      "translation_vi": "Mặc dù đã uống thuốc thế mà không khỏi."
+     },
+     {
+      "sentence_ja": "日曜日な＿＿仕事があります。",
+      "answer": "のに",
+      "translation_vi": "Mặc dù là Chủ nhật thế mà vẫn có việc phải làm."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "約束した（　　）彼は来なかった。",
+      "options": [
+       "ほど",
+       "てもいい",
+       "のに",
+       "はず"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Điền 「のに」 theo cấu trúc 〜のに (Mặc dù... thế mà lại...). Nghĩa: Mặc dù đã hứa thế mà anh ấy lại không đến."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "約束したのに彼は来なかった。",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Mặc dù đã hứa thế mà anh ấy lại không đến.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu 〜のに (Mặc dù... thế mà lại...), câu này nghĩa là: \"Mặc dù đã hứa thế mà anh ấy lại không đến.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "薬を飲んだのに治りません。",
+       "日曜日なのに仕事があります。",
+       "毎日まじめに日本語を勉強しています。",
+       "約束したのにを彼は来なかった。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 約束したのに彼は来なかった。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [],
+    "meaning_vi": null,
+    "pattern": "〜のに",
+    "pattern_variants": [
+     "のに"
+    ],
+    "source_questions": [],
+    "unit_no": 3
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-518dfd46ad"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "始め（　　）なのに。",
+      "options": [
+       "とか",
+       "ところ",
+       "ついでに",
+       "たばかり"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「たばかり」 theo mẫu 〜たばかり (Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.). Nghĩa cả câu: Mặc dù vừa mới bắt đầu"
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "えっ、また食べるんですか？ さっき食べ（　　）ですよね。",
+      "options": [
+       "たばかり",
+       "し",
+       "つもり",
+       "てしまう"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 〜たばかり (Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.), chỗ trống cần điền 「たばかり」. Nghĩa: Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "始め",
+       "かり",
+       "たば",
+       "なのに"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 始めたばかりなのに。 (Mặc dù vừa mới bắt đầu). Theo cấu trúc 〜たばかり, mảnh đứng ở vị trí ★ là 「かり」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "すか？ さっき",
+       "えっ、また",
+       "食べたばかりですよね",
+       "食べるんで"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: えっ、また食べるんですか？ さっき食べたばかりですよね。 (Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ.). Theo cấu trúc 〜たばかり, mảnh đứng ở vị trí ★ là 「食べるんで」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "始めたばかりなのに。",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Mặc dù vừa mới bắt đầu",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 〜たばかり có nghĩa là \"Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.\". Câu này dịch là: \"Mặc dù vừa mới bắt đầu\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "えっ、また食べるんですか？ さっき食べたばかりですよね。",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 〜たばかり (Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.), câu trên có nghĩa là: \"Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "えっ、また食べるんですか？ さっき食べたばかりですよね。",
+       "先月日本へ来たばかりです。",
+       "雨が降ったら試合は中止です。",
+       "始めたばかりなだのに。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Trước のに không dùng だ (với danh từ/tính từ な phải đổi だ thành な: 〜なのに). Câu đúng: 始めたばかりなのに。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "始めたばかりなのに。",
+       "えっ、また食べるんですか？ さっき食べたばかりですよねですます。",
+       "先月日本へ来たばかりです。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜たばかり). Câu đúng: えっ、また食べるんですか？ さっき食べたばかりですよね。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "なのに",
+       "かり",
+       "始め",
+       "たば"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Mặc dù vừa mới bắt đầu"
+     },
+     {
+      "pieces": [
+       "すか？ さっき",
+       "えっ、また",
+       "食べたばかりですよね",
+       "食べるんで"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "始め＿＿なのに。",
+      "answer": "たばかり",
+      "translation_vi": "Mặc dù vừa mới bắt đầu"
+     },
+     {
+      "sentence_ja": "えっ、また食べるんですか？ さっき食べ＿＿ですよね。",
+      "answer": "たばかり",
+      "translation_vi": "Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "先月日本へ来（　　）です。",
+      "options": [
+       "ばかり",
+       "たばかり",
+       "とおり",
+       "てみる"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Điền 「たばかり」 theo cấu trúc 〜たばかり (Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.). Nghĩa: Tôi vừa mới đến Nhật vào tháng trước."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "先月日本へ来たばかりです。",
+      "options": [
+       "Tôi vừa mới đến Nhật vào tháng trước.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 〜たばかり (Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.), câu này nghĩa là: \"Tôi vừa mới đến Nhật vào tháng trước.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "始めたばかりなのに。",
+       "えっ、また食べるんですか？ さっき食べたばかりですよね。",
+       "先月日本へ来たばかりですだます。",
+       "安ければこのパソコンを買います。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 先月日本へ来たばかりです。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "始めたばかりなのに",
+      "vi": "Mặc dù vừa mới bắt đầu"
+     },
+     {
+      "ja": "えっ、また食べるんですか？ さっき食べたばかりですよね。",
+      "vi": "Ủa, bạn lại ăn nữa à? Lúc nãy bạn vừa mới ăn mà nhỉ."
+     }
+    ],
+    "meaning_vi": "Biểu thị người nói cảm thấy rằng không lâu sau khi hoàn tất một hành động nào đó.",
+    "pattern": "〜たばかり",
+    "pattern_variants": [
+     "〜たばかりだ"
+    ],
+    "source_questions": [],
+    "unit_no": 4
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-09c0f6f8f7"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "買っておき（　　）。",
+      "options": [
+       "はず",
+       "ておく",
+       "ます",
+       "ていく"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ます」 theo mẫu 〜ておく (Biểu thị sự chuẩn bị trước cho tương lai.). Nghĩa cả câu: Tôi sẽ mua sẵn."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "ホテルのへやを予約しておき（　　）。",
+      "options": [
+       "まま",
+       "てある",
+       "やすい",
+       "ました"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc 〜ておく (Biểu thị sự chuẩn bị trước cho tương lai.), chỗ trống cần điền 「ました」. Nghĩa: Tôi đã đặt phòng của khách sạn trước rồi."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "ます",
+       "って",
+       "おき",
+       "買"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 買っておきます。 (Tôi sẽ mua sẵn.). Theo cấu trúc 〜ておく, mảnh đứng ở vị trí ★ là 「おき」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "ホテルの",
+       "予約しておき",
+       "へやを",
+       "ました"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: ホテルのへやを予約しておきました。 (Tôi đã đặt phòng của khách sạn trước rồi.). Theo cấu trúc 〜ておく, mảnh đứng ở vị trí ★ là 「へやを」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "買っておきます。",
+      "options": [
+       "Tôi sẽ mua sẵn.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Mẫu 〜ておく có nghĩa là \"Biểu thị sự chuẩn bị trước cho tương lai.\". Câu này dịch là: \"Tôi sẽ mua sẵn.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ホテルのへやを予約しておきました。",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Tôi đã đặt phòng của khách sạn trước rồi.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu 〜ておく (Biểu thị sự chuẩn bị trước cho tương lai.), câu trên có nghĩa là: \"Tôi đã đặt phòng của khách sạn trước rồi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ホテルのへやを予約しておきました。",
+       "先生はもうお帰りになりました。",
+       "買っておきますますだ。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜ておく). Câu đúng: 買っておきます。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "ホテルのへやをが予約しておきました。",
+       "買っておきます。",
+       "先生はもうお帰りになりました。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc 〜ておく. Câu đúng: ホテルのへやを予約しておきました。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "おき",
+       "買",
+       "ます",
+       "って"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Tôi sẽ mua sẵn."
+     },
+     {
+      "pieces": [
+       "へやを",
+       "ました",
+       "ホテルの",
+       "予約しておき"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Tôi đã đặt phòng của khách sạn trước rồi."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "買っておき＿＿。",
+      "answer": "ます",
+      "translation_vi": "Tôi sẽ mua sẵn."
+     },
+     {
+      "sentence_ja": "ホテルのへやを予約しておき＿＿。",
+      "answer": "ました",
+      "translation_vi": "Tôi đã đặt phòng của khách sạn trước rồi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "先生はもうお帰りになり（　　）。",
+      "options": [
+       "ました",
+       "てしまう",
+       "てくる",
+       "そうだ"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ました」 theo cấu trúc 〜ておく (Biểu thị sự chuẩn bị trước cho tương lai.). Nghĩa: Thầy giáo đã về rồi ạ."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "先生はもうお帰りになりました。",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Thầy giáo đã về rồi ạ."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu 〜ておく (Biểu thị sự chuẩn bị trước cho tương lai.), câu này nghĩa là: \"Thầy giáo đã về rồi ạ.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "買っておきます。",
+       "先生はもうお帰りにをなりました。",
+       "ホテルのへやを予約しておきました。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 先生はもうお帰りになりました。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "買っておきます。",
+      "vi": "Tôi sẽ mua sẵn."
+     },
+     {
+      "ja": "ホテルのへやを予約しておきました。",
+      "vi": "Tôi đã đặt phòng của khách sạn trước rồi."
+     }
+    ],
+    "meaning_vi": "Biểu thị sự chuẩn bị trước cho tương lai.",
+    "pattern": "〜ておく",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 4
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-d09b6aeb22"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "本人に聞いてみてく（　　）さい。",
+      "options": [
+       "てみる",
+       "だ",
+       "にくい",
+       "かもしれない"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「だ」 theo mẫu 〜てみる (Biểu thị ý nghĩa thử làm một việc gì đó.). Nghĩa cả câu: Hãy thử hỏi đương sự."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "おいしい（　　）食べてみてくいださい。",
+      "options": [
+       "ている",
+       "すぎる",
+       "かどうか",
+       "のに"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc 〜てみる (Biểu thị ý nghĩa thử làm một việc gì đó.), chỗ trống cần điền 「かどうか」. Nghĩa: Hãy ăn thử xem có ngon hay không."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "聞いて",
+       "ださい",
+       "本人に",
+       "みてく"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 本人に聞いてみてください。 (Hãy thử hỏi đương sự.). Theo cấu trúc 〜てみる, mảnh đứng ở vị trí ★ là 「みてく」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "くいださい",
+       "かどうか食",
+       "べてみて",
+       "おいしい"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: おいしいかどうか食べてみてくいださい。 (Hãy ăn thử xem có ngon hay không.). Theo cấu trúc 〜てみる, mảnh đứng ở vị trí ★ là 「かどうか食」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "本人に聞いてみてください。",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Hãy thử hỏi đương sự."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Mẫu 〜てみる có nghĩa là \"Biểu thị ý nghĩa thử làm một việc gì đó.\". Câu này dịch là: \"Hãy thử hỏi đương sự.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "おいしいかどうか食べてみてくいださい。",
+      "options": [
+       "Hãy ăn thử xem có ngon hay không.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu 〜てみる (Biểu thị ý nghĩa thử làm một việc gì đó.), câu trên có nghĩa là: \"Hãy ăn thử xem có ngon hay không.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "おいしいかどうか食べてみてくいださい。",
+       "本人に聞いてみてくださいますだ。",
+       "この靴を一度はいてみます。",
+       "新しい料理を作ってみました。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜てみる). Câu đúng: 本人に聞いてみてください。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "本人に聞いてみてください。",
+       "この靴を一度はいてみます。",
+       "新しい料理を作ってみました。",
+       "おいしいかどうか食べてみてくいださいですます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜てみる). Câu đúng: おいしいかどうか食べてみてくいださい。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "聞いて",
+       "ださい",
+       "本人に",
+       "みてく"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Hãy thử hỏi đương sự."
+     },
+     {
+      "pieces": [
+       "くいださい",
+       "べてみて",
+       "おいしい",
+       "かどうか食"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Hãy ăn thử xem có ngon hay không."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "本人に聞いてみてく＿＿さい。",
+      "answer": "だ",
+      "translation_vi": "Hãy thử hỏi đương sự."
+     },
+     {
+      "sentence_ja": "おいしい＿＿食べてみてくいださい。",
+      "answer": "かどうか",
+      "translation_vi": "Hãy ăn thử xem có ngon hay không."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "この靴を一度はい（　　）。",
+      "options": [
+       "やすい",
+       "らしい",
+       "ても",
+       "てみます"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Điền 「てみます」 theo cấu trúc 〜てみる (Biểu thị ý nghĩa thử làm một việc gì đó.). Nghĩa: Tôi sẽ đi thử đôi giày này một lần."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "この靴を一度はいてみます。",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi sẽ đi thử đôi giày này một lần.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu 〜てみる (Biểu thị ý nghĩa thử làm một việc gì đó.), câu này nghĩa là: \"Tôi sẽ đi thử đôi giày này một lần.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "この靴を一度はいてみますだます。",
+       "本人に聞いてみてください。",
+       "おいしいかどうか食べてみてくいださい。",
+       "わからないので先生に聞いてみる。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: この靴を一度はいてみます。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [
+     {
+      "ja": "本人に聞いてみてください。",
+      "vi": "Hãy thử hỏi đương sự."
+     },
+     {
+      "ja": "おいしいかどうか食べてみてくいださい。",
+      "vi": "Hãy ăn thử xem có ngon hay không."
+     }
+    ],
+    "meaning_vi": "Biểu thị ý nghĩa thử làm một việc gì đó.",
+    "pattern": "〜てみる",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 9
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-52d5677b7c"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "あした行く（　　）決めます。",
+      "options": [
+       "かどうか",
+       "そうだ",
+       "ので",
+       "ば"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「かどうか」 theo mẫu 〜かどうか (Liệu có... hay không.). Nghĩa cả câu: Tôi sẽ quyết định xem ngày mai có đi hay không."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "その話が本当（　　）わからない。",
+      "options": [
+       "ようだ",
+       "かどうか",
+       "から",
+       "と"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc 〜かどうか (Liệu có... hay không.), chỗ trống cần điền 「かどうか」. Nghĩa: Tôi không biết câu chuyện đó có thật hay không."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "決め",
+       "あした",
+       "ます",
+       "行くかどうか"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: あした行くかどうか決めます。 (Tôi sẽ quyết định xem ngày mai có đi hay không.). Theo cấu trúc 〜かどうか, mảnh đứng ở vị trí ★ là 「決め」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "話が",
+       "ない",
+       "その",
+       "本当かどうかわから"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: その話が本当かどうかわからない。 (Tôi không biết câu chuyện đó có thật hay không.). Theo cấu trúc 〜かどうか, mảnh đứng ở vị trí ★ là 「話が」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "あした行くかどうか決めます。",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Tôi sẽ quyết định xem ngày mai có đi hay không.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Mẫu 〜かどうか có nghĩa là \"Liệu có... hay không.\". Câu này dịch là: \"Tôi sẽ quyết định xem ngày mai có đi hay không.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "その話が本当かどうかわからない。",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Tôi không biết câu chuyện đó có thật hay không."
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu 〜かどうか (Liệu có... hay không.), câu trên có nghĩa là: \"Tôi không biết câu chuyện đó có thật hay không.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "あした行くかどうか決めますますだ。",
+       "その話が本当かどうかわからない。",
+       "美味しいかどうか食べてみます。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜かどうか). Câu đúng: あした行くかどうか決めます。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "あした行くかどうか決めます。",
+       "美味しいかどうか食べてみます。",
+       "その話が本当かどうかわからないですます。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜かどうか). Câu đúng: その話が本当かどうかわからない。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "ます",
+       "決め",
+       "あした",
+       "行くかどうか"
+      ],
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "translation_vi": "Tôi sẽ quyết định xem ngày mai có đi hay không."
+     },
+     {
+      "pieces": [
+       "本当かどうかわから",
+       "その",
+       "ない",
+       "話が"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Tôi không biết câu chuyện đó có thật hay không."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "あした行く＿＿決めます。",
+      "answer": "かどうか",
+      "translation_vi": "Tôi sẽ quyết định xem ngày mai có đi hay không."
+     },
+     {
+      "sentence_ja": "その話が本当＿＿わからない。",
+      "answer": "かどうか",
+      "translation_vi": "Tôi không biết câu chuyện đó có thật hay không."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "美味しい（　　）食べてみます。",
+      "options": [
+       "のに",
+       "なら",
+       "かどうか",
+       "ほど"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Điền 「かどうか」 theo cấu trúc 〜かどうか (Liệu có... hay không.). Nghĩa: Tôi sẽ ăn thử xem có ngon hay không."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "美味しいかどうか食べてみます。",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Tôi sẽ ăn thử xem có ngon hay không.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu 〜かどうか (Liệu có... hay không.), câu này nghĩa là: \"Tôi sẽ ăn thử xem có ngon hay không.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "あした行くかどうか決めます。",
+       "その話が本当かどうかわからない。",
+       "週末は家族と一緒に公園へ行きます。",
+       "美味しいかどうか食べてみますだます。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 美味しいかどうか食べてみます。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [],
+    "meaning_vi": null,
+    "pattern": "〜かどうか",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 11
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-5fd177d7a2"
+  },
+  {
+   "answer": {
+    "check_bank": [
+     {
+      "type": "FILL",
+      "prompt_ja": "机の上に本が置い（　　）。",
+      "options": [
+       "ても",
+       "しか",
+       "とか",
+       "てあります"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「てあります」 theo mẫu 〜てある (Đã được làm sẵn (trạng thái kết quả).). Nghĩa cả câu: Trên bàn có đặt sẵn quyển sách."
+     },
+     {
+      "type": "FILL",
+      "prompt_ja": "壁にカレンダーがかけ（　　）。",
+      "options": [
+       "てあります",
+       "たら",
+       "だけ",
+       "し"
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 〜てある (Đã được làm sẵn (trạng thái kết quả).), chỗ trống cần điền 「てあります」. Nghĩa: Trên tường có treo sẵn tờ lịch."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "options": [
+       "机の",
+       "置いて",
+       "上に本が",
+       "あります"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 机の上に本が置いてあります。 (Trên bàn có đặt sẵn quyển sách.). Theo cấu trúc 〜てある, mảnh đứng ở vị trí ★ là 「置いて」."
+     },
+     {
+      "type": "ORDER_STAR",
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "options": [
+       "かけて",
+       "壁に",
+       "あります",
+       "カレンダーが"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 壁にカレンダーがかけてあります。 (Trên tường có treo sẵn tờ lịch.). Theo cấu trúc 〜てある, mảnh đứng ở vị trí ★ là 「カレンダーが」."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "机の上に本が置いてあります。",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Trên bàn có đặt sẵn quyển sách.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 〜てある có nghĩa là \"Đã được làm sẵn (trạng thái kết quả).\". Câu này dịch là: \"Trên bàn có đặt sẵn quyển sách.\""
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "壁にカレンダーがかけてあります。",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Trên tường có treo sẵn tờ lịch.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 〜てある (Đã được làm sẵn (trạng thái kết quả).), câu trên có nghĩa là: \"Trên tường có treo sẵn tờ lịch.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "壁にカレンダーがかけてあります。",
+       "ホテルはもう予約してあります。",
+       "毎日まじめに日本語を勉強しています。",
+       "机の上に本が置いてありますますだ。"
+      ],
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜てある). Câu đúng: 机の上に本が置いてあります。"
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "机の上に本が置いてあります。",
+       "壁にカレンダーがかけてありますですます。",
+       "ホテルはもう予約してあります。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 〜てある). Câu đúng: 壁にカレンダーがかけてあります。"
+     }
+    ],
+    "order_items": [
+     {
+      "pieces": [
+       "置いて",
+       "机の",
+       "あります",
+       "上に本が"
+      ],
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "translation_vi": "Trên bàn có đặt sẵn quyển sách."
+     },
+     {
+      "pieces": [
+       "カレンダーが",
+       "あります",
+       "壁に",
+       "かけて"
+      ],
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "translation_vi": "Trên tường có treo sẵn tờ lịch."
+     }
+    ],
+    "fill_items": [
+     {
+      "sentence_ja": "机の上に本が置い＿＿。",
+      "answer": "てあります",
+      "translation_vi": "Trên bàn có đặt sẵn quyển sách."
+     },
+     {
+      "sentence_ja": "壁にカレンダーがかけ＿＿。",
+      "answer": "てあります",
+      "translation_vi": "Trên tường có treo sẵn tờ lịch."
+     }
+    ],
+    "extra_practice": [
+     {
+      "type": "FILL",
+      "prompt_ja": "ホテルはもう予約し（　　）。",
+      "options": [
+       "と",
+       "てあります",
+       "ずつ",
+       "ばかり"
+      ],
+      "answer_index": 1,
+      "explanation_vi": "Điền 「てあります」 theo cấu trúc 〜てある (Đã được làm sẵn (trạng thái kết quả).). Nghĩa: Khách sạn đã được đặt trước rồi."
+     },
+     {
+      "type": "MEANING",
+      "prompt_ja": "ホテルはもう予約してあります。",
+      "options": [
+       "Khách sạn đã được đặt trước rồi.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 〜てある (Đã được làm sẵn (trạng thái kết quả).), câu này nghĩa là: \"Khách sạn đã được đặt trước rồi.\""
+     },
+     {
+      "type": "ERROR",
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "options": [
+       "机の上に本が置いてあります。",
+       "壁にカレンダーがかけてあります。",
+       "ホテルはもう予約してありますだます。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: ホテルはもう予約してあります。"
+     }
+    ]
+   },
+   "context": {
+    "examples": [],
+    "meaning_vi": null,
+    "pattern": "〜てある",
+    "pattern_variants": [],
+    "source_questions": [],
+    "unit_no": 12
+   },
+   "fields_needed": [
+    "check_bank",
+    "order_items",
+    "fill_items",
+    "extra_practice"
+   ],
+   "id": "JG-68953e9d87"
+  }
+ ],
+ "kind": "GRAMMAR_BANK",
+ "level": "N4",
+ "packet_id": "GRAMMAR_BANK-001"
+}

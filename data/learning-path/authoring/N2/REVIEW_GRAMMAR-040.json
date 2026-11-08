@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は一度として約束を破ったことがない。",
+       "ja_furigana": "彼(かれ)は一度(いちど)として約束(やくそく)を破(やぶ)ったことがない。",
+       "vi": "Anh ấy chưa một lần nào thất hứa."
+      },
+      {
+       "ja": "会議では、誰一人として席を立たなかった。",
+       "ja_furigana": "会議(かいぎ)では、誰一人(だれひとり)として席(せき)を立(た)たなかった。",
+       "vi": "Trong cuộc họp, không một ai đứng dậy rời chỗ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "事故から10年になりますが、一日として思い出さない日はありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã 10 năm kể từ vụ tai nạn, nhưng không có một ngày nào tôi không nhớ đến nó."
+     },
+     {
+      "ja": "この謎を解こうと多くの研究者が試みたが、誰一人として成功していない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhiều nhà nghiên cứu đã cố gắng giải mã bí ẩn này, nhưng không một ai thành công."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 事故から10年になりますが、一日として思い出さない日はありません。",
+     "FURIGANA_MISSING: この謎を解こうと多くの研究者が試みたが、誰一人として成功していない。"
+    ],
+    "formation": "N(số lượng nhỏ nhất, vd 一日・一人) + として + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Không có lấy một ～ nào, hoàn toàn không.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜として〜ない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bbc30d1e2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "練習しない限り、上手にならない。",
+       "ja_furigana": "練習(れんしゅう)しない限(かぎ)り、上手(じょうず)にならない。",
+       "vi": "Chừng nào không luyện tập thì sẽ không giỏi lên được."
+      },
+      {
+       "ja": "許可が出ない限り、工事は始められない。",
+       "ja_furigana": "許可(きょか)が出(で)ない限(かぎ)り、工事(こうじ)は始(はじ)められない。",
+       "vi": "Chừng nào chưa được cấp phép thì không thể khởi công."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今の会社をやめない限り、こういう生活は変わらないと思ったんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi nghĩ rằng nếu không nghỉ việc ở công ty hiện tại thì cuộc sống như thế này sẽ không thay đổi。"
+     },
+     {
+      "ja": "がんはかなり進行していて、手術をしない限り、助からないと言われたそうです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói ung thư đã tiến triển khá nặng, và nếu không phẫu thuật thì sẽ không qua khỏi。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今の会社をやめない限り、こういう生活は変わらないと思ったんです。",
+     "FURIGANA_MISSING: がんはかなり進行していて、手術をしない限り、助からないと言われたそうです。"
+    ],
+    "formation": "Vない + 限り",
+    "locked_fields": [],
+    "meaning_vi": "Chừng nào còn chưa ～ thì vẫn không thay đổi; trừ khi ～.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ない限り",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d3083934b9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この雑誌は女子学生向けに作られている。",
+       "ja_furigana": "この雑誌(ざっし)は女子学生(じょしがくせい)向(む)けに作(つく)られている。",
+       "vi": "Tạp chí này được làm dành cho nữ sinh viên."
+      },
+      {
+       "ja": "これは海外の市場向けに開発された商品だ。",
+       "ja_furigana": "これは海外(かいがい)の市場(しじょう)向(む)けに開発(かいはつ)された商品(しょうひん)だ。",
+       "vi": "Đây là sản phẩm được phát triển cho thị trường nước ngoài."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この日本語講座は、来日したばかりの社会人向けだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khóa tiếng Nhật này dành cho người đi làm vừa mới đến Nhật."
+     },
+     {
+      "ja": "子ども向けの科学雑誌だが、大人が読んでも面白い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đây là tạp chí khoa học dành cho trẻ em, nhưng người lớn đọc cũng thấy thú vị."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この日本語講座は、来日したばかりの社会人向けだ。",
+     "FURIGANA_MISSING: 子ども向けの科学雑誌だが、大人が読んでも面白い。"
+    ],
+    "formation": "N + 向け / N + 向けの + N",
+    "locked_fields": [],
+    "meaning_vi": "Dành cho, hướng tới",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dành cho, hướng tới",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết sản phẩm, dịch vụ hoặc nội dung được chủ ý thiết kế cho một nhóm đối tượng. Cách dùng: Gắn sau danh từ chỉ nhóm người, thị trường hoặc mục đích tiếp nhận để nói rằng một sản phẩm, dịch vụ hay thông tin được tạo ra nhằm phục vụ đối tượng đó. Dạng 向けだ làm vị ngữ, 向けの bổ nghĩa cho danh từ và 向けに bổ nghĩa cho hành động thiết kế, sản xuất hoặc cung cấp. Trọng tâm là ý định của bên làm ra hoặc cung cấp, chứ không chỉ là đánh giá rằng thứ đó tình cờ phù hợp với ai. Mẫu rất phổ biến trong quảng cáo và giới thiệu sản phẩm. Sắc thái: Trung tính, thực dụng và thường cho thấy đối tượng mục tiêu đã được xác định từ khâu thiết kế. Lưu ý: Danh từ trước thường là nhóm người hoặc thị trường có thể trở thành đối tượng mục tiêu. Nếu chỉ muốn nói một người có đặc điểm phù hợp với việc gì, thường dùng 〜向き thay vì 〜向け."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ae13f61d09"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "看護師は医師の指導のもとで、患者の世話をする。",
+       "ja_furigana": "看護師(かんごし)は医師(いし)の指導(しどう)のもとで、患者(かんじゃ)の世話(せわ)をする。",
+       "vi": "Y tá chăm sóc bệnh nhân dưới sự hướng dẫn của bác sĩ."
+      },
+      {
+       "ja": "強い決まりのもとで、選手たちは毎日練習している。",
+       "ja_furigana": "強(つよ)い決(き)まりのもとで、選手(せんしゅ)たちは毎日(まいにち)練習(れんしゅう)している。",
+       "vi": "Dưới những quy định nghiêm ngặt, các vận động viên luyện tập mỗi ngày."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "若手研究者たちは、経験豊かな教授のもとで実験方法を学んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Các nhà nghiên cứu trẻ đã học phương pháp thí nghiệm dưới sự hướng dẫn của một giáo sư giàu kinh nghiệm."
+     },
+     {
+      "ja": "徹底した衛生管理のもとで、食品が製造されている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thực phẩm được sản xuất dưới chế độ quản lý vệ sinh nghiêm ngặt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 若手研究者たちは、経験豊かな教授のもとで実験方法を学んだ。",
+     "FURIGANA_MISSING: 徹底した衛生管理のもとで、食品が製造されている。"
+    ],
+    "formation": "N + のもとで / N + のもとに",
+    "locked_fields": [],
+    "meaning_vi": "Dưới sự; trong khuôn khổ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dưới sự; trong khuôn khổ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu người chỉ đạo, điều kiện, chế độ hoặc lý tưởng bao trùm một hoạt động. Cách dùng: Hai dạng đều diễn tả một người, sự quản lý, điều kiện hoặc nguyên tắc có ảnh hưởng bao trùm. のもとで thường đặt bối cảnh nơi một hành động kéo dài được thực hiện, như học dưới sự hướng dẫn hoặc sản xuất dưới chế độ kiểm soát. のもとに thường nhấn mạnh việc tập hợp, thiết lập hay hành động chung dưới một danh nghĩa, lý tưởng hoặc mục tiêu. Ranh giới không hoàn toàn tuyệt đối, nhưng lựa chọn này giúp câu tự nhiên hơn. もと ở đây có thể viết là 下 khi mang nghĩa “dưới”. Sắc thái: Thường trang trọng; quan hệ được nói tới có thể là sự chỉ đạo cụ thể hoặc một khuôn khổ trừu tượng. Lưu ý: Phải có の giữa danh từ và もと. Không nhầm với 〜をもとに, vốn chỉ nguồn tư liệu hoặc cơ sở để tạo ra điều mới."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-92b1f62b6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この問題となると、彼は誰よりも熱心だ。",
+       "ja_furigana": "この問題(もんだい)となると、彼(かれ)は誰(だれ)よりも熱心(ねっしん)だ。",
+       "vi": "Hễ động đến vấn đề này là anh ấy nhiệt tình hơn ai hết."
+      },
+      {
+       "ja": "お金のこととなると、兄はとても細かくなる。",
+       "ja_furigana": "お金(かね)のこととなると、兄(あに)はとても細(こま)かくなる。",
+       "vi": "Hễ nói đến chuyện tiền nong là anh trai tôi tính toán rất chi li."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "普段は冷静な彼も、妹のこととなると心配しすぎる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bình thường anh ấy rất bình tĩnh, hễ liên quan đến cô em gái là lại lo lắng quá mức."
+     },
+     {
+      "ja": "旅行の計画となると、森さんは急に話が細かくなる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hễ nói đến việc lên kế hoạch du lịch, anh Mori bỗng nói rất chi tiết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 普段は冷静な彼も、妹のこととなると心配しすぎる。",
+     "FURIGANA_MISSING: 旅行の計画となると、森さんは急に話が細かくなる。"
+    ],
+    "formation": "N / thể thường + となると",
+    "locked_fields": [],
+    "meaning_vi": "Hễ nói đến chuyện… thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hễ nói đến chuyện... thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một chủ đề cụ thể khiến thái độ, năng lực hoặc cách hành động của ai đó trở nên đặc biệt. Cách dùng: Mẫu này đưa ra một lĩnh vực, người hoặc chuyện cụ thể rồi nhận xét rằng khi đúng chủ đề ấy xuất hiện, tình hình hay cách cư xử thay đổi đáng kể. Dạng のこととなると thường dùng khi nói về một người hoặc vấn đề có quan hệ gần gũi, qua đó nhấn mạnh sự quan tâm đặc biệt. Phần trước có thể đối lập với thái độ thông thường được nêu ở đầu câu. Mẫu không chỉ có nghĩa “về” mà còn tạo điều kiện “mỗi khi xét riêng chuyện đó thì…”. Sắc thái: Thường hàm ý chủ thể trở nên nhiệt tình, lo lắng, nghiêm khắc hoặc khác hẳn bình thường khi đụng tới đề tài ấy. Lưu ý: Không thêm に trước となると trong cấu trúc Nのこととなると. Phần sau nên thể hiện một phản ứng, đánh giá hoặc thay đổi có tính đặc biệt đối với chủ đề."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-158fe56822"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「健康」とは、体も心も元気なことだ。",
+       "ja_furigana": "「健康(けんこう)」とは、体(からだ)も心(こころ)も元気(げんき)なことだ。",
+       "vi": "\"Sức khỏe\" là cơ thể và tinh thần đều khỏe mạnh."
+      },
+      {
+       "ja": "こんな短時間で仕上げるとは、本当に力がある人だ。",
+       "ja_furigana": "こんな短時間(たんじかん)で仕上(しあ)げるとは、本当(ほんとう)に力(ちから)がある人(ひと)だ。",
+       "vi": "Hoàn thành trong thời gian ngắn thế này, đúng là người có thực lực."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「フードロス」とは、まだ食べられる食品が捨てられることを指す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Lãng phí thực phẩm” là việc những thực phẩm vẫn còn ăn được bị vứt bỏ."
+     },
+     {
+      "ja": "彼が一週間でこの模型を完成させるとは、その集中力に驚いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thật không ngờ anh ấy hoàn thành mô hình này trong một tuần; tôi rất kinh ngạc trước khả năng tập trung ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「フードロス」とは、まだ食べられる食品が捨てられることを指す。",
+     "FURIGANA_MISSING: 彼が一週間でこの模型を完成させるとは、その集中力に驚いた。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 彼が一週間でこの模型を完成させるとは、その集中力に驚いた。 → 模型"
+    ],
+    "formation": "N + とは(định nghĩa) / thể thường + とは(ngạc nhiên)",
+    "locked_fields": [],
+    "meaning_vi": "Là gì; thật không ngờ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Là gì; thật không ngờ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng để định nghĩa một khái niệm hoặc bộc lộ ngạc nhiên trước một sự việc. Cách dùng: Trong cách dùng định nghĩa, Nとは đưa thuật ngữ lên làm chủ đề rồi giải thích bản chất hoặc ý nghĩa của nó, tương đương “N là…”. Cách này thường xuất hiện trong lời giải thích và văn viết. Sau một mệnh đề, とは còn đánh dấu nội dung khiến người nói bất ngờ, khâm phục hoặc khó tin; phần sau có thể là 驚いた, 思わなかった, すごい hoặc được lược bỏ nếu cảm xúc đã rõ. Vì vậy cần dựa vào phần sau để phân biệt câu định nghĩa với câu cảm thán. Sắc thái: Cách định nghĩa có sắc thái rõ ràng, trang trọng; cách cảm thán nhấn mạnh khoảng cách giữa thực tế và điều người nói dự đoán. Lưu ý: とは không trực tiếp bổ nghĩa cho danh từ theo kiểu とはのN. Ở cách dùng cảm thán, mệnh đề trước phải là một nội dung hoàn chỉnh gây bất ngờ hoặc đáng đánh giá."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fc098234ad"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "京都というと、古い寺を思い浮かべる人が多い。",
+       "ja_furigana": "京都(きょうと)というと、古(ふる)い寺(てら)を思(おも)い浮(う)かべる人(ひと)が多(おお)い。",
+       "vi": "Nhắc đến Kyoto, nhiều người nghĩ đến những ngôi chùa cổ."
+      },
+      {
+       "ja": "「冬」というと、私は雪の景色を思い出す。",
+       "ja_furigana": "「冬(ふゆ)」というと、私(わたし)は雪(ゆき)の景色(けしき)を思(おも)い出(だ)す。",
+       "vi": "Nhắc đến mùa đông, tôi lại nhớ đến cảnh tuyết."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "日本の夏というと、蒸し暑さと花火大会を思い浮かべる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nhắc đến mùa hè Nhật Bản, tôi nghĩ đến thời tiết oi ẩm và lễ hội pháo hoa."
+     },
+     {
+      "ja": "秋の味覚といえば、私は焼き芋が真っ先に浮かぶ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhắc đến hương vị mùa thu, món đầu tiên hiện lên trong tôi là khoai lang nướng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 日本の夏というと、蒸し暑さと花火大会を思い浮かべる。",
+     "FURIGANA_MISSING: 秋の味覚といえば、私は焼き芋が真っ先に浮かぶ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 秋の味覚といえば、私は焼き芋が真っ先に浮かぶ。 → 芋"
+    ],
+    "formation": "N + というと",
+    "locked_fields": [],
+    "meaning_vi": "Nghe nhắc đến… thì nghĩ đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nghe nhắc đến... thì nghĩ đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Ba cách lấy một chủ đề làm tín hiệu để gọi ra hình ảnh hoặc ví dụ tiêu biểu. Cách dùng: Cả ba dạng đều có thể đặt sau một danh từ để gợi ra điều tiêu biểu mà người nói liên tưởng tới. というと nhấn vào phản ứng “nghe nói X thì nghĩ đến gì” và thường dùng khi xác nhận hình ảnh chung. といえば rất tự nhiên trong hội thoại, đồng thời có thể nối từ lời trước sang một ý liên quan. といったら cũng nêu một đại diện nổi bật nhưng dễ mang cảm xúc mạnh hoặc giọng thân mật hơn. Trong cách dùng liên tưởng này, danh từ nối trực tiếp với từng cụm. Sắc thái: Các dạng gần nghĩa nhưng không hoàn toàn đồng nhất: mức độ chủ động chuyển đề tài và sắc thái cảm xúc khác nhau. Lưu ý: Với danh từ làm từ khóa, không chèn だ hay một trợ từ cách giữa danh từ và cụm mẫu. Không dùng các dạng như hoàn toàn thay thế nhau khi といったら biểu thị cảm thán mạnh về mức độ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-418b4d67c7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "コーヒーといえば、駅前に新しい店ができたそうだ。",
+       "ja_furigana": "コーヒーといえば、駅前(えきまえ)に新(あたら)しい店(みせ)ができたそうだ。",
+       "vi": "Nhắc đến cà phê, nghe nói trước ga vừa mở một quán mới."
+      },
+      {
+       "ja": "夏といえば、今年は海に行く予定だ。",
+       "ja_furigana": "夏(なつ)といえば、今年(ことし)は海(うみ)に行(い)く予定(よてい)だ。",
+       "vi": "Nhắc đến mùa hè, năm nay tôi dự định đi biển."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "春といえば、近所の川沿いに咲く桜を思い出す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhắc đến mùa xuân, tôi nhớ tới hoa anh đào nở dọc con sông gần nhà."
+     },
+     {
+      "ja": "「田中さん、来月引っ越すそうだよ。」「引っ越しといえば、君はもう新居を決めたの？」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Nghe nói anh Tanaka sẽ chuyển nhà tháng sau.” “Nhắc đến chuyển nhà, cậu đã quyết định chỗ ở mới chưa?”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 春といえば、近所の川沿いに咲く桜を思い出す。",
+     "FURIGANA_MISSING: 「田中さん、来月引っ越すそうだよ。」「引っ越しといえば、君はもう新居を決めたの？」"
+    ],
+    "formation": "N + といえば",
+    "locked_fields": [],
+    "meaning_vi": "Nhắc đến, nói đến",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhắc đến, nói đến",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Lấy một từ khóa trong ngữ cảnh làm điểm gợi để chuyển sang điều có liên quan. Cách dùng: Mẫu này đưa một chủ đề vừa được nghe, vừa được nghĩ tới hoặc đã xuất hiện trong cuộc trò chuyện làm điểm xuất phát: “nhắc đến… thì…”. Phần sau thường nêu hình ảnh tiêu biểu, ký ức, thông tin hay một chuyện liên quan mà người nói chợt nhớ ra. Nó cũng giúp chuyển chủ đề một cách tự nhiên nhưng vẫn giữ mối liên hệ với lời trước. Với danh từ dùng làm từ khóa đơn thuần, gắn trực tiếp といえば mà không thêm trợ từ khác. Sắc thái: Mang tính hội thoại và liên tưởng; đôi khi báo hiệu người nói sắp đổi sang một chủ đề gần kề. Lưu ý: Không thêm に hoặc を giữa danh từ chủ đề và といえば. Phần sau cần có quan hệ liên tưởng hoặc liên quan dễ hiểu với từ khóa đã nêu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4719efd683"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店のケーキの味といったら、もう言葉にならない。",
+       "ja_furigana": "この店(みせ)のケーキの味(あじ)といったら、もう言葉(ことば)にならない。",
+       "vi": "Vị bánh ở quán này thì đúng là không gì tả nổi."
+      },
+      {
+       "ja": "朝の電車の混みようといったら、息ができないほどだ。",
+       "ja_furigana": "朝(あさ)の電車(でんしゃ)の混(こ)みようといったら、息(いき)ができないほどだ。",
+       "vi": "Cảnh chen chúc trên tàu điện buổi sáng thì đến mức không thở nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "山頂から見た朝日の美しさといったら、言葉では表せなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vẻ đẹp của mặt trời mọc nhìn từ đỉnh núi thật đến mức không thể diễn tả bằng lời."
+     },
+     {
+      "ja": "締め切り前の忙しさといったら、昼食を取る暇もないほどだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sự bận rộn trước hạn chót thật kinh khủng, đến mức không có cả thời gian ăn trưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 山頂から見た朝日の美しさといったら、言葉では表せなかった。",
+     "FURIGANA_MISSING: 締め切り前の忙しさといったら、昼食を取る暇もないほどだった。"
+    ],
+    "formation": "N + といったら",
+    "locked_fields": [],
+    "meaning_vi": "Nói đến… thì thật là",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nói đến... thì thật là",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đưa một đặc điểm hoặc sự việc ra để nhấn mạnh mức độ gây ấn tượng mạnh. Cách dùng: Trong cách dùng nhấn mạnh, といったら đặt sau một danh từ, đặc biệt là danh từ chỉ mức độ như 美しさ, 忙しさ hay 多さ, rồi dẫn tới lời đánh giá mạnh của người nói. Phần sau thường cho biết mức độ vượt ngoài lời diễn tả, gây kinh ngạc, phiền toái hoặc ấn tượng sâu sắc. Có thể đi với ない trong といったらない để nói “vô cùng…”. Khác với việc chỉ nêu chủ đề, mẫu này chứa cảm xúc rõ và thường dựa trên trải nghiệm trực tiếp của người nói. Sắc thái: Biểu cảm mạnh, thiên về hội thoại hoặc văn kể; dùng được cho cả lời khen lẫn phàn nàn. Lưu ý: Không thích hợp cho mô tả hoàn toàn trung tính hoặc báo cáo khách quan. Khi nhấn mức độ của tính từ, thường chuyển thành danh từ như 美しさ hoặc 忙しさ trước といったら."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5164da7d23"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "天気予報に反して、今日は一日中晴れだった。",
+       "ja_furigana": "天気予報(てんきよほう)に反(はん)して、今日(きょう)は一日中(いちにちじゅう)晴(は)れだった。",
+       "vi": "Trái với dự báo thời tiết, hôm nay trời nắng cả ngày."
+      },
+      {
+       "ja": "私の心配に反して、試験はとても簡単だった。",
+       "ja_furigana": "私(わたし)の心配(しんぱい)に反(はん)して、試験(しけん)はとても簡単(かんたん)だった。",
+       "vi": "Trái với lo lắng của tôi, đề thi rất dễ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "専門家の予想に反して、景気は回復し始めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với dự đoán của các nhà chuyên môn, kinh tế đã bắt đầu phục hồi."
+     },
+     {
+      "ja": "我々の期待に反して、新商品はあまり売れなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trái với kì vọng của chúng ta, sản phẩm mới không bán được mấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 専門家の予想に反して、景気は回復し始めた。",
+     "FURIGANA_MISSING: 我々の期待に反して、新商品はあまり売れなかった。"
+    ],
+    "formation": "N + に反して / に反する + N",
+    "locked_fields": [],
+    "meaning_vi": "Trái với ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜予想に反して",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả ý trái ngược với, tương phản với mong muốn, kỳ vọng. N thường là những từ như: 予想、期待、命令、意図など"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e5bc021542"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-040"
+}

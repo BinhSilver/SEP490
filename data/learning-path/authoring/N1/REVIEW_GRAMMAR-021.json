@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "書いては消し、消しては書くの繰り返しで、なかなか仕上がらない。",
+       "ja_furigana": "書(か)いては消(け)し、消(け)しては書(か)くの繰(く)り返(かえ)しで、なかなか仕上(しあ)がらない。",
+       "vi": "Cứ viết rồi xóa, xóa rồi lại viết, mãi mà chưa hoàn thành."
+      },
+      {
+       "ja": "起きては働き、働いては眠る毎日が続いている。",
+       "ja_furigana": "起(お)きては働(はたら)き、働(はたら)いては眠(ねむ)る毎日(まいにち)が続(つづ)いている。",
+       "vi": "Ngày nào cũng thức dậy rồi làm việc, làm việc rồi lại ngủ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "勉強しては寝て、寝ては勉強する日々です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày nào cũng học rồi ngủ, ngủ rồi lại học."
+     },
+     {
+      "ja": "運動しては食べ、食べては運動する生活が続いている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cuộc sống cứ tập rồi ăn, ăn rồi lại tập cứ thế tiếp diễn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 勉強しては寝て、寝ては勉強する日々です。",
+     "FURIGANA_MISSING: 運動しては食べ、食べては運動する生活が続いている。"
+    ],
+    "formation": "V-ては + V-ては、〜",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa: Diễn tả hai hành động hoặc trạng thái xảy ra liên tiếp và lặp lại nhiều lần theo chu kỳ. Dịch tự nhiên là: “cứ A rồi lại B, B rồi lại A”. Tính vòng lặp (反復・交替): Hai hành động đối ngược hoặc nối tiếp liên tiếp, lặp đi lặp lại. Sắc thái: Miêu tả cuộc sống đơn điệu, tình trạng kéo dài không thay đổi hoặc mang chút than phiền, mệt mỏi. Tính hình tượng: Thường dùng trong văn viết, nhật ký, diễn đạt nhịp sống, thời tiết, thói quen lặp.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cứ... thì... (kết xấu)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Vては V → (làm A rồi lại B; B rồi lại A) V1ては V2、V2ては V1 → hai hành động A và B xảy ra luân phiên, lặp đi lặp lại Mẫu đầy đủ: V1ては V2、V2ては V1＋（を繰り返す／日々だ／生活だ） Vては Vる（dạng ngắn hơn, dùng trong nhật ký, thoại) Ví dụ khung: 勉強しては寝て、寝ては勉強する日々です。 運動しては食べ、食べては運動する生活が続いている。 雨が降っては止み、降っては止む天気が続いた。 [4. Cách dùng & sắc thái] Hình thức: Động từ ở thể て + は (trợ từ nhấn lặp). Thường có hai vế đối xứng: V1てはV2、V2てはV1. Ý nghĩa: Diễn tả hai hành động trái ngược/đổi chiều hoặc xảy ra liên tiếp. Sắc thái cảm xúc: Thường gợi cảm giác đơn điệu, bất lực, mệt mỏi hoặc chỉ đơn giản là tả nhịp sống đều đặn. Văn viết nhiều hơn văn nói: Dùng trong bản văn, nhật ký, bài thi, miêu tả văn chương. [6. Ghi chú mở rộng] Dùng với hai động từ: Thường là hai hành động đối lập hoặc nối tiếp như: 勉強する⇄寝る, 食べる⇄運動する, 降る⇄止む. Nhấn mạnh bằng danh từ: Có thể kèm 繰り返す、生活、日々、毎日 để tăng cảm giác liên tục. Có thể mang sắc thái hài hước nhẹ: Đặc biệt khi nói về thói quen “ăn rồi lại ngủ, ngủ rồi ăn”. [7. Biến thể & cụm cố định] Vては Vて（nối tiếp nhau） V1てはV2を繰り返す（lặp đi lặp lại） VてはVる生活／日々（cuộc sống… ngày tháng…） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với mẫu \"mỗi lần/hễ… thì…\". Mẫu hiện tại phải có hai hành động lặp qua lại (đối xứng). Dùng khi hành động chỉ xảy ra 1 lần. → Sai ngữ cảnh (mẫu này đòi hỏi tính lặp nhiều lần). Dùng mệnh lệnh hoặc ý chí ở vế sau. → Không tự nhiên (mẫu này tả trạng thái khách quan/lặp lại, không ra lệnh). Thi JLPT N1/N2 hay kiểm tra bằng cách đưa câu có 2 hành động, yêu cầu chọn đúng dạng lặp luân phiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4d8291c74d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜中に大声で騒ぐのは、迷惑極まる行為だ。",
+       "ja_furigana": "夜中(よなか)に大声(おおごえ)で騒(さわ)ぐのは、迷惑(めいわく)極(きわ)まる行為(こうい)だ。",
+       "vi": "Lớn tiếng ồn ào giữa đêm là hành vi hết sức gây phiền."
+      },
+      {
+       "ja": "約束を当日に断るなんて、無責任極まる。",
+       "ja_furigana": "約束(やくそく)を当日(とうじつ)に断(ことわ)るなんて、無責任(むせきにん)極(きわ)まる。",
+       "vi": "Đến đúng ngày mới hủy hẹn thì vô trách nhiệm hết mức."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "公共の場でのあの態度は非常識極まる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thái độ đó nơi công cộng thật vô cùng thiếu ý thức."
+     },
+     {
+      "ja": "そんなことを言うなんて失礼極まる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói điều như vậy thì vô lễ tột độ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 公共の場でのあの態度は非常識極まる。",
+     "FURIGANA_MISSING: そんなことを言うなんて失礼極まる。"
+    ],
+    "formation": "Aな（語幹）／N + 極まる",
+    "locked_fields": [],
+    "meaning_vi": "- Chỉ mức độ tột cùng của một tính chất (thường tiêu cực): “vô cùng/… tột độ”. - Sử dụng khi người nói đưa ra phán xét mạnh; thường gặp trong văn viết, bình luận. - Kết hợp tốt với từ Hán Nhật mang sắc thái đánh giá: 失礼, 無礼, 非常識, 危険, 愚劣, 不便, 不快...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cực độ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Không dùng kèm thêm phó từ mức độ (とても、極めて) trước 極まる. Chủ yếu dùng với na-adj và danh từ tính chất; i-Adj thường chuyển qua dạng khác (極めて + Adj). Phán xét mạnh, có thể gây cảm giác gay gắt; cân nhắc ngữ cảnh xã giao. [6. Ghi chú mở rộng] Nhiều collocation cố định, dùng khác đi sẽ gượng: 失礼極まる/極まりない, 危険極まりない, 非常識極まる. Đọc: きわまる. Phân biệt với きわめる (tha động từ). Trong tiêu đề báo chí/bản án: thường được dùng để tăng trọng lượng phán xét. [7. Biến thể & cụm cố định] ～極まりない（biến thể mạnh） ～極まったN（định ngữ） N の極み: 光栄の極み／遺憾の極み／感激の極み [8. Lỗi thường gặp & bẫy JLPT] Dùng với i-Adj: (x) 速い極まる → (o) 極めて速い / 迅速の極み. Gắn thêm phó từ mức độ trước 極まる gây thừa: (x) とても失礼極まる. Nhầm sắc thái: 極まる/極まりない thường tiêu cực; の極み có thể tích cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a74d615d93"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "相手をばかにするような物言いは、失礼極まりない。",
+       "ja_furigana": "相手(あいて)をばかにするような物言(ものい)いは、失礼(しつれい)極(きわ)まりない。",
+       "vi": "Cách ăn nói coi thường người khác là cực kỳ vô lễ."
+      },
+      {
+       "ja": "準備もせずに山へ入るのは、危険極まりない。",
+       "ja_furigana": "準備(じゅんび)もせずに山(やま)へ入(はい)るのは、危険(きけん)極(きわ)まりない。",
+       "vi": "Vào núi mà không chuẩn bị gì là cực kỳ nguy hiểm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "公共の場でのその発言は、失礼極まりない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phát ngôn đó nơi công cộng là cực kỳ vô lễ."
+     },
+     {
+      "ja": "素人が単独で登頂を試みるのは危険極まりない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người không chuyên tự leo đỉnh là cực kỳ nguy hiểm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 公共の場でのその発言は、失礼極まりない。",
+     "FURIGANA_MISSING: 素人が単独で登頂を試みるのは危険極まりない。"
+    ],
+    "formation": "Aな（語幹）／N + 極まりない",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “cực kỳ/tột độ”, nhấn phán xét cảm tính mạnh (thường tiêu cực: vô lễ, nguy hiểm, dại dột…). Sắc thái trang trọng, văn viết; mạnh hơn とても/非常に, gần nghĩa “quá đỗi/không thể chấp nhận”. Thường đi với tập hợp từ cố định: 失礼／不便／危険／不快／残念／愚か＋極まりない. Dùng với tích cực cũng được (嬉しいこと極まりない) nhưng ít và văn vẻ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cực kỳ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh phán xét chủ quan mạnh, thường để khiển trách/phê phán. Phong cách cứng, trang trọng; trong hội thoại thường thay bằng ほんとうに／とても／めっちゃ… Có thể đứng trước danh từ để tô đậm tính chất xấu của nó: 失礼極まりない態度. [6. Ghi chú mở rộng] Đọc: 極まりない（きわまりない）. Collocation tự nhiên: 失礼／危険／不便／不快／無責任／不謹慎／愚か＋極まりない. Khi muốn tăng trang trọng hơn nữa, có thể chuyển sang ～の極み／遺憾の意など. [7. Biến thể & cụm cố định] A + 極まりない／A + 極まる：hai biến thể gần nghĩa, lựa chọn theo nhịp văn. うれしいこと極まりない／残念極まりない／不便極まりない：cụm thường gặp. ～極まりない態度／行為／結果：mẫu bổ nghĩa danh từ. [8. Lỗi thường gặp & bẫy JLPT] Dùng với tính từ trung tính nghe gượng (× 綺麗極まりない). Chọn từ mang sắc thái mạnh/đánh giá. Nhầm với 極めて（trạng từ) trong lựa chọn từ vựng; để ý chức năng ngữ pháp. Bỏ “こと” khi gắn i-adj: × 嬉しい極まりない → nên: 嬉しいこと極まりない. Nhầm sắc thái: 極まりない thường mang chê trách; dùng sai ngữ cảnh gây thô."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ca77c73f60"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "何度言っても直さず、ついには客を怒らせる始末だ。",
+       "ja_furigana": "何度(なんど)言(い)っても直(なお)さず、ついには客(きゃく)を怒(おこ)らせる始末(しまつ)だ。",
+       "vi": "Nhắc bao nhiêu lần cũng không sửa, đến nỗi cuối cùng làm khách nổi giận."
+      },
+      {
+       "ja": "遊びに夢中になり、仕事を休む始末だ。",
+       "ja_furigana": "遊(あそ)びに夢中(むちゅう)になり、仕事(しごと)を休(やす)む始末(しまつ)だ。",
+       "vi": "Mải chơi đến nỗi nghỉ cả việc, rốt cuộc là như vậy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "注意しても聞かず、期限も守らず、会社に損害まで与える始末だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhắc nhở cũng không nghe, hạn cũng không giữ, đến mức còn gây thiệt hại cho công ty."
+     },
+     {
+      "ja": "ギャンブルにのめり込み、借金する始末だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mê cờ bạc đến nỗi đi vay nợ, rốt cuộc là như vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 注意しても聞かず、期限も守らず、会社に損害まで与える始末だ。",
+     "FURIGANA_MISSING: ギャンブルにのめり込み、借金する始末だ。"
+    ],
+    "formation": "Vる／Vた + 始末だ",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt kết cục xấu sau hàng loạt vấn đề: “đến mức…”, “rốt cuộc lại…”. Sắc thái chê trách/hài lòng tiêu cực của người nói; không dùng cho kết quả tốt. Thường đi kèm các từ ngữ như ついには・とうとう・あげく・結局 để nhấn mạnh “cuối cùng thì”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cuối cùng thì... (kết xấu)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt ở cuối đoạn/kết câu để chốt lại kết cục tệ. Vế trước liệt kê hành động/vấn đề tích tụ; có thể nối bằng ～し、～し、… hoặc ～て、～て、… Không dùng khi kết quả là tích cực. Nếu trung tính/tốt, dùng ～結果／～末に. Trong văn nói, có thể thêm まったく／本当に để tăng sắc thái chê trách. [6. Ghi chú mở rộng] “始末” nguyên nghĩa “thu xếp/kết cục”; trong mẫu này thiên về “kết cục xấu, đáng chê”. Hay xuất hiện ở văn bình luận chê trách thái độ/ý thức: 管理が杜撰で～という始末だ。 Có thể rút gọn trước danh từ/cụm: ～という始末 (bỏ だ khi còn nối tiếp). [7. Biến thể & cụm cố định] ～という始末だ: dạng nhấn mạnh phổ biến. とうとう／ついに／結局～する始末だ: kết hợp nhấn mạnh kết cục. 借金する始末だ／解雇される始末だ／迷惑をかける始末だ: cụm thường dùng. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho kết quả tốt là sai: ×努力した結果、合格する始末だ → dùng 合格した. Thi hay gài với ～あげく／～末に: nếu cần sắc thái chê trách và kết án thái độ → chọn ～始末だ. Hình thái: V-る + 始末だ; không dùng V-た ngay trước 始末だ. Thiếu chuỗi bối cảnh trước đó khiến câu nghe gượng. Nên có liệt kê trước khi chốt ～始末だ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f1c395aff1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試合中は、一瞬たりとも相手から目を離してはいけない。",
+       "ja_furigana": "試合中(しあいちゅう)は、一瞬(いっしゅん)たりとも相手(あいて)から目(め)を離(はな)してはいけない。",
+       "vi": "Trong trận đấu, dù chỉ một khoảnh khắc cũng không được rời mắt khỏi đối thủ."
+      },
+      {
+       "ja": "寄付金は一円たりとも無駄にしてはならない。",
+       "ja_furigana": "寄付金(きふきん)は一円(いちえん)たりとも無駄(むだ)にしてはならない。",
+       "vi": "Tiền quyên góp dù chỉ một yên cũng không được lãng phí."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "重要な商談中は、一秒たりとも気を抜いてはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong lúc đàm phán quan trọng, dù chỉ một giây cũng không được lơ là."
+     },
+     {
+      "ja": "研究費は一円たりとも私的に使ってはならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kinh phí nghiên cứu dù chỉ một yên cũng không được sử dụng cho mục đích cá nhân."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 重要な商談中は、一秒たりとも気を抜いてはならない。",
+     "FURIGANA_MISSING: 研究費は一円たりとも私的に使ってはならない。"
+    ],
+    "formation": "一 + 助数詞 + たりとも + Vない",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh mức độ tuyệt đối: “dù chỉ một … cũng không/không được”. Thường kết hợp với con số nhỏ nhất, diễn tả tính nghiêm ngặt, kỷ luật, cảnh giác. Văn phong cứng, trang trọng; hay dùng trong quy định, phát biểu chính thức.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù chỉ... cũng không",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt trước đơn vị tối thiểu để nhấn mạnh “tuyệt đối không”. Kết hợp tự nhiên với: 一秒・一分・一瞬・一滴・一円・一人・一言・一日… Thường đi với mệnh đề cấm chỉ (～てはならない／いけない) hoặc phủ định khả năng (～できない／ない). [6. Ghi chú mở rộng] Sau たりとも là phạm vi bị phủ định; cần có hình thức phủ định ở cuối câu. Không dùng với số lượng lớn hoặc không xác định (× 何人たりとも trong nghĩa “bất kỳ ai” là sai trong mẫu này). Trong khẩu ngữ đời thường có thể thay bằng “一秒も/一円も～ない”. [7. Biến thể & cụm cố định] 一秒たりとも／一瞬たりとも／一分たりとも 一円たりとも／一滴たりとも／一言たりとも 一人たりとも／一日たりとも [8. Lỗi thường gặp & bẫy JLPT] Quên phủ định cuối câu: × 一円たりとも無駄に → phải có 無駄にしない. Dùng với danh từ trừu tượng không phải đơn vị tối thiểu: × 勇気たりともない (không tự nhiên). Nhầm trật tự: × たりとも一秒 → phải là 一秒たりとも."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c356ef02df"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの歌を聞いては、故郷を思い出してしまう。",
+       "ja_furigana": "あの歌(うた)を聞(き)いては、故郷(こきょう)を思(おも)い出(だ)してしまう。",
+       "vi": "Mỗi lần nghe bài hát đó là tôi lại nhớ về quê hương."
+      },
+      {
+       "ja": "疲れると、散歩しては気分を整えている。",
+       "ja_furigana": "疲(つか)れると、散歩(さんぽ)しては気分(きぶん)を整(ととの)えている。",
+       "vi": "Mỗi khi mệt, tôi lại đi dạo để cân bằng tâm trạng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女に会っては、いつも緊張してしまいます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi lần gặp cô ấy là tôi lại hồi hộp."
+     },
+     {
+      "ja": "忙しい時期になると、この曲を聞いては気持ちを落ち着かせる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào thời kỳ bận rộn, cứ nghe bản nhạc này là tôi lại bình tâm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Hễ... là...",
+     "FURIGANA_MISSING: 彼女に会っては、いつも緊張してしまいます。",
+     "FURIGANA_MISSING: 忙しい時期になると、この曲を聞いては気持ちを落ち着かせる。"
+    ],
+    "formation": "V-ては、〜",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa: Diễn tả tình huống “ hễ/mỗi lần A xảy ra thì B” – trong đó A là tác nhân kích hoạt (trigger), B là phản ứng/kết quả lặp lại, thường là cảm xúc hay trạng thái tự nhiên ngoài chủ ý. Tính lặp: Hành vi/hoàn cảnh A lặp nhiều lần trong thực tế; mỗi lần lặp đều kéo theo phản ứng B. Sắc thái: Tự nhiên, thói quen; hay dùng cho tâm lý (“cứ gặp là hồi hộp”, “cứ nghe là nhớ nhà”). Khác với kiểu “luân phiên A rồi B” mang tính chu kỳ đối xứng. Ngữ dụng: Dùng khi người nói muốn nhấn mạnh tính chắc chắn của phản ứng mỗi lần có kích hoạt.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hễ... là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "N／人＋に＋Vては、B → Hễ/mỗi lần làm A thì B (thường là phản ứng/cảm xúc/kết quả quen thuộc) Vては、B → “mỗi lần (tôi/ai đó) làm A thì B” (chủ ngữ ngầm hiểu) Mẫu tổng quát: （状況トリガー）＋Vては、（反応・結果） Ví dụ khung: 彼女に会っては、いつも緊張してしまいます。 この写真を見ては、故郷を思い出す。 [4. Cách dùng & sắc thái] Hình thái: Động từ ở thể て + は. Thường đi kèm ngữ đoạn chỉ đối tượng/kích hoạt bằng N＋に ở trước (彼女に会っては…). Đặc trưng mệnh đề sau: B thường là tâm lý/cảm xúc/phản xạ (緊張する・懐かしくなる・考え込む…). Tránh dùng B là hành vi chủ đích quá mạnh. Văn phong: Tự nhiên trong văn nói lẫn viết khi kể thói quen; lịch sự/nhẹ nhàng. Thời điểm: Hay dùng khi có nhiều lần quan sát trong quá khứ/hiện tại; không phù hợp với sự kiện đơn lẻ. [6. Ghi chú mở rộng] Phạm vi chủ ngữ: Thường là người nói/người được nhắc tới có cảm xúc; nếu chủ ngữ là vật/thiên nhiên, B nên là trạng thái tự nhiên (落ち着く・懐かしくなる… cũng được nếu chủ ngữ ngầm là người). Kết hợp từ vựng: Hay đi với động từ tri giác/cảm xúc: 見る・聞く・読む・会う・思い出す・緊張する・安心する・考え込む… Sắc thái nhấn mạnh: Có thể thêm 副詞 như つい・いつも・決まって để nhấn tính lặp đều đặn. Đảo thành danh ngữ: Dùng ～ては…ことがある/ことが多い để khái quát thói quen. [7. Biến thể & cụm cố định] N＋に＋会っては／聞いては／見ては／読んでは：mẫu quán dụng “cứ (gặp/nghe/nhìn/đọc) là…” Vては…ことが多い／ことがある：hay…; có lúc… 副詞＋Vては（いつも／決まって＋Vては）：cứ… là… (luôn/như thành lệ) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “Vては〜V（luân phiên）”: Mẫu này mô tả chu kỳ đối xứng (A rồi B, B rồi A). Phần hiện tại là “mỗi lần A thì B”, không cần vế đối xứng. Chọn mệnh đề sau B không tự nhiên: B nên là phản ứng/cảm xúc hoặc kết quả mang tính kéo theo, tránh mệnh lệnh/cấm đoán mạnh. Lạm dụng với sự kiện đơn lẻ: ては hàm lặp nhiều lần; dùng cho một lần sẽ không hợp lý. Nhầm với “Vると”: Vると nhấn quy luật tất yếu, ては thiên về thói quen tâm lý mỗi lần gặp kích hoạt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d071ce5c18"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "値段によっては、売らないものでもない。",
+       "ja_furigana": "値段(ねだん)によっては、売(う)らないものでもない。",
+       "vi": "Tùy giá cả, cũng không phải là không bán."
+      },
+      {
+       "ja": "頼み方によっては、協力しないものでもない。",
+       "ja_furigana": "頼(たの)み方(かた)によっては、協力(きょうりょく)しないものでもない。",
+       "vi": "Tùy cách nhờ, tôi cũng không hẳn là không hợp tác."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "条件次第では、受け入れないものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tuỳ điều kiện, cũng không phải là không chấp nhận."
+     },
+     {
+      "ja": "少しなら手伝えないものでもない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu một chút thì tôi cũng có thể giúp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "PARENT_MISSING: Không phải là không...",
+     "FURIGANA_MISSING: 条件次第では、受け入れないものでもない。",
+     "FURIGANA_MISSING: 少しなら手伝えないものでもない。"
+    ],
+    "formation": "Vない + ものでもない",
+    "locked_fields": [],
+    "meaning_vi": "“Không phải là không…”, “Cũng có thể…/không hẳn là không…”. Khẳng định yếu, dè dặt, thường kèm điều kiện, ngoại lệ. Dùng để mở đường thương lượng, bày tỏ khả năng chấp nhận trong một số điều kiện.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không phải là không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái “nói tránh”: không cam kết mạnh, thể hiện khả năng mở nhưng còn điều kiện. Thường đi kèm điều kiện: ～ば／～なら／条件次第で／工夫すれば／少しなら. Phù hợp đàm phán, thảo luận, câu trả lời lịch sự mà không ràng buộc. [6. Ghi chú mở rộng] Thích hợp khi muốn giữ “khoảng an toàn” trong phát ngôn, tránh cam kết tuyệt đối. Trong email công việc: 前向きに検討しないものでもない（cân nhắc theo hướng tích cực nhưng chưa hứa). Mẫu chủ yếu kết hợp với động từ phủ định. Các cách ghép trực tiếp với tính từ như 悪くないものでもない dễ nặng nề và không nên dùng làm công thức tiêu biểu. [7. Biến thể & cụm cố định] 工程を工夫すれば、間に合わないものでもない。 条件次第で受け入れないものでもない。 少しなら手伝えないものでもない。 [8. Lỗi thường gặp & bẫy JLPT] Dùng như lời hứa chắc chắn → sai sắc thái: đây chỉ là chấp nhận yếu, có điều kiện. Nhầm lẫn với ～ないものだろうか (ước muốn). Ở đây là “khả năng/đồng ý có điều kiện”, không phải “mong ước”. Bỏ điều kiện khiến câu mơ hồ: thêm “～ば／～なら／次第で” giúp rõ nghĩa. JLPT dễ hỏi phân biệt: ないことはない／なくはない／ないものでもない về mức độ dè dặt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f8fddd1571"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お力添えいただき、心強い限りです。",
+       "ja_furigana": "お力添(ちからぞ)えいただき、心強(こころづよ)い限(かぎ)りです。",
+       "vi": "Được mọi người giúp sức, tôi thấy rất vững lòng."
+      },
+      {
+       "ja": "せっかくの機会を逃して、残念な限りだ。",
+       "ja_furigana": "せっかくの機会(きかい)を逃(のが)して、残念(ざんねん)な限(かぎ)りだ。",
+       "vi": "Bỏ lỡ cơ hội quý giá, thật đáng tiếc vô cùng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ご支援いただき、ありがたい限りです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi vô cùng biết ơn vì đã nhận được sự hỗ trợ."
+     },
+     {
+      "ja": "結果が期待外れで、残念な限りだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết quả không như mong đợi, đáng tiếc vô cùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ご支援いただき、ありがたい限りです。",
+     "FURIGANA_MISSING: 結果が期待外れで、残念な限りだ。"
+    ],
+    "formation": "Aい／Aな + 限りだ",
+    "locked_fields": [],
+    "meaning_vi": "- Dùng để nhấn mạnh cảm xúc chủ quan ở mức tột độ: “vô cùng/rất/… hết sức”. - Trang trọng hơn so với とても/本当に; phổ biến trong bài phát biểu, thư từ, tin tức trang trọng. - Chủ yếu dùng cho cảm xúc người nói hiện tại hoặc sau khi nghe tin tức/sự kiện.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Rất... vô cùng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thể hiện đánh giá cảm xúc mạnh và lịch sự; phù hợp văn cảnh trang trọng. Không dùng cho miêu tả khách quan thuần túy (nhiệt độ, số liệu...). Tránh áp trực tiếp lên cảm xúc người khác khi không suy đoán. [6. Ghi chú mở rộng] Dễ gặp trong văn phong doanh nghiệp: 嬉しい限り／ありがたい限り mang tính khiêm nhường, lịch sự. Nếu cần thân mật hơn, chuyển sang とても/本当に + Adj để tự nhiên trong hội thoại. Trong tin tức, dùng để bày tỏ cảm xúc trước sự kiện buồn: 痛ましい限りだ／悲しい限りだ. [7. Biến thể & cụm cố định] 嬉しい限りだ／ありがたい限りだ／心強い限りだ 残念な限りだ／悔しい限りだ／寂しい限りだ (hiếm) 喜びの限りだ（văn phong cao） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “～限り” (chừng nào/càng ~): hai mẫu khác chức năng. Dùng với nội dung phi cảm xúc: (x) 売上は高い限りだ → (o) 非常に高い. Áp lên người khác: (x) 彼は嬉しい限りだ → thay bằng 彼は嬉しそうだ／嬉しいに違いない khi suy đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fdae1a2c4b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "不慣れなこととて、どうかお許しください。",
+       "ja_furigana": "不慣(ふな)れなこととて、どうかお許(ゆる)しください。",
+       "vi": "Vì còn chưa quen việc, mong ngài hãy lượng thứ."
+      },
+      {
+       "ja": "急なこととて、十分に準備できず失礼しました。",
+       "ja_furigana": "急(きゅう)なこととて、十分(じゅうぶん)に準備(じゅんび)できず失礼(しつれい)しました。",
+       "vi": "Vì việc gấp gáp nên chưa chuẩn bị chu đáo, xin thất lễ."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どものこととて、どうか大目に見てください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì cháu còn là trẻ con, mong hãy rộng lượng bỏ qua."
+     },
+     {
+      "ja": "初めてのこととて、手際が悪く失礼いたしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là lần đầu nên tôi xử lý chưa khéo, xin thất lễ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どものこととて、どうか大目に見てください。",
+     "FURIGANA_MISSING: 初めてのこととて、手際が悪く失礼いたしました。"
+    ],
+    "formation": "N の／Vた + こととて、〜",
+    "locked_fields": [],
+    "meaning_vi": "～こととて mang nghĩa “vì/ do là … nên …”, dùng để nêu lý do mang tính hoàn cảnh, cầu xin sự thông cảm/miễn thứ. Đây là lối nói cổ điển, trang trọng, thường thấy trong văn viết, lời xin lỗi, thông báo. Thường đi với N chỉ tình thế: 子ども, 初めて, 不慣れ, 急用, 留守, 多忙. Sau ～こととて thường là mệnh đề xin cảm thông, diễn đạt kết quả khó tránh. Ít dùng trong hội thoại đời thường; thay bằng ～ものですから, ～もので, ～ため. Không dùng trực tiếp cho mệnh lệnh/quyết tâm mạnh; thích hợp với xin phép, xin lỗi, giải thích.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì... nên... (không tránh được)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái: khiêm nhường, xin lượng thứ, giải thích nguyên nhân bất khả kháng. Vị trí: thường đứng đầu câu để mở lý do rồi đến lời xin lỗi/đề nghị. Thích hợp trong email công việc, thông báo chính thức, lời phát biểu. Kết hợp: hay đi với cụm xin lỗi 敬語 như 失礼いたしました, 申し訳ございません. [6. Ghi chú mở rộng] “こととて” bắt nguồn từ “こと（事）+とて（と言って）”, sắc thái như “nói là … nên”. Mang tính khuôn mẫu: 子どものこととて, 初めてのこととて là cụm gần như cố định. Thường đi kèm kính ngữ/ khiêm nhường để nhất quán phong cách. Trong văn học/biền văn, dùng để tạo giọng điệu cổ kính, lịch sự. [7. Biến thể & cụm cố định] 子どものこととて／小さい子のこととて: mong được bỏ qua do trẻ nhỏ. 初めてのこととて: lần đầu nên mong thông cảm. 不慣れなこととて／急なこととて／留守のこととて: mẫu sử dụng thường gặp. 口語 thay thế: ～もので／～ものですから. [8. Lỗi thường gặp & bẫy JLPT] Dùng trong hội thoại thân mật nghe cứng và kiểu cách; nên thay bằng ～もので. Gắn trực tiếp sau động từ nguyên dạng đôi khi gượng; ưu tiên Nのこととて hoặc mệnh đề rút gọn. Thi JLPT: bẫy phân biệt sắc thái xin lượng thứ (～こととて) với trung tính (～ため). Câu có 失礼/ご容赦ください → chọn ～こととて. Không dùng để ra lệnh/ý chí mạnh: ～こととて, 行け không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e061592dff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女の学力もさることながら、人柄が素晴らしい。",
+       "ja_furigana": "彼女(かのじょ)の学力(がくりょく)もさることながら、人柄(ひとがら)が素晴(すば)らしい。",
+       "vi": "Học lực của cô ấy đã đành, nhân cách còn tuyệt vời hơn."
+      },
+      {
+       "ja": "値段もさることながら、店員の対応の良さが評判だ。",
+       "ja_furigana": "値段(ねだん)もさることながら、店員(てんいん)の対応(たいおう)の良(よ)さが評判(ひょうばん)だ。",
+       "vi": "Giá cả đã đành, thái độ phục vụ tốt của nhân viên còn được khen ngợi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼の歌唱力もさることながら、表現力が圧倒的だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chỉ giọng hát của anh ấy ấn tượng, mà khả năng biểu đạt còn áp đảo."
+     },
+     {
+      "ja": "立地もさることながら、アフターサービスの良さが評判だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không chỉ vị trí, mà dịch vụ hậu mãi tốt cũng nổi tiếng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼の歌唱力もさることながら、表現力が圧倒的だ。",
+     "FURIGANA_MISSING: 立地もさることながら、アフターサービスの良さが評判だ。"
+    ],
+    "formation": "N + もさることながら、〜",
+    "locked_fields": [],
+    "meaning_vi": "“Không chỉ A đáng kể, mà B còn hơn thế.” Nâng A lên trước, rồi chuyển trọng tâm sang B. Sắc thái lịch sự, quảng cáo/giới thiệu/đánh giá trang trọng; thường tích cực, nhưng cũng dùng được với tiêu cực. Phần sau là trọng tâm thông tin; tránh đặt nội dung quan trọng ở A.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "... cũng đã đành, ... còn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong lời khen/đánh giá chuyên môn, văn bản PR, thuyết trình. N1 và phần sau nên cùng một trục đánh giá (chất lượng, dịch vụ, con người...). Khác với “だけでなく”: nhấn mạnh phép nâng A rồi đẩy nổi B “còn hơn”. [6. Ghi chú mở rộng] Mang tính văn nhã; đặt trong copywriting giúp câu văn “sang” hơn. Thường đi kèm cặp từ trái/phụ trợ: まして／なおさら／とりわけ ở phần B để tăng lực nhấn. Đặt nhiều hơn một tiêu chí A cũng được, nhưng chú ý tránh làm mờ trọng tâm B. [7. Biến thể & cụm cố định] 見た目もさることながら／品質もさることながら／経験もさることながら／安全性もさることながら B + はなおさら／まして～: 価格はなおさら魅力的だ [8. Lỗi thường gặp & bẫy JLPT] Cho động/tính từ đứng trước trực tiếp → không tự nhiên; nên dùng danh từ hóa nếu cần. Đặt thông tin quan trọng ở A → mất tác dụng; B mới là trọng tâm cần nhấn. Nhầm với ～はおろか (tiêu cực) hoặc ～だけでなく (trung tính) → sai sắc thái trong bài thi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b96f11b470"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-021"
+}

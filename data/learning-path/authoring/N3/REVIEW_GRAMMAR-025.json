@@ -1,0 +1,2466 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今ちょうど夕飯を作るところです。",
+       "ja_furigana": "今(いま)ちょうど夕飯(ゆうはん)を作(つく)るところです。",
+       "vi": "Tôi vừa chuẩn bị nấu bữa tối.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "たった今、空港に着いたところです。",
+       "ja_furigana": "たった今(いま)、空港(くうこう)に着(つ)いたところです。",
+       "source": "AI",
+       "vi": "Tôi vừa mới đến sân bay ngay tức thì."
+      },
+      {
+       "ja": "今ちょうど晩ご飯を作っているところです。",
+       "ja_furigana": "今(いま)ちょうど晩(ばん)ご飯(はん)を作(つく)っているところです。",
+       "source": "AI",
+       "vi": "Bây giờ tôi đang đúng lúc nấu bữa tối."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "V-ている＋ところだ = đang ở giữa hành động. ところに/で/を không kết thúc câu.",
+      "options": [
+       "ところで",
+       "ところに",
+       "ところだ",
+       "ところを"
+      ],
+      "prompt_ja": "今、手紙を書いている（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "今から + V辞書形＋ところだ = sắp làm.",
+      "options": [
+       "ところだ。",
+       "ところに。",
+       "ところで。",
+       "ところを。"
+      ],
+      "prompt_ja": "今から昼ご飯を食べる（　　）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "作るところだ = sắp nấu (giai đoạn trước hành động). Thứ tự đúng: これから晩ご飯を作るところだから、少し待っていてね。 ★ = 少し。",
+      "options": [
+       "待っていてね",
+       "ところだから、",
+       "これから晩ご飯を作る",
+       "少し"
+      ],
+      "prompt_ja": "母： ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "着いたところ = vừa mới đến. Thứ tự đúng: 駅に着いたところなので、あと十分でそちらに行きます。 ★ = あと十分で。",
+      "options": [
+       "駅に着いた",
+       "あと十分で",
+       "そちらに行きます",
+       "ところなので、"
+      ],
+      "prompt_ja": "今、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "書いているところだ = đang viết (giữa hành động).",
+      "options": [
+       "Cách nói của em trai tôi vẫn còn trẻ con.",
+       "Áo này hơi có vẻ trẻ con nhỉ.",
+       "Hôm nay trời ấm mang cảm giác mùa xuân.",
+       "Bây giờ tôi đang viết thư."
+      ],
+      "prompt_ja": "今、手紙を書いているところだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "食べるところだ = sắp ăn.",
+      "options": [
+       "Áo này hơi có vẻ trẻ con nhỉ.",
+       "Bây giờ tôi sắp ăn trưa.",
+       "Hôm nay trời ấm mang cảm giác mùa xuân.",
+       "Cách nói của em trai tôi vẫn còn trẻ con."
+      ],
+      "prompt_ja": "今から昼ご飯を食べるところだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "今から (sắp) dùng V辞書形＋ところだ: 食べるところだ; Vた＋ところだ là \"vừa mới xong\".",
+      "options": [
+       "今、手紙を書いているところだ。",
+       "今から昼ご飯を食べたところだ。",
+       "たった今帰ったところだ。",
+       "これから出かけるところだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "さっき (vừa nãy) đi với Vた＋ところだ: 着いたところだ.",
+      "options": [
+       "たった今帰ったところだ。",
+       "今、手紙を書いているところだ。",
+       "さっき駅に着くところだ。",
+       "これから晩ご飯を作るところだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng V-たところだ cho việc đã xảy ra từ hôm qua hay tuần trước (khi khoảng cách thời gian đã xa phải dùng V-たばかりだ).",
+    "examples": [
+     {
+      "ja": "今から出かけるところです。",
+      "ja_furigana": "今(いま)から出(で)かけるところです。",
+      "source": "BOOK",
+      "vi": "Bây giờ tôi chuẩn bị đi ra ngoài."
+     },
+     {
+      "ja": "たった今、空港に着いたところです。",
+      "ja_furigana": "たった今(いま)、空港(くうこう)に着(つ)いたところです。",
+      "source": "AI",
+      "vi": "Tôi vừa mới đến sân bay ngay tức thì."
+     },
+     {
+      "ja": "今ちょうど晩ご飯を作っているところです。",
+      "ja_furigana": "今(いま)ちょうど晩(ばん)ご飯(はん)を作(つく)っているところです。",
+      "source": "AI",
+      "vi": "Bây giờ tôi đang đúng lúc nấu bữa tối."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "作るところだから = vì sắp nấu.",
+      "options": [
+       "ことだ",
+       "わけだ",
+       "はずだ",
+       "ところだから、"
+      ],
+      "prompt_ja": "母：これから晩ご飯を作る（　　）少し待っていてね。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "着いたところなので = vì vừa mới đến.",
+      "options": [
+       "ことだ",
+       "ところなので、",
+       "はずだ",
+       "わけだ"
+      ],
+      "prompt_ja": "今、駅に着いた（　　）あと十分でそちらに行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "V-ている: しているところだ.",
+      "options": [
+       "今、宿題をするているところだ。",
+       "たった今帰ったところだ。",
+       "これから出かけるところだ。",
+       "今、手紙を書いているところだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ところだ",
+      "sentence_ja": "今、手紙を書いている＿＿。",
+      "translation_vi": "Bây giờ tôi đang viết thư."
+     },
+     {
+      "answer": "ところだ。",
+      "sentence_ja": "今から昼ご飯を食べる＿＿",
+      "translation_vi": "Bây giờ tôi sắp ăn trưa."
+     }
+    ],
+    "findings": [],
+    "formation": "V-る / V-ている / V-た + ところだ",
+    "locked_fields": [],
+    "meaning_vi": "Vừa định, đang, vừa mới xong — Chỉ rõ giai đoạn của hành động theo thời gian.",
+    "nuance_vi": "Phân biệt rõ 3 thời điểm: V-るところだ (sắp sửa làm ngay bây giờ), V-ているところだ (đang làm dở tay), V-たところだ (vừa mới làm xong tức thì).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "昼ご飯を食べる",
+       "ところだ。",
+       "今から"
+      ],
+      "translation_vi": "Bây giờ tôi sắp ăn trưa."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "ところだ。",
+       "今、",
+       "手紙を書いている"
+      ],
+      "translation_vi": "Bây giờ tôi đang viết thư."
+     }
+    ],
+    "pattern": "V từ điển / V-ている / V-た + ところだ",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "V từ điển + ところ = sắp làm; V-ている + ところ = đang làm; V-た + ところ = vừa làm xong ngay lúc này."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a19921bea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どものころ、この川で泳いだことがある。",
+       "ja_furigana": "子(こ)どものころ、この川(かわ)で泳(およ)いだことがある。",
+       "vi": "Hồi nhỏ tôi từng bơi ở con sông này.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "私は一度も北海道へ行ったことがありません。",
+       "ja_furigana": "私(わたし)は一度(いちど)も北海道(ほっかいどう)へ行(い)ったことがありません。",
+       "source": "AI",
+       "vi": "Tôi chưa từng đi Hokkaido lần nào cả."
+      },
+      {
+       "ja": "日本の古い映画を見たことがありますか。",
+       "ja_furigana": "日本(にほん)の古(ふる)い映画(えいが)を見(み)たことがありますか。",
+       "source": "AI",
+       "vi": "Bạn đã từng xem phim cổ của Nhật Bản bao giờ chưa?"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Vた＋ことがある = đã từng. Các dạng còn lại nối sai.",
+      "options": [
+       "たことがある",
+       "てことがある",
+       "たのことがある",
+       "たことである"
+      ],
+      "prompt_ja": "私は一度、山に登っ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "働いたことがある = đã từng làm việc (kinh nghiệm).",
+      "options": [
+       "たことにする",
+       "たことになる",
+       "ことがある。",
+       "たことはない"
+      ],
+      "prompt_ja": "彼女は日本で働いた（　　）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "行ったことがある = đã từng đi (kinh nghiệm). Thứ tự đúng: 京都へ行ったことがあるので、古い町を少し知っている。 ★ = 古い。",
+      "options": [
+       "古い",
+       "ことがあるので、",
+       "町を少し知っている",
+       "京都へ行った"
+      ],
+      "prompt_ja": "私は ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "作ったことがある = đã từng nấu. Thứ tự đúng: この料理を作ったことがあるから、必要な材料が分かる。 ★ = 必要な。",
+      "options": [
+       "この料理を作った",
+       "材料が分かる",
+       "必要な",
+       "ことがあるから、"
+      ],
+      "prompt_ja": "前に ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「たことがある」 diễn đạt Đã từng — Nêu kinh nghiệm đã trải qua trong quá khứ. Câu này nghĩa là: \"Tôi đã từng leo núi một lần.\"",
+      "options": [
+       "Tôi đã từng leo núi một lần.",
+       "Áo này hơi có vẻ trẻ con nhỉ.",
+       "Hôm nay trời ấm mang cảm giác mùa xuân.",
+       "Cách nói của em trai tôi vẫn còn trẻ con."
+      ],
+      "prompt_ja": "私は一度、山に登ったことがある。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "働いたことがある = có kinh nghiệm làm việc ở Nhật.",
+      "options": [
+       "Áo này hơi có vẻ trẻ con nhỉ.",
+       "Hôm nay trời ấm mang cảm giác mùa xuân.",
+       "Cô ấy từng làm việc ở Nhật.",
+       "Cách nói của em trai tôi vẫn còn trẻ con."
+      ],
+      "prompt_ja": "彼女は日本で働いたことがある。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "ことがある nói kinh nghiệm, không đi với thời điểm cụ thể gần như 昨日; nói 昨日京都へ行った.",
+      "options": [
+       "私は一度、山に登ったことがある。",
+       "昨日、京都へ行ったことがある。",
+       "彼女は日本で働いたことがある。",
+       "富士山を見たことがありますか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Vた nối trực tiếp với ことがある; không chen の.",
+      "options": [
+       "富士山を見たことがありますか。",
+       "一度も日本料理を作ったことがない。",
+       "彼女は日本で働いたことがある。",
+       "私は着物を着たのことがある。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Ghép ことがある với các trạng từ thời gian quá khứ gần như 昨日, 先週 (những mốc đó dùng thẳng V-ました).",
+    "examples": [
+     {
+      "ja": "富士山に登ったことがありますか。",
+      "ja_furigana": "富士山(ふじさん)に登(のぼ)ったことがありますか。",
+      "source": "BOOK",
+      "vi": "Bạn đã từng leo núi Phú Sĩ bao giờ chưa?"
+     },
+     {
+      "ja": "私は一度も北海道へ行ったことがありません。",
+      "ja_furigana": "私(わたし)は一度(いちど)も北海道(ほっかいどう)へ行(い)ったことがありません。",
+      "source": "AI",
+      "vi": "Tôi chưa từng đi Hokkaido lần nào cả."
+     },
+     {
+      "ja": "日本の古い映画を見たことがありますか。",
+      "ja_furigana": "日本(にほん)の古(ふる)い映画(えいが)を見(み)たことがありますか。",
+      "source": "AI",
+      "vi": "Bạn đã từng xem phim cổ của Nhật Bản bao giờ chưa?"
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "行ったことがあるので = vì đã từng đi.",
+      "options": [
+       "たことにする",
+       "ことがあるので、",
+       "たことになる",
+       "たことはない"
+      ],
+      "prompt_ja": "私は京都へ行った（　　）古い町を少し知っている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "作ったことがあるから = vì đã từng nấu.",
+      "options": [
+       "たことにする",
+       "たことになる",
+       "たことはない",
+       "ことがあるから、"
+      ],
+      "prompt_ja": "前にこの料理を作った（　　）必要な材料が分かる。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "歌う → thể た là 歌った: 歌ったことがある.",
+      "options": [
+       "日本の歌を歌いたことがある。",
+       "富士山を見たことがありますか。",
+       "一度も日本料理を作ったことがない。",
+       "私は一度、山に登ったことがある。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "たことがある",
+      "sentence_ja": "私は一度、山に登っ＿＿。",
+      "translation_vi": "Tôi đã từng leo núi một lần."
+     },
+     {
+      "answer": "ことがある。",
+      "sentence_ja": "彼女は日本で働いた＿＿",
+      "translation_vi": "Cô ấy từng làm việc ở Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "V-た + ことがある / ことがない",
+    "locked_fields": [],
+    "meaning_vi": "Đã từng — Nêu kinh nghiệm đã trải qua trong quá khứ.",
+    "nuance_vi": "Nói về kinh nghiệm từng trải qua trong đời tính đến hiện tại; không dùng để kể lại hành động vừa làm hôm qua hay sáng nay.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "日本で働いた",
+       "ことがある。",
+       "彼女は"
+      ],
+      "translation_vi": "Cô ấy từng làm việc ở Nhật."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "たことがある。",
+       "私は一度、",
+       "山に登っ"
+      ],
+      "translation_vi": "Tôi đã từng leo núi một lần."
+     }
+    ],
+    "pattern": "V-た + ことがある",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Khác với V từ điển + ことがある = thỉnh thoảng có khi (たまに遅れることがある). Không dùng cho việc vừa mới xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7462a3f644"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "妹が私のかばんを持ってくれました。",
+       "ja_furigana": "妹(いもうと)が私(わたし)のかばんを持(も)ってくれました。",
+       "vi": "Em gái đã xách túi giúp tôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "母が誕生日に暖かいセーターを編んでくれた。",
+       "ja_furigana": "母(はは)が誕生日(たんじょうび)に暖(あたた)かいセーターを編(あ)んでくれた。",
+       "source": "AI",
+       "vi": "Mẹ đã đan cho tôi một chiếc áo len ấm áp vào ngày sinh nhật."
+      },
+      {
+       "ja": "分からない漢字を先輩に教えてもらいました。",
+       "ja_furigana": "分(わ)からない漢字(かんじ)を先輩(せんぱい)に教(おし)えてもらいました。",
+       "source": "AI",
+       "vi": "Tôi đã được tiền bối chỉ dạy cho những chữ Hán chưa biết."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Người khác (妹) làm cho mình → てくれた. てあげた/てやった là mình làm cho người khác; てもらった cần chủ ngữ là người nhận.",
+      "options": [
+       "てやった",
+       "てあげた",
+       "てもらった",
+       "てくれた"
+      ],
+      "prompt_ja": "妹が私にお茶を入れ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "教えてあげた = mình làm giúp em (hướng từ mình sang người khác).",
+      "options": [
+       "てあげた",
+       "宿題を教えて",
+       "てみた",
+       "ておいた"
+      ],
+      "prompt_ja": "私は弟に（　　）あげた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "貸してあげた = mình cho bạn mượn; 喜んでくれた = bạn vui (hướng về mình). Thứ tự đúng: 本を貸してあげたら、とても喜んでくれた。 ★ = とても。",
+      "options": [
+       "あげたら、",
+       "とても",
+       "喜んでくれた",
+       "本を貸して"
+      ],
+      "prompt_ja": "友達が困っていたので、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "運んでもらった = được anh mang giúp (mình là người nhận). Thứ tự đúng: 兄に荷物を運んでもらったので、楽に駅まで行けた。 ★ = 楽に。",
+      "options": [
+       "駅まで行けた",
+       "兄に荷物を運んで",
+       "もらったので、",
+       "楽に"
+      ],
+      "prompt_ja": "荷物が重かったので、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「てくれた」 diễn đạt Cho, giúp, được giúp — Diễn tả việc cho nhận ân huệ giữa các bên. Câu này nghĩa là: \"Em gái đã pha trà cho tôi.\"",
+      "options": [
+       "Áo này hơi có vẻ trẻ con nhỉ.",
+       "Em gái đã pha trà cho tôi.",
+       "Hôm nay trời ấm mang cảm giác mùa xuân.",
+       "Cách nói của em trai tôi vẫn còn trẻ con."
+      ],
+      "prompt_ja": "妹が私にお茶を入れてくれた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "教えてあげた = tôi giúp (dạy) em trai làm bài.",
+      "options": [
+       "Áo này hơi có vẻ trẻ con nhỉ.",
+       "Cách nói của em trai tôi vẫn còn trẻ con.",
+       "Hôm nay trời ấm mang cảm giác mùa xuân.",
+       "Tôi đã giúp em trai làm bài tập."
+      ],
+      "prompt_ja": "私は弟に宿題を教えてあげた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Người khác làm cho mình dùng てくれる: 友達が私に本を貸してくれた.",
+      "options": [
+       "妹が私にお茶を入れてくれた。",
+       "私は弟に宿題を教えてあげた。",
+       "友達が私に本を貸してあげた。",
+       "兄に荷物を運んでもらった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Chủ ngữ 私 nhận ơn từ 先生 dùng てもらう: 私は先生に日本語を教えてもらった.",
+      "options": [
+       "母に駅まで送ってもらった。",
+       "友達が写真を撮ってくれた。",
+       "私は先生に日本語を教えてくれた。",
+       "私は弟に宿題を教えてあげた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng 〜てあげる trực tiếp với người bề trên sẽ mang sắc thái kể ơn (với cấp trên nên hỏi お〜しましょうか).",
+    "examples": [
+     {
+      "ja": "友達が空港まで送ってくれました。",
+      "ja_furigana": "友達(ともだち)が空港(くうこう)まで送(おく)ってくれました。",
+      "source": "BOOK",
+      "vi": "Bạn tôi đã tiễn tôi ra tận sân bay."
+     },
+     {
+      "ja": "母が誕生日に暖かいセーターを編んでくれた。",
+      "ja_furigana": "母(はは)が誕生日(たんじょうび)に暖(あたた)かいセーターを編(あ)んでくれた。",
+      "source": "AI",
+      "vi": "Mẹ đã đan cho tôi một chiếc áo len ấm áp vào ngày sinh nhật."
+     },
+     {
+      "ja": "分からない漢字を先輩に教えてもらいました。",
+      "ja_furigana": "分(わ)からない漢字(かんじ)を先輩(せんぱい)に教(おし)えてもらいました。",
+      "source": "AI",
+      "vi": "Tôi đã được tiền bối chỉ dạy cho những chữ Hán chưa biết."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "貸してあげたら = khi mình cho mượn.",
+      "options": [
+       "てあげた",
+       "てみた",
+       "あげたら、",
+       "ておいた"
+      ],
+      "prompt_ja": "友達が困っていたので、本を貸して（　　）とても喜んでくれた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "運んでもらったので = vì được anh mang giúp.",
+      "options": [
+       "もらったので、",
+       "てみた",
+       "てあげた",
+       "ておいた"
+      ],
+      "prompt_ja": "荷物が重かったので、兄に荷物を運んで（　　）楽に駅まで行けた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mình làm cho em gái dùng てあげる: 私は妹にお茶を入れてあげた.",
+      "options": [
+       "私は妹にお茶を入れてくれた。",
+       "母に駅まで送ってもらった。",
+       "友達が写真を撮ってくれた。",
+       "妹が私にお茶を入れてくれた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "てくれた",
+      "sentence_ja": "妹が私にお茶を入れ＿＿。",
+      "translation_vi": "Em gái đã pha trà cho tôi."
+     },
+     {
+      "answer": "宿題を教えて",
+      "sentence_ja": "私は弟に＿＿あげた。",
+      "translation_vi": "Tôi đã giúp em trai làm bài tập."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て + あげる / くれる / もらう",
+    "locked_fields": [],
+    "meaning_vi": "Cho, giúp, được giúp — Diễn tả việc cho nhận ân huệ giữa các bên.",
+    "nuance_vi": "Biểu thị chiều hướng ân huệ: あげる (mình làm giúp người khác), くれる (người khác làm giúp mình/người thân mình), もらう (mình nhận sự giúp đỡ từ ai đó).",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "宿題を教えて",
+       "あげた。",
+       "私は弟に"
+      ],
+      "translation_vi": "Tôi đã giúp em trai làm bài tập."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "くれた。",
+       "妹が",
+       "私にお茶を入れて"
+      ],
+      "translation_vi": "Em gái đã pha trà cho tôi."
+     }
+    ],
+    "pattern": "V-て + あげる / くれる / もらう",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "あげる = mình làm cho người khác (cẩn thận, dễ nghe như ban ơn). くれる = người khác làm cho mình. もらう = mình nhờ và nhận được."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0a15490b65"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今度こそ約束の時間を守ります。",
+       "ja_furigana": "今度(こんど)こそ約束(やくそく)の時間(じかん)を守(まも)ります。",
+       "vi": "Lần này nhất định tôi sẽ đúng giờ hẹn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "これこそ私がずっと探していた本だ。",
+       "ja_furigana": "これこそ私(わたし)がずっと探(さが)していた本(ほん)だ。",
+       "vi": "Đây chính là cuốn sách tôi tìm suốt bấy lâu.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "苦しいときこそ笑顔を忘れないでいたい。",
+       "ja_furigana": "苦(くる)しいときこそ笑顔(えがお)を忘(わす)れないでいたい。",
+       "source": "AI",
+       "vi": "Chính những lúc khó khăn tôi lại càng muốn không đánh mất nụ cười."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "こそ nhấn mạnh \"chính lần này (chứ không phải lần khác)\" kèm quyết tâm. さえ/ほど/まで không hợp nghĩa.",
+      "options": [
+       "こそ",
+       "さえ",
+       "ほど",
+       "まで"
+      ],
+      "prompt_ja": "今度（　　）成功させたい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "今日こそ = chính hôm nay (quyết tâm, khác với những lần trước).",
+      "options": [
+       "さえ",
+       "ほど",
+       "こそ",
+       "きり"
+      ],
+      "prompt_ja": "今日（　　）頑張ろう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "今こそ = chính lúc này (nhấn mạnh thời điểm). Thứ tự đúng: 今こそ本当の気持ちを話そう。 ★ = 本当の。",
+      "options": [
+       "本当の",
+       "こそ",
+       "気持ちを話そう",
+       "今"
+      ],
+      "prompt_ja": "ずっと言えなかったが、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "今年こそ = chính năm nay (quyết tâm). Thứ tự đúng: 今年こそ絶対に勝ちたい。 ★ = 絶対に。",
+      "options": [
+       "今年",
+       "勝ちたい",
+       "絶対に",
+       "こそ"
+      ],
+      "prompt_ja": "去年は負けた。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "今度こそ = chính lần này (quyết tâm).",
+      "options": [
+       "Chính lần này tôi muốn thành công.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính bạn phù hợp việc này.",
+       "Chính hôm nay tôi sẽ làm đến cùng."
+      ],
+      "prompt_ja": "今度こそ成功させたい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "こそ = chính (hôm nay); \"chỉ hôm nay\" là だけ, \"ngay cả\" là さえ/も.",
+      "options": [
+       "Chỉ hôm nay tôi mới cố gắng thôi.",
+       "Ngay cả hôm nay tôi cũng cố gắng.",
+       "Chính hôm nay mình phải cố gắng.",
+       "Hôm nay tôi đã cố gắng rồi."
+      ],
+      "prompt_ja": "今日こそ頑張ろう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "こそ không gắn trực tiếp sau tính từ/mệnh đề; nhấn mạnh lý do phải dùng からこそ: 好きだからこそ.",
+      "options": [
+       "あなたが好きなこそ、厳しく言うのだ。",
+       "今度こそ成功させたい。",
+       "こちらこそ、よろしくお願いします。",
+       "今年こそ絶対に勝ちたい。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mệnh đề lý do + こそ phải là からこそ: 忙しいからこそ.",
+      "options": [
+       "こちらこそ、よろしくお願いします。",
+       "今度こそ成功させたい。",
+       "忙しいこそ、時間を大切にしたい。",
+       "健康だからこそ、毎日働ける。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Giữ lại trợ từ は, が, を khi thêm こそ (các trợ từ は, が, を phải được lược bỏ trước こそ).",
+    "examples": [
+     {
+      "ja": "「どうぞよろしく」「こちらこそ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Rất mong được giúp đỡ - Chính tôi mới mong được giúp đỡ."
+     },
+     {
+      "ja": "今年こそ合格したい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năm nay tôi muốn đỗ."
+     },
+     {
+      "ja": "苦しいときこそ笑顔を忘れないでいたい。",
+      "ja_furigana": "苦(くる)しいときこそ笑顔(えがお)を忘(わす)れないでいたい。",
+      "source": "AI",
+      "vi": "Chính những lúc khó khăn tôi lại càng muốn không đánh mất nụ cười."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "今こそ = chính lúc này.",
+      "options": [
+       "さえ",
+       "こそ",
+       "ほど",
+       "まで"
+      ],
+      "prompt_ja": "ずっと言えなかったが、今（　　）本当の気持ちを話そう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "今年こそ = chính năm nay.",
+      "options": [
+       "さえ",
+       "ほど",
+       "まで",
+       "こそ"
+      ],
+      "prompt_ja": "去年は負けた。今年（　　）絶対に勝ちたい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "こそ đứng ngay sau từ được nhấn mạnh, không thêm に phía sau: 今度こそ成功させたい.",
+      "options": [
+       "こちらこそ、よろしくお願いします。",
+       "今度こそに成功させたい。",
+       "今年こそ絶対に勝ちたい。",
+       "今日こそ頑張ろう。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "こそ",
+      "sentence_ja": "今度＿＿成功させたい。",
+      "translation_vi": "Chính lần này tôi muốn thành công."
+     },
+     {
+      "answer": "こそ",
+      "sentence_ja": "今日＿＿頑張ろう。",
+      "translation_vi": "Chính hôm nay tôi sẽ cố gắng."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 今年こそ合格したい。"
+    ],
+    "formation": "N + こそ / 〜てこそ / 〜ばこそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính … (nhấn mạnh)",
+    "nuance_vi": "Đặt sau danh từ hoặc lý do để nhấn mạnh đặc biệt vào chính yếu tố đó chứ không phải cái nào khác.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "この仕事に",
+       "ふさわしい。",
+       "あなたこそ"
+      ],
+      "translation_vi": "Chính bạn mới phù hợp công việc này."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "よろしくお願いします。",
+       "こちら",
+       "こそ"
+      ],
+      "translation_vi": "Chính tôi mới phải mong được anh/chị giúp đỡ."
+     }
+    ],
+    "pattern": "〜こそ",
+    "pattern_variants": [
+     "N + こそ",
+     "〜こそ/〜からこそ"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": "Mức độ, so sánh và nhấn mạnh",
+    "usage_vi": "Dùng để nhấn mạnh mạnh mẽ đối tượng hoặc yếu tố được nói tới: “chính là…”. 1) Dễ nhầm với ～だけ／～こそが. → ～こそ dùng để nhấn mạnh “chính… (mới là…)”. 2) Hay xuất hiện trong các mẫu cố định. → Ví dụ: こちらこそ, 今こそ, だからこそ… (nhấn mạnh lý do/thời điểm). 3) Không phải mẫu liệt kê. → Chức năng chính là nhấn mạnh, không thêm thông tin mới."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f4822a3c68"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は私にさえ旅行の話をしなかった。",
+       "ja_furigana": "兄(あに)は私(わたし)にさえ旅行(りょこう)の話(はなし)をしなかった。",
+       "vi": "Anh chẳng kể chuyện đi chơi ngay cả với tôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "疲れて、立つことさえできなかった。",
+       "ja_furigana": "疲(つか)れて、立(た)つことさえできなかった。",
+       "vi": "Mệt đến mức thậm chí không đứng dậy nổi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "忙しくて新聞を読む時間さえありません。",
+       "ja_furigana": "忙(いそが)しくて新聞(しんぶん)を読(よ)む時間(じかん)さえありません。",
+       "source": "AI",
+       "vi": "Tôi bận đến mức thậm chí thời gian đọc báo cũng không có."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "さえ nêu ví dụ cực đoan: đến cả bữa trưa cũng không ăn được (thì việc khác càng không).",
+      "options": [
+       "によって",
+       "にして",
+       "として",
+       "さえ"
+      ],
+      "prompt_ja": "忙しくて、昼ご飯（　　）食べられなかった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "N＋でさえ = ngay cả (người Nhật) cũng không đọc được.",
+      "options": [
+       "として",
+       "でさえ",
+       "によって",
+       "にとって"
+      ],
+      "prompt_ja": "この漢字は、日本人（　　）読めない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mưa to đến mức cả cái ô cũng vô dụng. Thứ tự đúng: 傘さえ役に立たなかった。 ★ = 役に。",
+      "options": [
+       "立たなかった",
+       "役に",
+       "さえ",
+       "傘"
+      ],
+      "prompt_ja": "雨が強くて、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "名前さえ = đến cả tên mình (cũng không nói được). Thứ tự đúng: 自分の名前さえうまく言えなかった。 ★ = うまく。",
+      "options": [
+       "さえ",
+       "自分の名前",
+       "言えなかった",
+       "うまく"
+      ],
+      "prompt_ja": "緊張して、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "昼ご飯さえ = đến cả bữa trưa (ví dụ cực đoan).",
+      "options": [
+       "Chính lần này tôi muốn thành công.",
+       "Bận đến nỗi ngay cả bữa trưa cũng không ăn được.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "忙しくて、昼ご飯さえ食べられなかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "でさえ = ngay cả (người Nhật) cũng….",
+      "options": [
+       "Chỉ người Nhật mới đọc được chữ kanji này.",
+       "Người Nhật đọc chữ kanji này không giỏi bằng tôi.",
+       "Chữ kanji này người Nhật đọc được.",
+       "Ngay cả người Nhật cũng không đọc được chữ kanji này."
+      ],
+      "prompt_ja": "この漢字は、日本人でさえ読めない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "さえ nêu ví dụ cực đoan; người giỏi giải được bài dễ là đương nhiên nên さえ không hợp (nói 難しい問題さえ解ける).",
+      "options": [
+       "忙しくて、昼ご飯さえ食べられなかった。",
+       "雨が強くて、傘さえ役に立たなかった。",
+       "この漢字は、日本人でさえ読めない。",
+       "彼は頭がいいので、簡単な問題さえ解ける。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "さえ thay cho が/を: 昼ご飯さえ.",
+      "options": [
+       "緊張して、自分の名前さえうまく言えなかった。",
+       "この漢字は、日本人でさえ読めない。",
+       "子どもでさえ知っている。",
+       "忙しくて、昼ご飯がさえ食べられなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Giữ nguyên trợ từ は, が, を trước さえ (さえ thay thế trực tiếp cho は, が, を; còn に, で, へ, から thì đặt trước さえ).",
+    "examples": [
+     {
+      "ja": "この子はもう６歳だが、まだ自分の名前さえ読めない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứa trẻ này đã 6 tuổi nhưng đến tên mình cũng chưa thể đọc được."
+     },
+     {
+      "ja": "娘は親にさえ相談せずに留学を決めてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con gái tôi đến cha mẹ cũng không hề bàn bạc mà tự mình quyết định đi du học."
+     },
+     {
+      "ja": "忙しくて新聞を読む時間さえありません。",
+      "ja_furigana": "忙(いそが)しくて新聞(しんぶん)を読(よ)む時間(じかん)さえありません。",
+      "source": "AI",
+      "vi": "Tôi bận đến mức thậm chí thời gian đọc báo cũng không có."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "傘さえ = đến cả cái ô.",
+      "options": [
+       "にして",
+       "として",
+       "さえ",
+       "によって"
+      ],
+      "prompt_ja": "雨が強くて、傘（　　）役に立たなかった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "名前さえ = đến cả tên mình.",
+      "options": [
+       "さえ",
+       "として",
+       "こそ",
+       "によって"
+      ],
+      "prompt_ja": "緊張して、自分の名前（　　）うまく言えなかった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Động từ phải danh từ hóa trước さえ: 歩くことさえできない.",
+      "options": [
+       "子どもでさえ知っている。",
+       "疲れて、歩くさえできない。",
+       "この漢字は、日本人でさえ読めない。",
+       "忙しくて、昼ご飯さえ食べられなかった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "も"
+      ],
+      "answer": "さえ",
+      "sentence_ja": "忙しくて、昼ご飯＿＿食べられなかった。",
+      "translation_vi": "Bận đến nỗi ngay cả bữa trưa cũng không ăn được."
+     },
+     {
+      "accept": [
+       "でも"
+      ],
+      "answer": "でさえ",
+      "sentence_ja": "この漢字は、日本人＿＿読めない。",
+      "translation_vi": "Ngay cả người Nhật cũng không đọc được chữ kanji này."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: この子はもう６歳だが、まだ自分の名前さえ読めない。",
+     "FURIGANA_MISSING: 娘は親にさえ相談せずに留学を決めてしまった。"
+    ],
+    "formation": "N (+ trợ từ) + さえ",
+    "locked_fields": [],
+    "meaning_vi": "Đến cả …; thậm chí …",
+    "nuance_vi": "Đưa ra một ví dụ cực đoan (dễ nhất, cơ bản nhất hoặc thân thiết nhất) để suy ra rằng những trường hợp còn lại thì đương nhiên cũng như vậy.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "覚えていない",
+       "のです。",
+       "名前さえ"
+      ],
+      "translation_vi": "Tôi thậm chí không nhớ tên."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "書かずに",
+       "帰った。",
+       "彼は自分の名前さえ"
+      ],
+      "translation_vi": "Anh ấy về mà không viết cả tên mình."
+     }
+    ],
+    "pattern": "〜さえ",
+    "pattern_variants": [
+     "さえ",
+     "N + さえ"
+    ],
+    "unit_no": 21,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả mức độ cực đoan: “đến cả…, thậm chí…”. Nhấn mạnh sự bất ngờ. 1) Dễ nhầm với ～まで. → ～さえ là “đến cả…”, nhấn mạnh điều ngoài dự đoán; không phải giới hạn “tới mức”. 2) Dễ nhầm với ～しか. → ～さえ: thêm vào (đến cả… cũng…). → ～しか: hạn chế và luôn đi với phủ định. 3) Nếu dùng dạng điều kiện (～さえ…ば), nghĩa khác. → Khi có ～さえ…ば thường là “chỉ cần… là…”, cần nhìn kỹ cấu trúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-dc8c00ed3d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この建物は昔、学校として使われた。",
+       "ja_furigana": "この建物(たてもの)は昔(むかし)、学校(がっこう)として使(つか)われた。",
+       "vi": "Tòa nhà này ngày trước được dùng làm trường.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "リンさんはつうやくとして、会議に出席した。",
+       "ja_furigana": "リンさんはつうやくとして、会議(かいぎ)に出席(しゅっせき)した。",
+       "vi": "Linh tham dự cuộc họp với tư cách là phiên dịch.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この町は温泉の町として広く知られている。",
+       "ja_furigana": "この町(まち)は温泉(おんせん)の町(まち)として広(ひろ)く知(し)られている。",
+       "source": "AI",
+       "vi": "Thị trấn này được biết đến rộng rãi với tư cách là một thị trấn suối nước nóng."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "N＋として = với tư cách là (học sinh).",
+      "options": [
+       "にしては",
+       "として",
+       "にとって",
+       "によって"
+      ],
+      "prompt_ja": "私は学生（　　）、発表します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "通訳として = với tư cách phiên dịch.",
+      "options": [
+       "に比べて",
+       "にとって",
+       "に加えて",
+       "として"
+      ],
+      "prompt_ja": "彼は通訳（　　）会議に参加した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "先生として = với tư cách giáo viên. Thứ tự đúng: 先生として、子どもを助けたい。 ★ = 子どもを。",
+      "options": [
+       "助けたい",
+       "として、",
+       "先生",
+       "子どもを"
+      ],
+      "prompt_ja": "将来は、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "代表として = với tư cách đại diện. Thứ tự đúng: 学生の代表として、みんなの前で挨拶した。 ★ = みんなの前で。",
+      "options": [
+       "として、",
+       "みんなの前で",
+       "挨拶した",
+       "学生の代表"
+      ],
+      "prompt_ja": "式で、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「として」 diễn đạt Với tư cách là …. Câu này nghĩa là: \"Tôi phát biểu với tư cách học sinh.\"",
+      "options": [
+       "Chính hôm nay tôi sẽ cố gắng.",
+       "Chính lần này tôi muốn thành công.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Tôi phát biểu với tư cách học sinh."
+      ],
+      "prompt_ja": "私は学生として、発表します。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "通訳として = với vai trò phiên dịch.",
+      "options": [
+       "Chính lần này tôi muốn thành công.",
+       "Anh ấy dự họp với tư cách phiên dịch.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "彼は通訳として会議に参加した。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Bổ nghĩa động từ dùng として; としての chỉ đứng trước danh từ (通訳としての仕事).",
+      "options": [
+       "私は学生として、発表します。",
+       "将来は、先生として子どもを助けたい。",
+       "彼は通訳としての会議に参加した。",
+       "彼は医者として働いている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "として nêu tư cách/vai trò, không chỉ nơi chốn; nói 東京に住んでいる.",
+      "options": [
+       "私は東京として住んでいる。",
+       "学生の代表として挨拶した。",
+       "先生としての仕事は大変だ。",
+       "彼は医者として働いている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với にとって: として chỉ tư cách/vai trò hành động (教師として教える), còn にとって chỉ góc nhìn đánh giá (教師にとって大切だ).",
+    "examples": [
+     {
+      "ja": "今は留学生だが、以前に一度観光客として来日したことがある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bây giờ tôi là du hoc sinh nhưng trước đây tôi đã từng một lần đến Nhật Bản với tư cách là khách du lịch."
+     },
+     {
+      "ja": "Aさんは最近歌手としてよりも俳優として活躍している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh A gần đây đang hoạt động tích cực với tư cách là một diễn viên hơn là một ca sĩ."
+     },
+     {
+      "ja": "この町は温泉の町として広く知られている。",
+      "ja_furigana": "この町(まち)は温泉(おんせん)の町(まち)として広(ひろ)く知(し)られている。",
+      "source": "AI",
+      "vi": "Thị trấn này được biết đến rộng rãi với tư cách là một thị trấn suối nước nóng."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "先生として = với tư cách giáo viên.",
+      "options": [
+       "として、",
+       "にしては",
+       "にとって",
+       "によって"
+      ],
+      "prompt_ja": "将来は、先生（　　）子どもを助けたい。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "代表として = với tư cách đại diện.",
+      "options": [
+       "にしては",
+       "にとって",
+       "として、",
+       "によって"
+      ],
+      "prompt_ja": "式で、学生の代表（　　）みんなの前で挨拶した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Danh từ nối trực tiếp: 歌手として; không chen の.",
+      "options": [
+       "彼は医者として働いている。",
+       "彼女は歌手のとして有名だ。",
+       "先生としての仕事は大変だ。",
+       "私は学生として、発表します。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "として",
+      "sentence_ja": "私は学生＿＿、発表します。",
+      "translation_vi": "Tôi phát biểu với tư cách học sinh."
+     },
+     {
+      "answer": "として",
+      "sentence_ja": "彼は通訳＿＿会議に参加した。",
+      "translation_vi": "Anh ấy dự họp với tư cách phiên dịch."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 今は留学生だが、以前に一度観光客として来日したことがある。",
+     "FURIGANA_MISSING: Aさんは最近歌手としてよりも俳優として活躍している。"
+    ],
+    "formation": "N + として(は / も) / N1 + としての + N2",
+    "locked_fields": [],
+    "meaning_vi": "Với tư cách là …",
+    "nuance_vi": "Xác định rõ tư cách, vai trò, danh nghĩa hoặc vị trí phân loại của chủ thể khi thực hiện hành động.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "家族を",
+       "支えている。",
+       "彼は父親として"
+      ],
+      "translation_vi": "Anh ấy hỗ trợ gia đình với tư cách người cha."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "代表として",
+       "話した。",
+       "私は"
+      ],
+      "translation_vi": "Tôi đã phát biểu với tư cách đại diện."
+     }
+    ],
+    "pattern": "〜として",
+    "pattern_variants": [
+     "として",
+     "N + として"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để chỉ tư cách, vai trò hoặc lập trường: “với tư cách là…”. 1) Dễ nhầm với ～としては／～としても. → ～として là “với tư cách là…”, nhấn vai trò/lập trường. 2) Sau mẫu này thường là đánh giá hoặc hành động phù hợp vai trò. → Ví dụ: 学生として勉強する. 3) Không dùng để so sánh đối lập. → Nếu là đối lập A/B, thường là mẫu khác (～に対して…)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f835331cd0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日は試合だ。練習しないわけにはいかない。",
+       "ja_furigana": "明日(あした)は試合(しあい)だ。練習(れんしゅう)しないわけにはいかない。",
+       "vi": "Mai thi đấu rồi, không thể không luyện tập.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先生に頼まれたので、手伝わないわけにはいかない。",
+       "ja_furigana": "先生(せんせい)に頼(たの)まれたので、手伝(てつだ)わないわけにはいかない。",
+       "vi": "Được thầy nhờ nên tôi không thể không giúp.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "親友の結婚式だから出席しないわけにはいかない。",
+       "ja_furigana": "親友(しんゆう)の結婚式(けっこんしき)だから出席(しゅっせき)しないわけにはいかない。",
+       "source": "AI",
+       "vi": "Vì là đám cưới của bạn thân nên tôi không thể không tham dự."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "V-ない＋わけにはいかない = không thể không (đành phải đi). Mẫu cố định, không dùng いけない.",
+      "options": [
+       "わけにいくない",
+       "わけにはいけない",
+       "わけにはいかない",
+       "わけではいかない"
+      ],
+      "prompt_ja": "約束したので、行かない（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "引き受けないわけにはいかない = không thể không nhận (đành phải nhận).",
+      "options": [
+       "引き受けないわけには",
+       "わけがない",
+       "わけではない",
+       "ことはない"
+      ],
+      "prompt_ja": "先生に頼まれたから（　　）いかない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mai thi nên không thể không học, vì vậy về nhà sớm. Thứ tự đúng: 勉強しないわけにはいかないから、早めに家へ帰った。 ★ = 早めに。",
+      "options": [
+       "家へ帰った",
+       "わけにはいかないから、",
+       "早めに",
+       "勉強しない"
+      ],
+      "prompt_ja": "明日は試験なので、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "手伝わないわけにはいかない = không thể không giúp. Thứ tự đúng: 手伝わないわけにはいかないから、夕食を作った。 ★ = 夕食を。",
+      "options": [
+       "夕食を",
+       "手伝わない",
+       "作った",
+       "わけにはいかないから、"
+      ],
+      "prompt_ja": "母が病気なので、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "行かないわけにはいかない = đã hứa nên không thể không đi.",
+      "options": [
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính lần này tôi muốn thành công.",
+       "Đã hứa rồi nên không thể không đi.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "約束したので、行かないわけにはいかない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "V-ないわけにはいかない = không thể không làm (đành phải làm).",
+      "options": [
+       "Thầy nhờ nên tôi không thể không nhận.",
+       "Thầy nhờ nhưng tôi sẽ từ chối.",
+       "Thầy nhờ nên tôi không cần nhận.",
+       "Thầy không nhờ nên tôi không nhận."
+      ],
+      "prompt_ja": "先生に頼まれたから、引き受けないわけにはいかない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu cố định là わけにはいかない, không dùng いけない.",
+      "options": [
+       "約束したので、行かないわけにはいかない。",
+       "先生に頼まれたから、引き受けないわけにはいかない。",
+       "母が病気なので、手伝わないわけにはいかない。",
+       "明日は試験なので、勉強しないわけにはいけない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Thể ない nối trực tiếp: 勉強しないわけにはいかない.",
+      "options": [
+       "明日は試験なので、勉強しなくわけにはいかない。",
+       "母が病気なので、手伝わないわけにはいかない。",
+       "約束したので、行かないわけにはいかない。",
+       "招待されたので、パーティーに行かないわけにはいかない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Nhầm với V-るわけにはいかない (mang nghĩa 'không thể làm được vì vướng đạo lý/quy tắc', ngược hẳn với V-ないわけにはいかない).",
+    "examples": [
+     {
+      "ja": "行くと約束したからには、行かないわけにはいかないだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì đã hứa là sẽ đến nên tôi không thể không đến."
+     },
+     {
+      "ja": "外国語は必修だから、取らないわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì ngoại ngữ là cần thiết nên tôi đành phải đăng kí học."
+     },
+     {
+      "ja": "親友の結婚式だから出席しないわけにはいかない。",
+      "ja_furigana": "親友(しんゆう)の結婚式(けっこんしき)だから出席(しゅっせき)しないわけにはいかない。",
+      "source": "AI",
+      "vi": "Vì là đám cưới của bạn thân nên tôi không thể không tham dự."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "勉強しないわけにはいかないから = vì không thể không học.",
+      "options": [
+       "わけがない",
+       "ことはない",
+       "わけではない",
+       "わけにはいかないから、"
+      ],
+      "prompt_ja": "明日は試験なので、 勉強しない（　　）早めに家へ帰った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "手伝わないわけにはいかないから = vì không thể không giúp.",
+      "options": [
+       "わけがない",
+       "わけにはいかないから、",
+       "わけではない",
+       "ことはない"
+      ],
+      "prompt_ja": "母が病気なので、手伝わない（　　）夕食を作った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Cần trợ từ に: わけにはいかない.",
+      "options": [
+       "母が病気なので、手伝わないわけにはいかない。",
+       "招待されたので、パーティーに行かないわけにはいかない。",
+       "約束したので、行かないわけはいかない。",
+       "先生に頼まれたから、引き受けないわけにはいかない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "わけにはいきません"
+      ],
+      "answer": "わけにはいかない",
+      "sentence_ja": "約束したので、行かない＿＿。",
+      "translation_vi": "Đã hứa rồi nên không thể không đi."
+     },
+     {
+      "answer": "引き受けないわけには",
+      "sentence_ja": "先生に頼まれたから＿＿いかない。",
+      "translation_vi": "Thầy nhờ nên tôi không thể không nhận."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 行くと約束したからには、行かないわけにはいかないだろう。",
+     "FURIGANA_MISSING: 外国語は必修だから、取らないわけにはいかない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 外国語は必修だから、取らないわけにはいかない。 → 必修"
+    ],
+    "formation": "V-ない + わけにはいかない",
+    "locked_fields": [],
+    "meaning_vi": "Đành phải …; không thể không … (thực ra không muốn)",
+    "nuance_vi": "Dùng hai lần phủ định để diễn tả rằng vì trách nhiệm, hoàn cảnh hoặc đạo lý nên bắt buộc phải làm, không thể làm ngơ được.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "いかない。",
+       "先生に頼まれたから",
+       "引き受けないわけには"
+      ],
+      "translation_vi": "Thầy nhờ nên tôi không thể không nhận."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "わけにはいかない。",
+       "約束したので、",
+       "行かない"
+      ],
+      "translation_vi": "Đã hứa rồi nên không thể không đi."
+     }
+    ],
+    "pattern": "〜ないわけにはいかない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Diễn tả buộc phải làm, không thể không làm, dù trong lòng không muốn. 1) Dễ nhầm với ～わけにはいかない. → ～ないわけにはいかない là “không thể không…”, nghĩa là cuối cùng vẫn phải làm. 2) Mang sắc thái miễn cưỡng. → Không hẳn muốn làm, nhưng hoàn cảnh buộc phải làm. 3) Không dùng khi người nói tự nguyện. → Nếu là “rất muốn làm”, dùng mẫu ý chí khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6c640d33cd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "病気の父にかわって、兄が店を開けた。",
+       "ja_furigana": "病気(びょうき)の父(ちち)にかわって、兄(あに)が店(みせ)を開(あ)けた。",
+       "vi": "Anh trai mở cửa hàng thay bố bị ốm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "入院中の父にかわって母が店を守っている。",
+       "ja_furigana": "入院中(にゅういんちゅう)の父(ちち)にかわって母(はは)が店(みせ)を守(まも)っている。",
+       "source": "AI",
+       "vi": "Mẹ tôi đang trông coi cửa hàng thay cho bố đang nằm viện."
+      },
+      {
+       "ja": "手紙にかわってメールがよく使われている。",
+       "ja_furigana": "手紙(てがみ)にかわってメールがよく使(つか)われている。",
+       "source": "AI",
+       "vi": "Thư điện tử đang được sử dụng phổ biến thay thế cho thư tay."
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "N に＋かわって = thay cho (bố) mà làm. ともなって/反して/基づいて không hợp nghĩa.",
+      "options": [
+       "かわって",
+       "ともなって",
+       "反して",
+       "基づいて"
+      ],
+      "prompt_ja": "父に（　　）、私が説明します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "N＋にかわって = thay cho (giám đốc). Trợ từ đúng là に.",
+      "options": [
+       "のかわって",
+       "をかわって",
+       "にかわって",
+       "でかわって"
+      ],
+      "prompt_ja": "社長（　　）、部長が挨拶をした。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Bố bận nên tôi dự họp thay bố. Thứ tự đúng: 父にかわって、私が会議に出た。 ★ = 私が。",
+      "options": [
+       "会議に出た",
+       "私が",
+       "にかわって、",
+       "父"
+      ],
+      "prompt_ja": "父が忙しいので、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Nhân viên nghỉ nên giám đốc ra đón khách thay. Thứ tự đúng: 店員にかわり、社長が客を迎えた。 ★ = 社長が。",
+      "options": [
+       "客を迎えた",
+       "店員",
+       "にかわり、",
+       "社長が"
+      ],
+      "prompt_ja": "店員が休んで、 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「かわって」 diễn đạt Thay cho (người khác); thay thế. Câu này nghĩa là: \"Tôi sẽ giải thích thay bố.\"",
+      "options": [
+       "Chính lần này tôi muốn thành công.",
+       "Tôi sẽ giải thích thay bố.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "父にかわって、私が説明します。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "A にかわって B が = B làm thay cho A.",
+      "options": [
+       "Giám đốc chào thay trưởng phòng.",
+       "Trưởng phòng chào giám đốc.",
+       "Giám đốc và trưởng phòng cùng chào.",
+       "Trưởng phòng chào thay giám đốc."
+      ],
+      "prompt_ja": "社長にかわって、部長が挨拶をした。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu là N にかわって (hoặc N のかわりに); 「父のかわって」 sai.",
+      "options": [
+       "父にかわって、私が説明します。",
+       "社長にかわって、部長が挨拶をした。",
+       "父のかわって、私が会議に出た。",
+       "店員にかわり、社長が客を迎えた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Trợ từ đúng là に: 父にかわって.",
+      "options": [
+       "父がかわって、私が説明します。",
+       "社長にかわって、部長が挨拶をした。",
+       "父のかわりに、私が会議に出た。",
+       "母にかわって、私が夕食を作る。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng にかわって với nghĩa đánh đổi 'bù lại' giữa hai hành động (nghĩa 'bù lại' chỉ dùng のかわりに).",
+    "examples": [
+     {
+      "ja": "課長にかわって、私が説明します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sẽ giải thích thay trưởng nhóm. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "入院中の父にかわって母が店を守っている。",
+      "ja_furigana": "入院中(にゅういんちゅう)の父(ちち)にかわって母(はは)が店(みせ)を守(まも)っている。",
+      "source": "AI",
+      "vi": "Mẹ tôi đang trông coi cửa hàng thay cho bố đang nằm viện."
+     },
+     {
+      "ja": "手紙にかわってメールがよく使われている。",
+      "ja_furigana": "手紙(てがみ)にかわってメールがよく使(つか)われている。",
+      "source": "AI",
+      "vi": "Thư điện tử đang được sử dụng phổ biến thay thế cho thư tay."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "父にかわって = thay cho bố.",
+      "options": [
+       "ともなって",
+       "にかわって、",
+       "反して",
+       "基づいて"
+      ],
+      "prompt_ja": "父が忙しいので、 父（　　）私が会議に出た。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "店員にかわり = thay cho nhân viên (dạng trang trọng của かわって).",
+      "options": [
+       "ともなって",
+       "反して",
+       "基づいて",
+       "にかわり、"
+      ],
+      "prompt_ja": "店員が休んで、 店員（　　）社長が客を迎えた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Trợ từ đúng là に: 父にかわって.",
+      "options": [
+       "店員にかわり、社長が客を迎えた。",
+       "母にかわって、私が夕食を作る。",
+       "社長にかわって、部長が挨拶をした。",
+       "父をかわって、私が説明します。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "かわり"
+      ],
+      "answer": "かわって",
+      "sentence_ja": "父に＿＿、私が説明します。",
+      "translation_vi": "Tôi sẽ giải thích thay bố."
+     },
+     {
+      "accept": [
+       "かわり"
+      ],
+      "answer": "かわって",
+      "sentence_ja": "母に＿＿、私が夕食を作る。",
+      "translation_vi": "Tôi nấu bữa tối thay mẹ."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 課長にかわって、私が説明します。"
+    ],
+    "formation": "N + にかわって / にかわり",
+    "locked_fields": [],
+    "meaning_vi": "Thay cho (người khác); thay thế",
+    "nuance_vi": "Chỉ việc đại diện, thay mặt một người khác hoặc một thế hệ/công nghệ mới thay thế cho cái cũ; trang trọng hơn のかわりに.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "私が会議に",
+       "出ます。",
+       "部長にかわり"
+      ],
+      "translation_vi": "Tôi dự họp thay trưởng phòng."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "学生が",
+       "説明した。",
+       "先生にかわって"
+      ],
+      "translation_vi": "Học sinh giải thích thay thầy cô."
+     }
+    ],
+    "pattern": "〜にかわって/かわり",
+    "pattern_variants": [
+     "〜にかわって"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": "Quan hệ, lập trường và phạm vi",
+    "usage_vi": "Dùng để nói làm thay cho người khác hoặc thay thế vai trò của ai đó. 1) Dễ nhầm với ～かわりに. → ～にかわって／かわり là “thay mặt/đại diện” (người khác làm thay), không phải “đổi lại”. 2) Chủ thể hành động thường là người thay thế. → Ví dụ: 私が部長にかわって説明します. 3) Không dùng cho trao đổi lợi ích. → Nếu là “đổi lại”, dùng ～かわりに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-346e00a1e0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅前に住んでいるのか。道にくわしいわけだ。",
+       "ja_furigana": "駅前(えきまえ)に住(す)んでいるのか。道(みち)にくわしいわけだ。",
+       "vi": "Ra là sống trước ga, thảo nào rành đường.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "佐藤さんは十年も中国にいたのか。中国語が上手なわけだ。",
+       "ja_furigana": "佐藤(さとう)さんは十年(じゅうねん)も中国(ちゅうごく)にいたのか。中国語(ちゅうごくご)が上手(じょうず)なわけだ。",
+       "vi": "Chị Sato đã ở Trung Quốc tận mười năm à. Thảo nào giỏi tiếng Trung.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "エアコンが壊れているのか、道理で暑いわけだ。",
+       "ja_furigana": "エアコンが壊(こわ)れているのか、道理(どうり)で暑(あつ)いわけだ。",
+       "source": "AI",
+       "vi": "Hóa ra máy lạnh bị hỏng à, thảo nào mà nóng thế."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Biết lý do (sống 10 năm) → kết luận đương nhiên: 知っているわけだ (thảo nào).",
+      "options": [
+       "わけにする",
+       "はずがない",
+       "ことにする",
+       "わけだ"
+      ],
+      "prompt_ja": "彼は十年住んでいるのか。道をよく知っている（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Aな＋わけだ = thảo nào (giỏi) — kết luận từ lý do.",
+      "options": [
+       "ことにする",
+       "わけだ",
+       "ようにする",
+       "ところだ"
+      ],
+      "prompt_ja": "彼は毎日練習している。上手な（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "わけだ = thảo nào (đường ướt) — kết luận tự nhiên từ lý do (mưa to). Thứ tự đúng: 道がぬれているわけだ。あちこちに水たまりがある。 ★ = あちこちに。",
+      "options": [
+       "あちこちに",
+       "わけだ。",
+       "水たまりがある",
+       "道がぬれている"
+      ],
+      "prompt_ja": "昨夜は大雨だった。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hôm nay chủ nhật, thảo nào trường đóng cửa; cổng còn khóa. Thứ tự đúng: 学校が閉まっているわけだ。門には鍵がかかっている。 ★ = 門には。",
+      "options": [
+       "鍵がかかっている",
+       "学校が閉まっている",
+       "門には",
+       "わけだ。"
+      ],
+      "prompt_ja": "今日は日曜日だ。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "わけだ = thảo nào (biết đường) vì đã sống 10 năm.",
+      "options": [
+       "Thì ra anh ấy sống mười năm ở đây, nên biết đường.",
+       "Chính lần này tôi muốn thành công.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "彼は十年住んでいるのか。道をよく知っているわけだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "上手なわけだ = thảo nào giỏi (vì luyện tập mỗi ngày).",
+      "options": [
+       "Chính lần này tôi muốn thành công.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Anh ấy luyện tập mỗi ngày. Thảo nào giỏi như vậy.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "彼は毎日練習している。上手なわけだ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Tính từ な dùng な: 上手なわけだ.",
+      "options": [
+       "彼は十年住んでいるのか。道をよく知っているわけだ。",
+       "毎日練習しているのか。上手だわけだ。",
+       "今日は日曜日だ。学校が閉まっているわけだ。",
+       "昨夜は大雨だった。道がぬれているわけだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Danh từ dùng な: 先生なわけだ.",
+      "options": [
+       "あの人は先生だわけだ。",
+       "エアコンが壊れている。暑いわけだ。",
+       "今日は祝日だ。道がすいているわけだ。",
+       "三年も日本にいたのか。日本語が上手なわけだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng わけだ cho suy đoán chủ quan không có căn cứ logic rõ ràng (khi đó dùng だろう hoặc かもしれない).",
+    "examples": [
+     {
+      "ja": "消費税は５％だから、１０５０円払ったら、５０円は税金というわけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì thuế tiêu dùng là 5% nên nếu trả 1050 yên thì đương nhiên trong đó 50 yên là tiền thuế."
+     },
+     {
+      "ja": "私は毎日８時間寝ている。つまり、人生の３分の１をベッドで過ごすわけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi ngủ 8 giờ mỗi ngày. Nói cách khác, tôi trải qua 1/3 cuộc sống ở trên giường."
+     },
+     {
+      "ja": "エアコンが壊れているのか、道理で暑いわけだ。",
+      "ja_furigana": "エアコンが壊(こわ)れているのか、道理(どうり)で暑(あつ)いわけだ。",
+      "source": "AI",
+      "vi": "Hóa ra máy lạnh bị hỏng à, thảo nào mà nóng thế."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "ぬれているわけだ = thảo nào đường ướt.",
+      "options": [
+       "はずがない",
+       "ことにする",
+       "わけだ。",
+       "わけではない"
+      ],
+      "prompt_ja": "昨夜は大雨だった。道がぬれている（　　）あちこちに水たまりがある。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "閉まっているわけだ = thảo nào đóng cửa.",
+      "options": [
+       "わけだ。",
+       "ことにする",
+       "はずがない",
+       "わけではない"
+      ],
+      "prompt_ja": "今日は日曜日だ。 学校が閉まっている（　　）門には鍵がかかっている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Tính từ い nối trực tiếp: 寒いわけだ.",
+      "options": [
+       "今日は祝日だ。道がすいているわけだ。",
+       "エアコンが壊れている。暑いわけだ。",
+       "窓が開いている。寒いだわけだ。",
+       "三年も日本にいたのか。日本語が上手なわけだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "わけだ",
+      "sentence_ja": "彼は十年住んでいるのか。道をよく知っている＿＿。",
+      "translation_vi": "Thì ra anh ấy sống mười năm ở đây, nên biết đường."
+     },
+     {
+      "answer": "わけだ",
+      "sentence_ja": "彼は毎日練習している。上手な＿＿。",
+      "translation_vi": "Anh ấy luyện tập mỗi ngày. Thảo nào giỏi như vậy."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 消費税は５％だから、１０５０円払ったら、５０円は税金というわけだ。",
+     "FURIGANA_MISSING: 私は毎日８時間寝ている。つまり、人生の３分の１をベッドで過ごすわけだ。"
+    ],
+    "formation": "V / Aい / Aな + な / N + の・だ + (という)わけだ",
+    "locked_fields": [],
+    "meaning_vi": "Vì có lý do nên đương nhiên là …",
+    "nuance_vi": "Biểu thị kết luận hợp lý tất yếu rút ra từ các dữ kiện đã biết ('thảo nào mà...', 'vậy tức là...').",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "体が丈夫な",
+       "わけだ。",
+       "なるほど、毎日歩いているから"
+      ],
+      "translation_vi": "Thảo nào ngày nào cũng đi bộ nên người khỏe."
+     },
+     {
+      "answer_order": [
+       2,
+       1,
+       0
+      ],
+      "pieces": [
+       "わけだ。",
+       "元気な",
+       "毎日走っているのか。"
+      ],
+      "translation_vi": "Ra là ngày nào anh ấy cũng chạy; thảo nào khỏe thế."
+     }
+    ],
+    "pattern": "〜わけだ",
+    "pattern_variants": [
+     "Thể thường + わけだ",
+     "〜わけだ・〜というわけだ"
+    ],
+    "unit_no": 14,
+    "unit_title_vi": "Lý do, đối lập và giải thích",
+    "usage_vi": "Dùng để giải thích hoặc xác nhận một kết luận hợp lý, mang ý nghĩa “đương nhiên là…”, dựa trên quan hệ nguyên nhân → kết quả. Dùng khi đã hiểu rõ nguyên nhân và tán thành kết luận: “thảo nào…, hèn chi…”. Dùng để đúc kết, tổng hợp các thông tin đã nêu và đưa ra kết luận. 1) Dễ nhầm với ～はずだ. → ～わけだ dùng để kết luận/giải thích “vì vậy nên đương nhiên là…”, nhấn quan hệ nguyên nhân → kết quả. 2) Hay dùng để “tóm lại/ra là vậy”. → Có thể là xác nhận một kết luận hợp lý, không nhất thiết là phán đoán mạnh. 3) Không dùng để suy đoán mơ hồ. → Nếu chỉ đoán “có lẽ”, dùng ～だろう／～かもしれない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a449ac7bcd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この薬を飲む日は、お酒を飲むわけにはいかない。",
+       "ja_furigana": "この薬(くすり)を飲(の)む日(ひ)は、お酒(さけ)を飲(の)むわけにはいかない。",
+       "vi": "Ngày uống thuốc này, tôi không thể uống rượu.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "友達との約束があるので、今夜は残業するわけにはいかない。",
+       "ja_furigana": "友達(ともだち)との約束(やくそく)があるので、今夜(こんや)は残業(ざんぎょう)するわけにはいかない。",
+       "vi": "Tôi có hẹn với bạn nên tối nay không thể làm thêm giờ được.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "秘密を他の人に話すわけにはいきません。",
+       "ja_furigana": "秘密(ひみつ)を他(ほか)の人(ひと)に話(はな)すわけにはいきません。",
+       "source": "AI",
+       "vi": "Tôi không thể tiết lộ bí mật cho người khác được."
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "V辞書形＋わけにはいかない = không thể (vì lý do xã hội/trách nhiệm). Mẫu cố định.",
+      "options": [
+       "わけにはいけない",
+       "わけにはいかない",
+       "わけではいかない",
+       "わけをいかない"
+      ],
+      "prompt_ja": "明日は試験だから、休む（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "寝るわけにはいかない = không thể đi ngủ trước (vì em đang chờ).",
+      "options": [
+       "わけにはいけない。",
+       "わけをいかない。",
+       "わけにいくない。",
+       "わけにはいかない。"
+      ],
+      "prompt_ja": "妹が待っているので先に寝る（　　）",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Hôm nay có việc nên chưa thể về, đã liên lạc với mẹ. Thứ tự đúng: 今は帰るわけにはいかないので、母に連絡した。 ★ = 母に。",
+      "options": [
+       "連絡した",
+       "わけにはいかないので、",
+       "母に",
+       "今は帰る"
+      ],
+      "prompt_ja": "今日は仕事がある。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Bạn đang đợi nên không thể nghỉ ở đây, đã vội ra ga. Thứ tự đúng: ここで休むわけにはいかないから、駅へ急いだ。 ★ = 駅へ。",
+      "options": [
+       "駅へ",
+       "ここで休む",
+       "わけにはいかないから、",
+       "急いだ"
+      ],
+      "prompt_ja": "友達を待たせている。 ＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「わけにはいかない」 diễn đạt Không thể … (vì lý do xã hội/tâm lý). Câu này nghĩa là: \"Ngày mai thi nên không thể nghỉ.\"",
+      "options": [
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính lần này tôi muốn thành công.",
+       "Ngày mai thi nên không thể nghỉ.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "明日は試験だから、休むわけにはいかない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "寝るわけにはいかない = không thể (vì tình cảm/lẽ phải) ngủ trước.",
+      "options": [
+       "Vì em gái đang chờ nên tôi không thể đi ngủ trước.",
+       "Chính lần này tôi muốn thành công.",
+       "Chính bạn mới phù hợp công việc này.",
+       "Chính hôm nay tôi sẽ cố gắng."
+      ],
+      "prompt_ja": "妹が待っているので先に寝るわけにはいかない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "わけにはいかない = không thể vì lý do xã hội/đạo lý; không làm được vì thể chất thì dùng 走れない.",
+      "options": [
+       "明日は試験だから、休むわけにはいかない。",
+       "足をけがして、走るわけにはいかない。",
+       "妹が待っているので先に寝るわけにはいかない。",
+       "大事な会議なので、遅れるわけにはいかない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng V辞書形: 休むわけにはいかない.",
+      "options": [
+       "友達を待たせているので、ここで休むわけにはいかない。",
+       "大事な会議なので、遅れるわけにはいかない。",
+       "今は帰るわけにはいかない。",
+       "明日は試験だから、休みわけにはいかない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng わけにはいかない cho việc không có kỹ năng làm như 泳ぐわけにはいかない (thiếu kỹ năng đơn thuần phải dùng 泳げない).",
+    "examples": [
+     {
+      "ja": "あしたは大事な試験があるから休むわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi không thể nghỉ vì ngày mai có bài thi rất quan trọng."
+     },
+     {
+      "ja": "「きょうは車で来たので酒を飲むわけにはいかないんです」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay tôi không thể uống rượu ngày vì tôi lái ô tô đến đây."
+     },
+     {
+      "ja": "秘密を他の人に話すわけにはいきません。",
+      "ja_furigana": "秘密(ひみつ)を他(ほか)の人(ひと)に話(はな)すわけにはいきません。",
+      "source": "AI",
+      "vi": "Tôi không thể tiết lộ bí mật cho người khác được."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "帰るわけにはいかないので = vì chưa thể về.",
+      "options": [
+       "わけにはいかないので、",
+       "わけがない",
+       "わけではない",
+       "ことはない"
+      ],
+      "prompt_ja": "今日は仕事がある。 今は帰る（　　）母に連絡した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "休むわけにはいかないから = vì không thể nghỉ.",
+      "options": [
+       "わけがない",
+       "わけではない",
+       "わけにはいかないから、",
+       "ことはない"
+      ],
+      "prompt_ja": "友達を待たせている。 ここで休む（　　）駅へ急いだ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu cố định là わけにはいかない, không dùng いけない.",
+      "options": [
+       "今は帰るわけにはいかない。",
+       "友達を待たせているので、ここで休むわけにはいかない。",
+       "明日は試験だから、休むわけにはいかない。",
+       "大事な会議なので、遅れるわけにはいけない。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "わけにはいきません"
+      ],
+      "answer": "わけにはいかない",
+      "sentence_ja": "明日は試験だから、休む＿＿。",
+      "translation_vi": "Ngày mai thi nên không thể nghỉ."
+     },
+     {
+      "accept": [
+       "わけにはいかない",
+       "わけにはいきません"
+      ],
+      "answer": "わけにはいかない。",
+      "sentence_ja": "妹が待っているので先に寝る＿＿",
+      "translation_vi": "Vì em gái đang chờ nên tôi không thể đi ngủ trước."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: あしたは大事な試験があるから休むわけにはいかない。",
+     "FURIGANA_MISSING: 「きょうは車で来たので酒を飲むわけにはいかないんです」"
+    ],
+    "formation": "V-る + わけにはいかない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể … (vì lý do xã hội/tâm lý)",
+    "nuance_vi": "Năng lực vật lý thì làm được, nhưng vì vướng lương tâm, trách nhiệm xã hội hoặc hoàn cảnh ép buộc nên không được phép làm.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "先に寝る",
+       "わけにはいかない。",
+       "妹が待っているので"
+      ],
+      "translation_vi": "Vì em gái đang chờ nên tôi không thể đi ngủ trước."
+     },
+     {
+      "answer_order": [
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "わけにはいかない。",
+       "明日は試験だから、",
+       "休む"
+      ],
+      "translation_vi": "Ngày mai thi nên không thể nghỉ."
+     }
+    ],
+    "pattern": "〜わけにはいかない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Diễn tả không thể làm vì lý do xã hội, đạo đức hoặc tâm lý, dù có thể muốn. 1) Dễ nhầm với ～できない (không thể về năng lực). → ～わけにはいかない là “không thể (vì lý do xã hội/đạo đức/tâm lý)”, dù muốn cũng không thể. 2) Thường đi với bối cảnh trách nhiệm, phép lịch sự, tình thế. → Nhấn “không thể làm như vậy được”. 3) Không dùng cho việc đơn giản chỉ vì không có thời gian. → Nếu là điều kiện/khả năng, thường dùng mẫu khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ba4aca5a79"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-025"
+}

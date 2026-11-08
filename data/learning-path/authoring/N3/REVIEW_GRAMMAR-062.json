@@ -1,0 +1,600 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この花が春までさいていたらいいな。",
+       "ja_furigana": "この花(はな)が春(はる)までさいていたらいいな。",
+       "vi": "Giá mà bông hoa này nở đến mùa xuân.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "来年は日本へ旅行できるといいな。",
+       "ja_furigana": "来年(らいねん)は日本(にほん)へ旅行(りょこう)できるといいな。",
+       "vi": "Mong là năm sau có thể đi du lịch Nhật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "もっと日本語がうまく話せたらいいなあ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ước gì tôi có thể nói tiếng Nhật trôi chảy hơn"
+     },
+     {
+      "ja": "明日、雨が降らないといいなあ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ước gì ngày mai trời không mưa"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もっと日本語がうまく話せたらいいなあ。",
+     "FURIGANA_MISSING: 明日、雨が降らないといいなあ。"
+    ],
+    "formation": "V-たら / V-ば / V-る + と + いいなあ",
+    "locked_fields": [],
+    "meaning_vi": "Ước gì…, mong sao",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜うまく話せるといいなあ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để thể hiện ý muốn, mong ước của cá nhân. Thuộc dạng câu cảm thán"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6f725383b4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "古い写真をすてなければよかった。",
+       "ja_furigana": "古(ふる)い写真(しゃしん)をすてなければよかった。",
+       "vi": "Giá mà tôi đừng vứt tấm ảnh cũ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "あんなに高いかばんを買わなければよかった。",
+       "ja_furigana": "あんなに高(たか)いかばんを買(か)わなければよかった。",
+       "vi": "Giá mà đừng mua cái túi đắt như thế.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "遅刻してしまった。もっと早く家を出ればよかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã bị trễ. Giá mà tôi ra khỏi nhà sớm hơn"
+     },
+     {
+      "ja": "田中さんにあんなことを言わなければよかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá mà tôi đã không nói những lời như thế với Tanaka"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 遅刻してしまった。もっと早く家を出ればよかった。",
+     "FURIGANA_MISSING: 田中さんにあんなことを言わなければよかった。"
+    ],
+    "formation": "V-ば + よかった",
+    "locked_fields": [],
+    "meaning_vi": "Giá mà …. thì đã tốt rồi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もっと早く家をばよかった",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng thể hiện ý hối hận về sự việc đã xảy ra không như mong muốn của bản thân"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8c3e821f12"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日は晴れるかな。",
+       "ja_furigana": "明日(あした)は晴(は)れるかな。",
+       "vi": "Không biết mai có nắng không nhỉ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "田中さん、早く来ないかなあ。",
+       "ja_furigana": "田中(たなか)さん、早(はや)く来(こ)ないかなあ。",
+       "vi": "Anh Tanaka mau đến đi chứ nhỉ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "バス、早く来ないかなあ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xe buýt không tới sớm hay sao nhỉ"
+     },
+     {
+      "ja": "この実験、うまくいくかな。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỳ thực nghiệm này liệu có suôn sẻ không đây"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: バス、早く来ないかなあ。",
+     "FURIGANA_MISSING: この実験、うまくいくかな。"
+    ],
+    "formation": "V-ない + かなあ (mong mỏi)",
+    "locked_fields": [],
+    "meaning_vi": "Hay sao.., mong là…, có…không đây",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜早く来ないかなあ。",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp thể hiện sự hi vọng, hay sự nghi vấn của bản thân về một vấn đề nào đó Đa phần có hàm ý sự lo lắng, băn khoăn về sự việc xảy ra"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-19d2136cc6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "窓の外は、まるで絵のように美しい。",
+       "ja_furigana": "窓(まど)の外(そと)は、まるで絵(え)のように美(うつく)しい。",
+       "vi": "Bên ngoài cửa sổ đẹp như tranh.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "雪が降って、町は白い紙のようになった。",
+       "ja_furigana": "雪(ゆき)が降(ふ)って、町(まち)は白(しろ)い紙(かみ)のようになった。",
+       "vi": "Tuyết rơi, thị trấn trắng xóa như tờ giấy trắng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今日は暖かくて、まるで春が来たかのようだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay ấm áp, cứ như thể mùa xuân đã đến."
+     },
+     {
+      "ja": "朝から晩までロボットのように働いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã làm việc như một con rô-bốt từ sáng đến tối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今日は暖かくて、まるで春が来たかのようだ。",
+     "FURIGANA_MISSING: 朝から晩までロボットのように働いた。"
+    ],
+    "formation": "(まるで) + V / A / N + かのようだ / かのように / のようだ / のように",
+    "locked_fields": [],
+    "meaning_vi": "sử dụng để ví von với sự vật có điểm giống",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(かの)ようだ・〜のようだ・〜(かの)ように...・〜のように...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "［名］の ＋ようだ・ように ［名］だ-である ＋かのような・かのように ［動］普通形 ＋（かの）ようだ・（かの）ように よく似ているものに例えて言う sử dụng để ví von với sự vật có điểm giống Ví dụ: 1. 今日は暖かくて、まるで春が来たかのようだ。 Hôm nay ấm áp, cứ như thể mùa xuân đã đến. 2. 朝から晩までロボットのように働いた。 Tôi đã làm việc như một con rô-bốt từ sáng đến tối. 3. バケツをひっくり返したような雨だった。 Trời mưa như trút nước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-697fd7d8d6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "学校において、新しい決まりを説明します。",
+       "ja_furigana": "学校(がっこう)において、新(あたら)しい決(き)まりを説明(せつめい)します。",
+       "vi": "Quy định mới sẽ được giải thích tại trường.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "会議は二階の部屋において行われます。",
+       "ja_furigana": "会議(かいぎ)は二階(にかい)の部屋(へや)において行(おこな)われます。",
+       "vi": "Cuộc họp sẽ được tổ chức tại phòng ở tầng hai.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大阪において、国際会議が行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hội nghị quốc tế đã được tổ chức ở Osaka"
+     },
+     {
+      "ja": "結果はホームページにおいて発表されます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết quả sẽ được công bố trên trang chủ"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大阪において、国際会議が行われた。",
+     "FURIGANA_MISSING: 結果はホームページにおいて発表されます。"
+    ],
+    "formation": "N + において / における + N",
+    "locked_fields": [],
+    "meaning_vi": "Tại, ở",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜大阪において",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp nói đến thời gian hay địa điểm. Là cách dùng trang trọng hơn so với “で”"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c2dd42632a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "店が開くまで、近くを歩こう。",
+       "ja_furigana": "店(みせ)が開(ひら)くまで、近(ちか)くを歩(ある)こう。",
+       "vi": "Hãy đi dạo gần đây đến khi quán mở.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "母が帰ってくるまで、ここで遊んでいなさい。",
+       "ja_furigana": "母(はは)が帰(かえ)ってくるまで、ここで遊(あそ)んでいなさい。",
+       "vi": "Con chơi ở đây cho đến khi mẹ về nhé.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "映画が始まるまで30分あります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho đến khi phim bắt đầu còn 30 phút"
+     },
+     {
+      "ja": "連絡があるまで待っています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đang đợi cho đến khi có liên lạc"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 映画が始まるまで30分あります。",
+     "FURIGANA_MISSING: 連絡があるまで待っています。"
+    ],
+    "formation": "V-る / N + まで",
+    "locked_fields": [],
+    "meaning_vi": "Cho đến khi (hành động)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜映画が始まるまで",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng cho trường hợp miêu tả điểm đến của một sự việc nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-34bc5e6343"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅から学校にかけて、さくらの木が並んでいる。",
+       "ja_furigana": "駅(えき)から学校(がっこう)にかけて、さくらの木(き)が並(なら)んでいる。",
+       "vi": "Từ ga đến trường có hàng cây anh đào.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "昼から夕方にかけて、強い雨が降るでしょう。",
+       "ja_furigana": "昼(ひる)から夕方(ゆうがた)にかけて、強(つよ)い雨(あめ)が降(ふ)るでしょう。",
+       "vi": "Từ trưa đến chiều tối có lẽ sẽ mưa to.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日は昼から夕方にかけて雨でしょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày mai chắc mưa suốt từ trưa đến chiều."
+     },
+     {
+      "ja": "九州から本州にかけて梅雨に入りました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ kyuushuu tới honshuu đã bước vào mùa mưa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日は昼から夕方にかけて雨でしょう。",
+     "FURIGANA_MISSING: 九州から本州にかけて梅雨に入りました。"
+    ],
+    "formation": "N1 + から + N2 + にかけて",
+    "locked_fields": [],
+    "meaning_vi": "Từ….(trải) đến….",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜昼から夕方にかけて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp miêu tả khoảng thời gian/ không gian mà điểm bắt đầu và kết thúc không xác định chính xác"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eb00421930"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この大きな魚は、ほねまで柔らかい。",
+       "ja_furigana": "この大(おお)きな魚(さかな)は、ほねまで柔(やわ)らかい。",
+       "vi": "Con cá lớn này đến xương cũng mềm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "先生まで、私の名前を間違えた。",
+       "ja_furigana": "先生(せんせい)まで、私(わたし)の名前(なまえ)を間違(まちが)えた。",
+       "vi": "Đến cả thầy giáo cũng gọi nhầm tên tôi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この魚は骨まで食べられますよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con cá này có thể ăn đến cả xương đấy."
+     },
+     {
+      "ja": "あなたまで私を疑うのですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến cả bạn cũng nghi ngờ tôi à?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この魚は骨まで食べられますよ。",
+     "FURIGANA_MISSING: あなたまで私を疑うのですか。"
+    ],
+    "formation": "N + まで (thậm chí cả N)",
+    "locked_fields": [],
+    "meaning_vi": "Cho đến mức là (danh từ), Đến cả",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜骨まで食べられる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng khi thể hiện sự ngạc nhiên về mức độ nhiều, quá của vấn đề"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0f90c0fe9e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄は休みの日に寝てばかりいる。",
+       "ja_furigana": "兄(あに)は休(やす)みの日(ひ)に寝(ね)てばかりいる。",
+       "vi": "Ngày nghỉ anh trai chỉ ngủ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この店の客は、女性ばかりだ。",
+       "ja_furigana": "この店(みせ)の客(きゃく)は、女性(じょせい)ばかりだ。",
+       "vi": "Khách của quán này toàn là phụ nữ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "甘い物ばかり食べていると太るよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Toàn ăn đồ ngọt thì sẽ béo đó."
+     },
+     {
+      "ja": "この店は学生ばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này toàn là sinh viên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 甘い物ばかり食べていると太るよ。",
+     "FURIGANA_MISSING: この店は学生ばかりだ。"
+    ],
+    "formation": "N + ばかり + V / V-て + ばかりいる",
+    "locked_fields": [],
+    "meaning_vi": "Nばかり: “toàn là/chỉ toàn” một loại, thường mang ý chê trách hoặc thiên lệch. SL＋ばかり: “khoảng chừng”, tương tự くらい/ぐらい nhưng trang trọng hơn chút. Vたばかり: “vừa mới”, độ gần là tương đối theo bối cảnh, không nhất thiết là tức thì. Vるばかりだ: 2 nghĩa phổ biến: Xu hướng tiếp diễn (thường xấu): 増えるばかりだ, 悪化するばかりだ. Chỉ còn việc: 準備は終わって、出発するばかりだ。 Vてばかりいる: làm mãi việc đó, sắc thái chê trách/phàn nàn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ toàn, suốt",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nばかり và Vてばかりいる thường mang sắc thái chê trách, thiên về cảm xúc người nói. Vたばかり: độ “mới” tùy ngữ cảnh (có thể là vài ngày/tuần); nếu muốn nhấn cực kỳ mới, dùng たった今/さっき. Vるばかりだ（xu hướng） hay đi với động từ chỉ biến đổi tăng/giảm. Vるばかりだ（chỉ còn việc） đi kèm ngữ cảnh “chuẩn bị xong”. [6. Ghi chú mở rộng] Nばかり có thể đi với danh từ không đếm được: 脂肪ばかり, 文句ばかり. Vたばかり dễ đi kèm ～ので/～から để giải thích tình trạng mới. Xu hướng xấu của ばかりだ thường đi với なる/増える/減る/悪化する/弱まるなど. [7. Biến thể & cụm cố định] Vたばかり（vừa mới） Vるばかりだ（xu hướng/chi còn việc） Vてばかりいる（làm suốt） ～ばかりに（chỉ vì mà… kết quả xấu） ～ばかりか（không những mà còn） [8. Lỗi thường gặp & bẫy JLPT] Lẫn ばかり và だけ: ばかり thường có sắc thái chê; câu trung tính dùng だけ. Vたばかり không nhất thiết là “mới ngay lập tức”, đừng dịch cứng; JLPT hay gài thời gian tương đối. Nhầm hai nghĩa của Vるばかりだ: dựa vào ngữ cảnh “xu hướng” hay “chỉ còn việc”. だらけ thường mang sắc thái bất lợi hoặc “đầy thứ không mong muốn”, nhưng không phải giới hạn ngữ pháp tuyệt đối. Cần xét cách đánh giá trong ngữ cảnh. Cấu trúc しか～ない không đi kèm ばかり: ×しかばかり → sai."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8bc3741263"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この部屋は広いばかりか、明るい。",
+       "ja_furigana": "この部屋(へや)は広(ひろ)いばかりか、明(あか)るい。",
+       "vi": "Phòng này không những rộng mà còn sáng.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "このかばんは重いばかりか、色も好きじゃない。",
+       "ja_furigana": "このかばんは重(おも)いばかりか、色(いろ)も好(す)きじゃない。",
+       "vi": "Cái túi này không chỉ nặng mà màu tôi cũng không thích.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は日本語ばかりか、英語も話せる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy không chỉ nói được tiếng Nhật mà còn cả tiếng Anh."
+     },
+     {
+      "ja": "この店は値段が高いばかりか、サービスも悪い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quán này không những giá cao mà dịch vụ cũng tệ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は日本語ばかりか、英語も話せる。",
+     "FURIGANA_MISSING: この店は値段が高いばかりか、サービスも悪い。"
+    ],
+    "formation": "N / V / A + ばかりか、〜も",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “Không chỉ A mà ngay cả/đến cả B cũng…”. Vế sau thường là thông tin bổ sung có mức độ mạnh hoặc bất ngờ hơn A. - Sắc thái: Trang trọng hơn ～だけでなく. Nhấn mạnh yếu tố ngoài dự đoán; người nói thường muốn gây ấn tượng về độ “hơn cả mong đợi”. - Cú pháp: Thường dùng với danh từ; khi dùng với mệnh đề, đặt も ở thành phần được bổ sung ở vế sau. Có thể thay も bằng まで/さえ để nhấn mạnh mạnh hơn. - Phủ định: Có thể dùng với phủ định ở vế A hoặc B (～ないばかりか、…も). Vế A và vế B thường chung chủ đề.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không chỉ..., mà còn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi B có tính bất ngờ, mạnh hơn A về độ tích cực/tiêu cực. Văn phong thiên về viết, thuyết trình; trong nói thường có ～だけでなく/～に加えて. Khi nhấn mạnh mức độ cực đoan, dùng まで/さえ ở vế sau: ～ばかりか～まで/さえ. Giữ tính song song về loại từ giữa hai vế (N—N; mệnh đề—mệnh đề) để tự nhiên. Chủ ngữ thường không đổi giữa hai vế, nếu đổi cần rõ ràng để tránh mơ hồ. [6. Ghi chú mở rộng] Aな/N + である + ばかりか tạo cảm giác trang trọng; trong hội thoại thường dùng Aな + ばかりか. Phủ định ở vế A thường dùng để nhấn mạnh trái kỳ vọng: ～ないばかりか、…も. Vế B nên chứa も/まで/さえ nhằm đánh dấu “bổ sung”; thiếu も có thể vẫn đúng nhưng giảm sắc thái. Trật tự A→B: để hiệu quả tu từ, cho thông tin ít bất ngờ ở A, bất ngờ ở B. [7. Biến thể & cụm cố định] ～ばかりか～まで／～さえ ～ばかりではなく～も（gần nghĩa, ít trang trọng hơn である） そればかりか（dùng như liên từ mở rộng ý） ～ないばかりか（không những không… mà còn…） [8. Lỗi thường gặp & bẫy JLPT] Bỏ も ở vế sau: cần có ～も/まで/さえ để đúng sắc thái “bổ sung bất ngờ”. Đảo mức độ: đặt thông tin mạnh ở vế A, yếu ở vế B làm giảm hiệu lực tu từ. Lẫn với ～だけでなく khi đề yêu cầu sắc thái “bất ngờ/nghiêm trọng hơn” → chọn ～ばかりか. Lạm dụng với hai chủ ngữ khác nhau làm câu mơ hồ; ưu tiên cùng một chủ thể."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0e912c8f63"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-062"
+}

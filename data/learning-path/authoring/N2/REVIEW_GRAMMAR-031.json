@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この川は大人が泳げるくらい深い。",
+       "ja_furigana": "この川(かわ)は大人(おとな)が泳(およ)げるくらい深(ふか)い。",
+       "vi": "Con sông này sâu đến mức người lớn có thể bơi."
+      },
+      {
+       "ja": "週に三回ぐらいプールで泳いでいる。",
+       "ja_furigana": "週(しゅう)に三回(さんかい)ぐらいプールで泳(およ)いでいる。",
+       "vi": "Tôi bơi ở hồ bơi khoảng ba lần một tuần."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "声が出なくなるくらい応援した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã cổ vũ đến mức khản cả giọng."
+     },
+     {
+      "ja": "駅まで歩いて十分ぐらいかかる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi bộ đến ga mất khoảng mười phút."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 声が出なくなるくらい応援した。",
+     "FURIGANA_MISSING: 駅まで歩いて十分ぐらいかかる。"
+    ],
+    "formation": "Vる・Vない / N + くらい / ぐらい",
+    "locked_fields": [],
+    "meaning_vi": "Khoảng, cỡ; đến mức",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khoảng, cỡ; đến mức",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Biểu thị số lượng gần đúng, mức độ của trạng thái hoặc một ví dụ tối thiểu mà người nói nhấn mạnh. Cách dùng: ぐらい và くらい về cơ bản cùng nghĩa. Sau số lượng, chúng cho biết con số ước chừng; sau mệnh đề, chúng nêu mức độ bằng một kết quả hoặc ví dụ cụ thể, như “đến mức không đứng nổi”. Với danh từ được xem là yêu cầu tối thiểu, mẫu có thể mang ý “ít nhất việc đó”. ぐらい thường nghe nhiều trong khẩu ngữ, còn くらい cũng dùng rộng rãi trong cả nói và viết. Ý nghĩa chính xác phụ thuộc phần đứng trước. Sắc thái: Cách diễn đạt mềm và mang ước lượng chủ quan; ở nghĩa tối thiểu đôi khi có sắc thái xem việc đó là đơn giản hoặc hiển nhiên. Lưu ý: Phải phân biệt thời điểm như 三時 với khoảng thời gian như 三時間 khi diễn tả lượng ước chừng. Khi nêu mức độ, mệnh đề trước ぐらい／くらい phải tạo được một chuẩn so sánh tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ba851c621b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の説明を聞いても、まだ一人として賛成した人はいない。",
+       "ja_furigana": "彼(かれ)の説明(せつめい)を聞(き)いても、まだ一人(ひとり)として賛成(さんせい)した人(ひと)はいない。",
+       "vi": "Nghe anh ấy giải thích mà đến giờ vẫn chưa có một ai tán thành."
+      },
+      {
+       "ja": "この店のケーキは、一つとしてまずいものはない。",
+       "ja_furigana": "この店(みせ)のケーキは、一(ひと)つとしてまずいものはない。",
+       "vi": "Bánh của quán này không có chiếc nào dở cả."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "参加者は一人として途中で帰らなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không một người tham gia nào về giữa chừng."
+     },
+     {
+      "ja": "この海岸には同じ形の石は一つとしてない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên bờ biển này không có lấy một hòn đá nào giống hệt nhau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 参加者は一人として途中で帰らなかった。",
+     "FURIGANA_MISSING: この海岸には同じ形の石は一つとしてない。"
+    ],
+    "formation": "数量詞(一) + として + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Không một… nào",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không một... nào",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Kết hợp với từ chỉ số lượng và vị ngữ phủ định để nhấn mạnh hoàn toàn không có ngoại lệ. Cách dùng: Mẫu này đặt として sau đơn vị đếm có 一 hoặc các cụm như 誰一人, 何一つ, rồi kết thúc bằng vị ngữ phủ định. Nghĩa là trong toàn bộ nhóm không tìm thấy dù chỉ một người hay một vật đáp ứng mô tả. So với phủ định thông thường, cấu trúc nhấn mạnh con số bằng không và loại bỏ mọi ngoại lệ. Nó thường xuất hiện trong lời khẳng định mạnh, báo cáo kết quả, mô tả tính độc nhất hoặc đánh giá toàn bộ một tập hợp. Sắc thái: Mang sắc thái tuyệt đối và trang trọng hơn cách nói 〜も〜ない; người nói chủ ý nhấn mạnh “không một trường hợp nào”. Lưu ý: Vị ngữ liên quan bắt buộc phải ở dạng phủ định. Trước として thường có 一 kèm trợ số từ, hoặc cụm cố định 誰一人／何一つ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-268d4af3c3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "こんなに静かな町では、雨の音さえ聞こえる。",
+       "ja_furigana": "こんなに静(しず)かな町(まち)では、雨(あめ)の音(おと)さえ聞(き)こえる。",
+       "vi": "Ở thị trấn yên tĩnh thế này, đến tiếng mưa cũng nghe thấy."
+      },
+      {
+       "ja": "この漢字は、先生さえ読み方を間違えることがある。",
+       "ja_furigana": "この漢字(かんじ)は、先生(せんせい)さえ読(よ)み方(かた)を間違(まちが)えることがある。",
+       "vi": "Chữ Hán này, đến giáo viên cũng có khi đọc sai."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "忙しくて、昼ご飯を食べる時間さえなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi bận đến mức ngay cả thời gian ăn trưa cũng không có."
+     },
+     {
+      "ja": "この問題は専門家でさえ判断に迷う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vấn đề này ngay cả chuyên gia cũng khó đưa ra phán đoán."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 忙しくて、昼ご飯を食べる時間さえなかった。",
+     "FURIGANA_MISSING: この問題は専門家でさえ判断に迷う。"
+    ],
+    "formation": "N / V-ます(語幹) + さえ",
+    "locked_fields": [],
+    "meaning_vi": "Ngay cả; chỉ cần",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay cả; chỉ cần",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu một trường hợp bất ngờ hoặc điều kiện tối thiểu đủ để kéo theo kết quả. Cách dùng: さえ chọn một ví dụ mà người nói cho là cực đoan, tối thiểu hoặc ngoài dự đoán, từ đó ngầm hiểu những trường hợp khác cũng vậy. Trong mẫu 〜さえ〜ば, thành phần trước さえ là điều kiện tối thiểu: chỉ cần điều ấy được đáp ứng thì kết quả có thể xảy ra. Các trợ từ が và を thường bị さえ thay thế, còn に, で, から thường được giữ lại trước さえ. Cách dùng cần dựa vào thang đánh giá rõ trong ngữ cảnh. Sắc thái: Nhấn mạnh đánh giá chủ quan của người nói; có thể biểu thị ngạc nhiên, thiếu thốn đến mức tối thiểu hoặc điều kiện duy nhất cần thiết. Lưu ý: Với に, で, から, thường đặt さえ sau trợ từ: にさえ, でさえ, からさえ. Ở nghĩa “chỉ cần”, vế sau thường mang dạng điều kiện như ば hoặc なら."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-41ef030401"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上に本や鉛筆などが置いてある。",
+       "ja_furigana": "机(つくえ)の上(うえ)に本(ほん)や鉛筆(えんぴつ)などが置(お)いてある。",
+       "vi": "Trên bàn có sách và bút chì cùng những thứ tương tự."
+      },
+      {
+       "ja": "彼が会社をやめるなんて、考えられない。",
+       "ja_furigana": "彼(かれ)が会社(かいしゃ)をやめるなんて、考(かんが)えられない。",
+       "vi": "Chuyện anh ấy nghỉ việc ở công ty thì không thể tưởng tượng nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "休日は料理や散歩などをして過ごす。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngày nghỉ tôi dành thời gian làm những việc như nấu ăn và đi dạo."
+     },
+     {
+      "ja": "私なんか、まだ人に教えられるほど経験がありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Một người như tôi vẫn chưa có đủ kinh nghiệm để dạy người khác."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 休日は料理や散歩などをして過ごす。",
+     "FURIGANA_MISSING: 私なんか、まだ人に教えられるほど経験がありません。"
+    ],
+    "formation": "N + など / なんか / なんて",
+    "locked_fields": [],
+    "meaning_vi": "Như là; nào là; đến cả chuyện",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Như là; nào là; đến cả chuyện",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu ví dụ hoặc chủ đề tiêu biểu, đồng thời có thể thể hiện xem nhẹ, khiêm nhường hay bất ngờ. Cách dùng: など là dạng trung tính, dùng để nêu một hay vài ví dụ trong nhóm chưa liệt kê hết. なんか gần khẩu ngữ hơn và thường thể hiện xem nhẹ đối tượng hoặc hạ thấp bản thân. なんて có thể đưa cả một mệnh đề ra làm chủ đề, trích lại nội dung rồi bộc lộ bất ngờ, khó tin hay đánh giá mạnh. Khi cùng theo sau danh từ, ba dạng đôi lúc thay thế được nhau, nhưng thái độ và ngữ vực khác nhau nên cần chọn theo quan hệ giao tiếp. Sắc thái: など hợp với văn viết và tình huống lịch sự; なんか, なんて giàu cảm xúc và dễ nghe suồng sã hoặc coi thường. Lưu ý: Tránh dùng なんか để chỉ tài liệu, quà tặng hoặc người nghe trong phát ngôn trang trọng nếu không muốn tạo sắc thái xem nhẹ. Khi なんて tiếp nhận cả mệnh đề, phần sau thường là nhận xét hoặc phản ứng cảm xúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-90f1034d04"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私が見た限りでは、みんな元気そうだった。",
+       "ja_furigana": "私(わたし)が見(み)た限(かぎ)りでは、みんな元気(げんき)そうだった。",
+       "vi": "Theo những gì tôi thấy thì ai cũng có vẻ khỏe."
+      },
+      {
+       "ja": "ニュースで聞いた限りでは、明日は雪が降るそうだ。",
+       "ja_furigana": "ニュースで聞(き)いた限(かぎ)りでは、明日(あした)は雪(ゆき)が降(ふ)るそうだ。",
+       "vi": "Theo những gì nghe trên bản tin thì mai trời có tuyết."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "私が調べた限りでは、この制度に年齢制限はない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo phạm vi tôi đã tìm hiểu, chế độ này không có giới hạn tuổi."
+     },
+     {
+      "ja": "記憶している限りでは、彼に会うのは今日が初めてだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong phạm vi tôi nhớ thì hôm nay là lần đầu tôi gặp anh ấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 私が調べた限りでは、この制度に年齢制限はない。",
+     "FURIGANA_MISSING: 記憶している限りでは、彼に会うのは今日が初めてだ。"
+    ],
+    "formation": "Vる・Vた・Vている + 限りでは / 限り",
+    "locked_fields": [],
+    "meaning_vi": "Theo phạm vi biết hoặc quan sát",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo phạm vi biết hoặc quan sát",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Giới hạn một nhận định trong phạm vi thông tin mà người nói đã biết, nhớ, thấy hoặc kiểm tra. Cách dùng: Mẫu này đặt giới hạn cho căn cứ của một nhận định. Trước 限りでは thường là động từ nhận thức hay thu thập thông tin như 知る, 見る, 聞く, 調べる hoặc 確認する. Người nói chỉ khẳng định điều ở vế sau trong phạm vi mình đã tiếp cận và ngầm chừa khả năng có thông tin khác ngoài phạm vi đó. Dạng quá khứ dùng khi việc kiểm tra đã hoàn tất; dạng từ điển thường gặp trong cụm cố định 私の知る限りでは. Sắc thái: Thể hiện sự thận trọng và tránh khẳng định tuyệt đối; phù hợp với báo cáo, trả lời chuyên môn và nhận xét dựa trên bằng chứng. Lưu ý: Vế trước phải xác định nguồn hoặc phạm vi nhận thức, không phải điều kiện kéo dài theo thời gian. Động từ nối trực tiếp với 限りでは, không thêm の."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-36d4285f8d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今の自分があるのは、家族の協力があったからこそだ。",
+       "ja_furigana": "今(いま)の自分(じぶん)があるのは、家族(かぞく)の協力(きょうりょく)があったからこそだ。",
+       "vi": "Tôi có được ngày hôm nay chính là nhờ sự giúp đỡ của gia đình."
+      },
+      {
+       "ja": "日本語がおもしろいのは、漢字の意味が少しずつわかってきたからこそだ。",
+       "ja_furigana": "日本語(にほんご)がおもしろいのは、漢字(かんじ)の意味(いみ)が少(すこ)しずつわかってきたからこそだ。",
+       "vi": "Tiếng Nhật thú vị chính vì tôi đã dần hiểu được ý nghĩa của chữ Hán."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "子どもがかわいいからこそ、しかるんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi la rầy bọn trẻ chính vì yêu thương chúng."
+     },
+     {
+      "ja": "努力したからこそ、成功したんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính vì đã nỗ lực nên thành công."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 子どもがかわいいからこそ、しかるんです。",
+     "FURIGANA_MISSING: 努力したからこそ、成功したんです。"
+    ],
+    "formation": "thể thường + からこそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜かわいいからこそ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nhấn mạnh lý do."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6069d6d2d0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金さえあれば、何でも買えるというものではない。",
+       "ja_furigana": "お金(かね)さえあれば、何(なん)でも買(か)えるというものではない。",
+       "vi": "Không phải cứ có tiền là mua được mọi thứ."
+      },
+      {
+       "ja": "この地図さえあれば、初めての町でも迷わない。",
+       "ja_furigana": "この地図(ちず)さえあれば、初(はじ)めての町(まち)でも迷(まよ)わない。",
+       "vi": "Chỉ cần có tấm bản đồ này thì đến thị trấn lạ cũng không lạc."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "携帯電話を買った。これさえあれば、時計もカメラもいらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã mua điện thoại. Chỉ cần có cái này, đồng hồ cũng như máy ảnh thì không cần thiết."
+     },
+     {
+      "ja": "この薬を飲みさえすれば、すぐに治ります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ cần uống thuốc này vào, là khỏi liền thôi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 携帯電話を買った。これさえあれば、時計もカメラもいらない。",
+     "FURIGANA_MISSING: この薬を飲みさえすれば、すぐに治ります。"
+    ],
+    "formation": "N + さえ + 〜ば / Vます + さえ + すれば",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ cần…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜これさえあれば",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn đạt ý chỉ cần có ～, trạng thái sau đó sẽ được thành lập."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a68e48f55"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今年は雨が少なくて、畑の野菜の値段は上がるばかりだ。",
+       "ja_furigana": "今年(ことし)は雨(あめ)が少(すく)なくて、畑(はたけ)の野菜(やさい)の値段(ねだん)は上(あ)がるばかりだ。",
+       "vi": "Năm nay mưa ít nên giá rau trong vườn cứ tăng mãi."
+      },
+      {
+       "ja": "病院の待ち時間は長くなるばかりだ。",
+       "ja_furigana": "病院(びょういん)の待(ま)ち時間(じかん)は長(なが)くなるばかりだ。",
+       "vi": "Thời gian chờ ở bệnh viện ngày càng dài."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "物価は上がるばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá cả cứ tăng mãi."
+     },
+     {
+      "ja": "状況は悪化するばかりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tình hình có xu hướng xấu đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 物価は上がるばかりだ。",
+     "FURIGANA_MISSING: 状況は悪化するばかりだ。"
+    ],
+    "formation": "Vる + ばかりだ",
+    "locked_fields": [],
+    "meaning_vi": "(1) ngày càng (2)(3) chỉ * 「のみだ」： dùng trong văn viết.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜上がるばかりだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-40613f1b9f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日話してこそ、本当の友だちになれる。",
+       "ja_furigana": "毎日(まいにち)話(はな)してこそ、本当(ほんとう)の友(とも)だちになれる。",
+       "vi": "Chỉ khi trò chuyện mỗi ngày mới trở thành bạn thân thật sự."
+      },
+      {
+       "ja": "自分でやってこそ、失敗から学べる。",
+       "ja_furigana": "自分(じぶん)でやってこそ、失敗(しっぱい)から学(まな)べる。",
+       "vi": "Chỉ khi tự mình làm mới học được từ thất bại."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "お互いに信頼してこそ、悩みも言える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể nói ra những phiền muộn chính là vì tin tưởng lẫn nhau."
+     },
+     {
+      "ja": "親になってこそ、親の苦労がわかる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính khi trở thành cha mẹ, mới hiểu nỗi gian truân của cha mẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: お互いに信頼してこそ、悩みも言える。",
+     "FURIGANA_MISSING: 親になってこそ、親の苦労がわかる。"
+    ],
+    "formation": "V-て + こそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì…nên mới",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜信頼してこそ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Có ý nghĩa rằng chính vì có A thì mới có khả năng xảy ra B. Câu văn sau thường là những câu mang nghĩa khả năng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f91322d3a6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親にしたら、子どもの決めたことを心配するのは当然だ。",
+       "ja_furigana": "親(おや)にしたら、子(こ)どもの決(き)めたことを心配(しんぱい)するのは当然(とうぜん)だ。",
+       "vi": "Đứng ở vị trí cha mẹ thì việc lo lắng cho quyết định của con là đương nhiên."
+      },
+      {
+       "ja": "店員にすれば、毎日同じ質問をされるのは大変だろう。",
+       "ja_furigana": "店員(てんいん)にすれば、毎日(まいにち)同(おな)じ質問(しつもん)をされるのは大変(たいへん)だろう。",
+       "vi": "Đặt mình vào vị trí nhân viên thì ngày nào cũng bị hỏi cùng một câu chắc là mệt."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大きすぎる親の期待は、子どもにしたら苦痛だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kỳ vọng quá lớn của bố mẹ, đối với con cái là nỗi khổ sở."
+     },
+     {
+      "ja": "犬や猫はかわいいが、飼っていない人にすれば迷惑なこともある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chó hay mèo thì dễ thương đấy nhưng đối với người không nuôi chúng thì có cả những điều phiền phức."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大きすぎる親の期待は、子どもにしたら苦痛だ。",
+     "FURIGANA_MISSING: 犬や猫はかわいいが、飼っていない人にすれば迷惑なこともある。"
+    ],
+    "formation": "N + にしたら / にすれば / にしてみれば",
+    "locked_fields": [],
+    "meaning_vi": "Với, xét về lập trường…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜子どもにしたら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi đứng trên lập trường (trong tâm trạng) của một người (một phía) để đánh giá sự vật sự việc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f720bbe7f4"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-031"
+}

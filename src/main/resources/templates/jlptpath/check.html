@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Micro-check page (/learning/jlpt/check/{token}); jpath-check.js draws it from
+     GET /api/learning/jlpt/checks/{token}. Look up works on the check at every step. -->
+<head th:replace="~{fragments/head :: standard('Kiểm tra nhanh - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-check-page" data-inline-dictionary data-jpath-auto-furigana>
+    <div class="jp-check-topBar jp-page-head">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Bài kiểm tra')}"></th:block>
+        <div class="jp-check-topBar__actions" data-jpath-furi-slot>
+            <a class="jp-check-back" href="/learning" data-check-exit>← Quay lại lộ trình</a>
+        </div>
+    </div>
+    <div id="jpathCheckRoot" class="jp-check-root" aria-busy="true"
+         th:attr="data-check-token=${checkToken}">
+        <p class="jp-status" role="status">Đang tải bài kiểm tra…</p>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-auto-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

@@ -1,0 +1,700 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "熱があるなら、休んだほうがいいですよ。",
+       "ja_furigana": "熱(ねつ)があるなら、休(やす)んだほうがいいですよ。",
+       "vi": "Nếu bị sốt thì bạn nên nghỉ ngơi đi nhé."
+      },
+      {
+       "ja": "暗いところで本を読まないほうがいいですよ。",
+       "ja_furigana": "暗(くら)いところで本(ほん)を読(よ)まないほうがいいですよ。",
+       "vi": "Bạn không nên đọc sách ở chỗ tối đâu nhé."
+      },
+      {
+       "ja": "雨が降りそうだから傘を持って行ったほうがいい。",
+       "ja_furigana": "雨(あめ)が降(ふ)りそうだから傘(かさ)を持(も)って行(い)ったほうがいい。",
+       "vi": "Trời có vẻ sắp mưa nên bạn mang ô theo thì hơn."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia động từ khẳng định ở thể từ điển V-る trước ほうがいい khi khuyên ai làm ngay việc gì, hoặc lạm dụng với cấp trên.",
+    "examples": [
+     {
+      "ja": "熱があるなら、休んだほうがいいですよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "暗いところで本を読まないほうがいいですよ。",
+      "ja_furigana": "暗(くら)いところで本(ほん)を読(よ)まないほうがいいですよ。",
+      "source": "AI",
+      "vi": "Bạn không nên đọc sách ở chỗ tối đâu nhé."
+     },
+     {
+      "ja": "雨が降りそうだから傘を持って行ったほうがいい。",
+      "ja_furigana": "雨(あめ)が降(ふ)りそうだから傘(かさ)を持(も)って行(い)ったほうがいい。",
+      "source": "AI",
+      "vi": "Trời có vẻ sắp mưa nên bạn mang ô theo thì hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 熱があるなら、休んだほうがいいですよ。",
+     "FURIGANA_MISSING: 熱があるなら、休んだほうがいいですよ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-た + ほうがいい / V-ない + ほうがいい",
+    "locked_fields": [],
+    "meaning_vi": "Nên, không nên — Khuyên ai đó nên hoặc không nên làm gì.",
+    "nuance_vi": "Đưa ra lời khuyên thiết thực cho một tình huống cụ thể; ở dạng khẳng định dùng V-た để tạo cảm giác dứt khoát hơn V-る.",
+    "order_items": [],
+    "pattern": "V-た / V-ない + ほうがいい",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Khẳng định dùng thể た (休んだほうがいい), phủ định dùng thể ない (行かないほうがいい). Nói với người trên thì nên thêm と思います cho nhẹ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e058514492"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "もう一度説明していただけませんか。",
+       "ja_furigana": "もう一度(いちど)説明(せつめい)していただけませんか。",
+       "vi": "Phiền anh/chị giải thích lại thêm một lần nữa được không ạ?"
+      },
+      {
+       "ja": "すみませんがここで写真を撮っていただけませんか。",
+       "ja_furigana": "すみませんがここで写真(しゃしん)を撮(と)っていただけませんか。",
+       "vi": "Xin lỗi, phiền anh/chị chụp giúp tôi bức ảnh ở đây được không ạ?"
+      },
+      {
+       "ja": "この漢字の読み方を教えていただけませんか。",
+       "ja_furigana": "この漢字(かんじ)の読(よ)み方(かた)を教(おし)えていただけませんか。",
+       "vi": "Phiền thầy/cô chỉ giúp tôi cách đọc chữ Hán này được không ạ?"
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm với 〜てくださいますか (dạng phủ định nghi vấn 〜ていただけませんか mềm mỏng và lịch sự hơn dạng khẳng định).",
+    "examples": [
+     {
+      "ja": "もう一度説明していただけませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "すみませんがここで写真を撮っていただけませんか。",
+      "ja_furigana": "すみませんがここで写真(しゃしん)を撮(と)っていただけませんか。",
+      "source": "AI",
+      "vi": "Xin lỗi, phiền anh/chị chụp giúp tôi bức ảnh ở đây được không ạ?"
+     },
+     {
+      "ja": "この漢字の読み方を教えていただけませんか。",
+      "ja_furigana": "この漢字(かんじ)の読(よ)み方(かた)を教(おし)えていただけませんか。",
+      "source": "AI",
+      "vi": "Phiền thầy/cô chỉ giúp tôi cách đọc chữ Hán này được không ạ?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: もう一度説明していただけませんか。",
+     "FURIGANA_MISSING: もう一度説明していただけませんか。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + いただけませんか / お・ご〜いただけませんか",
+    "locked_fields": [],
+    "meaning_vi": "Xin phiền ngài làm giúp — Nhờ vả một cách rất lịch sự.",
+    "nuance_vi": "Cách nhờ vả lịch sự và khiêm nhường hơn nhiều so với 〜てください hay 〜てくれませんか, rất thích hợp khi nói với cấp trên hoặc người lạ.",
+    "order_items": [],
+    "pattern": "V-て + いただけませんか",
+    "pattern_variants": [],
+    "unit_no": 23,
+    "unit_title_vi": "Liên kết câu và biểu hiện hội thoại",
+    "usage_vi": "Mức độ lịch sự tăng dần: てください < てくれませんか < ていただけませんか < ていただけないでしょうか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b1d3d08a69"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "去年から日本語を習い始めました。",
+       "ja_furigana": "去年(きょねん)から日本語(にほんご)を習(なら)い始(はじ)めました。",
+       "vi": "Tôi đã bắt đầu học tiếng Nhật từ năm ngoái."
+      },
+      {
+       "ja": "赤ちゃんが急に大きな声で泣き出しました。",
+       "ja_furigana": "赤(あか)ちゃんが急(きゅう)に大(おお)きな声(こえ)で泣(な)き出(だ)しました。",
+       "vi": "Em bé bỗng nhiên khóc òa lên thật to."
+      },
+      {
+       "ja": "春になって庭の花が咲き始めました。",
+       "ja_furigana": "春(はる)になって庭(にわ)の花(はな)が咲(さ)き始(はじ)めました。",
+       "vi": "Sang xuân hoa trong vườn đã bắt đầu nở."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép 出す với những kế hoạch đã chuẩn bị sẵn (như 来月から日本語を習い出す là không tự nhiên, phải dùng 習い始める).",
+    "examples": [
+     {
+      "ja": "去年から日本語を習い始めました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "赤ちゃんが急に大きな声で泣き出しました。",
+      "ja_furigana": "赤(あか)ちゃんが急(きゅう)に大(おお)きな声(こえ)で泣(な)き出(だ)しました。",
+      "source": "AI",
+      "vi": "Em bé bỗng nhiên khóc òa lên thật to."
+     },
+     {
+      "ja": "春になって庭の花が咲き始めました。",
+      "ja_furigana": "春(はる)になって庭(にわ)の花(はな)が咲(さ)き始(はじ)めました。",
+      "source": "AI",
+      "vi": "Sang xuân hoa trong vườn đã bắt đầu nở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 去年から日本語を習い始めました。",
+     "FURIGANA_MISSING: 去年から日本語を習い始めました。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) + 始める(はじめる) / V(bỏ ます) + 出す(だす)",
+    "locked_fields": [],
+    "meaning_vi": "Bắt đầu, bỗng nhiên — Nêu thời điểm bắt đầu của một hành động.",
+    "nuance_vi": "始める dùng cho sự khởi đầu theo trình tự bình thường hoặc có chủ đích; 出す nhấn mạnh hành động bộc phát đột ngột, bất ngờ (bật khóc, bật cười, mưa đổ xuống).",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + 始める / 出す",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "始める là bắt đầu có chủ ý; 出す là bỗng dưng xảy ra ngoài dự tính: 泣き出す (bỗng khóc oà)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2a0bcf6754"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "よく相談した上で決めます。",
+       "ja_furigana": "よく相談(そうだん)した上(うえ)で決(き)めます。",
+       "vi": "Tôi sẽ quyết định sau khi đã bàn bạc kỹ lưỡng."
+      },
+      {
+       "ja": "両親と話し合った上で進学先を決めました。",
+       "ja_furigana": "両親(りょうしん)と話(はな)し合(あ)った上(うえ)で進学先(しんがくさき)を決(き)めました。",
+       "vi": "Sau khi bàn bạc kỹ với bố mẹ tôi mới quyết định trường học tiếp."
+      },
+      {
+       "ja": "内容をよく確認の上で署名してください。",
+       "ja_furigana": "内容(ないよう)をよく確認(かくにん)の上(うえ)で署名(しょめい)してください。",
+       "vi": "Xin hãy ký tên sau khi đã kiểm tra kỹ nội dung."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia động từ ở thể từ điển V-る trước 上で khi muốn nói 'sau khi' (V-る上で mang nghĩa 'trong việc / để làm V', khác hẳn V-た上で).",
+    "examples": [
+     {
+      "ja": "よく相談した上で決めます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "両親と話し合った上で進学先を決めました。",
+      "ja_furigana": "両親(りょうしん)と話(はな)し合(あ)った上(うえ)で進学先(しんがくさき)を決(き)めました。",
+      "source": "AI",
+      "vi": "Sau khi bàn bạc kỹ với bố mẹ tôi mới quyết định trường học tiếp."
+     },
+     {
+      "ja": "内容をよく確認の上で署名してください。",
+      "ja_furigana": "内容(ないよう)をよく確認(かくにん)の上(うえ)で署名(しょめい)してください。",
+      "source": "AI",
+      "vi": "Xin hãy ký tên sau khi đã kiểm tra kỹ nội dung."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: よく相談した上で決めます。",
+     "FURIGANA_MISSING: よく相談した上で決めます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-た + 上で / N + の + 上で",
+    "locked_fields": [],
+    "meaning_vi": "Sau khi rồi mới — Làm xong bước trước rồi mới tiến hành bước sau, dùng cho việc quan trọng.",
+    "nuance_vi": "Trang trọng hơn 〜てから, nhấn mạnh việc phải thực hiện bước chuẩn bị/xem xét kỹ lưỡng ở vế trước làm cơ sở rồi mới quyết định bước tiếp theo.",
+    "order_items": [],
+    "pattern": "V-た / N の + 上で",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Trang trọng, hay gặp trong hợp đồng và thủ tục. Khác với てから ở chỗ 上で nhấn mạnh sự cân nhắc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-54ea42d503"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日までにレポートを出さなければなりません。",
+       "ja_furigana": "明日(あした)までにレポートを出(だ)さなければなりません。",
+       "vi": "Tôi phải nộp báo cáo trước ngày mai."
+      },
+      {
+       "ja": "明日は早いので今夜は早く寝なければなりません。",
+       "ja_furigana": "明日(あした)は早(はや)いので今夜(こんや)は早(はや)く寝(ね)なければなりません。",
+       "vi": "Vì ngày mai phải đi sớm nên tối nay tôi phải đi ngủ sớm."
+      },
+      {
+       "ja": "図書館の本は二週間以内に返さなければならない。",
+       "ja_furigana": "図書館(としょかん)の本(ほん)は二週間以内(にしゅうかんいない)に返(かえ)さなければならない。",
+       "vi": "Sách thư viện bắt buộc phải trả trong vòng 2 tuần."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm với べきだ (べきだ là lời khuyên theo đạo lý, còn なければならない là việc bắt buộc phải làm).",
+    "examples": [
+     {
+      "ja": "明日までにレポートを出さなければなりません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "明日は早いので今夜は早く寝なければなりません。",
+      "ja_furigana": "明日(あした)は早(はや)いので今夜(こんや)は早(はや)く寝(ね)なければなりません。",
+      "source": "AI",
+      "vi": "Vì ngày mai phải đi sớm nên tối nay tôi phải đi ngủ sớm."
+     },
+     {
+      "ja": "図書館の本は二週間以内に返さなければならない。",
+      "ja_furigana": "図書館(としょかん)の本(ほん)は二週間以内(にしゅうかんいない)に返(かえ)さなければならない。",
+      "source": "AI",
+      "vi": "Sách thư viện bắt buộc phải trả trong vòng 2 tuần."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 明日までにレポートを出さなければなりません。",
+     "FURIGANA_MISSING: 明日までにレポートを出さなければなりません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ない) + なければならない / なくてはいけない / ないといけない",
+    "locked_fields": [],
+    "meaning_vi": "Phải, bắt buộc — Nghĩa vụ hoặc quy định bắt buộc, không làm không được.",
+    "nuance_vi": "なければならない dùng rộng rãi cả văn viết và văn nói cho nghĩa vụ, quy định; ないといけない và なきゃ / なくちゃ thiên về hội thoại.",
+    "order_items": [],
+    "pattern": "V-ない bỏ い + ければならない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Văn nói rút gọn: なきゃ, なくちゃ. Dạng なくてもいい là phủ định của nó: không cần phải."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3ac1afde14"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あなただからこそ話すのです。",
+       "ja_furigana": "あなただからこそ話(はな)すのです。",
+       "vi": "Chính vì là bạn nên tôi mới nói chuyện này."
+      },
+      {
+       "ja": "子供の将来を思うからこそ厳しく叱るのです。",
+       "ja_furigana": "子供(こども)の将来(しょうらい)を思(おも)うからこそ厳(きび)しく叱(しか)るのです。",
+       "vi": "Chính vì nghĩ cho tương lai của con cái nên tôi mới nghiêm khắc mắng."
+      },
+      {
+       "ja": "大変だったからこそ合格したときの喜びが大きい。",
+       "ja_furigana": "大変(たいへん)だったからこそ合格(ごうかく)したときの喜(よろこ)びが大(おお)きい。",
+       "vi": "Chính vì đã vất vả nên niềm vui khi thi đỗ mới lớn đến vậy."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng からこそ cho những nguyên nhân tiêu cực tầm thường hoặc đổ lỗi.",
+    "examples": [
+     {
+      "ja": "あなただからこそ話すのです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "子供の将来を思うからこそ厳しく叱るのです。",
+      "ja_furigana": "子供(こども)の将来(しょうらい)を思(おも)うからこそ厳(きび)しく叱(しか)るのです。",
+      "source": "AI",
+      "vi": "Chính vì nghĩ cho tương lai của con cái nên tôi mới nghiêm khắc mắng."
+     },
+     {
+      "ja": "大変だったからこそ合格したときの喜びが大きい。",
+      "ja_furigana": "大変(たいへん)だったからこそ合格(ごうかく)したときの喜(よろこ)びが大(おお)きい。",
+      "source": "AI",
+      "vi": "Chính vì đã vất vả nên niềm vui khi thi đỗ mới lớn đến vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: あなただからこそ話すのです。",
+     "FURIGANA_MISSING: あなただからこそ話すのです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V / Aい / Aな + だ / N + だ + からこそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì mà — Nhấn mạnh lý do, khẳng định đó mới là nguyên nhân thật.",
+    "nuance_vi": "Nhấn mạnh đặc biệt vào nguyên nhân duy nhất và chính đáng nhất ('chính bởi vì... chứ không phải lý do nào khác').",
+    "order_items": [],
+    "pattern": "Thể thường + からこそ",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nguyên nhân, mục đích và kết quả",
+    "usage_vi": "Mạnh hơn から. Vế sau thường có のだ để nhấn thêm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1efcf1c8fb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "三時間も歩き続けた。",
+       "ja_furigana": "三時間(さんじかん)も歩(ある)き続(つづ)けた。",
+       "vi": "Tôi đã đi bộ liên tục suốt 3 tiếng đồng hồ."
+      },
+      {
+       "ja": "借りた本をやっと最後まで読み終わりました。",
+       "ja_furigana": "借(か)りた本(ほん)をやっと最後(さいご)まで読(よ)み終(お)わりました。",
+       "vi": "Cuối cùng tôi cũng đã đọc xong cuốn sách mượn đến trang cuối."
+      },
+      {
+       "ja": "雨が朝から晩まで一日中降り続けた。",
+       "ja_furigana": "雨(あめ)が朝(あさ)から晩(ばん)まで一日中(いちにちじゅう)降(ふ)り続(つづ)けた。",
+       "vi": "Mưa cứ rơi suốt cả ngày từ sáng đến tối."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép 続ける hoặc 終わる với động từ khoảnh khắc như 起き続ける hay 死に終わる.",
+    "examples": [
+     {
+      "ja": "三時間も歩き続けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "借りた本をやっと最後まで読み終わりました。",
+      "ja_furigana": "借(か)りた本(ほん)をやっと最後(さいご)まで読(よ)み終(お)わりました。",
+      "source": "AI",
+      "vi": "Cuối cùng tôi cũng đã đọc xong cuốn sách mượn đến trang cuối."
+     },
+     {
+      "ja": "雨が朝から晩まで一日中降り続けた。",
+      "ja_furigana": "雨(あめ)が朝(あさ)から晩(ばん)まで一日中(いちにちじゅう)降(ふ)り続(つづ)けた。",
+      "source": "AI",
+      "vi": "Mưa cứ rơi suốt cả ngày từ sáng đến tối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 三時間も歩き続けた。",
+     "FURIGANA_MISSING: 三時間も歩き続けた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) + 続ける(つづける) / V(bỏ ます) + 終わる(おわる)",
+    "locked_fields": [],
+    "meaning_vi": "Tiếp tục, làm xong — Nêu việc kéo dài hoặc kết thúc của hành động.",
+    "nuance_vi": "続ける biểu thị hành động kéo dài liên tục hoặc duy trì đều đặn; 終わる biểu thị một hành động có khối lượng xác định đã hoàn tất.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + 続ける / 終わる",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "続ける là chủ động tiếp tục; 続く là tự nó kéo dài. Đừng dùng lẫn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-83fe589cbd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は出て行ったきり、帰ってこない。",
+       "ja_furigana": "彼(かれ)は出(で)て行(い)ったきり、帰(かえ)ってこない。",
+       "vi": "Anh ấy bỏ đi khỏi nhà từ lúc đó đến giờ vẫn chưa về."
+      },
+      {
+       "ja": "あの本は友達に貸したきりまだ返ってこない。",
+       "ja_furigana": "あの本(ほん)は友達(ともだち)に貸(か)したきりまだ返(かえ)ってこない。",
+       "vi": "Cuốn sách đó từ lúc cho bạn mượn đến giờ vẫn chưa thấy trả lại."
+      },
+      {
+       "ja": "朝早く出かけたきり一度も連絡がありません。",
+       "ja_furigana": "朝早(あさはや)く出(で)かけたきり一度(いちど)も連絡(れんらく)がありません。",
+       "vi": "Từ lúc đi ra ngoài sáng sớm đến giờ chưa thấy liên lạc lần nào."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Nhầm với 〜て以来: 〜て以来 dùng được với cả câu khẳng định ở vế sau, còn V-たきり hầu như luôn đi với phủ định ở vế sau.",
+    "examples": [
+     {
+      "ja": "彼は出て行ったきり、帰ってこない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "あの本は友達に貸したきりまだ返ってこない。",
+      "ja_furigana": "あの本(ほん)は友達(ともだち)に貸(か)したきりまだ返(かえ)ってこない。",
+      "source": "AI",
+      "vi": "Cuốn sách đó từ lúc cho bạn mượn đến giờ vẫn chưa thấy trả lại."
+     },
+     {
+      "ja": "朝早く出かけたきり一度も連絡がありません。",
+      "ja_furigana": "朝早(あさはや)く出(で)かけたきり一度(いちど)も連絡(れんらく)がありません。",
+      "source": "AI",
+      "vi": "Từ lúc đi ra ngoài sáng sớm đến giờ chưa thấy liên lạc lần nào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は出て行ったきり、帰ってこない。",
+     "FURIGANA_MISSING: 彼は出て行ったきり、帰ってこない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-た + きり / N + きり",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ đó rồi thôi — Sau việc đó thì không có diễn biến tiếp theo như lẽ thường.",
+    "nuance_vi": "Nhấn mạnh rằng sau lần cuối cùng hành động V-た xảy ra thì trạng thái tiếp theo cứ gián đoạn mãi (không quay lại, không gặp lại, không trả lại).",
+    "order_items": [],
+    "pattern": "V-た + きり",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": "Thời điểm, tiến trình và trạng thái",
+    "usage_vi": "Hầu như luôn đi với phủ định ở vế sau, mang ý nuối tiếc hoặc lo lắng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f55a2a48dd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急がなくてもいいですよ。",
+       "ja_furigana": "急(いそ)がなくてもいいですよ。",
+       "vi": "Bạn không cần phải vội đâu nhé."
+      },
+      {
+       "ja": "明日は休みだから早く起きなくてもいいです。",
+       "ja_furigana": "明日(あした)は休(やす)みだから早(はや)く起(お)きなくてもいいです。",
+       "vi": "Ngày mai được nghỉ nên không cần phải dậy sớm đâu."
+      },
+      {
+       "ja": "無理をして全部食べなくてもいいですよ。",
+       "ja_furigana": "無理(むり)をして全部(ぜんぶ)食(た)べなくてもいいですよ。",
+       "vi": "Bạn không cần phải cố ăn hết tất cả đâu nhé."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chia nhầm thành 〜ないでもいい (trong văn viết và ngữ pháp chuẩn phải đổi ない thành なくて + もいい).",
+    "examples": [
+     {
+      "ja": "急がなくてもいいですよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "明日は休みだから早く起きなくてもいいです。",
+      "ja_furigana": "明日(あした)は休(やす)みだから早(はや)く起(お)きなくてもいいです。",
+      "source": "AI",
+      "vi": "Ngày mai được nghỉ nên không cần phải dậy sớm đâu."
+     },
+     {
+      "ja": "無理をして全部食べなくてもいいですよ。",
+      "ja_furigana": "無理(むり)をして全部(ぜんぶ)食(た)べなくてもいいですよ。",
+      "source": "AI",
+      "vi": "Bạn không cần phải cố ăn hết tất cả đâu nhé."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 急がなくてもいいですよ。",
+     "FURIGANA_MISSING: 急がなくてもいいですよ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ない) + なくてもいい / Aい(bỏ い) + くなくてもいい / Aな・N + でなくてもいい",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải — Cho biết việc đó không bắt buộc.",
+    "nuance_vi": "Cho phép hoặc trấn an người nghe rằng một việc là không bắt buộc; lịch sự hơn có thể dùng 〜なくてもかまいません.",
+    "order_items": [],
+    "pattern": "V-ない bỏ い + くてもいい",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Lời khuyên, nghĩa vụ và đề xuất",
+    "usage_vi": "Danh từ và tính từ cũng dùng được: 新しくなくてもいい, 全部でなくてもいい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-62745cb1cf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このペンは書きやすいです。",
+       "ja_furigana": "このペンは書(か)きやすいです。",
+       "vi": "Cây bút này rất dễ viết."
+      },
+      {
+       "ja": "この新しい靴はとてもかるくて歩きやすいです。",
+       "ja_furigana": "この新(あたら)しい靴(くつ)はとてもかるくて歩(ある)きやすいです。",
+       "vi": "Đôi giày mới này rất nhẹ nên dễ đi bộ."
+      },
+      {
+       "ja": "先生の声は小さくて少し聞き取りにくい。",
+       "ja_furigana": "先生(せんせい)の声(こえ)は小(ちい)さくて少(すこ)し聞(き)き取(と)りにくい。",
+       "vi": "Giọng thầy giáo hơi nhỏ nên hơi khó nghe rõ."
+      }
+     ]
+    },
+    "note": "bổ sung bản dịch vi và ja_furigana cho câu ví dụ gốc"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Ghép やすい / にくい với động từ nguyên thể V-る (sai: 食べるやすい; đúng: 食べやすい).",
+    "examples": [
+     {
+      "ja": "このペンは書きやすいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この新しい靴はとてもかるくて歩きやすいです。",
+      "ja_furigana": "この新(あたら)しい靴(くつ)はとてもかるくて歩(ある)きやすいです。",
+      "source": "AI",
+      "vi": "Đôi giày mới này rất nhẹ nên dễ đi bộ."
+     },
+     {
+      "ja": "先生の声は小さくて少し聞き取りにくい。",
+      "ja_furigana": "先生(せんせい)の声(こえ)は小(ちい)さくて少(すこ)し聞(き)き取(と)りにくい。",
+      "source": "AI",
+      "vi": "Giọng thầy giáo hơi nhỏ nên hơi khó nghe rõ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: このペンは書きやすいです。",
+     "FURIGANA_MISSING: このペンは書きやすいです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V(bỏ ます) + やすい / V(bỏ ます) + にくい (chia như tính từ đuôi い)",
+    "locked_fields": [],
+    "meaning_vi": "Dễ, khó — Việc gì đó dễ hoặc khó thực hiện, dễ hoặc khó xảy ra.",
+    "nuance_vi": "Vừa diễn tả việc thực hiện hành động dễ hay khó do đặc tính của vật, vừa diễn tả xu hướng sự việc dễ hay khó xảy ra (như 雨の日は滑りやすい).",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + やすい / にくい",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Cảm xúc, giác quan và trạng thái",
+    "usage_vi": "Sau khi thêm thì chia như tính từ đuôi い: 使いやすかった. Khác với がち ở chỗ やすい trung tính."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2381e6d461"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-007"
+}

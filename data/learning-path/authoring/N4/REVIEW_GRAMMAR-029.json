@@ -1,0 +1,4279 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "việc … có … không?; hỏi cảm nhận về một việc",
+     "formation": "Vる + のは + tính từ + ですか; Vる + のは + どうですか",
+     "usage_vi": "Hỏi người khác thấy một việc thế nào: 漢字を覚えるのは大変ですか; 一人で旅行するのは楽しいですか; 日本で生活するのはどうですか. Trả lời: ええ、大変です / いいえ、あまり大変じゃありません.",
+     "nuance_vi": "どうですか hỏi chung chung về cảm nhận; tính từ cụ thể (大変, 楽しい) hỏi có/không.",
+     "common_mistakes_vi": "Bỏ の (×書くは大変ですか); dùng を (×働くのを楽しいですか); ghép でした với です (×どうでしたですか).",
+     "examples": [
+      {
+       "ja": "漢字を覚えるのは大変ですか。",
+       "ja_furigana": "漢字(かんじ)を覚(おぼ)えるのは大変(たいへん)ですか。",
+       "vi": "Nhớ chữ Hán có vất vả không?"
+      },
+      {
+       "ja": "一人で旅行するのは楽しいですか。",
+       "ja_furigana": "一人(ひとり)で旅行(りょこう)するのは楽(たの)しいですか。",
+       "vi": "Đi du lịch một mình có vui không?"
+      },
+      {
+       "ja": "日本で生活するのはどうですか。",
+       "ja_furigana": "日本(にほん)で生活(せいかつ)するのはどうですか。",
+       "vi": "Sống ở Nhật thì thế nào?"
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "毎朝早く起きる＿＿大変ですか。",
+       "answer": "のは",
+       "translation_vi": "Sáng nào cũng dậy sớm có vất vả không?"
+      },
+      {
+       "sentence_ja": "「日本語を話すのは＿＿ですか」「まだ難しいです」",
+       "answer": "どう",
+       "translation_vi": "\"Nói tiếng Nhật thì thế nào?\" \"Vẫn còn khó.\""
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "日本の",
+        "作るのは",
+        "難しいですか",
+        "料理を"
+       ],
+       "answer_order": [
+        0,
+        3,
+        1,
+        2
+       ],
+       "translation_vi": "Nấu món Nhật có khó không?"
+      },
+      {
+       "pieces": [
+        "行くのは",
+        "会社へ",
+        "大変ですか",
+        "電車で"
+       ],
+       "answer_order": [
+        3,
+        1,
+        0,
+        2
+       ],
+       "translation_vi": "Đi làm bằng tàu điện có vất vả không?"
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "毎朝早く起きる（　　）大変ですか。",
+       "options": [
+        "のは",
+        "のを",
+        "ので",
+        "のに"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Vる + のは + tính từ + ですか. Nghĩa: Sáng nào cũng dậy sớm có vất vả không?"
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "「日本語を話すのは（　　）ですか」「まだ難しいです」",
+       "options": [
+        "どこ",
+        "なに",
+        "どう",
+        "どれ"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Hỏi cảm nhận chung: 〜のはどうですか. Nghĩa: \"Nói tiếng Nhật thì thế nào?\" \"Vẫn còn khó.\""
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "日本の",
+        "作るのは",
+        "難しいですか",
+        "料理を"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 日本の料理を作るのは難しいですか。 (Nấu món Nhật có khó không?) Mảnh ở ô ★ là 「作るのは」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "行くのは",
+        "会社へ",
+        "大変ですか",
+        "電車で"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 電車で会社へ行くのは大変ですか。 (Đi làm bằng tàu điện có vất vả không?) Mảnh ở ô ★ là 「行くのは」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "漢字を覚えるのは大変ですか。",
+       "options": [
+        "Bạn đã nhớ chữ Hán chưa?",
+        "Bạn có thích chữ Hán không?",
+        "Nhớ chữ Hán có vất vả không?",
+        "Chữ Hán có dễ nhớ không?"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Nhớ chữ Hán có vất vả không?\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "一人で旅行するのは楽しいですか。",
+       "options": [
+        "Bạn đã đi du lịch một mình chưa?",
+        "Đi du lịch một mình có nguy hiểm không?",
+        "Bạn thích đi du lịch với ai?",
+        "Đi du lịch một mình có vui không?"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Đi du lịch một mình có vui không?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "漢字を覚えるのは大変ですか。",
+        "日本で生活するのはどうですか。",
+        "漢字を書くは大変ですか。",
+        "「日本語を話すのはどうですか」「まだ難しいです」"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: cần の để danh từ hóa: 書くのは. Sửa: 漢字を書くのは大変ですか。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "日本で働くのを楽しいですか。",
+        "一人で旅行するのは楽しいですか。",
+        "毎朝早く起きるのは大変ですか。",
+        "日本の料理を作るのは難しいですか。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: hỏi nhận xét về việc dùng のは. Sửa: 日本で働くのは楽しいですか。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "一人で住む（　　）さびしくないですか。",
+       "options": [
+        "ので",
+        "のは",
+        "のを",
+        "のに"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Vる + のは. Nghĩa: Sống một mình có buồn không?"
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "日本で生活するのはどうですか。",
+       "options": [
+        "Sống ở Nhật thì thế nào?",
+        "Sống ở Nhật có đắt không?",
+        "Bạn sống ở Nhật bao lâu rồi?",
+        "Bạn có muốn sống ở Nhật không?"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Sống ở Nhật thì thế nào?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "毎朝早く起きるのは大変ですか。",
+        "毎日料理するのはどうでしたですか。",
+        "日本の料理を作るのは難しいですか。",
+        "漢字を覚えるのは大変ですか。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: không ghép でした với です. Sửa: 毎日料理するのはどうでしたか。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ là câu trần thuật lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「のは」 theo mẫu V る のは 〜ですか (Hỏi cảm nhận về một việc). Nghĩa cả câu: Đi bơi một mình có vui không?",
+      "options": [
+       "のは",
+       "のに",
+       "なら",
+       "ほど"
+      ],
+      "prompt_ja": "ひとりで およぐ（　　） たのしいですか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc V る のは 〜ですか (Hỏi cảm nhận về một việc), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ので",
+       "ています",
+       "ば",
+       "くらい"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: ひとりで およぐのは たのしいですか。 (Đi bơi một mình có vui không?). Theo cấu trúc V る のは 〜ですか, mảnh đứng ở vị trí ★ là 「は たの」.",
+      "options": [
+       "は たの",
+       "ひとりで",
+       "しいですか",
+       " およぐの"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc V る のは 〜ですか, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "日本語を",
+       "います",
+       "毎日まじめに",
+       "勉強して"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu V る のは 〜ですか có nghĩa là \"Hỏi cảm nhận về một việc\". Câu này dịch là: \"Đi bơi một mình có vui không?\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Đi bơi một mình có vui không?",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "ひとりで およぐのは たのしいですか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu V る のは 〜ですか (Hỏi cảm nhận về một việc), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V る のは 〜ですか). Câu đúng: ひとりで およぐのは たのしいですか。",
+      "options": [
+       "ひとりで およぐのは たのしいですかますだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc V る のは 〜ですか. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "ひとりで およぐのは たのしいですか。",
+       "週末は家族と一緒に公園へ行きます。",
+       "毎日まじめに日本語をが勉強しています。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V る のは 〜ですか\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "ひとりで およぐのは たのしいですか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi bơi một mình có vui không?"
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc V る のは 〜ですか (Hỏi cảm nhận về một việc). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "たら",
+       "だけ",
+       "ます",
+       "し"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu V る のは 〜ですか (Hỏi cảm nhận về một việc), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "ひとりで およぐのは たのしいですか。",
+       "毎日まじめに日本語を勉強しています。",
+       "あしたは朝早く起きて図書館へ行く。",
+       "週末は家族と一緒にを公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "のは",
+      "sentence_ja": "ひとりで およぐ＿＿ たのしいですか。",
+      "translation_vi": "Đi bơi một mình có vui không?"
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "V る のは 〜ですか",
+    "locked_fields": [],
+    "meaning_vi": "Hỏi cảm nhận về một việc\nHỏi người ta thấy việc đó thế nào: かんじを おぼえるのは たいへんですか.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V る のは 〜ですか\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       " およぐの",
+       "しいですか",
+       "ひとりで",
+       "は たの"
+      ],
+      "translation_vi": "Đi bơi một mình có vui không?"
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "います",
+       "勉強して",
+       "毎日まじめに",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "V る のは 〜ですか",
+    "pattern_variants": [],
+    "unit_no": 38,
+    "unit_title_vi": "Danh từ hóa với の và こと",
+    "usage_vi": "Trả lời thì nhắc lại việc đó rồi mới nói cảm nhận, nghe mới trọn câu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e9accdf455"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "quên (làm) …; quên mất việc …",
+     "formation": "Vる + のを 忘(わす)れました; Vる + のを 忘れないでください",
+     "usage_vi": "Quên không làm một việc lẽ ra phải làm: かぎをかけるのを忘れました; 宿題を出すのを忘れてしまいました. Nhắc người khác: 電気を消すのを忘れないでください.",
+     "nuance_vi": "Ở mẫu này dùng の (không thay bằng こと). Khác 〜を忘れました (quên đồ vật): かさを忘れました.",
+     "common_mistakes_vi": "Bỏ の (×かけるを忘れました); dùng ことが (×出すことが忘れました); dùng thể た (みがいたのを忘れた thành \"quên là đã đánh răng\").",
+     "examples": [
+      {
+       "ja": "かぎをかけるのを忘れました。",
+       "ja_furigana": "かぎをかけるのを忘(わす)れました。",
+       "vi": "Tôi quên khóa cửa."
+      },
+      {
+       "ja": "宿題を出すのを忘れてしまいました。",
+       "ja_furigana": "宿題(しゅくだい)を出(だ)すのを忘(わす)れてしまいました。",
+       "vi": "Tôi lỡ quên nộp bài tập."
+      },
+      {
+       "ja": "電気を消すのを忘れないでください。",
+       "ja_furigana": "電気(でんき)を消(け)すのを忘(わす)れないでください。",
+       "vi": "Đừng quên tắt đèn nhé."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "母に電話する＿＿忘れました。",
+       "answer": "のを",
+       "translation_vi": "Tôi quên gọi điện cho mẹ."
+      },
+      {
+       "sentence_ja": "出かけるとき、窓を＿＿のを忘れないでね。",
+       "answer": "閉める",
+       "translation_vi": "Khi ra ngoài đừng quên đóng cửa sổ nhé."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "手紙に",
+        "はるのを",
+        "切手を",
+        "忘れました"
+       ],
+       "answer_order": [
+        0,
+        2,
+        1,
+        3
+       ],
+       "translation_vi": "Tôi quên dán tem vào thư."
+      },
+      {
+       "pieces": [
+        "飲むのを",
+        "忘れない",
+        "薬を",
+        "でください"
+       ],
+       "answer_order": [
+        2,
+        0,
+        1,
+        3
+       ],
+       "translation_vi": "Đừng quên uống thuốc nhé."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "母に電話する（　　）忘れました。",
+       "options": [
+        "ので",
+        "のが",
+        "のに",
+        "のを"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Vる + のを 忘れる. Nghĩa: Tôi quên gọi điện cho mẹ."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "出かけるとき、窓を（　　）のを忘れないでね。",
+       "options": [
+        "閉め",
+        "閉めて",
+        "閉めない",
+        "閉める"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Thể từ điển + のを忘れない. Nghĩa: Khi ra ngoài đừng quên đóng cửa sổ nhé."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "手紙に",
+        "はるのを",
+        "切手を",
+        "忘れました"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 手紙に切手をはるのを忘れました。 (Tôi quên dán tem vào thư.) Mảnh ở ô ★ là 「はるのを」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "飲むのを",
+        "忘れない",
+        "薬を",
+        "でください"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 薬を飲むのを忘れないでください。 (Đừng quên uống thuốc nhé.) Mảnh ở ô ★ là 「忘れない」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "かぎをかけるのを忘れました。",
+       "options": [
+        "Tôi đã khóa cửa cẩn thận.",
+        "Tôi làm mất chìa khóa.",
+        "Tôi quên khóa cửa.",
+        "Tôi quên mang chìa khóa theo."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi quên khóa cửa.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "電気を消すのを忘れないでください。",
+       "options": [
+        "Hãy bật đèn lên.",
+        "Đừng quên tắt đèn nhé.",
+        "Tôi quên tắt đèn rồi.",
+        "Đèn tự tắt rồi."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Đừng quên tắt đèn nhé.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "宿題を出すのを忘れてしまいました。",
+        "母に電話するのを忘れました。",
+        "かぎをかけるを忘れました。",
+        "手紙に切手をはるのを忘れました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: thiếu の: かけるのを忘れました. Sửa: かぎをかけるのを忘れました。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "宿題を出すことが忘れました。",
+        "宿題を出すのを忘れてしまいました。",
+        "母に電話するのを忘れました。",
+        "手紙に切手をはるのを忘れました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: dùng のを忘れる. Sửa: 宿題を出すのを忘れました。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "友達の誕生日に、メールを送る（　　）忘れてしまいました。",
+       "options": [
+        "のに",
+        "のを",
+        "ので",
+        "のが"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Vる + のを 忘れる. Nghĩa: Tôi lỡ quên gửi email vào sinh nhật bạn."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "宿題を出すのを忘れてしまいました。",
+       "options": [
+        "Bài tập hôm nay nhiều quá.",
+        "Tôi lỡ quên nộp bài tập.",
+        "Tôi đã nộp bài tập rồi.",
+        "Tôi không có bài tập."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi lỡ quên nộp bài tập.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "母に電話するのを忘れました。",
+        "ゆうべ、歯をみがいたのを忘れました。",
+        "手紙に切手をはるのを忘れました。",
+        "かぎをかけるのを忘れました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: quên làm việc dùng thể từ điển: みがくのを忘れました. Sửa: ゆうべ、歯をみがくのを忘れました。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「る」 theo mẫu V る のを わすれました (Quên mất phải làm gì). Nghĩa cả câu: Tôi đã quên mất việc phải dậy sớm.",
+      "options": [
+       "と",
+       "ずつ",
+       "ばかり",
+       "る"
+      ],
+      "prompt_ja": "はやく おき（　　）のを わすれました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc V る のを わすれました (Quên mất phải làm gì), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ています",
+       "しか",
+       "とか",
+       "ところ"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: はやく おきるのを わすれました。 (Tôi đã quên mất việc phải dậy sớm.). Theo cấu trúc V る のを わすれました, mảnh đứng ở vị trí ★ là 「 わすれ」.",
+      "options": [
+       "はやく おきるの",
+       " わすれ",
+       "を",
+       "ました"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc V る のを わすれました, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "勉強して",
+       "毎日まじめに",
+       "います",
+       "日本語を"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu V る のを わすれました có nghĩa là \"Quên mất phải làm gì\". Câu này dịch là: \"Tôi đã quên mất việc phải dậy sớm.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Tôi đã quên mất việc phải dậy sớm.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "はやく おきるのを わすれました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu V る のを わすれました (Quên mất phải làm gì), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V る のを わすれました). Câu đúng: はやく おきるのを わすれました。",
+      "options": [
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。",
+       "はやく おきるのを わすれましたますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc V る のを わすれました. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "はやく おきるのを わすれました。",
+       "毎日まじめに日本語をが勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V る のを わすれました\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "はやく おきるのを わすれました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã quên mất việc phải dậy sớm."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc V る のを わすれました (Quên mất phải làm gì). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "くらい",
+       "ます",
+       "ながら",
+       "まま"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu V る のを わすれました (Quên mất phải làm gì), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "はやく おきるのを わすれました。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒にを公園へ行きます。",
+       "あしたは朝早く起きて図書館へ行く。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "る",
+      "sentence_ja": "はやく おき＿＿のを わすれました。",
+      "translation_vi": "Tôi đã quên mất việc phải dậy sớm."
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "V る のを わすれました",
+    "locked_fields": [],
+    "meaning_vi": "Quên mất phải làm gì\nViệc bị quên đứng trước のを: かぎを かけるのを わすれました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V る のを わすれました\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ました",
+       " わすれ",
+       "はやく おきるの",
+       "を"
+      ],
+      "translation_vi": "Tôi đã quên mất việc phải dậy sớm."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "勉強して",
+       "毎日まじめに",
+       "います",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "V る のを わすれました",
+    "pattern_variants": [],
+    "unit_no": 38,
+    "unit_title_vi": "Danh từ hóa với の và こと",
+    "usage_vi": "Chỗ này bắt buộc là の, không thay bằng こと được. Nhắc người khác thì nói のを わすれないで ください."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0cb6537908"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "(cái gì) đang ở trạng thái …; đã … (và còn nguyên)",
+     "formation": "N が + tự động từ (V-て) + いる",
+     "usage_vi": "Tả trạng thái kết quả còn lại sau một thay đổi: パソコンがこわれているから、仕事ができません; 小さい車に五人も乗っています; 電気を消して出かけたのに、今ついている.",
+     "nuance_vi": "Với tự động từ chỉ thay đổi (開く, こわれる, つく, 落ちる), 〜ている là trạng thái, không phải \"đang làm\". Có người cố ý làm sẵn thì dùng tha động từ + てある.",
+     "common_mistakes_vi": "Dùng tha động từ (×パソコンがこわしています; ×さいふが落としています); dùng てある với tự động từ (×電気がついてあります).",
+     "examples": [
+      {
+       "ja": "パソコンがこわれているから、仕事ができません。",
+       "ja_furigana": "パソコンがこわれているから、仕事(しごと)ができません。",
+       "vi": "Máy tính hỏng nên tôi không làm việc được."
+      },
+      {
+       "ja": "小さい車に五人も乗っています。",
+       "ja_furigana": "小(ちい)さい車(くるま)に五人(ごにん)も乗(の)っています。",
+       "vi": "Có tới năm người ngồi trên chiếc xe nhỏ."
+      },
+      {
+       "ja": "電気を消して出かけたのに、今ついている。",
+       "ja_furigana": "電気(でんき)を消(け)して出(で)かけたのに、今(いま)ついている。",
+       "vi": "Tôi đã tắt đèn rồi mới đi mà giờ đèn vẫn sáng."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "あ、シャツのボタンが＿＿いますよ。",
+       "answer": "取れて",
+       "translation_vi": "Ơ, cúc áo bị tuột rồi kìa."
+      },
+      {
+       "sentence_ja": "道に車が＿＿いて、通れません。",
+       "answer": "止まって",
+       "translation_vi": "Có xe đỗ trên đường nên không đi qua được."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "ビールが",
+        "冷えて",
+        "冷蔵庫に",
+        "います"
+       ],
+       "answer_order": [
+        2,
+        0,
+        1,
+        3
+       ],
+       "translation_vi": "Trong tủ lạnh có bia đã lạnh."
+      },
+      {
+       "pieces": [
+        "の",
+        "ガラスが",
+        "見て、窓",
+        "割れています"
+       ],
+       "answer_order": [
+        2,
+        0,
+        1,
+        3
+       ],
+       "translation_vi": "Nhìn kìa, kính cửa sổ bị vỡ."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "あ、シャツのボタンが（　　）いますよ。",
+       "options": [
+        "取れ",
+        "取れて",
+        "取って",
+        "取り"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "取れる (tự động từ) → 取れています. Nghĩa: Ơ, cúc áo bị tuột rồi kìa."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "道に車が（　　）いて、通れません。",
+       "options": [
+        "止まり",
+        "止まって",
+        "止めて",
+        "止める"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "止まる (tự động từ) → 止まっています. Nghĩa: Có xe đỗ trên đường nên không đi qua được."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ビールが",
+        "冷えて",
+        "冷蔵庫に",
+        "います"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 冷蔵庫にビールが冷えています。 (Trong tủ lạnh có bia đã lạnh.) Mảnh ở ô ★ là 「冷えて」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "見て、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "の",
+        "ガラスが",
+        "窓",
+        "割れています"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 見て、窓のガラスが割れています。 (Nhìn kìa, kính cửa sổ bị vỡ.) Mảnh ở ô ★ là 「ガラスが」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "パソコンがこわれているから、仕事ができません。",
+       "options": [
+        "Tôi đang sửa máy tính nên không làm việc.",
+        "Máy tính hỏng nên tôi không làm việc được.",
+        "Máy tính tốt nên tôi làm việc nhanh.",
+        "Tôi làm hỏng máy tính của bạn."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Máy tính hỏng nên tôi không làm việc được.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "小さい車に五人も乗っています。",
+       "options": [
+        "Năm người đã xuống xe.",
+        "Chiếc xe nhỏ chở được năm người.",
+        "Có tới năm người ngồi trên chiếc xe nhỏ.",
+        "Năm người muốn đi chiếc xe nhỏ."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Có tới năm người ngồi trên chiếc xe nhỏ.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "パソコンがこわれているから、仕事ができません。",
+        "電気を消して出かけたのに、今ついている。",
+        "パソコンがこわしています。",
+        "道に車が止まっていて、通れません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: tả trạng thái dùng tự động từ こわれる. Sửa: パソコンがこわれています。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "部屋の電気がついてあります。",
+        "小さい車に五人も乗っています。",
+        "あ、シャツのボタンが取れていますよ。",
+        "冷蔵庫にビールが冷えています。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: つく là tự động từ nên dùng ついています. Sửa: 部屋の電気がついています。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "このいすは（　　）いますから、座らないでください。",
+       "options": [
+        "こわれて",
+        "こわし",
+        "こわれ",
+        "こわして"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "こわれる (tự động từ) → こわれています. Nghĩa: Cái ghế này bị hỏng nên đừng ngồi."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "電気を消して出かけたのに、今ついている。",
+       "options": [
+        "Tôi quên tắt đèn khi ra ngoài.",
+        "Đèn đã tắt rồi.",
+        "Tôi đã tắt đèn rồi mới đi mà giờ đèn vẫn sáng.",
+        "Tôi bật đèn rồi mới đi."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi đã tắt đèn rồi mới đi mà giờ đèn vẫn sáng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "あ、シャツのボタンが取れていますよ。",
+        "道にさいふが落としています。",
+        "冷蔵庫にビールが冷えています。",
+        "パソコンがこわれているから、仕事ができません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: tả trạng thái dùng tự động từ 落ちる. Sửa: 道にさいふが落ちています。"
+      }
+     ]
+    },
+    "note": "formation chỉ ghi \"Cấu trúc: 自動詞+ている(結果の状態)\"; usage dán lẫn tiếng Nhật; ví dụ 1 trùng mục khác, ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「ている」 theo mẫu 自動詞+ている(結果の状態) (Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).). Nghĩa cả câu: Cửa đang mở đấy.",
+      "options": [
+       "し",
+       "つもり",
+       "ている",
+       "てしまう"
+      ],
+      "prompt_ja": "ドアが開い（　　）よ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc 自動詞+ている(結果の状態) (Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).), chỗ trống cần điền 「から」. Nghĩa: Vì máy tính đang bị hỏng nên tôi không thể làm việc được.",
+      "options": [
+       "てもいい",
+       "はず",
+       "ておく",
+       "から"
+      ],
+      "prompt_ja": "コンピューターがこわれている（　　）、仕事ができない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: ドアが開いているよ。 (Cửa đang mở đấy.). Theo cấu trúc 自動詞+ている(結果の状態), mảnh đứng ở vị trí ★ là 「いて」.",
+      "options": [
+       "いるよ",
+       "が開",
+       "いて",
+       "ドア"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: コンピューターがこわれているから、仕事ができない。 (Vì máy tính đang bị hỏng nên tôi không thể làm việc được.). Theo cấu trúc 自動詞+ている(結果の状態), mảnh đứng ở vị trí ★ là 「こわれているから、」.",
+      "options": [
+       "コンピューターが",
+       "仕事が",
+       "こわれているから、",
+       "できない"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu 自動詞+ている(結果の状態) có nghĩa là \"Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).\". Câu này dịch là: \"Cửa đang mở đấy.\"",
+      "options": [
+       "Cửa đang mở đấy.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "ドアが開いているよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu 自動詞+ている(結果の状態) (Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).), câu trên có nghĩa là: \"Vì máy tính đang bị hỏng nên tôi không thể làm việc được.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Vì máy tính đang bị hỏng nên tôi không thể làm việc được.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "コンピューターがこわれているから、仕事ができない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 自動詞+ている(結果の状態)). Câu đúng: ドアが開いているよ。",
+      "options": [
+       "コンピューターがこわれているから、仕事ができない。",
+       "毎日まじめに日本語を勉強しています。",
+       "ドアが開いているよますだ。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu 自動詞+ている(結果の状態)). Câu đúng: コンピューターがこわれているから、仕事ができない。",
+      "options": [
+       "コンピューターがこわれているから、仕事ができないですます。",
+       "ドアが開いているよ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"自動詞+ている(結果の状態)\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "ドアが開いているよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cửa đang mở đấy."
+     },
+     {
+      "ja": "コンピューターがこわれているから、仕事ができない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì máy tính đang bị hỏng nên tôi không thể làm việc được."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc 自動詞+ている(結果の状態) (Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ています",
+       "ところ",
+       "ついでに",
+       "ている"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu 自動詞+ている(結果の状態) (Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "ドアが開いているよ。",
+       "毎日まじめにを日本語を勉強しています。",
+       "コンピューターがこわれているから、仕事ができない。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ている",
+      "sentence_ja": "ドアが開い＿＿よ。",
+      "translation_vi": "Cửa đang mở đấy."
+     },
+     {
+      "answer": "から",
+      "sentence_ja": "コンピューターがこわれている＿＿、仕事ができない。",
+      "translation_vi": "Vì máy tính đang bị hỏng nên tôi không thể làm việc được."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: ドアが開いているよ。",
+     "FURIGANA_MISSING: コンピューターがこわれているから、仕事ができない。"
+    ],
+    "formation": "Cấu trúc: 自動詞+ている(結果の状態)",
+    "locked_fields": [],
+    "meaning_vi": "Trạng thái kết quả còn lại sau một thay đổi (cửa đang mở, máy đang hỏng).",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"自動詞+ている(結果の状態)\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "いて",
+       "ドア",
+       "いるよ",
+       "が開"
+      ],
+      "translation_vi": "Cửa đang mở đấy."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "こわれているから、",
+       "できない",
+       "コンピューターが",
+       "仕事が"
+      ],
+      "translation_vi": "Vì máy tính đang bị hỏng nên tôi không thể làm việc được."
+     }
+    ],
+    "pattern": "自動詞+ている(結果の状態)",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Trạng thái kết quả và biến đổi",
+    "usage_vi": "自動詞ている: Biểu thị trạng thái kết quả sau một sự thay đổi nào đó. V（て） ＋います ① ドアが開いているよ。 ② コンピューターがこわれているから、仕事ができない。 ➂ 小さい車に 5人も乗っています。 ➃ あれっ。電気を消して出かけたのに、今ついている。 ☞ Dịch ① ドアが開いているよ。 Cửa đang mở. ② コンピューターがこわれているから、仕事ができない。 Vì máy tính đang bị hỏng nên tôi không thể làm việc được. ➂ 小さい車に 5人も乗っています。 Đền tận 5 người ngồi vào trong chiếc ôtô nhỏ. ➃ あれっ。電気を消して出かけたのに、今ついている。 Aa. Mặc dù tôi đã tắt đèn đi ra ngoài, nhưng hiện tại nó đang sáng. 命令形: Biểu thị mệnh lệnh. ① 閉めろよ。 ② いやならやめろ！ ➂ たのむ。来るな！ ➃ えんりょしないでもっと飲めよ。 ☞ Dịch ① 閉めろよ。 Đóng cửa đi. ② いやならやめろ！ Nếu không thích thì dừng lại! ➂ たのむ。来るな！ Năn nỉ, đừng có đến! ➃ えんりょしないでもっと飲めよ。 Đừng ngại ngần, uống nhiều hơn đi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-88eac86194"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "vì … nên (cảm thấy) …",
+     "formation": "Aい (bỏ い) + くて、 + cảm xúc/trạng thái; Aな + で、〜",
+     "usage_vi": "Tính từ い đổi thành くて để nêu nguyên nhân, vế sau là cảm xúc hoặc trạng thái của chính mình: 人が多くて、疲れました; 仕事が多くて、困りました; この本は字が小さくて、読みにくいです.",
+     "nuance_vi": "Vế sau không phải câu có ý chí (mệnh lệnh, rủ, nhờ); khi đó dùng から/ので: 寒いから、窓を閉めてください.",
+     "common_mistakes_vi": "Giữ い (×難しいくて → 難しくて); tính từ な dùng くて (×静かくて → 静かで); vế sau là lời nhờ (×寒くて、窓を閉めてください).",
+     "examples": [
+      {
+       "ja": "人が多くて、疲れました。",
+       "ja_furigana": "人(ひと)が多(おお)くて、疲(つか)れました。",
+       "vi": "Đông người quá nên tôi mệt."
+      },
+      {
+       "ja": "仕事が多くて、困りました。",
+       "ja_furigana": "仕事(しごと)が多(おお)くて、困(こま)りました。",
+       "vi": "Công việc nhiều quá nên tôi gặp khó khăn."
+      },
+      {
+       "ja": "この本は字が小さくて、読みにくいです。",
+       "ja_furigana": "この本(ほん)は字(じ)が小(ちい)さくて、読(よ)みにくいです。",
+       "vi": "Cuốn sách này chữ nhỏ nên khó đọc."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "きのうは寒＿＿、眠れませんでした。",
+       "answer": "くて",
+       "translation_vi": "Hôm qua lạnh quá nên tôi không ngủ được."
+      },
+      {
+       "sentence_ja": "友達がいなく＿＿、さびしいです。",
+       "answer": "て",
+       "translation_vi": "Không có bạn nên tôi buồn."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "ません",
+        "辛くて",
+        "このカレーは",
+        "食べられ"
+       ],
+       "answer_order": [
+        2,
+        1,
+        3,
+        0
+       ],
+       "translation_vi": "Món cà ri này cay quá nên tôi không ăn được."
+      },
+      {
+       "pieces": [
+        "見えません",
+        "部屋が",
+        "よく",
+        "暗くて"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Phòng tối nên không nhìn rõ."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "きのうは寒（　　）、眠れませんでした。",
+       "options": [
+        "くで",
+        "いで",
+        "くて",
+        "いて"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Aい → くて: nguyên nhân. Nghĩa: Hôm qua lạnh quá nên tôi không ngủ được."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "友達がいなく（　　）、さびしいです。",
+       "options": [
+        "たら",
+        "た",
+        "で",
+        "て"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "ない → なくて. Nghĩa: Không có bạn nên tôi buồn."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ません",
+        "辛くて",
+        "このカレーは",
+        "食べられ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: このカレーは辛くて食べられません。 (Món cà ri này cay quá nên tôi không ăn được.) Mảnh ở ô ★ là 「食べられ」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "見えません",
+        "部屋が",
+        "よく",
+        "暗くて"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 部屋が暗くてよく見えません。 (Phòng tối nên không nhìn rõ.) Mảnh ở ô ★ là 「よく」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "人が多くて、疲れました。",
+       "options": [
+        "Tôi mệt nên không đến chỗ đông người.",
+        "Đông người quá nên tôi mệt.",
+        "Ít người nên tôi không mệt.",
+        "Đông người nhưng tôi không mệt."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Đông người quá nên tôi mệt.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "仕事が多くて、困りました。",
+       "options": [
+        "Công việc nhiều quá nên tôi gặp khó khăn.",
+        "Công việc nhiều nhưng không sao.",
+        "Công việc ít nên tôi rảnh.",
+        "Tôi giúp người khác làm việc."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Công việc nhiều quá nên tôi gặp khó khăn.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "人が多くて、疲れました。",
+        "この本は字が小さくて、読みにくいです。",
+        "テストが難しいくて、できませんでした。",
+        "友達がいなくて、さびしいです。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: tính từ い bỏ い thêm くて: 難しくて. Sửa: テストが難しくて、できませんでした。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "寒くて、窓を閉めてください。",
+        "仕事が多くて、困りました。",
+        "きのうは寒くて、眠れませんでした。",
+        "このカレーは辛くて食べられません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: vế sau là lời nhờ nên dùng から. Sửa: 寒いから、窓を閉めてください。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "このかばんは重（　　）、持てません。",
+       "options": [
+        "いて",
+        "くて",
+        "くで",
+        "いで"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "重い → 重くて. Nghĩa: Cái túi này nặng quá nên tôi không xách được."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "この本は字が小さくて、読みにくいです。",
+       "options": [
+        "Tôi không có sách để đọc.",
+        "Cuốn sách này chữ nhỏ nên khó đọc.",
+        "Cuốn sách này chữ nhỏ nhưng dễ đọc.",
+        "Chữ trong sách to nên dễ đọc."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Cuốn sách này chữ nhỏ nên khó đọc.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "きのうは寒くて、眠れませんでした。",
+        "この町は静かくて、好きです。",
+        "このカレーは辛くて食べられません。",
+        "人が多くて、疲れました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: tính từ な dùng で: 静かで. Sửa: この町は静かで、好きです。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「くて、」 theo mẫu A くて、〜 (cảm xúc) (Vì thế nên thấy ngại, thấy buồn). Nghĩa cả câu: Công việc nhiều nên tôi đã gặp khó khăn.",
+      "options": [
+       "まま",
+       "くて、",
+       "てある",
+       "やすい"
+      ],
+      "prompt_ja": "しごとが おお（　　）こまりました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc A くて、〜 (cảm xúc) (Vì thế nên thấy ngại, thấy buồn), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "とおり",
+       "てみる",
+       "ています",
+       "にくい"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: しごとが おおくて、こまりました。 (Công việc nhiều nên tôi đã gặp khó khăn.). Theo cấu trúc A くて、〜 (cảm xúc), mảnh đứng ở vị trí ★ là 「こまり」.",
+      "options": [
+       " おおくて、",
+       "ました",
+       "しごとが",
+       "こまり"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc A くて、〜 (cảm xúc), mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "います",
+       "日本語を",
+       "勉強して",
+       "毎日まじめに"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu A くて、〜 (cảm xúc) có nghĩa là \"Vì thế nên thấy ngại, thấy buồn\". Câu này dịch là: \"Công việc nhiều nên tôi đã gặp khó khăn.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Công việc nhiều nên tôi đã gặp khó khăn."
+      ],
+      "prompt_ja": "しごとが おおくて、こまりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu A くて、〜 (cảm xúc) (Vì thế nên thấy ngại, thấy buồn), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu A くて、〜 (cảm xúc)). Câu đúng: しごとが おおくて、こまりました。",
+      "options": [
+       "毎日まじめに日本語を勉強しています。",
+       "しごとが おおくて、こまりましたますだ。",
+       "週末は家族と一緒に公園へ行きます。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc A くて、〜 (cảm xúc). Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "しごとが おおくて、こまりました。",
+       "週末は家族と一緒に公園へ行きます。",
+       "雨が降ったら試合は中止です。",
+       "毎日まじめに日本語をが勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"A くて、〜 (cảm xúc)\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "しごとが おおくて、こまりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc nhiều nên tôi đã gặp khó khăn."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc A くて、〜 (cảm xúc) (Vì thế nên thấy ngại, thấy buồn). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "ておく",
+       "ていく",
+       "ようだ",
+       "ます"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu A くて、〜 (cảm xúc) (Vì thế nên thấy ngại, thấy buồn), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "週末は家族と一緒にを公園へ行きます。",
+       "しごとが おおくて、こまりました。",
+       "毎日まじめに日本語を勉強しています。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "くて、",
+      "sentence_ja": "しごとが おお＿＿こまりました。",
+      "translation_vi": "Công việc nhiều nên tôi đã gặp khó khăn."
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "A くて、〜 (cảm xúc)",
+    "locked_fields": [],
+    "meaning_vi": "Vì thế nên thấy ngại, thấy buồn\nTính từ đuôi い đổi thành くて rồi nối cảm xúc: ひとが おおくて、つかれました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"A くて、〜 (cảm xúc)\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       " おおくて、",
+       "ました",
+       "しごとが",
+       "こまり"
+      ],
+      "translation_vi": "Công việc nhiều nên tôi đã gặp khó khăn."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "います",
+       "勉強して",
+       "毎日まじめに",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "A くて、〜 (cảm xúc)",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "Vế sau luôn là chuyện xảy tới với chính mình. Không dùng để sai bảo người khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-adb15a3a86"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "vì … (danh từ chỉ nguyên nhân)",
+     "formation": "N (thiên tai, sự cố, bệnh …) + で、〜",
+     "usage_vi": "Danh từ chỉ nguyên nhân (thiên tai, sự cố, bệnh) đi với で: 台風で学校が休みになりました; 地震で家がこわれました; かぜで会社を休みました; 事故で電車が遅れました.",
+     "nuance_vi": "で ở đây chỉ nguyên nhân, khác で chỉ nơi chốn hay phương tiện. Vế sau thường là kết quả không có ý chí; nếu là lời rủ, nhờ thì dùng 〜だから.",
+     "common_mistakes_vi": "Dùng から ngay sau danh từ (×台風から → 台風で hoặc 台風だから); dùng に (×雨に中止になりました).",
+     "examples": [
+      {
+       "ja": "台風で学校が休みになりました。",
+       "ja_furigana": "台風(たいふう)で学校(がっこう)が休(やす)みになりました。",
+       "vi": "Vì bão nên trường được nghỉ."
+      },
+      {
+       "ja": "地震で家がこわれました。",
+       "ja_furigana": "地震(じしん)で家(いえ)がこわれました。",
+       "vi": "Vì động đất mà nhà bị hỏng."
+      },
+      {
+       "ja": "かぜで会社を休みました。",
+       "ja_furigana": "かぜで会社(かいしゃ)を休(やす)みました。",
+       "vi": "Vì cảm nên tôi nghỉ làm."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "事故＿＿電車が遅れました。",
+       "answer": "で",
+       "translation_vi": "Vì tai nạn nên tàu bị trễ."
+      },
+      {
+       "sentence_ja": "雪＿＿、道がとてもこんでいます。",
+       "answer": "で",
+       "translation_vi": "Vì tuyết nên đường rất đông."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "で",
+        "中止になりました",
+        "試合が",
+        "大雨"
+       ],
+       "answer_order": [
+        3,
+        0,
+        2,
+        1
+       ],
+       "translation_vi": "Vì mưa to nên trận đấu bị hủy."
+      },
+      {
+       "pieces": [
+        "病気",
+        "一週間",
+        "で",
+        "学校を休みました"
+       ],
+       "answer_order": [
+        0,
+        2,
+        1,
+        3
+       ],
+       "translation_vi": "Vì ốm nên tôi nghỉ học một tuần."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "事故（　　）電車が遅れました。",
+       "options": [
+        "が",
+        "に",
+        "で",
+        "を"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "N + で: nguyên nhân. Nghĩa: Vì tai nạn nên tàu bị trễ."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "雪（　　）、道がとてもこんでいます。",
+       "options": [
+        "が",
+        "を",
+        "に",
+        "で"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "N + で. Nghĩa: Vì tuyết nên đường rất đông."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "で",
+        "中止になりました",
+        "試合が",
+        "大雨"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 大雨で試合が中止になりました。 (Vì mưa to nên trận đấu bị hủy.) Mảnh ở ô ★ là 「試合が」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "病気",
+        "一週間",
+        "で",
+        "学校を休みました"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 病気で一週間学校を休みました。 (Vì ốm nên tôi nghỉ học một tuần.) Mảnh ở ô ★ là 「一週間」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "台風で学校が休みになりました。",
+       "options": [
+        "Vì bão nên trường được nghỉ.",
+        "Vì trường nghỉ nên có bão.",
+        "Có bão nhưng trường vẫn học.",
+        "Trường nghỉ để đi xem bão."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Vì bão nên trường được nghỉ.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "地震で家がこわれました。",
+       "options": [
+        "Tôi sửa nhà sau động đất.",
+        "Nhà bị hỏng nên có động đất.",
+        "Vì động đất mà nhà bị hỏng.",
+        "Động đất nhưng nhà không sao."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Vì động đất mà nhà bị hỏng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "台風で学校が休みになりました。",
+        "かぜで会社を休みました。",
+        "台風から、飛行機が飛びませんでした。",
+        "雪で、道がとてもこんでいます。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: danh từ chỉ nguyên nhân dùng で (hoặc 台風だから). Sửa: 台風で、飛行機が飛びませんでした。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "かぜで、早く寝ましょう。",
+        "地震で家がこわれました。",
+        "事故で電車が遅れました。",
+        "大雨で試合が中止になりました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: vế sau là lời rủ nên dùng 〜だから. Sửa: かぜだから、早く寝ましょう。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "けが（　　）、サッカーの試合に出られません。",
+       "options": [
+        "に",
+        "を",
+        "で",
+        "が"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "N + で. Nghĩa: Vì bị thương nên tôi không thi đấu bóng đá được."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "かぜで会社を休みました。",
+       "options": [
+        "Tôi bị cảm vì đi làm.",
+        "Vì cảm nên tôi nghỉ làm.",
+        "Tôi nghỉ làm để đi chơi.",
+        "Tôi đi làm dù bị cảm."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Vì cảm nên tôi nghỉ làm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "事故で電車が遅れました。",
+        "雨に、運動会が中止になりました。",
+        "大雨で試合が中止になりました。",
+        "台風で学校が休みになりました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: nguyên nhân dùng で. Sửa: 雨で、運動会が中止になりました。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「ました」 theo mẫu N で、〜 (Vì thiên tai, sự cố mà ra thế). Nghĩa cả câu: Vì động đất nên bị hỏng, tôi gặp rắc rối.",
+      "options": [
+       "ました",
+       "ている",
+       "すぎる",
+       "のに"
+      ],
+      "prompt_ja": "じしんで こわれて、こまり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc N で、〜 (Vì thiên tai, sự cố mà ra thế), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "てくる",
+       "ています",
+       "そうだ",
+       "ので"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: じしんで こわれて、こまりました。 (Vì động đất nên bị hỏng, tôi gặp rắc rối.). Theo cấu trúc N で、〜, mảnh đứng ở vị trí ★ là 「こまり」.",
+      "options": [
+       "こまり",
+       "じしんで",
+       "ました",
+       " こわれて、"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc N で、〜, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "日本語を",
+       "います",
+       "毎日まじめに",
+       "勉強して"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu N で、〜 có nghĩa là \"Vì thiên tai, sự cố mà ra thế\". Câu này dịch là: \"Vì động đất nên bị hỏng, tôi gặp rắc rối.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Vì động đất nên bị hỏng, tôi gặp rắc rối.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "じしんで こわれて、こまりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu N で、〜 (Vì thiên tai, sự cố mà ra thế), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N で、〜). Câu đúng: じしんで こわれて、こまりました。",
+      "options": [
+       "じしんで こわれて、こまりましたますだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "このペンはとても書きやすいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc N で、〜. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "じしんで こわれて、こまりました。",
+       "週末は家族と一緒に公園へ行きます。",
+       "毎日まじめに日本語をが勉強しています。",
+       "このペンはとても書きやすいです。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"N で、〜\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "じしんで こわれて、こまりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì động đất nên bị hỏng, tôi gặp rắc rối."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc N で、〜 (Vì thiên tai, sự cố mà ra thế). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "にくい",
+       "かもしれない",
+       "ます",
+       "たら"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu N で、〜 (Vì thiên tai, sự cố mà ra thế), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "じしんで こわれて、こまりました。",
+       "毎日まじめに日本語を勉強しています。",
+       "この薬は苦くて飲みにくいです。",
+       "週末は家族と一緒にを公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ました",
+      "sentence_ja": "じしんで こわれて、こまり＿＿。",
+      "translation_vi": "Vì động đất nên bị hỏng, tôi gặp rắc rối."
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "N で、〜",
+    "locked_fields": [],
+    "meaning_vi": "Vì thiên tai, sự cố mà ra thế\nDanh từ chỉ nguyên do đi với で: たいふうで がっこうが やすみに なりました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"N で、〜\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ました",
+       "こまり",
+       "じしんで",
+       " こわれて、"
+      ],
+      "translation_vi": "Vì động đất nên bị hỏng, tôi gặp rắc rối."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "勉強して",
+       "毎日まじめに",
+       "います",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "N で、〜",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "で ở đây là nguyên do, khác với で chỉ nơi chốn hay phương tiện. Nhìn danh từ mà đoán nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6b6cbf2571"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "(cái đó) đã … rồi (kể lại kết quả)",
+     "formation": "N は + V (quá khứ: 〜ました/〜になりました)",
+     "usage_vi": "Trả lời gọn khi được hỏi việc đó kết quả ra sao, nhắc lại chủ đề bằng は: 「パソコンはどうなりましたか」「パソコンはきのう直りました」; 試合はうちのチームが勝ちました; 旅行は雨で中止になりました.",
+     "nuance_vi": "Nhắc lại chủ đề được hỏi bằng は rồi nói kết cục; tự động từ (直る, 決まる, 終わる) dùng khi không cần nói ai làm.",
+     "common_mistakes_vi": "Dùng thì hiện tại cho việc đã xong (×試合は勝ちます); chia sai quá khứ lịch sự (×直るました, ×よくなるました).",
+     "examples": [
+      {
+       "ja": "パソコンはきのう直りました。",
+       "ja_furigana": "パソコンはきのう直(なお)りました。",
+       "vi": "Máy tính đã sửa được hôm qua."
+      },
+      {
+       "ja": "試合はうちのチームが勝ちました。",
+       "ja_furigana": "試合(しあい)はうちのチームが勝(か)ちました。",
+       "vi": "Trận đấu thì đội chúng tôi thắng."
+      },
+      {
+       "ja": "旅行は雨で中止になりました。",
+       "ja_furigana": "旅行(りょこう)は雨(あめ)で中止(ちゅうし)になりました。",
+       "vi": "Chuyến du lịch bị hủy vì mưa."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "「会議の日はどうなりましたか」「会議＿＿金曜日に決まりました」",
+       "answer": "は",
+       "translation_vi": "\"Ngày họp thế nào rồi?\" \"Cuộc họp đã định vào thứ Sáu.\"",
+       "accept": [
+        "が"
+       ]
+      },
+      {
+       "sentence_ja": "「かぜはどうですか」「おかげさまで、もう＿＿」",
+       "answer": "治りました",
+       "translation_vi": "\"Bệnh cảm sao rồi?\" \"Nhờ trời, khỏi rồi ạ.\""
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "中止になりました」",
+        "「試合はどうなりましたか」「試合",
+        "雨で",
+        "は"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "\"Trận đấu sao rồi?\" \"Trận đấu bị hủy vì mưa.\""
+      },
+      {
+       "pieces": [
+        "来週の",
+        "決まりました",
+        "引っ越しの日は",
+        "土曜日に"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Ngày chuyển nhà đã định vào thứ Bảy tuần sau."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「会議の日はどうなりましたか」「会議（　　）金曜日に決まりました」",
+       "options": [
+        "は",
+        "に",
+        "で",
+        "を"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Nhắc lại chủ đề bằng は. Nghĩa: \"Ngày họp thế nào rồi?\" \"Cuộc họp đã định vào thứ Sáu.\""
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "「かぜはどうですか」「おかげさまで、もう（　　）」",
+       "options": [
+        "治りました",
+        "治りまいた",
+        "治しりました",
+        "治れました"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Kể kết quả: tự động từ ở quá khứ. Nghĩa: \"Bệnh cảm sao rồi?\" \"Nhờ trời, khỏi rồi ạ.\""
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "「試合はどうなりましたか」「 ＿＿ ＿＿ ★ ＿＿ 」",
+       "options": [
+        "中止になりました",
+        "試合",
+        "雨で",
+        "は"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 「試合はどうなりましたか」「試合は雨で中止になりました」 (\"Trận đấu sao rồi?\" \"Trận đấu bị hủy vì mưa.\") Mảnh ở ô ★ là 「雨で」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "来週の",
+        "決まりました",
+        "引っ越しの日は",
+        "土曜日に"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 引っ越しの日は来週の土曜日に決まりました。 (Ngày chuyển nhà đã định vào thứ Bảy tuần sau.) Mảnh ở ô ★ là 「土曜日に」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "パソコンはきのう直りました。",
+       "options": [
+        "Máy tính vẫn chưa sửa được.",
+        "Máy tính đã sửa được hôm qua.",
+        "Tôi sẽ sửa máy tính vào ngày mai.",
+        "Hôm qua máy tính bị hỏng."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Máy tính đã sửa được hôm qua.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "旅行は雨で中止になりました。",
+       "options": [
+        "Trời mưa trong chuyến du lịch.",
+        "Tôi thích đi du lịch lúc trời mưa.",
+        "Chuyến du lịch bị hủy vì mưa.",
+        "Chuyến du lịch vẫn diễn ra dù mưa."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Chuyến du lịch bị hủy vì mưa.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "パソコンはきのう直りました。",
+        "旅行は雨で中止になりました。",
+        "「試合はどうなりましたか」「試合は勝ちます」",
+        "「かぜはどうですか」「おかげさまで、もう治りました」"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: kể kết quả đã xảy ra dùng quá khứ: 勝ちました. Sửa: 試合は勝ちました。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "パソコンはきのう直るました。",
+        "旅行は雨で中止になりました。",
+        "「かぜはどうですか」「おかげさまで、もう治りました」",
+        "引っ越しの日は来週の土曜日に決まりました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: quá khứ lịch sự của 直る là 直りました. Sửa: パソコンはきのう直りました。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「旅行の計画はどうなりましたか」「旅行は来月に（　　）」",
+       "options": [
+        "ないました",
+        "なりました",
+        "なりまいた",
+        "なれました"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Kết cục: 〜になりました. Nghĩa: \"Kế hoạch du lịch sao rồi?\" \"Chuyến đi thành ra vào tháng sau.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "試合はうちのチームが勝ちました。",
+       "options": [
+        "Trận đấu đội chúng tôi thua.",
+        "Đội chúng tôi không thi đấu.",
+        "Trận đấu thì đội chúng tôi thắng.",
+        "Trận đấu chưa kết thúc."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Trận đấu thì đội chúng tôi thắng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "「会議の日はどうなりましたか」「会議は金曜日に決まりました」",
+        "「病気はどうなりましたか」「病気がよくなるました」",
+        "「試合はどうなりましたか」「試合は雨で中止になりました」",
+        "パソコンはきのう直りました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: quá khứ lịch sự là よくなりました. Sửa: 病気はよくなりました。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, có ぶじに; ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「は」 theo mẫu N は 〜ました (Kể lại kết cục). Nghĩa cả câu: Máy tính đã được sửa xong xuôi an toàn.",
+      "options": [
+       "ようだ",
+       "から",
+       "と",
+       "は"
+      ],
+      "prompt_ja": "パソコン（　　） ぶじに なおりました。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc N は 〜ました (Kể lại kết cục), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ています",
+       "らしい",
+       "ても",
+       "しか"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: パソコンは ぶじに なおりました。 (Máy tính đã được sửa xong xuôi an toàn.). Theo cấu trúc N は 〜ました, mảnh đứng ở vị trí ★ là 「 なおり」.",
+      "options": [
+       "パソコンは",
+       " なおり",
+       " ぶじに",
+       "ました"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc N は 〜ました, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "勉強して",
+       "毎日まじめに",
+       "います",
+       "日本語を"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu N は 〜ました có nghĩa là \"Kể lại kết cục\". Câu này dịch là: \"Máy tính đã được sửa xong xuôi an toàn.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Máy tính đã được sửa xong xuôi an toàn.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "パソコンは ぶじに なおりました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu N は 〜ました (Kể lại kết cục), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N は 〜ました). Câu đúng: パソコンは ぶじに なおりました。",
+      "options": [
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。",
+       "パソコンは ぶじに なおりましたますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc N は 〜ました. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "パソコンは ぶじに なおりました。",
+       "毎日まじめに日本語をが勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"N は 〜ました\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "パソコンは ぶじに なおりました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Máy tính đã được sửa xong xuôi an toàn."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「は」 theo cấu trúc N は 〜ました (Kể lại kết cục). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "ので",
+       "は",
+       "ば",
+       "くらい"
+      ],
+      "prompt_ja": "週末（　　）家族と一緒に公園へ行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu N は 〜ました (Kể lại kết cục), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "パソコンは ぶじに なおりました。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒にを公園へ行きます。",
+       "あしたは朝早く起きて図書館へ行く。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "は",
+      "sentence_ja": "パソコン＿＿ ぶじに なおりました。",
+      "translation_vi": "Máy tính đã được sửa xong xuôi an toàn."
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "N は 〜ました",
+    "locked_fields": [],
+    "meaning_vi": "Kể lại kết cục\nTrả lời gọn khi người ta hỏi việc đó ra sao: パソコンは きのう なおりました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"N は 〜ました\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       " なおり",
+       "パソコンは",
+       "ました",
+       " ぶじに"
+      ],
+      "translation_vi": "Máy tính đã được sửa xong xuôi an toàn."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "日本語を",
+       "います",
+       "毎日まじめに",
+       "勉強して"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "N は 〜ました",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "Nhắc lại đúng thứ được hỏi rồi mới nói kết cục, nghe mới trọn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-31012d72de"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "(việc đó) ra sao rồi?; kết quả thế nào?",
+     "formation": "N は どう なりましたか; どうして 〜んですか (hỏi nguyên do)",
+     "usage_vi": "Hỏi kết cục của một việc người nghe biết: 試合はどうなりましたか; 先週のテストはどうなりましたか; 引っ越しの日はどうなりましたか. Hỏi nguyên do: どうして遅れたんですか.",
+     "nuance_vi": "Câu trả lời thường là 〜ました hoặc 〜になりました; nếu có nguyên nhân thì dùng 〜て/〜で: 雨で中止になりました.",
+     "common_mistakes_vi": "Dùng 何 thay どう (×何なりましたか); dùng どうして (tại sao) khi hỏi kết cục; chia sai (×どうなるましたか).",
+     "examples": [
+      {
+       "ja": "試合はどうなりましたか。",
+       "ja_furigana": "試合(しあい)はどうなりましたか。",
+       "vi": "Trận đấu ra sao rồi?"
+      },
+      {
+       "ja": "先週のテストはどうなりましたか。",
+       "ja_furigana": "先週(せんしゅう)のテストはどうなりましたか。",
+       "vi": "Bài kiểm tra tuần trước thế nào rồi?"
+      },
+      {
+       "ja": "引っ越しの日はどうなりましたか。",
+       "ja_furigana": "引(ひ)っ越(こ)しの日(ひ)はどうなりましたか。",
+       "vi": "Ngày chuyển nhà quyết thế nào rồi?"
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "「旅行の話は＿＿なりましたか」「雨で中止になりました」",
+       "answer": "どう",
+       "translation_vi": "\"Chuyện đi du lịch ra sao rồi?\" \"Bị hủy vì mưa.\""
+      },
+      {
+       "sentence_ja": "「病気はどう＿＿か」「おかげさまで、よくなりました」",
+       "answer": "なりました",
+       "translation_vi": "\"Bệnh tình thế nào rồi?\" \"Nhờ trời, khỏi rồi ạ.\""
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "なりましたか",
+        "どう",
+        "は",
+        "あの話"
+       ],
+       "answer_order": [
+        3,
+        2,
+        1,
+        0
+       ],
+       "translation_vi": "Chuyện đó ra sao rồi?"
+      },
+      {
+       "pieces": [
+        "会議は",
+        "なりましたか",
+        "どう",
+        "昨日の"
+       ],
+       "answer_order": [
+        3,
+        0,
+        2,
+        1
+       ],
+       "translation_vi": "Cuộc họp hôm qua thế nào rồi?"
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「旅行の話は（　　）なりましたか」「雨で中止になりました」",
+       "options": [
+        "どこ",
+        "なに",
+        "どう",
+        "いつ"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Hỏi kết cục: どうなりましたか. Nghĩa: \"Chuyện đi du lịch ra sao rồi?\" \"Bị hủy vì mưa.\""
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "「病気はどう（　　）か」「おかげさまで、よくなりました」",
+       "options": [
+        "ありました",
+        "いきました",
+        "きました",
+        "なりました"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "どう + なりましたか. Nghĩa: \"Bệnh tình thế nào rồi?\" \"Nhờ trời, khỏi rồi ạ.\""
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "あの ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "なりましたか",
+        "どう",
+        "は",
+        "話"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: あの話はどうなりましたか。 (Chuyện đó ra sao rồi?) Mảnh ở ô ★ là 「どう」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "会議は",
+        "なりましたか",
+        "どう",
+        "昨日の"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 昨日の会議はどうなりましたか。 (Cuộc họp hôm qua thế nào rồi?) Mảnh ở ô ★ là 「どう」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "試合はどうなりましたか。",
+       "options": [
+        "Bạn có xem trận đấu không?",
+        "Trận đấu bắt đầu lúc mấy giờ?",
+        "Trận đấu ở đâu?",
+        "Trận đấu ra sao rồi?"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Trận đấu ra sao rồi?\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "先週のテストはどうなりましたか。",
+       "options": [
+        "Bài kiểm tra tuần sau có khó không?",
+        "Bài kiểm tra tuần trước có mấy câu?",
+        "Bài kiểm tra tuần trước thế nào rồi?",
+        "Bạn học cho bài kiểm tra chưa?"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Bài kiểm tra tuần trước thế nào rồi?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "先週のテストはどうなりましたか。",
+        "「旅行の話はどうなりましたか」「雨で中止になりました」",
+        "試合は何なりましたか。",
+        "あの話はどうなりましたか。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: hỏi kết cục dùng どうなりましたか. Sửa: 試合はどうなりましたか。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "きのうの会議はどうなるましたか。",
+        "先週のテストはどうなりましたか。",
+        "「旅行の話はどうなりましたか」「雨で中止になりました」",
+        "あの話はどうなりましたか。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: quá khứ lịch sự của なる là なりました. Sửa: きのうの会議はどうなりましたか。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "「パソコンは（　　）なりましたか」「まだ直っていません」",
+       "options": [
+        "なに",
+        "いつ",
+        "どこ",
+        "どう"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "どうなりましたか. Nghĩa: \"Máy tính sao rồi?\" \"Vẫn chưa sửa xong.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "引っ越しの日はどうなりましたか。",
+       "options": [
+        "Ngày chuyển nhà quyết thế nào rồi?",
+        "Ai giúp bạn chuyển nhà?",
+        "Bạn có muốn chuyển nhà không?",
+        "Nhà mới của bạn ở đâu?"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Ngày chuyển nhà quyết thế nào rồi?\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "「旅行の話はどうなりましたか」「雨で中止になりました」",
+        "旅行はどうしてなりましたか。",
+        "あの話はどうなりましたか。",
+        "試合はどうなりましたか。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: hỏi kết cục dùng どうなりましたか (どうして là \"tại sao\"). Sửa: 旅行はどうなりましたか。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「は」 theo mẫu N は どう なりましたか (Hỏi việc đó ra sao). Nghĩa cả câu: Trận đấu ra sao rồi ạ?",
+      "options": [
+       "たら",
+       "だけ",
+       "は",
+       "し"
+      ],
+      "prompt_ja": "しあい（　　） どう なりましたか。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc N は どう なりましたか (Hỏi việc đó ra sao), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "なら",
+       "ほど",
+       "てもいい",
+       "ています"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: しあいは どう なりましたか。 (Trận đấu ra sao rồi ạ?). Theo cấu trúc N は どう なりましたか, mảnh đứng ở vị trí ★ là 「 なり」.",
+      "options": [
+       "ましたか",
+       "は どう",
+       " なり",
+       "しあい"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc N は どう なりましたか, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "毎日まじめに",
+       "勉強して",
+       "日本語を",
+       "います"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu N は どう なりましたか có nghĩa là \"Hỏi việc đó ra sao\". Câu này dịch là: \"Trận đấu ra sao rồi ạ?\"",
+      "options": [
+       "Trận đấu ra sao rồi ạ?",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "しあいは どう なりましたか。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu N は どう なりましたか (Hỏi việc đó ra sao), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu N は どう なりましたか). Câu đúng: しあいは どう なりましたか。",
+      "options": [
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "しあいは どう なりましたかますだ。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc N は どう なりましたか. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "毎日まじめに日本語をが勉強しています。",
+       "しあいは どう なりましたか。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"N は どう なりましたか\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "しあいは どう なりましたか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trận đấu ra sao rồi ạ?"
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「は」 theo cấu trúc N は どう なりましたか (Hỏi việc đó ra sao). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "は",
+       "しか",
+       "とか",
+       "ところ"
+      ],
+      "prompt_ja": "週末（　　）家族と一緒に公園へ行きます。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu N は どう なりましたか (Hỏi việc đó ra sao), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Cuối tuần tôi đi công viên cùng với gia đình."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "しあいは どう なりましたか。",
+       "週末は家族と一緒にを公園へ行きます。",
+       "毎日まじめに日本語を勉強しています。",
+       "あしたは朝早く起きて図書館へ行く。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "は",
+      "sentence_ja": "しあい＿＿ どう なりましたか。",
+      "translation_vi": "Trận đấu ra sao rồi ạ?"
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "N は どう なりましたか",
+    "locked_fields": [],
+    "meaning_vi": "Hỏi việc đó ra sao\nHỏi kết cục hoặc nguyên do: しあいは どう なりましたか.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"N は どう なりましたか\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "は どう",
+       "ましたか",
+       "しあい",
+       " なり"
+      ],
+      "translation_vi": "Trận đấu ra sao rồi ạ?"
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "います",
+       "勉強して",
+       "毎日まじめに",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "N は どう なりましたか",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "Hỏi nguyên do thì thêm どうして. Người ta đáp bằng て hoặc で, nghe là biết nguyên do."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4cda42a998"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "vì … nên …; … nên (kết quả)",
+     "formation": "V-て (nguyên nhân)、 + kết quả (không có ý chí)",
+     "usage_vi": "Vế trước xảy ra kéo theo vế sau (kết quả, cảm xúc, khả năng): 電車が遅れて、遅刻しました; 雨が降って、試合が中止になりました; 地震があって、びっくりしました.",
+     "nuance_vi": "Vế sau không được là lời rủ, lời nhờ, mệnh lệnh hay ý định; khi đó dùng から/ので.",
+     "common_mistakes_vi": "Dùng ý chí ở vế sau (×電車が遅れて、タクシーで行きましょう); chia sai thể て (×ひきて → ひいて).",
+     "examples": [
+      {
+       "ja": "電車が遅れて、遅刻しました。",
+       "ja_furigana": "電車(でんしゃ)が遅(おく)れて、遅刻(ちこく)しました。",
+       "vi": "Tàu trễ nên tôi đến muộn."
+      },
+      {
+       "ja": "雨が降って、試合が中止になりました。",
+       "ja_furigana": "雨(あめ)が降(ふ)って、試合(しあい)が中止(ちゅうし)になりました。",
+       "vi": "Trời mưa nên trận đấu bị hủy."
+      },
+      {
+       "ja": "地震があって、びっくりしました。",
+       "ja_furigana": "地震(じしん)があって、びっくりしました。",
+       "vi": "Có động đất nên tôi giật mình."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "かぜをひい＿＿、学校を休みました。",
+       "answer": "て",
+       "translation_vi": "Bị cảm nên tôi nghỉ học."
+      },
+      {
+       "sentence_ja": "財布を＿＿、困りました。",
+       "answer": "なくして",
+       "translation_vi": "Tôi làm mất ví nên khốn đốn."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "来なくて",
+        "会議に",
+        "遅れました",
+        "バスが"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Xe buýt không đến nên tôi đến họp muộn."
+      },
+      {
+       "pieces": [
+        "道が",
+        "しまいました",
+        "わからなくて",
+        "困って"
+       ],
+       "answer_order": [
+        0,
+        2,
+        3,
+        1
+       ],
+       "translation_vi": "Không biết đường nên tôi khốn đốn."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "かぜをひい（　　）、学校を休みました。",
+       "options": [
+        "たり",
+        "で",
+        "て",
+        "た"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "V-て: nguyên nhân. Nghĩa: Bị cảm nên tôi nghỉ học."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "財布を（　　）、困りました。",
+       "options": [
+        "なくす",
+        "なくし",
+        "なくして",
+        "なくした"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "なくす → なくして. Nghĩa: Tôi làm mất ví nên khốn đốn."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "来なくて",
+        "会議に",
+        "遅れました",
+        "バスが"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: バスが来なくて会議に遅れました。 (Xe buýt không đến nên tôi đến họp muộn.) Mảnh ở ô ★ là 「会議に」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "道が",
+        "しまいました",
+        "わからなくて",
+        "困って"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 道がわからなくて困ってしまいました。 (Không biết đường nên tôi khốn đốn.) Mảnh ở ô ★ là 「困って」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "電車が遅れて、遅刻しました。",
+       "options": [
+        "Tàu trễ nhưng tôi vẫn đến kịp.",
+        "Tôi đi tàu sớm để không muộn.",
+        "Tôi đến muộn nên tàu bị trễ.",
+        "Tàu trễ nên tôi đến muộn."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Tàu trễ nên tôi đến muộn.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "雨が降って、試合が中止になりました。",
+       "options": [
+        "Trời mưa sau khi trận đấu kết thúc.",
+        "Trời mưa nhưng trận đấu vẫn diễn ra.",
+        "Trận đấu bị hủy nên trời mưa.",
+        "Trời mưa nên trận đấu bị hủy."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Trời mưa nên trận đấu bị hủy.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "電車が遅れて、遅刻しました。",
+        "地震があって、びっくりしました。",
+        "電車が遅れて、タクシーで行きましょう。",
+        "財布をなくして、困りました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: vế sau là lời rủ nên dùng から. Sửa: 電車が遅れているから、タクシーで行きましょう。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "かぜをひきて、学校を休みました。",
+        "雨が降って、試合が中止になりました。",
+        "財布をなくして、困りました。",
+        "道がわからなくて困ってしまいました。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai cách chia: ひく → ひいて. Sửa: かぜをひいて、学校を休みました。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "ニュースを（　　）、びっくりしました。",
+       "options": [
+        "聞き",
+        "聞いた",
+        "聞く",
+        "聞いて"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "聞く → 聞いて. Nghĩa: Nghe tin tức nên tôi giật mình."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "地震があって、びっくりしました。",
+       "options": [
+        "Tôi biết trước sẽ có động đất.",
+        "Có động đất nên tôi giật mình.",
+        "Tôi giật mình nên có động đất.",
+        "Có động đất nhưng tôi không sợ."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Có động đất nên tôi giật mình.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "かぜをひいて、学校を休みました。",
+        "雨が降って、かさを持っていってください。",
+        "バスが来なくて会議に遅れました。",
+        "電車が遅れて、遅刻しました。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: vế sau là lời nhờ nên dùng から. Sửa: 雨が降っているから、かさを持っていってください。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「ました」 theo mẫu V-て、〜 (Việc trước là nguyên do việc sau). Nghĩa cả câu: Tàu điện trễ nên tôi tới muộn.",
+      "options": [
+       "くらい",
+       "ました",
+       "ながら",
+       "まま"
+      ],
+      "prompt_ja": "でんしゃが おくれて、ちこくし（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc V-て、〜 (Việc trước là nguyên do việc sau), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ずつ",
+       "ばかり",
+       "ています",
+       "とおり"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: でんしゃが おくれて、ちこくしました。 (Tàu điện trễ nên tôi tới muộn.). Theo cấu trúc V-て、〜, mảnh đứng ở vị trí ★ là 「ちこくし」.",
+      "options": [
+       " おくれて、",
+       "ました",
+       "でんしゃが",
+       "ちこくし"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc V-て、〜, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "います",
+       "日本語を",
+       "勉強して",
+       "毎日まじめに"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu V-て、〜 có nghĩa là \"Việc trước là nguyên do việc sau\". Câu này dịch là: \"Tàu điện trễ nên tôi tới muộn.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Tàu điện trễ nên tôi tới muộn."
+      ],
+      "prompt_ja": "でんしゃが おくれて、ちこくしました。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu V-て、〜 (Việc trước là nguyên do việc sau), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V-て、〜). Câu đúng: でんしゃが おくれて、ちこくしました。",
+      "options": [
+       "毎日まじめに日本語を勉強しています。",
+       "でんしゃが おくれて、ちこくしましたますだ。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc V-て、〜. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "でんしゃが おくれて、ちこくしました。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。",
+       "毎日まじめに日本語をが勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V-て、〜\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "でんしゃが おくれて、ちこくしました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tàu điện trễ nên tôi tới muộn."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc V-て、〜 (Việc trước là nguyên do việc sau). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "てもいい",
+       "はず",
+       "ておく",
+       "ます"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu V-て、〜 (Việc trước là nguyên do việc sau), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "週末は家族と一緒にを公園へ行きます。",
+       "でんしゃが おくれて、ちこくしました。",
+       "毎日まじめに日本語を勉強しています。",
+       "あしたは朝早く起きて図書館へ行く。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ました",
+      "sentence_ja": "でんしゃが おくれて、ちこくし＿＿。",
+      "translation_vi": "Tàu điện trễ nên tôi tới muộn."
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て、〜",
+    "locked_fields": [],
+    "meaning_vi": "Việc trước là nguyên do việc sau\nVế trước xảy ra rồi kéo theo vế sau: でんしゃが おくれて、ちこくしました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V-て、〜\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ました",
+       "ちこくし",
+       "でんしゃが",
+       " おくれて、"
+      ],
+      "translation_vi": "Tàu điện trễ nên tôi tới muộn."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "勉強して",
+       "毎日まじめに",
+       "います",
+       "日本語を"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "V-て、〜",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "Vế sau KHÔNG được là lời rủ, lời nhờ hay ý định. Muốn nhờ vả thì phải dùng から."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b91362e255"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "vì … nên thấy vui (buồn hay ngạc nhiên …)",
+     "formation": "V-て (Vない → なくて)、 + cảm xúc (うれしい・悲しい・びっくりした・安心した)",
+     "usage_vi": "Kể một việc rồi nói cảm xúc của mình khi đó: プレゼントをもらって、うれしかったです; 試験に合格して、安心しました; 友達に会えなくて、さびしかったです.",
+     "nuance_vi": "Cảm xúc thường ở thì quá khứ vì nói về lúc việc đó xảy ra. Phủ định nguyên nhân dùng 〜なくて.",
+     "common_mistakes_vi": "Chia sai thể て (×もらいて → もらって; ×合格したて → 合格して); dùng ないで thay なくて (×会えないで、さびしかった).",
+     "examples": [
+      {
+       "ja": "プレゼントをもらって、うれしかったです。",
+       "ja_furigana": null,
+       "vi": "Nhận được quà nên tôi rất vui."
+      },
+      {
+       "ja": "試験に合格して、安心しました。",
+       "ja_furigana": "試験(しけん)に合格(ごうかく)して、安心(あんしん)しました。",
+       "vi": "Thi đỗ nên tôi yên tâm."
+      },
+      {
+       "ja": "友達に会えなくて、さびしかったです。",
+       "ja_furigana": "友達(ともだち)に会(あ)えなくて、さびしかったです。",
+       "vi": "Không gặp được bạn nên tôi buồn."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "久しぶりに家族に会え＿＿、うれしかったです。",
+       "answer": "て",
+       "translation_vi": "Lâu lắm mới gặp được gia đình nên tôi rất vui."
+      },
+      {
+       "sentence_ja": "財布が見つからなく＿＿、困りました。",
+       "answer": "て",
+       "translation_vi": "Không tìm thấy ví nên tôi khốn đốn."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "ほめられて",
+        "とても",
+        "うれしかったです",
+        "先生に"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Được thầy khen nên tôi rất vui."
+      },
+      {
+       "pieces": [
+        "本当に",
+        "その",
+        "びっくりしました",
+        "ニュースを聞いて"
+       ],
+       "answer_order": [
+        1,
+        3,
+        0,
+        2
+       ],
+       "translation_vi": "Nghe tin đó tôi thật sự giật mình."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "久しぶりに家族に会え（　　）、うれしかったです。",
+       "options": [
+        "た",
+        "で",
+        "て",
+        "る"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "会える → 会えて. Nghĩa: Lâu lắm mới gặp được gia đình nên tôi rất vui."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "財布が見つからなく（　　）、困りました。",
+       "options": [
+        "て",
+        "たり",
+        "た",
+        "で"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Vない → なくて. Nghĩa: Không tìm thấy ví nên tôi khốn đốn."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ほめられて",
+        "とても",
+        "うれしかったです",
+        "先生に"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 先生にほめられてとてもうれしかったです。 (Được thầy khen nên tôi rất vui.) Mảnh ở ô ★ là 「とても」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "本当に",
+        "その",
+        "びっくりしました",
+        "ニュースを聞いて"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: そのニュースを聞いて本当にびっくりしました。 (Nghe tin đó tôi thật sự giật mình.) Mảnh ở ô ★ là 「本当に」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "プレゼントをもらって、うれしかったです。",
+       "options": [
+        "Nhận được quà nên tôi rất vui.",
+        "Tôi vui nên đã mua quà.",
+        "Tôi tặng quà nên người nhận rất vui.",
+        "Tôi không nhận được quà nên buồn."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Nhận được quà nên tôi rất vui.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "友達に会えなくて、さびしかったです。",
+       "options": [
+        "Không gặp được bạn nên tôi buồn.",
+        "Bạn tôi buồn vì không gặp tôi.",
+        "Gặp bạn nên tôi rất vui.",
+        "Tôi không muốn gặp bạn."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Không gặp được bạn nên tôi buồn.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "プレゼントをもらって、うれしかったです。",
+        "友達に会えなくて、さびしかったです。",
+        "手紙をもらいて、うれしかったです。",
+        "財布が見つからなくて、困りました。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai cách chia: もらう → もらって. Sửa: 手紙をもらって、うれしかったです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "家族に会えないで、さびしかったです。",
+        "試験に合格して、安心しました。",
+        "久しぶりに家族に会えて、うれしかったです。",
+        "先生にほめられてとてもうれしかったです。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: nguyên nhân của cảm xúc dùng なくて. Sửa: 家族に会えなくて、さびしかったです。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "みんなの前で名前を呼ばれ（　　）、はずかしかったです。",
+       "options": [
+        "で",
+        "て",
+        "る",
+        "た"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "呼ばれる → 呼ばれて. Nghĩa: Bị gọi tên trước mọi người nên tôi ngại."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "試験に合格して、安心しました。",
+       "options": [
+        "Tôi lo lắng vì sắp thi.",
+        "Tôi yên tâm nên không học.",
+        "Tôi thi trượt nên buồn.",
+        "Thi đỗ nên tôi yên tâm."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Thi đỗ nên tôi yên tâm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "久しぶりに家族に会えて、うれしかったです。",
+        "試験に合格したて、うれしかったです。",
+        "先生にほめられてとてもうれしかったです。",
+        "プレゼントをもらって、うれしかったです。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: dùng thể て: 合格して. Sửa: 試験に合格して、うれしかったです。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu; nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「です」 theo mẫu V-て、うれしかったです (Vì thế nên thấy vui). Nghĩa cả câu: Vì máy tính đã được sửa xong nên tôi rất vui.",
+      "options": [
+       "です",
+       "ところ",
+       "ついでに",
+       "ている"
+      ],
+      "prompt_ja": "パソコンが なおって、うれしかった（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc V-て、うれしかったです (Vì thế nên thấy vui), chỗ trống cần điền 「ています」. Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "つもり",
+       "ています",
+       "てしまう",
+       "てくる"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: パソコンが なおって、うれしかったです。 (Vì máy tính đã được sửa xong nên tôi rất vui.). Theo cấu trúc V-て、うれしかったです, mảnh đứng ở vị trí ★ là 「うれしかった」.",
+      "options": [
+       "うれしかった",
+       "パソコンが",
+       "です",
+       " なおって、"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 毎日まじめに日本語を勉強しています。 (Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.). Theo cấu trúc V-て、うれしかったです, mảnh đứng ở vị trí ★ là 「日本語を」.",
+      "options": [
+       "日本語を",
+       "います",
+       "毎日まじめに",
+       "勉強して"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu V-て、うれしかったです có nghĩa là \"Vì thế nên thấy vui\". Câu này dịch là: \"Vì máy tính đã được sửa xong nên tôi rất vui.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Vì máy tính đã được sửa xong nên tôi rất vui.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "パソコンが なおって、うれしかったです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu V-て、うれしかったです (Vì thế nên thấy vui), câu trên có nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V-て、うれしかったです). Câu đúng: パソコンが なおって、うれしかったです。",
+      "options": [
+       "パソコンが なおって、うれしかったですますだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc V-て、うれしかったです. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "パソコンが なおって、うれしかったです。",
+       "週末は家族と一緒に公園へ行きます。",
+       "毎日まじめに日本語をが勉強しています。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V-て、うれしかったです\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "パソコンが なおって、うれしかったです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì máy tính đã được sửa xong nên tôi rất vui."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     },
+     {
+      "ja": "週末は家族と一緒に公園へ行きます。",
+      "ja_furigana": "週末(しゅうまつ)は家族(かぞく)と一緒(いっしょ)に公園(こうえん)へ行(い)きます。",
+      "source": "CLAUDE",
+      "vi": "Cuối tuần tôi đi công viên cùng với gia đình."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「ます」 theo cấu trúc V-て、うれしかったです (Vì thế nên thấy vui). Nghĩa: Cuối tuần tôi đi công viên cùng với gia đình.",
+      "options": [
+       "とおり",
+       "てみる",
+       "ます",
+       "にくい"
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行き（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu V-て、うれしかったです (Vì thế nên thấy vui), câu này nghĩa là: \"Cuối tuần tôi đi công viên cùng với gia đình.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Cuối tuần tôi đi công viên cùng với gia đình.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "週末は家族と一緒に公園へ行きます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 週末は家族と一緒に公園へ行きます。",
+      "options": [
+       "パソコンが なおって、うれしかったです。",
+       "毎日まじめに日本語を勉強しています。",
+       "あしたは朝早く起きて図書館へ行く。",
+       "週末は家族と一緒にを公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "です",
+      "sentence_ja": "パソコンが なおって、うれしかった＿＿。",
+      "translation_vi": "Vì máy tính đã được sửa xong nên tôi rất vui."
+     },
+     {
+      "answer": "ています",
+      "sentence_ja": "毎日まじめに日本語を勉強し＿＿。",
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "findings": [],
+    "formation": "V-て、うれしかったです",
+    "locked_fields": [],
+    "meaning_vi": "Vì thế nên thấy vui\nKể việc rồi nói lòng mình: プレゼントを もらって、うれしかったです.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V-て、うれしかったです\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "うれしかった",
+       "パソコンが",
+       "です",
+       " なおって、"
+      ],
+      "translation_vi": "Vì máy tính đã được sửa xong nên tôi rất vui."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "日本語を",
+       "います",
+       "毎日まじめに",
+       "勉強して"
+      ],
+      "translation_vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "pattern": "V-て、うれしかったです",
+    "pattern_variants": [],
+    "unit_no": 39,
+    "unit_title_vi": "Nguyên nhân và lý do",
+    "usage_vi": "Cảm xúc thường để thì quá khứ vì nói về lúc việc đó xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8eb4c9185d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "tôi định …; (đang) định …",
+     "formation": "Vよう (thể ý chí) + と思います; 〜と思っています (ý định kéo dài)",
+     "usage_vi": "Nói ý định của người nói (ngôi thứ nhất): いい天気だから、出かけようと思います; 旅行に行くので、かばんを買おうと思っています. 〜と思っています cũng dùng để nói ý định của người thứ ba: 兄は来年、車を買おうと思っています.",
+     "nuance_vi": "〜と思います: ý định vừa quyết; 〜と思っています: ý định đã giữ một thời gian. 〜とは思いません: phủ định mạnh (không hề nghĩ sẽ …).",
+     "common_mistakes_vi": "Dùng thể từ điển (出かけると思う là phỏng đoán); chia sai thể ý chí (×起きるよう → 起きよう; ×泳ご → 泳ごう); thừa です (×思いますです).",
+     "examples": [
+      {
+       "ja": "いい天気だから、出かけようと思います。",
+       "ja_furigana": "いい天気(てんき)だから、出(で)かけようと思(おも)います。",
+       "vi": "Trời đẹp nên tôi định ra ngoài."
+      },
+      {
+       "ja": "旅行に行くので、かばんを買おうと思っています。",
+       "ja_furigana": "旅行(りょこう)に行(い)くので、かばんを買(か)おうと思(おも)っています。",
+       "vi": "Sắp đi du lịch nên tôi định mua cái túi."
+      },
+      {
+       "ja": "兄は来年、車を買おうと思っています。",
+       "ja_furigana": "兄(あに)は来年(らいねん)、車(くるま)を買(か)おうと思(おも)っています。",
+       "vi": "Anh tôi định năm sau mua ô tô."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "疲れたので、今日は早く寝＿＿と思います。",
+       "answer": "よう",
+       "translation_vi": "Mệt rồi nên hôm nay tôi định ngủ sớm."
+      },
+      {
+       "sentence_ja": "明日、図書館へ＿＿と思っています。",
+       "answer": "行こう",
+       "translation_vi": "Mai tôi định đi thư viện."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "休みに",
+        "今度の",
+        "と思っています",
+        "国へ帰ろう"
+       ],
+       "answer_order": [
+        1,
+        0,
+        3,
+        2
+       ],
+       "translation_vi": "Kỳ nghỉ tới tôi định về nước."
+      },
+      {
+       "pieces": [
+        "ゆっくりしよう",
+        "家で",
+        "今日は",
+        "と思います"
+       ],
+       "answer_order": [
+        2,
+        1,
+        0,
+        3
+       ],
+       "translation_vi": "Hôm nay tôi định ở nhà nghỉ ngơi."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "疲れたので、今日は早く寝（　　）と思います。",
+       "options": [
+        "よう",
+        "りよう",
+        "るよう",
+        "ろう"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "寝る (nhóm II) → 寝よう. Nghĩa: Mệt rồi nên hôm nay tôi định ngủ sớm."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "明日、図書館へ（　　）と思っています。",
+       "options": [
+        "行きよう",
+        "行こう",
+        "行けよう",
+        "行くよう"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "行く → 行こう. Nghĩa: Mai tôi định đi thư viện."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "休みに",
+        "今度の",
+        "と思っています",
+        "国へ帰ろう"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 今度の休みに国へ帰ろうと思っています。 (Kỳ nghỉ tới tôi định về nước.) Mảnh ở ô ★ là 「国へ帰ろう」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ゆっくりしよう",
+        "家で",
+        "今日は",
+        "と思います"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 今日は家でゆっくりしようと思います。 (Hôm nay tôi định ở nhà nghỉ ngơi.) Mảnh ở ô ★ là 「ゆっくりしよう」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "いい天気だから、出かけようと思います。",
+       "options": [
+        "Trời đẹp nên chắc anh ấy ra ngoài.",
+        "Trời đẹp nên tôi định ra ngoài.",
+        "Hôm qua trời đẹp nên tôi đã ra ngoài.",
+        "Trời đẹp nhưng tôi ở nhà."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Trời đẹp nên tôi định ra ngoài.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "旅行に行くので、かばんを買おうと思っています。",
+       "options": [
+        "Tôi đã mua túi cho chuyến du lịch.",
+        "Đi du lịch về tôi sẽ cho bạn mượn túi.",
+        "Tôi nghĩ bạn nên mua túi.",
+        "Sắp đi du lịch nên tôi định mua cái túi."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Sắp đi du lịch nên tôi định mua cái túi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "いい天気だから、出かけようと思います。",
+        "兄は来年、車を買おうと思っています。",
+        "明日、早く起きるようと思います。",
+        "明日、図書館へ行こうと思っています。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: thể ý chí của 起きる là 起きよう. Sửa: 明日、早く起きようと思います。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "週末は、友達と遊ぼうと思いますです。",
+        "旅行に行くので、かばんを買おうと思っています。",
+        "疲れたので、今日は早く寝ようと思います。",
+        "今度の休みに国へ帰ろうと思っています。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: thừa です. Sửa: 週末は、友達と遊ぼうと思います。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "来年から、ギターを習（　　）と思っています。",
+       "options": [
+        "おう",
+        "うよう",
+        "えよう",
+        "いよう"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "習う → 習おう. Nghĩa: Từ năm sau tôi định học ghi ta."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "兄は来年、車を買おうと思っています。",
+       "options": [
+        "Anh tôi định năm sau mua ô tô.",
+        "Tôi định mua ô tô cho anh trai.",
+        "Anh tôi nghĩ ô tô đắt.",
+        "Anh tôi đã mua ô tô năm ngoái."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Anh tôi định năm sau mua ô tô.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "疲れたので、今日は早く寝ようと思います。",
+        "夏休みに、海で泳ごと思います。",
+        "今度の休みに国へ帰ろうと思っています。",
+        "いい天気だから、出かけようと思います。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: thể ý chí của 泳ぐ là 泳ごう. Sửa: 夏休みに、海で泳ごうと思います。"
+      }
+     ]
+    },
+    "note": "formation \"V / A / N + (よ)うと思います\" sai; usage dán lẫn tiếng Nhật, có lỗi gõ 行きので; ví dụ 3 cũ lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「うと思います」 theo mẫu 〜(よ)うと思います (Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.). Nghĩa cả câu: Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài.",
+      "options": [
+       "ておく",
+       "ていく",
+       "ようだ",
+       "うと思います"
+      ],
+      "prompt_ja": "いい天気だから、出かけよ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc 〜(よ)うと思います (Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.), chỗ trống cần điền 「っています」. Nghĩa: Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách.",
+      "options": [
+       "っています",
+       "てある",
+       "やすい",
+       "らしい"
+      ],
+      "prompt_ja": "旅行に行くので、かばんを買おうと思（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: いい天気だから、出かけようと思います。 (Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài.). Theo cấu trúc 〜(よ)うと思います, mảnh đứng ở vị trí ★ là 「出かけようと」.",
+      "options": [
+       "いい",
+       "出かけようと",
+       "天気だから、",
+       "思います"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 旅行に行くので、かばんを買おうと思っています。 (Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách.). Theo cấu trúc 〜(よ)うと思います, mảnh đứng ở vị trí ★ là 「で、かばんを」.",
+      "options": [
+       "買おうと",
+       "旅行に行くの",
+       "思っています",
+       "で、かばんを"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu 〜(よ)うと思います có nghĩa là \"Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.\". Câu này dịch là: \"Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài.\"",
+      "options": [
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "いい天気だから、出かけようと思います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu 〜(よ)うと思います (Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.), câu trên có nghĩa là: \"Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "旅行に行くので、かばんを買おうと思っています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu 〜(よ)うと思います). Câu đúng: いい天気だから、出かけようと思います。",
+      "options": [
+       "旅行に行くので、かばんを買おうと思っています。",
+       "毎朝公園を走っています。",
+       "姉は銀行で働いています。",
+       "いい天気だから、出かけようと思いますますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng hai trợ từ をが liền nhau trong cấu trúc 〜(よ)うと思います. Câu đúng: 旅行に行くので、かばんを買おうと思っています。",
+      "options": [
+       "いい天気だから、出かけようと思います。",
+       "旅行に行くので、かばんをが買おうと思っています。",
+       "毎朝公園を走っています。",
+       "姉は銀行で働いています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"〜(よ)うと思います\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "いい天気だから、出かけようと思います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài."
+     },
+     {
+      "ja": "旅行に行くので、かばんを買おうと思っています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách."
+     },
+     {
+      "ja": "毎朝公園を走っています。",
+      "ja_furigana": "毎朝(まいあさ)公園(こうえん)を走(はし)っています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi sáng tôi đều chạy bộ ở công viên."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「っています」 theo cấu trúc 〜(よ)うと思います (Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.). Nghĩa: Mỗi sáng tôi đều chạy bộ ở công viên.",
+      "options": [
+       "てくる",
+       "っています",
+       "そうだ",
+       "ので"
+      ],
+      "prompt_ja": "毎朝公園を走（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu 〜(よ)うと思います (Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.), câu này nghĩa là: \"Mỗi sáng tôi đều chạy bộ ở công viên.\"",
+      "options": [
+       "Mỗi sáng tôi đều chạy bộ ở công viên.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "毎朝公園を走っています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 毎朝公園を走っています。",
+      "options": [
+       "いい天気だから、出かけようと思います。",
+       "旅行に行くので、かばんを買おうと思っています。",
+       "毎朝公園を走っていますだます。",
+       "昼ご飯はまだ食べていません。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "うと思います",
+      "sentence_ja": "いい天気だから、出かけよ＿＿。",
+      "translation_vi": "Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài."
+     },
+     {
+      "answer": "っています",
+      "sentence_ja": "旅行に行くので、かばんを買おうと思＿＿。",
+      "translation_vi": "Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: いい天気だから、出かけようと思います。",
+     "FURIGANA_MISSING: 旅行に行くので、かばんを買おうと思っています。"
+    ],
+    "formation": "V / A / N + (よ)うと思います",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"〜(よ)うと思います\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "天気だから、",
+       "思います",
+       "いい",
+       "出かけようと"
+      ],
+      "translation_vi": "Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "思っています",
+       "買おうと",
+       "旅行に行くの",
+       "で、かばんを"
+      ],
+      "translation_vi": "Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách."
+     }
+    ],
+    "pattern": "〜(よ)うと思います",
+    "pattern_variants": [],
+    "unit_no": 31,
+    "unit_title_vi": "Thể ý chí và dự định",
+    "usage_vi": "Nội dung 動う・よう形 ⁺と思います →「う・よう形」 Diễn tả ý chí của người nói. Chủ ngữ câu là ngôi thứ nhất. Mẫu おもっています được sử dụng khi diễn tả sự liên tục mang ý chí của người nói như trong ví dụ ②③④．Mẫu ～とはおもいません diễn tả ý phủ định mạnh mẽ như trong ví dụ ⑤. ①いい天気だから、出かけようと思います。 ②旅行に行きので、かばんを買おうと思っています。 ③今日は帰るとき、図書館によろうと思っています。 ④来年ヨーロッパを旅行しようと思っている。 ⑤私は一人でカラオケに行こうとは思いません。 ☞ Dịch ①いい天気だから、出かけようと思います。 Vì thời tiết đẹp nên tôi định sẽ đi ra ngoài. ②旅行に行くので、かばんを買おうと思っています。 Vì tôi sẽ đi du lịch nên tôi định mua một chiếc túi xách. ③今日は帰るとき、図書館によろうと思っています。 Hôm nay khi ra về tôi dự định sẽ ghé vào thư viện. ④来年ヨーロッパを旅行しようと思っている。 Tôi dự định đi châu Âu vào năm tới. ⑤私は一人でカラオケに行こうとは思いません。 Tôi không nghĩ đến việc đi hát karaoke một mình. ～つもりです 動辞書形／ない形 ＋つもりです 動辞書形 ＋つもりはありません Diễn tả ý chí của người nói mạnh hơn so với mẫu ～ようとおもっています. Dùng trong trường hợp nêu những sự việc đã được quyết định chắc chắn từ trước chứ không phải tại thời điểm nói. Chủ ngữ là ngôi thứ nhất. Trong trường hợp chủ ngữ là ngôi thứ ba thì sẽ thêm những mẫu như ～そうです／～らしいです／～と言っていました／v.v. như tro ①先生「夏休みに何をしますか」 トム「国へ帰るつもりです。」 ②日曜日は大そうじをするつもりだ。 ③妹は結婚式にこの服を着ていきつもりらしいです。 ④今日は品物を見るだけで、何も買わないつもりです。 ⑤次の日本語能力試験は受けないつもりです。 ⑥私は自分の意見を変えるつもりはありません。 ☞ Dịch ①先生「夏休みに何をしますか」 トム「国へ帰るつもりです。」 Giáo viên: \"Các em sẽ làm gì trong kỳ nghĩ hè?\" Tom: \"Em dự định về nước ạ.\" ②日曜日は大そうじをするつもりだ。 Vào chủ nhật tôi dự định sẽ làm tổng vệ sinh. ③妹は結婚式にこの服を着ていくつもりらしいです。 Nghe nói em gái tôi định mặc bộ trang phục này đi đám cưới. ④今日は品物を見るだけで、何も買わないつもりです。 Hôm nay tôi chỉ xem hàng hóa và dự định không mua gì cả. ⑤次の日本語能力試験は受けないつもりです。 Tôi dự định là không tham dự kỳ thi năng lực tiếng Nhật lần tới. ⑥私は自分の意見を変えるつもりはありません。 Tôi không có ý định thay đổi quan điểm của mình."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a54fce2194"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-029"
+}

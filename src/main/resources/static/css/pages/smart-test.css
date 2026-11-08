@@ -145,3 +145,24 @@
 .result-heading__mark { color: #1f7a50; background: color-mix(in srgb, #2e9b6a 18%, var(--color-surface-lowest)); }
 @media (max-width: 560px) { .question-sticky { margin: -4px -6px 16px; padding: 8px; } }
 @media (prefers-reduced-motion: reduce) { .exam-card { scroll-behavior: auto; } }
+.smart-confirm__warning{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--color-error,#b3261e) 12%,var(--color-surface,#fff));border:1px solid color-mix(in srgb,var(--color-error,#b3261e) 25%,transparent);color:var(--color-error,#b3261e);font-size:12.5px;line-height:1.45;text-align:left}
+.survey-exam-date{margin-top:18px;padding:16px 18px;border:1.5px solid var(--color-outline-variant);border-radius:16px;background:var(--color-surface);box-sizing:border-box}
+.survey-exam-date[hidden]{display:none}
+/* [JLAS-W0108] JLPT path flag: options hidden for the other mode stay hidden even if jpath-day-picker.css fails to load. */
+[data-jpath-only][hidden],[data-legacy-only][hidden]{display:none !important}
+.survey-exam-date__label{display:block;margin-bottom:8px;font-weight:700;font-size:15px;color:var(--color-on-surface)}
+.survey-exam-date__input{display:block;width:100%;min-height:42px;padding:8px 12px;border:1px solid var(--color-outline-variant);border-radius:10px;background:var(--color-surface-lowest);color:var(--color-on-surface);font:inherit;font-size:15px;box-sizing:border-box}
+.survey-exam-date__input:focus{outline:2px solid var(--color-primary);outline-offset:1px;border-color:var(--color-primary)}
+.survey-exam-date__hint{margin:8px 0 0;font-size:13px;color:var(--color-on-surface-variant);line-height:1.45}
+/* F1-5: up to two focus skills under the exam date. */
+.survey-focus{margin:16px 0 0;padding:0;border:0}
+.survey-focus__option{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:4px 16px 0 0;cursor:pointer}
+.survey-focus__option input:disabled+*,.survey-focus__option:has(input:disabled){opacity:.55;cursor:not-allowed}
+.survey-exam-date__error{margin-top:8px;padding:8px 12px;border-radius:8px;background:color-mix(in srgb,var(--color-error,#b3261e) 12%,var(--color-surface-lowest));border:1px solid color-mix(in srgb,var(--color-error,#b3261e) 25%,transparent);color:var(--color-error,#b3261e);font-size:13px;font-weight:600;line-height:1.4}
+.survey-exam-date__error[hidden]{display:none}
+@media(max-width:480px){
+  .smart-confirm__actions{grid-template-columns:1fr;gap:8px}
+  .smart-confirm__actions button{min-height:44px;width:100%}
+  .survey-exam-date{padding:14px 14px}
+  .survey-exam-date__input{width:100%;min-height:42px;font-size:16px}
+}

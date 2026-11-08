@@ -49,21 +49,35 @@ final class ReviewedGrammarApplications {
     }
 
     private static ReviewedGrammarApplications load() {
-        try (InputStream in = ReviewedGrammarApplications.class.getClassLoader().getResourceAsStream(RESOURCE)) {
-            if (in == null) return new ReviewedGrammarApplications(List.of());
+        List<Item> items = new ArrayList<>(read(RESOURCE));
+        items.addAll(read(SUPPLEMENT_RESOURCE));
+        return new ReviewedGrammarApplications(items);
+    }
+
+    /**
+     * Owner 2026-10-27 (D3-06 rule): J-LAS-written questions enabled with a label, from
+     * {@code build_n3_supplement_content.mjs}; the label opens the explanation the learner reads after answering.
+     */
+    static final String SUPPLEMENT_RESOURCE = "learning/grammar-application-supplement.json";
+
+    private static List<Item> read(String resource) {
+        try (InputStream in = ReviewedGrammarApplications.class.getClassLoader().getResourceAsStream(resource)) {
+            if (in == null) return List.of();
             List<Item> items = new ArrayList<>();
             for (JsonNode node : new ObjectMapper().readTree(in).path("items")) {
                 List<String> options = new ArrayList<>();
                 node.path("options").forEach(option -> options.add(option.asText()));
+                String label = node.path("label").asText("");
+                String explanation = node.path("explanation_vi").asText("");
                 items.add(new Item(node.path("id").asText(), node.path("level").asText(null), node.path("pattern").asText(),
                         node.path("context_vi").asText(""), node.path("prompt_ja").asText(""), List.copyOf(options),
                         node.path("correct_index").asInt(0), node.path("answer_ja").asText(""),
-                        node.path("answer_vi").asText(""), node.path("explanation_vi").asText("")));
+                        node.path("answer_vi").asText(""), label.isBlank() ? explanation : "Câu luyện " + label + ". " + explanation));
             }
-            return new ReviewedGrammarApplications(items);
+            return items;
         } catch (IOException unreadable) {
             // A broken runtime copy must not stop the grammar check: it falls back to meaning questions only.
-            return new ReviewedGrammarApplications(List.of());
+            return List.of();
         }
     }
 }

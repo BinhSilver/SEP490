@@ -1,0 +1,585 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜というのだ",
+     "examples": [
+      {
+       "ja": "彼は会社を辞めて、地元で農業を始めるというのだ。",
+       "ja_furigana": "彼(かれ)は会社(かいしゃ)を辞(や)めて、地元(じもと)で農業(のうぎょう)を始(はじ)めるというのだ。",
+       "vi": "Anh ấy nói là sẽ bỏ công ty, về quê bắt đầu làm nông nghiệp."
+      },
+      {
+       "ja": "その事件の犯人はまだ見つかっていないというのだ。",
+       "ja_furigana": "その事件(じけん)の犯人(はんにん)はまだ見(み)つかっていないというのだ。",
+       "vi": "Nghe nói thủ phạm của vụ án đó vẫn chưa được tìm ra."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は試合に出られないというのだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghĩa là anh ấy sẽ không thể tham gia trận đấu."
+     },
+     {
+      "ja": "来週、会社が倒産するというのだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói tuần sau công ty sẽ phá sản."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は試合に出られないというのだ。",
+     "FURIGANA_MISSING: 来週、会社が倒産するというのだ。"
+    ],
+    "formation": "普通形 + というのだ",
+    "locked_fields": [],
+    "meaning_vi": "① Khẳng định / nhấn mạnh: Dùng khi người nói muốn khẳng định mạnh điều mình vừa nêu hoặc rút ra kết luận từ thông tin trước đó. → “Tức là…”, “Có nghĩa là…”. ② Truyền đạt thông tin (reported speech): Mang nghĩa “Nghe nói là…”. Trang trọng hơn「～そうだ」「～らしい」. ③ Nhấn mạnh cảm xúc, giải thích lý do: Có thể kèm cảm xúc ngạc nhiên, trách móc, khẳng định chính nghĩa. Trang trọng hơn というんだ / っていうんだ. Dùng trong văn viết, phát biểu, bài luận, thuyết minh.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Là như vậy, chính là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để nhấn mạnh hoặc truyền đạt thông tin một cách trang trọng, logic. Có thể mang cảm xúc: ngạc nhiên, phẫn nộ, cảm thán hoặc giải thích điều hợp lý. Dạng lịch sự: ～というのです。 Dạng thân mật: ～っていうんだ。 Thường đứng cuối câu, hoặc trước 「からだ」「わけだ」 để làm rõ logic. [6. Ghi chú thêm] Hay dùng trong văn viết, bài phóng sự, tin tức, diễn văn. Trong hội thoại thân mật, người Nhật thường nói: ～っていうんだ. Có thể mang cảm xúc phán xét: “Anh bảo là… á?”, “Ý anh là… á?” [7. Biến thể & cụm thường gặp] ～というのです：Dạng lịch sự. ～っていうんだ：Khẩu ngữ, thân mật. ～というのだから：Vì (nghe nói) nên… 何というのだ：Gọi là gì vậy? [8. Lỗi dễ mắc & bẫy JLPT] Nhầm với ～ということだ → hai mẫu tương tự nhưng というのだ cảm xúc mạnh hơn. Dùng ở văn phong quá thân mật → nên chuyển thành っていうんだ. Không có mệnh đề trước đó → không rõ ý nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a52afffd56"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜ぬく",
+     "examples": [
+      {
+       "ja": "三年間の研究をやりぬいて、ついに新しい薬を作った。",
+       "ja_furigana": "三年間(さんねんかん)の研究(けんきゅう)をやりぬいて、ついに新(あたら)しい薬(くすり)を作(つく)った。",
+       "vi": "Sau khi theo đuổi nghiên cứu suốt ba năm đến cùng, cuối cùng họ đã tạo ra loại thuốc mới."
+      },
+      {
+       "ja": "彼は長い間走りぬいて、ゴールにたどり着いた。",
+       "ja_furigana": "彼(かれ)は長(なが)い間(あいだ)走(はし)りぬいて、ゴールにたどり着(つ)いた。",
+       "vi": "Anh ấy đã chạy suốt chặng đường dài và cuối cùng chạm đích."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "苦しい時期を耐えぬいて、ようやく成功をつかんだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vượt qua đến cùng giai đoạn khó khăn, cuối cùng đã nắm được thành công."
+     },
+     {
+      "ja": "最後まで計画をやりぬく覚悟はできています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã sẵn sàng quyết tâm làm kế hoạch đến cùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 苦しい時期を耐えぬいて、ようやく成功をつかんだ。",
+     "FURIGANA_MISSING: 最後まで計画をやりぬく覚悟はできています。"
+    ],
+    "formation": "Vます語幹 + ぬく",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả làm một việc “đến cùng, trọn vẹn” bằng sự kiên trì, vượt khó: Vます + ぬく = làm V đến cùng. Sắc thái: nhấn mạnh quá trình dài, nhiều thử thách, người nói đánh giá cao nỗ lực. Khác với “完了/hoàn thành” đơn thuần, 〜ぬく bao hàm ý chí bền bỉ, chịu đựng (耐える、努力する、守る...). Thường đi với động từ thể hiện nỗ lực kéo dài: 耐える・守る・戦う・走る・生きる・考える・やる・読み/書き（số lượng lớn/khó）.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm đến cùng, kiên trì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn tôn vinh nỗ lực, ý chí: mang sắc thái tích cực, khích lệ. Không dùng cho hành động tức thời/thiếu độ dài (×笑いぬく). Phù hợp với hành động liên tục/dài hơi. Thường xuất hiện trong khẩu hiệu, tự giới thiệu, bài viết truyền cảm hứng: やりぬく力, 最後までやりぬく. Kanji 抜く thường dùng khi viết trang trọng; kana ぬく thân thiện, mềm hơn. [6. Ghi chú mở rộng] “考えぬいた末（すえ）に” là cụm văn viết hay gặp, thể hiện quá trình suy nghĩ kỹ lưỡng trước khi quyết định. “〜ぬく” có thể dùng ở thể khả năng nếu động từ gốc có thể khả năng: 耐えぬける không tự nhiên; dùng 耐えきれる? => Với “chịu đựng được” dùng 耐えきれる/耐え切れる tự nhiên hơn. Trong PR/tuyển dụng: “困難に立ち向かい、最後までやりぬく人材を求めます。” [7. Biến thể & cụm cố định] やりぬく／やり抜く（やり抜いた、やり抜いてみせる） 耐えぬく／耐え抜く（苦痛を耐え抜く） 生きぬく／生き抜く（逆境を生き抜く） 守りぬく／守り抜く（約束を守り抜く） 考えぬく／考え抜く（考え抜いた末に） 最後まで〜しぬく／〜し抜く [8. Lỗi thường gặp & bẫy JLPT] Nhầm với “〜ぬ” (phủ định cổ: 行かぬ). “〜ぬく” là phụ tố hoàn thành/kiên trì, không phải phủ định. Dùng với động từ tức thời → không tự nhiên: ×驚きぬく, ×気づきぬく. Nhầm sắc thái với 〜きる: 〜きる = hoàn tất; 〜ぬく = hoàn tất sau khi vượt khó. JLPT hay hỏi phân biệt. Quên viết kanji: “抜く” thường dùng trong văn viết trang trọng; tuy nhiên kana “ぬく” vẫn đúng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c3a4f10ae3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜かけ",
+     "examples": [
+      {
+       "ja": "食べかけのケーキがテーブルに残っている。",
+       "ja_furigana": "食(た)べかけのケーキがテーブルに残(のこ)っている。",
+       "vi": "Trên bàn còn lại chiếc bánh đang ăn dở."
+      },
+      {
+       "ja": "彼は何か言いかけて、また口を閉じた。",
+       "ja_furigana": "彼(かれ)は何(なに)か言(い)いかけて、また口(くち)を閉(と)じた。",
+       "vi": "Anh ấy định nói gì đó rồi lại im bặt."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "読みかけの本が机の上にある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trên bàn có cuốn sách đang đọc dở."
+     },
+     {
+      "ja": "書きかけた手紙をビリビリに破った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi xé nát bức thư đang viết dở."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 読みかけの本が机の上にある。",
+     "FURIGANA_MISSING: 書きかけた手紙をビリビリに破った。"
+    ],
+    "formation": "Vます語幹 + かけ（の N）/ かける",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: “Làm dở, mới làm được một phần” → nhấn mạnh tính chưa hoàn tất. Nghĩa 2: “Sắp/suýt …” → trạng thái ở ngưỡng bắt đầu xảy ra mạnh (tiệm cận). Khác với tiến hành thông thường: 〜ている diễn tả đang làm; 〜かける nhấn mạnh dở dang/chưa xong hoặc suýt. Thường gắn với các động từ có quá trình (読む、書く、食べる、忘れる、壊れる...). Không tự nhiên với động từ khoảnh khắc thuần túy khi nói “dở” (×決めかける với nghĩa “quyết định dở” thường tránh; dùng 決めかけたところで nếu muốn nhấn ngưỡng).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm dở..., làm giữa chừng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dạng “Vます + かけのN” rất thường gặp trong mô tả đồ vật dở dang (食べかけのパン). Khi mang nghĩa “suýt”, hay đi với các động từ chỉ biên giới sống/chết, mất/được (死にかける、忘れかける). Sắc thái có thể tiêu cực (bỏ dở) hoặc trung tính/khẩn cấp (suýt, sắp). Không dùng cho tình huống đã hoàn tất; khi hoàn tất chuyển sang Vてしまう/V終える. Trong văn miêu tả, 〜かけだ diễn tả trạng thái: 夕立が始まりかけだ（trời đang sắp đổ mưa rào）. [6. Ghi chú mở rộng] Nhiều trường hợp 〜かける có tính cố định: 焼けかける、壊れかける、忘れかける. Trong hội thoại, 〜かけて（いた/いる） linh hoạt để nhấn mạnh tiến trình chưa xong. “Vます + かけ” bản thân cũng dùng như danh từ trong văn nói: やりかけ（việc đang làm dở）. Tránh lặp nghĩa: ×読みかけている本（dài dòng); đọc tự nhiên: 読みかけの本. [7. Biến thể & cụm cố định] Vます + かける / かけた / かけている Vます + かけの + N（食べかけのケーキ、書きかけの手紙） 死にかける、忘れかける、壊れかける、崩れかける、枯れかける やりかけ（名詞化, việc bỏ dở） [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ khoảnh khắc để nói “dở” một cách gượng ép (×決めかける khi nghĩa là đang quyết dở). Kết hợp dư thừa với ～ている: “読みかけている本” thường kém tự nhiên hơn “読みかけの本”. Nhầm nghĩa “đang làm” với “dở dang”: 〜ている ≠ 〜かける. Dùng 〜かける cho hành động đã hoàn tất: sai ngữ nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6a4dd15b78"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜切る／〜切れない",
+     "examples": [
+      {
+       "ja": "借りたお金は先月すべて返し切った。",
+       "ja_furigana": "借(か)りたお金(かね)は先月(せんげつ)すべて返(かえ)し切(き)った。",
+       "vi": "Tiền đã vay tôi đã trả hết toàn bộ vào tháng trước."
+      },
+      {
+       "ja": "こんなに難しい問題、一人じゃ解き切れない。",
+       "ja_furigana": "こんなに難(むずか)しい問題(もんだい)、一人(ひとり)じゃ解(と)き切(き)れない。",
+       "vi": "Bài tập khó thế này, một mình tôi không giải hết được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この小説は一晩で読み切った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã đọc hết cuốn tiểu thuyết này trong một đêm."
+     },
+     {
+      "ja": "こんな量、私一人じゃ食べ切れないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lượng thế này, một mình tôi ăn không hết đâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この小説は一晩で読み切った。",
+     "FURIGANA_MISSING: こんな量、私一人じゃ食べ切れないよ。"
+    ],
+    "formation": "Vます語幹 + 切る / 切れない",
+    "locked_fields": [],
+    "meaning_vi": "Hoàn tất đến tận cùng: nhấn mạnh kết quả trọn vẹn (読み切る, 使い切る, やり切る). Giới hạn năng lực/sức chứa: ～切れる/～切れない nói khả năng hoàn tất hoặc không. Mức độ cực hạn: trạng thái đạt đến mức “hết sạch/cùng cực” (疲れ切る, 困り切る). Sắc thái mạnh mẽ, dứt khoát; khác với ～終える (hoàn tất trung tính) và ～尽くす (dốc hết sức).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm hết..., hoàn toàn...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Gắn trực tiếp vào liên dụng hình (Vます). Không dùng với danh từ/tính từ. Nhấn mạnh sự kiên trì/nỗ lực hoặc kết quả triệt để; mang cảm giác “không còn lại gì”. Trong văn nói, ～切れない thường dùng lịch sự để từ chối khéo: 申し訳ないですが、食べ切れません。 [6. Ghi chú mở rộng] Vる + まくる + わけではない… khác sắc thái; đừng nhầm với trạng thái cực hạn của ～切る. Thường tạo từ ghép dễ nhớ: やり切る, 言い切る, 使い切る, 信じ切る, 疲れ切る, 困り切る. ～切れる ở nghĩa “có thể hoàn tất”: đôi khi mang hàm ý “vừa đủ sức chứa” (例: このカードはポイントが貯め切れる? → không tự nhiên; thường dùng với hành động hoàn tất). [7. Biến thể & cụm cố định] 売り切れ（名詞）: “hết hàng”. 言い切る: khẳng định chắc nịch. 思い切る／思い切って: “quyết tâm/ liều”. (khác gốc nghĩa nhưng cùng chữ 切る) [8. Lỗi thường gặp & bẫy JLPT] Dùng với động từ không phù hợp về tính “hoàn tất”: X 愛し切る（rất hiếm/không tự nhiên); nên dùng 愛し続ける. Nhầm ～切れる (khả năng) với ～切りれる (sai chính tả). Dạng đúng: 切れる/切れない. Nhầm với ～終える trong bối cảnh cần nhấn mạnh “hết sạch”: “在庫を終えた” → sai; phải “在庫を売り切った/使い切った”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a6b0d1b5b0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "pattern": "〜かいもなく",
+     "examples": [
+      {
+       "ja": "何度も話し合ったかいもなく、計画は中止になった。",
+       "ja_furigana": "何度(なんど)も話(はな)し合(あ)ったかいもなく、計画(けいかく)は中止(ちゅうし)になった。",
+       "vi": "Bao nhiêu lần bàn bạc mà uổng công, kế hoạch cuối cùng bị hủy."
+      },
+      {
+       "ja": "長年の苦労のかいもなく、店は閉店した。",
+       "ja_furigana": "長年(ながねん)の苦労(くろう)のかいもなく、店(みせ)は閉店(へいてん)した。",
+       "vi": "Công lao vất vả bao năm thành uổng, quán vẫn phải đóng cửa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn; sửa mẫu ngữ pháp"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手術のかいもなく、患者は助からなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đã phẫu thuật nhưng bệnh nhân không qua khỏi."
+     },
+     {
+      "ja": "徹夜で勉強したかいもなく、試験に落ちてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thức đêm học mà vẫn trượt, uổng công quá."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手術のかいもなく、患者は助からなかった。",
+     "FURIGANA_MISSING: 徹夜で勉強したかいもなく、試験に落ちてしまった。"
+    ],
+    "formation": "Vた / N の + かいもなく",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Dù đã … nhưng uổng công/không đem lại kết quả”, “bất chấp nỗ lực, kết cục vô ích”. Sắc thái: Tiếc nuối, thất vọng, buồn bã; thường đi với kết quả tiêu cực. Ngữ dụng: Dùng để kể lại thực tế không như mong đợi, tránh dùng với mệnh lệnh/ý chí. Ngữ pháp: “かい” là danh từ; trước nó là Nの hoặc Vた. Khác với “むだに”: ～かいもなく gắn đặc biệt với “nỗ lực/công sức” chứ không đơn thuần là lãng phí.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Uổng công..., không đáng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt ở mệnh đề nguyên nhân chỉ nỗ lực, theo sau là kết quả tiêu cực/không như ý. Dùng trong văn cảnh trang trọng hay đời thường đều được; “甲斐もなく/甲斐なく” là trang trọng. Mang sắc thái cảm xúc mạnh, tránh dùng khi sợ làm tổn thương người nghe trong tình huống nhạy cảm. Không kết hợp với câu mệnh lệnh/đề nghị ở mệnh đề sau. Nếu muốn nói “chẳng đáng để làm”, dùng 〜がいがない/〜甲斐がない sẽ tự nhiên hơn khi nói về giá trị tiềm năng. [6. Ghi chú mở rộng] “甲斐” là danh từ Hán Nhật; thêm “も” nhấn mạnh sự phủ định toàn phần. Trong tường thuật tin tức, y khoa: 〜治療の甲斐もなく xuất hiện nhiều. Tránh lạm dụng trong giao tiếp lịch sự với tin buồn; có thể chuyển sang cách nói trung hòa hơn. Đứng đầu câu/giữa câu đều được; sau nó thường là phẩy rồi đến mệnh đề kết quả. [7. Biến thể & cụm cố định] Nのかいもなく / Vたかいもなく 甲斐もなく / 甲斐なく（trang trọng/văn viết） ～する甲斐がなかった（quá khứ, tự sự） 骨折り損のくたびれ儲け（thành ngữ tương đương “uổng công” trong tiếng Nhật cổ điển, sắc thái văn chương) [8. Lỗi thường gặp & bẫy JLPT] Dùng với kết quả tích cực: Sai. ～かいもなく chỉ dùng khi kết quả xấu/không như ý. Nhầm với ～てもむだ: Một cái là thực tế đã xảy ra; cái kia là nhận định giả định. Bỏ “の” sau danh từ: phải là Nのかいもなく, không phải Nかいもなく. Nhầm chính tả: 甲斐 → viết nhầm 貝/皆. Kết hợp với mệnh lệnh/ý chí ở mệnh đề sau: Không tự nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bdadb825fd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この痛みは、経験した人でなければわかるまい。",
+       "ja_furigana": "この痛(いた)みは、経験(けいけん)した人(ひと)でなければわかるまい。",
+       "vi": "Nỗi đau này, người chưa từng trải qua sẽ không hiểu được."
+      },
+      {
+       "ja": "彼の説明は複雑で、子どもにはわかるまい。",
+       "ja_furigana": "彼(かれ)の説明(せつめい)は複雑(ふくざつ)で、子(こ)どもにはわかるまい。",
+       "vi": "Lời giải thích của anh ấy phức tạp, trẻ con sẽ khó hiểu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼には私の気持ちはわかるまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy sẽ không hiểu được cảm xúc của tôi."
+     },
+     {
+      "ja": "上級者でも、この問題はできまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dẫu là người có trình độ cao cấp cũng không thể giải quyết vấn đề này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼には私の気持ちはわかるまい。",
+     "FURIGANA_MISSING: 上級者でも、この問題はできまい。"
+    ],
+    "formation": "Vる + まい（Vない + まい も可）",
+    "locked_fields": [],
+    "meaning_vi": "Có lẽ không ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜わかるまい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* VⅡ：Vますまい (động từ nhóm 2 có thể chia ở dạng này) * するまい／すまい * 来るまい／来まい（こまい） Thể hiện suy đoán phủ định. Là cách nói trang trọng, dùng trong văn viết. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-92d711a2c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "来週からバスが値上がりするとか。",
+       "ja_furigana": "来週(らいしゅう)からバスが値上(ねあ)がりするとか。",
+       "vi": "Nghe nói từ tuần sau giá xe buýt sẽ tăng."
+      },
+      {
+       "ja": "彼は来月結婚するとか。",
+       "ja_furigana": "彼(かれ)は来月(らいげつ)結婚(けっこん)するとか。",
+       "vi": "Nghe nói tháng sau anh ấy kết hôn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今夜の花火大会は、雨で中止だとか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói là lễ hội pháo hoa tối nay tạm dừng vì mưa."
+     },
+     {
+      "ja": "今、インフルエンザがはやっているとか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nghe nói bây giờ cúm đang lây lan."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今夜の花火大会は、雨で中止だとか。",
+     "FURIGANA_MISSING: 今、インフルエンザがはやっているとか。"
+    ],
+    "formation": "普通形 + とか",
+    "locked_fields": [],
+    "meaning_vi": "Nghe nói là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜中止だとか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng trong văn nói. Bao hàm ý “không rõ lắm nhưng mà ～” so với mẫu 「～そうだ」"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d91671bb03"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "明日はもう遅刻するまいと思っている。",
+       "ja_furigana": "明日(あした)はもう遅刻(ちこく)するまいと思(おも)っている。",
+       "vi": "Tôi nghĩ ngày mai sẽ không đi muộn nữa."
+      },
+      {
+       "ja": "これからは夜遅くまでゲームをするまいと決めた。",
+       "ja_furigana": "これからは夜(よる)遅(おそ)くまでゲームをするまいと決(き)めた。",
+       "vi": "Tôi quyết từ nay sẽ không chơi game đến khuya nữa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あんなひどいところ、二度と行くまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái chỗ kinh khủng như thế, tôi quyết không đi lần hai."
+     },
+     {
+      "ja": "海外旅行では、絶対に買った水以外は飲むまいと思った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Du lịch nước ngoài tôi tuyệt đối không uống nước nào khác ngoài nước mình đã mua."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あんなひどいところ、二度と行くまい。",
+     "FURIGANA_MISSING: 海外旅行では、絶対に買った水以外は飲むまいと思った。"
+    ],
+    "formation": "Vる + まい（と思う）",
+    "locked_fields": [],
+    "meaning_vi": "quyết không, định không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜二度と行くまい",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* VⅡ：Vますまい (động từ nhóm 2 có thể chia ở dạng này) * するまい／すまい * 来るまい／来まい（こまい） Tuyệt đối muốn từ bỏ việc ～ (chỉ ý muốn phủ định) Là cách nói trang trọng, dùng trong văn viết. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3620a4041a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議に参加しようか参加するまいか、まだ決めていない。",
+       "ja_furigana": "会議(かいぎ)に参加(さんか)しようか参加(さんか)するまいか、まだ決(き)めていない。",
+       "vi": "Tôi vẫn chưa quyết có tham gia cuộc họp hay không."
+      },
+      {
+       "ja": "買おうか買うまいか、店の前で迷っている。",
+       "ja_furigana": "買(か)おうか買(か)うまいか、店(みせ)の前(まえ)で迷(まよ)っている。",
+       "vi": "Tôi đang phân vân trước cửa hàng không biết có nên mua hay không."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "本当のことを話そうか話すまいか迷った、結局全部話した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã bối rối nên nói hay không nói sự thật, cuối cùng đã nói ra tất cả."
+     },
+     {
+      "ja": "食べたいけど、太りたくないし、食べようか食べまいか考えているところです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Muốn ăn nhưng không muốn mập nên đang suy nghĩ có nên ăn hay không ăn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 本当のことを話そうか話すまいか迷った、結局全部話した。",
+     "FURIGANA_MISSING: 食べたいけど、太りたくないし、食べようか食べまいか考えているところです。"
+    ],
+    "formation": "V意向形 + か + Vる + まい + か",
+    "locked_fields": [],
+    "meaning_vi": "có nên ～ hay không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜話そうかまいか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* VⅡ：Vますまい (động từ nhóm 2 có thể chia ở dạng này) * するまい／すまい * 来るまい／来まい（こまい） Sử dụng trong văn viết. Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-52f805d7fd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼が毎日練習するのは、試合に勝ちたいからにほかならない。",
+       "ja_furigana": "彼(かれ)が毎日(まいにち)練習(れんしゅう)するのは、試合(しあい)に勝(か)ちたいからにほかならない。",
+       "vi": "Việc anh ấy luyện tập mỗi ngày không gì khác ngoài vì muốn thắng trận."
+      },
+      {
+       "ja": "この町が観光地として人気なのは、自然が美しいからにほかならない。",
+       "ja_furigana": "この町(まち)が観光地(かんこうち)として人気(にんき)なのは、自然(しぜん)が美(うつく)しいからにほかならない。",
+       "vi": "Thị trấn này nổi tiếng là điểm du lịch không gì khác ngoài vì thiên nhiên đẹp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "合格したのは、彼の努力の結果にほかならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc thi đỗ chính là kết quả những nỗ lực của anh ấy."
+     },
+     {
+      "ja": "彼があなたをからかうのは、まさに愛情表現にほかならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta trêu ghẹo bạn, không gì khác hơn là biểu hiện của tình yêu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 合格したのは、彼の努力の結果にほかならない。",
+     "FURIGANA_MISSING: 彼があなたをからかうのは、まさに愛情表現にほかならない。"
+    ],
+    "formation": "N + にほかならない / 普通形 + からにほかならない",
+    "locked_fields": [],
+    "meaning_vi": "chính là, không gì khác hơn là ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜努力の結果にほかならない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng trong trường hợp muốn nói lên sự khẳng định “ngoài cái đó ra không có cái gì khác”, “chính là cái đó” Câu văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6dddb5617e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-062"
+}

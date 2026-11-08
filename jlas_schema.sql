@@ -1804,6 +1804,11 @@ CREATE TABLE user_learning_survey (
     self_reported_level VARCHAR(20) NOT NULL,
     study_duration_months INT NULL,
     daily_study_minutes INT NULL,
+    -- [JLAS-W0108] F1-3 (2026-10-27): optional JLPT exam date; a path that cannot finish before it requires CORE words only.
+    exam_date DATE NULL,
+    -- [JLAS-W0108] F1-5 (2026-10-28): up to two JLPT skills to focus on (VOCABULARY, READING, LISTENING), comma-separated;
+    -- they are never trimmed when a path is squeezed by the exam date. NULL: no focus.
+    focus_skills VARCHAR(40) NULL,
     skills VARCHAR(100) NOT NULL,
     completed_at DATETIME(6) NOT NULL,
     PRIMARY KEY (user_id),
@@ -2297,10 +2302,11 @@ CREATE TABLE learning_quiz_session (
     -- migration 017.
     -- [JLAS-W0108] FOUNDATION_MICRO_CHECK them cho bang chu cai (InteractiveFoundationServiceImpl).
     -- [JLAS-W0108] Task 10: PRACTICE_REPLAY = luyen tap lai khong tinh tien do (khong bao gio la micro-check).
+    -- [JLAS-W0108] 2.32 T4: EXTRA_PRACTICE = luyen them tu kho, gan activity Doc/Nghe bat buoc; khong tinh diem/mo khoa/CP.
     CONSTRAINT chk_quiz_session_type CHECK
         (quiz_type IN ('GATE','LESSON','GRAMMAR','FLASHCARD','VOCAB_MICRO_CHECK','KANJI_MICRO_CHECK',
             'GRAMMAR_MICRO_CHECK','READING_MICRO_CHECK','LISTENING_MICRO_CHECK','FOUNDATION_MICRO_CHECK',
-            'PRACTICE_REPLAY')),
+            'PRACTICE_REPLAY','EXTRA_PRACTICE')),
     CONSTRAINT chk_quiz_session_status CHECK (status IN ('ISSUED','SUBMITTED')),
     CONSTRAINT chk_quiz_session_score CHECK (score_percent IS NULL OR score_percent BETWEEN 0 AND 100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "事故の原因はスピードの出しすぎだとみられる。",
+       "ja_furigana": "事故(じこ)の原因(げんいん)はスピードの出(だ)しすぎだとみられる。",
+       "vi": "Nguyên nhân vụ tai nạn được cho là do chạy quá tốc độ."
+      },
+      {
+       "ja": "けがをした人は三人とみられる。",
+       "ja_furigana": "けがをした人(ひと)は三人(さんにん)とみられる。",
+       "vi": "Người bị thương được cho là ba người."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "死者は 10人とみられるが、詳細は確認中だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Số người tử vong được cho là 10 người, chi tiết vẫn đang xác minh."
+     },
+     {
+      "ja": "原因は配線の劣化が主因だとみられる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nguyên nhân chính được xem là do xuống cấp đường dây."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 死者は 10人とみられるが、詳細は確認中だ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 死者は 10人とみられるが、詳細は確認中だ。 → 詳細",
+     "FURIGANA_MISSING: 原因は配線の劣化が主因だとみられる。"
+    ],
+    "formation": "普通形 + とみられる",
+    "locked_fields": [],
+    "meaning_vi": "～とみられる diễn đạt ý “ được cho là / được xem là / nhiều khả năng là…”, thể hiện phán đoán mang tính khách quan, thường dựa trên dữ kiện, số liệu, hoặc đánh giá chuyên môn. Sắc thái điển hình của văn phong tin tức – báo cáo, giảm dấu ấn chủ quan của người nói. Nguồn suy đoán: bằng chứng gián tiếp hoặc tổng hợp (số liệu, điều tra, quan sát, chuyên gia). Tính khách quan: dùng chủ ngữ phi cá nhân, hay kết hợp với 警察・専門家・当局・気象庁 ở mệnh đề khác. Phạm vi nghĩa: ước lượng ( 約N＋とみられる), nguyên nhân ( 原因は～とみられる), tình trạng ( ～にあるとみられる). Mức JLPT tham khảo: N2–N1 (xuất hiện nhiều trong đọc hiểu báo chí).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Được cho là..., có vẻ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái trung tính – khách quan: hay dùng trong tiêu đề/bản tin để tránh khẳng định tuyệt đối trước khi có kết luận cuối cùng. Kết hợp tự nhiên: 数字＋とみられる／原因は～とみられる／～に関与したとみられる. Vị trí: làm vị ngữ (kết câu) hoặc bổ nghĩa danh từ (định ngữ). Tránh chủ quan: không kèm cảm xúc cá nhân; nếu cần sắc thái mềm, dùng thêm ～とみられている／～とみられます. Thời – thể: hiện tại để nêu đánh giá đang được chấp nhận; quá khứ khi nói đánh giá về sự việc đã qua. [6. Ghi chú mở rộng] Hàm ý trách nhiệm thông tin: ～とみられる giúp đưa tin mà không khẳng định tuyệt đối, phù hợp giai đoạn điều tra. Cụm định lượng: 約N＋とみられる／N超とみられる thường gặp trong thống kê, kinh tế, thiên tai. Mệnh đề nguyên nhân – kết quả: ～が原因だとみられる／～に起因するとみられる dùng khi chưa có kết luận pháp y/kỹ thuật. Chuyển đổi phong cách: khi viết báo cáo học thuật, có thể đan と考えられる／と推定される để đa dạng sắc thái. [7. Biến thể & cụm cố định] ～と見られる: dạng chữ Hán của ～とみられる, sắc thái trang trọng. ～と見られている: “đang được xem là…”, nhấn sự đánh giá đang lưu hành. ～に関与したとみられる／ 犯人とみられる＋N: bổ nghĩa danh từ theo phong cách đưa tin. 約／少なくとも＋数値＋とみられる: công thức ước lượng số lượng/thiệt hại. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～らしい: đề thi thường gài nguồn thông tin. とみられる = đánh giá khách quan; らしい = nghe nói/tin đồn. Nhầm với ～とされる: とされる mang tính “định chuẩn/học thuật” mạnh hơn, không phải ước đoán tạm thời. Quên 「だ」 với N/na-adj: N/na＋ だ＋とみられる là hình thức chuẩn trong văn viết. Lạm dụng trong khẩu ngữ đời thường: câu nói thường ngày thích hợp hơn với ～ようだ／～みたいだ. Dùng để ra lệnh/ý chí: không tự nhiên. Tránh kết hợp mệnh lệnh trực tiếp ở vế sau. Không phù hợp khi bằng chứng đã chắc chắn: khi kết quả đã xác nhận, nên dùng khẳng định trực tiếp thay vì とみられる."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-042552fdc9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ご来場の際は、受付で名前を書いてください。",
+       "ja_furigana": "ご来場(らいじょう)の際(さい)は、受付(うけつけ)で名前(なまえ)を書(か)いてください。",
+       "vi": "Khi đến, xin ghi tên tại quầy tiếp đón."
+      },
+      {
+       "ja": "申し込む際に、電話番号を確認してください。",
+       "ja_furigana": "申(もう)し込(こ)む際(さい)に、電話番号(でんわばんごう)を確認(かくにん)してください。",
+       "vi": "Khi đăng ký, xin kiểm tra lại số điện thoại."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ご登録の際に、身分証明書をご提示ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi đăng ký, vui lòng xuất trình giấy tờ tùy thân."
+     },
+     {
+      "ja": "来社の際は、受付でお名前をお伝えください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi đến công ty, vui lòng báo tên ở quầy lễ tân."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ご登録の際に、身分証明書をご提示ください。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: ご登録の際に、身分証明書をご提示ください。 → 提示",
+     "FURIGANA_MISSING: 来社の際は、受付でお名前をお伝えください。"
+    ],
+    "formation": "Vる / Vた / N の + 際（に・は）",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị thời điểm xảy ra hành động/sự kiện, tương đương “khi/lúc”, nhưng mang tính trang trọng, dùng nhiều trong chỉ dẫn, biển báo, email công ty. Thường đi kèm với các biểu thức nhờ vả, lưu ý, cấm đoán: ご注意ください／ご連絡ください／持参してください／ご遠慮ください。 Không dùng cho thói quen hàng ngày hay hội thoại thân mật; thay bằng とき.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khi..., lúc...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] “際（に）” đi kèm “は/には” để nhấn chủ đề: ～際には (nhấn mạnh hơn ～際に). Thường đặt ở vế trước, vế sau là hướng dẫn, quy định, yêu cầu lịch sự. Danh từ thường gặp: ご利用／ご来場／ご来店／ご乗車／入学／登録／申請／購入／訪問。 Không dùng với cảm xúc tức thời rất đời thường; dùng とき trong tình huống bình dị. [6. Ghi chú mở rộng] “際” đọc là さい; tránh lẫn きわ (nghĩa “bờ mép”). Trong ngữ pháp này chỉ đọc さい. “際は/際には” thường xuất hiện trong biểu mẫu/biển báo; thêm には để nhấn mạnh và trang trọng hơn. Cặp敬語 thường gặp: ごV-ます＋の際（に）／V-辞＋際（に）＋お/ご～ください。 [7. Biến thể & cụm cố định] ご利用の際（には）／ご来場の際／ご乗車の際／お問い合わせの際 入学する際に／申し込む際に／来日する際に／撮影の際は お支払いの際には身分証の提示をお願いします。 [8. Lỗi thường gặp & bẫy JLPT] Dùng trong hội thoại thân mật nghe cứng: × 映画を見る際にポップコーン買う？ → とき tự nhiên hơn. Quên “には” khi cần nhấn mạnh: ご利用の際には hơn là ご利用の際 khi muốn lịch sự/nhấn mạnh. Nhầm với 場合: “trường hợp có sự cố” nên dùng 場合, không phải 際. JLPT: dễ lẫn ～折に (lịch sự cao) và ～際に; chú ý ngữ cảnh thư từ/thiệp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-38e71cbcfd"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の悪口を言うものではない。",
+       "ja_furigana": "人(ひと)の悪口(わるぐち)を言(い)うものではない。",
+       "vi": "Không nên nói xấu người khác."
+      },
+      {
+       "ja": "一度決めたことを簡単に変えるものではない。",
+       "ja_furigana": "一度(いちど)決(き)めたことを簡単(かんたん)に変(か)えるものではない。",
+       "vi": "Không nên tùy tiện thay đổi điều đã quyết."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "人前で人を笑うものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên cười người khác trước đám đông."
+     },
+     {
+      "ja": "親の好みを子どもに押しつけるものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên áp đặt sở thích của bố mẹ lên con cái."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 人前で人を笑うものではない。",
+     "FURIGANA_MISSING: 親の好みを子どもに押しつけるものではない。"
+    ],
+    "formation": "Vる + ものではない",
+    "locked_fields": [],
+    "meaning_vi": "Răn dạy, nêu quy tắc đạo đức/xã hội: “không nên làm…”. Nêu nhận định phổ quát về tính bất khả: “không thể/không phải chuyện để…”. Sắc thái khách quan, phi cá nhân; thường dùng ở văn viết, phát ngôn mang tính nguyên tắc.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không được..., không nên...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để nêu quan điểm mang tính nguyên tắc, không nhắm thẳng vào cá nhân như mệnh lệnh. Thường đặt chủ ngữ khái quát (人は/子どもは/約束は…). Trong hội thoại, dùng mềm nhưng vẫn nghiêm: mang tính “dạy bảo”. [6. Ghi chú mở rộng] Khi phê phán hành vi cụ thể của đối phương, dùng ものではない khiến câu bớt gắt hơn てはいけない. Ngoài “không nên”, nhiều câu tự nhiên dịch “không phải là thứ…”, “không thể…”. Hay xuất hiện trong đề thi JLPT để phân biệt với べきではない/てはいけない về sắc thái. [7. Biến thể & cụm cố định] ～というものではない: không phải cứ… là được. 人の悪口は言うものではない: công thức răn dạy điển hình. 金では解決できるものではない: nhấn mạnh bất khả. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với てはいけない (cấm đoán trực tiếp) → chọn sai khi câu mang tính nguyên tắc chung. Nhầm với ないほうがいい (lời khuyên cá nhân) → khi câu có chủ ngữ chung “人は…”, ưu tiên ものではない/べきではない. Dùng thì quá khứ trước ものではない: × したものではない → phải là V辞書形."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-eb95e5e8b5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この資料はコピーしても差し支えありません。",
+       "ja_furigana": "この資料(しりょう)はコピーしても差(さ)し支(つか)えありません。",
+       "vi": "Tài liệu này photo ra cũng không có vấn đề gì."
+      },
+      {
+       "ja": "窓を開けても差し支えないですか。",
+       "ja_furigana": "窓(まど)を開(あ)けても差(さ)し支(つか)えないですか。",
+       "vi": "Tôi mở cửa sổ có được không?"
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "こちらの会議室は土日も使用しても差し支えありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phòng họp này dùng cả thứ Bảy, Chủ nhật cũng không vấn đề."
+     },
+     {
+      "ja": "私服でご参加いただいても差し支えないです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh/chị mặc đồ tự do tham gia cũng không sao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: こちらの会議室は土日も使用しても差し支えありません。",
+     "FURIGANA_MISSING: 私服でご参加いただいても差し支えないです。"
+    ],
+    "formation": "V-て + も差し支えない; Aい（〜く）て + も差し支えない; N・Aな + でも差し支えない",
+    "locked_fields": [],
+    "meaning_vi": "- Nghĩa: “không có trở ngại/vấn đề”, “được/không sao” trong ngữ cảnh phép tắc, quy định, giao tiếp lịch sự. Dùng để cấp phép/đồng ý một cách trang trọng, hoặc mô tả việc không gây ảnh hưởng. Thường thấy trong thông báo, email công sở, hướng dẫn, dịch vụ khách hàng. Dạng hỏi “差し支えなければ …” dùng mở lời lịch sự khi xin thông tin riêng tư.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không vấn đề gì..., được thôi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng hơn 構わない, 大丈夫; thích hợp văn cảnh công sở, quy định. Thường đi cùng ても／でも để biểu thị “dù … cũng không vấn đề”. Có thể dùng dạng phủ định lịch sự: 差し支えありません／ございません. [6. Ghi chú mở rộng] Động từ gốc: 差し支える (gây trở ngại). Dạng tính từ: 差し支えない (không trở ngại). Dạng kính ngữ thường dùng: 差し支えございません／差し支えなければ. Trong email, kết hợp với 恐れ入りますが／お手数ですが để tăng lịch sự. [7. Biến thể & cụm cố định] 差し支えありません／差し支えございません：lịch sự cao. 差し支えなければ～：mở lời xin phép/hỏi thông tin. ～て（も）差し支えない：khuôn mẫu chuẩn trong nội quy. [8. Lỗi thường gặp & bẫy JLPT] Dùng trong văn cảnh thân mật nghe cứng; nên chọn 構わない/大丈夫. Nhầm chủ thể cho phép: người có thẩm quyền mới nên dùng để cấp phép trong thông báo. Ngữ pháp: bỏ も sau て/で làm câu mơ hồ; trong bài thi thường yêu cầu ～ても差し支えない. Nhầm sắc thái với 問題ない (phán đoán) vs 差し支えない (tính phép tắc)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7d6f5b886f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部長は今日は出張とのことです。",
+       "ja_furigana": "部長(ぶちょう)は今日(きょう)は出張(しゅっちょう)とのことです。",
+       "vi": "Được biết hôm nay trưởng phòng đi công tác."
+      },
+      {
+       "ja": "天気予報によると、明日は雪になるとのことです。",
+       "ja_furigana": "天気予報(てんきよほう)によると、明日(あした)は雪(ゆき)になるとのことです。",
+       "vi": "Theo dự báo thời tiết, nghe nói ngày mai sẽ có tuyết."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "田中さんは本日お休みとのことです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Được biết anh Tanaka hôm nay nghỉ."
+     },
+     {
+      "ja": "気象庁によると、明日は大雪になるとのことだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Theo Cơ quan Khí tượng, nghe nói ngày mai sẽ có tuyết lớn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 田中さんは本日お休みとのことです。",
+     "FURIGANA_MISSING: 気象庁によると、明日は大雪になるとのことだ。"
+    ],
+    "formation": "thể thường + とのことだ／とのことです",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu tường thuật nghe nói (伝聞): truyền đạt thông tin gián tiếp từ nguồn khác một cách lịch sự, trung tính. Thường dùng trong thông báo công ty, email, tin tức: “～とのことです” lịch sự hơn “～そうです”. Có thể kèm nguồn: ～によると／～から／関係者によれば + ～とのことだ. Khác với ～ということだ: ということだ hơi trực diện, thường dùng cả trong giải thích quy tắc; とのことだ lịch sự/ngoại giao, nhấn nguồn tin.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nghe nói..., được cho là...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để chuyển tiếp thông tin khách quan, giữ khoảng cách lịch sự với nguồn thông tin. Khi truyền đạt mệnh lệnh/yêu cầu gián tiếp: 「～するようにとのことです」 nghe lịch sự, tránh áp lực trực diện. Thường kết câu bằng ～とのことです (lịch sự) trong văn doanh nghiệp. Không dùng để nêu ý kiến/đánh giá chủ quan của người nói; chỉ tường thuật. [6. Ghi chú mở rộng] Cấu trúc phủ định/quá khứ giữ nguyên thường: 来ないとのことだ／終わったとのことだ. Có thể lược nguồn khi đã rõ ngữ cảnh: （上司から）明日は在宅勤務とのことです。 Khi trích dẫn dài, có thể dùng 「～ということだ」 để nhấn giải thích, còn 「～とのことだ」 để chốt thông tin. Biến thể lịch sự cao: ～とのことでした（quá khứ lịch sự, mềm câu trong báo cáo). [7. Biến thể & cụm cố định] ～とのことです（kính ngữ/lịch sự). ～ようにとのことだ：Được dặn/được yêu cầu là ~. 関係者によれば～とのことだ：Theo người liên quan thì... ～との由（より）：Văn cổ/ rất trang trọng, cùng nghĩa “được biết là”. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho ý kiến cá nhân → sai: 「おいしいとのことだ」 (khi là cảm nhận của mình). Nên dùng 「おいしいと思う」. Thiếu nguồn trong văn trang trọng có thể mơ hồ; nên thêm ～によると／～から. Nhầm với ～そうだ（様態） “trông có vẻ”: とのことだ chỉ dùng cho truyền đạt thông tin, không phải miêu tả cảm quan. JLPT: Khi đáp án yêu cầu sắc thái “thông báo công việc/truyền đạt lịch sự”, chọn とのことだ thay vì そうだ/らしい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1da302f9d9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "急に雨が降ってきたため、試合を中止するしだいです。",
+       "ja_furigana": "急(きゅう)に雨(あめ)が降(ふ)ってきたため、試合(しあい)を中止(ちゅうし)するしだいです。",
+       "vi": "Vì trời bỗng đổ mưa nên chúng tôi xin phép dừng trận đấu."
+      },
+      {
+       "ja": "電車が遅れたため、会議に間に合わなかったしだいです。",
+       "ja_furigana": "電車(でんしゃ)が遅(おく)れたため、会議(かいぎ)に間(ま)に合(あ)わなかったしだいです。",
+       "vi": "Vì tàu điện bị chậm nên tôi đã không kịp giờ họp."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "担当者が不在のため、返信が遅れましたことをお詫び申し上げる次第です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì người phụ trách vắng mặt nên chúng tôi xin lỗi vì phản hồi chậm."
+     },
+     {
+      "ja": "諸事情により、予定を変更することになった次第です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì nhiều lý do nên chúng tôi đành phải thay đổi kế hoạch."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 担当者が不在のため、返信が遅れましたことをお詫び申し上げる次第です。",
+     "FURIGANA_MISSING: 諸事情により、予定を変更することになった次第です。"
+    ],
+    "formation": "Vる・Vた + 次第だ／次第です",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: công thức kết câu lịch sự để giải thích nguyên nhân/kết luận thông báo. Chức năng: tóm tắt lý do vừa nêu hoặc khép lại lời nhắn/thông báo một cách nhã nhặn. Sắc thái: trang trọng, lịch sự; tiêu biểu trong văn bản hành chính, email công việc, thông cáo.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xin thưa rằng..., là vì...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vị trí: câu cuối đoạn/email; theo sau phần trình bày lý do/nội dung. Cụm đi kèm: 以上／取り急ぎ／お詫び申し上げる／ご連絡した… + 次第です. Độ lịch sự: thường đi kèm kính ngữ/khinh ngữ ở phần trước để đồng bộ phong cách. Không dùng trong văn nói thân mật (thay bằng というわけです／そういうわけです). [6. Ghi chú mở rộng] Đứng sau các cụm mở đầu tiêu chuẩn email: 「まずは取り急ぎご連絡申し上げる次第です」. Đi kèm lời xin lỗi/cảm ơn: お詫び申し上げる次第です／感謝申し上げる次第です. Trong thông báo nội bộ: 「以上、周知徹底のほどお願い申し上げる次第です。」 [7. Biến thể & cụm cố định] ～ご連絡した次第です。／～ご報告申し上げる次第です。／～お願い申し上げる次第です。 以上、～した次第です。／取り急ぎ、～する次第です。 [8. Lỗi thường gặp & bẫy JLPT] Nhầm sắc thái: dùng trong hội thoại thân mật → nghe kiểu cách, xa cách. Thi JLPT: đánh lừa vai trò câu kết so với ～というわけです; yêu cầu chọn mẫu phù hợp tình huống thương mại. Sai vị trí: đặt giữa đoạn thay vì cuối nội dung tóm tắt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-268d78a49a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行に行けるかどうかは天気しだいです。",
+       "ja_furigana": "旅行(りょこう)に行(い)けるかどうかは天気(てんき)しだいです。",
+       "vi": "Đi du lịch được hay không là tùy vào thời tiết."
+      },
+      {
+       "ja": "試験の結果しだいで、夏休みの予定が変わります。",
+       "ja_furigana": "試験(しけん)の結果(けっか)しだいで、夏休(なつやす)みの予定(よてい)が変(か)わります。",
+       "vi": "Tùy vào kết quả thi, kế hoạch nghỉ hè sẽ thay đổi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "手術するかどうかは検査の結果しだいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mổ hay không phải dựa vào kết quả kiểm tra."
+     },
+     {
+      "ja": "「検査の結果しだいで、手術するかどうかを決めましょう」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tùy theo kết quả kiểm tra mà có quyết định phẫu thuật hay không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 手術するかどうかは検査の結果しだいです。",
+     "FURIGANA_MISSING: 「検査の結果しだいで、手術するかどうかを決めましょう」"
+    ],
+    "formation": "N + 次第で／次第だ",
+    "locked_fields": [],
+    "meaning_vi": "Tùy theo",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜しだいで/だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "～しだいでは Cách kết hợp: 名詞 Ý nghĩa: ～によって違う/決まる、～による Tùy theo Cách kết hợp: 名詞 Ý nghĩa: ～によっては…の場合もある Ví dụ: 1. 手術するかどうかは検査の結果しだいです。 Mổ hay không phải dựa vào kết quả kiểm tra. 2. 「検査の結果しだいで、手術するかどうかを決めましょう」 Tùy theo kết quả kiểm tra mà có quyết định phẫu thuật hay không. 3. 「検査の結果しだいでは手術もあり得ます」 Tùy theo kết quả kiểm tra mà có thể sẽ phẫu thuật. 4. 断る場合でも、言い方しだいでは相手を傷つけないですむ。 Dù là từ chối thì cũng còn tùy vào cách nói mà có thể không làm tổn thương đối phương. 5. 宝くじが当たるかどうかは運次第だ。 Trúng số hay không là tùy vào vận mệnh. 6. 能力主義の会社では、仕事の成績次第で給料に差がつく。 Ở các công ty theo chủ nghĩa năng lực thì sự khác biệt về lương sẽ tùy thuộc vào thành tích công việc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2277f8b3d1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "日本の食べ物といえば、やはりすしですね。",
+       "ja_furigana": "日本(にほん)の食(た)べ物(もの)といえば、やはりすしですね。",
+       "vi": "Nói đến món ăn Nhật thì vẫn là sushi nhỉ."
+      },
+      {
+       "ja": "冬といえば、やっぱり雪と温泉だ。",
+       "ja_furigana": "冬(ふゆ)といえば、やっぱり雪(ゆき)と温泉(おんせん)だ。",
+       "vi": "Nhắc đến mùa đông là phải nói đến tuyết và suối nước nóng."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「来週の同窓会に佐藤先生はいらっしゃかなあ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Buổi họp mặt cựu sinh viên tuần tới không biết thầy Satou có đến không nhỉ?"
+     },
+     {
+      "ja": "「佐藤先生はといえば、今度本を出版なさるそうだすよ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nói về Sato sensei, lần tới sẽ xuất bản sách đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「来週の同窓会に佐藤先生はいらっしゃかなあ」",
+     "FURIGANA_MISSING: 「佐藤先生はといえば、今度本を出版なさるそうだすよ」"
+    ],
+    "formation": "N + といえば／というと／といったら",
+    "locked_fields": [],
+    "meaning_vi": "Nói về, nói đến, lấy lên làm ví dụ",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜よいうと/いえば/いったら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞等 Ý nghĩa: ①～という言葉を聞いて…を思い出す（連想、説明） Nói về, nói đến, lấy lên làm ví dụ Ví dụ: 1. 「来週の同窓会に佐藤先生はいらっしゃかなあ」 Buổi họp mặt cựu sinh viên tuần tới không biết thầy Satou có đến không nhỉ? 「佐藤先生はといえば、今度本を出版なさるそうだすよ」 Nói về Sato sensei, lần tới sẽ xuất bản sách đó. 2. 「私は英語の発音が悪いので、よく誤解されるんですよ」 Tôi phát âm tiếng Anh tệ nên thường bị hiểu nhầm. 「発音が悪いと言えば、私も昔、こんな失敗がありましたよ」 Nói phát âm tệ thì mới nhớ ngày xưa tôi cũng như thế. 3. * 「田中さん、具合が悪くて早退したそうですよ」 Nghe nói anh Tanaka sức khỏe không tốt nên xin về sớm đấy. 「そう言えば、朝から顔色が悪かったですね」 Nói thế mới nhớ sáng giờ sắc mặt anh ấy không được tốt nhỉ. Ý nghĩa: ②～という言葉を聞くと、まず・・・を連想する（代表的な例をあげるときに用いる） Ví dụ: 1. 日本料理というと、まずてんぷらやすしが思い浮かぶ。 Nói đến món ăn Nhật, suy nghĩ nổi lên đầu tiên là tenpura và sushi. 2. 「東京で若者の街と言ったら、そりゃあ渋谷に原宿だろう」 Nói đến khu phố của giới trẻ ở Tokyo là nghĩ ngay đến Harajuku ở Shibuya 3. 日本では花といえば桜だ。 Ở Nhật Bản, hễ nói đến đến hoa là nghĩ ngay đến Sakura. Ý nghĩa: ③～についていえば（説明） Giải thích, nói rõ về việc Ví dụ: 1. なぜこの大学を選んだかというと、学習環境が整っているからです。 Nói về việc vì sao chọn trường đại học này, vì môi trường học tập được chuẩn bị rất tốt. 2. 「ある大物政治家が・・・・・」「大物政治家というと橋本市のことですか」 “Nhà chính trị vĩ đại…” – “Nhắc đến nhà chính trị lỗi lạc là nhắc đến Hashishita đúng không?” 3. 「お支払いは郵便為替でお願いします」「郵便為替と言いますと・・・・・」 Vui lòng thanh toán bằng tỉ giá bưu điện” – “Tỷ giá bưu điện nghĩa là sao?” 4. その時の彼の顔と言ったら、幽霊でも見たかのように真っ青だった。 Nói đến mặt anh ta lúc đó thì xanh lè như ma vậy. 5. 恋人と別れた時の寂しさと言ったら、泣きたいぐらいだった。 Nói về nỗi cô đơn khi chia tay người yêu thì đến nỗi mà không khóc nổi. Ý nghĩa: ④～のときはいつも Khi đó... lúc nào cũng Ví dụ: 1. 父は野球が大好きで、シーズン中はテレビと言えば野球中継ばかりだ。 Bố rất thích bóng chày, trong mùa giải thì TV toàn phát bòng chày. 2. 私は雨女で、子どものころ、遠足と言うといつも雨が降ったものだ。 Tôi là cô gái mưa nên ngày nhỏ cứ mỗi khi đi chơi xa là trời cũng mưa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1e81ddb703"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は毎日残業していると見えて、顔がとても疲れている。",
+       "ja_furigana": "彼(かれ)は毎日(まいにち)残業(ざんぎょう)していると見(み)えて、顔(かお)がとても疲(つか)れている。",
+       "vi": "Hình như ngày nào anh ấy cũng làm thêm, trông mặt rất mệt."
+      },
+      {
+       "ja": "子どもたちは雨がやんだと見えて、庭に出て遊んでいる。",
+       "ja_furigana": "子(こ)どもたちは雨(あめ)がやんだと見(み)えて、庭(にわ)に出(で)て遊(あそ)んでいる。",
+       "vi": "Có vẻ mưa đã tạnh nên lũ trẻ ra vườn chơi."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "父は機嫌が悪いと見え（て）朝から一言も口をきかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hình như tâm trạng bố không được tốt, từ sáng đến giờ không nói câu nào."
+     },
+     {
+      "ja": "そのお菓子がよほどおいしかったと見え（て）、子どもたちは一つ残さず食べてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có vẻ kẹo đó ngon lắm, bọn trẻ đã ăn hết không sót cái nào."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 父は機嫌が悪いと見え（て）朝から一言も口をきかない。",
+     "FURIGANA_MISSING: そのお菓子がよほどおいしかったと見え（て）、子どもたちは一つ残さず食べてしまった。"
+    ],
+    "formation": "thể thường + と見えて／と見える",
+    "locked_fields": [],
+    "meaning_vi": "Hình như (suy đoán)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜見えて",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 【動詞・イ形容詞・ナ形容詞】の普通形＋と Ý nghĩa: ①～ようで、～らしく（推量） Hình như (suy đoán) Ví dụ: 1. 父は機嫌が悪いと見え（て）朝から一言も口をきかない。 Hình như tâm trạng bố không được tốt, từ sáng đến giờ không nói câu nào. 2. そのお菓子がよほどおいしかったと見え（て）、子どもたちは一つ残さず食べてしまった。 Có vẻ kẹo đó ngon lắm, bọn trẻ đã ăn hết không sót cái nào. 3. あの会社は景気がいいと見え（て）、夜遅くまで明かりがついている。 Công ty đó có vẻ làm ăn tốt, đèn điện bật đến tận khuya. Cách kết hợp: ～ように／そうに等 Ý nghĩa: ②～ように見えるが、実はそうではない（逆接） Trông có vẻ... thực tế lại khác Ví dụ: 1. この料理は油っこそうに見えて、意外にあっさりしている。 Món này có vẻ béo nhưng không ngờ nó rất thanh. 2. 一見悩みがないように見えて、実はいろいろな問題を抱えている人も多い。 Thoạt nhìn trông không có vẻ lo lắng gì. Thực tế rất nhiều người đang ôm một đống vấn đề. 3. あの会社は営業成績が良さそうに見えて、実は銀行から多額の融資を受けているらしい。 Trông có vẻ công ty đó làm ăn tốt nhưng nghe nói đang vay ngân hàng nhiều lắm. 4. 「彼女は子どもっぽく見えて、本当はとてもしっかりした人なんです」 Cô ấy trông có vẻ trẻ con nhưng thực ra là người rất chín chắn. * 犯人は駅のほうへ逃げた時と見せて、反対方向へ逃げていた。 Tên tội phạm trông có vẻ như đã bỏ chạy về hướng nhà ga nhưng kỳ thực hắn đã chạy theo hướng ngược lại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f11e24fd98"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の話を途中で切るものではない。",
+       "ja_furigana": "人(ひと)の話(はなし)を途中(とちゅう)で切(き)るものではない。",
+       "vi": "Không nên cắt ngang lời người khác."
+      },
+      {
+       "ja": "電車の中で大きな声で電話するものではない。",
+       "ja_furigana": "電車(でんしゃ)の中(なか)で大(おお)きな声(こえ)で電話(でんわ)するものではない。",
+       "vi": "Không nên gọi điện to tiếng trong tàu điện."
+      }
+     ]
+    },
+    "note": "viết lại câu ví dụ chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "目上の人にそんな言い方をするものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên nói chuyện kiểu ấy với cấp trên."
+     },
+     {
+      "ja": "口の中にものを入れたまましゃべるものではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên cứ ngậm thức ăn trong miệng mà nói chuyện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 目上の人にそんな言い方をするものではない。",
+     "FURIGANA_MISSING: 口の中にものを入れたまましゃべるものではない。"
+    ],
+    "formation": "Vる + ものではない",
+    "locked_fields": [],
+    "meaning_vi": "không nên ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜するものではない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Lời khuyên, mệnh lệnh nhẹ nhàng. * ～もんじゃない: dùng trong văn nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f3005bd696"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-067"
+}

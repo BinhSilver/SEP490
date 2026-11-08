@@ -1,0 +1,50 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\")."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "東京駅で電車を乗り換えます。",
+       "ja_furigana": "東京駅(とうきょうえき)で電車(でんしゃ)を乗(の)り換(か)えます。",
+       "vi": "Ở ga Tokyo, tôi chuyển sang tàu khác."
+      }
+     ]
+    },
+    "note": "lượt 2: dịch lại"
+   },
+   "context": {
+    "confusable_ids": [],
+    "examples": [
+     {
+      "ja": "東京駅で電車を乗り換えます。",
+      "ja_furigana": "東京駅(とうきょうえき)で電車(でんしゃ)を乗(の)り換(か)えます。",
+      "source": "AI",
+      "vi": "Tôi đổi tàu ở ga Tokyo."
+     }
+    ],
+    "expression": "電車を乗り換える",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "đổi tàu",
+    "mnemonic_vi": "Gồm các chữ 電 \"điện\" (điện) + 車 \"xa\" (xe cộ) + 乗 \"thừa\" (lên xe) + 換 \"hoán\" (đổi): đọc là でんしゃをのりかえる, diễn tả nghĩa \"đổi tàu\".",
+    "reading": "でんしゃをのりかえる",
+    "romaji": "densha o norikaeru",
+    "second_pass": true,
+    "topic_vi": "Phương tiện giao thông",
+    "variants": [],
+    "word_type_label": "cụm từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b0951ef1d8"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N4",
+ "packet_id": "REVIEW_VOCAB-056"
+}

@@ -1,0 +1,2609 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "転んで足を骨折した。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi ngã và gãy chân."
+      },
+      {
+       "ja": "骨折した足が治るまで、二か月かかった。",
+       "ja_furigana": "骨折(こっせつ)した足(あし)が治(なお)るまで、二(に)か月(げつ)かかった。",
+       "vi": "Cái chân bị gãy mất hai tháng mới lành.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "gãy xương",
+    "examples": [
+     {
+      "ja": "転んで足を骨折した。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ngã và gãy chân."
+     },
+     {
+      "ja": "スキーで転んで、足を骨折した。",
+      "ja_furigana": "スキーで転(ころ)んで、足(あし)を骨折(こっせつ)した。",
+      "source": "VNJPCLUB",
+      "vi": "Do ngã khi trượt tuyết nên tôi đã bị gãy chân."
+     }
+    ],
+    "expression": "骨折＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 転んで足を骨折した。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "gãy xương",
+    "mnemonic_vi": "骨 là xương, 折 là gãy; ngã xe làm gãy xương.",
+    "reading": "こっせつ＜する＞",
+    "romaji": "kossetsu<suru>",
+    "topic_vi": "Không sao chứ?",
+    "twins": [],
+    "variants": [
+     "骨折"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e9b00fbae4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "患者は静かな部屋で休んでいる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bệnh nhân đang nghỉ trong phòng yên tĩnh."
+      },
+      {
+       "ja": "この病院は、朝から患者でいっぱいだ。",
+       "ja_furigana": "この病院(びょういん)は、朝(あさ)から患者(かんじゃ)でいっぱいだ。",
+       "vi": "Bệnh viện này từ sáng đã đông nghịt bệnh nhân.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bệnh nhân",
+    "examples": [
+     {
+      "ja": "患者は静かな部屋で休んでいる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bệnh nhân đang nghỉ trong phòng yên tĩnh."
+     },
+     {
+      "ja": "冬になると、インフルエンザ患者が増える。",
+      "ja_furigana": "冬(ふゆ)になると、インフルエンザ患者(かんじゃ)が増(ふ)える。",
+      "source": "VNJPCLUB",
+      "vi": "Cứ đến mùa đông thì bệnh nhân cảm cúm tăng lên."
+     }
+    ],
+    "expression": "患者",
+    "findings": [
+     "FURIGANA_MISSING: 患者は静かな部屋で休んでいる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bệnh nhân",
+    "mnemonic_vi": "患 là mắc bệnh, 者 là người; người chờ khám là bệnh nhân.",
+    "reading": "かんじゃ",
+    "romaji": "kanja",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7e65eeed55"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "診察は午後二時からです。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Buổi khám bắt đầu lúc hai giờ chiều."
+      },
+      {
+       "ja": "診察の前に、受付でほけんしょうを出してください。",
+       "ja_furigana": "診察(しんさつ)の前(まえ)に、受付(うけつけ)でほけんしょうを出(だ)してください。",
+       "vi": "Trước khi khám bệnh, hãy nộp thẻ bảo hiểm ở quầy tiếp nhận.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "khám bệnh",
+    "examples": [
+     {
+      "ja": "診察は午後二時からです。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Buổi khám bắt đầu lúc hai giờ chiều."
+     },
+     {
+      "ja": "熱が続くので、病院で診察してもらった。",
+      "ja_furigana": "熱(ねつ)が続(つづ)くので、病院(びょういん)で診察(しんさつ)してもらった。",
+      "source": "VNJPCLUB",
+      "vi": "Do sốt kéo dài nên tôi đã khám ở bệnh viện."
+     }
+    ],
+    "expression": "診察＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 診察は午後二時からです。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "khám bệnh",
+    "mnemonic_vi": "診 là xem bệnh, 察 là quan sát; bác sĩ nghe tim và khám.",
+    "reading": "しんさつ＜する＞",
+    "romaji": "shinsatsu<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "診察"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8401109481"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "病院で血液の検査を受けた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi làm xét nghiệm máu ở bệnh viện."
+      },
+      {
+       "ja": "工場では、全部の商品を一つずつ検査している。",
+       "ja_furigana": "工場(こうじょう)では、全部(ぜんぶ)の商品(しょうひん)を一(ひと)つずつ検査(けんさ)している。",
+       "vi": "Ở nhà máy, toàn bộ sản phẩm đều được kiểm tra từng cái một.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "目の検査をしたら、前より少し悪くなっていた。",
+       "ja_furigana": "目(め)の検査(けんさ)をしたら、前(まえ)より少(すこ)し悪(わる)くなっていた。",
+       "vi": "Kiểm tra mắt thì thấy thị lực đã kém hơn trước một chút.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xét nghiệm",
+    "examples": [
+     {
+      "ja": "病院で血液の検査を受けた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi làm xét nghiệm máu ở bệnh viện."
+     },
+     {
+      "ja": "｛胃／製品 …｝の検査",
+      "ja_furigana": "｛胃(い)／製品(せいひん) …｝の検査(けんさ)",
+      "source": "VNJPCLUB",
+      "vi": "Kiểm tra dạ dày, sản phẩm.."
+     },
+     {
+      "ja": "空港では、必ず持ち物の検査がある",
+      "ja_furigana": "空港(くうこう)では、必(かなら)ず持(も)ち物(もの)の検査(けんさ)がある",
+      "source": "VNJPCLUB",
+      "vi": "Ở sân bay, thì chắc chắn sẽ có kiểm tra những đồ mang theo."
+     }
+    ],
+    "expression": "検査＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 病院で血液の検査を受けた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xét nghiệm; kiểm tra; xem xét phương án",
+    "mnemonic_vi": "検 là kiểm, 査 là tra; lấy mẫu máu để xét nghiệm.",
+    "reading": "けんさ＜する＞",
+    "romaji": "kensa<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "検査",
+     "検査（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7771bbfef1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "けがの治療を続ける。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tiếp tục điều trị vết thương."
+      },
+      {
+       "ja": "治療のために、毎週病院に通っている。",
+       "ja_furigana": "治療(ちりょう)のために、毎週(まいしゅう)病院(びょういん)に通(かよ)っている。",
+       "vi": "Để điều trị, tuần nào tôi cũng đến bệnh viện.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "早く治療を始めれば、この病気は治る。",
+       "ja_furigana": "早(はや)く治療(ちりょう)を始(はじ)めれば、この病気(びょうき)は治(なお)る。",
+       "vi": "Nếu bắt đầu điều trị sớm thì bệnh này sẽ khỏi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "điều trị",
+    "examples": [
+     {
+      "ja": "けがの治療を続ける。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tiếp tục điều trị vết thương."
+     },
+     {
+      "ja": "病気を治療した",
+      "ja_furigana": "病気(びょうき)を治療(ちりょう)した",
+      "source": "VNJPCLUB",
+      "vi": "Đã chữa bệnh."
+     },
+     {
+      "ja": "虫歯の治療を｛した／受けた｝",
+      "ja_furigana": "虫歯(むしば)の治療(ちりょう)を｛した／受(う)けた｝",
+      "source": "VNJPCLUB",
+      "vi": "Trị sâu răng."
+     }
+    ],
+    "expression": "治療＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: けがの治療を続ける。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "điều trị; trị liệu; chữa bệnh",
+    "mnemonic_vi": "治 là chữa, 療 là trị; bác sĩ điều trị cho bệnh nhân.",
+    "reading": "ちりょう＜する＞",
+    "romaji": "chiryou<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "治療",
+     "治療（する）"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f215edb8ad"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行の保険に入る。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi mua bảo hiểm du lịch."
+      },
+      {
+       "ja": "車を買ったので、自動車の保険に入った。",
+       "ja_furigana": "車(くるま)を買(か)ったので、自動車(じどうしゃ)の保険(ほけん)に入(はい)った。",
+       "vi": "Mua ô tô nên tôi tham gia bảo hiểm xe.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "保険のおかげで、入院のお金があまりかからなかった。",
+       "ja_furigana": "保険(ほけん)のおかげで、入院(にゅういん)のお金(かね)があまりかからなかった。",
+       "vi": "Nhờ có bảo hiểm mà tiền nằm viện không tốn mấy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bảo hiểm",
+    "examples": [
+     {
+      "ja": "旅行の保険に入る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi mua bảo hiểm du lịch."
+     },
+     {
+      "ja": "海外に行くときは、保険を掛ける。",
+      "ja_furigana": "海外(かいがい)に行(い)くときは、保険(ほけん)を掛(か)ける。",
+      "source": "VNJPCLUB",
+      "vi": "Mua bảo hiểm khi đi nước ngoài."
+     },
+     {
+      "ja": "子供が生まれたので、生命保険に入った。",
+      "ja_furigana": "子供(こども)が生(う)まれたので、生命(せいめい)保険(ほけん)に入(はい)った。",
+      "source": "VNJPCLUB",
+      "vi": "Vì có con nên tôi tham gia bảo hiểm nhân thọ."
+     }
+    ],
+    "expression": "保険",
+    "findings": [
+     "FURIGANA_MISSING: 旅行の保険に入る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bảo hiểm",
+    "mnemonic_vi": "保 là giữ, 険 là rủi ro; hợp đồng giúp đỡ khi gặp rủi ro.",
+    "reading": "ほけん",
+    "romaji": "hoken",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-f6e222e6d4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この薬はよく効く。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Thuốc này rất có hiệu quả."
+      },
+      {
+       "ja": "このかぜ薬は、飲んで三十分ぐらいで効いてくる。",
+       "ja_furigana": "このかぜ薬(ぐすり)は、飲(の)んで三十分(さんじゅっぷん)ぐらいで効(き)いてくる。",
+       "vi": "Thuốc cảm này uống khoảng ba mươi phút là bắt đầu có tác dụng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "わさびがよく効いていて、はながつんとした。",
+       "ja_furigana": "わさびがよく効(き)いていて、はながつんとした。",
+       "vi": "Mù tạt cay nồng xộc thẳng lên mũi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "có hiệu quả, công hiệu",
+    "examples": [
+     {
+      "ja": "この薬はよく効く。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Thuốc này rất có hiệu quả."
+     },
+     {
+      "ja": "この薬は頭痛によく効く",
+      "ja_furigana": "この薬(くすり)は頭痛(ずつう)によく効(き)く",
+      "source": "VNJPCLUB",
+      "vi": "Thuốc này rất hiệu quả cho người bị đau đầu."
+     },
+     {
+      "ja": "クーラーが効いていないのか、この部屋はとても暑い",
+      "ja_furigana": "クーラーが効(き)いていないのか、この部屋(へや)はとても暑(あつ)い",
+      "source": "VNJPCLUB",
+      "vi": "Máy làm mát chạy không đạt hiệu quả hay sao ấy, phòng này nóng quá."
+     }
+    ],
+    "expression": "効く",
+    "findings": [
+     "FURIGANA_MISSING: この薬はよく効く。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "có hiệu quả; công hiệu; hiệu quả",
+    "mnemonic_vi": "Uống thuốc rồi cơn đau dịu xuống; 効く là có tác dụng.",
+    "reading": "きく",
+    "romaji": "kiku",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-514655ffea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "足をけがした友達を、駅までおんぶした。",
+       "ja_furigana": "足(あし)をけがした友達(ともだち)を、駅(えき)までおんぶした。",
+       "vi": "Tôi cõng người bạn bị đau chân đến tận nhà ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "遊び疲れた子どもを、父がおんぶして帰った。",
+       "ja_furigana": "遊(あそ)び疲(つか)れた子(こ)どもを、父(ちち)がおんぶして帰(かえ)った。",
+       "vi": "Bố cõng đứa con chơi mệt về nhà.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Cõng (trên lưng)",
+    "examples": [
+     {
+      "ja": "昔の母親は赤ん坊をおんぶして家事をしていたものだ。",
+      "ja_furigana": "昔(むかし)の母親(ははおや)は赤(あか)ん坊(ぼう)をおんぶして家事(かじ)をしていたものだ。",
+      "source": "VNJPCLUB",
+      "vi": "Thời xưa các bà mẹ thường cõng con trên lưng làm việc nhà."
+     },
+     {
+      "ja": "姉は結婚しているのに、何かにつけて実家におんぶしている。",
+      "ja_furigana": "姉(あね)は結婚(けっこん)しているのに、何(なに)かにつけて実家(じっか)におんぶしている。",
+      "source": "VNJPCLUB",
+      "vi": "Chị gái tôi dù đã lấy chồng nhưng có chuyện gì cũng dựa dẫm vào bố mẹ đẻ."
+     }
+    ],
+    "expression": "おんぶ＜する＞",
+    "findings": [
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 昔の母親は赤ん坊をおんぶして家事をしていたものだ。 → 赤ん坊"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cõng (trên lưng)",
+    "mnemonic_vi": "Đứa bé ôm vai người lớn từ phía sau: おんぶ là cõng.",
+    "reading": "おんぶ＜する＞",
+    "romaji": "onbu<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "おんぶ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0231133975"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝ご飯には栄養が必要だ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bữa sáng cần đủ dinh dưỡng."
+      },
+      {
+       "ja": "野菜は、かわの近くに栄養が多いそうだ。",
+       "ja_furigana": "野菜(やさい)は、かわの近(ちか)くに栄養(えいよう)が多(おお)いそうだ。",
+       "vi": "Nghe nói rau củ có nhiều dinh dưỡng ở phần gần vỏ.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "忙しくても、栄養のバランスを考えて食べたい。",
+       "ja_furigana": "忙(いそが)しくても、栄養(えいよう)のバランスを考(かんが)えて食(た)べたい。",
+       "vi": "Dù bận rộn, tôi vẫn muốn ăn uống cân bằng dinh dưỡng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dinh dưỡng",
+    "examples": [
+     {
+      "ja": "朝ご飯には栄養が必要だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bữa sáng cần đủ dinh dưỡng."
+     },
+     {
+      "ja": "栄養のある食べ物",
+      "ja_furigana": "栄養(えいよう)のある食(た)べ物(もの)",
+      "source": "VNJPCLUB",
+      "vi": "Đồ ăn dinh dưỡng."
+     },
+     {
+      "ja": "健康のために、栄養に気をつけましょう",
+      "ja_furigana": "健康(けんこう)のために、栄養(えいよう)に気(き)をつけましょう",
+      "source": "VNJPCLUB",
+      "vi": "Để có sức khỏe nên hãy cùng nhau chú ý đến dinh dưỡng."
+     }
+    ],
+    "expression": "栄養",
+    "findings": [
+     "FURIGANA_MISSING: 朝ご飯には栄養が必要だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dinh dưỡng",
+    "mnemonic_vi": "栄 là nuôi cho tốt, 養 là dưỡng; bữa ăn cung cấp dinh dưỡng.",
+    "reading": "えいよう",
+    "romaji": "eiyou",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ab83c4487f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "病気からの回復を待つ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi chờ hồi phục sau bệnh."
+      },
+      {
+       "ja": "雨が止んで、午後から天気が回復した。",
+       "ja_furigana": "雨(あめ)が止(や)んで、午後(ごご)から天気(てんき)が回復(かいふく)した。",
+       "vi": "Mưa tạnh, từ chiều thời tiết đã tốt trở lại.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "よく寝たら、疲れがすっかり回復した。",
+       "ja_furigana": "よく寝(ね)たら、疲(つか)れがすっかり回復(かいふく)した。",
+       "vi": "Ngủ một giấc ngon, tôi đã hồi phục hẳn sức lực.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sự phục hồi",
+    "examples": [
+     {
+      "ja": "病気からの回復を待つ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi chờ hồi phục sau bệnh."
+     },
+     {
+      "ja": "経済状況が回復する。",
+      "ja_furigana": "経済(けいざい)状況(じょうきょう)が回復(かいふく)する。",
+      "source": "VNJPCLUB",
+      "vi": "Tình hình kinh tế hồi phục."
+     },
+     {
+      "ja": "重い病気から回復した。",
+      "ja_furigana": "重(おも)い病気(びょうき)から回復(かいふく)した。",
+      "source": "VNJPCLUB",
+      "vi": "Hồi phục sau trận ốm nặng."
+     }
+    ],
+    "expression": "回復＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 病気からの回復を待つ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự phục hồi; hồi phục; khôi phục",
+    "mnemonic_vi": "回 là quay lại, 復 là trở về; sức khỏe trở lại sau ốm.",
+    "reading": "かいふく＜する＞",
+    "romaji": "kaifuku<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "回復"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-88722654c2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "住所の証明が必要です。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Cần giấy chứng minh địa chỉ."
+      },
+      {
+       "ja": "学校で、在学を証明する書類をもらった。",
+       "ja_furigana": "学校(がっこう)で、在学(ざいがく)を証明(しょうめい)する書類(しょるい)をもらった。",
+       "vi": "Tôi nhận được giấy chứng nhận đang theo học từ nhà trường.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この実験で、先生の考えが正しいことが証明された。",
+       "ja_furigana": "この実験(じっけん)で、先生(せんせい)の考(かんが)えが正(ただ)しいことが証明(しょうめい)された。",
+       "vi": "Thí nghiệm này đã chứng minh suy nghĩ của thầy là đúng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chứng minh",
+    "examples": [
+     {
+      "ja": "住所の証明が必要です。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cần giấy chứng minh địa chỉ."
+     },
+     {
+      "ja": "銀行口座を開くときには、身分を証明するものが必要だ",
+      "ja_furigana": "銀行(ぎんこう)口座(こうざ)を開(ひら)くときには、身分(みぶん)を証明(しょうめい)するものが必要(ひつよう)だ",
+      "source": "VNJPCLUB",
+      "vi": "Khi mở tài khoản ngân hàng thì cần có vật để chứng minh danh tính."
+     },
+     {
+      "ja": "無実を証明する",
+      "ja_furigana": "無実(むじつ)を証明(しょうめい)する",
+      "source": "VNJPCLUB",
+      "vi": "Chứng minh vô tội."
+     }
+    ],
+    "expression": "証明＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 住所の証明が必要です。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chứng minh; giấy chứng nhận; chứng minh bằng căn cứ",
+    "mnemonic_vi": "証 là bằng chứng, 明 là rõ ràng; đưa giấy tờ để chứng minh.",
+    "reading": "しょうめい＜する＞",
+    "romaji": "shoumei<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "証明"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1431b6a066"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "赤ちゃんをそっと寝かせる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nhẹ nhàng đặt em bé nằm xuống."
+      },
+      {
+       "ja": "失敗して落ち込んでいる友達を、しばらくそっとしておいた。",
+       "ja_furigana": "失敗(しっぱい)して落(お)ち込(こ)んでいる友達(ともだち)を、しばらくそっとしておいた。",
+       "vi": "Tôi để yên một thời gian cho người bạn đang buồn vì thất bại.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "田中さんは、ドアをそっと開けて中をのぞいた。",
+       "ja_furigana": "田中(たなか)さんは、ドアをそっと開(あ)けて中(なか)をのぞいた。",
+       "vi": "Anh Tanaka khẽ mở cửa và nhìn vào bên trong.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhẹ nhàng, khẽ; để yên",
+    "examples": [
+     {
+      "ja": "赤ちゃんをそっと寝かせる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nhẹ nhàng đặt em bé nằm xuống."
+     },
+     {
+      "ja": "寝ている人を起こさないように、そっと部屋を出た",
+      "ja_furigana": "寝(ね)ている人(ひと)を起(お)こさないように、そっと部屋(へや)を出(で)た",
+      "source": "VNJPCLUB",
+      "vi": "Ra khỏi phòng lặng lẽ sao cho không đánh thức những người đang ngủ."
+     },
+     {
+      "ja": "壊さないように、そっと持ってください",
+      "ja_furigana": "壊(こわ)さないように、そっと持(も)ってください",
+      "source": "VNJPCLUB",
+      "vi": "Hãy cầm một cách nhẹ nhàng để không làm nó hỏng."
+     }
+    ],
+    "expression": "そっと＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 赤ちゃんをそっと寝かせる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "nhẹ nhàng; khẽ; để yên",
+    "mnemonic_vi": "Đặt em bé xuống giường thật khẽ để không đánh thức.",
+    "reading": "そっと＜する＞",
+    "romaji": "sotto<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "そっと"
+    ],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ec22b8d35b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "手術の後はゆっくり休んだ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Sau phẫu thuật tôi nghỉ ngơi."
+      },
+      {
+       "ja": "手術は三時間かかったが、うまくいった。",
+       "ja_furigana": "手術(しゅじゅつ)は三時間(さんじかん)かかったが、うまくいった。",
+       "vi": "Ca phẫu thuật mất ba tiếng nhưng đã thành công.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "犬が足をけがして、手術を受けることになった。",
+       "ja_furigana": "犬(いぬ)が足(あし)をけがして、手術(しゅじゅつ)を受(う)けることになった。",
+       "vi": "Con chó bị thương ở chân nên phải phẫu thuật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phẫu thuật",
+    "examples": [
+     {
+      "ja": "手術の後はゆっくり休んだ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Sau phẫu thuật tôi nghỉ ngơi."
+     },
+     {
+      "ja": "胃の手術を｛した／受けた｝",
+      "ja_furigana": "胃(い)の手術(しゅじゅつ)を｛した／受(う)けた｝",
+      "source": "VNJPCLUB",
+      "vi": "Phẫu thuật dạ dày."
+     },
+     {
+      "ja": "父は手術してから、元気になった。",
+      "ja_furigana": "父(ちち)は手術(しゅじゅつ)してから、元気(げんき)になった。",
+      "source": "VNJPCLUB",
+      "vi": "Bố tôi sau khi phẫu thuật đã khỏe ra."
+     }
+    ],
+    "expression": "手術＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 手術の後はゆっくり休んだ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "phẫu thuật",
+    "mnemonic_vi": "手 là tay, 術 là kỹ thuật; bác sĩ dùng kỹ thuật phẫu thuật.",
+    "reading": "しゅじゅつ＜する＞",
+    "romaji": "shujutsu<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "手術"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-e27ea289fe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "首にマフラーを巻く。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi quấn khăn quanh cổ."
+      },
+      {
+       "ja": "のりでご飯を巻いて、すしを作った。",
+       "ja_furigana": "のりでご飯(はん)を巻(ま)いて、すしを作(つく)った。",
+       "vi": "Tôi cuộn cơm bằng rong biển để làm sushi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "長いポスターを巻いて、ゴムで止めた。",
+       "ja_furigana": "長(なが)いポスターを巻(ま)いて、ゴムで止(と)めた。",
+       "vi": "Tôi cuộn tấm áp phích dài lại rồi buộc bằng dây thun.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cuộn, quấn",
+    "examples": [
+     {
+      "ja": "首にマフラーを巻く。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi quấn khăn quanh cổ."
+     },
+     {
+      "ja": "マフラーを首に巻く",
+      "ja_furigana": "マフラーを首(くび)に巻(ま)く",
+      "source": "VNJPCLUB",
+      "vi": "Quàng khăn vào cổ."
+     },
+     {
+      "ja": "指に包帯を巻く",
+      "ja_furigana": "指(ゆび)に包帯(ほうたい)を巻(ま)く",
+      "source": "VNJPCLUB",
+      "vi": "Quấn băng vào ngón tay."
+     }
+    ],
+    "expression": "巻く",
+    "findings": [
+     "FURIGANA_MISSING: 首にマフラーを巻く。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cuộn; quấn; bọc",
+    "mnemonic_vi": "Cuộn dải băng nhiều vòng quanh cổ tay: 巻く là quấn.",
+    "reading": "まく",
+    "romaji": "maku",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-46fb51f4ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祖母は長生きして百歳になった。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bà tôi sống thọ đến một trăm tuổi."
+      },
+      {
+       "ja": "祖父は、長生きするには毎日よく笑うことだと言う。",
+       "ja_furigana": "祖父(そふ)は、長生(ながい)きするには毎日(まいにち)よく笑(わら)うことだと言(い)う。",
+       "vi": "Ông tôi bảo muốn sống lâu thì mỗi ngày phải cười thật nhiều.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "Sự trường thọ",
+    "examples": [
+     {
+      "ja": "祖母は長生きして百歳になった。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bà tôi sống thọ đến một trăm tuổi."
+     },
+     {
+      "ja": "「祖母は100歳です」「長生きですね」",
+      "ja_furigana": "「祖母(そぼ)は100歳(さい)です」「長生(ながい)きですね」",
+      "source": "VNJPCLUB",
+      "vi": "\"Bà tôi đã 100 tuổi rồi đấy\" \"Cụ thọ nhỉ\""
+     }
+    ],
+    "expression": "長生き＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 祖母は長生きして百歳になった。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sự trường thọ",
+    "mnemonic_vi": "長 là dài, 生き là sống; sống lâu khỏe mạnh.",
+    "reading": "ながいき＜する＞",
+    "romaji": "nagaiki<suru>",
+    "topic_vi": "Bệnh viện",
+    "twins": [],
+    "variants": [
+     "長生き"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7dda2af3e4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "豊かな自然を守りたい。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi muốn bảo vệ thiên nhiên phong phú."
+      },
+      {
+       "ja": "田中さんは表情が豊かで、話がおもしろい。",
+       "ja_furigana": "田中(たなか)さんは表情(ひょうじょう)が豊(ゆた)かで、話(はなし)がおもしろい。",
+       "vi": "Anh Tanaka có biểu cảm phong phú và nói chuyện rất thú vị.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この国は、昔よりずっと豊かになった。",
+       "ja_furigana": "この国(くに)は、昔(むかし)よりずっと豊(ゆた)かになった。",
+       "vi": "Đất nước này đã giàu có hơn xưa rất nhiều.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "phong phú",
+    "examples": [
+     {
+      "ja": "豊かな自然を守りたい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi muốn bảo vệ thiên nhiên phong phú."
+     },
+     {
+      "ja": "豊かな｛資源／自然／緑／財産／暮らし／心／才能／個性／表情 …｝",
+      "ja_furigana": "豊(ゆた)かな｛資源(しげん)／自然(しぜん)／緑(みどり)／財産(ざいさん)／暮(く)らし／心(こころ)／才能(さいのう)／個性(こせい)／表情(ひょうじょう) …｝",
+      "source": "VNJPCLUB",
+      "vi": "Trù phú, nhiều tài nguyên, {thiên nhiên, cây cối, tài sản, cuộc sống} đa dạng, trái tim, tài năng, cá tính, biểu cảm…."
+     },
+     {
+      "ja": "このあたりは、国でもっとも豊かな地方だ",
+      "ja_furigana": "このあたりは、国(くに)でもっとも豊(ゆた)かな地方(ちほう)だ",
+      "source": "VNJPCLUB",
+      "vi": "Vùng này là vùng trù phú nhất trên cả nước."
+     }
+    ],
+    "expression": "豊かな",
+    "findings": [
+     "FURIGANA_MISSING: 豊かな自然を守りたい。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "giàu có; trù phú; đa dạng",
+    "mnemonic_vi": "Ruộng đầy thóc, bữa ăn đủ đầy; 豊か là trù phú.",
+    "reading": "ゆたかな",
+    "romaji": "yutakana",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "tính từ な"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9440858afe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "水は大切な資源だ。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Nước là tài nguyên quan trọng."
+      },
+      {
+       "ja": "ごみを分けて出すと、資源として使える。",
+       "ja_furigana": "ごみを分(わ)けて出(だ)すと、資源(しげん)として使(つか)える。",
+       "vi": "Phân loại rác khi đổ thì có thể tái sử dụng làm tài nguyên.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "この国は資源が少ないので、多くを外国から買っている。",
+       "ja_furigana": "この国(くに)は資源(しげん)が少(すく)ないので、多(おお)くを外国(がいこく)から買(か)っている。",
+       "vi": "Nước này ít tài nguyên nên phải mua nhiều thứ từ nước ngoài.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tài nguyên",
+    "examples": [
+     {
+      "ja": "水は大切な資源だ。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Nước là tài nguyên quan trọng."
+     },
+     {
+      "ja": "資源を有効に利用する",
+      "ja_furigana": "資源(しげん)を有効(ゆうこう)に利用(りよう)する",
+      "source": "VNJPCLUB",
+      "vi": "Sử dụng hiệu quả nguồn tài nguyên."
+     },
+     {
+      "ja": "海の資源を利用する研究が進んでいる。",
+      "ja_furigana": "海(うみ)の資源(しげん)を利用(りよう)する研究(けんきゅう)が進(すす)んでいる。",
+      "source": "VNJPCLUB",
+      "vi": "Các nghiên cứu về việc sử dụng tài nguyên biển đang triển khai."
+     }
+    ],
+    "expression": "資源",
+    "findings": [
+     "FURIGANA_MISSING: 水は大切な資源だ。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tài nguyên",
+    "mnemonic_vi": "資 là của cải, 源 là nguồn; tài nguyên lấy từ thiên nhiên.",
+    "reading": "しげん",
+    "romaji": "shigen",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7accd570d8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店にはパンが五種類ある。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Cửa hàng này có năm loại bánh mì."
+      },
+      {
+       "ja": "同じ種類の鳥でも、住む場所で色がちがう。",
+       "ja_furigana": "同(おな)じ種類(しゅるい)の鳥(とり)でも、住(す)む場所(ばしょ)で色(いろ)がちがう。",
+       "vi": "Cùng một loài chim nhưng màu lông khác nhau tùy nơi sống.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ごみは、種類ごとに分けてすててください。",
+       "ja_furigana": "ごみは、種類(しゅるい)ごとに分(わ)けてすててください。",
+       "vi": "Xin hãy phân loại rác theo từng loại khi vứt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chủng loại",
+    "examples": [
+     {
+      "ja": "この店にはパンが五種類ある。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cửa hàng này có năm loại bánh mì."
+     },
+     {
+      "ja": "公園にはいろいろな種類の花がある",
+      "ja_furigana": "公園(こうえん)にはいろいろな種類(しゅるい)の花(はな)がある",
+      "source": "VNJPCLUB",
+      "vi": "Trong công viên có rất nhiều loại hoa."
+     },
+     {
+      "ja": "形容詞には２種類ある",
+      "ja_furigana": "形容詞(けいようし)には２種類(しゅるい)ある",
+      "source": "VNJPCLUB",
+      "vi": "Có hai loại tính từ."
+     }
+    ],
+    "expression": "種類",
+    "findings": [
+     "FURIGANA_MISSING: この店にはパンが五種類ある。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 形容詞には２種類ある → 形容詞"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chủng loại; loại; đồng loại",
+    "mnemonic_vi": "種 là giống, 類 là loại; phân các cây theo chủng loại.",
+    "reading": "しゅるい",
+    "romaji": "shurui",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-7e49d72ddc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この花は寒さで枯れる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Bông hoa này héo vì lạnh."
+      },
+      {
+       "ja": "秋になると、山の草が枯れて茶色になる。",
+       "ja_furigana": "秋(あき)になると、山(やま)の草(くさ)が枯(か)れて茶色(ちゃいろ)になる。",
+       "vi": "Đến mùa thu, cỏ trên núi khô héo và chuyển sang màu nâu.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "旅行から帰ったら、ベランダの花が枯れていた。",
+       "ja_furigana": "旅行(りょこう)から帰(かえ)ったら、ベランダの花(はな)が枯(か)れていた。",
+       "vi": "Đi du lịch về thì hoa ngoài ban công đã héo.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "héo, khô chết",
+    "examples": [
+     {
+      "ja": "この花は寒さで枯れる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Bông hoa này héo vì lạnh."
+     },
+     {
+      "ja": "雨が降らなくて、庭の木が枯れた。",
+      "ja_furigana": "雨(あめ)が降(ふ)らなくて、庭(にわ)の木(き)が枯(か)れた。",
+      "source": "VNJPCLUB",
+      "vi": "Trời không mưa nên cây trong vườn đã bị héo."
+     },
+     {
+      "ja": "害虫のせいで、木が枯れてしまった。",
+      "ja_furigana": "害虫(がいちゅう)のせいで、木(き)が枯(か)れてしまった。",
+      "source": "VNJPCLUB",
+      "vi": "Do sâu bọ gây hại nên cây bị khô héo."
+     }
+    ],
+    "expression": "枯れる",
+    "findings": [
+     "FURIGANA_MISSING: この花は寒さで枯れる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "héo; khô chết; bị héo",
+    "mnemonic_vi": "Lá rụng, cành khô: cây 枯れる là héo chết.",
+    "reading": "かれる",
+    "romaji": "kareru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0c2c39e999"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "春の終わりに花が散る。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Cuối xuân hoa rụng."
+      },
+      {
+       "ja": "秋の風で、木の葉が道いっぱいに散った。",
+       "ja_furigana": "秋(あき)の風(かぜ)で、木(き)の葉(は)が道(みち)いっぱいに散(ち)った。",
+       "vi": "Gió thu làm lá cây rụng đầy đường.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "試験の前なのに、テレビの音で気が散る。",
+       "ja_furigana": "試験(しけん)の前(まえ)なのに、テレビの音(おと)で気(き)が散(ち)る。",
+       "vi": "Sắp thi đến nơi mà tiếng tivi làm tôi phân tâm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "rụng, tàn (hoa); phân tán",
+    "examples": [
+     {
+      "ja": "春の終わりに花が散る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Cuối xuân hoa rụng."
+     },
+     {
+      "ja": "風で桜が散ってしまった",
+      "ja_furigana": "風(かぜ)で桜(さくら)が散(ち)ってしまった",
+      "source": "VNJPCLUB",
+      "vi": "Hoa anh đào rụng vì gió."
+     },
+     {
+      "ja": "今年の桜は早く散ってしまった。",
+      "ja_furigana": "今年(ことし)の桜(さくら)は早(はや)く散(ち)ってしまった。",
+      "source": "VNJPCLUB",
+      "vi": "Hoa anh đào năm nay tàn sớm."
+     }
+    ],
+    "expression": "散る",
+    "findings": [
+     "FURIGANA_MISSING: 春の終わりに花が散る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "rụng; tàn; phân tán",
+    "mnemonic_vi": "Cánh hoa rời cành, bay khắp sân: 散る là rụng.",
+    "reading": "ちる",
+    "romaji": "chiru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-25343d3e73"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "庭に花の種をまいた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi gieo hạt hoa trong vườn."
+      },
+      {
+       "ja": "すいかを食べるときは、種を出しながら食べる。",
+       "ja_furigana": "すいかを食(た)べるときは、種(たね)を出(だ)しながら食(た)べる。",
+       "vi": "Khi ăn dưa hấu, tôi vừa ăn vừa nhả hạt.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "弟のいたずらが、母の心配の種だ。",
+       "ja_furigana": "弟(おとうと)のいたずらが、母(はは)の心配(しんぱい)の種(たね)だ。",
+       "vi": "Những trò nghịch của em trai là nguồn cơn khiến mẹ lo lắng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hạt giống; nguyên nhân",
+    "examples": [
+     {
+      "ja": "庭に花の種をまいた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi gieo hạt hoa trong vườn."
+     },
+     {
+      "ja": "花が咲いた後、小さな種ができる。",
+      "ja_furigana": "花(はな)が咲(さ)いた後(あと)、小(ちい)さな種(たね)ができる。",
+      "source": "VNJPCLUB",
+      "vi": "Sau khi hoa nở những hạt giống sẽ xuất hiện."
+     },
+     {
+      "ja": "庭にアサガオの種をまいた。",
+      "ja_furigana": "庭(にわ)にアサガオの種(たね)をまいた。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã gieo hạt hoa bìm bìm trong vườn."
+     }
+    ],
+    "expression": "種",
+    "findings": [
+     "FURIGANA_MISSING: 庭に花の種をまいた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hạt giống; nguyên nhân; nguồn cơn",
+    "mnemonic_vi": "Hạt nhỏ chôn vào đất sẽ nảy mầm: 種 là hạt giống.",
+    "reading": "たね",
+    "romaji": "tane",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-82027e68ae"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "みずうみに、白い鳥がたくさん浮かんでいる。",
+       "ja_furigana": "みずうみに、白(しろ)い鳥(とり)がたくさん浮(う)かんでいる。",
+       "vi": "Trên mặt hồ có nhiều con chim trắng đang nổi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "ふるさとの景色が、目に浮かぶ。",
+       "ja_furigana": "ふるさとの景色(けしき)が、目(め)に浮(う)かぶ。",
+       "vi": "Phong cảnh quê nhà hiện lên trước mắt tôi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "いい答えが浮かばなくて、だまってしまった。",
+       "ja_furigana": "いい答(こた)えが浮(う)かばなくて、だまってしまった。",
+       "vi": "Không nghĩ ra câu trả lời hay nên tôi đành im lặng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 3 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nổi lên; chợt nghĩ ra",
+    "examples": [
+     {
+      "ja": "池にボートが浮かんでいる。",
+      "ja_furigana": "池(いけ)にボートが浮(う)かんでいる。",
+      "source": "VNJPCLUB",
+      "vi": "Một chiếc thuyền đang nổi trên mặt ao."
+     },
+     {
+      "ja": "アイデアが浮かぶ。",
+      "ja_furigana": "アイデアが浮(う)かぶ。",
+      "source": "VNJPCLUB",
+      "vi": "Nảy ra ý tưởng."
+     },
+     {
+      "ja": "空に雲が浮かんでいる。",
+      "ja_furigana": "空(そら)に雲(くも)が浮(う)かんでいる。",
+      "source": "VNJPCLUB",
+      "vi": "Trên trời có mây lơ lửng."
+     }
+    ],
+    "expression": "浮かぶ",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nổi lên; chợt nghĩ ra; ý tưởng hoặc hình ảnh hiện lên",
+    "mnemonic_vi": "Phao không chìm mà nổi trên mặt nước: 浮かぶ.",
+    "reading": "うかぶ",
+    "romaji": "ukabu",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "浮ぶ"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1a9b2ca6b2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雲の間から月が現れる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Mặt trăng hiện ra giữa mây."
+      },
+      {
+       "ja": "約束の時間を一時間過ぎて、やっと山田さんが現れた。",
+       "ja_furigana": "約束(やくそく)の時間(じかん)を一時間(いちじかん)過(す)ぎて、やっと山田(やまだ)さんが現(あらわ)れた。",
+       "vi": "Quá giờ hẹn một tiếng, anh Yamada mới xuất hiện.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "薬を飲んで一週間たって、やっとこうかが現れた。",
+       "ja_furigana": "薬(くすり)を飲(の)んで一週間(いっしゅうかん)たって、やっとこうかが現(あらわ)れた。",
+       "vi": "Uống thuốc được một tuần thì hiệu quả mới xuất hiện.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "xuất hiện",
+    "examples": [
+     {
+      "ja": "雲の間から月が現れる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Mặt trăng hiện ra giữa mây."
+     },
+     {
+      "ja": "犯人は金を取りに現れたところを逮捕された",
+      "ja_furigana": "犯人(はんにん)は金(かね)を取(と)りに現(あらわ)れたところを逮捕(たいほ)された",
+      "source": "VNJPCLUB",
+      "vi": "Tên phạm nhân bị bắt ngay lúc hắn xuất hiện để lấy tiền."
+     },
+     {
+      "ja": "雲の間から月が現れた",
+      "ja_furigana": "雲(くも)の間(あいだ)から月(つき)が現(あらわ)れた",
+      "source": "VNJPCLUB",
+      "vi": "Mặt trăng xuất hiện giữa đám mây."
+     }
+    ],
+    "expression": "現れる",
+    "findings": [
+     "FURIGANA_MISSING: 雲の間から月が現れる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "xuất hiện; hiện ra; xuất hiện nói chung",
+    "mnemonic_vi": "現 là hiện ra; người bước ra từ sau màn.",
+    "reading": "あらわれる",
+    "romaji": "arawareru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "現われる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b597e92467"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "重い石が池に沈む。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hòn đá nặng chìm xuống ao."
+      },
+      {
+       "ja": "太陽が山の向こうに沈んだ。",
+       "ja_furigana": "太陽(たいよう)が山(やま)の向(む)こうに沈(しず)んだ。",
+       "vi": "Mặt trời đã lặn sau rặng núi.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "試験に落ちて、弟は気持ちが沈んでいる。",
+       "ja_furigana": "試験(しけん)に落(お)ちて、弟(おとうと)は気持(きも)ちが沈(しず)んでいる。",
+       "vi": "Thi trượt nên em trai tôi đang buồn rầu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chìm; ủ rũ",
+    "examples": [
+     {
+      "ja": "重い石が池に沈む。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hòn đá nặng chìm xuống ao."
+     },
+     {
+      "ja": "海に沈んだ船が見つかった。",
+      "ja_furigana": "海(うみ)に沈(しず)んだ船(ふね)が見(み)つかった。",
+      "source": "VNJPCLUB",
+      "vi": "Chiếc tàu bị chìm trên biển đã được tìm thấy."
+     },
+     {
+      "ja": "台風で船が海に沈んだ。",
+      "ja_furigana": "台風(たいふう)で船(ふね)が海(うみ)に沈(しず)んだ。",
+      "source": "VNJPCLUB",
+      "vi": "Vì bão nên thuyền bị chìm ngoài biển."
+     }
+    ],
+    "expression": "沈む",
+    "findings": [
+     "FURIGANA_MISSING: 重い石が池に沈む。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chìm; ủ rũ; đắm",
+    "mnemonic_vi": "Hòn đá chìm xuống đáy hồ: 沈む.",
+    "reading": "しずむ",
+    "romaji": "shizumu",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-696b66cd8f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "壁に小さな穴が開いた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Một lỗ nhỏ xuất hiện trên tường."
+      },
+      {
+       "ja": "くつしたに穴があいているのに気づかなかった。",
+       "ja_furigana": "くつしたに穴(あな)があいているのに気(き)づかなかった。",
+       "vi": "Tôi không nhận ra chiếc tất bị thủng lỗ.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "ねずみが、台所の穴から出てきた。",
+       "ja_furigana": "ねずみが、台所(だいどころ)の穴(あな)から出(で)てきた。",
+       "vi": "Con chuột chui ra từ cái lỗ trong bếp.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "cái lỗ, hang",
+    "examples": [
+     {
+      "ja": "壁に小さな穴が開いた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Một lỗ nhỏ xuất hiện trên tường."
+     },
+     {
+      "ja": "地面にあなを掘る",
+      "ja_furigana": "地面(じめん)にあなを掘(ほ)る",
+      "source": "VNJPCLUB",
+      "vi": "Đào một cái lỗ trên mặt đất."
+     },
+     {
+      "ja": "かべにあなをあける",
+      "ja_furigana": "かべにあなをあける",
+      "source": "VNJPCLUB",
+      "vi": "Khoan một lỗ trên tường."
+     }
+    ],
+    "expression": "穴",
+    "findings": [
+     "FURIGANA_MISSING: 壁に小さな穴が開いた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "cái lỗ; hang; hố",
+    "mnemonic_vi": "Mặt đất có khoảng rỗng sâu: 穴 là cái lỗ.",
+    "reading": "あな",
+    "romaji": "ana",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-b73ef26881"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "庭に穴を掘る。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi đào một cái hố trong vườn."
+      },
+      {
+       "ja": "はたけでじゃがいもを掘った。",
+       "ja_furigana": "はたけでじゃがいもを掘(ほ)った。",
+       "vi": "Tôi đào khoai tây ở ngoài ruộng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "山にトンネルを掘る工事が始まった。",
+       "ja_furigana": "山(やま)にトンネルを掘(ほ)る工事(こうじ)が始(はじ)まった。",
+       "vi": "Công trình đào đường hầm xuyên núi đã bắt đầu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đào",
+    "examples": [
+     {
+      "ja": "庭に穴を掘る。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi đào một cái hố trong vườn."
+     },
+     {
+      "ja": "木を植えるために、庭の土を掘った。",
+      "ja_furigana": "木(き)を植(う)えるために、庭(にわ)の土(つち)を掘(ほ)った。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đã đào đất ở trong vườn để trồng cây."
+     },
+     {
+      "ja": "地面に穴を掘る。",
+      "ja_furigana": "地面(じめん)に穴(あな)を掘(ほ)る。",
+      "source": "VNJPCLUB",
+      "vi": "Đào một cái hố trên mặt đất."
+     }
+    ],
+    "expression": "掘る",
+    "findings": [
+     "FURIGANA_MISSING: 庭に穴を掘る。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đào; bới",
+    "mnemonic_vi": "Tay cầm xẻng xúc đất thành hố: 掘る là đào.",
+    "reading": "ほる",
+    "romaji": "horu",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "ほる"
+    ],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-137e8dfc58"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "庭に穴を埋める。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi lấp cái hố trong vườn."
+      },
+      {
+       "ja": "犬が庭にほねを埋めていた。",
+       "ja_furigana": "犬(いぬ)が庭(にわ)にほねを埋(う)めていた。",
+       "vi": "Con chó đang chôn xương trong vườn.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "空いている席を埋めるために、友達を誘った。",
+       "ja_furigana": "空(あ)いている席(せき)を埋(う)めるために、友達(ともだち)を誘(さそ)った。",
+       "vi": "Để lấp đầy chỗ trống, tôi rủ thêm bạn bè.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chôn, lấp; bù vào chỗ trống",
+    "examples": [
+     {
+      "ja": "庭に穴を埋める。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi lấp cái hố trong vườn."
+     },
+     {
+      "ja": "あなを掘ってごみをうめた",
+      "ja_furigana": "あなを掘(ほ)ってごみをうめた",
+      "source": "VNJPCLUB",
+      "vi": "Đào lỗ rồi chôn rác."
+     },
+     {
+      "ja": "土を入れてあなをうめた",
+      "ja_furigana": "土(つち)を入(い)れてあなをうめた",
+      "source": "VNJPCLUB",
+      "vi": "Lấp đất vào cái lỗ."
+     }
+    ],
+    "expression": "埋める",
+    "findings": [
+     "FURIGANA_MISSING: 庭に穴を埋める。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "chôn; lấp; bù vào chỗ trống",
+    "mnemonic_vi": "Lấp đất kín hố vừa đào: 埋める.",
+    "reading": "うめる",
+    "romaji": "umeru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "うめる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-528c29c45d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "庭の土はやわらかい。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Đất trong vườn mềm."
+      },
+      {
+       "ja": "うえきばちに新しい土を入れた。",
+       "ja_furigana": "うえきばちに新(あたら)しい土(つち)を入(い)れた。",
+       "vi": "Tôi cho đất mới vào chậu cây.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đất",
+    "examples": [
+     {
+      "ja": "庭の土はやわらかい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đất trong vườn mềm."
+     },
+     {
+      "ja": "雨が降らないのだ、庭の土が乾いている。",
+      "ja_furigana": "雨(あめ)が降(ふ)らないのだ、庭(にわ)の土(つち)が乾(かわ)いている。",
+      "source": "VNJPCLUB",
+      "vi": "Vì không có mưa nên đất trong vườn khô cằn."
+     }
+    ],
+    "expression": "土",
+    "findings": [
+     "FURIGANA_MISSING: 庭の土はやわらかい。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đất",
+    "mnemonic_vi": "Nắm đất màu nâu dưới chân là 土.",
+    "reading": "つち",
+    "romaji": "tsuchi",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-0bf93a8bc2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "大きな岩の上に座った。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi ngồi trên tảng đá lớn."
+      },
+      {
+       "ja": "海の岩の間に、小さな魚がいた。",
+       "ja_furigana": "海(うみ)の岩(いわ)の間(あいだ)に、小(ちい)さな魚(さかな)がいた。",
+       "vi": "Giữa các tảng đá ngoài biển có những con cá nhỏ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tảng đá",
+    "examples": [
+     {
+      "ja": "大きな岩の上に座った。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi ngồi trên tảng đá lớn."
+     },
+     {
+      "ja": "山道に大きな岩がある。",
+      "ja_furigana": "山道(やまみち)に大(おお)きな岩(いわ)がある。",
+      "source": "VNJPCLUB",
+      "vi": "Đường lên núi có những tảng đá lớn."
+     }
+    ],
+    "expression": "岩",
+    "findings": [
+     "FURIGANA_MISSING: 大きな岩の上に座った。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tảng đá",
+    "mnemonic_vi": "Đá 石 to như núi 山 thành 岩, tảng đá.",
+    "reading": "いわ",
+    "romaji": "iwa",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6082bc6116"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "島の火山を見た。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi nhìn thấy núi lửa trên đảo."
+      },
+      {
+       "ja": "火山の近くには、おんせんが多い。",
+       "ja_furigana": "火山(かざん)の近(ちか)くには、おんせんが多(おお)い。",
+       "vi": "Gần núi lửa thường có nhiều suối nước nóng.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "núi lửa",
+    "examples": [
+     {
+      "ja": "島の火山を見た。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi nhìn thấy núi lửa trên đảo."
+     },
+     {
+      "ja": "日本には火山がたくさんある。",
+      "ja_furigana": "日本(にほん)には火山(かざん)がたくさんある。",
+      "source": "VNJPCLUB",
+      "vi": "Ở Nhật Bản có rất nhiều núi lửa"
+     }
+    ],
+    "expression": "火山",
+    "findings": [
+     "FURIGANA_MISSING: 島の火山を見た。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "núi lửa",
+    "mnemonic_vi": "火 là lửa, 山 là núi; núi phun dung nham.",
+    "reading": "かざん",
+    "romaji": "kazan",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-6d62ad704b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "将来の生活を想像する。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi tưởng tượng cuộc sống tương lai."
+      },
+      {
+       "ja": "留学の生活は、想像していたより大変だった。",
+       "ja_furigana": "留学(りゅうがく)の生活(せいかつ)は、想像(そうぞう)していたより大変(たいへん)だった。",
+       "vi": "Cuộc sống du học vất vả hơn tôi đã tưởng tượng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "犬が何を考えているか、想像するのは楽しい。",
+       "ja_furigana": "犬(いぬ)が何(なに)を考(かんが)えているか、想像(そうぞう)するのは楽(たの)しい。",
+       "vi": "Tưởng tượng xem con chó đang nghĩ gì thật là thú vị.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "tưởng tượng",
+    "examples": [
+     {
+      "ja": "将来の生活を想像する。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi tưởng tượng cuộc sống tương lai."
+     },
+     {
+      "ja": "想像と現実は違う",
+      "ja_furigana": "想像(そうぞう)と現実(げんじつ)は違(ちが)う",
+      "source": "VNJPCLUB",
+      "vi": "Tưởng tượng và thực tế khác nhau."
+     },
+     {
+      "ja": "100 年後の未来を想像する",
+      "ja_furigana": "100 年(ねん)後(ご)の未来(みらい)を想像(そうぞう)する",
+      "source": "VNJPCLUB",
+      "vi": "Hình dung về tương lai 100 năm sau."
+     }
+    ],
+    "expression": "想像＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 将来の生活を想像する。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "tưởng tượng; hình dung",
+    "mnemonic_vi": "想 là nghĩ, 像 là hình; vẽ cảnh trong đầu bằng tưởng tượng.",
+    "reading": "そうぞう＜する＞",
+    "romaji": "souzou<suru>",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "想像"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-ac7f6e05f2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "東京の高いビルを見上げて、首が痛くなった。",
+       "ja_furigana": "東京(とうきょう)の高(たか)いビルを見上(みあ)げて、首(くび)が痛(いた)くなった。",
+       "vi": "Ngước nhìn những tòa nhà cao ở Tokyo đến mỏi cả cổ.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhìn lên",
+    "examples": [
+     {
+      "ja": "空を見上げる。",
+      "ja_furigana": "空(そら)を見上(みあ)げる。",
+      "source": "VNJPCLUB",
+      "vi": "Ngước nhìn bầu trời."
+     }
+    ],
+    "expression": "見上げる",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhìn lên",
+    "mnemonic_vi": "見 là nhìn, 上 là lên; ngẩng đầu nhìn trời.",
+    "reading": "みあげる",
+    "romaji": "miageru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-085b063dfe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "飛行機の窓から、ふじ山を見下ろした。",
+       "ja_furigana": "飛行機(ひこうき)の窓(まど)から、ふじ山(さん)を見下(みお)ろした。",
+       "vi": "Tôi nhìn xuống núi Phú Sĩ từ cửa sổ máy bay.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "あの人は、いつも人を見下ろすような話し方をする。",
+       "ja_furigana": "あの人(ひと)は、いつも人(ひと)を見下(みお)ろすような話(はな)し方(かた)をする。",
+       "vi": "Người đó lúc nào cũng nói chuyện với giọng coi thường người khác.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "nhìn xuống; coi thường",
+    "examples": [
+     {
+      "ja": "このビルの屋上から町が見下ろせる。",
+      "ja_furigana": "このビルの屋上(おくじょう)から町(まち)が見下(みお)ろせる。",
+      "source": "VNJPCLUB",
+      "vi": "Từ sân thượng tòa nhà này có thể nhìn bao quát cả thành phố."
+     },
+     {
+      "ja": "木の上からカメラが私を見下ろしていた。",
+      "ja_furigana": "木(き)の上(うえ)からカメラが私(わたし)を見下(みお)ろしていた。",
+      "source": "VNJPCLUB",
+      "vi": "Từ trên cao, chiếc camera hướng xuống phía tôi."
+     }
+    ],
+    "expression": "見下ろす",
+    "findings": [],
+    "locked_fields": [],
+    "meaning_vi": "nhìn xuống; coi thường",
+    "mnemonic_vi": "見 là nhìn, 下 là xuống; từ ban công nhìn đường dưới chân.",
+    "reading": "みおろす",
+    "romaji": "miorosu",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "động từ nhóm I"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-cc8b92ee79"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夜になると犬が吠える。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Đến đêm chó bắt đầu sủa."
+      },
+      {
+       "ja": "知らない人が来ると、うちの犬は大きな声で吠える。",
+       "ja_furigana": "知(し)らない人(ひと)が来(く)ると、うちの犬(いぬ)は大(おお)きな声(こえ)で吠(ほ)える。",
+       "vi": "Hễ có người lạ đến là con chó nhà tôi sủa thật to.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "sủa, gầm",
+    "examples": [
+     {
+      "ja": "夜になると犬が吠える。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đến đêm chó bắt đầu sủa."
+     },
+     {
+      "ja": "隣の家の犬は、よく吠える。",
+      "ja_furigana": "隣(となり)の家(いえ)の犬(いぬ)は、よく吠(ほ)える。",
+      "source": "VNJPCLUB",
+      "vi": "Con chó nhà bên cạnh hay sủa."
+     }
+    ],
+    "expression": "吠える",
+    "findings": [
+     "FURIGANA_MISSING: 夜になると犬が吠える。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "sủa; gầm; la toáng",
+    "mnemonic_vi": "Chó há miệng sủa vang khi gặp người lạ: 吠える.",
+    "reading": "ほえる",
+    "romaji": "hoeru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "ほえる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-8e7b92351e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨で自転車のかぎがさびる。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Mưa làm khóa xe đạp bị gỉ."
+      },
+      {
+       "ja": "古いはさみがさびて、よく切れなくなった。",
+       "ja_furigana": "古(ふる)いはさみがさびて、よく切(き)れなくなった。",
+       "vi": "Cái kéo cũ bị gỉ nên cắt không còn ngọt nữa.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "海の近くでは、車がさびやすいそうだ。",
+       "ja_furigana": "海(うみ)の近(ちか)くでは、車(くるま)がさびやすいそうだ。",
+       "vi": "Nghe nói ở gần biển thì ô tô dễ bị gỉ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "bị gỉ",
+    "examples": [
+     {
+      "ja": "雨で自転車のかぎがさびる。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Mưa làm khóa xe đạp bị gỉ."
+     },
+     {
+      "ja": "雨に濡れて自転車がさびてしまった。",
+      "ja_furigana": "雨(あめ)に濡(ぬ)れて自転車(じてんしゃ)がさびてしまった。",
+      "source": "VNJPCLUB",
+      "vi": "Bị mưa ướt nên xe đạp bị rỉ sét."
+     },
+     {
+      "ja": "鉄がさびる。",
+      "ja_furigana": "鉄(てつ)がさびる。",
+      "source": "VNJPCLUB",
+      "vi": "Sắt bị rỉ."
+     }
+    ],
+    "expression": "錆びる",
+    "findings": [
+     "FURIGANA_MISSING: 雨で自転車のかぎがさびる。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "bị gỉ; bị rỉ sét",
+    "mnemonic_vi": "Chiếc đinh sắt đổi sang màu nâu đỏ vì gỉ: 錆びる.",
+    "reading": "さびる",
+    "romaji": "sabiru",
+    "topic_vi": "Tự nhiên",
+    "twins": [],
+    "variants": [
+     "さびる"
+    ],
+    "word_type_label": "động từ nhóm II"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-4a3e3747aa"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨という予想は外れた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Dự báo mưa đã sai."
+      },
+      {
+       "ja": "試合は予想どおり、山田さんのチームが勝った。",
+       "ja_furigana": "試合(しあい)は予想(よそう)どおり、山田(やまだ)さんのチームが勝(か)った。",
+       "vi": "Đúng như dự đoán, đội của anh Yamada đã thắng trận.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "今年の夏は、予想より暑くなりそうだ。",
+       "ja_furigana": "今年(ことし)の夏(なつ)は、予想(よそう)より暑(あつ)くなりそうだ。",
+       "vi": "Mùa hè năm nay có vẻ sẽ nóng hơn dự đoán.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "dự đoán",
+    "examples": [
+     {
+      "ja": "雨という予想は外れた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Dự báo mưa đã sai."
+     },
+     {
+      "ja": "選挙の結果を予想する",
+      "ja_furigana": "選挙(せんきょ)の結果(けっか)を予想(よそう)する",
+      "source": "VNJPCLUB",
+      "vi": "Dự đoán kết quả bầu cử."
+     },
+     {
+      "ja": "テストに出る問題を予想した。",
+      "ja_furigana": "テストに出(で)る問題(もんだい)を予想(よそう)した。",
+      "source": "VNJPCLUB",
+      "vi": "Tôi đoán trước đề kiểm tra."
+     }
+    ],
+    "expression": "予想＜する＞",
+    "findings": [
+     "FURIGANA_MISSING: 雨という予想は外れた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "dự đoán; đoán",
+    "mnemonic_vi": "予 là trước, 想 là nghĩ; đoán trước trời sắp mưa.",
+    "reading": "よそう＜する＞",
+    "romaji": "yosou<suru>",
+    "topic_vi": "Thời tiết ngày mai",
+    "twins": [],
+    "variants": [
+     "予想"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-786f29d28b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "今日は湿度が高い。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Hôm nay độ ẩm cao."
+      },
+      {
+       "ja": "湿度がひくいと、のどが痛くなりやすい。",
+       "ja_furigana": "湿度(しつど)がひくいと、のどが痛(いた)くなりやすい。",
+       "vi": "Độ ẩm thấp thì dễ bị đau họng.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "洗濯物がなかなかかわかないのは、湿度が高いからだ。",
+       "ja_furigana": "洗濯物(せんたくもの)がなかなかかわかないのは、湿度(しつど)が高(たか)いからだ。",
+       "vi": "Đồ giặt mãi không khô là do độ ẩm cao.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "độ ẩm",
+    "examples": [
+     {
+      "ja": "今日は湿度が高い。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Hôm nay độ ẩm cao."
+     },
+     {
+      "ja": "今年の夏は特に湿度が高い",
+      "ja_furigana": "今年(ことし)の夏(なつ)は特(とく)に湿度(しつど)が高(たか)い",
+      "source": "VNJPCLUB",
+      "vi": "Hè năm nay độ ẩm cao một cách bất thường."
+     },
+     {
+      "ja": "きょうは湿度が６０％で蒸し暑い",
+      "ja_furigana": "きょうは湿度(しつど)が６０％で蒸(む)し暑(あつ)い",
+      "source": "VNJPCLUB",
+      "vi": "Hôm nay trời oi bức, độ ẩm 60%."
+     }
+    ],
+    "expression": "湿度",
+    "findings": [
+     "FURIGANA_MISSING: 今日は湿度が高い。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "độ ẩm",
+    "mnemonic_vi": "湿 là ẩm, 度 là mức; đồng hồ đo độ ẩm không khí.",
+    "reading": "しつど",
+    "romaji": "shitsudo",
+    "topic_vi": "Thời tiết ngày mai",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-54f07a73a1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "部屋の湿気を減らしたい。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tôi muốn giảm hơi ẩm trong phòng."
+      },
+      {
+       "ja": "湿気で、お菓子がやわらかくなってしまった。",
+       "ja_furigana": "湿気(しっけ)で、お菓子(かし)がやわらかくなってしまった。",
+       "vi": "Bánh kẹo bị ỉu vì hơi ẩm.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "hơi ẩm",
+    "examples": [
+     {
+      "ja": "部屋の湿気を減らしたい。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tôi muốn giảm hơi ẩm trong phòng."
+     },
+     {
+      "ja": "日本の夏は湿気が多い",
+      "ja_furigana": "日本(にほん)の夏(なつ)は湿気(しっけ)が多(おお)い",
+      "source": "VNJPCLUB",
+      "vi": "Mùa hè ở Nhật Bản rất ẩm ướt."
+     }
+    ],
+    "expression": "湿気",
+    "findings": [
+     "FURIGANA_MISSING: 部屋の湿気を減らしたい。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "hơi ẩm; sự ẩm ướt",
+    "mnemonic_vi": "湿 là ướt, 気 là hơi; hơi ẩm bám trên cửa kính.",
+    "reading": "しっけ",
+    "romaji": "shikke",
+    "topic_vi": "Thời tiết ngày mai",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-9422e47cec"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "突然、部屋の電気が消えた。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Đột nhiên điện trong phòng tắt."
+      },
+      {
+       "ja": "山田さんが突然、会社をやめると言い出した。",
+       "ja_furigana": "山田(やまだ)さんが突然(とつぜん)、会社(かいしゃ)をやめると言(い)い出(だ)した。",
+       "vi": "Anh Yamada đột nhiên nói sẽ nghỉ việc.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "晴れていたのに、突然雨が降ってきた。",
+       "ja_furigana": "晴(は)れていたのに、突然(とつぜん)雨(あめ)が降(ふ)ってきた。",
+       "vi": "Trời đang nắng thì đột nhiên đổ mưa.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "đột nhiên",
+    "examples": [
+     {
+      "ja": "突然、部屋の電気が消えた。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Đột nhiên điện trong phòng tắt."
+     },
+     {
+      "ja": "子どもが突然飛び出して来たので、急ブレーキをかけた",
+      "ja_furigana": "子(こ)どもが突然(とつぜん)飛(と)び出(だ)して来(き)たので、急(きゅう)ブレーキをかけた",
+      "source": "VNJPCLUB",
+      "vi": "Vì đứa trẻ đột nhiên lao ra nên tôi đã phanh gấp."
+     },
+     {
+      "ja": "友人が亡くなった。突然のことで、まだ信じられない",
+      "ja_furigana": "友人(ゆうじん)が亡(な)くなった。突然(とつぜん)のことで、まだ信(しん)じられない",
+      "source": "VNJPCLUB",
+      "vi": "Người bạn thân của tôi qua đời đó là chuyện đột ngột tôi vẫn chưa thể tin được."
+     }
+    ],
+    "expression": "突然",
+    "findings": [
+     "FURIGANA_MISSING: 突然、部屋の電気が消えた。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "đột nhiên; tự nhiên; đột ngột",
+    "mnemonic_vi": "突 là lao ra, 然 là thế; sự việc xảy ra đột ngột.",
+    "reading": "とつぜん",
+    "romaji": "totsuzen",
+    "topic_vi": "Thời tiết ngày mai",
+    "twins": [],
+    "variants": [],
+    "word_type_label": "phó từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-1624dc7b6f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "古い紙はところどころ破れている。",
+       "ja_furigana": null,
+       "source": "JLAS_REVIEWED",
+       "vi": "Tờ giấy cũ rách vài chỗ."
+      },
+      {
+       "ja": "この道は、所々に水たまりがある。",
+       "ja_furigana": "この道(みち)は、所々(ところどころ)に水(みず)たまりがある。",
+       "vi": "Con đường này có những vũng nước ở chỗ này chỗ kia.",
+       "role": "EXTRA"
+      },
+      {
+       "ja": "先生の話は、所々わからないところがあった。",
+       "ja_furigana": "先生(せんせい)の話(はなし)は、所々(ところどころ)わからないところがあった。",
+       "vi": "Lời thầy nói có vài chỗ tôi không hiểu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "confusable_ids": [],
+    "dictionary_meaning": "chỗ này chỗ kia",
+    "examples": [
+     {
+      "ja": "古い紙はところどころ破れている。",
+      "ja_furigana": null,
+      "source": "JLAS_REVIEWED",
+      "vi": "Tờ giấy cũ rách vài chỗ."
+     },
+     {
+      "ja": "この本は、ところどころが破れている。",
+      "ja_furigana": "この本(ほん)は、ところどころが破(やぶ)れている。",
+      "source": "VNJPCLUB",
+      "vi": "Quyển sách này đã bị rách ở nhiều chỗ."
+     },
+     {
+      "ja": "地震で、塀が所々崩れた。",
+      "ja_furigana": "地震(じしん)で、塀(へい)が所々(ところどころ)崩(くず)れた。",
+      "source": "VNJPCLUB",
+      "vi": "Động đất làm bức tường/đê (塀) sập từng chỗ."
+     }
+    ],
+    "expression": "所々",
+    "findings": [
+     "FURIGANA_MISSING: 古い紙はところどころ破れている。"
+    ],
+    "locked_fields": [],
+    "meaning_vi": "các chỗ; chỗ này chỗ kia; đây đó",
+    "mnemonic_vi": "所 là chỗ, lặp lại 所々 thành chỗ này chỗ kia.",
+    "reading": "ところどころ",
+    "romaji": "tokorodokoro",
+    "topic_vi": "Thời tiết ngày mai",
+    "twins": [],
+    "variants": [
+     "ところどころ"
+    ],
+    "word_type_label": "danh từ"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JV-69fc7707ef"
+  }
+ ],
+ "kind": "REVIEW_VOCAB",
+ "level": "N3",
+ "packet_id": "REVIEW_VOCAB-013"
+}

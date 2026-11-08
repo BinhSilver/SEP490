@@ -1,0 +1,582 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社長は社員に連絡することなしに、新しい規則を決めた。",
+       "ja_furigana": "社長(しゃちょう)は社員(しゃいん)に連絡(れんらく)することなしに、新(あたら)しい規則(きそく)を決(き)めた。",
+       "vi": "Giám đốc đã quyết định quy định mới mà không hề liên lạc với nhân viên."
+      },
+      {
+       "ja": "許可なしに、この書類を持ち出さないでください。",
+       "ja_furigana": "許可(きょか)なしに、この書類(しょるい)を持(も)ち出(だ)さないでください。",
+       "vi": "Xin đừng mang tài liệu này ra ngoài khi chưa được phép."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は誰にも相談することなしに、会社を辞めた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy nghỉ việc mà không hề tham khảo ý kiến ai."
+     },
+     {
+      "ja": "彼女は一言も言うことなしに、部屋を出ていった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy rời khỏi phòng mà không nói một lời."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は誰にも相談することなしに、会社を辞めた。",
+     "FURIGANA_MISSING: 彼女は一言も言うことなしに、部屋を出ていった。"
+    ],
+    "formation": "Vる + ことなしに / N + なしに",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả thực hiện hành động B trong khi hoàn toàn không làm hành động A (V-る). Tính trang trọng cao; thường dùng trong báo cáo, bài viết, tường thuật. Hay đi với từ nhấn tần suất “一度も／少しも／まったく”. V-る phải là hành động dự kiến thông thường nhưng ở đây đã “không xảy ra”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mà không..., không hề...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thích hợp văn bản trang trọng, báo cáo, bài viết học thuật. Nhấn mạnh “tuyệt đối không có” hành động A; mạnh hơn ～ないで／～ずに. Thường dùng khi A là điều bình thường nên làm, nhưng người nói nhấn mạnh đã không làm. [6. Ghi chú mở rộng] Trong văn chính sách/quy định, ことなしに tạo cảm giác nghiêm túc: 許可を得ることなしに～は禁止する。 Kết hợp với biểu thức đánh giá: ～ことなしに済む（khỏi phải làm A）. Khi cần nhẹ nhàng, cân nhắc ～ないで／～ずに; khi cần trang trọng/nhấn mạnh, dùng ～ことなしに／～ことなく. [7. Biến thể & cụm cố định] V-る + ことなしに／ことなく 一言も言うことなしに／相談することなしに／休むことなしに N + なしに：許可なしに／断りなしに／連絡なしに ～することなしに済む（khỏi phải làm ～） [8. Lỗi thường gặp & bẫy JLPT] Dùng cho hành động không rõ “tính thường lệ” → câu kém tự nhiên (mẫu nhấn mạnh “đáng lẽ nên A”). Nhầm với ～ないで: đề thi hay kiểm tra sắc thái trang trọng; chọn ～ことなしに/ことなく cho văn viết. Dùng sai hình thức: V-ない + ことなしに（×）; đúng là V-る + ことなしに. Lạm dụng trong hội thoại thường ngày -> nghe cứng; nên đổi sang ～ないで／～ずに."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-23bd069f7e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は一日も休むことなく練習を続けた。",
+       "ja_furigana": "弟(おとうと)は一日(いちにち)も休(やす)むことなく練習(れんしゅう)を続(つづ)けた。",
+       "vi": "Em trai tôi đã luyện tập liên tục mà không nghỉ một ngày nào."
+      },
+      {
+       "ja": "彼女は一度も迷うことなく、その仕事を引き受けた。",
+       "ja_furigana": "彼女(かのじょ)は一度(いちど)も迷(まよ)うことなく、その仕事(しごと)を引(ひ)き受(う)けた。",
+       "vi": "Cô ấy đã nhận công việc đó mà không hề do dự một lần nào."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は最後まで諦めることなく戦った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy chiến đấu đến cùng mà không hề bỏ cuộc."
+     },
+     {
+      "ja": "雨は一日中止むことなく降り続いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mưa suốt cả ngày không hề ngớt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は最後まで諦めることなく戦った。",
+     "FURIGANA_MISSING: 雨は一日中止むことなく降り続いた。"
+    ],
+    "formation": "Vる + ことなく",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả thực hiện hành động B “mà không hề làm A”, nhấn mạnh tính liên tục/triệt để của phủ định A. Thường dùng với các động từ như: 休む, 諦める, 迷う, とどまる, 振り返る, 止む, 絶える, ためらう. Sắc thái trang trọng, khách quan; hay dùng trong tường thuật, đánh giá, văn khen ngợi nỗ lực, hoặc mô tả hiện tượng tự nhiên.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Mà không..., không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh tính “không hề” (mức độ mạnh hơn ないで/ずに), phù hợp mô tả khách quan, trang trọng. Thích hợp với hành động kéo dài/lặp lại; với sự kiện đơn lẻ, ずに/ないで tự nhiên hơn. Trong văn nói thân mật, ないで/ずに phổ biến hơn; ことなく nghe cứng/kiểu viết. Có thể dùng cho chủ ngữ không phải con người (mưa, gió, truyền thống…). [6. Ghi chú mở rộng] Từ khóa JLPT thường đi kèm: 最後まで／一度も／延々と／決して／絶えることなく. Trong văn cảm thán/khen ngợi: 「休むことなく努力を重ねた」 tạo sắc thái tôn vinh. Với hành vi lỗi: 「確認することなく送信してしまった」 cho cảm giác báo cáo sự cố khách quan. [7. Biến thể & cụm cố định] ～ことなしに（biến thể trang trọng） Collocation tự nhiên: 休むことなく／諦めることなく／迷うことなく／ためらうことなく 止むことなく／絶えることなく／続くことなく（ngắt đoạn） 確認することなく／振り返ることなく／立ち止まることなく Dạng bổ nghĩa: V-ることのないN（例：途切れることのない拍手） [8. Lỗi thường gặp & bẫy JLPT] Dùng ことなく trong hội thoại thường ngày → nghe cứng. JLPT kiểm tra phong cách phù hợp ngữ cảnh. Lẫn với ずに/ないで: nếu câu mang tính báo cáo/khoa học hoặc nhấn mạnh “không hề” → ưu tiên ことなく. Gắn trước danh từ trực tiếp: ×「休むことなく人」→ nên dùng 「休むことのない人」. Lỗi thì: ことなく chỉ đi với V-る (từ điển). Không dùng V-ない／V-た trước ことなく."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-805b5509b6"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金がないことには、旅行には行けない。",
+       "ja_furigana": "お金(かね)がないことには、旅行(りょこう)には行(い)けない。",
+       "vi": "Nếu không có tiền thì không thể đi du lịch được."
+      },
+      {
+       "ja": "理由を説明しないことには、次の話に進めません。",
+       "ja_furigana": "理由(りゆう)を説明(せつめい)しないことには、次(つぎ)の話(はなし)に進(すす)めません。",
+       "vi": "Nếu không giải thích lý do thì chúng ta không thể sang phần tiếp theo."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "身分証の提示がないことには、貸し出しはできません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không xuất trình giấy tờ thì không thể cho mượn."
+     },
+     {
+      "ja": "事前連絡がないことには、キャンセル料は発生します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không liên lạc trước thì sẽ phát sinh phí hủy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 身分証の提示がないことには、貸し出しはできません。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 身分証の提示がないことには、貸し出しはできません。 → 提示",
+     "FURIGANA_MISSING: 事前連絡がないことには、キャンセル料は発生します。"
+    ],
+    "formation": "Vない / N + がない + ことには",
+    "locked_fields": [],
+    "meaning_vi": "- Dùng để đưa ra điều kiện bắt buộc trong hướng dẫn/quy trình: nếu không đáp ứng thì không thể tiến hành bước tiếp theo. - Tính quy phạm cao, hay xuất hiện trong thông báo cơ quan, thủ tục, kiểm soát an toàn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu không... thì không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Tăng tính khách quan bằng ～ます／です; tránh mệnh lệnh trực tiếp. Phù hợp biển báo/quy định: 入室不可, 立入禁止… [6. Ghi chú mở rộng] Dạng rút gọn hội thoại: ～なきゃ（い）けない/～ないと, nhưng khác sắc thái trang trọng. Trong đọc hiểu, cụm tiêu đề thường 〜手続きの流れ・注意事項 với câu mẫu này. [7. Biến thể & cụm cố định] 登録しないことには利用できない 許可がないことには持ち出せない 合意がないことには公開できない [8. Lỗi thường gặp & bẫy JLPT] Nhầm là điều kiện đủ: thực ra chỉ là điều kiện cần; có A vẫn có thể chưa đủ để B xảy ra. Quên で sau N/A-na: Nでないことには／静かでないことには."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b26aa84e98"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会議を始めるにあたり、資料を配ってください。",
+       "ja_furigana": "会議(かいぎ)を始(はじ)めるにあたり、資料(しりょう)を配(くば)ってください。",
+       "vi": "Khi bắt đầu cuộc họp, xin hãy phát tài liệu."
+      },
+      {
+       "ja": "卒業するにあたって、先生に手紙を書くつもりです。",
+       "ja_furigana": "卒業(そつぎょう)するにあたって、先生(せんせい)に手紙(てがみ)を書(か)くつもりです。",
+       "vi": "Nhân dịp tốt nghiệp, tôi định viết thư cho thầy cô."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "図書館の利用にあたり、図書カードが必要です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào thời điểm sử dụng thư viện thì thẻ thư viện là cần thiết."
+     },
+     {
+      "ja": "アルバイトをするにあたっては、学業や体に無理のないようにすること。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vào thời điểm làm thêm, đừng làm ảnh hưởng đến việc học và sức khỏe."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 図書館の利用にあたり、図書カードが必要です。",
+     "FURIGANA_MISSING: アルバイトをするにあたっては、学業や体に無理のないようにすること。"
+    ],
+    "formation": "N / Vる + にあたり / にあたって",
+    "locked_fields": [],
+    "meaning_vi": "Vào lúc, nhân dịp…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜利用にあたり",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sử dụng khi muốn nói đến thái độ tích cực trong dịp ～ đặc biệt nào đó"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-15220ee17e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この寺は三百年にわたって守られてきた。",
+       "ja_furigana": "この寺(てら)は三百年(さんびゃくねん)にわたって守(まも)られてきた。",
+       "vi": "Ngôi chùa này đã được gìn giữ suốt ba trăm năm."
+      },
+      {
+       "ja": "工事は町の広い地域にわたって行われた。",
+       "ja_furigana": "工事(こうじ)は町(まち)の広(ひろ)い地域(ちいき)にわたって行(おこな)われた。",
+       "vi": "Công trình đã được thực hiện trên một khu vực rộng của thị trấn."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この台風の影響で、関東地方は広い範囲にわたって大雨となるでしょう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Do ảnh hưởng của cơn bão này, nên mưa lớn trên diện rộng ở khu vực Kanto."
+     },
+     {
+      "ja": "わが社は２０年間にわたり、この薬の研究開発に努めてきた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công ty chúng tôi nỗ lực nghiên cứu và phát triển loại thuốc này trong suốt 20 năm qua"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この台風の影響で、関東地方は広い範囲にわたって大雨となるでしょう。",
+     "FURIGANA_MISSING: わが社は２０年間にわたり、この薬の研究開発に努めてきた。"
+    ],
+    "formation": "N + にわたって / にわたり",
+    "locked_fields": [],
+    "meaning_vi": "Suốt, trải suốt, trải khắp",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜広い範囲にわたって",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu thị sự trải rộng trên phạm vi toàn thể mang tính thời gian, không gian. N = thời gian, phạm vi"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e3db7dcf87"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生の指示に沿って、作文を直した。",
+       "ja_furigana": "先生(せんせい)の指示(しじ)に沿(そ)って、作文(さくぶん)を直(なお)した。",
+       "vi": "Tôi đã sửa bài viết theo hướng dẫn của giáo viên."
+      },
+      {
+       "ja": "川に沿って歩くと、小さな村に着く。",
+       "ja_furigana": "川(かわ)に沿(そ)って歩(ある)くと、小(ちい)さな村(むら)に着(つ)く。",
+       "vi": "Đi bộ dọc theo con sông sẽ đến một ngôi làng nhỏ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "資料に沿って、ご説明いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi sẽ giải thích theo tài liệu."
+     },
+     {
+      "ja": "お客様ひとりひとりのご希望に沿った旅行プランをお作りします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lập kế hoạch du lịch dựa theo ước muốn của từng khách hàng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 資料に沿って、ご説明いたします。",
+     "FURIGANA_MISSING: お客様ひとりひとりのご希望に沿った旅行プランをお作りします。"
+    ],
+    "formation": "N + に沿って / に沿った + N",
+    "locked_fields": [],
+    "meaning_vi": "Theo, như ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜資料に沿って",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu đạt ý nghĩa làm theo, tuân theo hoặc làm cho phù hợp với điều nào đó. Hán tự: 沿い"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d8663b46fe"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試合に先立ち、選手たちは体を温めた。",
+       "ja_furigana": "試合(しあい)に先立(さきだ)ち、選手(せんしゅ)たちは体(からだ)を温(あたた)めた。",
+       "vi": "Trước trận đấu, các tuyển thủ đã khởi động làm ấm cơ thể."
+      },
+      {
+       "ja": "引っ越しに先立って、古い家具を全部捨てた。",
+       "ja_furigana": "引(ひ)っ越(こ)しに先立(さきだ)って、古(ふる)い家具(かぐ)を全部(ぜんぶ)捨(す)てた。",
+       "vi": "Trước khi chuyển nhà, tôi đã vứt bỏ toàn bộ đồ nội thất cũ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "開店に先立ち、関係者だけのパーティーが行われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước khi khai trương nhà hàng bữa tiệc chỉ những người liên quan được tổ chức."
+     },
+     {
+      "ja": "新製品の開発に先立って、アンケート調査を行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trước khi khai phá sản phẩm mới, đã tiến hành điều tra bằng bảng câu hỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 開店に先立ち、関係者だけのパーティーが行われた。",
+     "FURIGANA_MISSING: 新製品の開発に先立って、アンケート調査を行った。"
+    ],
+    "formation": "N / Vる + に先立ち / に先立って",
+    "locked_fields": [],
+    "meaning_vi": "Trước khi ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜開店に先立ち",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Có ý nghĩa chuẩn bị trước lúc ～. N là các từ chỉ những việc quan trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e2da42e12f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この薬を飲みさえすれば、すぐに元気になる。",
+       "ja_furigana": "この薬(くすり)を飲(の)みさえすれば、すぐに元気(げんき)になる。",
+       "vi": "Chỉ cần uống thuốc này là sẽ khỏe lại ngay."
+      },
+      {
+       "ja": "住所さえわかれば、地図で探せます。",
+       "ja_furigana": "住所(じゅうしょ)さえわかれば、地図(ちず)で探(さが)せます。",
+       "vi": "Chỉ cần biết địa chỉ là có thể tìm được bằng bản đồ."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あとは肉さえ焼けば、夕食の準備は終わりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau đây chỉ cần nướng thịt nữa là chuẩn bị xong bữa tối."
+     },
+     {
+      "ja": "あの子は暇さえあればいつも本を読んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đứa bé đó chỉ cần có thời gian rảnh là đọc sách."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あとは肉さえ焼けば、夕食の準備は終わりだ。",
+     "FURIGANA_MISSING: あの子は暇さえあればいつも本を読んでいる。"
+    ],
+    "formation": "N + さえ + 〜ば / 〜たら",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ cần, có",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜さえ・・・ば/たら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞（さえ）【動詞・イ形容詞・ナ形容詞】の仮定形（ば／たら）/動詞の【マス形（さえ）すら（ば）・テ形（さえ）いれ（ば）】／【名詞＋で・イ形容詞＋く・ナ形容詞＋で】（さえ）あれ（ば） Ý nghĩa: それだけで→ 後ろのことが成立する Chỉ cần, có Ví dụ: 1. あとは肉さえ焼けば、夕食の準備は終わりだ。 Sau đây chỉ cần nướng thịt nữa là chuẩn bị xong bữa tối. 2. あの子は暇さえあればいつも本を読んでいる。 Đứa bé đó chỉ cần có thời gian rảnh là đọc sách. 3. 元気さえ良かったら、山頂までいきたっかたのだが・・・・・。 Chỉ cần trời đẹp là đã muốn đi lên đến đỉnh núi rồi mà... 4. この国では、まじめに働きさえすれば生活に困ることはない。 Ở đất nước này, chỉ cần làm việc chăm chỉ là sẽ không gặp khó khăn trong cuộc sống. 5. あなたと私が黙ってさえいれば（/黙っていさえすれば）、このことはだれにもわからないだろう。 Chỉ cần anh và em im lặng, không ai biết việc này đâu. 6. 道が込んでさえいなければ10分ぐらいで着くだろう。 Chỉ cần đường không tắc, 10 phút là đến thôi. 7. 「あまり辛いさえなければ何でもいただきます」 Chỉ cần không cay lắm thì cái gì tôi cũng ăn được. 8. 「体が丈夫でさえあれば、もっと働きたいですが」 Chỉ cần cơ thể khỏe mạnh là tôi muốn làm việc nhiều hơn, mà... 9. このコンテストは、２０歳以上でさえあればだれでも参加できる。 Cuộc thi này chỉ cần từ 20 tuổi trở lên thì ai cũng có thể tham gia."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7c8f64bf07"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会社は彼を新しい部長として選んだ。",
+       "ja_furigana": "会社(かいしゃ)は彼(かれ)を新(あたら)しい部長(ぶちょう)として選(えら)んだ。",
+       "vi": "Công ty đã chọn anh ấy làm trưởng phòng mới."
+      },
+      {
+       "ja": "先生はこの小説を教材として使っている。",
+       "ja_furigana": "先生(せんせい)はこの小説(しょうせつ)を教材(きょうざい)として使(つか)っている。",
+       "vi": "Thầy giáo đang dùng cuốn tiểu thuyết này làm tài liệu giảng dạy."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "今年1年、大学降格を目標としてがんばるつもりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong năm nay, lấy mục tiêu đỗ đại học, cố gắng hết sức."
+     },
+     {
+      "ja": "大学で遺文交流をとしてサークルを作った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chúng tôi xây dựng câu lạc bộ với mục đích là giao lưu các nền văn hóa trong trường đại học."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 今年1年、大学降格を目標としてがんばるつもりだ。",
+     "FURIGANA_MISSING: 大学で遺文交流をとしてサークルを作った。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 大学で遺文交流をとしてサークルを作った。 → 遺"
+    ],
+    "formation": "N + を + N + として",
+    "locked_fields": [],
+    "meaning_vi": "Lấy... làm..., quyết định",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜を・・・として",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞（を）名詞（として） Ý nghĩa: ～を・・・にする/と考える/と決める Lấy... làm..., quyết định Ví dụ: 1. 今年1年、大学降格を目標としてがんばるつもりだ。 Trong năm nay, lấy mục tiêu đỗ đại học, cố gắng hết sức. 2. 大学で遺文交流をとしてサークルを作った。 Chúng tôi xây dựng câu lạc bộ với mục đích là giao lưu các nền văn hóa trong trường đại học. 3. この奨学金は留学生を対象としたものです。 Tiền học bổng này là dành cho du học sinh (lấy du học sinh làm đối tượng). 4. 山田氏を団長とする訪米団が結成された。 Chúng tôi đã thành lập phái đoàn thăm Mỹ với anh Yamada làm trưởng đoàn. 5. 次の世代のために、一人一人が環境問題を自分の問題としてとらえる必要がある。 Vì thế hệ sau, mỗi người phải coi vấn đề môi trường là vấn đề của chính bản thân mình."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-76aa81aa4d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社長の予定は私では決めかねます。",
+       "ja_furigana": "社長(しゃちょう)の予定(よてい)は私(わたし)では決(き)めかねます。",
+       "vi": "Lịch của giám đốc thì tôi khó lòng quyết định được."
+      },
+      {
+       "ja": "その件は私一人では判断しかねます。",
+       "ja_furigana": "その件(けん)は私(わたし)一人(ひとり)では判断(はんだん)しかねます。",
+       "vi": "Việc đó thì một mình tôi khó lòng phán đoán được."
+      }
+     ]
+    },
+    "note": "viết lại câu (chép nguồn sách)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "申し訳ありませんが、私にはわかりかねます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin lỗi nhưng mà với tôi khó lòng mà hiểu được."
+     },
+     {
+      "ja": "そのようなご依頼は、お引き受けしかねます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc nhờ vả kiểu như thế đó khó lòng mà chấp nhận."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 申し訳ありませんが、私にはわかりかねます。",
+     "FURIGANA_MISSING: そのようなご依頼は、お引き受けしかねます。"
+    ],
+    "formation": "Vます + かねる",
+    "locked_fields": [],
+    "meaning_vi": "Khó lòng mà …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜わかりかねる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Hình thức mẫu câu là khẳng định nhưng mang ý nghĩa phủ định. Muốn làm việc gì đó nhưng không thể, việc làm điều gì đó là khó. Câu văn trịnh trọng. Văn cứng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-c5a8e3b931"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-048"
+}

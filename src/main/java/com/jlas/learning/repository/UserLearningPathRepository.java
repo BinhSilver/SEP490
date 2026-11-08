@@ -11,6 +11,11 @@ import org.springframework.stereotype.Repository;
 /** Repository cho {@link UserLearningPath}. */
 @Repository
 public interface UserLearningPathRepository extends JpaRepository<UserLearningPath, Long> {
+    /** E4: the best-effort AI narrative lands after the path's own transaction, touching only this column. */
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("update UserLearningPath p set p.aiPlanJson = :plan where p.id = :id")
+    int updateAiPlanJson(@Param("id") Long id, @Param("plan") String plan);
+
     Optional<UserLearningPath> findByUserId(Long userId);
 
     Optional<UserLearningPath> findByUserIdAndStatus(Long userId, String status);

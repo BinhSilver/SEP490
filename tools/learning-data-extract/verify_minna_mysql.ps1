@@ -31,7 +31,9 @@ try {
     if ($schema -match '(?m)^USE jlas;') { throw 'Scratch schema rewrite failed.' }
     $schema | & $mysql -h $dbHost -P $port -u $user --default-character-set=utf8mb4
     if ($LASTEXITCODE -ne 0) { throw 'Canonical schema failed on scratch.' }
-    $bundle = Get-Content -LiteralPath (Join-Path $root 'sql\seeds\learning_owned.sql') -Raw -Encoding UTF8
+    # Owner 2026-11-01: Learning data = common file + one file per JLPT level; the Minna blocks sit in the N5 and N4 files.
+    $bundle = (@('common', 'N5', 'N4', 'N3', 'N2', 'N1') | ForEach-Object {
+        Get-Content -LiteralPath (Join-Path $root "sql\learning\learning_data_$_.sql") -Raw -Encoding UTF8 }) -join "`n"
     function BundleBlock([string]$marker) {
         $begin = '-- BEGIN ' + $marker + ' SHA256 '
         $end = '-- END ' + $marker
@@ -42,7 +44,8 @@ try {
         return $bundle.Substring($start, $endAt - $start + $end.Length)
     }
     $n5ReadingBlock = BundleBlock 'data/learning-owned/learning-content.json#sections.sekai_n5_comprehension'
-    $minnaBlock = BundleBlock 'data/learning-owned/learning-content.json#sections.jlpt_minna_n5_n4_listening'
+    $minnaBlock = (BundleBlock 'data/learning-owned/learning-content.json#sections.jlpt_minna_n5_n4_listening@N5') + "`n" +
+        (BundleBlock 'data/learning-owned/learning-content.json#sections.jlpt_minna_n5_n4_listening@N4')
     foreach ($run in 1..2) {
         $n5ReadingBlock | & $mysql -h $dbHost -P $port -u $user $scratch --default-character-set=utf8mb4
         if ($LASTEXITCODE -ne 0) { throw "Sekai N5 comprehension SQL failed on scratch run $run." }

@@ -1,0 +1,722 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "社長になったからには、社員の生活を守らなければならない。",
+       "ja_furigana": "社長(しゃちょう)になったからには、社員(しゃいん)の生活(せいかつ)を守(まも)らなければならない。",
+       "vi": "Đã trở thành giám đốc thì phải bảo vệ cuộc sống của nhân viên."
+      },
+      {
+       "ja": "試合に出るからには、優勝を目指して頑張りたい。",
+       "ja_furigana": "試合(しあい)に出(で)るからには、優勝(ゆうしょう)を目指(めざ)して頑張(がんば)りたい。",
+       "source": "AI",
+       "vi": "Đã tham gia trận đấu thì tôi muốn cố gắng hướng tới chức vô địch."
+      },
+      {
+       "ja": "約束したからには、どんなことがあっても守るつもりだ。",
+       "ja_furigana": "約束(やくそく)したからには、どんなことがあっても守(まも)るつもりだ。",
+       "source": "AI",
+       "vi": "Đã hứa thì dù có chuyện gì tôi cũng định giữ lời."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau là sự thật khách quan, hoặc dùng với điều kiện chưa chắc. Cần có vế sau như 〜つもりだ, 〜べきだ, 〜なければならない.",
+    "examples": [
+     {
+      "ja": "引き受けたからには、最後までやる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "試合に出るからには、優勝を目指して頑張りたい。",
+      "ja_furigana": "試合(しあい)に出(で)るからには、優勝(ゆうしょう)を目指(めざ)して頑張(がんば)りたい。",
+      "source": "AI",
+      "vi": "Đã tham gia trận đấu thì tôi muốn cố gắng hướng tới chức vô địch."
+     },
+     {
+      "ja": "約束したからには、どんなことがあっても守るつもりだ。",
+      "ja_furigana": "約束(やくそく)したからには、どんなことがあっても守(まも)るつもりだ。",
+      "source": "AI",
+      "vi": "Đã hứa thì dù có chuyện gì tôi cũng định giữ lời."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 引き受けたからには、最後までやる。",
+     "FURIGANA_MISSING: 引き受けたからには、最後までやる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + からには (Aな / N: である)",
+    "locked_fields": [],
+    "meaning_vi": "Đã thì — Nhấn mạnh quyết tâm hoặc trách nhiệm đi kèm.",
+    "nuance_vi": "Đã … thì (phải/nhất định) …; nhấn mạnh quyết tâm, trách nhiệm đi cùng việc đã làm; vế sau là ý chí hay nghĩa vụ. Gần 以上は nhưng cảm xúc mạnh hơn.",
+    "order_items": [],
+    "pattern": "Thể thường + からには",
+    "pattern_variants": [],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Gần 以上は nhưng cảm xúc mạnh hơn, thường kèm quyết tâm của người nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-df7e54aa49"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家を出たとたん、大きな雨が降り出した。",
+       "ja_furigana": "家(いえ)を出(で)たとたん、大(おお)きな雨(あめ)が降(ふ)り出(だ)した。",
+       "vi": "Vừa bước ra khỏi nhà thì trời bắt đầu mưa to."
+      },
+      {
+       "ja": "薬を飲んだとたん、眠くなってしまった。",
+       "ja_furigana": "薬(くすり)を飲(の)んだとたん、眠(ねむ)くなってしまった。",
+       "source": "AI",
+       "vi": "Vừa uống thuốc xong là tôi buồn ngủ ngay."
+      },
+      {
+       "ja": "電車を降りたとたん、財布がないことに気づいた。",
+       "ja_furigana": "電車(でんしゃ)を降(お)りたとたん、財布(さいふ)がないことに気(き)づいた。",
+       "source": "AI",
+       "vi": "Vừa xuống tàu là tôi nhận ra mình không có ví."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau là ý chí, mệnh lệnh hoặc dùng cho việc của chính mình có chủ đích. Cũng không dùng với Vる hoặc khi hai việc cách nhau lâu.",
+    "examples": [
+     {
+      "ja": "ドアを開けたとたん、猫が飛び出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "薬を飲んだとたん、眠くなってしまった。",
+      "ja_furigana": "薬(くすり)を飲(の)んだとたん、眠(ねむ)くなってしまった。",
+      "source": "AI",
+      "vi": "Vừa uống thuốc xong là tôi buồn ngủ ngay."
+     },
+     {
+      "ja": "電車を降りたとたん、財布がないことに気づいた。",
+      "ja_furigana": "電車(でんしゃ)を降(お)りたとたん、財布(さいふ)がないことに気(き)づいた。",
+      "source": "AI",
+      "vi": "Vừa xuống tàu là tôi nhận ra mình không có ví."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ドアを開けたとたん、猫が飛び出した。",
+     "FURIGANA_MISSING: ドアを開けたとたん、猫が飛び出した。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた + とたん(に)",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới thì lập tức — Ngay khoảnh khắc việc trước xảy ra thì việc sau xảy ra ngay, thường ngoài dự tính.",
+    "nuance_vi": "Ngay khoảnh khắc A xảy ra thì B xảy ra, thường bất ngờ; B là sự việc khách quan, không do ý chí của người nói. Dùng nhiều trong văn nói.",
+    "order_items": [],
+    "pattern": "V-た + とたん",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau không được là ý chí hay mệnh lệnh. Luôn là việc đã xảy ra."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-662017380b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一度失敗してこそ、人は成長するものだ。",
+       "ja_furigana": "一度(いちど)失敗(しっぱい)してこそ、人(ひと)は成長(せいちょう)するものだ。",
+       "vi": "Chỉ khi từng thất bại một lần con người mới trưởng thành."
+      },
+      {
+       "ja": "実際に使ってみてこそ、この道具の便利さが分かる。",
+       "ja_furigana": "実際(じっさい)に使(つか)ってみてこそ、この道具(どうぐ)の便利(べんり)さが分(わ)かる。",
+       "source": "AI",
+       "vi": "Phải thực sự dùng thử thì mới hiểu độ tiện lợi của dụng cụ này."
+      },
+      {
+       "ja": "家族が支えてくれてこそ、安心して働けるのだ。",
+       "ja_furigana": "家族(かぞく)が支(ささ)えてくれてこそ、安心(あんしん)して働(はたら)けるのだ。",
+       "source": "AI",
+       "vi": "Có gia đình hỗ trợ thì tôi mới yên tâm làm việc được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với vế sau tiêu cực hoặc để vế sau là mệnh lệnh. Không nhầm với こそ đứng sau danh từ (これこそ, 今こそ) dùng để nhấn mạnh.",
+    "examples": [
+     {
+      "ja": "苦労してこそ、喜びも大きい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "実際に使ってみてこそ、この道具の便利さが分かる。",
+      "ja_furigana": "実際(じっさい)に使(つか)ってみてこそ、この道具(どうぐ)の便利(べんり)さが分(わ)かる。",
+      "source": "AI",
+      "vi": "Phải thực sự dùng thử thì mới hiểu độ tiện lợi của dụng cụ này."
+     },
+     {
+      "ja": "家族が支えてくれてこそ、安心して働けるのだ。",
+      "ja_furigana": "家族(かぞく)が支(ささ)えてくれてこそ、安心(あんしん)して働(はたら)けるのだ。",
+      "source": "AI",
+      "vi": "Có gia đình hỗ trợ thì tôi mới yên tâm làm việc được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 苦労してこそ、喜びも大きい。",
+     "FURIGANA_MISSING: 苦労してこそ、喜びも大きい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + こそ",
+    "locked_fields": [],
+    "meaning_vi": "Có thì mới — Chỉ khi làm việc đó thì mới đạt được kết quả thật sự.",
+    "nuance_vi": "Chỉ khi làm việc đó thì mới đạt được giá trị, kết quả tốt; nhấn mạnh, vế sau thường là điều tích cực như 分かる, 意味がある, 本当の〜になる.",
+    "order_items": [],
+    "pattern": "V-て + こそ",
+    "pattern_variants": [
+     "〜てこそ"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Nhấn mạnh điều kiện thiết yếu. Vế sau thường tích cực."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-70726b4123"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外国語だからといって、こわがることはない。",
+       "ja_furigana": "外国語(がいこくご)だからといって、こわがることはない。",
+       "vi": "Không phải cứ là ngoại ngữ thì phải sợ."
+      },
+      {
+       "ja": "日本に住んでいるからといって、日本語が上手とは限らない。",
+       "ja_furigana": "日本(にほん)に住(す)んでいるからといって、日本語(にほんご)が上手(じょうず)とは限(かぎ)らない。",
+       "source": "AI",
+       "vi": "Không phải cứ sống ở Nhật là giỏi tiếng Nhật."
+      },
+      {
+       "ja": "忙しいからといって、あいさつをしなくていいわけではない。",
+       "ja_furigana": "忙(いそが)しいからといって、あいさつをしなくていいわけではない。",
+       "source": "AI",
+       "vi": "Không phải cứ bận là có thể không chào hỏi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau khẳng định bình thường, khiến mẫu mất nghĩa. Vế sau phải phủ định hay bác bỏ kết luận hiển nhiên. Không nhầm với から đơn thuần chỉ lý do.",
+    "examples": [
+     {
+      "ja": "高いからといって、いいとは限らない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "日本に住んでいるからといって、日本語が上手とは限らない。",
+      "ja_furigana": "日本(にほん)に住(す)んでいるからといって、日本語(にほんご)が上手(じょうず)とは限(かぎ)らない。",
+      "source": "AI",
+      "vi": "Không phải cứ sống ở Nhật là giỏi tiếng Nhật."
+     },
+     {
+      "ja": "忙しいからといって、あいさつをしなくていいわけではない。",
+      "ja_furigana": "忙(いそが)しいからといって、あいさつをしなくていいわけではない。",
+      "source": "AI",
+      "vi": "Không phải cứ bận là có thể không chào hỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 高いからといって、いいとは限らない。",
+     "FURIGANA_MISSING: 高いからといって、いいとは限らない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + からといって",
+    "locked_fields": [],
+    "meaning_vi": "Không phải cứ là — Không thể chỉ vì lý do đó mà kết luận như vậy.",
+    "nuance_vi": "Không thể chỉ vì lý do đó mà kết luận như vậy: 'không phải cứ … là …'; vế sau hay là とは限らない, わけではない, ても. Dùng cả nói lẫn viết.",
+    "order_items": [],
+    "pattern": "Thể thường + からといって",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau bắt buộc phủ định. Hay đi với わけではない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a6dbabf484"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は怒りのあまり、声が震えるほどだった。",
+       "ja_furigana": "彼(かれ)は怒(おこ)りのあまり、声(こえ)が震(ふる)えるほどだった。",
+       "vi": "Anh ấy tức đến mức giọng run lên."
+      },
+      {
+       "ja": "この映画は、涙が止まらなくなるほど感動的だった。",
+       "ja_furigana": "この映画(えいが)は、涙(なみだ)が止(と)まらなくなるほど感動的(かんどうてき)だった。",
+       "source": "AI",
+       "vi": "Bộ phim này cảm động đến mức nước mắt không ngừng rơi."
+      },
+      {
+       "ja": "昨日の試験は、頭が真っ白になるほど難しかった。",
+       "ja_furigana": "昨日(きのう)の試験(しけん)は、頭(あたま)が真(ま)っ白(しろ)になるほど難(むずか)しかった。",
+       "source": "AI",
+       "vi": "Bài thi hôm qua khó đến mức đầu óc trống rỗng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với ほど trong 〜ほど…ない (so sánh). Ở đây ほど minh họa mức độ nên vế trước phải là hình ảnh cụ thể (涙が止まらないほど).",
+    "examples": [
+     {
+      "ja": "足が痛くて歩けないほどだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この映画は、涙が止まらなくなるほど感動的だった。",
+      "ja_furigana": "この映画(えいが)は、涙(なみだ)が止(と)まらなくなるほど感動的(かんどうてき)だった。",
+      "source": "AI",
+      "vi": "Bộ phim này cảm động đến mức nước mắt không ngừng rơi."
+     },
+     {
+      "ja": "昨日の試験は、頭が真っ白になるほど難しかった。",
+      "ja_furigana": "昨日(きのう)の試験(しけん)は、頭(あたま)が真(ま)っ白(しろ)になるほど難(むずか)しかった。",
+      "source": "AI",
+      "vi": "Bài thi hôm qua khó đến mức đầu óc trống rỗng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 足が痛くて歩けないほどだ。",
+     "FURIGANA_MISSING: 足が痛くて歩けないほどだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + ほどだ (Aな: な; N: という)",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức là — Nêu ví dụ cụ thể để minh hoạ mức độ.",
+    "nuance_vi": "Dùng một ví dụ cụ thể, sinh động để minh họa mức độ của trạng thái; hay đi với 〜ないほど, 〜くらい. Trung tính, dùng cả nói lẫn viết.",
+    "order_items": [],
+    "pattern": "Thể thường + ほどだ",
+    "pattern_variants": [],
+    "unit_no": 16,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng giữa câu là ほどの. Khác ほど〜ない (không bằng)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a713831f5c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "赤ちゃんはミルクを飲み終わるか終わらないかのうちに、眠ってしまった。",
+       "ja_furigana": "赤(あか)ちゃんはミルクを飲(の)み終(お)わるか終(お)わらないかのうちに、眠(ねむ)ってしまった。",
+       "vi": "Em bé vừa bú xong chưa kịp thì đã ngủ mất."
+      },
+      {
+       "ja": "家に帰るか帰らないかのうちに、母から電話がかかってきた。",
+       "ja_furigana": "家(いえ)に帰(かえ)るか帰(かえ)らないかのうちに、母(はは)から電話(でんわ)がかかってきた。",
+       "source": "AI",
+       "vi": "Tôi vừa mới về đến nhà thì mẹ gọi điện đến."
+      },
+      {
+       "ja": "合図が鳴るか鳴らないかのうちに、選手たちは走り出した。",
+       "ja_furigana": "合図(あいず)が鳴(な)るか鳴(な)らないかのうちに、選手(せんしゅ)たちは走(はし)り出(だ)した。",
+       "source": "AI",
+       "vi": "Tiếng hiệu lệnh vừa kịp vang lên thì các vận động viên đã chạy."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng hai động từ khác nhau (phải lặp cùng một động từ: Vる + か + Vない). Vế sau không dùng ý chí hay mệnh lệnh.",
+    "examples": [
+     {
+      "ja": "ベルが鳴るか鳴らないかのうちに、彼は教室を出た。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "家に帰るか帰らないかのうちに、母から電話がかかってきた。",
+      "ja_furigana": "家(いえ)に帰(かえ)るか帰(かえ)らないかのうちに、母(はは)から電話(でんわ)がかかってきた。",
+      "source": "AI",
+      "vi": "Tôi vừa mới về đến nhà thì mẹ gọi điện đến."
+     },
+     {
+      "ja": "合図が鳴るか鳴らないかのうちに、選手たちは走り出した。",
+      "ja_furigana": "合図(あいず)が鳴(な)るか鳴(な)らないかのうちに、選手(せんしゅ)たちは走(はし)り出(だ)した。",
+      "source": "AI",
+      "vi": "Tiếng hiệu lệnh vừa kịp vang lên thì các vận động viên đã chạy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: ベルが鳴るか鳴らないかのうちに、彼は教室を出た。",
+     "FURIGANA_MISSING: ベルが鳴るか鳴らないかのうちに、彼は教室を出た。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + か + Vない + かのうちに",
+    "locked_fields": [],
+    "meaning_vi": "Vừa mới chưa kịp thì — Việc trước còn chưa dứt hẳn thì việc sau đã xảy ra.",
+    "nuance_vi": "Việc trước còn chưa kịp xong hẳn thì việc sau đã xảy ra; hai việc gần như đồng thời. Nhấn mạnh sự nhanh hơn とたん một chút, vế sau là việc đã xảy ra.",
+    "order_items": [],
+    "pattern": "V từ điển + か + V-ない + かのうちに",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Nhấn mạnh hai việc gần như cùng lúc. Văn viết."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e7a86f086c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨がやまないことには、外で遊べない。",
+       "ja_furigana": "雨(あめ)がやまないことには、外(そと)で遊(あそ)べない。",
+       "vi": "Nếu mưa không tạnh thì không thể chơi bên ngoài."
+      },
+      {
+       "ja": "実際に歩いてみないことには、この町のよさは分からない。",
+       "ja_furigana": "実際(じっさい)に歩(ある)いてみないことには、この町(まち)のよさは分(わ)からない。",
+       "vi": "Nếu không thực sự đi bộ thử thì không hiểu được cái hay của thị trấn này."
+      },
+      {
+       "ja": "自分で食べてみないことには、おいしいかどうか分からない。",
+       "ja_furigana": "自分(じぶん)で食(た)べてみないことには、おいしいかどうか分(わ)からない。",
+       "source": "AI",
+       "vi": "Nếu không tự mình ăn thử thì không biết có ngon hay không."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách (câu cũ còn sai 懐疑); thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau khẳng định hoặc là ý chí, mệnh lệnh. Không nhầm với 〜ないことはない (cũng không phải là không).",
+    "examples": [
+     {
+      "ja": "議長が来ないことには懐疑は始められない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu nghị trưởng không đến thì hội nghị không bắt đầu được."
+     },
+     {
+      "ja": "実際に会ってみないことには、どんな人かわからないと思う。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thực tế nếu không gặp không biết là người như thế nào."
+     },
+     {
+      "ja": "自分で食べてみないことには、おいしいかどうか分からない。",
+      "ja_furigana": "自分(じぶん)で食(た)べてみないことには、おいしいかどうか分(わ)からない。",
+      "source": "AI",
+      "vi": "Nếu không tự mình ăn thử thì không biết có ngon hay không."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 議長が来ないことには懐疑は始められない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 議長が来ないことには懐疑は始められない。 → 懐",
+     "FURIGANA_MISSING: 実際に会ってみないことには、どんな人かわからないと思う。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vない + ことには",
+    "locked_fields": [],
+    "meaning_vi": "Nếu không... thì không",
+    "nuance_vi": "Nếu không làm điều đó trước thì không thể (làm việc sau); vế sau luôn là phủ định hay tiêu cực như 分からない, できない, 始まらない. Hơi giống なければ nhưng mang sắc thái khó khăn hơn.",
+    "order_items": [],
+    "pattern": "〜ないことには",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のナイ形（ことには） Ý nghĩa: ～なければ・・・ない Nếu không... thì không Ví dụ: 1. 議長が来ないことには懐疑は始められない。 Nếu nghị trưởng không đến thì hội nghị không bắt đầu được. 2. 実際に会ってみないことには、どんな人かわからないと思う。 Thực tế nếu không gặp không biết là người như thế nào. 3. 「テストを受けてもらわないことには、あなたのレベルがわかりません」 Nếu bạn không tham gia thi thì không thể biết được trình độ của bạn. 4. 「どんなに具合が悪くても、私が家事をしないことには家の中がめちゃめちゃになってしまうんです」 Dù có mệt như thế nào đi chăng nữa, nếu tôi không làm việc nhà thì trong nhà sẽ lộn xộn hết cả lên mất."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-95ee052f8f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "店が開くか開かないかのうちに、お客が並び始めた。",
+       "ja_furigana": "店(みせ)が開(あ)くか開(あ)かないかのうちに、お客(きゃく)が並(なら)び始(はじ)めた。",
+       "vi": "Cửa hàng vừa mở chưa kịp thì khách đã bắt đầu xếp hàng."
+      },
+      {
+       "ja": "電車が止まるか止まらないかのうちに、みんな立ち上がった。",
+       "ja_furigana": "電車(でんしゃ)が止(と)まるか止(と)まらないかのうちに、みんな立(た)ち上(あ)がった。",
+       "vi": "Tàu vừa dừng chưa kịp thì mọi người đã đứng dậy."
+      },
+      {
+       "ja": "子どもは、布団に入るか入らないかのうちに、眠ってしまった。",
+       "ja_furigana": "子(こ)どもは、布団(ふとん)に入(はい)るか入(はい)らないかのうちに、眠(ねむ)ってしまった。",
+       "source": "AI",
+       "vi": "Đứa trẻ vừa chui vào chăn là đã ngủ mất."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch; trùng mẫu với JG-e7a86f086c",
+    "same_pattern_as": "JG-e7a86f086c"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay chỉ nói Vる + かのうちに hoặc dùng hai động từ khác nhau. Phải lặp lại cùng một động từ ở dạng khẳng định rồi phủ định; không dùng cho mệnh lệnh.",
+    "examples": [
+     {
+      "ja": "チャイムが鳴るか鳴らないかのうちに、学生たちは教室を飛び出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuông vừa reo cái là học sinh lao ra khỏi lớp."
+     },
+     {
+      "ja": "彼は席に座るか座らないかのうちに、眠ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy vừa ngồi xuống đã ngủ mất."
+     },
+     {
+      "ja": "子どもは、布団に入るか入らないかのうちに、眠ってしまった。",
+      "ja_furigana": "子(こ)どもは、布団(ふとん)に入(はい)るか入(はい)らないかのうちに、眠(ねむ)ってしまった。",
+      "source": "AI",
+      "vi": "Đứa trẻ vừa chui vào chăn là đã ngủ mất."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: チャイムが鳴るか鳴らないかのうちに、学生たちは教室を飛び出した。",
+     "FURIGANA_MISSING: 彼は席に座るか座らないかのうちに、眠ってしまった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + か + Vない + かのうちに",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Vừa mới/Ngay khi … thì …”, “chưa kịp … xong thì … đã …”. Khoảng cách thời gian cực ngắn; hành động sau xảy ra gần như đồng thời với ngưỡng của hành động trước. Sử dụng cho sự kiện bất ngờ, nhanh, không do ý chí của người nói (thường là sự thật khách quan). Vế sau thường là quá khứ; tránh dùng mệnh lệnh/ý chí mạnh.",
+    "nuance_vi": "Việc A vừa mới bắt đầu hoặc chưa trọn vẹn thì việc B đã xảy ra, khoảng cách thời gian cực ngắn; B thường là việc bất ngờ, đã xảy ra. Văn nói và viết đều dùng.",
+    "order_items": [],
+    "pattern": "Vừa mới... thì...",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh tính bất ngờ, gần như đồng thời của hai sự kiện. Thích hợp trong tường thuật, mô tả; vế sau thường không mang ý chí/khuyên bảo. Động từ ở vế trước nên là động từ khoảnh khắc (鳴る、着く、座る、開ける...). Phong cách trang trọng hơn so với ～とたん(に); hơi văn viết. [6. Ghi chú mở rộng] Mẫu này tạo hiệu ứng “chưa kịp xác nhận xong hành động A thì B đã xảy ra”. Trong lời kể, có thể bỏ “の”: ～か～ないかうちに (khẩu ngữ, nhưng chuẩn vẫn là “のうちに”). Vế sau thường quá khứ hoặc hiện tại miêu tả thói quen tái diễn nhanh trong văn tự sự. Không phù hợp với mệnh lệnh/ý chí trực tiếp ở vế sau. [7. Biến thể & cụm cố định] VるかVないかのうちに ～か～ないかうちに（khẩu ngữ, lược の） Cặp động từ thường gặp: 鳴る/鳴らない, 着く/着かない, 座る/座らない, 開ける/開けない [8. Lỗi thường gặp & bẫy JLPT] Không lặp cùng một động từ ở dạng khẳng định/phủ định: Sai cấu trúc. Dùng với vế sau mang ý chí/mệnh lệnh: Không tự nhiên trong đề thi. Dùng động từ kéo dài ở vế trước (勉強するかしないかのうちに): Thiếu tính khoảnh khắc, kém tự nhiên. Nhầm với ～ないうちに (trước khi): ～か～ないかのうちに là tức thì, còn ～ないうちに nói “trước khi”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b6b1ffdabc"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町は静かなばかりでなく、空気もきれいだ。",
+       "ja_furigana": "この町(まち)は静(しず)かなばかりでなく、空気(くうき)もきれいだ。",
+       "vi": "Thị trấn này không chỉ yên tĩnh mà không khí cũng trong lành."
+      },
+      {
+       "ja": "この店は味がいいばかりでなく、サービスもすばらしい。",
+       "ja_furigana": "この店(みせ)は味(あじ)がいいばかりでなく、サービスもすばらしい。",
+       "source": "AI",
+       "vi": "Quán này không chỉ ngon mà dịch vụ cũng tuyệt vời."
+      },
+      {
+       "ja": "彼女は英語ばかりでなく、中国語も上手に話せる。",
+       "ja_furigana": "彼女(かのじょ)は英語(えいご)ばかりでなく、中国語(ちゅうごくご)も上手(じょうず)に話(はな)せる。",
+       "source": "AI",
+       "vi": "Cô ấy không chỉ nói giỏi tiếng Anh mà tiếng Trung cũng nói tốt."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau không cùng hướng với vế trước, hoặc quên も. Không nhầm với ばかりだ (chỉ toàn là, ngày càng).",
+    "examples": [
+     {
+      "ja": "彼は日本語ばかりでなく韓国語も話す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この店は味がいいばかりでなく、サービスもすばらしい。",
+      "ja_furigana": "この店(みせ)は味(あじ)がいいばかりでなく、サービスもすばらしい。",
+      "source": "AI",
+      "vi": "Quán này không chỉ ngon mà dịch vụ cũng tuyệt vời."
+     },
+     {
+      "ja": "彼女は英語ばかりでなく、中国語も上手に話せる。",
+      "ja_furigana": "彼女(かのじょ)は英語(えいご)ばかりでなく、中国語(ちゅうごくご)も上手(じょうず)に話(はな)せる。",
+      "source": "AI",
+      "vi": "Cô ấy không chỉ nói giỏi tiếng Anh mà tiếng Trung cũng nói tốt."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は日本語ばかりでなく韓国語も話す。",
+     "FURIGANA_MISSING: 彼は日本語ばかりでなく韓国語も話す。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + ばかりでなく (Aな: な; N: で / である)",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ mà còn — Bổ sung thêm phạm vi ngoài điều đã nêu.",
+    "nuance_vi": "Không chỉ A mà còn B; trung tính, nhẹ hơn ばかりか và vế sau không nhất thiết nặng hơn. Hay đi kèm も ở vế sau.",
+    "order_items": [],
+    "pattern": "Thể thường + ばかりでなく",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": null,
+    "usage_vi": "Gần だけでなく. Vế sau thường có も."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4941a90846"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は合格の知らせを受けるやいなや、母に電話した。",
+       "ja_furigana": "彼(かれ)は合格(ごうかく)の知(し)らせを受(う)けるやいなや、母(はは)に電話(でんわ)した。",
+       "vi": "Vừa nhận tin đỗ là anh ấy gọi điện cho mẹ ngay."
+      },
+      {
+       "ja": "子どもたちは、先生が「終わり」と言うやいなや、教室を飛び出した。",
+       "ja_furigana": "子(こ)どもたちは、先生(せんせい)が「終(お)わり」と言(い)うやいなや、教室(きょうしつ)を飛(と)び出(だ)した。",
+       "source": "AI",
+       "vi": "Thầy vừa nói hết giờ là lũ trẻ lao ra khỏi lớp ngay."
+      },
+      {
+       "ja": "彼は電車に乗るやいなや、大きないびきをかき始めた。",
+       "ja_furigana": "彼(かれ)は電車(でんしゃ)に乗(の)るやいなや、大(おお)きないびきをかき始(はじ)めた。",
+       "source": "AI",
+       "vi": "Anh ấy vừa lên tàu là bắt đầu ngáy to ngay."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng trong văn nói hằng ngày hoặc để vế sau là ý chí, mệnh lệnh. Chỉ gắn vào Vる, không dùng Vた.",
+    "examples": [
+     {
+      "ja": "彼は家に着くやいなや、寝てしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "子どもたちは、先生が「終わり」と言うやいなや、教室を飛び出した。",
+      "ja_furigana": "子(こ)どもたちは、先生(せんせい)が「終(お)わり」と言(い)うやいなや、教室(きょうしつ)を飛(と)び出(だ)した。",
+      "source": "AI",
+      "vi": "Thầy vừa nói hết giờ là lũ trẻ lao ra khỏi lớp ngay."
+     },
+     {
+      "ja": "彼は電車に乗るやいなや、大きないびきをかき始めた。",
+      "ja_furigana": "彼(かれ)は電車(でんしゃ)に乗(の)るやいなや、大(おお)きないびきをかき始(はじ)めた。",
+      "source": "AI",
+      "vi": "Anh ấy vừa lên tàu là bắt đầu ngáy to ngay."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は家に着くやいなや、寝てしまった。",
+     "FURIGANA_MISSING: 彼は家に着くやいなや、寝てしまった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + やいなや",
+    "locked_fields": [],
+    "meaning_vi": "Vừa là ngay lập tức — Hai việc nối nhau tức thì, văn viết trang trọng.",
+    "nuance_vi": "Vừa … là ngay lập tức …; hai việc nối nhau tức thì, thuộc văn viết trang trọng, vế sau là việc đã xảy ra. Gần とたん nhưng cứng hơn.",
+    "order_items": [],
+    "pattern": "V từ điển + やいなや",
+    "pattern_variants": [],
+    "unit_no": 1,
+    "unit_title_vi": null,
+    "usage_vi": "Cứng hơn とたん. Không dùng trong hội thoại thường ngày."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-708ac96399"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-016"
+}

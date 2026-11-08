@@ -1,0 +1,598 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "財布には百円だけしか残っていない。",
+       "ja_furigana": "財布(さいふ)には百(ひゃく)円(えん)だけしか残(のこ)っていない。",
+       "vi": "Trong ví chỉ còn đúng một trăm yên.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この店は、日曜日だけしか開いていない。",
+       "ja_furigana": "この店(みせ)は、日曜日(にちようび)だけしか開(あ)いていない。",
+       "vi": "Cửa hàng này chỉ mở cửa vào Chủ nhật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "このコンサートは、会員だけしか入れません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Buổi hòa nhạc này chỉ có hội viên mới có thể vào"
+     },
+     {
+      "ja": "今日はお客様が一人だけしか来ませんでした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay chỉ có 1 vị khách đến"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: このコンサートは、会員だけしか入れません。",
+     "FURIGANA_MISSING: 今日はお客様が一人だけしか来ませんでした。"
+    ],
+    "formation": "N + だけしか + V-ない",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ có",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜会員だけしか",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng thể hiện ý duy nhất, độc nhất"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b301c35045"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "机の上には古い本ばかりある。",
+       "ja_furigana": "机(つくえ)の上(うえ)には古(ふる)い本(ほん)ばかりある。",
+       "vi": "Trên bàn toàn sách cũ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "弟は毎日ゲームばかりしている。",
+       "ja_furigana": "弟(おとうと)は毎日(まいにち)ゲームばかりしている。",
+       "vi": "Em trai tôi ngày nào cũng chỉ toàn chơi game.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この店のお客さんは、女性ばかりですね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khách hàng của tiệm này toàn là nữ nhỉ"
+     },
+     {
+      "ja": "弟は、テレビを見てばかりいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Em trai tôi xem tivi suốt"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この店のお客さんは、女性ばかりですね。",
+     "FURIGANA_MISSING: 弟は、テレビを見てばかりいる。"
+    ],
+    "formation": "N + ばかりだ / N + ばかり + V",
+    "locked_fields": [],
+    "meaning_vi": "Toàn là, đầy…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜女性ばかり",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Một hành động nào đó được thực hiện liên tục Sự vật, chủ thể nào đó hiện hữu với số lượng nhiều"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-82c017639c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "苦しいときこそ、友達が必要だ。",
+       "ja_furigana": "苦(くる)しいときこそ、友達(ともだち)が必要(ひつよう)だ。",
+       "vi": "Chính lúc khó khăn mới cần bạn bè.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今年こそ、日本語の試験に合格したい。",
+       "ja_furigana": "今年(ことし)こそ、日本語(にほんご)の試験(しけん)に合格(ごうかく)したい。",
+       "vi": "Năm nay nhất định tôi muốn đỗ kỳ thi tiếng Nhật.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日こそ勉強するぞ！",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chắc chắn ngày mai tôi sẽ học"
+     },
+     {
+      "ja": "愛情があるからこそ、しかるんです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chính vì yêu thương nên mới mắng đấy"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日こそ勉強するぞ！",
+     "FURIGANA_MISSING: 愛情があるからこそ、しかるんです。"
+    ],
+    "formation": "N + こそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính là,. chính vì (lý do)",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜明日こそ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để nhấn mạnh khi chủ thể là tác nhân chính, lý do chính, cường điệu hóa lên"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d265d3ed2d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この写真を見ると、また海へ行きたくなる。",
+       "ja_furigana": "この写真(しゃしん)を見(み)ると、また海(うみ)へ行(い)きたくなる。",
+       "vi": "Xem tấm ảnh này lại khiến tôi muốn đi biển.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "部屋をそうじしたら、とてもきれいになった。",
+       "ja_furigana": "部屋(へや)をそうじしたら、とてもきれいになった。",
+       "vi": "Dọn phòng xong, căn phòng trở nên rất sạch sẽ.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "食べたくなる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có cảm giác muốn ăn..."
+     },
+     {
+      "ja": "料理番組を見ていたら、その料理が食べたくなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi tôi xem chương trình nấu ăn, tôi có cảm giác muốn ăn món đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 食べたくなる",
+     "FURIGANA_MISSING: 料理番組を見ていたら、その料理が食べたくなった。"
+    ],
+    "formation": "Aい(bỏ い) + くなる / V-たい(bỏ い) + くなる / Aな・N + になる",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự biến đổi của trạng thái.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜(く)なる/〜(に)なる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-32786eb258"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "弟は暗い部屋をこわがる。",
+       "ja_furigana": "弟(おとうと)は暗(くら)い部屋(へや)をこわがる。",
+       "vi": "Em trai sợ căn phòng tối.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "子どもたちは新しいおもちゃをほしがっている。",
+       "ja_furigana": "子(こ)どもたちは新(あたら)しいおもちゃをほしがっている。",
+       "vi": "Bọn trẻ đang muốn có đồ chơi mới.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "冷たいものを飲みたがる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nó muốn uống đồ mát lạnh."
+     },
+     {
+      "ja": "恥ずかしがってはいけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đừng có ngại ngùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 冷たいものを飲みたがる",
+     "FURIGANA_MISSING: 恥ずかしがってはいけません。"
+    ],
+    "formation": "Aい(bỏ い) + がる / V-たい(bỏ い) + がる / Aな + がる",
+    "locked_fields": [],
+    "meaning_vi": "Thể hiện trạng thái đang cảm nhận cái gì đó, mong muốn hay ước nguyện của người khác không phải của bản thân.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜がる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2bcedbc479"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "道がぬれているため、ゆっくり歩いてください。",
+       "ja_furigana": "道(みち)がぬれているため、ゆっくり歩(ある)いてください。",
+       "vi": "Đường ướt nên hãy đi chậm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "工事のため、この道は通れません。",
+       "ja_furigana": "工事(こうじ)のため、この道(みち)は通(とお)れません。",
+       "vi": "Vì đang thi công nên không thể đi qua con đường này.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雪が降ったため",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tuyết rơi"
+     },
+     {
+      "ja": "雪が降ったため（に）、電車が遅れた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì tuyết rơi nên tàu điện đến trễ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雪が降ったため",
+     "FURIGANA_MISSING: 雪が降ったため（に）、電車が遅れた。"
+    ],
+    "formation": "V / Aい / Aな(な) / N(の) + ため(に)",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả nguyên nhân. 「～から」、「（のは）～ためだ」 nghĩa giống với 「（・・・のは）～からだ」",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ため(に)(原因)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0eb248764d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家で食べるつもりだったのに、友達と店に入った。",
+       "ja_furigana": "家(いえ)で食(た)べるつもりだったのに、友達(ともだち)と店(みせ)に入(はい)った。",
+       "vi": "Tôi định ăn ở nhà, thế mà lại vào quán với bạn.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "早く寝るつもりだったのに、映画を最後まで見てしまった。",
+       "ja_furigana": "早(はや)く寝(ね)るつもりだったのに、映画(えいが)を最後(さいご)まで見(み)てしまった。",
+       "vi": "Định đi ngủ sớm vậy mà lại xem phim đến tận cuối.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "宿題をするつもりだったのに",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi định làm bài tập về nhà thế mà..."
+     },
+     {
+      "ja": "小さい声のつもりだったのに、「うるさい」と言われてしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã nói nhỏ tiếng vậy mà bị nói là \"ồn ào\"."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 宿題をするつもりだったのに",
+     "FURIGANA_MISSING: 小さい声のつもりだったのに、「うるさい」と言われてしまった。"
+    ],
+    "formation": "V-る / V-ない + つもりだった(のに)",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị điều khác biệt giữa sự thật và điều người nói đã suy nghĩ, dự định.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜つもりだった(のに)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習3 正しいほうを選びなさい。 １．友達を待っているうちに、コーヒーが（a.飲みたいに b.飲みたく）なった。 ２．うそを（a.つく b.つき）べきではない。 ３．私は富士山に（a.登りたい b.登りたがっている）。 ４．本を返すつもり（a.でした b.ました）が、忘れました。 ５．家族に(a.会いたいで b.会いたくて）たまらない。 ６．パーティーが中止されたと聞いて、本当に（a.残念で b.残念に）ならない。 ７．あなた（a.に b.で）食べてほしいと思って、この料理を作ったんです。 ８．多くの人にこの美術館へ（a.来てあげたい b.来てもらいたい）と思います。 ９．ディズニーランドに（a.行きたい b.行く）つもりでしたが、時間がなくて．．．。 １０．この映画はすばらしいから、ぜひ（a.見てほしい b.見たがる）。 １１．彼がうそをついていたと聞いて、（a.腹が立って b.腹が立つ）しょうがない。 １．友達を待っているうちに、コーヒーが.飲みたくなった。 プラス３"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f1a55b0d2f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寒くてしょうがないから、窓を閉めよう。",
+       "ja_furigana": "寒(さむ)くてしょうがないから、窓(まど)を閉(し)めよう。",
+       "vi": "Lạnh quá chịu không nổi, đóng cửa sổ thôi.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "試験の結果が気になってしょうがない。",
+       "ja_furigana": "試験(しけん)の結果(けっか)が気(き)になってしょうがない。",
+       "vi": "Tôi cứ bồn chồn mãi về kết quả kỳ thi.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "（のどが）かわいてしょうがない",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khát quá chịu không nổi."
+     },
+     {
+      "ja": "眠くてしょうがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Buồn ngủ chịu không nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 眠くてしょうがない。"
+    ],
+    "formation": "V-て + しょうがない / Aい(くて)・Aな(で) + しょうがない",
+    "locked_fields": [],
+    "meaning_vi": "Thể hiện trạng thái cảm xúc, cảm giác mạnh mẽ mà không thể kiểm soát được.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜でしょうがない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9284919eb0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "朝早く起きるのが苦手です。",
+       "ja_furigana": "朝(あさ)早(はや)く起(お)きるのが苦手(にがて)です。",
+       "vi": "Tôi không giỏi dậy sớm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "弟がないているのが聞こえた。",
+       "ja_furigana": "弟(おとうと)がないているのが聞(き)こえた。",
+       "vi": "Tôi nghe thấy em trai đang khóc.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "飲むのを忘れる",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quên uống"
+     },
+     {
+      "ja": "薬を飲むのを忘れちゃった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Quên uống thuốc mất rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 飲むのを忘れる",
+     "FURIGANA_MISSING: 薬を飲むのを忘れちゃった。"
+    ],
+    "formation": "V-る + の(を / が / は)",
+    "locked_fields": [],
+    "meaning_vi": "Danh từ hóa.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜の(名詞化)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-477b9c7ceb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日のことは、まだ母に話していない。",
+       "ja_furigana": "昨日(きのう)のことは、まだ母(はは)に話(はな)していない。",
+       "vi": "Chuyện hôm qua tôi vẫn chưa kể với mẹ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "新しい先生のことを、もっと知りたい。",
+       "ja_furigana": "新(あたら)しい先生(せんせい)のことを、もっと知(し)りたい。",
+       "vi": "Tôi muốn biết thêm về thầy giáo mới.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "パーティーのこと",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Về bữa tiệc thì..."
+     },
+     {
+      "ja": "パーティーのことは、田中さんがよく知っているよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ông Tanaka biết rất nhiều về bữa tiệc đó."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: パーティーのことは、田中さんがよく知っているよ。"
+    ],
+    "formation": "N + の + こと",
+    "locked_fields": [],
+    "meaning_vi": "Biểu thị những thông tin về ...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のこと",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b21192da6d"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-040"
+}

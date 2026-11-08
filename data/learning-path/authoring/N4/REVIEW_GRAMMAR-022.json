@@ -1,0 +1,4302 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "đúng như …; theo đúng …",
+     "formation": "Vる/Vた + とおりに; N + の + とおりに",
+     "usage_vi": "Làm đúng như cái đã thấy, đã nghe, đã được hướng dẫn: 説明のとおりにしてください; 先生が言ったとおりに書きました; 地図のとおりに行きました.",
+     "nuance_vi": "Vた + とおりに: theo việc đã xảy ra (見たとおり, 習ったとおり); Vる + とおりに: theo việc sắp làm (私がするとおりにしてください).",
+     "common_mistakes_vi": "Quên の sau danh từ (×説明とおりに); thêm の sau động từ (×言ったのとおりに); dùng thể từ điển cho việc đã học (×習うとおりに → 習ったとおりに).",
+     "examples": [
+      {
+       "ja": "説明のとおりにしてください。",
+       "ja_furigana": "説明(せつめい)のとおりにしてください。",
+       "vi": "Hãy làm đúng như hướng dẫn."
+      },
+      {
+       "ja": "先生が言ったとおりに書きました。",
+       "ja_furigana": "先生(せんせい)が言(い)ったとおりに書(か)きました。",
+       "vi": "Tôi đã viết đúng như thầy nói."
+      },
+      {
+       "ja": "地図のとおりに行ったら、駅に着きました。",
+       "ja_furigana": "地図(ちず)のとおりに行(い)ったら、駅(えき)に着(つ)きました。",
+       "vi": "Đi đúng theo bản đồ thì tôi đến được ga."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "レシピの＿＿に作ったら、おいしくできました。",
+       "answer": "とおり",
+       "translation_vi": "Làm đúng theo công thức nên món ăn rất ngon."
+      },
+      {
+       "sentence_ja": "私が＿＿とおりに、やってみてください。",
+       "answer": "する",
+       "translation_vi": "Hãy làm thử đúng như tôi làm.",
+       "accept": [
+        "した"
+       ]
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "書いてください",
+        "先生が",
+        "とおりに",
+        "言った"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Hãy viết đúng như thầy đã nói."
+      },
+      {
+       "pieces": [
+        "とおりに",
+        "この紙に",
+        "書いてある",
+        "してください"
+       ],
+       "answer_order": [
+        1,
+        2,
+        0,
+        3
+       ],
+       "translation_vi": "Hãy làm đúng như trên tờ giấy này ghi."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "レシピの（　　）に作ったら、おいしくできました。",
+       "options": [
+        "ころ",
+        "ほど",
+        "とおり",
+        "ため"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "N の + とおりに. Nghĩa: Làm đúng theo công thức nên món ăn rất ngon."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "私が（　　）とおりに、やってみてください。",
+       "options": [
+        "し",
+        "する",
+        "しよう",
+        "して"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Vる + とおりに. Nghĩa: Hãy làm thử đúng như tôi làm."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "書いてください",
+        "先生が",
+        "とおりに",
+        "言った"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 先生が言ったとおりに書いてください。 (Hãy viết đúng như thầy đã nói.) Mảnh ở ô ★ là 「とおりに」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "この ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "とおりに",
+        "紙に",
+        "書いてある",
+        "してください"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: この紙に書いてあるとおりにしてください。 (Hãy làm đúng như trên tờ giấy này ghi.) Mảnh ở ô ★ là 「とおりに」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "説明のとおりにしてください。",
+       "options": [
+        "Hãy đọc hướng dẫn trước.",
+        "Hãy làm đúng như hướng dẫn.",
+        "Hãy làm khác với hướng dẫn.",
+        "Hướng dẫn này khó hiểu."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Hãy làm đúng như hướng dẫn.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "先生が言ったとおりに書きました。",
+       "options": [
+        "Tôi đã viết đúng như thầy nói.",
+        "Thầy bảo tôi hãy viết.",
+        "Tôi đã viết khác với lời thầy.",
+        "Tôi viết xong rồi thầy mới nói."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi đã viết đúng như thầy nói.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "説明のとおりにしてください。",
+        "地図のとおりに行ったら、駅に着きました。",
+        "説明とおりに、ボタンを押してください。",
+        "私がするとおりに、やってみてください。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: sau danh từ cần の. Sửa: 説明のとおりに、ボタンを押してください。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "習うとおりに、漢字を書きました。",
+        "先生が言ったとおりに書きました。",
+        "レシピのとおりに作ったら、おいしくできました。",
+        "先生が言ったとおりに書いてください。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: việc đã học rồi dùng thể た: 習ったとおりに. Sửa: 習ったとおりに、漢字を書きました。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "見た（　　）に、話してください。",
+       "options": [
+        "ほど",
+        "ころ",
+        "とおり",
+        "ため"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Vた + とおりに. Nghĩa: Hãy kể lại đúng như những gì bạn đã thấy."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "地図のとおりに行ったら、駅に着きました。",
+       "options": [
+        "Tôi không có bản đồ nên hỏi đường.",
+        "Tôi vẽ bản đồ đến ga.",
+        "Đi theo bản đồ thì tôi bị lạc.",
+        "Đi đúng theo bản đồ thì tôi đến được ga."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Đi đúng theo bản đồ thì tôi đến được ga.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "レシピのとおりに作ったら、おいしくできました。",
+        "母の言ったのとおりに、料理を作りました。",
+        "先生が言ったとおりに書いてください。",
+        "説明のとおりにしてください。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: động từ nối thẳng với とおりに, không thêm の. Sửa: 母の言ったとおりに、料理を作りました。"
+      }
+     ]
+    },
+    "note": "ví dụ 1 viết kana thuần, ví dụ 2 và 3 cũ lệch mẫu (たら, ば); nuance/common_mistakes là văn mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「の」 theo mẫu V る/N の とおりに (Làm đúng y như mẫu). Nghĩa cả câu: Tôi làm đúng như lời hướng dẫn.",
+      "options": [
+       "ついでに",
+       "の",
+       "ている",
+       "すぎる"
+      ],
+      "prompt_ja": "せつめい（　　） とおりに します。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc V る/N の とおりに (Làm đúng y như mẫu), chỗ trống cần điền 「です」. Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "てしまう",
+       "てくる",
+       "です",
+       "そうだ"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: せつめいの とおりに します。 (Tôi làm đúng như lời hướng dẫn.). Theo cấu trúc V る/N の とおりに, mảnh đứng ở vị trí ★ là 「おりに」.",
+      "options": [
+       " と",
+       " します",
+       "せつめいの",
+       "おりに"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 雨が降ったら試合は中止です。 (Nếu trời mưa thì trận đấu sẽ bị hủy.). Theo cấu trúc V る/N の とおりに, mảnh đứng ở vị trí ★ là 「降ったら」.",
+      "options": [
+       "中止です",
+       "降ったら",
+       "試合は",
+       "雨が"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu V る/N の とおりに có nghĩa là \"Làm đúng y như mẫu\". Câu này dịch là: \"Tôi làm đúng như lời hướng dẫn.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Tôi làm đúng như lời hướng dẫn."
+      ],
+      "prompt_ja": "せつめいの とおりに します。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu V る/N の とおりに (Làm đúng y như mẫu), câu trên có nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Nếu trời mưa thì trận đấu sẽ bị hủy.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu V る/N の とおりに). Câu đúng: せつめいの とおりに します。",
+      "options": [
+       "雨が降ったら試合は中止です。",
+       "せつめいの とおりに しますますだ。",
+       "安ければこのパソコンを買います。",
+       "春になれば暖かくなります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "せつめいの とおりに します。",
+       "安ければこのパソコンを買います。",
+       "春になれば暖かくなります。",
+       "雨が降ったら試合はを中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"V る/N の とおりに\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "せつめいの とおりに します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi làm đúng như lời hướng dẫn."
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     },
+     {
+      "ja": "安ければこのパソコンを買います。",
+      "ja_furigana": "安(やす)ければこのパソコンを買(か)います。",
+      "source": "CLAUDE",
+      "vi": "Nếu rẻ thì tôi sẽ mua chiếc máy tính này."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「の」 theo cấu trúc V る/N の とおりに (Làm đúng y như mẫu). Nghĩa: Nếu rẻ thì tôi sẽ mua chiếc máy tính này.",
+      "options": [
+       "てみる",
+       "にくい",
+       "かもしれない",
+       "の"
+      ],
+      "prompt_ja": "安ければこ（　　）パソコンを買います。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu V る/N の とおりに (Làm đúng y như mẫu), câu này nghĩa là: \"Nếu rẻ thì tôi sẽ mua chiếc máy tính này.\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Nếu rẻ thì tôi sẽ mua chiếc máy tính này.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng."
+      ],
+      "prompt_ja": "安ければこのパソコンを買います。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 安ければこのパソコンを買います。",
+      "options": [
+       "安ければこのパソコンを買いますだます。",
+       "せつめいの とおりに します。",
+       "雨が降ったら試合は中止です。",
+       "暇なら一緒に映画を見ませんか。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "の",
+      "sentence_ja": "せつめい＿＿ とおりに します。",
+      "translation_vi": "Tôi làm đúng như lời hướng dẫn."
+     },
+     {
+      "answer": "です",
+      "sentence_ja": "雨が降ったら試合は中止＿＿。",
+      "translation_vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "findings": [],
+    "formation": "V る/N の とおりに",
+    "locked_fields": [],
+    "meaning_vi": "Làm đúng y như mẫu\nLàm theo đúng cái đã thấy, đã học, đã được chỉ: レシピの とおりに つくりました.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"V る/N の とおりに\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "おりに",
+       "せつめいの",
+       " します",
+       " と"
+      ],
+      "translation_vi": "Tôi làm đúng như lời hướng dẫn."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "降ったら",
+       "中止です",
+       "雨が",
+       "試合は"
+      ],
+      "translation_vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "pattern": "V る/N の とおりに",
+    "pattern_variants": [],
+    "unit_no": 34,
+    "unit_title_vi": "Làm theo hướng dẫn và trình tự",
+    "usage_vi": "Sau danh từ phải có の. Việc đã xảy ra thì dùng thể た (みた とおりに), việc đang diễn ra thì thể từ điển."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9538065931"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "chỉ … (mà thôi); ngoài … ra không …",
+     "formation": "N/số lượng + しか + V (thể phủ định)",
+     "usage_vi": "Giới hạn: chỉ có thế, ngoài ra không có; luôn đi với vị ngữ phủ định: 財布に百円しかありません; このお菓子はここでしか買えません; 日本語はひらがなしか読めません.",
+     "nuance_vi": "しか mang cảm giác \"ít, không đủ\" mạnh hơn だけ. しか thay cho が/を; với trợ từ khác thì để trợ từ trước しか (ここでしか, 東京にしか).",
+     "common_mistakes_vi": "Dùng しか với câu khẳng định (×百円しかあります); để thừa を/が (×水をしか).",
+     "examples": [
+      {
+       "ja": "財布に百円しかありません。",
+       "ja_furigana": "財布(さいふ)に百円(ひゃくえん)しかありません。",
+       "vi": "Trong ví chỉ còn 100 yên."
+      },
+      {
+       "ja": "このお菓子はここでしか買えません。",
+       "ja_furigana": "このお菓子(かし)はここでしか買(か)えません。",
+       "vi": "Bánh này chỉ mua được ở đây."
+      },
+      {
+       "ja": "昨日は三時間しか寝ませんでした。",
+       "ja_furigana": "昨日(きのう)は三時間(さんじかん)しか寝(ね)ませんでした。",
+       "vi": "Hôm qua tôi chỉ ngủ được ba tiếng."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "冷蔵庫には牛乳＿＿ありません。",
+       "answer": "しか",
+       "translation_vi": "Trong tủ lạnh chỉ có sữa thôi."
+      },
+      {
+       "sentence_ja": "この漢字は、まだ少し＿＿読めません。",
+       "answer": "しか",
+       "translation_vi": "Chữ Hán này tôi mới chỉ đọc được một ít."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "日本語は",
+        "読めません",
+        "ひらがな",
+        "しか"
+       ],
+       "answer_order": [
+        0,
+        2,
+        3,
+        1
+       ],
+       "translation_vi": "Tiếng Nhật thì tôi chỉ đọc được hiragana."
+      },
+      {
+       "pieces": [
+        "今月はお金が",
+        "残っていません",
+        "千円",
+        "しか"
+       ],
+       "answer_order": [
+        0,
+        2,
+        3,
+        1
+       ],
+       "translation_vi": "Tháng này tôi chỉ còn lại 1000 yên."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "冷蔵庫には牛乳（　　）ありません。",
+       "options": [
+        "ばかり",
+        "しか",
+        "ほど",
+        "ずつ"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "しか + phủ định. Nghĩa: Trong tủ lạnh chỉ có sữa thôi."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "この漢字は、まだ少し（　　）読めません。",
+       "options": [
+        "ずつ",
+        "ほど",
+        "しか",
+        "まで"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "しか + thể khả năng phủ định. Nghĩa: Chữ Hán này tôi mới chỉ đọc được một ít."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "日本語は",
+        "読めません",
+        "ひらがな",
+        "しか"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 日本語はひらがなしか読めません。 (Tiếng Nhật thì tôi chỉ đọc được hiragana.) Mảnh ở ô ★ là 「しか」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "今月は ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "お金が",
+        "残っていません",
+        "千円",
+        "しか"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 今月はお金が千円しか残っていません。 (Tháng này tôi chỉ còn lại 1000 yên.) Mảnh ở ô ★ là 「しか」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "財布に百円しかありません。",
+       "options": [
+        "Trong ví không còn đồng nào.",
+        "Trong ví chỉ còn 100 yên.",
+        "Trong ví có rất nhiều tiền.",
+        "Trong ví có hơn 100 yên."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Trong ví chỉ còn 100 yên.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "このお菓子はここでしか買えません。",
+       "options": [
+        "Bánh này không bán ở đây.",
+        "Bánh này ở đâu cũng mua được.",
+        "Ở đây chỉ bán bánh.",
+        "Bánh này chỉ mua được ở đây."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Bánh này chỉ mua được ở đây.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "このお菓子はここでしか買えません。",
+        "冷蔵庫には牛乳しかありません。",
+        "財布に百円しかあります。",
+        "日本語はひらがなしか読めません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: しか luôn đi với phủ định. Sửa: 財布に百円しかありません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "朝は水をしか飲みません。",
+        "このお菓子はここでしか買えません。",
+        "冷蔵庫には牛乳しかありません。",
+        "日本語はひらがなしか読めません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: しか thay cho を, không đứng sau を. Sửa: 朝は水しか飲みません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "パーティーには五人（　　）来ませんでした。",
+       "options": [
+        "しか",
+        "ずつ",
+        "まで",
+        "より"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Số lượng + しか + phủ định. Nghĩa: Bữa tiệc chỉ có năm người đến."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "昨日は三時間しか寝ませんでした。",
+       "options": [
+        "Hôm qua tôi ngủ ba tiếng là đủ.",
+        "Hôm qua tôi chỉ ngủ được ba tiếng.",
+        "Hôm qua tôi ngủ hơn ba tiếng.",
+        "Hôm qua tôi không ngủ được chút nào."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Hôm qua tôi chỉ ngủ được ba tiếng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "冷蔵庫には牛乳しかありません。",
+        "この店は日曜日しか開いています。",
+        "日本語はひらがなしか読めません。",
+        "財布に百円しかありません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: しか đi với phủ định. Sửa: この店は日曜日しか開いていません。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜しか〜ない); meaning lẫn Vるしかない (mục khác); ví dụ 2 có 限定商品 trên cấp, ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「いない」 theo mẫu Chỉ... / Không có ngoài... (Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.). Nghĩa cả câu: Chỉ còn 100 yên.",
+      "options": [
+       "いない",
+       "ていく",
+       "ようだ",
+       "から"
+      ],
+      "prompt_ja": "お金が100円しか残って（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Chỉ... / Không có ngoài... (Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.), chỗ trống cần điền 「だ」. Nghĩa: Là sản phẩm giới hạn chỉ mua được ở đây.",
+      "options": [
+       "やすい",
+       "だ",
+       "らしい",
+       "ても"
+      ],
+      "prompt_ja": "ここでしか買えない限定商品（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: お金が100円しか残っていない。 (Chỉ còn 100 yên.). Theo cấu trúc Chỉ... / Không có ngoài..., mảnh đứng ở vị trí ★ là 「しか残っ」.",
+      "options": [
+       "しか残っ",
+       "お金が",
+       "ていない",
+       "100円"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: ここでしか買えない限定商品だ。 (Là sản phẩm giới hạn chỉ mua được ở đây.). Theo cấu trúc Chỉ... / Không có ngoài..., mảnh đứng ở vị trí ★ là 「しか」.",
+      "options": [
+       "しか",
+       "限定商品だ",
+       "ここで",
+       "買えない"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Chỉ... / Không có ngoài... có nghĩa là \"Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.\". Câu này dịch là: \"Chỉ còn 100 yên.\"",
+      "options": [
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Chỉ còn 100 yên.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "お金が100円しか残っていない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Chỉ... / Không có ngoài... (Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.), câu trên có nghĩa là: \"Là sản phẩm giới hạn chỉ mua được ở đây.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Là sản phẩm giới hạn chỉ mua được ở đây."
+      ],
+      "prompt_ja": "ここでしか買えない限定商品だ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Chỉ... / Không có ngoài...). Câu đúng: お金が100円しか残っていない。",
+      "options": [
+       "お金が100円しか残っていないますだ。",
+       "ここでしか買えない限定商品だ。",
+       "あしたは午後から雨が降るだろう。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Chỉ... / Không có ngoài...). Câu đúng: ここでしか買えない限定商品だ。",
+      "options": [
+       "お金が100円しか残っていない。",
+       "あしたは午後から雨が降るだろう。",
+       "ここでしか買えない限定商品だですます。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Chỉ... / Không có ngoài...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "お金が100円しか残っていない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ còn 100 yên."
+     },
+     {
+      "ja": "ここでしか買えない限定商品だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Là sản phẩm giới hạn chỉ mua được ở đây."
+     },
+     {
+      "ja": "あしたは午後から雨が降るだろう。",
+      "ja_furigana": "あしたは午後(ごご)から雨(あめ)が降(ふ)るだろう。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai có lẽ trời sẽ mưa từ buổi chiều."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「から」 theo cấu trúc Chỉ... / Không có ngoài... (Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.). Nghĩa: Ngày mai có lẽ trời sẽ mưa từ buổi chiều.",
+      "options": [
+       "そうだ",
+       "ので",
+       "から",
+       "ば"
+      ],
+      "prompt_ja": "あしたは午後（　　）雨が降るだろう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Chỉ... / Không có ngoài... (Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.), câu này nghĩa là: \"Ngày mai có lẽ trời sẽ mưa từ buổi chiều.\"",
+      "options": [
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Ngày mai có lẽ trời sẽ mưa từ buổi chiều.",
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé."
+      ],
+      "prompt_ja": "あしたは午後から雨が降るだろう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: あしたは午後から雨が降るだろう。",
+      "options": [
+       "お金が100円しか残っていない。",
+       "ここでしか買えない限定商品だ。",
+       "週末は家族と一緒に公園へ行きます。",
+       "あしたは午後から雨が降るだろうだます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "いない",
+      "sentence_ja": "お金が100円しか残って＿＿。",
+      "translation_vi": "Chỉ còn 100 yên."
+     },
+     {
+      "answer": "だ",
+      "sentence_ja": "ここでしか買えない限定商品＿＿。",
+      "translation_vi": "Là sản phẩm giới hạn chỉ mua được ở đây."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: お金が100円しか残っていない。",
+     "FURIGANA_MISSING: ここでしか買えない限定商品だ。"
+    ],
+    "formation": "Cấu trúc: Chỉ... / Không có ngoài...",
+    "locked_fields": [],
+    "meaning_vi": "Giới hạn phạm vi: “chỉ … và không … (ngoài ra không có)”. Sắc thái mạnh hơn だけ: しか nhấn cảm giác thiếu hụt/không hài lòng. V-辞書形 + しかない mang nghĩa thành ngữ “chỉ còn cách …”. Bắt buộc đi với dạng phủ định (ない/ありません/できない…), không dùng với khẳng định.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Chỉ... / Không có ngoài...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "100円",
+       "ていない",
+       "お金が",
+       "しか残っ"
+      ],
+      "translation_vi": "Chỉ còn 100 yên."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "限定商品だ",
+       "買えない",
+       "ここで",
+       "しか"
+      ],
+      "translation_vi": "Là sản phẩm giới hạn chỉ mua được ở đây."
+     }
+    ],
+    "pattern": "Chỉ... / Không có ngoài...",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Giới hạn và khuynh hướng",
+    "usage_vi": "[4. Cách dùng & sắc thái] しか đứng sau danh từ/số lượng/đại từ chỉ địa điểm, trước động từ phủ định. Giữ trợ từ khi nó thật sự cần cho quan hệ ngữ pháp: ここでしか買えない／この日にしか行けない. Với 今日, thường nói 今日しか行けない. Khác với だけ: だけ trung lập, しか có sắc thái “ngoài ra không còn”. V-辞書形 + しかない thể hiện sự bất đắc dĩ. [6. Ghi chú mở rộng] Chủ ngữ thường lược trong hội thoại: これしかない（chỉ còn cái này）. Với người/động vật: ～しかいない dùng rất tự nhiên: 会場にはスタッフしかいない。 Nhấn mạnh giới hạn bằng “たった/わずか + 数量 + しか + ない”. [7. Biến thể & cụm cố định] V-るしかない（chỉ còn cách …） ここにしかない／今しかない／これしかない 彼女しかいない／水しかない [8. Lỗi thường gặp & bẫy JLPT] Dùng khẳng định với しか: 水しか飲む（sai）→ 水しか飲まない. Sai vị trí trợ từ: 水をしか飲まない（thừa を）→ 水しか飲まない. Nhầm với “だれも～ない”: không dùng “だれしか～ない”; đúng là だれもいない／彼しかいない. Quên giữ trợ từ quan hệ: ここしか買えない（mơ hồ）→ ここでしか買えない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-70fce621af"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "chỉ … thôi (nhấn mạnh); chỉ có mỗi …",
+     "formation": "N/số lượng + だけしか + V (thể phủ định)",
+     "usage_vi": "Cách nói nhấn mạnh của しか〜ない, hay gặp trong văn nói: 私は日本語だけしか話せません; 冷蔵庫には水だけしかありません.",
+     "nuance_vi": "Nghĩa như しか〜ない nhưng nhấn hơn; trong văn viết chuẩn hay dùng しか〜ない, hoặc だけ + khẳng định (水だけあります).",
+     "common_mistakes_vi": "Dùng だけしか với khẳng định (×水だけしかあります); để thừa を (×英語をだけしか).",
+     "examples": [
+      {
+       "ja": "私は日本語だけしか話せません。",
+       "ja_furigana": "私(わたし)は日本語(にほんご)だけしか話(はな)せません。",
+       "vi": "Tôi chỉ nói được mỗi tiếng Nhật."
+      },
+      {
+       "ja": "冷蔵庫には水だけしかありません。",
+       "ja_furigana": "冷蔵庫(れいぞうこ)には水(みず)だけしかありません。",
+       "vi": "Trong tủ lạnh chỉ có mỗi nước."
+      },
+      {
+       "ja": "今日は一時間だけしか勉強できませんでした。",
+       "ja_furigana": "今日(きょう)は一時間(いちじかん)だけしか勉強(べんきょう)できませんでした。",
+       "vi": "Hôm nay tôi chỉ học được một tiếng thôi."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "教室には学生が一人だけ＿＿いません。",
+       "answer": "しか",
+       "translation_vi": "Trong lớp chỉ có mỗi một học sinh."
+      },
+      {
+       "sentence_ja": "この店では、カード＿＿使えません。",
+       "answer": "だけしか",
+       "translation_vi": "Cửa hàng này chỉ dùng được thẻ thôi."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "しか",
+        "ありません",
+        "財布の中には千円",
+        "だけ"
+       ],
+       "answer_order": [
+        2,
+        3,
+        0,
+        1
+       ],
+       "translation_vi": "Trong ví chỉ có mỗi 1000 yên."
+      },
+      {
+       "pieces": [
+        "漢字だけしか",
+        "わかり",
+        "この",
+        "ません"
+       ],
+       "answer_order": [
+        2,
+        0,
+        1,
+        3
+       ],
+       "translation_vi": "Tôi chỉ hiểu mỗi chữ Hán này thôi."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "教室には学生が一人だけ（　　）いません。",
+       "options": [
+        "も",
+        "が",
+        "を",
+        "しか"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "だけしか + phủ định. Nghĩa: Trong lớp chỉ có mỗi một học sinh."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "この店では、カード（　　）使えません。",
+       "options": [
+        "ばかりも",
+        "だけしか",
+        "ずつ",
+        "だけも"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Nhấn mạnh: だけしか + phủ định. Nghĩa: Cửa hàng này chỉ dùng được thẻ thôi."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "財布の中には ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "しか",
+        "ありません",
+        "千円",
+        "だけ"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 財布の中には千円だけしかありません。 (Trong ví chỉ có mỗi 1000 yên.) Mảnh ở ô ★ là 「しか」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+       "options": [
+        "漢字だけしか",
+        "わかり",
+        "この",
+        "ません"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: この漢字だけしかわかりません。 (Tôi chỉ hiểu mỗi chữ Hán này thôi.) Mảnh ở ô ★ là 「漢字だけしか」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "私は日本語だけしか話せません。",
+       "options": [
+        "Tôi chỉ muốn học tiếng Nhật.",
+        "Tôi chỉ nói được mỗi tiếng Nhật.",
+        "Tôi nói được nhiều thứ tiếng, kể cả tiếng Nhật.",
+        "Tôi không nói được tiếng Nhật."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi chỉ nói được mỗi tiếng Nhật.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "冷蔵庫には水だけしかありません。",
+       "options": [
+        "Trong tủ lạnh có nhiều đồ uống.",
+        "Hãy cho nước vào tủ lạnh.",
+        "Trong tủ lạnh chỉ có mỗi nước.",
+        "Trong tủ lạnh không có nước."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Trong tủ lạnh chỉ có mỗi nước.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "私は日本語だけしか話せません。",
+        "教室には学生が一人だけしかいません。",
+        "冷蔵庫には水だけしかあります。",
+        "財布の中には千円だけしかありません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: だけしか đi với phủ định. Sửa: 冷蔵庫には水だけしかありません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "私は英語をだけしか話せません。",
+        "冷蔵庫には水だけしかありません。",
+        "教室には学生が一人だけしかいません。",
+        "財布の中には千円だけしかありません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: だけしか thay cho を. Sửa: 私は英語だけしか話せません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "きのうは、パンを一つ（　　）食べませんでした。",
+       "options": [
+        "だけしか",
+        "ばかりも",
+        "だけも",
+        "ずつ"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "だけしか + phủ định. Nghĩa: Hôm qua tôi chỉ ăn mỗi một cái bánh mì."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "今日は一時間だけしか勉強できませんでした。",
+       "options": [
+        "Hôm nay tôi học một tiếng là đủ.",
+        "Hôm nay tôi học được hơn một tiếng.",
+        "Hôm nay tôi chỉ học được một tiếng thôi.",
+        "Hôm nay tôi không học chút nào."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Hôm nay tôi chỉ học được một tiếng thôi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "教室には学生が一人だけしかいません。",
+        "この部屋には、いすが二つだけしかあります。",
+        "財布の中には千円だけしかありません。",
+        "私は日本語だけしか話せません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: だけしか đi với phủ định. Sửa: この部屋には、いすが二つだけしかありません。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜だけしか〜ない); meaning/usage dài, tự mâu thuẫn; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「だ」 theo mẫu Chỉ... mà thôi / ngoài ra không... (“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.). Nghĩa cả câu: Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác).",
+      "options": [
+       "かもしれない",
+       "たら",
+       "だけ",
+       "だ"
+      ],
+      "prompt_ja": "私は日本語（　　）けしか話せない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Chỉ... mà thôi / ngoài ra không... (“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.), chỗ trống cần điền 「ません」. Nghĩa: Ở đây chỉ có nước.",
+      "options": [
+       "ません",
+       "のに",
+       "なら",
+       "ほど"
+      ],
+      "prompt_ja": "ここには水だけしかあり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 私は日本語だけしか話せない。 (Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác).). Theo cấu trúc Chỉ... mà thôi / ngoài ra không..., mảnh đứng ở vị trí ★ là 「けしか」.",
+      "options": [
+       "私は日",
+       "けしか",
+       "本語だ",
+       "話せない"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: ここには水だけしかありません。 (Ở đây chỉ có nước.). Theo cấu trúc Chỉ... mà thôi / ngoài ra không..., mảnh đứng ở vị trí ★ là 「は」.",
+      "options": [
+       "水だけしかあり",
+       "ここに",
+       "ません",
+       "は"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Chỉ... mà thôi / ngoài ra không... có nghĩa là \"“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.\". Câu này dịch là: \"Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác).\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác).",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà."
+      ],
+      "prompt_ja": "私は日本語だけしか話せない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Chỉ... mà thôi / ngoài ra không... (“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.), câu trên có nghĩa là: \"Ở đây chỉ có nước.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Ở đây chỉ có nước.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "ここには水だけしかありません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Chỉ... mà thôi / ngoài ra không...). Câu đúng: 私は日本語だけしか話せない。",
+      "options": [
+       "ここには水だけしかありません。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "私は日本語だけしか話せないますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: ここには水だけしかありません。",
+      "options": [
+       "私は日本語だけしか話せない。",
+       "ここにはを水だけしかありません。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Chỉ... mà thôi / ngoài ra không...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "私は日本語だけしか話せない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác)."
+     },
+     {
+      "ja": "ここには水だけしかありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ở đây chỉ có nước."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Chỉ... mà thôi / ngoài ra không... (“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ても",
+       "ています",
+       "しか",
+       "とか"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Chỉ... mà thôi / ngoài ra không... (“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "私は日本語だけしか話せない。",
+       "ここには水だけしかありません。",
+       "毎日まじめにを日本語を勉強しています。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "だ",
+      "sentence_ja": "私は日本語＿＿けしか話せない。",
+      "translation_vi": "Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác)."
+     },
+     {
+      "answer": "ません",
+      "sentence_ja": "ここには水だけしかあり＿＿。",
+      "translation_vi": "Ở đây chỉ có nước."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 私は日本語だけしか話せない。",
+     "FURIGANA_MISSING: ここには水だけしかありません。"
+    ],
+    "formation": "Cấu trúc: Chỉ... mà thôi / ngoài ra không...",
+    "locked_fields": [],
+    "meaning_vi": "“Chỉ … mà thôi, ngoài ra không …”: cấu trúc hạn định mạnh, mang sắc thái thiếu hụt/đáng tiếc. だけしか luôn đi với động từ/phần vị ngữ ở dạng phủ định: Vない/ありません/いない. So với だけ (trung tính), だけしか (= しか + ない với trợ từ だけ nhấn) có cảm xúc mạnh hơn. だけしか là cách nhấn mạnh thường gặp trong khẩu ngữ, nhưng có thể bị xem là trùng ý. Trong văn chuẩn và bài JLPT, ưu tiên NしかVない hoặc NだけV.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Chỉ... mà thôi / ngoài ra không...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "話せない",
+       "けしか",
+       "私は日",
+       "本語だ"
+      ],
+      "translation_vi": "Tôi chỉ nói được tiếng Nhật (ngoài ra không nói được ngôn ngữ khác)."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "水だけしかあり",
+       "ここに",
+       "ません",
+       "は"
+      ],
+      "translation_vi": "Ở đây chỉ có nước."
+     }
+    ],
+    "pattern": "Chỉ... mà thôi / ngoài ra không...",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Giới hạn và khuynh hướng",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói thấy số lượng/đối tượng là ít, hạn hẹp, không thỏa đáng. Thường đi với các động từ tồn tại/khả năng: ある／いる／できる／わかる／話せる… Trong văn lịch sự: 〜だけしかありません／ありませんでした. Nếu muốn trung tính (không hàm ý thiếu), dùng Nだけ + khẳng định: 水だけあります。 [6. Ghi chú mở rộng] だけしか về mặt ngữ pháp là nhấn kép (だけ + しか + ない); tuy có vẻ thừa, nhưng là cách nói tự nhiên trong khẩu ngữ. Không dùng だけしか trong mẫu “Vるしかない” (đành phải) vì đó là mẫu khác: もう行くしかない。 Có thể kết hợp với trợ từ chủ đề: 彼だけしかは来なかった（ít dùng, cẩn trọng nhịp điệu; tự nhiên hơn: 彼しか来なかった）. [7. Biến thể & cụm cố định] これだけしかない／ありません。 〜人だけしかいない（chỉ có ~ người） 〜円だけしか持っていない（chỉ có ~ yên） 〜だけしかできない（chỉ làm được ~） [8. Lỗi thường gặp & bẫy JLPT] Dùng với khẳng định: × 水だけしかあります → √ 水だけあります hoặc 水だけしかありません。 Nhầm sắc thái với だけ: “水だけある” không mang ý thiếu hụt như “水だけしかない”. Bỏ phủ định ở cuối câu vì đã có “しか”: × 彼だけしか来た → √ 彼だけしか来なかった。 Dùng trùng lặp “しか…ない” và “だけ” khác vị trí gây rối: ưu tiên hoặc NしかVない hoặc NだけしかVない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-464986fa84"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "không cần … cũng được; không phải …",
+     "formation": "Vない (bỏ い) + くてもいいです; Aい → くなくてもいい; N/Aな → でなくてもいい",
+     "usage_vi": "Nói việc không bắt buộc phải làm: 心配しなくてもいいですよ; 明日は会社に来なくてもいいです; 全部食べなくてもいいですよ.",
+     "nuance_vi": "Ngược nghĩa với 〜なければなりません. Lịch sự hơn: 〜なくてもかまいません. Hỏi: 〜なくてもいいですか (không làm có được không?).",
+     "common_mistakes_vi": "Chia sai (×来ないてもいい → 来なくてもいい); nhầm với 〜なくてはいけない (phải) hoặc 〜ないほうがいい (khuyên không nên).",
+     "examples": [
+      {
+       "ja": "心配しなくてもいいですよ。",
+       "ja_furigana": "心配(しんぱい)しなくてもいいですよ。",
+       "vi": "Không cần lo đâu."
+      },
+      {
+       "ja": "明日は会社に来なくてもいいです。",
+       "ja_furigana": "明日(あした)は会社(かいしゃ)に来(こ)なくてもいいです。",
+       "vi": "Mai không cần đến công ty cũng được."
+      },
+      {
+       "ja": "全部食べなくてもいいですよ。",
+       "ja_furigana": "全部(ぜんぶ)食(た)べなくてもいいですよ。",
+       "vi": "Không cần ăn hết đâu."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "日曜日は、早く起き＿＿もいいです。",
+       "answer": "なくて",
+       "translation_vi": "Chủ nhật không cần dậy sớm cũng được.",
+       "accept": [
+        "ないで"
+       ]
+      },
+      {
+       "sentence_ja": "「靴をぬがなくても＿＿か」「ええ、そのままでいいですよ」",
+       "answer": "いいです",
+       "translation_vi": "\"Không cởi giày có được không?\" \"Vâng, cứ để vậy cũng được.\""
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "しなくても",
+        "です",
+        "いい",
+        "この仕事は今日"
+       ],
+       "answer_order": [
+        3,
+        0,
+        2,
+        1
+       ],
+       "translation_vi": "Việc này hôm nay không làm cũng được."
+      },
+      {
+       "pieces": [
+        "ですよ",
+        "お金は今",
+        "払わなくても",
+        "いい"
+       ],
+       "answer_order": [
+        1,
+        2,
+        3,
+        0
+       ],
+       "translation_vi": "Tiền thì bây giờ chưa trả cũng được."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "日曜日は、早く起き（　　）もいいです。",
+       "options": [
+        "ない",
+        "なくて",
+        "なく",
+        "なければ"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Vない bỏ い + くてもいい. Nghĩa: Chủ nhật không cần dậy sớm cũng được."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "「靴をぬがなくても（　　）か」「ええ、そのままでいいですよ」",
+       "options": [
+        "なりません",
+        "だめです",
+        "いけません",
+        "いいです"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Hỏi: 〜なくてもいいですか. Nghĩa: \"Không cởi giày có được không?\" \"Vâng, cứ để vậy cũng được.\""
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "この仕事は ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "しなくても",
+        "です",
+        "いい",
+        "今日"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: この仕事は今日しなくてもいいです。 (Việc này hôm nay không làm cũng được.) Mảnh ở ô ★ là 「いい」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "お金は ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ですよ",
+        "今",
+        "払わなくても",
+        "いい"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: お金は今払わなくてもいいですよ。 (Tiền thì bây giờ chưa trả cũng được.) Mảnh ở ô ★ là 「いい」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "心配しなくてもいいですよ。",
+       "options": [
+        "Tôi lo cho bạn lắm.",
+        "Đừng lo, tôi sẽ làm.",
+        "Bạn phải lo lắng đấy.",
+        "Không cần lo đâu."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Không cần lo đâu.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "明日は会社に来なくてもいいです。",
+       "options": [
+        "Mai công ty có cuộc họp.",
+        "Mai không cần đến công ty cũng được.",
+        "Mai không được đến công ty.",
+        "Mai phải đến công ty."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Mai không cần đến công ty cũng được.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "心配しなくてもいいですよ。",
+        "全部食べなくてもいいですよ。",
+        "明日は来ないてもいいです。",
+        "「靴をぬがなくてもいいですか」「ええ、そのままでいいですよ」"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: 来ない bỏ い + くても: 来なくても. Sửa: 明日は来なくてもいいです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "宿題を出さなくてはいいです。",
+        "明日は会社に来なくてもいいです。",
+        "日曜日は、早く起きなくてもいいです。",
+        "この仕事は今日しなくてもいいです。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: \"không cần\" là なくてもいい. Sửa: 宿題を出さなくてもいいです。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "名前はカタカナで書か（　　）もいいです。",
+       "options": [
+        "なくて",
+        "ない",
+        "なければ",
+        "なく"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Vない bỏ い + くてもいい. Nghĩa: Tên không cần viết bằng katakana cũng được."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "全部食べなくてもいいですよ。",
+       "options": [
+        "Không cần ăn hết đâu.",
+        "Không được ăn hết.",
+        "Phải ăn hết đấy.",
+        "Ăn hết thì ngon."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Không cần ăn hết đâu.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "日曜日は、早く起きなくてもいいです。",
+        "無理に来なければもいいです。",
+        "この仕事は今日しなくてもいいです。",
+        "心配しなくてもいいですよ。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: dùng 来なくてもいい. Sửa: 無理に来なくてもいいです。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜なくてもいい); meaning/usage dài, lẫn từ trên N4; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「いいよ」 theo mẫu Không cần... (Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.). Nghĩa cả câu: Không cần lo đâu.",
+      "options": [
+       "ば",
+       "くらい",
+       "いいよ",
+       "ながら"
+      ],
+      "prompt_ja": "心配しなくても（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Không cần... (Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.), chỗ trống cần điền 「なくてもいいです」. Nghĩa: Hôm nay không cần phải cố đến đâu ạ.",
+      "options": [
+       "と",
+       "ずつ",
+       "ばかり",
+       "なくてもいいです"
+      ],
+      "prompt_ja": "今日は無理に来（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 心配しなくてもいいよ。 (Không cần lo đâu.). Theo cấu trúc Không cần..., mảnh đứng ở vị trí ★ là 「ても」.",
+      "options": [
+       "いいよ",
+       "しなく",
+       "ても",
+       "心配"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 今日は無理に来なくてもいいです。 (Hôm nay không cần phải cố đến đâu ạ.). Theo cấu trúc Không cần..., mảnh đứng ở vị trí ★ là 「無理に」.",
+      "options": [
+       "今日は",
+       "来なくても",
+       "無理に",
+       "いいです"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Không cần... có nghĩa là \"Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.\". Câu này dịch là: \"Không cần lo đâu.\"",
+      "options": [
+       "Không cần lo đâu.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "心配しなくてもいいよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Không cần... (Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.), câu trên có nghĩa là: \"Hôm nay không cần phải cố đến đâu ạ.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Hôm nay không cần phải cố đến đâu ạ.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "今日は無理に来なくてもいいです。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Không cần...). Câu đúng: 心配しなくてもいいよ。",
+      "options": [
+       "今日は無理に来なくてもいいです。",
+       "雨が降ったら試合は中止です。",
+       "心配しなくてもいいよますだ。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 今日は無理に来なくてもいいです。",
+      "options": [
+       "今日はを無理に来なくてもいいです。",
+       "心配しなくてもいいよ。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Không cần...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "心配しなくてもいいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không cần lo đâu."
+     },
+     {
+      "ja": "今日は無理に来なくてもいいです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay không cần phải cố đến đâu ạ."
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「です」 theo cấu trúc Không cần... (Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.). Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "です",
+       "ほど",
+       "てもいい",
+       "はず"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Không cần... (Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.), câu này nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Nếu trời mưa thì trận đấu sẽ bị hủy."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "心配しなくてもいいよ。",
+       "雨が降ったら試合は中止ですだます。",
+       "今日は無理に来なくてもいいです。",
+       "春になれば暖かくなります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "いいよ",
+      "sentence_ja": "心配しなくても＿＿。",
+      "translation_vi": "Không cần lo đâu."
+     },
+     {
+      "answer": "なくてもいいです",
+      "sentence_ja": "今日は無理に来＿＿。",
+      "translation_vi": "Hôm nay không cần phải cố đến đâu ạ."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 心配しなくてもいいよ。",
+     "FURIGANA_MISSING: 今日は無理に来なくてもいいです。"
+    ],
+    "formation": "Cấu trúc: Không cần...",
+    "locked_fields": [],
+    "meaning_vi": "Cho phép/không yêu cầu thực hiện hành động hay có tính chất nào đó: “không cần ... cũng được”. Giảm gánh nặng, nêu tùy chọn; không phủ định hoàn toàn việc làm. Trái nghĩa thực dụng với ～なくてはいけない／～なければならない. Dùng nhiều trong hướng dẫn, quy định mềm, chăm sóc khách hàng.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Không cần...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "ても",
+       "心配",
+       "いいよ",
+       "しなく"
+      ],
+      "translation_vi": "Không cần lo đâu."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "無理に",
+       "いいです",
+       "今日は",
+       "来なくても"
+      ],
+      "translation_vi": "Hôm nay không cần phải cố đến đâu ạ."
+     }
+    ],
+    "pattern": "Không cần...",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Điều kiện và nghĩa vụ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Lịch sự: ～なくてもいいです／～なくてもかまいません. Nhẹ nhàng, mang tính trấn an hoặc nới lỏng yêu cầu. Với A/N: diễn tả tiêu chuẩn tối thiểu; không cần đạt mức đó. Khi muốn nhấn mạnh “không nên”: dùng ～ないほうがいい thay vì ～なくてもいい. [6. Ghi chú mở rộng] Dạng quá khứ/giả định: 来なくてもよかった（đã không cần đến). Dễ nhầm với tiếc nuối ～ばよかった. Phủ định kép lịch sự: ～なくてもよろしい（rất lịch sự, văn bản thông báo). Nhấn mạnh tùy chọn: ～ても～なくてもいい（Làm hay không làm đều được）. [7. Biến thể & cụm cố định] わざわざ来なくてもいいです。／返信は急がなくてもいいです。 予約なしでもいい（rút gọn danh từ hóa, khẩu ngữ quảng cáo). ～なくても平気（khẩu ngữ: không sao nếu không ...） [8. Lỗi thường gặp & bẫy JLPT] Quên “で” với N/na: ×会員なくてもいい → 〇会員でなくてもいい. Nhầm với “không nên”: ×行かなくてもいい（muốn nói “không nên đi”）→ 〇行かないほうがいい. Nhầm mức độ lịch sự: với khách nên dùng ～なくてもかまいません thay vì ～なくてもいいよ. Trong đề thi, bẫy phủ định kép: “必ずしも～なくてもいい” = “không nhất thiết phải ...”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5ffd5a0857"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "chỉ có …; đành phải …; không còn cách nào khác ngoài …",
+     "formation": "N/số lượng + しかない (しかありません); Vる + しかない",
+     "usage_vi": "Với danh từ/số lượng: chỉ có chừng ấy: 水しかありません. Với động từ thể từ điển: không còn cách nào khác, đành phải làm: バスがないから、歩くしかありません; 明日はテストだから、勉強するしかない.",
+     "nuance_vi": "Vるしかない mang cảm giác bất đắc dĩ. Lịch sự: 〜しかありません.",
+     "common_mistakes_vi": "Dùng thể ます hoặc thể た trước しかない (×歩きますしかない); bỏ phủ định (×急ぐしかあります).",
+     "examples": [
+      {
+       "ja": "冷蔵庫には水しかありません。",
+       "ja_furigana": "冷蔵庫(れいぞうこ)には水(みず)しかありません。",
+       "vi": "Trong tủ lạnh chỉ có nước."
+      },
+      {
+       "ja": "バスがないから、歩くしかありません。",
+       "ja_furigana": "バスがないから、歩(ある)くしかありません。",
+       "vi": "Không có xe buýt nên đành phải đi bộ."
+      },
+      {
+       "ja": "明日はテストだから、今夜は勉強するしかない。",
+       "ja_furigana": "明日(あした)はテストだから、今夜(こんや)は勉強(べんきょう)するしかない。",
+       "vi": "Mai thi nên tối nay đành phải học thôi."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "電車が止まったので、タクシーで行く＿＿ありません。",
+       "answer": "しか",
+       "translation_vi": "Tàu dừng chạy nên đành phải đi taxi."
+      },
+      {
+       "sentence_ja": "だれも手伝ってくれないから、一人で＿＿しかない。",
+       "answer": "やる",
+       "translation_vi": "Không ai giúp nên đành tự làm một mình."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "ないから",
+        "お金が",
+        "あきらめる",
+        "しかない"
+       ],
+       "answer_order": [
+        1,
+        0,
+        2,
+        3
+       ],
+       "translation_vi": "Không có tiền nên đành phải bỏ cuộc."
+      },
+      {
+       "pieces": [
+        "円",
+        "しか",
+        "財布には五百",
+        "ありません"
+       ],
+       "answer_order": [
+        2,
+        0,
+        1,
+        3
+       ],
+       "translation_vi": "Trong ví chỉ có 500 yên."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "電車が止まったので、タクシーで行く（　　）ありません。",
+       "options": [
+        "ほど",
+        "だけ",
+        "まで",
+        "しか"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Vる + しかない: đành phải. Nghĩa: Tàu dừng chạy nên đành phải đi taxi."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "だれも手伝ってくれないから、一人で（　　）しかない。",
+       "options": [
+        "やった",
+        "やって",
+        "やる",
+        "やり"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Thể từ điển + しかない. Nghĩa: Không ai giúp nên đành tự làm một mình."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ないから",
+        "お金が",
+        "あきらめる",
+        "しかない"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: お金がないからあきらめるしかない。 (Không có tiền nên đành phải bỏ cuộc.) Mảnh ở ô ★ là 「あきらめる」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "財布には ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "円",
+        "しか",
+        "五百",
+        "ありません"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 財布には五百円しかありません。 (Trong ví chỉ có 500 yên.) Mảnh ở ô ★ là 「しか」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "冷蔵庫には水しかありません。",
+       "options": [
+        "Trong tủ lạnh chỉ có nước.",
+        "Trong tủ lạnh có nhiều nước.",
+        "Hãy uống nước trong tủ lạnh.",
+        "Trong tủ lạnh không có nước."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Trong tủ lạnh chỉ có nước.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "バスがないから、歩くしかありません。",
+       "options": [
+        "Không có xe buýt nên đành phải đi bộ.",
+        "Xe buýt đến rồi nên không cần đi bộ.",
+        "Không có xe buýt nhưng tôi không muốn đi bộ.",
+        "Tôi thích đi bộ hơn đi xe buýt."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Không có xe buýt nên đành phải đi bộ.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "冷蔵庫には水しかありません。",
+        "電車が止まったので、タクシーで行くしかありません。",
+        "バスがないから、歩きますしかありません。",
+        "お金がないからあきらめるしかない。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: trước しかない dùng thể từ điển (歩く). Sửa: バスがないから、歩くしかありません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "時間がないから、急ぐしかあります。",
+        "バスがないから、歩くしかありません。",
+        "電車が止まったので、タクシーで行くしかありません。",
+        "お金がないからあきらめるしかない。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: しか luôn đi với phủ định. Sửa: 時間がないから、急ぐしかありません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "道がわからないから、だれかに（　　）しかない。",
+       "options": [
+        "聞いた",
+        "聞く",
+        "聞いて",
+        "聞き"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Thể từ điển + しかない. Nghĩa: Không biết đường nên đành phải hỏi ai đó."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "明日はテストだから、今夜は勉強するしかない。",
+       "options": [
+        "Tối nay tôi học rồi mai thi.",
+        "Mai thi nên tối nay tôi đi chơi.",
+        "Mai không thi nên không cần học.",
+        "Mai thi nên tối nay đành phải học thôi."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Mai thi nên tối nay đành phải học thôi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "電車が止まったので、タクシーで行くしかありません。",
+        "この店には、パンをしかありません。",
+        "お金がないからあきらめるしかない。",
+        "冷蔵庫には水しかありません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: しか thay cho を/が, không đứng sau を. Sửa: この店には、パンしかありません。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜しかない); ví dụ 1 lẫn chữ \"· Ví dụ J-LAS soạn bổ sung\", ví dụ 2 và 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「ません」 theo mẫu Không còn cách nào ngoài... (“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.). Nghĩa cả câu: Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung",
+      "options": [
+       "とか",
+       "ません",
+       "ところ",
+       "ついでに"
+      ],
+      "prompt_ja": "水しかあり（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Không còn cách nào ngoài... (“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.), chỗ trống cần điền 「から」. Nghĩa: Ngày mai có lẽ trời sẽ mưa từ buổi chiều.",
+      "options": [
+       "し",
+       "つもり",
+       "から",
+       "てしまう"
+      ],
+      "prompt_ja": "あしたは午後（　　）雨が降るだろう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 水しかありません。 (Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung). Theo cấu trúc Không còn cách nào ngoài..., mảnh đứng ở vị trí ★ là 「りま」.",
+      "options": [
+       "かあ",
+       "せん",
+       "水し",
+       "りま"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: あしたは午後から雨が降るだろう。 (Ngày mai có lẽ trời sẽ mưa từ buổi chiều.). Theo cấu trúc Không còn cách nào ngoài..., mảnh đứng ở vị trí ★ là 「午後から」.",
+      "options": [
+       "降るだろう",
+       "午後から",
+       "雨が",
+       "あしたは"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Không còn cách nào ngoài... có nghĩa là \"“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.\". Câu này dịch là: \"Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung"
+      ],
+      "prompt_ja": "水しかありません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Không còn cách nào ngoài... (“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.), câu trên có nghĩa là: \"Ngày mai có lẽ trời sẽ mưa từ buổi chiều.\"",
+      "options": [
+       "Ngày mai có lẽ trời sẽ mưa từ buổi chiều.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "あしたは午後から雨が降るだろう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Không còn cách nào ngoài...). Câu đúng: 水しかありません。",
+      "options": [
+       "あしたは午後から雨が降るだろう。",
+       "水しかありませんますだ。",
+       "道が混んでいて遅れるかもしれない。",
+       "毎日まじめに日本語を勉強しています。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: あしたは午後から雨が降るだろう。",
+      "options": [
+       "水しかありません。",
+       "道が混んでいて遅れるかもしれない。",
+       "毎日まじめに日本語を勉強しています。",
+       "あしたはを午後から雨が降るだろう。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Không còn cách nào ngoài...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "水しかありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "ja": "あしたは午後から雨が降るだろう。",
+      "ja_furigana": "あしたは午後(ごご)から雨(あめ)が降(ふ)るだろう。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai có lẽ trời sẽ mưa từ buổi chiều."
+     },
+     {
+      "ja": "道が混んでいて遅れるかもしれない。",
+      "ja_furigana": "道(みち)が混(こ)んでいて遅(おく)れるかもしれない。",
+      "source": "CLAUDE",
+      "vi": "Đường đông nên có thể tôi sẽ đến muộn."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「かもしれない」 theo cấu trúc Không còn cách nào ngoài... (“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.). Nghĩa: Đường đông nên có thể tôi sẽ đến muộn.",
+      "options": [
+       "ばかり",
+       "とおり",
+       "てみる",
+       "かもしれない"
+      ],
+      "prompt_ja": "道が混んでいて遅れる（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Không còn cách nào ngoài... (“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.), câu này nghĩa là: \"Đường đông nên có thể tôi sẽ đến muộn.\"",
+      "options": [
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Đường đông nên có thể tôi sẽ đến muộn.",
+       "Tôi vẫn chưa làm xong bài tập về nhà."
+      ],
+      "prompt_ja": "道が混んでいて遅れるかもしれない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 道が混んでいて遅れるかもしれない。",
+      "options": [
+       "道が混んでいて遅れるかもしれないだます。",
+       "水しかありません。",
+       "あしたは午後から雨が降るだろう。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "ません",
+      "sentence_ja": "水しかあり＿＿。",
+      "translation_vi": "Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "answer": "から",
+      "sentence_ja": "あしたは午後＿＿雨が降るだろう。",
+      "translation_vi": "Ngày mai có lẽ trời sẽ mưa từ buổi chiều."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 水しかありません。"
+    ],
+    "formation": "Cấu trúc: Không còn cách nào ngoài...",
+    "locked_fields": [],
+    "meaning_vi": "“Chỉ …” với sắc thái phủ định mạnh: loại trừ mọi khả năng khác. Với danh từ/số lượng: nhấn số lượng ít, “chỉ có bấy nhiêu”. Với động từ: “đành phải/không còn cách nào ngoài …”. Mang cảm giác bất đắc dĩ hoặc tất yếu. Về ngữ pháp: しか luôn đi với vị ngữ phủ định (ない). Cụm cố định “～しかない” tạo nghĩa bắt buộc.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Không còn cách nào ngoài...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "かあ",
+       "せん",
+       "水し",
+       "りま"
+      ],
+      "translation_vi": "Chỉ có nước thôi. · Ví dụ J-LAS soạn bổ sung"
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "降るだろう",
+       "雨が",
+       "あしたは",
+       "午後から"
+      ],
+      "translation_vi": "Ngày mai có lẽ trời sẽ mưa từ buổi chiều."
+     }
+    ],
+    "pattern": "Không còn cách nào ngoài...",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Giới hạn và khuynh hướng",
+    "usage_vi": "[4. Cách dùng & sắc thái] Khi diễn đạt số lượng ít/thiếu: N/数量＋しかない. Khi diễn đạt lựa chọn bắt buộc: Vる＋しかない (“đành phải …”). Sắc thái thường tiêu cực/tiếc nuối, nhưng cũng có thể trung lập khi nêu thực tế khách quan. Trong văn nói, しかない mang lực nhấn mạnh hơn だけだ/だけしかない. [6. Ghi chú mở rộng] Nếu cần văn phong lịch sự: しかありません/しかないです đều chấp nhận được. Để nhấn mạnh thiếu thốn: たった＋数量＋しかない（たった一人しかない）. Trong hội thoại động lực: “やるしかない！” mang sắc thái quyết tâm dù không còn lựa chọn. [7. Biến thể & cụm cố định] 待つしかない／やるしかない／行くしかない（mẫu hay gặp） ～方法しかない（chỉ còn cách …） ～と認めるしかない（đành phải thừa nhận） ～に頼るしかない（đành dựa vào …） [8. Lỗi thường gặp & bẫy JLPT] Quên vị ngữ phủ định: しか luôn đi với ない. 誤）お金は千円しか → 正）千円しかない。 Nhầm với だけ: だけ không mang sắc thái bó buộc/thiếu thốn và không cần ない. Dùng しか một mình: cần danh từ/số lượng/động từ đi kèm trước しか. Với dạng lịch sự, dùng ～しかありません hoặc ～しかないです. Không biến câu thành nghi vấn trừ khi thực sự muốn hỏi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-247ce1b958"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "không nên …; tốt hơn là đừng …",
+     "formation": "Vない + ほうが いい (です/と思います)",
+     "usage_vi": "Lời khuyên dựa trên kinh nghiệm, lẽ thường: 今日は無理をしないほうがいいよ; その話は部長に言わないほうがいいと思います.",
+     "nuance_vi": "Nhẹ hơn mệnh lệnh; thêm と思います để mềm hơn. Không dùng cho quy định cấm (dùng 〜てはいけない).",
+     "common_mistakes_vi": "Dùng thể なかった (×言わなかったほうがいい); chia sai thể ない (×飲みないほうが); thêm の (×乗らないのほうが).",
+     "examples": [
+      {
+       "ja": "今日は無理をしないほうがいいよ。",
+       "ja_furigana": "今日(きょう)は無理(むり)をしないほうがいいよ。",
+       "vi": "Hôm nay cậu không nên cố quá."
+      },
+      {
+       "ja": "その話は部長に言わないほうがいいと思います。",
+       "ja_furigana": "その話(はなし)は部長(ぶちょう)に言(い)わないほうがいいと思(おも)います。",
+       "vi": "Tôi nghĩ chuyện đó không nên nói với trưởng phòng."
+      },
+      {
+       "ja": "寝る前にゲームをしないほうがいいですよ。",
+       "ja_furigana": "寝(ね)る前(まえ)にゲームをしないほうがいいですよ。",
+       "vi": "Trước khi ngủ không nên chơi game đâu."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "熱があるから、今日はおふろに＿＿ほうがいいですよ。",
+       "answer": "入らない",
+       "translation_vi": "Bạn bị sốt nên hôm nay không nên tắm bồn."
+      },
+      {
+       "sentence_ja": "あの店は高いから、行かない＿＿いいと思います。",
+       "answer": "ほうが",
+       "translation_vi": "Quán đó đắt nên tôi nghĩ không nên đi."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "電話しない",
+        "遅く",
+        "ほうがいいですよ",
+        "夜"
+       ],
+       "answer_order": [
+        3,
+        1,
+        0,
+        2
+       ],
+       "translation_vi": "Không nên gọi điện vào đêm khuya đâu."
+      },
+      {
+       "pieces": [
+        "甘い",
+        "あげないほうがいい",
+        "子どもにあまり",
+        "ものを"
+       ],
+       "answer_order": [
+        2,
+        0,
+        3,
+        1
+       ],
+       "translation_vi": "Không nên cho trẻ ăn nhiều đồ ngọt."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "熱があるから、今日はおふろに（　　）ほうがいいですよ。",
+       "options": [
+        "入らない",
+        "入るない",
+        "入りない",
+        "入らなかった"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Vない + ほうがいい. Nghĩa: Bạn bị sốt nên hôm nay không nên tắm bồn."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "あの店は高いから、行かない（　　）いいと思います。",
+       "options": [
+        "ほど",
+        "ほうが",
+        "のが",
+        "ことが"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Vない + ほうが いい. Nghĩa: Quán đó đắt nên tôi nghĩ không nên đi."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "電話しない",
+        "遅く",
+        "ほうがいいですよ",
+        "夜"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 夜遅く電話しないほうがいいですよ。 (Không nên gọi điện vào đêm khuya đâu.) Mảnh ở ô ★ là 「電話しない」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "子どもに ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "甘い",
+        "あげないほうがいい",
+        "あまり",
+        "ものを"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 子どもにあまり甘いものをあげないほうがいい。 (Không nên cho trẻ ăn nhiều đồ ngọt.) Mảnh ở ô ★ là 「ものを」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "今日は無理をしないほうがいいよ。",
+       "options": [
+        "Hôm nay cậu không cố được à?",
+        "Hôm nay cậu nên cố gắng hơn.",
+        "Hôm nay cậu không nên cố quá.",
+        "Hôm nay cậu đã cố quá rồi."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Hôm nay cậu không nên cố quá.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "その話は部長に言わないほうがいいと思います。",
+       "options": [
+        "Tôi nghĩ chuyện đó không nên nói với trưởng phòng.",
+        "Tôi không biết chuyện đó.",
+        "Tôi nghĩ nên nói chuyện đó với trưởng phòng.",
+        "Trưởng phòng đã nói chuyện đó với tôi."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi nghĩ chuyện đó không nên nói với trưởng phòng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "今日は無理をしないほうがいいよ。",
+        "寝る前にゲームをしないほうがいいですよ。",
+        "その話は言わなかったほうがいいです。",
+        "あの店は高いから、行かないほうがいいと思います。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: lời khuyên phủ định giữ thể ない. Sửa: その話は言わないほうがいいです。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "寝る前にコーヒーを飲みないほうがいいです。",
+        "その話は部長に言わないほうがいいと思います。",
+        "熱があるから、今日はおふろに入らないほうがいいですよ。",
+        "夜遅く電話しないほうがいいですよ。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: thể ない của 飲む là 飲まない. Sửa: 寝る前にコーヒーを飲まないほうがいいです。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "かぜをひいているときは、無理を（　　）ほうがいいです。",
+       "options": [
+        "しないで",
+        "しない",
+        "しなかった",
+        "すない"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "する → しない + ほうがいい. Nghĩa: Khi bị cảm thì không nên cố quá."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "寝る前にゲームをしないほうがいいですよ。",
+       "options": [
+        "Trước khi ngủ tôi hay chơi game.",
+        "Trước khi ngủ bị cấm chơi game.",
+        "Trước khi ngủ nên chơi game một chút.",
+        "Trước khi ngủ không nên chơi game đâu."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Trước khi ngủ không nên chơi game đâu.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "熱があるから、今日はおふろに入らないほうがいいですよ。",
+        "雨の日は、自転車に乗らないのほうがいいです。",
+        "夜遅く電話しないほうがいいですよ。",
+        "今日は無理をしないほうがいいよ。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: không thêm の trước ほうが. Sửa: 雨の日は、自転車に乗らないほうがいいです。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜ないほうがいい); meaning/usage dài lẫn từ trên N4 (べき, おすすめ); ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「いいよ」 theo mẫu Không nên... (Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.). Nghĩa cả câu: Hôm nay cậu không nên gắng quá.",
+      "options": [
+       "いいよ",
+       "はず",
+       "ておく",
+       "ていく"
+      ],
+      "prompt_ja": "今日は無理をしないほうが（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Không nên... (Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.), chỗ trống cần điền 「がいい」. Nghĩa: Chuyện đó không nên nói với trưởng phòng.",
+      "options": [
+       "まま",
+       "がいい",
+       "てある",
+       "やすい"
+      ],
+      "prompt_ja": "その話は部長には言わないほう（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 今日は無理をしないほうがいいよ。 (Hôm nay cậu không nên gắng quá.). Theo cấu trúc Không nên..., mảnh đứng ở vị trí ★ là 「しないほうが」.",
+      "options": [
+       "しないほうが",
+       "今日は",
+       "いいよ",
+       "無理を"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: その話は部長には言わないほうがいい。 (Chuyện đó không nên nói với trưởng phòng.). Theo cấu trúc Không nên..., mảnh đứng ở vị trí ★ là 「部長には」.",
+      "options": [
+       "部長には",
+       "いい",
+       "その話は",
+       "言わないほうが"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Không nên... có nghĩa là \"Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.\". Câu này dịch là: \"Hôm nay cậu không nên gắng quá.\"",
+      "options": [
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Hôm nay cậu không nên gắng quá.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "今日は無理をしないほうがいいよ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Không nên... (Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.), câu trên có nghĩa là: \"Chuyện đó không nên nói với trưởng phòng.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Chuyện đó không nên nói với trưởng phòng."
+      ],
+      "prompt_ja": "その話は部長には言わないほうがいい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Không nên...). Câu đúng: 今日は無理をしないほうがいいよ。",
+      "options": [
+       "今日は無理をしないほうがいいよますだ。",
+       "その話は部長には言わないほうがいい。",
+       "あしたは午後から雨が降るだろう。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: その話は部長には言わないほうがいい。",
+      "options": [
+       "今日は無理をしないほうがいいよ。",
+       "あしたは午後から雨が降るだろう。",
+       "その話はを部長には言わないほうがいい。",
+       "雨が降ったら試合は中止です。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Không nên...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "今日は無理をしないほうがいいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm nay cậu không nên gắng quá."
+     },
+     {
+      "ja": "その話は部長には言わないほうがいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chuyện đó không nên nói với trưởng phòng."
+     },
+     {
+      "ja": "あしたは午後から雨が降るだろう。",
+      "ja_furigana": "あしたは午後(ごご)から雨(あめ)が降(ふ)るだろう。",
+      "source": "CLAUDE",
+      "vi": "Ngày mai có lẽ trời sẽ mưa từ buổi chiều."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「から」 theo cấu trúc Không nên... (Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.). Nghĩa: Ngày mai có lẽ trời sẽ mưa từ buổi chiều.",
+      "options": [
+       "てしまう",
+       "てくる",
+       "から",
+       "そうだ"
+      ],
+      "prompt_ja": "あしたは午後（　　）雨が降るだろう。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Không nên... (Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.), câu này nghĩa là: \"Ngày mai có lẽ trời sẽ mưa từ buổi chiều.\"",
+      "options": [
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Ngày mai có lẽ trời sẽ mưa từ buổi chiều.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển."
+      ],
+      "prompt_ja": "あしたは午後から雨が降るだろう。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: あしたは午後から雨が降るだろう。",
+      "options": [
+       "今日は無理をしないほうがいいよ。",
+       "その話は部長には言わないほうがいい。",
+       "安ければこのパソコンを買います。",
+       "あしたは午後から雨が降るだろうだます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "いいよ",
+      "sentence_ja": "今日は無理をしないほうが＿＿。",
+      "translation_vi": "Hôm nay cậu không nên gắng quá."
+     },
+     {
+      "answer": "がいい",
+      "sentence_ja": "その話は部長には言わないほう＿＿。",
+      "translation_vi": "Chuyện đó không nên nói với trưởng phòng."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 今日は無理をしないほうがいいよ。",
+     "FURIGANA_MISSING: その話は部長には言わないほうがいい。"
+    ],
+    "formation": "Cấu trúc: Không nên...",
+    "locked_fields": [],
+    "meaning_vi": "Khuyên nhủ/đề nghị: “Không nên làm …” dựa trên kinh nghiệm, lẽ thường, hoặc quan điểm người nói. Sắc thái nhẹ nhàng hơn mệnh lệnh; thường dùng khi đưa lời khuyên cá nhân, chăm sóc sức khỏe, an toàn. Thể hiện tính khả chọn: giữa hai khả năng, chọn phương án “không làm” sẽ tốt hơn. Không dùng cho quy định cấm tuyệt đối của tổ chức (khi đó dùng ～てはいけない/禁止). Thường đi kèm ですよ/と思います/かもしれません để giảm độ trực tiếp. So với ～べきではない: yếu hơn, ít tính đạo đức/phán xét; thiên về lời khuyên thực tế.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Không nên...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "いいよ",
+       "しないほうが",
+       "今日は",
+       "無理を"
+      ],
+      "translation_vi": "Hôm nay cậu không nên gắng quá."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "言わないほうが",
+       "その話は",
+       "いい",
+       "部長には"
+      ],
+      "translation_vi": "Chuyện đó không nên nói với trưởng phòng."
+     }
+    ],
+    "pattern": "Không nên...",
+    "pattern_variants": [],
+    "unit_no": 32,
+    "unit_title_vi": "Lời khuyên và phỏng đoán",
+    "usage_vi": "[4. Cách dùng & sắc thái] Lịch sự: ～ないほうがいいです; Trung hòa: ～ないほうがいいよ; Mềm hóa: ～ないほうがいいと思います。 Dùng khi người nghe có quyền tự quyết; tránh dùng với cấp trên (chuyển sang ～てはいかがですか/おすすめしません). Khi so sánh hai lựa chọn, có thể nêu cả hai: 行くより行かないほうがいい。 Hay đi kèm lý do: ～から/ので/ほうがいい。 Không dùng cho hành vi đã xảy ra (khi hối tiếc dùng ～ないほうがよかった). [6. Ghi chú mở rộng] Viết: ほう/方 đều thấy; trong văn viết trang trọng thường dùng 方. Để càng lịch sự: ～ないほうがよろしいかと思います。 Thêm căn cứ trải nghiệm: ～ないほうがいいですよ、前に失敗しましたから。 Trong hội thoại, bỏ です để thân mật: ～ないほうがいいよ。 [7. Biến thể & cụm cố định] V-ない + ほうがいいです／だ／よ V-ない + ほうがよかった（đáng lẽ không nên） V-ない + ほうが無難だ／身のためだ （もし～なら）V-ない + ほうがいい（nêu điều kiện trước khi khuyên） [8. Lỗi thường gặp & bẫy JLPT] Sai hình thái: dùng辞書形 thay vì ない形. Đúng: 行かないほうがいい (không phải 行くほうがいい khi muốn “không nên”). Nhầm với cấm đoán tuyệt đối: ～てはいけない mạnh và mang tính quy tắc hơn. Không phân biệt hối tiếc: đã xảy ra thì dùng ～ないほうがよかった. Động từ bất quy tắc: する→しないほうがいい；来る→来ない（こない）ほうがいい。 Thô lỗ khi nói với cấp trên/khách: chuyển thành đề nghị gián tiếp để lịch sự."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a08edd59ec"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "phải …; không … thì không được",
+     "formation": "Vない + と いけない (いけません)",
+     "usage_vi": "Nói việc cần phải làm theo hoàn cảnh: 明日までにレポートを出さないといけません; 健康のために運動しないといけません. Văn nói có thể lược phần sau: もう帰らないと.",
+     "nuance_vi": "Nhẹ và thân mật hơn 〜なければならない; dùng nhiều trong hội thoại. \"Không cần\" là 〜なくてもいい.",
+     "common_mistakes_vi": "Dùng thể từ điển (×出すといけない — nghĩa thành \"nếu nộp thì không được\"); nhầm với 〜てはいけない (cấm); dùng ないで thay ないと.",
+     "examples": [
+      {
+       "ja": "明日までにレポートを出さないといけません。",
+       "ja_furigana": "明日(あした)までにレポートを出(だ)さないといけません。",
+       "vi": "Tôi phải nộp báo cáo trước ngày mai."
+      },
+      {
+       "ja": "健康のために運動しないといけません。",
+       "ja_furigana": "健康(けんこう)のために運動(うんどう)しないといけません。",
+       "vi": "Vì sức khỏe nên phải tập thể dục."
+      },
+      {
+       "ja": "もう遅いから、帰らないと。",
+       "ja_furigana": "もう遅(おそ)いから、帰(かえ)らないと。",
+       "vi": "Muộn rồi, phải về thôi."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "明日は早いから、もう寝ない＿＿いけません。",
+       "answer": "と",
+       "translation_vi": "Mai phải dậy sớm nên giờ phải đi ngủ."
+      },
+      {
+       "sentence_ja": "このかぎは、出かけるときに＿＿といけません。",
+       "answer": "かけない",
+       "translation_vi": "Khi ra ngoài phải khóa cái khóa này."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "薬を",
+        "飲まないと",
+        "いけません",
+        "毎日この"
+       ],
+       "answer_order": [
+        3,
+        0,
+        1,
+        2
+       ],
+       "translation_vi": "Ngày nào cũng phải uống thuốc này."
+      },
+      {
+       "pieces": [
+        "ないと",
+        "いけない",
+        "出かけ",
+        "会議に遅れるから、もう"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Sẽ trễ họp mất, phải đi thôi."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "明日は早いから、もう寝ない（　　）いけません。",
+       "options": [
+        "は",
+        "で",
+        "も",
+        "と"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Vない + と いけません. Nghĩa: Mai phải dậy sớm nên giờ phải đi ngủ."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "このかぎは、出かけるときに（　　）といけません。",
+       "options": [
+        "かける",
+        "かけて",
+        "かけた",
+        "かけない"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Vない + といけない. Nghĩa: Khi ra ngoài phải khóa cái khóa này."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "毎日 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "薬を",
+        "飲まないと",
+        "いけません",
+        "この"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu đúng: 毎日この薬を飲まないといけません。 (Ngày nào cũng phải uống thuốc này.) Mảnh ở ô ★ là 「飲まないと」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "会議に遅れるから、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "ないと",
+        "いけない",
+        "出かけ",
+        "もう"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 会議に遅れるから、もう出かけないといけない。 (Sẽ trễ họp mất, phải đi thôi.) Mảnh ở ô ★ là 「ないと」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "明日までにレポートを出さないといけません。",
+       "options": [
+        "Không được nộp báo cáo trước ngày mai.",
+        "Tôi đã nộp báo cáo hôm qua.",
+        "Tôi không cần nộp báo cáo.",
+        "Tôi phải nộp báo cáo trước ngày mai."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Tôi phải nộp báo cáo trước ngày mai.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "もう遅いから、帰らないと。",
+       "options": [
+        "Muộn rồi, không được về.",
+        "Muộn rồi, tôi đã về.",
+        "Muộn rồi, chưa về cũng được.",
+        "Muộn rồi, phải về thôi."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Muộn rồi, phải về thôi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "明日までにレポートを出さないといけません。",
+        "もう遅いから、帰らないと。",
+        "明日までに宿題を出すといけません。",
+        "このかぎは、出かけるときにかけないといけません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: \"phải nộp\" dùng thể ない: 出さないといけません. Sửa: 明日までに宿題を出さないといけません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "毎日運動しなくといけません。",
+        "健康のために運動しないといけません。",
+        "明日は早いから、もう寝ないといけません。",
+        "毎日この薬を飲まないといけません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: dùng 運動しないといけません. Sửa: 毎日運動しないといけません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "もう八時だ。急が（　　）と。",
+       "options": [
+        "なく",
+        "なくて",
+        "ず",
+        "ない"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Vない + と (lược いけない). Nghĩa: Tám giờ rồi. Phải nhanh lên."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "健康のために運動しないといけません。",
+       "options": [
+        "Vì sức khỏe nên phải tập thể dục.",
+        "Vì sức khỏe nên không cần tập thể dục.",
+        "Tập thể dục không tốt cho sức khỏe.",
+        "Tôi tập thể dục mỗi ngày."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Vì sức khỏe nên phải tập thể dục.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "明日は早いから、もう寝ないといけません。",
+        "この本は来週までに返さないでいけません。",
+        "毎日この薬を飲まないといけません。",
+        "明日までにレポートを出さないといけません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: dùng 返さないといけません. Sửa: この本は来週までに返さないといけません。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜ないといけない); ví dụ 1 có 報告書 trên cấp, ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Dùng 「まで」 theo mẫu Phải... (Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.). Nghĩa cả câu: Tôi phải nộp báo cáo trước ngày mai.",
+      "options": [
+       "てみる",
+       "にくい",
+       "かもしれない",
+       "まで"
+      ],
+      "prompt_ja": "明日（　　）に報告書を出さないといけない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo cấu trúc Phải... (Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.), chỗ trống cần điền 「ません」. Nghĩa: Vì sức khỏe nên phải tập thể dục.",
+      "options": [
+       "ません",
+       "ている",
+       "すぎる",
+       "のに"
+      ],
+      "prompt_ja": "健康のために運動しないといけ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 明日までに報告書を出さないといけない。 (Tôi phải nộp báo cáo trước ngày mai.). Theo cấu trúc Phải..., mảnh đứng ở vị trí ★ là 「出さないと」.",
+      "options": [
+       "明日まで",
+       "出さないと",
+       "に報告書を",
+       "いけない"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 健康のために運動しないといけません。 (Vì sức khỏe nên phải tập thể dục.). Theo cấu trúc Phải..., mảnh đứng ở vị trí ★ là 「ために」.",
+      "options": [
+       "運動しないと",
+       "健康の",
+       "いけません",
+       "ために"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Mẫu Phải... có nghĩa là \"Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.\". Câu này dịch là: \"Tôi phải nộp báo cáo trước ngày mai.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Tôi phải nộp báo cáo trước ngày mai.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua."
+      ],
+      "prompt_ja": "明日までに報告書を出さないといけない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Áp dụng mẫu Phải... (Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.), câu trên có nghĩa là: \"Vì sức khỏe nên phải tập thể dục.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Vì sức khỏe nên phải tập thể dục.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "健康のために運動しないといけません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Phải...). Câu đúng: 明日までに報告書を出さないといけない。",
+      "options": [
+       "健康のために運動しないといけません。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。",
+       "明日までに報告書を出さないといけないますだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Phải...). Câu đúng: 健康のために運動しないといけません。",
+      "options": [
+       "明日までに報告書を出さないといけない。",
+       "健康のために運動しないといけませんですます。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Phải...\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "明日までに報告書を出さないといけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi phải nộp báo cáo trước ngày mai."
+     },
+     {
+      "ja": "健康のために運動しないといけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì sức khỏe nên phải tập thể dục."
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「です」 theo cấu trúc Phải... (Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.). Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "やすい",
+       "です",
+       "らしい",
+       "ても"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Theo mẫu Phải... (Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.), câu này nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Nếu trời mưa thì trận đấu sẽ bị hủy.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Bây giờ tôi vừa mới đến nhà ga tức thì."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "明日までに報告書を出さないといけない。",
+       "健康のために運動しないといけません。",
+       "雨が降ったら試合は中止ですだます。",
+       "春になれば暖かくなります。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "まで",
+      "sentence_ja": "明日＿＿に報告書を出さないといけない。",
+      "translation_vi": "Tôi phải nộp báo cáo trước ngày mai."
+     },
+     {
+      "answer": "ません",
+      "sentence_ja": "健康のために運動しないといけ＿＿。",
+      "translation_vi": "Vì sức khỏe nên phải tập thể dục."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 明日までに報告書を出さないといけない。",
+     "FURIGANA_MISSING: 健康のために運動しないといけません。"
+    ],
+    "formation": "Cấu trúc: Phải...",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt nghĩa “phải/buộc phải” dựa trên quy tắc, hoàn cảnh, nhu cầu khách quan. Cấu trúc phủ định giả định “nếu không làm X thì không ổn” → suy ra nghĩa bắt buộc làm X. Sắc thái trung tính, phổ biến trong hội thoại, văn viết thường; lịch sự: ～ないといけません. So với ～なければならない: nhẹ hơn, ít cưỡng chế hơn.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Phải...\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "出さないと",
+       "明日まで",
+       "いけない",
+       "に報告書を"
+      ],
+      "translation_vi": "Tôi phải nộp báo cáo trước ngày mai."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "ために",
+       "いけません",
+       "健康の",
+       "運動しないと"
+      ],
+      "translation_vi": "Vì sức khỏe nên phải tập thể dục."
+     }
+    ],
+    "pattern": "Phải...",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Điều kiện và nghĩa vụ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng trong yêu cầu chung, quy định, lời khuyên mạnh. Lịch sự bằng いけません. Trong hội thoại nhanh có thể rút gọn thành ないと (ngầm hiểu phần sau). Ví dụ: もう行かないと。 Ngữ cảnh quyết định ý “phải …”. Đi với động từ ý chí/hành động. Không dùng với いけない mang nghĩa “cấm” (đó là ～てはいけない). [6. Ghi chú mở rộng] Rút gọn khẩu ngữ: ～ないと (phần sau lược) thường đi với ngữ điệu khẩn trương. Phủ định nghĩa vụ dùng hai tầng phủ định: 行かなくてもいい (không cần đi) chứ không dùng 行かないといけないの否定 trực tiếp. Quá khứ bắt buộc: ～ないといけなかった nêu lý do/khách quan; lịch sự: ～ないといけませんでした. [7. Biến thể & cụm cố định] ～ないといけません／～ないといけなかった ～なくてはいけない／～なくては（＝なくちゃ） ～ないとだめだ／～ないと困る （時間）がない。もう行かないと。（lược đuôi) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～てはいけない (cấm): “入ってはいけない” = không được vào; “入らないといけない” = phải vào (ngược nghĩa). Dùng sai phủ định: “行かないといけない” ≠ “行ってはいけない”. Chú ý đề bẫy thay と bằng て. Thiếu いけない: “早く帰らないと” trong văn viết JLPT có thể coi là thiếu; trừ khi ngữ cảnh hội thoại cho phép lược."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-660aa36730"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "phải …; nhất thiết phải …",
+     "formation": "Vない (bỏ い) + ければならない (なりません); N/Aな + でなければならない",
+     "usage_vi": "Nghĩa vụ theo quy định, luật lệ hoặc trách nhiệm: 学生は毎日授業に出なければなりません; この紙は日本語で書かなければなりません. Với danh từ: 〜でなければなりません (phải là …).",
+     "nuance_vi": "Mạnh và trang trọng hơn 〜ないといけない; hay dùng trong quy định, văn viết. Văn nói thân mật: 〜なきゃ.",
+     "common_mistakes_vi": "Chia sai (×書かないければ → 書かなければ); với danh từ quên で (×社員なければ → 社員でなければ).",
+     "examples": [
+      {
+       "ja": "学生は毎日授業に出なければなりません。",
+       "ja_furigana": "学生(がくせい)は毎日(まいにち)授業(じゅぎょう)に出(で)なければなりません。",
+       "vi": "Học sinh phải lên lớp mỗi ngày."
+      },
+      {
+       "ja": "この紙は日本語で書かなければなりません。",
+       "ja_furigana": "この紙(かみ)は日本語(にほんご)で書(か)かなければなりません。",
+       "vi": "Tờ giấy này phải viết bằng tiếng Nhật."
+      },
+      {
+       "ja": "試験の日は九時までに来なければならない。",
+       "ja_furigana": "試験(しけん)の日(ひ)は九時(くじ)までに来(こ)なければならない。",
+       "vi": "Ngày thi phải đến trước 9 giờ."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "車を運転するときは、ルールを守ら＿＿なりません。",
+       "answer": "なければ",
+       "translation_vi": "Khi lái xe phải tuân thủ luật."
+      },
+      {
+       "sentence_ja": "この仕事をする人は、日本語が上手＿＿なければなりません。",
+       "answer": "で",
+       "translation_vi": "Người làm việc này phải giỏi tiếng Nhật."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "持っていなければ",
+        "なりません",
+        "いつも",
+        "パスポートは"
+       ],
+       "answer_order": [
+        3,
+        2,
+        0,
+        1
+       ],
+       "translation_vi": "Lúc nào cũng phải mang hộ chiếu theo."
+      },
+      {
+       "pieces": [
+        "までに",
+        "レポートは金曜日",
+        "なりません",
+        "出さなければ"
+       ],
+       "answer_order": [
+        1,
+        0,
+        3,
+        2
+       ],
+       "translation_vi": "Báo cáo phải nộp trước thứ Sáu."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "車を運転するときは、ルールを守ら（　　）なりません。",
+       "options": [
+        "なくて",
+        "ないで",
+        "なければ",
+        "ないと"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Vない bỏ い + ければなりません. Nghĩa: Khi lái xe phải tuân thủ luật."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "この仕事をする人は、日本語が上手（　　）なければなりません。",
+       "options": [
+        "に",
+        "で",
+        "が",
+        "な"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Aな + で + なければならない. Nghĩa: Người làm việc này phải giỏi tiếng Nhật."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "持っていなければ",
+        "なりません",
+        "いつも",
+        "パスポートは"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: パスポートはいつも持っていなければなりません。 (Lúc nào cũng phải mang hộ chiếu theo.) Mảnh ở ô ★ là 「持っていなければ」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "レポートは ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "までに",
+        "金曜日",
+        "なりません",
+        "出さなければ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: レポートは金曜日までに出さなければなりません。 (Báo cáo phải nộp trước thứ Sáu.) Mảnh ở ô ★ là 「出さなければ」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "学生は毎日授業に出なければなりません。",
+       "options": [
+        "Học sinh phải lên lớp mỗi ngày.",
+        "Học sinh không cần lên lớp mỗi ngày.",
+        "Học sinh muốn lên lớp mỗi ngày.",
+        "Học sinh được nghỉ mỗi ngày."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Học sinh phải lên lớp mỗi ngày.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "この紙は日本語で書かなければなりません。",
+       "options": [
+        "Tờ giấy này phải viết bằng tiếng Nhật.",
+        "Tôi đã viết tờ giấy này bằng tiếng Nhật.",
+        "Tờ giấy này không được viết bằng tiếng Nhật.",
+        "Tờ giấy này viết bằng gì cũng được."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Tờ giấy này phải viết bằng tiếng Nhật.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "学生は毎日授業に出なければなりません。",
+        "車を運転するときは、ルールを守らなければなりません。",
+        "この紙は日本語で書かないければなりません。",
+        "パスポートはいつも持っていなければなりません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: bỏ い của ない rồi thêm ければ: 書かなければ. Sửa: この紙は日本語で書かなければなりません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "会議に出る人は、社員なければなりません。",
+        "この紙は日本語で書かなければなりません。",
+        "車を運転するときは、ルールを守らなければなりません。",
+        "パスポートはいつも持っていなければなりません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: danh từ cần で: 社員でなければ. Sửa: 会議に出る人は、社員でなければなりません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "入るときは、ここで名前を書か（　　）なりません。",
+       "options": [
+        "ないと",
+        "なければ",
+        "ないで",
+        "なくて"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Vない bỏ い + ければなりません. Nghĩa: Khi vào phải ghi tên ở đây."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "試験の日は九時までに来なければならない。",
+       "options": [
+        "Ngày thi bắt đầu lúc 9 giờ.",
+        "Ngày thi đến lúc nào cũng được.",
+        "Ngày thi phải đến trước 9 giờ.",
+        "Ngày thi phải đến sau 9 giờ."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Ngày thi phải đến trước 9 giờ.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "車を運転するときは、ルールを守らなければなりません。",
+        "明日は六時に起きなければならないません。",
+        "パスポートはいつも持っていなければなりません。",
+        "学生は毎日授業に出なければなりません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: thể lịch sự là なければなりません. Sửa: 明日は六時に起きなければなりません。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜なければならない); ví dụ 1 có 労働法/遵守, ví dụ 2 có 応募書類 trên cấp; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Dùng 「らない」 theo mẫu Phải... (bắt buộc mạnh) (Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.). Nghĩa cả câu: Phải tuân thủ luật lao động.",
+      "options": [
+       "そうだ",
+       "ので",
+       "らない",
+       "ば"
+      ],
+      "prompt_ja": "労働法を遵守しなければな（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo cấu trúc Phải... (bắt buộc mạnh) (Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.), chỗ trống cần điền 「らない」. Nghĩa: Hồ sơ ứng tuyển phải bằng tiếng Nhật.",
+      "options": [
+       "ようだ",
+       "から",
+       "と",
+       "らない"
+      ],
+      "prompt_ja": "応募書類は日本語でなければな（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 労働法を遵守しなければならない。 (Phải tuân thủ luật lao động.). Theo cấu trúc Phải... (bắt buộc mạnh), mảnh đứng ở vị trí ★ là 「なければ」.",
+      "options": [
+       "ならない",
+       "を遵守し",
+       "なければ",
+       "労働法"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 応募書類は日本語でなければならない。 (Hồ sơ ứng tuyển phải bằng tiếng Nhật.). Theo cấu trúc Phải... (bắt buộc mạnh), mảnh đứng ở vị trí ★ là 「は日本語」.",
+      "options": [
+       "応募書類",
+       "でなけれ",
+       "は日本語",
+       "ばならない"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Mẫu Phải... (bắt buộc mạnh) có nghĩa là \"Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.\". Câu này dịch là: \"Phải tuân thủ luật lao động.\"",
+      "options": [
+       "Phải tuân thủ luật lao động.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "労働法を遵守しなければならない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Áp dụng mẫu Phải... (bắt buộc mạnh) (Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.), câu trên có nghĩa là: \"Hồ sơ ứng tuyển phải bằng tiếng Nhật.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Hồ sơ ứng tuyển phải bằng tiếng Nhật.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "応募書類は日本語でなければならない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Phải... (bắt buộc mạnh)). Câu đúng: 労働法を遵守しなければならない。",
+      "options": [
+       "応募書類は日本語でなければならない。",
+       "毎日まじめに日本語を勉強しています。",
+       "労働法を遵守しなければならないますだ。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 応募書類は日本語でなければならない。",
+      "options": [
+       "応募書類はを日本語でなければならない。",
+       "労働法を遵守しなければならない。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Phải... (bắt buộc mạnh)\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "労働法を遵守しなければならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phải tuân thủ luật lao động."
+     },
+     {
+      "ja": "応募書類は日本語でなければならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hồ sơ ứng tuyển phải bằng tiếng Nhật."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Phải... (bắt buộc mạnh) (Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "ています",
+       "のに",
+       "なら",
+       "ほど"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Theo mẫu Phải... (bắt buộc mạnh) (Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay.",
+       "Hành lý đã được chuẩn bị sẵn sàng từ tối hôm qua.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "労働法を遵守しなければならない。",
+       "毎日まじめにを日本語を勉強しています。",
+       "応募書類は日本語でなければならない。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "らない",
+      "sentence_ja": "労働法を遵守しなければな＿＿。",
+      "translation_vi": "Phải tuân thủ luật lao động."
+     },
+     {
+      "answer": "らない",
+      "sentence_ja": "応募書類は日本語でなければな＿＿。",
+      "translation_vi": "Hồ sơ ứng tuyển phải bằng tiếng Nhật."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 労働法を遵守しなければならない。",
+     "FURIGANA_MISSING: 応募書類は日本語でなければならない。"
+    ],
+    "formation": "Cấu trúc: Phải... (bắt buộc mạnh)",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả nghĩa vụ mạnh, bắt buộc theo luật lệ, quy định, trách nhiệm: “phải/nhất thiết phải ...”. Trang trọng, khách quan; phù hợp văn bản chính sách, báo cáo, phát biểu công khai. Nhấn mạnh hệ quả nếu không làm: trái luật/không đạt tiêu chuẩn. Chủ thể thường là tổ chức/cá nhân dưới quy chuẩn; ít dùng để sai khiến trực tiếp người nghe.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Phải... (bắt buộc mạnh)\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "を遵守し",
+       "ならない",
+       "労働法",
+       "なければ"
+      ],
+      "translation_vi": "Phải tuân thủ luật lao động."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "ばならない",
+       "でなけれ",
+       "応募書類",
+       "は日本語"
+      ],
+      "translation_vi": "Hồ sơ ứng tuyển phải bằng tiếng Nhật."
+     }
+    ],
+    "pattern": "Phải... (bắt buộc mạnh)",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Điều kiện và nghĩa vụ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Độ mạnh: mạnh hơn ～なくてはいけない về tính quy phạm. Lịch sự: ～なければなりません trong đối thoại formal; quá khứ ～なければならなかった. Có thể gây cảm giác mệnh lệnh; khi nói với cấp trên/khách, cân nhắc chuyển sang ～ていただけますか／～てください（nhẹ hơn, nhưng không còn nghĩa “phải”). Khi diễn đạt nội quy/điều khoản, đây là lựa chọn chuẩn xác. [6. Ghi chú mở rộng] Chuỗi phủ định nghĩa vụ dùng ～なくてもいい／～必要はない, không dùng phủ định ならない. Trong tiêu đề/quy định, dạng rút gọn bỏ chủ ngữ thường gặp: ～しなければならない。 Hai biến thể đồng nghĩa về nghĩa vụ: ～なければならない ≈ ～いけない; khác chủ yếu ở sắc thái cứng/mềm. [7. Biến thể & cụm cố định] ～なければなりません（lịch sự chuẩn） ～なくてはならない（trang trọng, văn bản） ～ねばならない／ならぬ（cổ/khẩu hiệu: ～してはならぬ cũng là “không được ...”） 法律に従わなければならない／身分証明書でなければならない [8. Lỗi thường gặp & bẫy JLPT] Quên “で” với N/na: ×日本語なければならない → 〇日本語でなければならない. Nhầm sắc thái với べきだ trong câu hỏi suy luận: べきだ ≠ bắt buộc pháp lý. Phủ định sai: ×行かなければならないくない → 〇行かなくてもいい／行く必要はない. Dùng với người nghe trực tiếp gây thô: nên chuyển sang yêu cầu lịch sự nếu mục đích là nhờ vả."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0ccaf20576"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "phải …; không … thì không được",
+     "formation": "Vない (bỏ い) + くてはいけません; N/Aな + でなくてはいけません",
+     "usage_vi": "Nói việc bắt buộc theo quy trình, yêu cầu chung: この紙は今週中に出さなくてはいけません; 図書館では静かにしなくてはいけません.",
+     "nuance_vi": "Nghĩa gần 〜なければなりません, dùng được trong hội thoại lịch sự. Thân mật: 〜なくちゃ.",
+     "common_mistakes_vi": "Chia sai (×出さないてはいけません → 出さなくては); nhầm với 〜なくてもいい (không cần).",
+     "examples": [
+      {
+       "ja": "この紙は今週中に出さなくてはいけません。",
+       "ja_furigana": "この紙(かみ)は今週中(こんしゅうちゅう)に出(だ)さなくてはいけません。",
+       "vi": "Tờ giấy này phải nộp trong tuần này."
+      },
+      {
+       "ja": "図書館では静かにしなくてはいけません。",
+       "ja_furigana": "図書館(としょかん)では静(しず)かにしなくてはいけません。",
+       "vi": "Trong thư viện phải giữ yên lặng."
+      },
+      {
+       "ja": "明日は早く起きなくてはいけません。",
+       "ja_furigana": "明日(あした)は早(はや)く起(お)きなくてはいけません。",
+       "vi": "Mai tôi phải dậy sớm."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "薬は毎日飲まなく＿＿いけません。",
+       "answer": "ては",
+       "translation_vi": "Thuốc phải uống mỗi ngày."
+      },
+      {
+       "sentence_ja": "この仕事は、日本語が話せる人＿＿なくてはいけません。",
+       "answer": "で",
+       "translation_vi": "Công việc này phải là người nói được tiếng Nhật."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "を",
+        "今日中にこの",
+        "終わらせなくてはいけません",
+        "仕事"
+       ],
+       "answer_order": [
+        1,
+        3,
+        0,
+        2
+       ],
+       "translation_vi": "Trong hôm nay phải làm xong việc này."
+      },
+      {
+       "pieces": [
+        "いけません",
+        "旅行の前に、ホテル",
+        "予約しなくては",
+        "を"
+       ],
+       "answer_order": [
+        1,
+        3,
+        2,
+        0
+       ],
+       "translation_vi": "Trước chuyến đi phải đặt khách sạn."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "薬は毎日飲まなく（　　）いけません。",
+       "options": [
+        "ては",
+        "ても",
+        "で",
+        "たら"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Vなく + ては いけません. Nghĩa: Thuốc phải uống mỗi ngày."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "この仕事は、日本語が話せる人（　　）なくてはいけません。",
+       "options": [
+        "を",
+        "で",
+        "に",
+        "が"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "N + で + なくてはいけない. Nghĩa: Công việc này phải là người nói được tiếng Nhật."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "今日中に ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "を",
+        "この",
+        "終わらせなくてはいけません",
+        "仕事"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu đúng: 今日中にこの仕事を終わらせなくてはいけません。 (Trong hôm nay phải làm xong việc này.) Mảnh ở ô ★ là 「を」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "旅行の前に、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "いけません",
+        "ホテル",
+        "予約しなくては",
+        "を"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu đúng: 旅行の前に、ホテルを予約しなくてはいけません。 (Trước chuyến đi phải đặt khách sạn.) Mảnh ở ô ★ là 「予約しなくては」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "この紙は今週中に出さなくてはいけません。",
+       "options": [
+        "Tờ giấy này phải nộp trong tuần này.",
+        "Tờ giấy này không cần nộp.",
+        "Tờ giấy này nộp tuần sau cũng được.",
+        "Tờ giấy này đã nộp tuần trước."
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Câu này nghĩa là: \"Tờ giấy này phải nộp trong tuần này.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "明日は早く起きなくてはいけません。",
+       "options": [
+        "Mai tôi muốn dậy sớm.",
+        "Mai tôi không cần dậy sớm.",
+        "Mai tôi đã dậy sớm.",
+        "Mai tôi phải dậy sớm."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Mai tôi phải dậy sớm.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "この紙は今週中に出さなくてはいけません。",
+        "明日は早く起きなくてはいけません。",
+        "この紙は明日までに出さないてはいけません。",
+        "この仕事は、日本語が話せる人でなくてはいけません。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: bỏ い của ない thêm くては: 出さなくては. Sửa: この紙は明日までに出さなくてはいけません。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "明日はテストだから、勉強しなくてもいけません。",
+        "図書館では静かにしなくてはいけません。",
+        "薬は毎日飲まなくてはいけません。",
+        "今日中にこの仕事を終わらせなくてはいけません。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai: \"phải\" là なくてはいけません. Sửa: 明日はテストだから、勉強しなくてはいけません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "寝る前に、歯をみがか（　　）いけません。",
+       "options": [
+        "なくては",
+        "なかったら",
+        "なくても",
+        "ないで"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Vない bỏ い + くてはいけません. Nghĩa: Trước khi ngủ phải đánh răng."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "図書館では静かにしなくてはいけません。",
+       "options": [
+        "Trong thư viện nói to cũng được.",
+        "Trong thư viện có nhiều sách.",
+        "Thư viện đóng cửa rồi.",
+        "Trong thư viện phải giữ yên lặng."
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu này nghĩa là: \"Trong thư viện phải giữ yên lặng.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "薬は毎日飲まなくてはいけません。",
+        "入り口で靴をぬがなくけてはいけません。",
+        "今日中にこの仕事を終わらせなくてはいけません。",
+        "この紙は今週中に出さなくてはいけません。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: dùng ぬがなくてはいけません. Sửa: 入り口で靴をぬがなくてはいけません。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜なくてはいけない); ví dụ 1 có 書類/提出, ví dụ 2 có 会員 trên cấp; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Dùng 「けない」 theo mẫu Phải... (lịch sự) (Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.). Nghĩa cả câu: Tài liệu này phải nộp trong tuần.",
+      "options": [
+       "ても",
+       "けない",
+       "しか",
+       "とか"
+      ],
+      "prompt_ja": "この書類は今週中に提出しなくてはい（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo cấu trúc Phải... (lịch sự) (Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.), chỗ trống cần điền 「ません」. Nghĩa: Muốn vào thì phải là hội viên.",
+      "options": [
+       "たら",
+       "だけ",
+       "ません",
+       "し"
+      ],
+      "prompt_ja": "入場するには会員でなくてはいけ（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: この書類は今週中に提出しなくてはいけない。 (Tài liệu này phải nộp trong tuần.). Theo cấu trúc Phải... (lịch sự), mảnh đứng ở vị trí ★ là 「提出しなくては」.",
+      "options": [
+       "今週中に",
+       "いけない",
+       "この書類は",
+       "提出しなくては"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 入場するには会員でなくてはいけません。 (Muốn vào thì phải là hội viên.). Theo cấu trúc Phải... (lịch sự), mảnh đứng ở vị trí ★ là 「は会員で」.",
+      "options": [
+       "いけません",
+       "は会員で",
+       "なくては",
+       "入場するに"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Mẫu Phải... (lịch sự) có nghĩa là \"Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.\". Câu này dịch là: \"Tài liệu này phải nộp trong tuần.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày.",
+       "Tài liệu này phải nộp trong tuần."
+      ],
+      "prompt_ja": "この書類は今週中に提出しなくてはいけない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Áp dụng mẫu Phải... (lịch sự) (Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.), câu trên có nghĩa là: \"Muốn vào thì phải là hội viên.\"",
+      "options": [
+       "Muốn vào thì phải là hội viên.",
+       "Từ cửa sổ phòng này có thể nghe thấy tiếng sóng biển.",
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh."
+      ],
+      "prompt_ja": "入場するには会員でなくてはいけません。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Phải... (lịch sự)). Câu đúng: この書類は今週中に提出しなくてはいけない。",
+      "options": [
+       "入場するには会員でなくてはいけません。",
+       "この書類は今週中に提出しなくてはいけないますだ。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai trợ từ: không đặt chồng trợ từ はを liền nhau trong câu. Câu đúng: 入場するには会員でなくてはいけません。",
+      "options": [
+       "この書類は今週中に提出しなくてはいけない。",
+       "毎日まじめに日本語を勉強しています。",
+       "週末は家族と一緒に公園へ行きます。",
+       "入場するにはを会員でなくてはいけません。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Phải... (lịch sự)\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "この書類は今週中に提出しなくてはいけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tài liệu này phải nộp trong tuần."
+     },
+     {
+      "ja": "入場するには会員でなくてはいけません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Muốn vào thì phải là hội viên."
+     },
+     {
+      "ja": "毎日まじめに日本語を勉強しています。",
+      "ja_furigana": "毎日(まいにち)まじめに日本語(にほんご)を勉強(べんきょう)しています。",
+      "source": "CLAUDE",
+      "vi": "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「ています」 theo cấu trúc Phải... (lịch sự) (Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.). Nghĩa: Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+      "options": [
+       "と",
+       "ずつ",
+       "ばかり",
+       "ています"
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強し（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Theo mẫu Phải... (lịch sự) (Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.), câu này nghĩa là: \"Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.\"",
+      "options": [
+       "Nếu ngày mai trời nắng thì chúng ta sẽ đi dã ngoại.",
+       "Mặc dù đã uống thuốc nhưng vẫn chưa khỏi bệnh.",
+       "Mỗi ngày tôi đều chăm chỉ học tiếng Nhật.",
+       "Chiếc máy tính này vừa nhẹ vừa dễ sử dụng."
+      ],
+      "prompt_ja": "毎日まじめに日本語を勉強しています。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai trợ từ: không dùng chồng trợ từ にを liền nhau. Câu đúng: 毎日まじめに日本語を勉強しています。",
+      "options": [
+       "毎日まじめにを日本語を勉強しています。",
+       "この書類は今週中に提出しなくてはいけない。",
+       "入場するには会員でなくてはいけません。",
+       "わからない言葉を辞書で調べました。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "けない",
+      "sentence_ja": "この書類は今週中に提出しなくてはい＿＿。",
+      "translation_vi": "Tài liệu này phải nộp trong tuần."
+     },
+     {
+      "answer": "ません",
+      "sentence_ja": "入場するには会員でなくてはいけ＿＿。",
+      "translation_vi": "Muốn vào thì phải là hội viên."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: この書類は今週中に提出しなくてはいけない。",
+     "FURIGANA_MISSING: 入場するには会員でなくてはいけません。"
+    ],
+    "formation": "Cấu trúc: Phải... (lịch sự)",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa vụ/bắt buộc mang tính quy định, quy trình, hay yêu cầu chung: “phải ...”. Trung lập, dùng được với người lạ/khách hàng nếu chia lịch sự: ～なくてはいけません. Diễn tả điều kiện tất yếu: nếu không làm thì “không ổn/không được”. Tiêu điểm hành động: chủ yếu dùng với động từ; với A/N dùng khi nói điều kiện đáp ứng/tiêu chuẩn.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Phải... (lịch sự)\".",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       1,
+       0
+      ],
+      "pieces": [
+       "いけない",
+       "提出しなくては",
+       "この書類は",
+       "今週中に"
+      ],
+      "translation_vi": "Tài liệu này phải nộp trong tuần."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "なくては",
+       "入場するに",
+       "いけません",
+       "は会員で"
+      ],
+      "translation_vi": "Muốn vào thì phải là hội viên."
+     }
+    ],
+    "pattern": "Phải... (lịch sự)",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Điều kiện và nghĩa vụ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Lịch sự: chuyển いけない → いけません để phù hợp kinh doanh/công cộng. Nội dung bắt buộc thường dựa trên quy tắc/chính sách; ít mang cảm xúc cá nhân. Phủ định nghĩa vụ dùng: ～なくてもいい／～必要はない, không dùng いけない ở thể phủ định kép. Trong văn bản quy phạm chính thức, có xu hướng đổi sang ～なければならない. [6. Ghi chú mở rộng] Dạng phát âm nhanh: ～なくてはいけない → ～なくちゃいけない trong hội thoại. Thì quá khứ nghĩa vụ đã hoàn tất: ～なくてはいけなかった（đã phải ...）. Kết hợp trợ từ khác: どうしても行かなくてはいけない（bằng mọi giá phải đi）. [7. Biến thể & cụm cố định] ～なくてはいけません（lịch sự）／～なくてはだめだ（thân mật, mạnh） ～なくては困る：nếu không thì rắc rối. 二十歳以上でなくてはいけない／予約がなくてはいけません。 [8. Lỗi thường gặp & bẫy JLPT] Bỏ “で” với N/na: ×会員なくてはいけない → 〇会員でなくてはいけない. Dùng cho yêu cầu cá nhân nghe cứng: với bạn bè nên dùng ～なくちゃいけない. Phủ định sai: ×行かなくてはいけないくない → 〇行かなくてもいい／行く必要はない. Nhầm với べきだ trong đề thi: べきだ là “nên”, không phải “phải”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bbe00b3ba7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "meaning_vi": "phải … (nói thân mật)",
+     "formation": "Vない (bỏ い) + きゃ (〜なきゃいけない / 〜なきゃ)",
+     "usage_vi": "Dạng nói tắt của 〜なければ (ならない/いけない), dùng trong hội thoại thân mật: そろそろ寝なきゃ; 勉強しなきゃ; もう行かなきゃ.",
+     "nuance_vi": "Chỉ dùng khi nói với bạn bè, người nhà hoặc tự nhủ; văn viết hay với người trên dùng 〜なければなりません. Tương tự: 〜なくちゃ.",
+     "common_mistakes_vi": "Rút gọn sai (×行かないきゃ → 行かなきゃ); dùng với thầy cô, cấp trên.",
+     "examples": [
+      {
+       "ja": "もう十二時だ。そろそろ寝なきゃ。",
+       "ja_furigana": "もう十二時(じゅうにじ)だ。そろそろ寝(ね)なきゃ。",
+       "vi": "12 giờ rồi. Phải đi ngủ thôi."
+      },
+      {
+       "ja": "明日テストだから、勉強しなきゃ。",
+       "ja_furigana": "明日(あした)テストだから、勉強(べんきょう)しなきゃ。",
+       "vi": "Mai thi nên phải học thôi."
+      },
+      {
+       "ja": "電車が来る。急がなきゃ。",
+       "ja_furigana": "電車(でんしゃ)が来(く)る。急(いそ)がなきゃ。",
+       "vi": "Tàu sắp đến. Phải nhanh lên."
+      }
+     ],
+     "fill_items": [
+      {
+       "sentence_ja": "あ、もう八時だ。早く起き＿＿。",
+       "answer": "なきゃ",
+       "translation_vi": "Á, tám giờ rồi. Phải dậy mau."
+      },
+      {
+       "sentence_ja": "母に電話し＿＿いけない。",
+       "answer": "なきゃ",
+       "translation_vi": "Phải gọi điện cho mẹ."
+      }
+     ],
+     "order_items": [
+      {
+       "pieces": [
+        "明日は早いから、もう",
+        "寝",
+        "ね",
+        "なきゃ"
+       ],
+       "answer_order": [
+        0,
+        1,
+        3,
+        2
+       ],
+       "translation_vi": "Mai phải dậy sớm, giờ phải ngủ thôi nhỉ."
+      },
+      {
+       "pieces": [
+        "この",
+        "本は",
+        "なきゃ",
+        "明日返さ"
+       ],
+       "answer_order": [
+        0,
+        1,
+        3,
+        2
+       ],
+       "translation_vi": "Cuốn sách này phải trả vào ngày mai."
+      }
+     ],
+     "check_bank": [
+      {
+       "type": "FILL",
+       "prompt_ja": "あ、もう八時だ。早く起き（　　）。",
+       "options": [
+        "なくちゃう",
+        "なけ",
+        "ないきゃ",
+        "なきゃ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "起きなければ → 起きなきゃ. Nghĩa: Á, tám giờ rồi. Phải dậy mau."
+      },
+      {
+       "type": "FILL",
+       "prompt_ja": "母に電話し（　　）いけない。",
+       "options": [
+        "なけ",
+        "なきゃ",
+        "なくきゃ",
+        "ないきゃ"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "しなければ → しなきゃ. Nghĩa: Phải gọi điện cho mẹ."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "明日は早いから、 ＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "もう",
+        "寝",
+        "ね",
+        "なきゃ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: 明日は早いから、もう寝なきゃね。 (Mai phải dậy sớm, giờ phải ngủ thôi nhỉ.) Mảnh ở ô ★ là 「なきゃ」."
+      },
+      {
+       "type": "ORDER_STAR",
+       "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+       "options": [
+        "この",
+        "本は",
+        "なきゃ",
+        "明日返さ"
+       ],
+       "answer_index": 3,
+       "explanation_vi": "Câu đúng: この本は明日返さなきゃ。 (Cuốn sách này phải trả vào ngày mai.) Mảnh ở ô ★ là 「明日返さ」."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "もう十二時だ。そろそろ寝なきゃ。",
+       "options": [
+        "12 giờ rồi mà vẫn chưa buồn ngủ.",
+        "12 giờ rồi. Phải đi ngủ thôi.",
+        "12 giờ rồi, không cần ngủ.",
+        "12 giờ rồi, ngủ tiếp đi."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"12 giờ rồi. Phải đi ngủ thôi.\""
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "明日テストだから、勉強しなきゃ。",
+       "options": [
+        "Mai thi nên hôm nay đã học rồi.",
+        "Mai thi nên phải học thôi.",
+        "Mai thi nhưng không cần học.",
+        "Mai thi xong rồi đi chơi."
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Câu này nghĩa là: \"Mai thi nên phải học thôi.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "もう十二時だ。そろそろ寝なきゃ。",
+        "電車が来る。急がなきゃ。",
+        "もう行かないきゃ。",
+        "母に電話しなきゃいけない。"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Sai: 行かなければ rút gọn thành 行かなきゃ. Sửa: もう行かなきゃ。"
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "先生、明日までにレポートを出さなきゃ。",
+        "明日テストだから、勉強しなきゃ。",
+        "あ、もう八時だ。早く起きなきゃ。",
+        "明日は早いから、もう寝なきゃね。"
+       ],
+       "answer_index": 0,
+       "explanation_vi": "Sai cách dùng: với thầy cô không dùng dạng thân mật なきゃ. Sửa: 先生、明日までにレポートを出さなければなりません。"
+      }
+     ],
+     "extra_practice": [
+      {
+       "type": "FILL",
+       "prompt_ja": "もうこんな時間！帰ら（　　）。",
+       "options": [
+        "なけ",
+        "ないきゃ",
+        "なきゃ",
+        "なくきゃ"
+       ],
+       "answer_index": 2,
+       "explanation_vi": "帰らなければ → 帰らなきゃ. Nghĩa: Đã giờ này rồi! Phải về thôi."
+      },
+      {
+       "type": "MEANING",
+       "prompt_ja": "電車が来る。急がなきゃ。",
+       "options": [
+        "Tàu đi rồi, không cần vội.",
+        "Tàu chưa đến đâu.",
+        "Tàu sắp đến. Phải nhanh lên.",
+        "Tàu đến rồi, đi chậm thôi."
+       ],
+       "answer_index": 2,
+       "explanation_vi": "Câu này nghĩa là: \"Tàu sắp đến. Phải nhanh lên.\""
+      },
+      {
+       "type": "ERROR",
+       "prompt_ja": "Câu nào dùng sai mẫu?",
+       "options": [
+        "あ、もう八時だ。早く起きなきゃ。",
+        "宿題をしないきゃいけない。",
+        "明日は早いから、もう寝なきゃね。",
+        "もう十二時だ。そろそろ寝なきゃ。"
+       ],
+       "answer_index": 1,
+       "explanation_vi": "Sai: dùng しなきゃ. Sửa: 宿題をしなきゃいけない。"
+      }
+     ]
+    },
+    "note": "pattern hiển thị là tiếng Việt (nên là 〜なきゃ); ví dụ 2 có 締め切り trên cấp và lẫn ghi chú \"(lược đuôi)\" trong nghĩa; ví dụ 3 lệch mẫu; ngân hàng câu máy sinh"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Dùng 「けない」 theo mẫu Phải... (nói tự nhiên) (Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.). Nghĩa cả câu: Đến giờ phải ngủ rồi.",
+      "options": [
+       "けない",
+       "ほど",
+       "てもいい",
+       "はず"
+      ],
+      "prompt_ja": "そろそろ寝なきゃい（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo cấu trúc Phải... (nói tự nhiên) (Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.), chỗ trống cần điền 「から」. Nghĩa: Sắp đến hạn nên phải nhanh thôi. (lược đuôi)",
+      "options": [
+       "くらい",
+       "から",
+       "ながら",
+       "まま"
+      ],
+      "prompt_ja": "締め切りだ（　　）急がなきゃ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: そろそろ寝なきゃいけない。 (Đến giờ phải ngủ rồi.). Theo cấu trúc Phải... (nói tự nhiên), mảnh đứng ở vị trí ★ là 「きゃい」.",
+      "options": [
+       "きゃい",
+       "そろそ",
+       "けない",
+       "ろ寝な"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 締め切りだから急がなきゃ。 (Sắp đến hạn nên phải nhanh thôi. (lược đuôi)). Theo cấu trúc Phải... (nói tự nhiên), mảnh đứng ở vị trí ★ là 「切りだから」.",
+      "options": [
+       "切りだから",
+       "なきゃ",
+       "締め",
+       "急が"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Mẫu Phải... (nói tự nhiên) có nghĩa là \"Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.\". Câu này dịch là: \"Đến giờ phải ngủ rồi.\"",
+      "options": [
+       "Tôi vẫn chưa làm xong bài tập về nhà.",
+       "Vì trời sắp mưa nên bạn hãy mang theo ô nhé.",
+       "Đến giờ phải ngủ rồi.",
+       "Thầy giáo đã cho phép chúng tôi về sớm hôm nay."
+      ],
+      "prompt_ja": "そろそろ寝なきゃいけない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Áp dụng mẫu Phải... (nói tự nhiên) (Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.), câu trên có nghĩa là: \"Sắp đến hạn nên phải nhanh thôi. (lược đuôi)\"",
+      "options": [
+       "Bây giờ tôi vừa mới đến nhà ga tức thì.",
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Sắp đến hạn nên phải nhanh thôi. (lược đuôi)"
+      ],
+      "prompt_ja": "締め切りだから急がなきゃ。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Sai ngữ pháp cuối câu (không kết hợp chồng ますだ khi dùng mẫu Phải... (nói tự nhiên)). Câu đúng: そろそろ寝なきゃいけない。",
+      "options": [
+       "そろそろ寝なきゃいけないますだ。",
+       "締め切りだから急がなきゃ。",
+       "雨が降ったら試合は中止です。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Sai cách chia cuối câu (không dùng ですます trong mẫu Phải... (nói tự nhiên)). Câu đúng: 締め切りだから急がなきゃ。",
+      "options": [
+       "そろそろ寝なきゃいけない。",
+       "雨が降ったら試合は中止です。",
+       "締め切りだから急がなきゃですます。",
+       "安ければこのパソコンを買います。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Người học hay chia sai thể của từ đứng trước \"Phải... (nói tự nhiên)\" hoặc dùng nhầm trợ từ đi kèm trong câu.",
+    "examples": [
+     {
+      "ja": "そろそろ寝なきゃいけない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đến giờ phải ngủ rồi."
+     },
+     {
+      "ja": "締め切りだから急がなきゃ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sắp đến hạn nên phải nhanh thôi. (lược đuôi)"
+     },
+     {
+      "ja": "雨が降ったら試合は中止です。",
+      "ja_furigana": "雨(あめ)が降(ふ)ったら試合(しあい)は中止(ちゅうし)です。",
+      "source": "CLAUDE",
+      "vi": "Nếu trời mưa thì trận đấu sẽ bị hủy."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「です」 theo cấu trúc Phải... (nói tự nhiên) (Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.). Nghĩa: Nếu trời mưa thì trận đấu sẽ bị hủy.",
+      "options": [
+       "し",
+       "つもり",
+       "です",
+       "てしまう"
+      ],
+      "prompt_ja": "雨が降ったら試合は中止（　　）。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Theo mẫu Phải... (nói tự nhiên) (Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.), câu này nghĩa là: \"Nếu trời mưa thì trận đấu sẽ bị hủy.\"",
+      "options": [
+       "Cuối tuần này tôi dự định đi thăm ông bà.",
+       "Nếu trời mưa thì trận đấu sẽ bị hủy.",
+       "Anh ấy vừa nghe nhạc vừa dọn dẹp căn phòng.",
+       "Bạn không nên thức khuya quá nhiều mỗi ngày."
+      ],
+      "prompt_ja": "雨が降ったら試合は中止です。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Sai cách kết hợp vị ngữ cuối câu (không dùng だます). Câu đúng: 雨が降ったら試合は中止です。",
+      "options": [
+       "そろそろ寝なきゃいけない。",
+       "締め切りだから急がなきゃ。",
+       "春になれば暖かくなります。",
+       "雨が降ったら試合は中止ですだます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "けない",
+      "sentence_ja": "そろそろ寝なきゃい＿＿。",
+      "translation_vi": "Đến giờ phải ngủ rồi."
+     },
+     {
+      "answer": "から",
+      "sentence_ja": "締め切りだ＿＿急がなきゃ。",
+      "translation_vi": "Sắp đến hạn nên phải nhanh thôi. (lược đuôi)"
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: そろそろ寝なきゃいけない。",
+     "FURIGANA_MISSING: 締め切りだから急がなきゃ。"
+    ],
+    "formation": "Cấu trúc: Phải... (nói tự nhiên)",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt nghĩa “phải/buộc phải” một cách thân mật, hội thoại hằng ngày. Nguồn gốc: なきゃ＝なければ (rút gọn) → “Nếu không … thì … không được” → hàm ý phải làm. Sắc thái mềm hơn ～なければならない, tương đương thân mật của ～ないといけない/～なくてはいけない.",
+    "nuance_vi": "Phù hợp trong hội thoại và văn viết thông thường ở trình độ sơ trung cấp N4; cần chú ý ngữ cảnh và đối tượng giao tiếp khi sử dụng \"Phải... (nói tự nhiên)\".",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "きゃい",
+       "そろそ",
+       "けない",
+       "ろ寝な"
+      ],
+      "translation_vi": "Đến giờ phải ngủ rồi."
+     },
+     {
+      "answer_order": [
+       2,
+       0,
+       3,
+       1
+      ],
+      "pieces": [
+       "切りだから",
+       "なきゃ",
+       "締め",
+       "急が"
+      ],
+      "translation_vi": "Sắp đến hạn nên phải nhanh thôi. (lược đuôi)"
+     }
+    ],
+    "pattern": "Phải... (nói tự nhiên)",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Điều kiện và nghĩa vụ",
+    "usage_vi": "[4. Cách dùng & sắc thái] Rất khẩu ngữ, dùng trong hội thoại, chat, ghi chú nhanh. Tránh dùng trong văn bản trang trọng. Thường lược phần đuôi khi bối cảnh rõ: もう出かけなきゃ。Độ khẩn trương cao. Kết hợp tốt với ちょっと／やっぱ／もう／そろそろ để tự nhiên: もう行かなきゃ。 [6. Ghi chú mở rộng] Âm biến trong hội thoại: ～なきゃ → ～なきゃぁ／～なきゃね để làm mềm. Tiêu điểm thông tin thường đặt trước なきゃ để nhấn: 絶対今日中に終わらせなきゃ。 Phủ định nghĩa vụ vẫn dùng cấu trúc khác: 行かなくてもいい／行かなくてはならないの否定ではない. [7. Biến thể & cụm cố định] ～なきゃ（…）／～なくちゃ（…） ～なきゃならない／～なくちゃならない ～なきゃいけなかった（quá khứ) もう行かなきゃ／そろそろ帰らなきゃ（cụm hội thoại thường gặp) [8. Lỗi thường gặp & bẫy JLPT] Nhầm với cấm đoán ～てはいけない: khác nghĩa hoàn toàn. Dùng trong văn viết trang trọng (bài luận/đơn xin): nên đổi sang ～なければならない／～ないといけません. Viết sai dạng gốc: なきゃ＝なければ, なくちゃ＝なくては; tránh kết hợp “なきゃては”. Lược đuôi trong bài thi: もう出かけなきゃ… → nếu không phải hội thoại, nên viết đầy đủ để tránh mất điểm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-496508c6f7"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N4",
+ "packet_id": "REVIEW_GRAMMAR-022"
+}

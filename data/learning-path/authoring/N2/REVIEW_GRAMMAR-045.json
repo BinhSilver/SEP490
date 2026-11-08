@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "川にそって、さくらの木がずっと続いている。",
+       "ja_furigana": "川(かわ)にそって、さくらの木(き)がずっと続(つづ)いている。",
+       "vi": "Dọc theo con sông, hàng cây anh đào nối dài."
+      },
+      {
+       "ja": "会社の方針にそって、新しい仕事を進める。",
+       "ja_furigana": "会社(かいしゃ)の方針(ほうしん)にそって、新(あたら)しい仕事(しごと)を進(すす)める。",
+       "vi": "Theo phương châm của công ty, tôi triển khai công việc mới."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この道は海岸線に沿って伸びている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con đường này kéo dài dọc theo bờ biển."
+     },
+     {
+      "ja": "マニュアルに沿って対応してください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vui lòng xử lý theo đúng sổ tay hướng dẫn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この道は海岸線に沿って伸びている。",
+     "FURIGANA_MISSING: マニュアルに沿って対応してください。"
+    ],
+    "formation": "N + に沿って",
+    "locked_fields": [],
+    "meaning_vi": "～に沿って có hai lớp nghĩa chính: Dọc theo (nghĩa đen): đi/di chuyển theo đường, bờ sông, tuyến đường, ranh giới. Theo sát, bám theo (nghĩa bóng): tiến hành công việc bám theo chính sách, tiêu chí, kế hoạch, hướng dẫn, mục tiêu đã định, tránh lệch hướng. Nhấn mạnh sự tuân thủ “đường gân/tiêu chí”, khác với 「に基づいて」 (nhấn cơ sở khách quan) và 「に応じて」 (nhấn điều chỉnh linh hoạt).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo..., dựa theo...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn nhấn mạnh việc không lệch khỏi hướng dẫn/tiêu chí/đường đi. Danh từ thường gặp: 方針, 規則, 規定, 目標, 計画, マニュアル, カリキュラム, 地図, 境界線, 川/道/線. Thích hợp văn bản hướng dẫn/quy trình; trong mô tả địa lý thì mang nghĩa đen dọc theo. [6. Ghi chú mở rộng] Hình ảnh hóa: vẽ “một đường” rồi đi bám theo đường đó → 「に沿って」. Trong quy trình chất lượng, cặp đôi hay gặp: マニュアルに沿って（thực thi）＋ 記録に基づいて（chứng minh）. Đối với địa danh/đường sá, có thể thay bằng 「沿い（ぞい）」 như 名詞＋沿いの道. [7. Biến thể & cụm cố định] N + に沿って／に沿い／に沿うN／に沿ったN 方針に沿って進める, 規定に沿った手続き, カリキュラムに沿い実施, 川に沿って走る ご要望に沿ったご提案（cụm quảng cáo dịch vụ） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 「に基づいて」: nếu cần nhấn “căn cứ khoa học/dữ liệu”, ưu tiên 「に基づいて」. Nhầm với 「に応じて」: 「に沿って」 không diễn tả “tùy theo điều kiện mà thay đổi linh hoạt”. Dùng với động từ biến thiên thời gian như 「増える/減る」 để nói quan hệ đồng biến → dùng 「につれて／に従って」 tự nhiên hơn. Gắn sai loại từ: trước 「に沿って」 là danh từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cd0296a3f1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "季節に応じて、メニューが変わる。",
+       "ja_furigana": "季節(きせつ)に応(おう)じて、メニューが変(か)わる。",
+       "vi": "Thực đơn thay đổi tùy theo mùa."
+      },
+      {
+       "ja": "能力に応じて、仕事の量を決めている。",
+       "ja_furigana": "能力(のうりょく)に応(おう)じて、仕事(しごと)の量(りょう)を決(き)めている。",
+       "vi": "Khối lượng công việc được quyết định tùy theo năng lực."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "収入に応じて納税額が決まる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tiền thuế được quyết định tùy theo thu nhập."
+     },
+     {
+      "ja": "人数に応じて席を増やします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tăng chỗ ngồi tùy theo số người."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 収入に応じて納税額が決まる。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 収入に応じて納税額が決まる。 → 納",
+     "FURIGANA_MISSING: 人数に応じて席を増やします。"
+    ],
+    "formation": "N + に応じて",
+    "locked_fields": [],
+    "meaning_vi": "～に応じて diễn tả sự thay đổi/điều chỉnh cho phù hợp với điều kiện, tình huống, số lượng, mức độ, năng lực… Thường dùng khi kết quả/biện pháp linh hoạt theo tiêu chí đầu vào. Đối tượng đi kèm: 年齢, 能力, 状況, 希望, 人数, 収入, 需要, レベル, 天候, 予算. Khác với ～によって (bởi do/tuỳ), 「に応じて」 nhấn mạnh sự điều chỉnh tương ứng, không nhất thiết là nguyên nhân. Khác với ～に応えて: 「に応じて」 không mang nghĩa “đáp lại” kỳ vọng/yêu cầu cụ thể của ai đó.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Tùy theo..., ứng với...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái trung tính-trang trọng, phù hợp thông báo, quy định, mô tả dịch vụ. Đi kèm động từ chỉ thay đổi/điều chỉnh: 変わる, 変える, 決める, 調整する, 分ける, 対応する. Nếu diễn đạt “cùng biến thiên” tự nhiên theo thời gian/quá trình, có thể dùng thêm 「～につれて／～に従って」. [6. Ghi chú mở rộng] Mẹo nhớ: 「応」 = ứng/ứng phó → 「に応じて」 = “ứng theo”. Dạng liên kết 「N に応じた N」 rất hay trong quảng cáo/dịch vụ: ご希望に応じたプラン. Khi chủ thể “chấp nhận/đáp ứng” (nhận lời tham gia) dùng động từ 「応じる」 đơn lẻ: 募集に応じる＝ứng tuyển. [7. Biến thể & cụm cố định] N + に応じて／に応じ／に応じたN 状況に応じて対応, 年齢に応じた指導, 収入に応じて保険料を決める 需要に応じて増産, 人数に応じて配布 [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 「に応えて」: nếu là “yêu cầu/kỳ vọng của ai đó” → dùng 「に応えて」, không phải 「に応じて」. Dùng 「によって」 thay cho 「に応じて」 làm mất sắc thái “điều chỉnh linh hoạt”. Gắn sai loại từ: chỉ gắn với danh từ. Bẫy collocation JLPT: 料金/課題/クラス/対応/調整 → hay đi với 「に応じて」."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-354aff14f2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "母の日には、ありがとうの気持ちを込めて手紙を書いた。",
+       "ja_furigana": "母(はは)の日(ひ)には、ありがとうの気持(きも)ちを込(こ)めて手紙(てがみ)を書(か)いた。",
+       "vi": "Ngày của mẹ, tôi viết thư gửi gắm tâm tình cảm ơn."
+      },
+      {
+       "ja": "卒業生は、先生への気持ちを込めて歌を歌った。",
+       "ja_furigana": "卒業生(そつぎょうせい)は、先生(せんせい)への気持(きも)ちを込(こ)めて歌(うた)を歌(うた)った。",
+       "vi": "Các học sinh tốt nghiệp đã hát bằng cả tấm lòng dành cho thầy cô."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "心を込めて料理を作りました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã nấu ăn với tất cả tấm lòng."
+     },
+     {
+      "ja": "感謝を込めて花を贈ります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi gửi hoa với lòng biết ơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 心を込めて料理を作りました。",
+     "FURIGANA_MISSING: 感謝を込めて花を贈ります。"
+    ],
+    "formation": "N + を込めて",
+    "locked_fields": [],
+    "meaning_vi": "Dồn/gửi gắm cảm xúc, ý nghĩa, nguyện vọng vào một hành động/sản phẩm. Nhấn người nói thực hiện với tấm lòng, sự chăm chút hoặc chủ đích. Sắc thái tích cực, lịch sự; thường đi với từ vựng: 心, 愛, 感謝, 願い, 祈り, 気持ち, 力.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Với tất cả..., gửi gắm...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng cho hành động tạo tác/biểu đạt: viết, nói, tặng, làm, hát, cầu nguyện… Dạng định ngữ Nを込めたN₂ thường thấy trong văn viết/quảng cáo. Không dùng với danh từ vật thể theo nghĩa “nhồi” nếu không phải nghĩa gốc của 動詞「込める」. Thể hiện sự trang trọng, chân thành; hợp ngữ cảnh tích cực/lễ nghi. [6. Ghi chú mở rộng] Có thể kết hợp với động từ giao tiếp: 気持ちを込めて謝る/伝える. Khi là tiêu đề, thường dùng định ngữ: 感謝を込めた手紙. Tránh lặp nội dung cảm xúc dư thừa: “心を込めて丁寧に” có thể trùng ý. [7. Biến thể & cụm cố định] 心を込めて, 愛を込めて, 感謝を込めて, 願いを込めて, 祈りを込めて Nを込めた + 手紙／歌／作品／贈り物／メッセージ 魂を込めて（nhấn mạnh mạnh mẽ hơn） [8. Lỗi thường gặp & bẫy JLPT] Dùng với danh từ cụ thể theo nghĩa ngữ pháp → sai ngữ nghĩa (ví dụ: “砂糖を込めてコーヒーを入れる” không tự nhiên; phải là 砂糖を入れて). Nhầm với ～をもって: cái này là phương tiện chính thức, không mang cảm xúc. Quên dạng định ngữ ～を込めたN: thường xuất hiện trong đọc hiểu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8aead7f93e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この石を材料として、新しい壁を作る。",
+       "ja_furigana": "この石(いし)を材料(ざいりょう)として、新(あたら)しい壁(かべ)を作(つく)る。",
+       "vi": "Lấy những hòn đá này làm vật liệu để xây bức tường mới."
+      },
+      {
+       "ja": "彼は趣味として、写真を楽しんでいる。",
+       "ja_furigana": "彼(かれ)は趣味(しゅみ)として、写真(しゃしん)を楽(たの)しんでいる。",
+       "vi": "Anh ấy thích chụp ảnh như một sở thích."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この寺を観光資源として活用する。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tận dụng ngôi chùa này như một nguồn tài nguyên du lịch."
+     },
+     {
+      "ja": "彼を代表として会議に参加させる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cử anh ấy tham gia cuộc họp với tư cách đại diện."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この寺を観光資源として活用する。",
+     "FURIGANA_MISSING: 彼を代表として会議に参加させる。"
+    ],
+    "formation": "N + として",
+    "locked_fields": [],
+    "meaning_vi": "N1をN2として: Xem/đặt/định vị N1 với tư cách/ vai trò/ mục đích N2. Dùng để chỉ: vai trò (代表/責任者), chức năng (材料/手段/目的), tiêu chuẩn/cơ sở (根拠/基準). Sắc thái: Hơi trang trọng, thường gặp trong văn viết, thuyết trình, mô tả chức năng. Khác với にとって: ～として nói “với tư cách/role”, không phải “đối với (quan điểm, lợi ích)”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Xem... là..., chọn... làm...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Nhấn mạnh vai trò/chức năng hơn là bản chất. Khi muốn định nghĩa bản chất, cân nhắc ～という. Trong văn thuyết minh: dùng nhiều với các danh từ trừu tượng như 目的/手段/基準/対象/材料/資源/代表. Phong cách lịch sự, phù hợp báo cáo, kế hoạch: ～を～として活用/位置づける/採用/設定. [6. Ghi chú mở rộng] N2 thường là danh từ trừu tượng chỉ vai trò: 目的/基準/根拠/立場/象徴/題材/条件/前提. Trong quảng cáo/PR: ～を強みとして/特徴としてアピールする mẫu rất phổ biến. Đảo trật tự nhấn N2: N2としてN1を活用する cũng gặp trong văn viết. [7. Biến thể & cụm cố định] 代表として／責任者として／教師として: Với tư cách… 根拠として／基準として／目標として／材料として／手段として: Với vai trò/cơ sở… NとしてのN: 企業としての使命／親としての愛. ターゲットとして/対象として/資源として活用する. [8. Lỗi thường gặp & bẫy JLPT] Bỏ “を” trong mẫu kép: Sai: AとしてB. Đúng: AをBとして khi muốn “lấy A làm B”. Nhầm với にとって: “đối với (quan điểm)” → にとって, không dùng ～として. Sử dụng N2 không phù hợp vai trò: chọn danh từ mang nghĩa “vai trò/chức năng”, không dùng tính từ. Trật tự sai: Đặt N1 (đối tượng) trước, N2 (vai trò) sau: N1をN2として."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cb4e0e8341"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "やせたいと思いつつ、夜遅くにお菓子を食べてしまう。",
+       "ja_furigana": "やせたいと思(おも)いつつ、夜遅(よるおそ)くにお菓子(かし)を食(た)べてしまう。",
+       "vi": "Dù nghĩ muốn giảm cân nhưng tôi vẫn ăn bánh kẹo lúc khuya."
+      },
+      {
+       "ja": "体に悪いと分かりつつ、タバコがやめられない。",
+       "ja_furigana": "体(からだ)に悪(わる)いと分(わ)かりつつ、タバコがやめられない。",
+       "vi": "Dù biết có hại cho sức khỏe nhưng tôi không bỏ được thuốc lá."
+      }
+     ],
+     "pattern": "〜つつ"
+    },
+    "note": "viết lại câu chép nguồn + thêm furigana; sửa pattern sai (〜楽しいいつつ)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼女は忙しいと言いつつ、長電話をしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy dù nói là bận nhưng đang tám điện thoại kìa."
+     },
+     {
+      "ja": "今日こそがんばろうと思いつつ、また勉強しなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù định là chính từ hôm nay phải cố gắng nhưng lại không học bài nữa rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女は忙しいと言いつつ、長電話をしている。",
+     "FURIGANA_MISSING: 今日こそがんばろうと思いつつ、また勉強しなかった。"
+    ],
+    "formation": "Vます + つつ",
+    "locked_fields": [],
+    "meaning_vi": "(1) Dù … (2) Vừa/cùng lúc …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜楽しいいつつ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "(là lối diễn đạt cứng của 「ながら（も）」 (mang nghĩa của 「ながら（=đồng thời, cùng lúc với）」 (1) Thường được sử dụng trong trường hợp người nói thú nhận, hối hận, suy nghĩ lại…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2123cbe4e3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お金がないくせして、高い物ばかり見ている。",
+       "ja_furigana": "お金(かね)がないくせして、高(たか)い物(もの)ばかり見(み)ている。",
+       "vi": "Chẳng có tiền mà cứ ngắm toàn đồ đắt tiền."
+      },
+      {
+       "ja": "やる気がないくせして、もんくばかり言うな。",
+       "ja_furigana": "やる気(き)がないくせして、もんくばかり言(い)うな。",
+       "vi": "Không có hứng làm mà cứ toàn kêu ca."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "知らないくせして、知っているようなことを言うな。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đừng có nói kiểu như biết mặc dù là không biết."
+     },
+     {
+      "ja": "大学生のくせして、そんなことも知らないの？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù là sinh viên đại học nhưng chuyện như vậy cũng không biết sao?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 知らないくせして、知っているようなことを言うな。",
+     "FURIGANA_MISSING: 大学生のくせして、そんなことも知らないの？"
+    ],
+    "formation": "thể thường (Aな・N + の) + くせして",
+    "locked_fields": [],
+    "meaning_vi": "…thế mà…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜知らないくせして",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Văn nói của 「くせに」 Biểu đạt tâm trạng trách móc, đổ lỗi, gây ấn tượng không tốt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1ca1a700ed"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は忙しいながらも、毎日家族と食事をする。",
+       "ja_furigana": "彼(かれ)は忙(いそが)しいながらも、毎日(まいにち)家族(かぞく)と食事(しょくじ)をする。",
+       "vi": "Tuy bận nhưng anh ấy vẫn ăn cơm với gia đình mỗi ngày."
+      },
+      {
+       "ja": "小さいながらも、この部屋はとても落ち着く。",
+       "ja_furigana": "小(ちい)さいながらも、この部屋(へや)はとても落(お)ち着(つ)く。",
+       "vi": "Tuy nhỏ nhưng căn phòng này rất dễ chịu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "悪いことと知りながら、盗みを繰り返した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mặc dù biết là xấu nhưng vẫn cứ lặp lại việc trộm cắp."
+     },
+     {
+      "ja": "「狭いながらも楽しいわが家」という言葉がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có từ nghĩa là ‘nhà ta dù nhỏ nhưng hạnh phúc’."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 悪いことと知りながら、盗みを繰り返した。",
+     "FURIGANA_MISSING: 「狭いながらも楽しいわが家」という言葉がある。"
+    ],
+    "formation": "Vます / Aい / N + ながら(も)",
+    "locked_fields": [],
+    "meaning_vi": "Mặc dù, tuy nhiên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜知りながら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Biểu hiện sự đối ngược, trái với suy nghĩ thông thường, trái với tưởng tượng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d89ed3a74f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町の人口は、少しずつ増えつつある。",
+       "ja_furigana": "この町(まち)の人口(じんこう)は、少(すこ)しずつ増(ふ)えつつある。",
+       "vi": "Dân số thị trấn này đang dần tăng lên."
+      },
+      {
+       "ja": "空が明るくなり、雨はやみつつある。",
+       "ja_furigana": "空(そら)が明(あか)るくなり、雨(あめ)はやみつつある。",
+       "vi": "Trời sáng dần lên, mưa đang tạnh."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "医療はますます進歩しつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Y học dần dần ngày càng phát triển."
+     },
+     {
+      "ja": "新種のウイルスによる被害は、全国に広がりつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thiệt hại do virus mới dần dần mở rộng khắp đất nước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 医療はますます進歩しつつある。",
+     "FURIGANA_MISSING: 新種のウイルスによる被害は、全国に広がりつつある。"
+    ],
+    "formation": "Vます + つつある",
+    "locked_fields": [],
+    "meaning_vi": "Dần dần đang ～",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜進歩しつつある",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Chủ yếu dùng trong văn viết"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8caffa3074"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の悪口を言うものではない。",
+       "ja_furigana": "人(ひと)の悪口(わるぐち)を言(い)うものではない。",
+       "vi": "Người ta không nên nói xấu người khác."
+      },
+      {
+       "ja": "寝る前には、歯をみがくものだ。",
+       "ja_furigana": "寝(ね)る前(まえ)には、歯(は)をみがくものだ。",
+       "vi": "Trước khi ngủ thì phải đánh răng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「名前を呼ばれたら、返事ぐらいするものだ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi bị gọi tên thì đương nhiên nên phản hồi lại."
+     },
+     {
+      "ja": "「悪いことをしたら謝るもんだ」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu làm việc xấu thì tất nhiên là phải xin lỗi rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「名前を呼ばれたら、返事ぐらいするものだ」",
+     "FURIGANA_MISSING: 「悪いことをしたら謝るもんだ」"
+    ],
+    "formation": "Vる + ものだ / Vる + ものではない",
+    "locked_fields": [],
+    "meaning_vi": "Nói về những thứ coi là tự nhiên. Hoặc mệnh lệnh nhẹ nhàng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ものだ/ではない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 【動詞・イ形容詞・ナ形容詞】の名詞修飾形 Ý nghĩa: ①～が当然だ、一般的だ、軽い命令 Nói về những thứ coi là tự nhiên. Hoặc mệnh lệnh nhẹ nhàng Ví dụ: 1. 「名前を呼ばれたら、返事ぐらいするものだ」 Khi bị gọi tên thì đương nhiên nên phản hồi lại. 2. 「悪いことをしたら謝るもんだ」 Nếu làm việc xấu thì tất nhiên là phải xin lỗi rồi. 3. 「お年寄りには席を譲るものですよ」 Nhường ghế cho người già là điều đương nhiên. 4. 「女性に年を聞くもんじゃないですよ」 Không nên hỏi tuổi phụ nữ. 5. だれでもほめられればうれしいものだ。 Được khen thì đương nhiên là ai cũng vui. 6. 子どもというものは本来元気なものだ。 Trẻ con vốn rất hiếu động. Cách kết hợp: 【動詞・イ形容詞・ナ形容詞】の過去形の普通形 Ý nghĩa: ②過去の思い出 Nhớ về việc xảy ra lâu trong quá khứ Ví dụ: 1. 若いころはよく親に反抗したものだ。 Khi còn trẻ rất hay phản kháng lại bố mẹ 2. 学生時代、試験の前日になると眠られなかったものだ。 Thời còn đi học, cứ trước ngày thi là tôi không thể ngủ nổi. 3. 昔は記憶力が良かったものだが、今ではすっかり衰えてしまった。 Ngày xưa trí nhớ của tôi tốt nhưng giờ thì suy giảm rõ rệt. 4. このあたりは昔、車一台通らないほど静かだったものだが．．．．．。 Vùng này ngày xưa yên tĩnh đến mức không một chiếc xe nào chạy qua, mà giờ... Cách kết hợp: 【動詞・イ形容詞・ナ形容詞】の名詞修飾形 Ý nghĩa: ③感心、簡単等、しみじみとした深い気持ちを表す Biểu thị cảm tình , tình cảm, cảm xúc Ví dụ: 1. 日本へ来てもう1年になる。時がたつのは本当に早いものだ。 Đến Nhật cũng đã 1 năm rồi. Thời gian thấm thoát, cũng thực sự là nhanh đó. 2. 貧しかった昔と比べれば、今は本当にいい世の中になったものだ。 Nếu so với thời xưa nghèo khổ thì xã hội bây giờ là quá tốt. 3. 早く一人前になって両親を安心させたいものだ。 Tôi muốn sớm trưởng thành và khiến bố mẹ yên tâm biết bao."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-84cedb1840"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "人の手紙を勝手に読むべきではない。",
+       "ja_furigana": "人(ひと)の手紙(てがみ)を勝手(かって)に読(よ)むべきではない。",
+       "vi": "Không nên tự tiện đọc thư của người khác."
+      },
+      {
+       "ja": "もっと早く医者に行くべきだった。",
+       "ja_furigana": "もっと早(はや)く医者(いしゃ)に行(い)くべきだった。",
+       "vi": "Đáng lẽ tôi nên đi khám bác sĩ sớm hơn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn (BOOK) kèm ja_furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "そんなことをすべきではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không nên làm những việc như vậy."
+     },
+     {
+      "ja": "もっと勉強するべきだった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nên học nhiều hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: もっと勉強するべきだった。"
+    ],
+    "formation": "Vる + べきではない",
+    "locked_fields": [],
+    "meaning_vi": "Nên; không nên",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜すべきではない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "* すべき＝するべき Người nói nêu ý kiến trước một sự việc nào đó, làm/ không làm…là chuyện đương nhiên."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-21febc1e6e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-045"
+}

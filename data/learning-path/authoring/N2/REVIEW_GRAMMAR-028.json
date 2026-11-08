@@ -1,0 +1,583 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "旅行に行こうか行くまいか、まだ決めていない。",
+       "ja_furigana": "旅行(りょこう)に行(い)こうか行(い)くまいか、まだ決(き)めていない。",
+       "vi": "Đi du lịch hay không, tôi vẫn chưa quyết."
+      },
+      {
+       "ja": "この案を出すか出すまいか、一日中考えていた。",
+       "ja_furigana": "この案(あん)を出(だ)すか出(だ)すまいか、一日中(いちにちじゅう)考(かんが)えていた。",
+       "vi": "Có nên đưa ra phương án này hay không, tôi đã suy nghĩ cả ngày."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼に本当のことを話そうか話すまいか、ずっと悩んでいる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi lăn tăn mãi có nên nói thật với anh ấy hay không."
+     },
+     {
+      "ja": "就職するか進学するまいか、親と相談して決めるつもりだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đi làm hay thôi không học tiếp, tôi định bàn với bố mẹ rồi quyết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼に本当のことを話そうか話すまいか、ずっと悩んでいる。",
+     "FURIGANA_MISSING: 就職するか進学するまいか、親と相談して決めるつもりだ。"
+    ],
+    "formation": "Vる / Vよう + か + Vる / Vない + まいか",
+    "locked_fields": [],
+    "meaning_vi": "Diễn tả sự do dự, lưỡng lự giữa hai lựa chọn “làm hay không làm”. Sắc thái trang trọng hơn VるかVないか; mang màu sắc văn viết/diễn văn. Chủ ngữ thường là người nói hoặc người ra quyết định; diễn tả quá trình cân nhắc. Đôi khi dùng để nêu bối cảnh do dự trước khi quyết định: ～か～まいか、結局…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Làm hay không làm",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi nhấn mạnh tiến trình lưỡng lự; phù hợp viết luận, tường thuật. Kết hợp tốt với động từ liên quan quyết định: 決める, 迷う, 悩む, 考える. Sau cụm này thường là kết quả/diễn biến: ～か～まいか、結局～／～と考えた。 Với する: するまいか/すまいか đều thấy; ưu tiên するまいか trong hiện đại. [6. Ghi chú mở rộng] “まい” là hình thái phủ định ý chí kiểu cổ; hiện nay chủ yếu còn trong công thức này và ～まいと思う. Văn nói thường thay bằng VるかVないか để tự nhiên hơn. Trong tiêu đề/văn chương, mẫu này tạo nhịp điệu đối xứng, tăng tính nhấn mạnh. [7. Biến thể & cụm cố định] 行こうか行くまいか（mẫu tiêu chuẩn） 食べようか食べまいか（ichidan rút gọn） しようかするまいか／すまいか（động từ する） ～まいと思う（nghĩ là “sẽ không …”） [8. Lỗi thường gặp & bẫy JLPT] Dùng sai hình thái: phần sau phải là “Vる＋まいか” (hoặc Vまいか với ichidan), không dùng “ないか”. Nhầm với ～ようが～まいが (bất chấp) dẫn đến sai nghĩa. Dùng trong văn nói thân mật nghe cứng; JLPT thích kiểm tra sắc thái trang trọng của mẫu này. Lặp động từ khác nhau ở hai vế: phải dùng cùng một động từ để tạo đối ứng đúng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f1b83c75bb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "やり直せるものなら、あの時に戻りたい。",
+       "ja_furigana": "やり直(なお)せるものなら、あの時(とき)に戻(もど)りたい。",
+       "vi": "Nếu có thể làm lại, tôi muốn quay về lúc đó."
+      },
+      {
+       "ja": "鳥になれるものなら、空を自由に飛んでみたい。",
+       "ja_furigana": "鳥(とり)になれるものなら、空(そら)を自由(じゆう)に飛(と)んでみたい。",
+       "vi": "Nếu có thể hóa thành chim, tôi muốn bay tự do trên trời."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana; mẫu trùng JG-2520c5b80a",
+    "same_pattern_as": "JG-2520c5b80a"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "帰れるものなら、今すぐ故郷に帰りたい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thể về được thì tôi muốn về quê ngay."
+     },
+     {
+      "ja": "もう一度やり直せるものなら、最初からやり直したい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu có thể làm lại lần nữa, tôi muốn bắt đầu từ đầu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 帰れるものなら、今すぐ故郷に帰りたい。",
+     "FURIGANA_MISSING: もう一度やり直せるものなら、最初からやり直したい。"
+    ],
+    "formation": "V(可能形)・Vる + ものなら",
+    "locked_fields": [],
+    "meaning_vi": "Giả định gần như phi thực (counterfactual/low probability): “nếu mà có thể…/giá như…”. Dùng để bộc lộ mong muốn mạnh mẽ, nuối tiếc, hoặc nêu điều kiện khó đạt. Biến thể thách thức: sắc thái gắt/khích tướng, thường ở văn nói.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu có thể..., nếu như...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường đi với động từ khả năng (戻れる、できる、会える…). Mệnh đề sau biểu thị mong ước/ý định/đánh giá của người nói. Trong dạng thách thức, mệnh đề sau thường là ～てみろ／てごらん (mạnh/nhẹ). Sắc thái văn viết/chuẩn, không quá khẩu ngữ trừ khi dùng để thách thức. [6. Ghi chú mở rộng] Trong dịch Việt, “giá mà…”, “nếu có thể… thì…”, “nếu tưởng là làm được thì cứ…”. Đề JLPT hay kiểm tra phân biệt ～ものなら (giả định khó) với ～ようものなら (hệ quả xấu). Chủ ngữ ngầm thường là người nói hoặc đối phương (ở dạng thách thức). [7. Biến thể & cụm cố định] やれるものならやってみろ: câu khích tướng kinh điển. 帰れるものなら帰りたい／会えるものなら会いたい: khung bộc lộ ước muốn. できるものなら全部助けたい: nhấn mạnh mong muốn toàn phần. [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ～たら (khả thi) → chọn sai khi ngữ cảnh là “khó xảy ra/viễn vông”. Nhầm với ～ようものなら (hệ quả xấu) → nhìn mệnh đề sau: mong ước vs cảnh báo. Dùng với tính từ/danh từ một cách gượng: mẫu này chủ yếu đi với động từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a705e4b3e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "私から見ると、彼の説明はまだ分かりにくい。",
+       "ja_furigana": "私(わたし)から見(み)ると、彼(かれ)の説明(せつめい)はまだ分(わ)かりにくい。",
+       "vi": "Theo góc nhìn của tôi, lời giải thích của anh ấy vẫn còn khó hiểu."
+      },
+      {
+       "ja": "この写真から見ると、山の上の雪はもう少ない。",
+       "ja_furigana": "この写真(しゃしん)から見(み)ると、山(やま)の上(うえ)の雪(ゆき)はもう少(すく)ない。",
+       "vi": "Nhìn từ tấm ảnh này, tuyết trên đỉnh núi đã còn ít."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "専門家から見ると、この計画には問題点が多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ góc nhìn của chuyên gia, kế hoạch này có nhiều điểm vấn đề."
+     },
+     {
+      "ja": "データから見れば、景気は回復しつつある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu nhìn từ dữ liệu, kinh tế đang dần phục hồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 専門家から見ると、この計画には問題点が多い。",
+     "FURIGANA_MISSING: データから見れば、景気は回復しつつある。"
+    ],
+    "formation": "N + から見ると / から見れば / から見て",
+    "locked_fields": [],
+    "meaning_vi": "～から見ると: “Nhìn từ/ nếu xét từ (góc độ/tiêu chí/nguồn thông tin)… thì…”. Biểu thị phán đoán/nhận xét dựa trên một quan điểm hoặc dữ kiện cụ thể. Trọng tâm ở góc nhìn/quan sát (visual/metaphorical). “見る” gợi cảm giác dựa trên thứ có thể quan sát hoặc diễn giải được. Thường dùng với các N chỉ nguồn: データ・統計・専門家・第三者・子どもの目・外部・安全面・コスト面… Biểu thị tính khách quan tương đối; tuy nhiên vẫn là nhận định của người nói dựa trên góc nhìn đã nêu. Biến thể 見れば (giả định), 見ても (nhấn mạnh dù xét từ đó cũng…).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhìn từ góc độ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi muốn minh định “tiêu điểm nhận định” trước khi nêu kết luận. Phù hợp cả văn viết lẫn nói; trang trọng vừa phải. Không dùng để diễn tả lợi ích/quan hệ “đối với (ai) thì …” về cảm nhận cá nhân → ưu tiên 〜にとって. Nếu nhấn mạnh suy đoán, dùng 〜からすると; nếu nhấn mạnh khía cạnh/tiêu chí phát ngôn, dùng 〜から言うと. Kết luận sau ～から見ると thường là phán đoán, đánh giá, suy luận, không phải mệnh lệnh trực tiếp. [6. Ghi chú mở rộng] N thường là “mắt/đứng điểm” cụ thể: 研究者・医者・利用者・会計の面・文化の視点. Với N chỉ vật/nguồn dữ liệu (地図・統計・記録), sắc thái “quan sát từ dữ liệu”. Tránh lạm dụng với nội dung mệnh lệnh/ý chí; chuyển sang ので/から sẽ tự nhiên hơn. [7. Biến thể & cụm cố định] N + から見れば（giả định nhẹ） N + から見て(も)（nhấn mạnh “kể cả”） 第三者の立場から見ると／外部から見ると（góc nhìn người ngoài） 統計/データ/数字/記録から見ると（từ dữ liệu） [8. Lỗi thường gặp & bẫy JLPT] Nhầm với 〜によれば/によると (nguồn tin tường thuật). から見ると là phán đoán từ góc nhìn, không phải “theo dự báo…”. Dùng cho “đối với” (cảm nhận) → sai. Dạng đúng: 〜にとって. Gắn trực tiếp với mệnh lệnh: “専門家から見ると、やめろ” → thô; nên chuyển sang khuyến nghị gián tiếp. JLPT: dễ nhiễu với からすると/から言うと. Hãy nhìn động từ trung tâm: 見る=quan sát, 言う=phát ngôn/tiêu chí, する=đi đến suy đoán."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7df1b6b4cf"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は、話し方からして優しい人だ。",
+       "ja_furigana": "彼(かれ)は、話(はな)し方(かた)からして優(やさ)しい人(ひと)だ。",
+       "vi": "Anh ấy, ngay từ cách nói cũng đã là người hiền lành."
+      },
+      {
+       "ja": "この店は、店員の言葉からしてていねいだ。",
+       "ja_furigana": "この店(みせ)は、店員(てんいん)の言葉(ことば)からしてていねいだ。",
+       "vi": "Quán này, ngay từ lời nói của nhân viên cũng đã lễ phép."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana; mẫu trùng JG-afa0ccc3ab",
+    "same_pattern_as": "JG-afa0ccc3ab"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この店は雰囲気からして高級だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ bầu không khí của quán này đã thấy sang chảnh rồi."
+     },
+     {
+      "ja": "彼は服装からしてだらしない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ nhìn cách ăn mặc thôi đã thấy cẩu thả."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この店は雰囲気からして高級だ。",
+     "FURIGANA_MISSING: 彼は服装からしてだらしない。"
+    ],
+    "formation": "N + からして",
+    "locked_fields": [],
+    "meaning_vi": "Phán đoán dựa trên dấu hiệu nhỏ: “Nhìn vào/Chỉ xét từ N đã thấy…”. Ví dụ: 見た目からして高そうだ。 Nêu ví dụ tiêu biểu, “ngay từ/đến cả N cũng…”, thường hàm ý tiêu cực hoặc bất thường: 彼は挨拶からしてできていない。 Nhấn “điểm khởi đầu” để suy ra tổng thể: Một phần nhỏ đã cho thấy bức tranh lớn. Sắc thái: chủ quan, cảm tính hơn からすると; hay dùng để chê, phàn nàn, nghi ngờ tính đúng đắn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nhìn từ..., xét từ...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt N là “manh mối” rồi đưa kết luận cảm tính/đánh giá. Hay đi với từ ngữ tiêu cực: 変だ／怪しい／無理がある／失礼だ／安っぽいなど。 Không dùng cho nguyên nhân khách quan rõ ràng; thiên về ấn tượng chủ quan. Vị trí: thường đứng đầu mệnh đề hoặc trước phán đoán: Nからして、～。 [6. Ghi chú mở rộng] Thường thấy trong văn nói, review, phê bình vì sắc thái đánh giá mạnh. Với N là “bao quát” (雰囲気, 見た目, タイトル, 値段), からして tự nhiên hơn. Nếu cần nhấn “ngay cả N cũng…”, có thể dùng: Nからして～ない／違う。 [7. Biến thể & cụm cố định] 雰囲気からして／見た目からして／名前からして：các cụm rất thường gặp. Nからして違う：Khác ngay từ N (mẫu, bản chất). Nからして無理／おかしい／怪しい：công thức đánh giá tiêu cực điển hình. [8. Lỗi thường gặp & bẫy JLPT] Dùng cho nguyên nhân khách quan → Sai. Nên dùng ので／ため／ことから. Gắn với mệnh đề động từ → Sai. からして chủ yếu gắn danh từ. Nhầm với からすると: đề bài JLPT hay hỏi sắc thái “tiêu cực vs trung tính”. Dùng khen ngợi quá mức → Không tự nhiên. からして thường nghiêng tiêu cực hoặc ấn tượng mạnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d36cbb33ea"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの人は、もうこの店には来まい。",
+       "ja_furigana": "あの人(ひと)は、もうこの店(みせ)には来(こ)まい。",
+       "vi": "Người đó chắc sẽ không đến quán này nữa."
+      },
+      {
+       "ja": "あんな失敗は二度とくり返すまい。",
+       "ja_furigana": "あんな失敗(しっぱい)は二度(にど)とくり返(かえ)すまい。",
+       "vi": "Tôi sẽ không bao giờ lặp lại sai lầm như vậy nữa."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼はもう来るまい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chắc là anh ấy sẽ không đến nữa."
+     },
+     {
+      "ja": "二度と同じ過ちを繰り返すまいと心に誓った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thề trong lòng sẽ không lặp lại sai lầm thêm lần nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼はもう来るまい。",
+     "FURIGANA_MISSING: 二度と同じ過ちを繰り返すまいと心に誓った。"
+    ],
+    "formation": "Vる + まい (する→しまい・するまい)",
+    "locked_fields": [],
+    "meaning_vi": "Suy đoán phủ định: “chắc là không/khó mà …” (= ～ないだろう). Văn viết, trang trọng, đôi khi cổ điển. Ý chí phủ định: “quyết không/nhất định không …” khi người nói tự nhủ, thể hiện quyết tâm cao. “～まいと（して）” nghĩa “cố gắng để không …”. “～まいか” dùng như nghi vấn tu từ nhấn mạnh kỳ vọng khẳng định.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Quyết không..., sẽ không...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Trang trọng, thiên về văn viết, bài diễn văn, tường thuật; hội thoại thường dùng ～ないだろう／～ないと思う. Ý chí phủ định thường đi với động từ ý chí và chủ ngữ là người nói. Với N/な: dùng であるまい để giữ sắc thái nghiêm túc. [6. Ghi chú mở rộng] Trong văn nói tự nhiên, đổi sang: きっと来ない／来ないと思う để tránh cứng. “すまい” tồn tại nhưng ít dùng; “するまい” phổ biến hơn. “あるまい” dùng với ある (ví dụ: そんなことはあるまい = chắc không có chuyện đó). [7. Biến thể & cụm cố định] Vる + まい（suy đoán/ý chí phủ định） Vる + まいと（して）…（cố tránh …） N/な + であるまい（suy đoán phủ định trang trọng） ～まいか（nghi vấn tu từ nhấn mạnh） [8. Lỗi thường gặp & bẫy JLPT] Sai chia nhóm 2: × 食べるまい → ○ 食べまい（bỏ ます: 食べます → 食べ） Dùng trong hội thoại thường ngày khiến câu cứng; JLPT hay kiểm tra thay thế tự nhiên bằng ～ないだろう. Nhầm nghĩa “ý chí” với “suy đoán”: dựa vào ngữ cảnh chủ ngữ/ngôi để phân biệt. Nhầm “すまい” là thể lịch sự: thực ra là biến thể cổ của するまい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7bc9d20758"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この音からすると、近くで工事をしているようだ。",
+       "ja_furigana": "この音(おと)からすると、近(ちか)くで工事(こうじ)をしているようだ。",
+       "vi": "Nghe tiếng này thì có vẻ gần đây đang thi công."
+      },
+      {
+       "ja": "この答えからすると、彼は問題を理解していない。",
+       "ja_furigana": "この答(こた)えからすると、彼(かれ)は問題(もんだい)を理解(りかい)していない。",
+       "vi": "Nhìn vào câu trả lời này thì anh ấy chưa hiểu bài."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "この足跡からすると、鹿ではなく熊だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Căn cứ vào dấu chân này, không phải hươu mà là gấu."
+     },
+     {
+      "ja": "症状からすると、インフルエンザの可能性が高い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa vào triệu chứng, khả năng cúm cao."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この足跡からすると、鹿ではなく熊だ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この足跡からすると、鹿ではなく熊だ。 → 鹿,熊",
+     "FURIGANA_MISSING: 症状からすると、インフルエンザの可能性が高い。"
+    ],
+    "formation": "N + からすると / からすれば",
+    "locked_fields": [],
+    "meaning_vi": "Suy luận: “Căn cứ vào N mà suy ra…”. Ví dụ: 症状からすると風邪だろう。 Lập trường/góc nhìn: “Xét từ phía N thì…”. Ví dụ: 消費者からすると値上げは痛い。 Sắc thái trung tính, lý tính hơn からして; dùng được cho cả kết luận tích cực/tiêu cực. Thường đi kèm phán đoán không chắc chắn: ～だろう／～と思われる／～ようだ。",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Theo..., dựa vào...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Đặt N làm căn cứ rồi suy ra; hay dùng trong báo cáo, phân tích, tin tức. Khi là “lập trường”, chủ ngữ thường là người/nhóm: 学生からすると／経営者からすると. Độ chắc chắn vừa phải; kết luận đi kèm phó từ/đuôi phỏng đoán. Trang trọng hơn からして khi dùng trong suy luận logic. [6. Ghi chú mở rộng] Trong văn viết, からすると hợp với mệnh đề kết luận có căn cứ rõ ràng (データ、症状、状況、結果). からすれば đôi khi hàm ý “đứng ở vị thế đó mà nói thì…”, sắc thái chủ quan hơn からすると. Với “con người/nhóm”, cả からすると và からすれば đều tự nhiên: 消費者／親／専門家など. [7. Biến thể & cụm cố định] N＋からすると／からすれば／からいえば：ba biến thể dùng thay thế khá linh hoạt. データからすると／症状からすると／状況からすると：cụm tần suất cao. 人称＋からすると（親／学生／経営者など）：nhấn lập trường. [8. Lỗi thường gặp & bẫy JLPT] Nhầm là nguyên nhân trực tiếp → Sai. Đây là căn cứ để suy luận, không phải lý do thực tế. Kết luận quá chắc chắn (断定) → Không tự nhiên. Nên dùng ～だろう／～と思われる. Nhầm với からして trong câu hỏi sắc thái: JLPT hay hỏi “ấn tượng tiêu cực” vs “suy luận trung tính”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7b0e2d54b8"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お休みのところを、お電話してすみません。",
+       "ja_furigana": "お休(やす)みのところを、お電話(でんわ)してすみません。",
+       "vi": "Xin lỗi vì đã gọi điện vào lúc anh chị đang nghỉ."
+      },
+      {
+       "ja": "家を出ようとするところを、母に呼び止められた。",
+       "ja_furigana": "家(いえ)を出(で)ようとするところを、母(はは)に呼(よ)び止(と)められた。",
+       "vi": "Đúng lúc tôi định ra khỏi nhà thì bị mẹ gọi lại."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "お忙しいところを恐れ入りますが、こちらにご署名ください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin thứ lỗi vì làm phiền lúc anh/chị đang bận, vui lòng ký vào đây ạ."
+     },
+     {
+      "ja": "会議を始めようとするところを、社長から電話が入った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đúng lúc chúng tôi định bắt đầu họp thì có điện thoại từ giám đốc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: お忙しいところを恐れ入りますが、こちらにご署名ください。",
+     "FURIGANA_MISSING: 会議を始めようとするところを、社長から電話が入った。"
+    ],
+    "formation": "Vる・Vている・Vた / Nの + ところを",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa 1: Chỉ thời điểm đúng lúc hành động diễn ra. Nhấn mạnh “trúng thời điểm” (đang/vừa/sắp). Tùy dạng của ところ: - V-るところ: sắp, chuẩn bị - V-ているところ: đang - V-たところ: vừa mới Nghĩa 2: Lịch sự/nhận lỗi khi can thiệp vào tình huống của đối phương. Mẫu: お忙しいところを／お休みのところを／夜分のところを + 失礼しますなど. Nghĩa 3: Nhượng bộ trang trọng “mặc dù/đáng lẽ”. Dùng khi đưa ra phán quyết nhẹ tay, cảm ơn, xin lỗi: 例: 厳しく叱るべきところを、温かい言葉をいただいた。 Sắc thái: Trang trọng hơn ところで/のに. Trong nghĩa nhượng bộ thường thấy trong văn bản chính thức, biên bản, phát biểu.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Trong lúc..., mặc dù... (trái hoàn cảnh)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khi dùng để xin lỗi/nhờ vả: đứng đầu câu, sau đó là yêu cầu ngắn gọn lịch sự. Thường kèm 恐れ入ります／失礼します／申し訳ありません. Với nghĩa “nhượng bộ”: mệnh đề trước ところを nêu điều kiện bất lợi/lẽ ra, mệnh đề sau thể hiện kết quả trái kỳ vọng (nhẹ tay, bỏ qua, vẫn giúp...) Dùng với động từ tri giác/kiểm soát: 見る／見つける／撮る／捕まえる để nhấn đúng thời điểm bị phát hiện/bắt giữ. Trang trọng hơn 〜のに. Tránh lạm dụng trong hội thoại thân mật (dễ thành kiểu cách). [6. Ghi chú mở rộng] “Nơi - thời điểm” của ところ giúp đóng khung bối cảnh, khiến lời xin lỗi/nhờ vả mềm hơn, thể hiện nhận thức về sự bất tiện gây ra. Trong biên bản/quyết định, ところを hay đi với thể bị động/tôn kính để tăng tính trang trọng. V-たところを trong nghĩa thời điểm thường tương đương “vừa mới … thì”, tạo cảm giác bất ngờ. [7. Biến thể & cụm cố định] お忙しいところを恐れ入りますが、〜／お手数をおかけするところを、〜 夜分のところを失礼します／遅い時間のところを失礼いたします 会議中のところを申し訳ございません 〜しているところを見られる／撮られる／注意される 本来〜すべきところを、〜／〜ところをあえて〜 [8. Lỗi thường gặp & bẫy JLPT] Nhầm với ところで: ところを mang sắc thái xin lỗi/nhượng bộ hoặc chỉ thời điểm bị tác động; ところで thường là “nhân tiện, dù cho”. Sai thời dạng: xin lỗi khi đối phương “đang” làm việc → dùng V-ているところを, không phải V-るところを. Dùng thân mật quá: trong hội thoại bạn bè, ところを có thể nghe hơi khách sáo; thay bằng のに／ときは…など. JLPT: câu bẫy hay đảo trật tự mệnh đề để đánh vào hiểu nhượng bộ “lẽ ra … nhưng …”. Hãy để ý mệnh đề trước ところを nêu “điều nên/đáng lẽ”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3bc8201ece"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "祭りの日とあって、町はどこもにぎやかだ。",
+       "ja_furigana": "祭(まつ)りの日(ひ)とあって、町(まち)はどこもにぎやかだ。",
+       "vi": "Vì là ngày lễ hội nên thị trấn chỗ nào cũng nhộn nhịp."
+      },
+      {
+       "ja": "人気の歌手のコンサートとあって、会場は満員だ。",
+       "ja_furigana": "人気(にんき)の歌手(かしゅ)のコンサートとあって、会場(かいじょう)は満員(まんいん)だ。",
+       "vi": "Vì là concert của ca sĩ nổi tiếng nên hội trường chật kín."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "連休初日とあって、空港はどこも混雑している。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là ngày đầu kỳ nghỉ dài nên sân bay đâu đâu cũng đông đúc."
+     },
+     {
+      "ja": "有名店の閉店とあって、朝から長い列ができた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là việc đóng cửa của cửa hàng nổi tiếng nên từ sáng đã có hàng dài."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 連休初日とあって、空港はどこも混雑している。",
+     "FURIGANA_MISSING: 有名店の閉店とあって、朝から長い列ができた。"
+    ],
+    "formation": "N / 普通形 + とあって",
+    "locked_fields": [],
+    "meaning_vi": "Lý do mang tính “đặc thù/đáng chú ý” dẫn đến kết quả tự nhiên được quan sát. Giọng tường thuật/khách quan; không phù hợp khi nêu ý chí/yêu cầu của người nói. Thường dùng trong tin tức, bài viết, bình luận hiện tượng xã hội.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Vì..., bởi vì... (đặc biệt)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Vế sau là kết quả/hiện tượng khách quan; tránh dùng mệnh lệnh/ý chí của người nói. Nêu tính “đặc biệt/hiếm” của nguyên nhân: 連休、初雪、有名人来訪… Thường đi với thì hiện tại hoặc quá khứ diễn tiến (～ている/～ていた). [6. Ghi chú mở rộng] N2. Rất hay trong bài đọc báo chí; nhận diện bằng danh từ “đặc biệt” + とあって. Đứng đầu câu; hiếm khi đứng sau mệnh đề phụ khác. Không dùng kèm yêu cầu/nguyện vọng trực tiếp của người nói: × とあって、手伝ってください。 [7. Biến thể & cụm cố định] NとあってのN (mang sắc thái văn viết: “chính vì N đặc biệt nên mới có N2”) 久々／初／特別＋の＋N＋とあって (cụm thường gặp) [8. Lỗi thường gặp & bẫy JLPT] Dùng cho ý chí người nói: × とあって、早く帰ろうと思う → nên dùng ので/ため. Nhầm với ～だけあって (đánh giá) hoặc ～とあれば (điều kiện). Chú ý vế sau. Nguyên nhân không “đặc biệt” làm câu gượng gạo; chọn nguyên nhân nổi bật."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0bf3d32913"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この計画には、まだ問題がありえる。",
+       "ja_furigana": "この計画(けいかく)には、まだ問題(もんだい)がありえる。",
+       "vi": "Kế hoạch này vẫn có thể còn vấn đề."
+      },
+      {
+       "ja": "誰にでも、同じような失敗はありうる。",
+       "ja_furigana": "誰(だれ)にでも、同(おな)じような失敗(しっぱい)はありうる。",
+       "vi": "Ai cũng có thể mắc sai lầm tương tự."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "博士でも間違うことはありえる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù có là tiến sĩ cũng có thể nhầm lẫn."
+     },
+     {
+      "ja": "これが私の知りうるすべての情報です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đây là tất cả thông tin mà tôi có thể biết."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 博士でも間違うことはありえる。",
+     "FURIGANA_MISSING: これが私の知りうるすべての情報です。"
+    ],
+    "formation": "V-ます(語幹) + うる / える (ありうる・ありえる)",
+    "locked_fields": [],
+    "meaning_vi": "Có thể ~ / Trong phạm vi có thể ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ありえる/ありうる",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30ef427f2b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "最後まで走り抜いた選手は、多くの人にほめられた。",
+       "ja_furigana": "最後(さいご)まで走(はし)り抜(ぬ)いた選手(せんしゅ)は、多(おお)くの人(ひと)にほめられた。",
+       "vi": "Vận động viên chạy hết chặng đã được nhiều người khen ngợi."
+      },
+      {
+       "ja": "難しい仕事を三年間やり抜いて、彼は部長になった。",
+       "ja_furigana": "難(むずか)しい仕事(しごと)を三年間(さんねんかん)やり抜(ぬ)いて、彼(かれ)は部長(ぶちょう)になった。",
+       "vi": "Sau khi làm trọn công việc khó khăn suốt ba năm, anh ấy đã trở thành trưởng phòng."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "大変な仕事でも、やり抜く自信があります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dẫu là công việc vất vả, tôi tin sẽ làm được tới cùng."
+     },
+     {
+      "ja": "彼はあきらめずにゴールまで走り抜いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy không từ bỏ mà cố chạy tới đích."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 大変な仕事でも、やり抜く自信があります。",
+     "FURIGANA_MISSING: 彼はあきらめずにゴールまで走り抜いた。"
+    ],
+    "formation": "V-ます(語幹) + 抜く",
+    "locked_fields": [],
+    "meaning_vi": "Làm xong tất cả và trọn vẹn một quá trình hay một hành động. Nhấn mạnh nghĩa hoàn thành sau khi chịu đựng gian khổ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜やり抜く",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-48c1d8dd63"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-028"
+}

@@ -29,19 +29,20 @@ that continues after SQL errors.
 ## Existing database
 
 Back up the exact database and verify the backup before writes. Prefer a narrowly
-scoped, rerunnable backfill over a full seed. See `LEARNING_OWNED_DB_SEED.md` for
-the task-owned learning-content checkpoint and preconditions.
+scoped, rerunnable backfill over a full seed.
 
-The Learning-owned SQL has one legacy schema-upgrade file, one current incremental
-migration, and one data seed. For a database already built from the current
-canonical schema, apply `migrations/022_learning_owned_consolidated.sql`, then
-`seeds/learning_owned.sql`, after the normal base seeds. For a database from the
-pre-V2 schema only, `migrations/004_interactive_learning_path_v2_consolidated.sql`
-contains the former owned forward steps 004-012 and 014-015; never run that file
-on a current-schema database or one where any of those old migrations already ran.
-The current migration includes the former colliding `021_jlpt_mock_attempt.sql` change;
-the seed contains the task-owned content sections in one file. These do not replace
-full-app setup or the digitization team's final seed. Verify the current migration/seed with
+## Learning flow (`learning/`)
+
+The Learning flow (Smart Test survey, learning path, goal curriculum, jpath) keeps
+one schema file, `learning/learning_schema.sql` (every Learning table, column, index,
+FK and CHECK; re-runnable, upgrades older Learning tables in place), and six data files:
+`learning/learning_data_N5.sql` (common data, then N5), `_N4`, `_N3`, `_N2`, `_N1` and
+`_comm` (communication path); all re-runnable and stored with Git LFS (run `git lfs pull`
+after pulling). Run the schema, then the data files in that order, after the normal
+base seeds and migrations. They replace the former Learning
+migrations 004-015, 022 and seeds `learning_owned.sql` /
+`learning_owned_part2.sql`. New Learning tables and data go into these files, not
+into `migrations/` or `seeds/`. See `learning/README.md`; verify with
 `node tools/learning-data-extract/verify_learning_sql.mjs`.
 
 The Learning practice/source holding tables and their seeds are included in

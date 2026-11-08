@@ -208,7 +208,9 @@ public class InteractiveComprehensionPathUpgradeService {
                 return null;
             }
         }
-        List<LearningQuizSession> attempts = quizSessions.findByActivityIdOrderByIdAsc(activity.getId());
+        // §2.32: extra-practice sessions stay on the original activity; they hold no batch of its own.
+        List<LearningQuizSession> attempts = quizSessions.findByActivityIdOrderByIdAsc(activity.getId()).stream()
+                .filter(attempt -> !"EXTRA_PRACTICE".equals(attempt.getQuizType())).toList();
         for (LearningQuizSession attempt : attempts) {
             if (!READING_MICRO_CHECK.equals(attempt.getQuizType()) && !PRACTICE_REPLAY.equals(attempt.getQuizType())) {
                 diagnostics.add(diagnostic(activity, "UNEXPECTED_ATTEMPT_TYPE"));

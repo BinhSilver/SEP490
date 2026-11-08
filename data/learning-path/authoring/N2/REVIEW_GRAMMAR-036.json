@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外に出たかと思ったら、すぐ雨が降り出した。",
+       "ja_furigana": "外(そと)に出(で)たかと思(おも)ったら、すぐ雨(あめ)が降(ふ)り出(だ)した。",
+       "vi": "Vừa mới ra ngoài thì trời đổ mưa ngay."
+      },
+      {
+       "ja": "子どもが寝たかと思ったら、もう起きてきた。",
+       "ja_furigana": "子(こ)どもが寝(ね)たかと思(おも)ったら、もう起(お)きてきた。",
+       "vi": "Đứa trẻ vừa mới ngủ thì đã dậy ngay."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あの人は忙しい人で、来たかと思ったら、もう帰ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người kia vì là ngừoi bận rộn, vừa mới đến đã về mất tiêu."
+     },
+     {
+      "ja": "花が咲いたかと思ったら、もう散ってしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hoa vừa mới nở đã rụng rồi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あの人は忙しい人で、来たかと思ったら、もう帰ってしまった。",
+     "FURIGANA_MISSING: 花が咲いたかと思ったら、もう散ってしまった。"
+    ],
+    "formation": "Vた + かと思ったら",
+    "locked_fields": [],
+    "meaning_vi": "Làm xong ～ ngay lập tức…, vừa thấy ～ thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜来たかと思ったら",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Sự việc phía sau xảy ra ngay sau sự việc phía trước xảy ra. Vì nó nói lên sự việc thực tế nên câu văn sau không được dùng thể mệnh lệnh, ý định, những câu mang tính phủ định…"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0de8d6f6b1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "長い時間待ったあげく、結局だめだった。",
+       "ja_furigana": "長(なが)い時間(じかん)待(ま)ったあげく、結局(けっきょく)だめだった。",
+       "vi": "Sau khi chờ rất lâu, cuối cùng vẫn không được."
+      },
+      {
+       "ja": "さんざん迷ったあげく、何も買わなかった。",
+       "ja_furigana": "さんざん迷(まよ)ったあげく、何(なに)も買(か)わなかった。",
+       "vi": "Sau khi phân vân rất nhiều, cuối cùng tôi chẳng mua gì."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は酔っ払って騒いだあげく、寝てしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ta say xỉn, sau khi quậy lên đã ngủ mất rồi."
+     },
+     {
+      "ja": "何度も手術したあげく、治らないと言われた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sau khi đã phẫu thuật không biết bao nhiêu lần, thì bị nói là không khỏi được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は酔っ払って騒いだあげく、寝てしまった。",
+     "FURIGANA_MISSING: 何度も手術したあげく、治らないと言われた。"
+    ],
+    "formation": "Vた / N の + あげく",
+    "locked_fields": [],
+    "meaning_vi": "Sau …，. rốt cuộc là …",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜騒いだあげく",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả tình trạng xảy ra trước đó, kéo dài một thời gian nhất định và cuối cùng đi đến quyết định triển khai, giải quyết …"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9ca0b0ca51"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電車の中では、もう少し静かにしてほしいものだ。",
+       "ja_furigana": "電車(でんしゃ)の中(なか)では、もう少(すこ)し静(しず)かにしてほしいものだ。",
+       "vi": "Trên tàu điện, mong mọi người giữ yên tĩnh hơn một chút."
+      },
+      {
+       "ja": "約束の時間は、ちゃんと守ってほしいものだ。",
+       "ja_furigana": "約束(やくそく)の時間(じかん)は、ちゃんと守(まも)ってほしいものだ。",
+       "vi": "Mong mọi người giữ đúng giờ đã hẹn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "〈母親の言葉〉もう高校3年なんだから、サッカーばかりしてないで、少しは勉強してほしいものだよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "〈Lời của mẹ〉Đã là học sinh lớp 12 rồi, đừng chỉ chơi bóng đá mãi, mẹ mong con học hành một chút."
+     },
+     {
+      "ja": "A: ガソリン、去年からずっと高いね。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Xăng đã đắt suốt từ năm ngoái nhỉ。"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 〈母親の言葉〉もう高校3年なんだから、サッカーばかりしてないで、少しは勉強してほしいものだよ。",
+     "FURIGANA_MISSING: A: ガソリン、去年からずっと高いね。"
+    ],
+    "formation": "V-て + ほしいものだ",
+    "locked_fields": [],
+    "meaning_vi": "Mong sao ai đó làm việc gì, thể hiện sự mong muốn hay trách nhẹ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜てほしいものだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d91268587f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "行かないこともないが、早く帰りたい。",
+       "ja_furigana": "行(い)かないこともないが、早(はや)く帰(かえ)りたい。",
+       "vi": "Không hẳn là không đi, nhưng tôi muốn về sớm."
+      },
+      {
+       "ja": "この機械は、直せないこともない。",
+       "ja_furigana": "この機械(きかい)は、直(なお)せないこともない。",
+       "vi": "Cái máy này không hẳn là không sửa được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "フライパンでできないこともないけど、鍋があれば、鍋のほうがいいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không phải là không thể làm bằng chảo, nhưng nếu có nồi thì vẫn tốt hơn."
+     },
+     {
+      "ja": "A: 女性が一人で旅行するのは危ないって言われたの？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Có ai nói rằng việc phụ nữ đi du lịch một mình là nguy hiểm à?"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: フライパンでできないこともないけど、鍋があれば、鍋のほうがいいよ。",
+     "FURIGANA_MISSING: A: 女性が一人で旅行するのは危ないって言われたの？"
+    ],
+    "formation": "Vない + こともない",
+    "locked_fields": [],
+    "meaning_vi": "Cũng không hẳn là không, có thể làm được nhưng không mấy sẵn lòng.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜ないこともない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a32773684d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "調査の結果にもとづいて、新しい計画を作った。",
+       "ja_furigana": "調査(ちょうさ)の結果(けっか)にもとづいて、新(あたら)しい計画(けいかく)を作(つく)った。",
+       "vi": "Dựa trên kết quả điều tra, tôi đã lập kế hoạch mới."
+      },
+      {
+       "ja": "事実にもとづく報道を心がけている。",
+       "ja_furigana": "事実(じじつ)にもとづく報道(ほうどう)を心(こころ)がけている。",
+       "vi": "Chúng tôi luôn cố đưa tin dựa trên sự thật."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "気象データに基づいて、避難計画を見直した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kế hoạch sơ tán đã được xem xét lại dựa trên dữ liệu khí tượng."
+     },
+     {
+      "ja": "この処分は社内規定に基づくものです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Biện pháp xử lý này được thực hiện căn cứ theo quy định nội bộ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 気象データに基づいて、避難計画を見直した。",
+     "FURIGANA_MISSING: この処分は社内規定に基づくものです。"
+    ],
+    "formation": "N + に基づいて / に基づき / に基づく + N",
+    "locked_fields": [],
+    "meaning_vi": "Căn cứ vào, dựa theo",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Căn cứ vào, dựa theo",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một quyết định, hành động hoặc nhận định được đặt trên căn cứ đáng tin cậy. Cách dùng: Mẫu này nêu căn cứ mà từ đó người ta đưa ra quyết định, phán đoán, quy định hoặc hành động. Căn cứ thường có tính khách quan hay chính thức, như pháp luật, dữ liệu, chứng cứ, chính sách, tiêu chuẩn hoặc kết quả điều tra. に基づき là dạng nối trang trọng thường gặp trong văn bản; に基づく và に基づいた đều có thể bổ nghĩa cho danh từ. Mẫu cho thấy nội dung phía sau không tùy tiện mà có mối liên hệ hợp lý và có thể giải thích bằng cơ sở đứng trước. Sắc thái: Mang sắc thái trang trọng, logic và có căn cứ; xuất hiện nhiều trong hành chính, nghiên cứu, quy định và báo cáo. Lưu ý: Trợ từ cố định là に: nói 法律に基づいて, không nói 法律を基づいて. Không phù hợp khi danh từ trước chỉ là chất liệu vật lý đơn thuần mà không đóng vai trò căn cứ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-403f1ea6e0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ファンの期待にこたえて、チームは勝った。",
+       "ja_furigana": "ファンの期待(きたい)にこたえて、チームは勝(か)った。",
+       "vi": "Đáp lại kỳ vọng của người hâm mộ, đội đã thắng."
+      },
+      {
+       "ja": "社員の意見にこたえ、会社は制度を変えた。",
+       "ja_furigana": "社員(しゃいん)の意見(いけん)にこたえ、会社(かいしゃ)は制度(せいど)を変(か)えた。",
+       "vi": "Đáp lại ý kiến của nhân viên, công ty đã thay đổi chế độ."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "利用者の要望にこたえて、図書館は開館時間を一時間延ばした。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đáp lại nguyện vọng của người sử dụng, thư viện đã kéo dài giờ mở cửa thêm một tiếng."
+     },
+     {
+      "ja": "家族の期待にこたえるため、彼女は毎日練習を続けた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Để đáp lại kỳ vọng của gia đình, cô ấy tiếp tục luyện tập mỗi ngày."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 利用者の要望にこたえて、図書館は開館時間を一時間延ばした。",
+     "FURIGANA_MISSING: 家族の期待にこたえるため、彼女は毎日練習を続けた。"
+    ],
+    "formation": "N + にこたえて / にこたえ",
+    "locked_fields": [],
+    "meaning_vi": "Đáp lại, hưởng ứng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đáp lại, hưởng ứng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả hành động được thực hiện nhằm đáp lại yêu cầu, kỳ vọng, tiếng gọi hoặc sự ủng hộ. Cách dùng: Mẫu này nối một yêu cầu, mong đợi, nguyện vọng, tiếng gọi hay sự cổ vũ với hành động được thực hiện để đáp lại điều đó. Danh từ đứng trước thường là 要望, 期待, 声, 希望, 拍手 hoặc 支援. Chủ thể phía sau không chỉ phản ứng ngẫu nhiên mà có ý hướng thỏa mãn, hưởng ứng hoặc đền đáp nguồn tác động. Trong văn viết có thể dùng dạng nối にこたえ; khi bổ nghĩa cho danh từ dùng にこたえる. Có thể viết bằng chữ Hán là 〜に応えて trong nghĩa hưởng ứng. Sắc thái: Hàm ý phản hồi tích cực hoặc phù hợp với điều người khác mong muốn; thường dùng trong thông báo, kinh doanh và lời kể. Lưu ý: Trợ từ trước こたえて là に, không phải を. Không dùng cho mọi quan hệ nguyên nhân; danh từ trước phải chứa ý yêu cầu, kỳ vọng, lời kêu gọi hoặc tín hiệu cần được đáp lại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2512ead32c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "海にそって走ると、きれいな景色が見える。",
+       "ja_furigana": "海(うみ)にそって走(はし)ると、きれいな景色(けしき)が見(み)える。",
+       "vi": "Chạy dọc theo bờ biển sẽ thấy phong cảnh đẹp."
+      },
+      {
+       "ja": "お客様の希望にそって、席を用意した。",
+       "ja_furigana": "お客様(きゃくさま)の希望(きぼう)にそって、席(せき)を用意(ようい)した。",
+       "vi": "Chúng tôi đã chuẩn bị chỗ ngồi theo mong muốn của quý khách."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "川に沿って歩くと、古い倉庫が並ぶ地区に出る。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đi dọc theo con sông, bạn sẽ tới khu có những nhà kho cũ nằm nối tiếp nhau."
+     },
+     {
+      "ja": "担当者は手順書に沿って機械を点検した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người phụ trách đã kiểm tra máy móc theo đúng tài liệu hướng dẫn quy trình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 川に沿って歩くと、古い倉庫が並ぶ地区に出る。",
+     "FURIGANA_MISSING: 担当者は手順書に沿って機械を点検した。"
+    ],
+    "formation": "N + に沿って / に沿い / に沿った + N",
+    "locked_fields": [],
+    "meaning_vi": "Dọc theo; theo đúng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dọc theo; theo đúng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả chuyển động theo một tuyến hoặc hành động phù hợp với phương hướng, kế hoạch hay mong muốn. Cách dùng: Mẫu có thể dùng theo nghĩa cụ thể lẫn trừu tượng. Với đường, sông, bờ biển hoặc đường biên, nó diễn tả vị trí hay chuyển động dọc theo một tuyến. Với kế hoạch, phương châm, trình tự, chủ đề hoặc nguyện vọng, nó cho biết hành động được tiến hành sao cho không lệch khỏi hướng đã nêu. Dạng に沿い mang tính văn viết; に沿う và に沿った dùng để bổ nghĩa cho danh từ. Trọng tâm nằm ở việc theo sát một đường hướng trong suốt quá trình. Sắc thái: Gợi hình ảnh đi theo một đường đã có; nghĩa trừu tượng thường mang sắc thái tuân theo nhưng không quá cứng nhắc. Lưu ý: Dùng Nに沿って, không dùng Nを沿って. Danh từ trước cần biểu thị một tuyến, hướng, quy trình, tiêu chuẩn mềm hoặc mong muốn có thể làm kim chỉ nam."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-14ab555b9d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生は私たちの質問に対して、丁寧に答えた。",
+       "ja_furigana": "先生(せんせい)は私(わたし)たちの質問(しつもん)に対(たい)して、丁寧(ていねい)に答(こた)えた。",
+       "vi": "Giáo viên đã trả lời cẩn thận các câu hỏi của chúng tôi."
+      },
+      {
+       "ja": "姉は静かなのに対して、妹はよく話す。",
+       "ja_furigana": "姉(あね)は静(しず)かなのに対(たい)して、妹(いもうと)はよく話(はな)す。",
+       "vi": "Trong khi chị gái trầm tính thì em gái lại nói rất nhiều."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "窓口の職員は、外国人の利用者に対してゆっくり説明した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân viên tại quầy đã giải thích chậm rãi cho người sử dụng là người nước ngoài."
+     },
+     {
+      "ja": "兄が慎重なのに対して、弟はすぐ行動に移す。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong khi người anh thận trọng thì người em lập tức bắt tay vào hành động."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 窓口の職員は、外国人の利用者に対してゆっくり説明した。",
+     "FURIGANA_MISSING: 兄が慎重なのに対して、弟はすぐ行動に移す。"
+    ],
+    "formation": "N + に対して / に対する + N",
+    "locked_fields": [],
+    "meaning_vi": "Đối với; trái lại; tương ứng với",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Đối với; trái lại; tương ứng với",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Đánh dấu đối tượng chịu tác động, hai vế tương phản hoặc một tỉ lệ đối ứng. Cách dùng: Mẫu có ba cách dùng chính. Thứ nhất, nó đánh dấu người, nhóm hoặc sự việc mà một thái độ hay hành động hướng tới. Thứ hai, cấu trúc 〜のに対して nối hai đặc điểm tương phản, thường dịch là “trong khi” hoặc “trái lại”. Thứ ba, nó biểu thị quan hệ số lượng tương ứng, như bao nhiêu nhân viên trên một số khách hàng. Khi bổ nghĩa cho danh từ, dùng に対する. Ý nghĩa cụ thể được xác định nhờ loại danh từ và nội dung của mệnh đề sau. Sắc thái: Khá trung tính và dùng được trong cả nói lẫn viết; cách dùng tương phản làm hai vế nổi bật như một cặp đối chiếu. Lưu ý: Trong cách dùng tương phản, danh từ và tính từ đuôi な thường cần なの trước に対して. Không dùng に対する như một vị ngữ độc lập vì dạng này phải bổ nghĩa cho danh từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a4d0706338"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生の話をもとにして、作文を書いた。",
+       "ja_furigana": "先生(せんせい)の話(はなし)をもとにして、作文(さくぶん)を書(か)いた。",
+       "vi": "Tôi đã viết bài văn dựa trên câu chuyện của thầy giáo."
+      },
+      {
+       "ja": "この料理は、昔からの作り方をもとにしている。",
+       "ja_furigana": "この料理(りょうり)は、昔(むかし)からの作(つく)り方(かた)をもとにしている。",
+       "vi": "Món ăn này dựa trên cách nấu từ ngày xưa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "五十人への聞き取りをもとにして、地域の課題をまとめた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dựa trên các cuộc phỏng vấn với năm mươi người, chúng tôi đã tổng hợp những vấn đề của địa phương."
+     },
+     {
+      "ja": "この映画は、山岳救助隊の実話をもとにした作品だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bộ phim này là tác phẩm được xây dựng dựa trên câu chuyện có thật của một đội cứu hộ núi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 五十人への聞き取りをもとにして、地域の課題をまとめた。",
+     "FURIGANA_MISSING: この映画は、山岳救助隊の実話をもとにした作品だ。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: この映画は、山岳救助隊の実話をもとにした作品だ。 → 山岳,隊"
+    ],
+    "formation": "N + をもとにして / をもとに",
+    "locked_fields": [],
+    "meaning_vi": "Dựa trên, lấy làm nền tảng",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dựa trên, lấy làm nền tảng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết một nguồn tư liệu, mẫu gốc hoặc kinh nghiệm được dùng để tạo ra điều mới. Cách dùng: Mẫu này chỉ nguồn làm cơ sở cho việc sáng tác, thiết kế, phân tích, lập kế hoạch hoặc xây dựng một sản phẩm mới. Nguồn đó có thể là dữ liệu, lời kể, kinh nghiệm, ảnh, bản phác thảo hay sự kiện có thật. Kết quả phía sau thường đã được lựa chọn, sắp xếp hoặc biến đổi chứ không nhất thiết sao chép nguyên trạng. Dạng có して làm quan hệ hành động rõ hơn; dạng をもとにした dùng trước danh từ để mô tả thứ được tạo ra từ nguồn ấy. Sắc thái: Nhấn mạnh nguồn hoặc chất liệu ban đầu và quá trình phát triển từ nguồn đó; dùng được trong cả văn nói lẫn văn viết. Lưu ý: Dùng trợ từ を trước もと, không dùng に trong cấu trúc này. Nguồn đứng trước phải có thể đóng vai trò tư liệu, mẫu hoặc điểm xuất phát cho kết quả phía sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d6dfaf71c3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この計画に関して、反対の意見も多い。",
+       "ja_furigana": "この計画(けいかく)に関(かん)して、反対(はんたい)の意見(いけん)も多(おお)い。",
+       "vi": "Liên quan đến kế hoạch này, cũng có nhiều ý kiến phản đối."
+      },
+      {
+       "ja": "日本文化に関する本を読んでいる。",
+       "ja_furigana": "日本(にほん)文化(ぶんか)に関(かん)する本(ほん)を読(よ)んでいる。",
+       "vi": "Tôi đang đọc một cuốn sách về văn hóa Nhật Bản."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn ngoài, bổ sung furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "新しい在宅勤務制度に関して、社員から多くの質問が寄せられた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Liên quan đến chế độ làm việc tại nhà mới, công ty đã nhận được nhiều câu hỏi từ nhân viên."
+     },
+     {
+      "ja": "この地域の水質に関する調査結果は、来月公表される。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết quả điều tra liên quan đến chất lượng nước của khu vực này sẽ được công bố vào tháng sau."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 新しい在宅勤務制度に関して、社員から多くの質問が寄せられた。",
+     "FURIGANA_MISSING: この地域の水質に関する調査結果は、来月公表される。"
+    ],
+    "formation": "N + に関して / に関する + N",
+    "locked_fields": [],
+    "meaning_vi": "Liên quan đến, về",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Liên quan đến, về",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng để nêu chủ đề hoặc vấn đề được đề cập, xem xét hay cung cấp thông tin. Cách dùng: Mẫu này đặt một danh từ làm phạm vi của lời nói, câu hỏi, cuộc điều tra hoặc thông tin: “về…” hay “liên quan đến…”. Sau に関して thường là một mệnh đề trình bày hành động hoặc nhận định; khi bổ nghĩa trực tiếp cho danh từ, dùng に関する. Có thể thêm は để nhấn mạnh hoặc đối chiếu chủ đề, và thêm も khi muốn nói “cũng về vấn đề đó”. Mẫu thường xuất hiện trong thông báo, báo cáo, trao đổi công việc và các tình huống tương đối trang trọng. Sắc thái: Trang trọng và mang tính khách quan hơn 〜について; thích hợp khi xác định rõ phạm vi của một vấn đề. Lưu ý: Chỉ dùng に関する trước danh từ; không kết thúc câu trực tiếp bằng に関する. Danh từ đứng trước thường là một chủ đề hay sự việc có thể được bàn luận, khảo sát hoặc giải thích."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4147c0f1bd"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-036"
+}

@@ -1,13 +1,15 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { learningDataFile, levelMarker, replaceDataBlock } from './learning_data_files.mjs';
 
 const MARKER = 'data/learning-owned/learning-content.json#sections.jlpt_minna_n5_n4_listening';
 const hex = (value) => `CONVERT(X'${Buffer.from(String(value), 'utf8').toString('hex')}' USING utf8mb4)`;
 const escapeHtml = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;')
   .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
-export function renderMinnaSql(section, sectionHash) {
+// Owner 2026-11-01: one block per JLPT level (in learning_data_N5.sql / learning_data_N4.sql); no level renders both.
+export function renderMinnaSql(section, sectionHash, onlyLevel = null) {
   if (!/^[a-f0-9]{64}$/.test(sectionHash ?? '') || section?.lessons?.length !== 50
       || section.counts?.N5?.clips !== 100 || section.counts?.N4?.clips !== 104
       || section.counts?.N5?.checks !== 641 || section.counts?.N4?.checks !== 641
@@ -17,8 +19,8 @@ export function renderMinnaSql(section, sectionHash) {
     throw new Error('Canonical Minna listening section or checksum is incomplete.');
   }
   const lines = [
-    `-- BEGIN ${MARKER} SHA256 ${sectionHash}`,
-    '-- [JLAS-W0108] Minna Task25 listening source copy, lesson-mapped to owned Sekai N5/N4.',
+    `-- BEGIN ${levelMarker(MARKER, onlyLevel)} SHA256 ${sectionHash}`,
+    `-- [JLAS-W0108] Minna Task25 listening source copy, lesson-mapped to owned Sekai ${onlyLevel ?? 'N5/N4'}.`,
     '-- Audio playback resolves exact verified local media; task-owned questions are excluded from Smart Test.',
     'START TRANSACTION;',
     `INSERT INTO tag (code,name,tag_type) VALUES (${hex('LP-OWNED-MINNA-LISTENING')},${hex('Learning-owned Minna listening checks')},'KNOWLEDGE') ON DUPLICATE KEY UPDATE name=VALUES(name);`,
@@ -55,18 +57,22 @@ export function renderMinnaSql(section, sectionHash) {
       if (!/^audio\/vnjpclub\/N[45]\/minna-so-cap-[12]\/bai-\d{2}\/[A-Za-z0-9_-]+\.mp3$/.test(clip.audio_file ?? '')) {
         throw new Error(`Invalid local audio file for ${sourceCode}`);
       }
+      if (onlyLevel && level !== onlyLevel) continue;
       const title = `Minna bài ${lesson.bai} · Nghe ${clipCode.slice(1)}`;
       lines.push(`-- ROW ${sourceCode}`);
       lines.push(`INSERT INTO assessment_question (source_code,knowledge_tag_id,skill,jlpt_level,difficulty,question_type,title,passage_html,audio_url,question_text,answer_text,option_1,option_2,option_3,option_4,correct_option,explanation,context_json,is_active) VALUES (${hex(sourceCode)},@owned_minna_listen_tag,'LISTENING','${level}','EASY','MULTIPLE_CHOICE',${hex(title)},${hex(transcript)},${hex(clip.audio_url)},${hex(check.cau_hoi)},${hex(options[answerIndex])},${options.map(hex).join(',')},${answerIndex + 1},${hex(check.giai_thich ?? '')},${hex(context)},1) ON DUPLICATE KEY UPDATE knowledge_tag_id=VALUES(knowledge_tag_id),skill=VALUES(skill),jlpt_level=VALUES(jlpt_level),difficulty=VALUES(difficulty),question_type=VALUES(question_type),title=VALUES(title),passage_html=VALUES(passage_html),audio_url=VALUES(audio_url),question_text=VALUES(question_text),answer_text=VALUES(answer_text),option_1=VALUES(option_1),option_2=VALUES(option_2),option_3=VALUES(option_3),option_4=VALUES(option_4),correct_option=VALUES(correct_option),explanation=VALUES(explanation),context_json=VALUES(context_json),is_active=VALUES(is_active);`);
       rowCount++;
     }
   }
-  if (rowCount !== 1282 || sourceCodes.size !== rowCount) throw new Error('Minna listening SQL lost checks.');
-  lines.push('COMMIT;', `-- END ${MARKER}`, '');
+  if (sourceCodes.size !== 1282 || rowCount !== (onlyLevel ? section.counts[onlyLevel].checks : 1282)) {
+    throw new Error('Minna listening SQL lost checks.');
+  }
+  lines.push('COMMIT;', `-- END ${levelMarker(MARKER, onlyLevel)}`, '');
   return lines.join('\n');
 }
 
-export function replaceMinnaBlock(sql, block) {
+export function replaceMinnaBlock(sql, block, level = null) {
+  if (level) return replaceDataBlock(sql, levelMarker(MARKER, level), block);
   const newline = sql.includes('\r\n') ? '\r\n' : '\n';
   const formattedBlock = block.replace(/\r?\n/g, newline);
   const begin = `-- BEGIN ${MARKER} SHA256 `;
@@ -82,15 +88,17 @@ export function replaceMinnaBlock(sql, block) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const root = path.resolve(process.argv[2] ?? '.');
   const data = JSON.parse(await readFile(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
-  const block = renderMinnaSql(data.sections?.jlpt_minna_n5_n4_listening,
-    data.section_sha256?.jlpt_minna_n5_n4_listening);
-  const sqlPath = path.join(root, 'sql/seeds/learning_owned.sql');
-  const sql = await readFile(sqlPath, 'utf8');
-  const updated = replaceMinnaBlock(sql, block);
-  if (process.argv.includes('--check')) {
-    if (sql !== updated) throw new Error('Canonical Minna SQL block is stale.');
-  } else {
-    await writeFile(sqlPath, updated, 'utf8');
+  for (const level of ['N5', 'N4']) {
+    const block = renderMinnaSql(data.sections?.jlpt_minna_n5_n4_listening,
+      data.section_sha256?.jlpt_minna_n5_n4_listening, level);
+    const sqlPath = learningDataFile(root, level);
+    const sql = await readFile(sqlPath, 'utf8');
+    const updated = replaceMinnaBlock(sql, block, level);
+    if (process.argv.includes('--check')) {
+      if (sql !== updated) throw new Error(`Canonical Minna ${level} SQL block is stale.`);
+    } else {
+      await writeFile(sqlPath, updated, 'utf8');
+    }
   }
-  console.log('Rendered 1282 source-bound Minna listening checks in the consolidated Learning seed.');
+  console.log('Rendered 1282 source-bound Minna listening checks (N5 and N4 data files).');
 }

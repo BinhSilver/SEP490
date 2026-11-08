@@ -33,6 +33,9 @@ class LessonReviewLookup {
     private final VocabularyEntryRepository vocabulary;
     private final KanjiRepository kanji;
     private final Map<String, List<LessonReviewItem>> cache = new ConcurrentHashMap<>();
+    // F1-4: optional, as in the composer; tells an EXTENDED word from a known one on a path that has both.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private CompiledVocabularyTiers vocabularyTiers;
 
     LessonReviewLookup(UserLearningPathItemRepository items, LearningActivityMemberRepository members,
             InteractiveContentCatalog catalog, VocabularyEntryRepository vocabulary, KanjiRepository kanji) {
@@ -84,12 +87,16 @@ class LessonReviewLookup {
             return List.of(); // the review list is a convenience; it never blocks the lesson
         }
         List<Long> lessonIds = type == LearningActivityType.KANJI ? snapshot.kanjiIds() : snapshot.vocabularyIds();
-        var reviews = LessonReviewItems.forActivity(activity, type, lessonIds, items, members);
+        Long lessonId = activity.getLesson().getId();
+        // Kanji has no EXTENDED tier: a left-out Kanji on a ":KN" path is always a known one.
+        java.util.function.Predicate<Long> extendedWord = type == LearningActivityType.KANJI ? id -> false
+                : vocabularyTiers == null ? null : id -> vocabularyTiers.extendedVocabularyIds(lessonId).contains(id);
+        var reviews = LessonReviewItems.forActivity(activity, type, lessonIds, items, members, extendedWord);
         if (reviews.isEmpty()) return List.of();
         Map<Long, String[]> shown = details.apply(reviews.stream().map(LessonReviewItems.Review::canonicalId).toList());
         return reviews.stream().filter(review -> shown.containsKey(review.canonicalId())).map(review -> {
             String[] text = shown.get(review.canonicalId());
-            return new LessonReviewItem(review.canonicalId(), text[0], text[1], text[2], review.learnedIn());
+            return new LessonReviewItem(review.canonicalId(), text[0], text[1], text[2], review.learnedIn(), review.known());
         }).toList();
     }
 }

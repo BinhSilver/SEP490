@@ -1,0 +1,581 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "電車が止まったものだから、約束の時間に遅れた。",
+       "ja_furigana": "電車(でんしゃ)が止(と)まったものだから、約束(やくそく)の時間(じかん)に遅(おく)れた。",
+       "vi": "Vì tàu điện dừng chạy nên tôi đã đến muộn giờ hẹn."
+      },
+      {
+       "ja": "子どもが熱を出したものですから、今日は早く帰ります。",
+       "ja_furigana": "子(こ)どもが熱(ねつ)を出(だ)したものですから、今日(きょう)は早(はや)く帰(かえ)ります。",
+       "vi": "Vì con bị sốt nên hôm nay tôi sẽ về sớm."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn (tránh chữ quá cấp) + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "上着を脱いでもいいですか。暑いものですから。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cởi bỏ áo khoác ngoài có được không? Vì nóng mà."
+     },
+     {
+      "ja": "遅くなってごめん。道路が混んでいたもんだから。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Xin lỗi vì đến trễ. Tại vì đường đông."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 上着を脱いでもいいですか。暑いものですから。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 上着を脱いでもいいですか。暑いものですから。 → 脱",
+     "FURIGANA_MISSING: 遅くなってごめん。道路が混んでいたもんだから。"
+    ],
+    "formation": "普通形(Aな:〜な) + ものだから / もんだから",
+    "locked_fields": [],
+    "meaning_vi": "Vì~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜暑いものだから",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Trường hợp Tính từ な và Danh từ thì bỏ だ thêm な ⚠ naだな ⚠ Nだな Dùng để khi giải thích lý do, phân trần, biện bạch."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-33da0ed01d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "毎日忙しいんだもの、部屋が片付かないのも仕方ない。",
+       "ja_furigana": "毎日(まいにち)忙(いそが)しいんだもの、部屋(へや)が片付(かたづ)かないのも仕方(しかた)ない。",
+       "vi": "Vì ngày nào cũng bận nên phòng không dọn được cũng đành."
+      },
+      {
+       "ja": "まだ子どもなんだもん。一人で行くのは無理だよ。",
+       "ja_furigana": "まだ子(こ)どもなんだもん。一人(ひとり)で行(い)くのは無理(むり)だよ。",
+       "vi": "Vẫn còn là trẻ con mà. Đi một mình thì không được đâu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "パーティーには行かなかったよ。知らなかった（んだ）もの。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi đã không đến bữa tiệc. Tại vì tôi không biết."
+     },
+     {
+      "ja": "しょうがないよ。子ども（なん）だもん。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đành chịu vậy thôi. Vì là trẻ con mà."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: パーティーには行かなかったよ。知らなかった（んだ）もの。",
+     "FURIGANA_MISSING: しょうがないよ。子ども（なん）だもん。"
+    ],
+    "formation": "普通形(Aな・N:〜(な)ん) + だもの / だもん",
+    "locked_fields": [],
+    "meaning_vi": "Vì~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜知らなかったんだもの",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Đối với tính từ na và danh từ trong cấu trúc んだもの(もん）: ⚠ naだなんだ ⚠ Nだなんだ ☞ Diễn tả lý do biện minh tính chính đáng của mình và đặt ở cuối câu văn. ☞ Phụ nữ hay bọn trẻ thường sử dụng trong cuộc hội thoại. ☞ Hay sử dụng cùng với 「だって」 Có khi biến âm thành 「もん」và cả nam lẫn nữ cũng sử dụng được nhưng đối tượng sử dụng là những người trẻ tuổi để diễn tả lý do biện minh cho chính mình."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-54be28e23d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はこちらを見もしないで、だまって歩いていった。",
+       "ja_furigana": "彼(かれ)はこちらを見(み)もしないで、だまって歩(ある)いていった。",
+       "vi": "Anh ta không buồn nhìn về phía này, lặng lẽ bước đi."
+      },
+      {
+       "ja": "私の話を、あの人は聞きもしない。",
+       "ja_furigana": "私(わたし)の話(はなし)を、あの人(ひと)は聞(き)きもしない。",
+       "vi": "Chuyện của tôi, người đó chẳng buồn nghe."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "食事もしないでゲームばかりしていると、病気になるよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chỉ chơi game mà không ăn uống thì sẽ bị ốm đấy."
+     },
+     {
+      "ja": "A: 失敗したなあ。このシャツ、ちょっと派手すぎた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Mình thất bại rồi. Chiếc áo này hơi sặc sỡ quá."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 食事もしないでゲームばかりしていると、病気になるよ。",
+     "FURIGANA_MISSING: A: 失敗したなあ。このシャツ、ちょっと派手すぎた。"
+    ],
+    "formation": "V-ます(語幹) + もしない / もしなかった",
+    "locked_fields": [],
+    "meaning_vi": "Đến mức chẳng thèm làm gì cả.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜もしない",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-461fb4728a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "病気になってはじめて、家族の大切さが分かった。",
+       "ja_furigana": "病気(びょうき)になってはじめて、家族(かぞく)の大切(たいせつ)さが分(わ)かった。",
+       "vi": "Chỉ sau khi bị bệnh tôi mới hiểu được sự quan trọng của gia đình."
+      },
+      {
+       "ja": "外国で生活してはじめて、母の料理の味が恋しくなった。",
+       "ja_furigana": "外国(がいこく)で生活(せいかつ)してはじめて、母(はは)の料理(りょうり)の味(あじ)が恋(こい)しくなった。",
+       "vi": "Chỉ sau khi sống ở nước ngoài tôi mới thấy nhớ vị món ăn mẹ nấu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "小さな店を任されてはじめて、毎日の在庫管理の難しさが分かった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ sau khi được giao quản lý một cửa hàng nhỏ, tôi mới hiểu sự khó khăn của việc quản lý tồn kho hằng ngày."
+     },
+     {
+      "ja": "自分で土を耕してはじめて、一粒の種の大切さに気づいた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ khi tự tay xới đất, tôi mới nhận ra giá trị của một hạt giống."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 小さな店を任されてはじめて、毎日の在庫管理の難しさが分かった。",
+     "FURIGANA_MISSING: 自分で土を耕してはじめて、一粒の種の大切さに気づいた。"
+    ],
+    "formation": "V-て + はじめて",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ sau khi... mới",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chỉ sau khi... mới",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Cho biết một nhận thức, kết quả hoặc khả năng chỉ xuất hiện sau khi trải qua hành động trước. Cách dùng: Mẫu này xem hành động A là điều kiện trải nghiệm cần thiết để B lần đầu được nhận ra, trở nên khả thi hoặc thực sự có ý nghĩa. B thường là một phát hiện, sự thấu hiểu, đánh giá mới hay kết quả trước đó chưa thể đạt được. Trọng tâm không nằm ở việc A được làm lần đầu, mà ở chỗ chỉ sau A thì trạng thái B mới hình thành. Vì thế, bản dịch tự nhiên thường là chỉ sau khi A mới B. Sắc thái: Nhấn mạnh bước ngoặt về nhận thức hoặc điều kiện; thường hàm ý trước đó người nói chưa hiểu, chưa biết hoặc chưa thể làm B. Lưu ý: Không dùng chỉ để nói đây là lần đầu thực hiện hành động A. Vế sau cần là kết quả có quan hệ thiết yếu với trải nghiệm ở vế trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fb4daa0cc7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ベルが鳴るか鳴らないかのうちに、学生たちは席を立った。",
+       "ja_furigana": "ベルが鳴(な)るか鳴(な)らないかのうちに、学生(がくせい)たちは席(せき)を立(た)った。",
+       "vi": "Chuông chưa kịp reo xong thì các học sinh đã đứng dậy rời chỗ."
+      },
+      {
+       "ja": "おふろに入るか入らないかのうちに、電話が鳴った。",
+       "ja_furigana": "おふろに入(はい)るか入(はい)らないかのうちに、電話(でんわ)が鳴(な)った。",
+       "vi": "Tôi vừa mới bước vào bồn tắm thì điện thoại reo."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "合図の旗が上がるか上がらないかのうちに、選手たちは走り出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lá cờ hiệu chưa kịp giương hẳn thì các vận động viên đã lao đi."
+     },
+     {
+      "ja": "薬を飲んだか飲まないかのうちに、彼は深い眠りに落ちた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy vừa uống thuốc, chưa biết đã kịp uống xong chưa, thì đã chìm vào giấc ngủ sâu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 合図の旗が上がるか上がらないかのうちに、選手たちは走り出した。",
+     "FURIGANA_MISSING: 薬を飲んだか飲まないかのうちに、彼は深い眠りに落ちた。"
+    ],
+    "formation": "Vる + か + Vない + かのうちに",
+    "locked_fields": [],
+    "meaning_vi": "Chưa kịp biết là đã hay chưa thì",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Chưa kịp biết là đã hay chưa thì",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh sự việc sau xảy ra gần như đồng thời với lúc sự việc trước vừa bắt đầu hoặc hoàn tất. Cách dùng: Mẫu lặp lại cùng một động từ ở dạng khẳng định và phủ định để tạo ranh giới thời gian cực ngắn: chưa kịp xác định A đã xảy ra trọn vẹn hay chưa thì B đã xuất hiện. Dạng khẳng định có thể là từ điển hoặc dạng た tùy cách nhìn vào lúc bắt đầu hay hoàn tất. Vế sau thường là sự việc nhanh, nổi bật và khó kiểm soát. Toàn mẫu giàu tính miêu tả hơn cách nói đơn thuần すぐ. Sắc thái: Sắc thái gấp, gần như đồng thời và thường thể hiện sự ngạc nhiên trước tốc độ của sự việc. Lưu ý: Phải lặp lại cùng một động từ ở hai vế khẳng định và phủ định. Giữa dạng phủ định và うちに cần có かの."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-86c6bd6705"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "引っ越して以来、一度もこの店に来ていない。",
+       "ja_furigana": "引(ひ)っ越(こ)して以来(いらい)、一度(いちど)もこの店(みせ)に来(き)ていない。",
+       "vi": "Từ khi chuyển nhà đến nay, tôi chưa quay lại quán này lần nào."
+      },
+      {
+       "ja": "子どもが生まれてこのかた、ゆっくり眠ったことがない。",
+       "ja_furigana": "子(こ)どもが生(う)まれてこのかた、ゆっくり眠(ねむ)ったことがない。",
+       "vi": "Từ khi con chào đời, tôi chưa có một giấc ngủ ngon."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "音声入力を使い始めて以来、短い記録を残す回数が増えた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kể từ khi bắt đầu dùng nhập liệu bằng giọng nói, số lần tôi ghi lại các ghi chú ngắn đã tăng lên."
+     },
+     {
+      "ja": "この丘に越してきてこのかた、毎朝、鳥の声で目を覚ましている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Từ khi chuyển tới ngọn đồi này đến nay, sáng nào tôi cũng thức giấc bởi tiếng chim."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 音声入力を使い始めて以来、短い記録を残す回数が増えた。",
+     "FURIGANA_MISSING: この丘に越してきてこのかた、毎朝、鳥の声で目を覚ましている。"
+    ],
+    "formation": "V-て + 以来 / V-て + このかた",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ khi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Kể từ khi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một trạng thái hoặc xu hướng kéo dài liên tục từ một mốc trong quá khứ đến hiện tại. Cách dùng: Hai mẫu lấy một sự kiện trong quá khứ làm điểm bắt đầu và cho biết tình trạng ở vế sau vẫn tiếp diễn tới hiện tại. 〜て以来 dùng rộng trong văn nói lẫn văn viết và cũng có thể theo sau danh từ chỉ mốc. 〜てこのかた nhấn quãng thời gian đã trải qua từ sự kiện ấy, mang màu sắc văn chương hoặc lời hồi tưởng hơn. Vế sau thường là trạng thái, thói quen hoặc biến đổi bền vững, không phải một việc chỉ xảy ra một lần. Sắc thái: 以来 tương đối trung tính; てこのかた giàu cảm xúc hồi tưởng và thường gợi một quãng thời gian khá dài. Lưu ý: Mốc thời gian phải thuộc quá khứ và kết quả phải còn liên hệ tới hiện tại. Không dùng với vế sau là một hành động đơn lẻ đã kết thúc hoàn toàn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-15733bd616"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お降りの際は、足もとにご注意ください。",
+       "ja_furigana": "お降(お)りの際(さい)は、足(あし)もとにご注意(ちゅうい)ください。",
+       "vi": "Khi xuống xe, xin hãy chú ý dưới chân."
+      },
+      {
+       "ja": "面接を受ける際は、静かな場所を選んだほうがいい。",
+       "ja_furigana": "面接(めんせつ)を受(う)ける際(さい)は、静(しず)かな場所(ばしょ)を選(えら)んだほうがいい。",
+       "vi": "Khi đi phỏng vấn nên chọn một nơi yên tĩnh."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "資料を返却する際に、受付で番号札をお渡しください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi trả tài liệu, vui lòng nộp thẻ số tại quầy tiếp nhận."
+     },
+     {
+      "ja": "港を見学した際、珍しい作業船を撮影した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi tham quan cảng, tôi đã chụp một chiếc tàu công vụ hiếm thấy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 資料を返却する際に、受付で番号札をお渡しください。",
+     "FURIGANA_MISSING: 港を見学した際、珍しい作業船を撮影した。"
+    ],
+    "formation": "Vる・Vた + 際(に) / Nの + 際(に)",
+    "locked_fields": [],
+    "meaning_vi": "Khi, vào dịp",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Khi, vào dịp",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Dùng để chỉ thời điểm một sự việc cụ thể diễn ra, thường trong ngữ cảnh trang trọng. Cách dùng: Mẫu này đặt một hành động hoặc tình huống làm mốc thời gian cho sự việc ở vế sau. Dạng từ điển thường hướng tới một dịp sắp diễn ra hoặc nói chung; dạng quá khứ nhìn lại một dịp đã xảy ra. Trợ từ に làm nổi bật thời điểm, nhưng có thể lược khi cả cụm đóng vai trò trạng ngữ. Mẫu thường xuất hiện trong thông báo, hướng dẫn, giao dịch và lời nói lịch sự hơn là hội thoại thân mật hằng ngày. Sắc thái: Sắc thái trang trọng, khách quan và gắn với một dịp tương đối rõ ràng; không tự nhiên bằng 〜とき khi kể sinh hoạt bình thường. Lưu ý: Danh từ phải nối bằng の. Không nên dùng cho thói quen vụn vặt lặp lại mỗi ngày nếu không có ý nhấn mạnh một dịp cụ thể."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4f99fefd10"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "先生に相談してからでないと、返事はできません。",
+       "ja_furigana": "先生(せんせい)に相談(そうだん)してからでないと、返事(へんじ)はできません。",
+       "vi": "Nếu chưa bàn với thầy cô thì tôi chưa thể trả lời."
+      },
+      {
+       "ja": "お金を用意してからでないと、旅行の予定は決められない。",
+       "ja_furigana": "お金(かね)を用意(ようい)してからでないと、旅行(りょこう)の予定(よてい)は決(き)められない。",
+       "vi": "Nếu chưa chuẩn bị tiền thì không thể quyết định kế hoạch du lịch."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "土の状態を調べてからでないと、植える木の種類は決められない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa kiểm tra tình trạng đất thì không thể quyết định loại cây sẽ trồng."
+     },
+     {
+      "ja": "責任者の承認を得てからでなければ、この記録は外部に公開できません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu chưa được người phụ trách phê duyệt thì hồ sơ này không thể công bố ra ngoài."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 土の状態を調べてからでないと、植える木の種類は決められない。",
+     "FURIGANA_MISSING: 責任者の承認を得てからでなければ、この記録は外部に公開できません。"
+    ],
+    "formation": "V-て + からでないと / からでなければ + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Nếu chưa... thì không",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu chưa... thì không",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nhấn mạnh phải hoàn tất một điều kiện trước thì hành động hoặc kết quả sau mới có thể xảy ra. Cách dùng: Mẫu này xác định A là bước bắt buộc phải hoàn thành trước B. Vế sau thường chứa cách nói phủ định hoặc biểu thị không thể, không được, khó hay chưa thể quyết định. Dù hình thức là phủ định, toàn câu truyền đạt điều kiện cần: chỉ sau khi A thì B mới khả thi. 〜てからでなければ trang trọng và đầy đủ hơn; 〜てからでないと thường gặp trong cả lời nói lẫn hướng dẫn thực tế. Sắc thái: Sắc thái điều kiện tiên quyết mạnh, thường dùng để sửa một trình tự sai hoặc nhắc rằng chưa đủ thông tin để hành động. Lưu ý: Vế sau về nguyên tắc phải có ý phủ định, bất khả hoặc hạn chế. Không dùng khi A chỉ là mốc thời gian tùy ý, không phải điều kiện cần của B."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a216aef090"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "いすに座ったとたん、眠くなってきた。",
+       "ja_furigana": "いすに座(すわ)ったとたん、眠(ねむ)くなってきた。",
+       "vi": "Vừa ngồi xuống ghế là tôi thấy buồn ngủ."
+      },
+      {
+       "ja": "名前を呼んだとたん、その子は大きな声でないた。",
+       "ja_furigana": "名前(なまえ)を呼(よ)んだとたん、その子(こ)は大(おお)きな声(こえ)でないた。",
+       "vi": "Vừa gọi tên, đứa trẻ đó đã òa lên khóc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "古い箱のふたを開けたとたん、乾いた香草の匂いが広がった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi tôi mở nắp chiếc hộp cũ, mùi thảo mộc khô lan ra."
+     },
+     {
+      "ja": "照明が消えたとたんに、客席が静まり返った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khoảnh khắc đèn tắt, cả khán phòng bỗng im phăng phắc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 古い箱のふたを開けたとたん、乾いた香草の匂いが広がった。",
+     "FURIGANA_MISSING: 照明が消えたとたんに、客席が静まり返った。"
+    ],
+    "formation": "Vた + とたん(に)",
+    "locked_fields": [],
+    "meaning_vi": "Ngay khoảnh khắc vừa",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay khoảnh khắc vừa",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả một sự việc bất ngờ xảy ra ngay sau khi hành động trước vừa hoàn tất. Cách dùng: Mẫu này nối hai sự việc có khoảng cách thời gian gần như bằng không. Vế trước là hành động vừa đạt tới điểm kết thúc; đúng khoảnh khắc ấy, vế sau xảy ra ngoài dự đoán hoặc ngoài ý muốn của người nói. Trọng tâm nằm ở tính đột ngột của sự việc sau, không chỉ ở thứ tự trước sau. Vì vậy, mẫu thường dùng khi kể một biến cố, phản ứng tự nhiên hoặc phát hiện bất ngờ. Sắc thái: Có sắc thái bất ngờ mạnh; とたんに nhấn rõ khoảnh khắc hơn, còn に có thể lược mà nghĩa cơ bản không đổi. Lưu ý: Vế trước phải dùng dạng た. Vế sau thường không phải hành động có chủ ý đã được người nói lên kế hoạch từ trước."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5c18e97b6c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昼ご飯を食べ終わりしだい、出かけます。",
+       "ja_furigana": "昼(ひる)ご飯(はん)を食(た)べ終(お)わりしだい、出(で)かけます。",
+       "vi": "Ăn trưa xong là tôi sẽ đi ngay."
+      },
+      {
+       "ja": "空が晴れしだい、試合を始めましょう。",
+       "ja_furigana": "空(そら)が晴(は)れしだい、試合(しあい)を始(はじ)めましょう。",
+       "vi": "Ngay khi trời tạnh, chúng ta sẽ bắt đầu trận đấu."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn + điền furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "部品が届き次第、点検作業を再開いたします。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi linh kiện tới, chúng tôi sẽ tiếp tục công việc kiểm tra."
+     },
+     {
+      "ja": "調査結果がまとまり次第、関係者に共有します。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ngay khi tổng hợp xong kết quả điều tra, tôi sẽ chia sẻ với những người liên quan."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 部品が届き次第、点検作業を再開いたします。",
+     "FURIGANA_MISSING: 調査結果がまとまり次第、関係者に共有します。"
+    ],
+    "formation": "V-ます(語幹) + 次第",
+    "locked_fields": [],
+    "meaning_vi": "Ngay sau khi",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Ngay sau khi",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Diễn tả sẽ thực hiện ngay hành động tiếp theo khi một việc cần thiết vừa hoàn tất. Cách dùng: Mẫu này báo rằng ngay khi A hoàn tất hoặc điều kiện A đạt được, người nói hay một chủ thể có trách nhiệm sẽ tiến hành B. B thường là hành động đã dự định, cam kết hoặc được yêu cầu, nên mẫu rất phổ biến trong liên lạc công việc, thông báo và lời nói lịch sự. A thường là việc đang chờ kết quả hoặc sẽ hoàn tất trong tương lai. 次第 không chỉ nói nhanh mà còn thể hiện trình tự xử lý rõ ràng. Sắc thái: Trang trọng và có sắc thái cam kết xử lý ngay; thường dùng khi báo kế hoạch cho người nghe. Lưu ý: Nối với gốc ます, không nối trực tiếp với dạng từ điển. Vế sau thường là hành động có chủ ý, không phải hiện tượng tự nhiên ngoài kiểm soát."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5304908459"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-021"
+}

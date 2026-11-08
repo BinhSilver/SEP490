@@ -1,0 +1,741 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼の発言は、単なる思い付きにすぎない。",
+       "ja_furigana": "彼(かれ)の発言(はつげん)は、単(たん)なる思(おも)い付(つ)きにすぎない。",
+       "vi": "Phát ngôn của anh ấy chẳng qua chỉ là ý nghĩ bộc phát."
+      },
+      {
+       "ja": "私は課長の指示を伝えたにすぎない。",
+       "ja_furigana": "私(わたし)は課長(かちょう)の指示(しじ)を伝(つた)えたにすぎない。",
+       "source": "AI",
+       "vi": "Tôi chẳng qua chỉ truyền đạt lại chỉ thị của trưởng phòng."
+      },
+      {
+       "ja": "今回の結果は、運が良かったにすぎない。",
+       "ja_furigana": "今回(こんかい)の結果(けっか)は、運(うん)が良(よ)かったにすぎない。",
+       "source": "AI",
+       "vi": "Kết quả lần này chẳng qua chỉ là do may mắn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác だけだ/ばかり: にすぎない nhấn mạnh đánh giá thấp, không dùng cho đánh giá tích cực (sai: すばらしい人にすぎない). Không dùng với số lượng lớn.",
+    "examples": [
+     {
+      "ja": "これは言い訳にすぎない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "私は課長の指示を伝えたにすぎない。",
+      "ja_furigana": "私(わたし)は課長(かちょう)の指示(しじ)を伝(つた)えたにすぎない。",
+      "source": "AI",
+      "vi": "Tôi chẳng qua chỉ truyền đạt lại chỉ thị của trưởng phòng."
+     },
+     {
+      "ja": "今回の結果は、運が良かったにすぎない。",
+      "ja_furigana": "今回(こんかい)の結果(けっか)は、運(うん)が良(よ)かったにすぎない。",
+      "source": "AI",
+      "vi": "Kết quả lần này chẳng qua chỉ là do may mắn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: これは言い訳にすぎない。",
+     "FURIGANA_MISSING: これは言い訳にすぎない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + にすぎない; N/Aな + にすぎない",
+    "locked_fields": [],
+    "meaning_vi": "Chẳng qua chỉ là — Hạ thấp mức độ, nhấn mạnh chỉ có vậy thôi.",
+    "nuance_vi": "Hạ thấp mức độ: chẳng qua chỉ là; có khi dùng để phản bác ý kiến thổi phồng sự việc.",
+    "order_items": [],
+    "pattern": "に過(す)ぎない",
+    "pattern_variants": [
+     "Thể thường / N + にすぎない"
+    ],
+    "unit_no": 23,
+    "unit_title_vi": null,
+    "usage_vi": "Hay đi với ただ, ほんの để nhấn mạnh thêm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f346952c3f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この結果は、日々の練習の成果にほかならない。",
+       "ja_furigana": "この結果(けっか)は、日々(ひび)の練習(れんしゅう)の成果(せいか)にほかならない。",
+       "vi": "Kết quả này chính là thành quả của việc luyện tập hằng ngày."
+      },
+      {
+       "ja": "彼女が何も言わないのは、反対しているからにほかならない。",
+       "ja_furigana": "彼女(かのじょ)が何(なに)も言(い)わないのは、反対(はんたい)しているからにほかならない。",
+       "vi": "Việc cô ấy không nói gì chính là vì đang phản đối."
+      },
+      {
+       "ja": "今の私があるのは、先生のご指導のおかげにほかならない。",
+       "ja_furigana": "今(いま)の私(わたし)があるのは、先生(せんせい)のご指導(しどう)のおかげにほかならない。",
+       "source": "AI",
+       "vi": "Việc tôi có được như hôm nay chính là nhờ sự chỉ dạy của thầy."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng để khẳng định nguyên nhân, bản chất, không dùng cho sự việc đơn giản. Khác にすぎない (hạ thấp 'chẳng qua'): にほかならない mang ý khẳng định 'chính là'.",
+    "examples": [
+     {
+      "ja": "彼女は合格したのは努力の結果にほかならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc cô ấy đỗ chính là kết quả của nỗ lực."
+     },
+     {
+      "ja": "親が子どもを叱るのは、子どもを愛しているからにほかならない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Việc bố mẹ mắng con cái chính là vì yêu thương con."
+     },
+     {
+      "ja": "今の私があるのは、先生のご指導のおかげにほかならない。",
+      "ja_furigana": "今(いま)の私(わたし)があるのは、先生(せんせい)のご指導(しどう)のおかげにほかならない。",
+      "source": "AI",
+      "vi": "Việc tôi có được như hôm nay chính là nhờ sự chỉ dạy của thầy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼女は合格したのは努力の結果にほかならない。",
+     "FURIGANA_MISSING: 親が子どもを叱るのは、子どもを愛しているからにほかならない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + にほかならない; Thể thường + からにほかならない",
+    "locked_fields": [],
+    "meaning_vi": "Không có cái nào khác, chính là",
+    "nuance_vi": "Văn viết; khẳng định mạnh 'chính là, không là gì khác ngoài', thường dùng để nêu nguyên nhân hay bản chất; hay đi với のは〜からにほかならない.",
+    "order_items": [],
+    "pattern": "に他(ほか)ならない",
+    "pattern_variants": [
+     "〜にほかならない",
+     "N + にほかならない"
+    ],
+    "unit_no": 23,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／ため、から等 Ý nghĩa: ～以外のものではない、確かに～だ Không có cái nào khác, chính là Ví dụ: 1. 彼女は合格したのは努力の結果にほかならない。 Việc cô ấy đỗ chính là kết quả của nỗ lực. 2. 親が子どもを叱るのは、子どもを愛しているからにほかならない。 Việc bố mẹ mắng con cái chính là vì yêu thương con. 3. 新しい事業の成功は、社員全員の努力の賜物にほかならない。 Thành công của dự án mới chính là kết quả của sự nỗ lực của toàn thể nhân viên. 4. 脳死は人間の死にほかならないとかんがえる人が増えた。 Những người nghĩ rằng chết não chính là cái chết của loài người đã tăng lên. 5. 夫がたばこをやめたのは妊娠した妻のためにほかならない。 Việc chồng tôi ngừng hút thuốc chính là vì vợ mang bầu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-48986bc5b2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「この仕事、早めに始めたほうがいいですか」",
+       "ja_furigana": "「この仕事(しごと)、早(はや)めに始(はじ)めたほうがいいですか」",
+       "vi": "Công việc này có nên bắt đầu sớm không ạ?"
+      },
+      {
+       "ja": "「はい、早いに越したことはありませんが、準備も大切です」",
+       "ja_furigana": "「はい、早(はや)いに越(こ)したことはありませんが、準備(じゅんび)も大切(たいせつ)です」",
+       "vi": "Vâng, càng sớm càng tốt, nhưng khâu chuẩn bị cũng quan trọng."
+      },
+      {
+       "ja": "旅行に行くときは、天気予報を確かめておくに越したことはない。",
+       "ja_furigana": "旅行(りょこう)に行(い)くときは、天気予報(てんきよほう)を確(たし)かめておくに越(こ)したことはない。",
+       "source": "AI",
+       "vi": "Khi đi du lịch thì tốt nhất là nên kiểm tra dự báo thời tiết trước."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không có nghĩa bắt buộc, chỉ là càng tốt (nhưng không có cũng được). Khác 〜たほうがいい (khuyên cụ thể một người): に越したことはない nói chung chung, mang tính lẽ thường.",
+    "examples": [
+     {
+      "ja": "「その仕事は経験がなくてもできますか」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công việc này không cần kinh nghiệm?"
+     },
+     {
+      "ja": "「はい、経験はあるに越したことはありませんが、なくても大丈夫です」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vâng, nếu có kinh nghiệm sẽ tốt hơn, nhưng không có cũng không sao."
+     },
+     {
+      "ja": "旅行に行くときは、天気予報を確かめておくに越したことはない。",
+      "ja_furigana": "旅行(りょこう)に行(い)くときは、天気予報(てんきよほう)を確(たし)かめておくに越(こ)したことはない。",
+      "source": "AI",
+      "vi": "Khi đi du lịch thì tốt nhất là nên kiểm tra dự báo thời tiết trước."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「その仕事は経験がなくてもできますか」",
+     "FURIGANA_MISSING: 「はい、経験はあるに越したことはありませんが、なくても大丈夫です」",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる/Aい/Aな(である)/N(である) + に越したことはない",
+    "locked_fields": [],
+    "meaning_vi": "Đương nhiên... sẽ tốt hơn",
+    "nuance_vi": "Đương nhiên… thì tốt hơn; dùng khi đưa ra lời khuyên chung, nhắc việc chuẩn bị.",
+    "order_items": [],
+    "pattern": "に越(こ)したことはない",
+    "pattern_variants": [
+     "〜にこしたことはない"
+    ],
+    "unit_no": 23,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の普通形 Ý nghĩa: （もちろん）～のほうがいい Đương nhiên... sẽ tốt hơn Ví dụ: 1. 「その仕事は経験がなくてもできますか」 Công việc này không cần kinh nghiệm? 2. 「はい、経験はあるに越したことはありませんが、なくても大丈夫です」 Vâng, nếu có kinh nghiệm sẽ tốt hơn, nhưng không có cũng không sao. 3. 家賃は安いにこしたことはないが、だからと言って、駅から遠いのは困る。 Tiền thuê nhà rẻ sẽ tốt hơn nhưng mà xa nhà ga thì cũng mệt lắm. 4. アルバイトではなく正社員になれるのなら、それに越したことはない。 Không gì hơn nếu có thể trở thành nhân viên chính thức chứ không phải chỉ làm thêm. 5. インタネットでの買い物は、用心するに越したことはない。 Mua đồ qua mạng tốt hơn hết là nên cẩn thận."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3ba05d9a36"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "誰も手伝ってくれないので、一人でやるよりほかない。",
+       "ja_furigana": "誰(だれ)も手伝(てつだ)ってくれないので、一人(ひとり)でやるよりほかない。",
+       "vi": "Không ai giúp nên chỉ còn cách tự mình làm."
+      },
+      {
+       "ja": "約束を守れなかった以上、正直にあやまるよりほかない。",
+       "ja_furigana": "約束(やくそく)を守(まも)れなかった以上(いじょう)、正直(しょうじき)にあやまるよりほかない。",
+       "source": "AI",
+       "vi": "Đã không giữ được lời hứa thì chỉ còn cách xin lỗi thành thật."
+      },
+      {
+       "ja": "薬では治らないと言われたので、手術を受けるよりほかなかった。",
+       "ja_furigana": "薬(くすり)では治(なお)らないと言(い)われたので、手術(しゅじゅつ)を受(う)けるよりほかなかった。",
+       "source": "AI",
+       "vi": "Vì được báo là thuốc không chữa khỏi nên tôi chỉ còn cách phẫu thuật."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với động từ, không đi với danh từ (khác しかない có thể là N + しかない). Khác ざるを得ない: ざるを得ない nhấn mạnh miễn cưỡng, còn よりほかない nhấn mạnh không có lựa chọn khác.",
+    "examples": [
+     {
+      "ja": "電車が止まったので、歩くよりほかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "約束を守れなかった以上、正直に謝るよりほかない。",
+      "ja_furigana": "約束(やくそく)を守(まも)れなかった以上(いじょう)、正直(しょうじき)に謝(あやま)るよりほかない。",
+      "source": "AI",
+      "vi": "Đã không giữ được lời hứa thì chỉ còn cách xin lỗi thành thật."
+     },
+     {
+      "ja": "薬では治らないと言われたので、手術を受けるよりほかなかった。",
+      "ja_furigana": "薬(くすり)では治(なお)らないと言(い)われたので、手術(しゅじゅつ)を受(う)けるよりほかなかった。",
+      "source": "AI",
+      "vi": "Vì được báo là thuốc không chữa khỏi nên tôi chỉ còn cách phẫu thuật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 電車が止まったので、歩くよりほかない。",
+     "FURIGANA_MISSING: 電車が止まったので、歩くよりほかない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + よりほかない; Vる + よりほかはない",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ còn cách — Không còn lựa chọn nào khác ngoài việc đó.",
+    "nuance_vi": "Cứng và mang tính văn viết hơn しかない; chỉ còn đúng một cách duy nhất, hàm ý đã cân nhắc kỹ.",
+    "order_items": [],
+    "pattern": "より他(ほか)ない",
+    "pattern_variants": [
+     "V từ điển + よりほかない / ほかない"
+    ],
+    "unit_no": 23,
+    "unit_title_vi": null,
+    "usage_vi": "Trang trọng hơn しかない. Dạng khác よりほかしかたがない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3a7fb2a615"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "わからないことは、すぐ先生に聞くことだ。",
+       "ja_furigana": "わからないことは、すぐ先生(せんせい)に聞(き)くことだ。",
+       "vi": "Điều gì không hiểu thì nên hỏi thầy ngay."
+      },
+      {
+       "ja": "風邪を早く治したいなら、とにかくゆっくり休むことだ。",
+       "ja_furigana": "風邪(かぜ)を早(はや)く治(なお)したいなら、とにかくゆっくり休(やす)むことだ。",
+       "source": "AI",
+       "vi": "Muốn khỏi cảm nhanh thì trước hết cứ nghỉ ngơi thật kỹ."
+      },
+      {
+       "ja": "試験に落ちたくなければ、夜遅くまで遊ばないことだ。",
+       "ja_furigana": "試験(しけん)に落(お)ちたくなければ、夜遅(よるおそ)くまで遊(あそ)ばないことだ。",
+       "source": "AI",
+       "vi": "Không muốn trượt kỳ thi thì đừng chơi đến khuya."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng để khuyên người trên (nghe thiếu lịch sự). Khác 〜たほうがいい (nhẹ hơn, khuyên chung) vì ことだ nhấn mạnh 'điều cần làm là thế'.",
+    "examples": [
+     {
+      "ja": "上手になりたければ、毎日練習することだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "風邪を早く治したいなら、とにかくゆっくり休むことだ。",
+      "ja_furigana": "風邪(かぜ)を早(はや)く治(なお)したいなら、とにかくゆっくり休(やす)むことだ。",
+      "source": "AI",
+      "vi": "Muốn khỏi cảm nhanh thì trước hết cứ nghỉ ngơi thật kỹ."
+     },
+     {
+      "ja": "試験に落ちたくなければ、夜遅くまで遊ばないことだ。",
+      "ja_furigana": "試験(しけん)に落(お)ちたくなければ、夜遅(よるおそ)くまで遊(あそ)ばないことだ。",
+      "source": "AI",
+      "vi": "Không muốn trượt kỳ thi thì đừng chơi đến khuya."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 上手になりたければ、毎日練習することだ。",
+     "FURIGANA_MISSING: 上手になりたければ、毎日練習することだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる/Vない + ことだ",
+    "locked_fields": [],
+    "meaning_vi": "Nên, cần phải — Khuyên bảo hoặc nêu điều nên làm, giọng của người có kinh nghiệm.",
+    "nuance_vi": "Lời khuyên của người có kinh nghiệm hoặc ở vị trí trên, giọng hơi cứng, thường dùng nói với người dưới; hay đi với 〜たければ, 〜なら.",
+    "order_items": [],
+    "pattern": "事(こと)だ",
+    "pattern_variants": [
+     "V từ điển / V-ない + ことだ"
+    ],
+    "unit_no": 24,
+    "unit_title_vi": null,
+    "usage_vi": "Không dùng với người trên. Khác với ものだ (lẽ thường tình)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6219b84892"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その件なら、私がやるので心配することはない。",
+       "ja_furigana": "その件(けん)なら、私(わたし)がやるので心配(しんぱい)することはない。",
+       "vi": "Chuyện đó để tôi làm nên không cần lo đâu."
+      },
+      {
+       "ja": "電話で済むことだから、わざわざ会いに行くことはないよ。",
+       "ja_furigana": "電話(でんわ)で済(す)むことだから、わざわざ会(あ)いに行(い)くことはないよ。",
+       "source": "AI",
+       "vi": "Chuyện chỉ cần gọi điện là xong nên không cần phải cất công đến gặp đâu."
+      },
+      {
+       "ja": "まだ時間はあるので、そんなに急ぐことはありません。",
+       "ja_furigana": "まだ時間(じかん)はあるので、そんなに急(いそ)ぐことはありません。",
+       "source": "AI",
+       "vi": "Vẫn còn thời gian nên không cần phải vội như vậy."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đừng nhầm với ことがない (chưa từng) và わけがない (không thể nào). ことはない nghĩa là 'không cần phải làm', không phải cấm đoán.",
+    "examples": [
+     {
+      "ja": "そんなに心配することはないよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "電話で済むことだから、わざわざ会いに行くことはないよ。",
+      "ja_furigana": "電話(でんわ)で済(す)むことだから、わざわざ会(あ)いに行(い)くことはないよ。",
+      "source": "AI",
+      "vi": "Chuyện chỉ cần gọi điện là xong nên không cần phải cất công đến gặp đâu."
+     },
+     {
+      "ja": "まだ時間はあるので、そんなに急ぐことはありません。",
+      "ja_furigana": "まだ時間(じかん)はあるので、そんなに急(いそ)ぐことはありません。",
+      "source": "AI",
+      "vi": "Vẫn còn thời gian nên không cần phải vội như vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: そんなに心配することはないよ。",
+     "FURIGANA_MISSING: そんなに心配することはないよ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + ことはない",
+    "locked_fields": [],
+    "meaning_vi": "Không cần phải — Trấn an rằng việc đó là không cần thiết.",
+    "nuance_vi": "Trấn an hoặc khuyên rằng việc đó là không cần thiết; thân mật, thường dùng để an ủi.",
+    "order_items": [],
+    "pattern": "事(こと)はない",
+    "pattern_variants": [
+     "V từ điển + ことはない"
+    ],
+    "unit_no": 24,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với ことがない (chưa từng). Hay dùng để an ủi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9477c9f64b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一人暮らしは心細くてたまらない。",
+       "ja_furigana": "一人暮(ひとりぐ)らしは心細(こころぼそ)くてたまらない。",
+       "vi": "Sống một mình thấy bơ vơ không chịu nổi."
+      },
+      {
+       "ja": "昨日の夜から歯が痛くてたまらない。",
+       "ja_furigana": "昨日(きのう)の夜(よる)から歯(は)が痛(いた)くてたまらない。",
+       "source": "AI",
+       "vi": "Từ tối qua đến giờ tôi đau răng không chịu nổi."
+      },
+      {
+       "ja": "来週の旅行が楽しみでたまらない。",
+       "ja_furigana": "来週(らいしゅう)の旅行(りょこう)が楽(たの)しみでたまらない。",
+       "source": "AI",
+       "vi": "Tôi háo hức chờ chuyến du lịch tuần sau đến mức không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chủ yếu diễn tả cảm giác của người nói; với người khác cần thêm ようだ/らしい. Khác てしょうがない (gần như đồng nghĩa, thân mật hơn) và ようがない (không có cách làm).",
+    "examples": [
+     {
+      "ja": "暑くてたまらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昨日の夜から歯が痛くてたまらない。",
+      "ja_furigana": "昨日(きのう)の夜(よる)から歯(は)が痛(いた)くてたまらない。",
+      "source": "AI",
+      "vi": "Từ tối qua đến giờ tôi đau răng không chịu nổi."
+     },
+     {
+      "ja": "来週の旅行が楽しみでたまらない。",
+      "ja_furigana": "来週(らいしゅう)の旅行(りょこう)が楽(たの)しみでたまらない。",
+      "source": "AI",
+      "vi": "Tôi háo hức chờ chuyến du lịch tuần sau đến mức không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 暑くてたまらない。",
+     "FURIGANA_MISSING: 暑くてたまらない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て/Aい(〜くて)/Aな(で) + たまらない",
+    "locked_fields": [],
+    "meaning_vi": "Đến không chịu nổi — Cảm giác hoặc mong muốn mạnh đến mức không chịu được.",
+    "nuance_vi": "Cảm giác, cảm xúc hay mong muốn mạnh đến mức không chịu nổi; mạnh hơn てしかたがない một chút, dùng trong văn nói.",
+    "order_items": [],
+    "pattern": "〜て堪(たま)らない",
+    "pattern_variants": [
+     "V-て / A-くて + たまらない"
+    ],
+    "unit_no": 25,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng cho cảm giác của bản thân. Về người khác phải thêm ようだ, らしい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f0197c90bb"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "子どもが転んだのを見て、助けずにはいられなかった。",
+       "ja_furigana": "子(こ)どもが転(ころ)んだのを見(み)て、助(たす)けずにはいられなかった。",
+       "vi": "Thấy đứa trẻ bị ngã, tôi không thể không giúp."
+      },
+      {
+       "ja": "子どもがあまりにかわいくて、写真を撮らずにはいられなかった。",
+       "ja_furigana": "子(こ)どもがあまりにかわいくて、写真(しゃしん)を撮(と)らずにはいられなかった。",
+       "source": "AI",
+       "vi": "Đứa bé quá dễ thương nên tôi không thể không chụp ảnh."
+      },
+      {
+       "ja": "困っている友だちを見て、声をかけずにはいられなかった。",
+       "ja_furigana": "困(こま)っている友(とも)だちを見(み)て、声(こえ)をかけずにはいられなかった。",
+       "source": "AI",
+       "vi": "Thấy người bạn đang gặp khó khăn, tôi không thể không lên tiếng hỏi han."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng với hành động có ý chí xảy ra tự phát, chủ yếu ngôi thứ nhất; chú ý する → せずに. Khác ざるを得ない (bị hoàn cảnh bắt buộc, không muốn cũng phải làm).",
+    "examples": [
+     {
+      "ja": "この話を聞くと、笑わずにはいられない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "子どもがあまりにかわいくて、写真を撮らずにはいられなかった。",
+      "ja_furigana": "子(こ)どもがあまりにかわいくて、写真(しゃしん)を撮(と)らずにはいられなかった。",
+      "source": "AI",
+      "vi": "Đứa bé quá dễ thương nên tôi không thể không chụp ảnh."
+     },
+     {
+      "ja": "困っている友だちを見て、声をかけずにはいられなかった。",
+      "ja_furigana": "困(こま)っている友(とも)だちを見(み)て、声(こえ)をかけずにはいられなかった。",
+      "source": "AI",
+      "vi": "Thấy người bạn đang gặp khó khăn, tôi không thể không lên tiếng hỏi han."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: この話を聞くと、笑わずにはいられない。",
+     "FURIGANA_MISSING: この話を聞くと、笑わずにはいられない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vない(ない→ず) + ずにはいられない; する → せずにはいられない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể không — Không kìm được, buộc phải làm theo cảm xúc.",
+    "nuance_vi": "Không kìm được, bị cảm xúc thúc đẩy mà làm; cứng hơn ないではいられない một chút.",
+    "order_items": [],
+    "pattern": "ずには居(い)られない",
+    "pattern_variants": [
+     "V-ない bỏ ない + ずにはいられない",
+     "〜ずに(は)いられない"
+    ],
+    "unit_no": 25,
+    "unit_title_vi": null,
+    "usage_vi": "する → せずにはいられない. Dạng khác ないではいられない (văn nói hơn)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4d7879d020"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会社の命令なので、その仕事を引き受けざるを得ない。",
+       "ja_furigana": "会社(かいしゃ)の命令(めいれい)なので、その仕事(しごと)を引(ひ)き受(う)けざるを得(え)ない。",
+       "vi": "Vì là mệnh lệnh của công ty nên tôi buộc phải nhận công việc đó."
+      },
+      {
+       "ja": "予定が変わったので、計画をやり直さざるを得ない。",
+       "ja_furigana": "予定(よてい)が変(か)わったので、計画(けいかく)をやり直(なお)さざるを得(え)ない。",
+       "vi": "Vì lịch trình thay đổi nên tôi buộc phải làm lại kế hoạch."
+      },
+      {
+       "ja": "台風が近づいているので、旅行を中止せざるを得なかった。",
+       "ja_furigana": "台風(たいふう)が近(ちか)づいているので、旅行(りょこう)を中止(ちゅうし)せざるを得(え)なかった。",
+       "source": "AI",
+       "vi": "Vì bão đang đến gần nên tôi buộc phải hủy chuyến du lịch."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Có sắc thái miễn cưỡng, không dùng cho việc tự nguyện. Chia する → せざるを得ない (không phải しざる). Khác ないわけにはいかない (nhấn mạnh nghĩa vụ, đạo lý).",
+    "examples": [
+     {
+      "ja": "学校の規則なので、髪を切らざるを得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì là nội quy của trường nên không thể không cắt tóc."
+     },
+     {
+      "ja": "未経験者だけで冬山に登るなど、無謀と言わざるを得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Với người không có kinh nghiệm, việc leo núi vào mùa đông, phải nói là không suy nghĩ."
+     },
+     {
+      "ja": "台風が近づいているので、旅行を中止せざるを得なかった。",
+      "ja_furigana": "台風(たいふう)が近(ちか)づいているので、旅行(りょこう)を中止(ちゅうし)せざるを得(え)なかった。",
+      "source": "AI",
+      "vi": "Vì bão đang đến gần nên tôi buộc phải hủy chuyến du lịch."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 学校の規則なので、髪を切らざるを得ない。",
+     "FURIGANA_MISSING: 未経験者だけで冬山に登るなど、無謀と言わざるを得ない。",
+     "EXAMPLE_ABOVE_LEVEL_SOURCE: 未経験者だけで冬山に登るなど、無謀と言わざるを得ない。 → 謀",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vない(ない→ざる) + を得ない; する → せざるを得ない",
+    "locked_fields": [],
+    "meaning_vi": "Phải làm",
+    "nuance_vi": "Văn viết, cứng; dù không muốn nhưng hoàn cảnh bắt buộc phải làm; mạnh hơn しかない.",
+    "order_items": [],
+    "pattern": "ざるを得(え)ない",
+    "pattern_variants": [
+     "〜ざるを得ない",
+     "V-ない bỏ ない + ざるを得ない"
+    ],
+    "unit_no": 25,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のナイ形ただし、する→せ Ý nghĩa: どうしても～しなければならない（本当はしたくない）/～しないわけにはいかない（書き言葉） Phải làm Ví dụ: 1. 学校の規則なので、髪を切らざるを得ない。 Vì là nội quy của trường nên không thể không cắt tóc. 2. 未経験者だけで冬山に登るなど、無謀と言わざるを得ない。 Với người không có kinh nghiệm, việc leo núi vào mùa đông, phải nói là không suy nghĩ. 3. 今年は仕事が忙しいので、夏休みの海外旅行はあきらめざるを得ない。 Năm nay vì công việc bận rộn nên tôi đành phải bỏ chuyến du lịch nước ngoài trong kỳ nghỉ hè. 4. 新たな証拠が出てきた以上、彼女が犯人だと断定せざるを得ない。 Sau khi chứng cứ mới được đưa ra, cô ấy buộc phải chấp nhận phán quyết là phạm nhân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b06b782d7b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この町の古い道には、どこか落ち着くものがある。",
+       "ja_furigana": "この町(まち)の古(ふる)い道(みち)には、どこか落(お)ち着(つ)くものがある。",
+       "vi": "Những con đường cũ của thị trấn này có cái gì đó khiến người ta thấy bình yên."
+      },
+      {
+       "ja": "彼の作品には、見る人を引きつけるものがある。",
+       "ja_furigana": "彼(かれ)の作品(さくひん)には、見(み)る人(ひと)を引(ひ)きつけるものがある。",
+       "vi": "Tác phẩm của anh ấy có điều gì đó cuốn hút người xem."
+      },
+      {
+       "ja": "彼の歌には、聞く人を感動させるものがある。",
+       "ja_furigana": "彼(かれ)の歌(うた)には、聞(き)く人(ひと)を感動(かんどう)させるものがある。",
+       "source": "AI",
+       "vi": "Bài hát của anh ấy có một điều gì đó làm người nghe xúc động."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không phải 'có đồ vật'. Hay đi với các từ cảm nhận như 感じさせる, 人を引きつける; không dùng cho sự thật khách quan. Khác ことがある (có khi, từng).",
+    "examples": [
+     {
+      "ja": "最近の携帯電話の技術には、目を見張るものがあります。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Công nghệ điện thoại di động gần đây thật đáng kinh ngạc."
+     },
+     {
+      "ja": "A: このCD、いいね。女性の声がいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Đĩa CD này hay nhỉ. Giọng nữ hay."
+     },
+     {
+      "ja": "彼の歌には、聞く人を感動させるものがある。",
+      "ja_furigana": "彼(かれ)の歌(うた)には、聞(き)く人(ひと)を感動(かんどう)させるものがある。",
+      "source": "AI",
+      "vi": "Bài hát của anh ấy có một điều gì đó làm người nghe xúc động."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 最近の携帯電話の技術には、目を見張るものがあります。",
+     "FURIGANA_MISSING: A: このCD、いいね。女性の声がいい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + ものがある",
+    "locked_fields": [],
+    "meaning_vi": "Có điều khiến người ta cảm thấy…; có một phương diện… đáng ghi nhận",
+    "nuance_vi": "Người nói cảm nhận có một khía cạnh đáng chú ý khiến mình cảm thấy…; dùng cho đánh giá cảm tính, thường tích cực nhưng có thể tiêu cực.",
+    "order_items": [],
+    "pattern": "〜ものがある",
+    "pattern_variants": [
+     "ものがある",
+     "Thể thường + ものがある"
+    ],
+    "unit_no": 26,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả người nói cảm nhận rõ một tính chất hoặc thừa nhận một phương diện nổi bật trong sự việc. Mẫu thường dùng để đưa ra đánh giá có phần trang trọng, thay vì khẳng định trực tiếp bằng tính từ. 1) Dễ nhầm với ～ことがある. → ～ものがある không nói một việc đôi khi xảy ra mà đưa ra sự đánh giá: “có một phương diện khiến người ta cảm thấy…”. 2) Thường nối với tính từ ở dạng bổ nghĩa danh từ. → Mẫu hay dùng khi người nói cảm nhận mạnh một điểm nổi bật nhưng không muốn khẳng định quá trực tiếp. 3) Chú ý sắc thái đánh giá có phần dè dặt. → Câu có thể thừa nhận một mặt đáng khen, đáng lo hoặc khó diễn tả mà không nhất thiết đánh giá toàn bộ đối tượng như vậy."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-fbcb453cbc"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-009"
+}

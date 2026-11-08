@@ -116,7 +116,7 @@ public class WeaknessNotebookService {
     }
     private static Entry entry(UserKnowledgeWeakness r, Map<Long, GrammarPoint> points, Map<String, VocabularyEntry> vocabulary) {
         String title = r.getCanonicalItem(), description = r.getTag() == null ? "" : r.getTag().getName();
-        String example = null, reading = null, translation = null, url = "/learning/path";
+        String example = null, reading = null, translation = null, url = "/learning";
         if (title == null || title.isBlank()) title = description.isBlank() ? "Nội dung cần ôn" : description;
         var gp = points.get(grammarId(r.getCanonicalItem()));
         if (gp != null) { title = gp.getPattern(); description = gp.getMeaning(); example = gp.getExample(); }

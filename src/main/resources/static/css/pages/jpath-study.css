@@ -1,0 +1,1699 @@
+/* [JLAS-W0108] Study card screen of the JLPT path (/learning/jlpt/study). Colours only through --jp-* tokens
+   (jpath-base.css), so light and dark follow the theme. Works at 375 px; every control is at least 44 px. */
+.jp-study { max-width: 640px; font-size: calc(1rem * var(--jp-font-scale)); }
+.jp-study .jp-btn {
+  min-height: 44px; padding: 10px 18px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-weight: 600; cursor: pointer;
+}
+.jp-study .jp-btn--primary { background: var(--jp-primary); border-color: var(--jp-primary); color: var(--jp-surface); }
+.jp-study .jp-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.jp-study .jp-link-btn {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; border: 0; background: transparent;
+  color: var(--jp-primary); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.jp-study .jp-input {
+  box-sizing: border-box; min-height: 44px; width: 100%; padding: 8px 12px; border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-interactive); background: var(--jp-surface); color: var(--jp-ink); font: inherit;
+}
+.jp-study :is(button, a, input, summary):focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-study .jp-alert {
+  padding: 10px 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-danger-soft); color: var(--jp-danger);
+}
+
+.jp-study-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.jp-study-title { margin: 0; font-size: 1.15em; }
+.jp-study-root { display: grid; gap: 12px; margin-top: 8px; }
+.jp-study-muted { color: var(--jp-muted); font-size: .9em; }
+.jp-study-label { margin-top: 10px; color: var(--jp-muted); font-size: .72em; letter-spacing: .08em; }
+
+/* combined step bar */
+.jp-study-steps__line { margin: 0 0 6px; font-size: .85em; line-height: 1.6; }
+.jp-step { white-space: nowrap; color: var(--jp-muted); }
+.jp-step--done { color: var(--jp-ink); font-weight: 500; }
+.jp-step--active { color: var(--jp-primary); font-weight: 500; }
+.jp-step-sep { color: var(--jp-muted); }
+.jp-study-progress { height: 6px; overflow: hidden; border-radius: 3px; background: var(--jp-line); }
+.jp-study-progress > span { display: block; height: 100%; border-radius: 3px; background: var(--jp-ok); transition: width .3s ease; }
+
+/* card */
+.jp-study-card {
+  position: relative; padding: 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel);
+  background: var(--jp-surface); color: var(--jp-ink); text-align: center; touch-action: pan-y;
+}
+.jp-study-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-bottom: 4px; }
+.jp-study-icon, .jp-study .jp-display-btn {
+  min-width: 44px; min-height: 44px; padding: 0 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip);
+  background: var(--jp-surface); color: var(--jp-ink); font: inherit; font-size: .85em; cursor: pointer;
+}
+.jp-study .jp-display-btn[aria-pressed="true"] { background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-study .jp-display-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+.jp-study-flags { display: flex; justify-content: center; gap: 6px; }
+.jp-study-flag { padding: 2px 8px; border-radius: var(--jp-radius-chip); font-size: .75em; font-weight: 600; }
+.jp-study-flag--notebook { background: var(--jp-danger-soft); color: var(--jp-danger); }
+.jp-study-flag--hard { background: var(--jp-primary-soft); color: var(--jp-warn); }
+.jp-study-meaning { margin-top: 4px; font-size: 1.05em; font-weight: 500; overflow-wrap: anywhere; }
+.jp-study-word { margin-top: 6px; font-size: 2.4em; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.jp-study-glyph { margin-top: 6px; font-size: 4.5em; line-height: 1.1; }
+.jp-study-reading { font-size: 1.05em; }
+.jp-study-hanviet { font-weight: 500; letter-spacing: .06em; }
+.jp-study-readings b { color: var(--jp-primary); }
+.jp-study-more { margin-top: 4px; color: var(--jp-muted); }
+.jp-study-more summary, .jp-mnemonic summary { min-height: 44px; display: inline-flex; align-items: center; cursor: pointer; }
+.jp-study .jp-romaji { color: var(--jp-muted); font-size: .85em; }
+.jp-study .jp-romaji-off .jp-romaji { display: none; }
+.jp-study-examples { margin-top: 10px; display: grid; gap: 8px; }
+.jp-ex .jp-ex-ja { font-size: .95em; }
+.jp-ex .jp-ex-vi { color: var(--jp-muted); font-size: .85em; }
+.jp-study .jp-furigana-off rt { visibility: hidden; }
+.jp-study .jp-furigana-off ruby.jp-rt-flip rt { visibility: visible; }
+.jp-study ruby.jp-rt-flip rt { visibility: hidden; }
+.jp-study .jp-furigana-off ruby { cursor: pointer; }
+.jp-mnemonic { margin-top: 10px; padding: 0 10px; border: 1px dashed var(--jp-primary); border-radius: var(--jp-radius-interactive); color: var(--jp-primary); }
+.jp-mnemonic p { margin: 0 0 10px; color: var(--jp-ink); text-align: left; }
+.jp-study-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 10px; }
+.jp-study .jp-chip { padding: 4px 10px; border-radius: var(--jp-radius-chip); background: var(--jp-primary-soft); color: var(--jp-primary); font-weight: 600; }
+/* 05/11 grammar structure: word-type slots as outlined tags, the pattern's kana as solid chips, "+" between */
+.jp-study-formula { display: grid; justify-items: center; gap: 4px; margin-top: 12px; }
+.jp-study-formula .jp-study-chips { align-items: center; margin-top: 0; }
+.jp-study .jp-chip--slot { background: transparent; border: 1px dashed var(--jp-primary); color: var(--jp-ink); font-weight: 500; }
+.jp-study .jp-chip--ja { font-size: 1.1em; }
+.jp-study-plus { color: var(--jp-muted, #6b6880); font-weight: 600; }
+.jp-study-usage { margin-top: 8px; text-align: left; }
+.jp-study-compounds, .jp-study-confusables { margin-top: 10px; text-align: left; }
+.jp-study-compounds ul, .jp-study-confusables ul { margin: 4px 0 0; padding-left: 18px; }
+.jp-study-skip { margin: 0; text-align: center; font-size: .85em; color: var(--jp-muted); }
+
+/* retype */
+.jp-retype { display: flex; gap: 8px; margin-top: 12px; }
+.jp-retype .jp-input { flex: 1 1 auto; }
+.jp-retype-msg { min-height: 1.4em; margin: 8px 0 0; }
+.jp-retype-msg--EXACT { color: var(--jp-ok); }
+.jp-retype-msg--MINOR { color: var(--jp-warn); }
+.jp-retype-msg--WRONG { color: var(--jp-danger); }
+
+/* rating bar: stays above the shell's bottom bar on phones */
+.jp-rate-bar {
+  position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 2; display: grid; gap: 8px; padding: 8px 0;
+  background: var(--jp-canvas);
+}
+.jp-rate-bar--two { grid-template-columns: 1fr 1fr; }
+.jp-rate-bar--four { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.jp-rate {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 52px; padding: 6px 4px;
+  border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface);
+  color: var(--jp-ink); font: inherit; font-weight: 500; cursor: pointer;
+}
+.jp-rate:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-rate__ivl { font-size: .8em; font-weight: 500; }
+.jp-key-hint { font-size: .7em; font-weight: 500; color: var(--jp-muted); }
+.jp-rate--forgot { border-color: var(--jp-danger); color: var(--jp-danger); }
+.jp-rate--remembered { border-color: var(--jp-ok); background: var(--jp-ok); color: var(--jp-surface); }
+.jp-rate--remembered .jp-key-hint { color: var(--jp-surface); }
+.jp-rate--hard { border-color: var(--jp-warn); color: var(--jp-warn); }
+.jp-rate--good { border-color: var(--jp-ok); color: var(--jp-ok); }
+.jp-rate--easy { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-rate--flip, .jp-rate--next { border-color: var(--jp-primary); background: var(--jp-primary); color: var(--jp-surface); }
+.jp-rate--next .jp-key-hint { color: var(--jp-surface); }
+.jp-study-status { margin: 0; min-height: 1.2em; color: var(--jp-muted); font-size: .85em; text-align: center; }
+
+/* offline banner, swipe hint, skip check under the card (Task 51) */
+.jp-study-offline {
+  margin: 0; padding: 8px 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-danger-soft);
+  color: var(--jp-danger); font-size: .9em;
+}
+.jp-swipe-hint {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px;
+  border: 1px dashed var(--jp-primary); border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft);
+  color: var(--jp-primary); font-size: .9em;
+}
+.jp-study-inline-check { margin-top: 12px; }
+.jp-study-inline-check[hidden] { display: none; }
+.jp-study-card--check { display: grid; gap: 10px; justify-items: center; }
+
+/* Touch screens have no keyboard: hide the key hints. */
+@media (pointer: coarse) {
+  .jp-key-hint { display: none; }
+}
+
+@media (max-width: 480px) {
+  .jp-study-word { font-size: 2em; }
+  .jp-rate-bar--four { gap: 4px; }
+  .jp-rate { font-size: .85em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-progress > span { transition: none; }
+}
+
+/* 04/11 redesign: a wider study column so the card and its buttons have room */
+.jp-study { max-width: 880px; }
+.jp-study .jp-crumbs { margin-bottom: 14px; }
+.jp-study-title { font-size: 1.7em; }
+
+/* 04/11 polish: màn học */
+.jp-study { max-width: 1000px; padding-bottom: 36px; }
+.jp-study-head { margin: 10px 0 18px; gap: 16px; }
+.jp-study-root { gap: 22px; margin-top: 0; }
+.jp-study-steps { display: grid; gap: 10px; }
+.jp-study-steps__line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 0; margin: 0; line-height: 1.5; }
+.jp-study-steps__line .jp-step { display: inline-flex; align-items: center; min-height: 36px; padding: 5px 12px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip); background: var(--jp-surface); }
+.jp-study-steps__line .jp-step--done { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-study-steps__line .jp-step--active { border-color: var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-study-steps__line .jp-step-sep { margin: 0 5px; }
+.jp-study-steps__left { margin-left: auto; color: var(--jp-muted); white-space: nowrap; }
+.jp-study-progress { height: 10px; border-radius: 999px; background: var(--jp-primary-soft); }
+.jp-study-progress > span { border-radius: inherit; background: var(--jp-primary); }
+.jp-study-card { display: grid; align-content: start; min-height: 350px; padding: clamp(22px, 4vw, 44px); border-color: var(--jp-line); }
+.jp-study-tools { margin-bottom: 18px; }
+.jp-study-face { display: grid; align-content: center; justify-items: center; gap: 6px; min-height: 220px; }
+.jp-study-word { font-size: clamp(2.4em, 5vw, 3.5em); line-height: 1.3; }
+.jp-study-glyph { font-size: clamp(3.5em, 7vw, 5em); }
+.jp-study-reading { font-size: 1.15em; color: var(--jp-muted); }
+.jp-study-meaning { margin-top: 14px; font-size: clamp(1.25em, 2vw, 1.55em); line-height: 1.4; }
+.jp-study-examples { width: min(100%, 650px); margin-top: 18px; gap: 12px; text-align: left; }
+.jp-study-examples .jp-ex { padding-top: 10px; border-top: 1px solid var(--jp-line); }
+.jp-study-examples .jp-ex-ja { font-size: 1.05em; line-height: 1.7; }
+.jp-mnemonic { width: min(100%, 650px); padding: 0; border: 0; text-align: left; }
+.jp-mnemonic p { padding-left: 14px; border-left: 1px solid var(--jp-primary); }
+.jp-rate-bar { position: static; display: flex; flex-wrap: nowrap; gap: 10px; padding: 16px 0 0; border-top: 1px solid var(--jp-line); background: transparent; }
+.jp-rate-bar .jp-rate { flex: 1 1 0; min-height: 58px; padding: 8px 10px; }
+.jp-rate-bar--flip .jp-rate, .jp-rate-bar--next .jp-rate { flex: 1 1 auto; }
+.jp-study .jp-btn--primary { min-height: 52px; }
+@media (max-width: 640px) {
+  .jp-study { padding-bottom: 0; }
+  .jp-study-head { align-items: flex-start; }
+  .jp-study-steps__left { width: 100%; margin-left: 0; }
+  .jp-study-card { min-height: 300px; padding: 20px 16px; }
+  .jp-study-word { font-size: 2.5em; }
+  .jp-rate-bar { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 0; background: var(--jp-surface); }
+  .jp-rate-bar--four { gap: 5px; }
+  .jp-rate-bar--four .jp-rate { padding: 8px 2px; font-size: .84em; }
+}
+
+/* Keep the current card and its answer controls in the first view. */
+.jp-study { max-width: 1000px; }
+.jp-study-steps__line .jp-step { border: 0; border-radius: 6px; background: transparent; padding-inline: 6px; }
+.jp-study-progress { height: 5px; border-radius: 3px; }
+.jp-study-card { min-height: 280px; border-radius: 8px; }
+.jp-study-tools { margin-bottom: 4px; }
+.jp-study-examples { display: block; width: min(100%, 650px); text-align: left; }
+.jp-study-examples summary, .jp-study-compounds summary, .jp-study-confusables summary {
+  display: inline-flex; align-items: center; min-height: 44px; color: var(--jp-primary); cursor: pointer;
+}
+.jp-study-examples .jp-ex:first-of-type { margin-top: 8px; }
+.jp-study .jp-chip, .jp-study-flag { border-radius: 6px; }
+.jp-study .jp-btn, .jp-rate { border-radius: 8px; }
+.jp-rate-bar { box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .jp-study-progress > span { transition: none; } }
+@media (max-width: 640px) {
+  /* the step chips stay on one line and scroll sideways instead of wrapping onto a second row */
+  .jp-study-steps__line { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+  .jp-study-steps__line .jp-step { flex: 0 0 auto; white-space: nowrap; }
+}
+
+/* 04/11 polish round 4: học thẻ */
+.jp-study { max-width: 1120px; }
+.jp-study-card { min-height: 380px; background: var(--jp-primary-soft); border: 1px solid var(--jp-line); }
+.jp-study-face { gap: 12px; min-height: 270px; }
+.jp-study-word { font-size: clamp(3em, 6vw, 4.5em); }
+.jp-study-reading { padding-top: 6px; font-size: 1.2em; }
+.jp-study-meaning { width: min(100%, 680px); padding-top: 16px; border-top: 1px solid var(--jp-line); }
+.jp-study-examples { width: min(100%, 680px); margin-top: 12px; }
+.jp-rate-bar--four { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.jp-rate-bar--four .jp-rate { min-width: 0; min-height: 64px; }
+.jp-rate--forgot { background: var(--jp-danger-soft); }
+.jp-rate--hard, .jp-rate--good, .jp-rate--easy { background: var(--jp-surface); }
+.jp-study-card--review .jp-study-face { animation: jp-card-reveal .18s ease-out; }
+@keyframes jp-card-reveal { from { opacity: .65; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .jp-study-card { min-height: 320px; }
+  .jp-study-word { font-size: 3em; }
+  .jp-rate-bar--four { gap: 4px; }
+  .jp-rate-bar--four .jp-rate { min-height: 54px; padding: 6px 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .jp-study-card--review .jp-study-face { animation: none; } }
+
+
+/* 05/11 Việc 2: Thanh bước dạng chấm tiến trình (stepper dots) & Thẻ học lật 2 mặt 3D mượt mà */
+.jp-study-steps {
+  display: grid;
+  gap: 12px;
+  padding: 14px 18px;
+  border: 1px solid var(--jp-line);
+  border-radius: 12px;
+  background: var(--jp-surface);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--jp-ink) 4%, transparent);
+}
+.jp-study-steps__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  margin: 0;
+}
+.jp-study-steps__line .jp-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 12px 4px 5px;
+  border: 1px solid var(--jp-line);
+  border-radius: 8px;
+  background: var(--jp-canvas);
+  color: var(--jp-muted);
+  font-weight: 600;
+  transition: border-color .2s ease, background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.jp-step__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 50%;
+  border: 1px solid var(--jp-line);
+  background: var(--jp-surface);
+  color: var(--jp-muted);
+  font-size: .78em;
+  font-weight: 600;
+  line-height: 1;
+  transition: border-color .2s ease, background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.jp-step__dot::before {
+  content: attr(data-step-num);
+}
+.jp-step__check {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+.jp-step__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.jp-step__count {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jp-ink) 7%, transparent);
+  font-size: .84em;
+  font-variant-numeric: tabular-nums;
+}
+.jp-study-steps__line .jp-step--done {
+  border-color: color-mix(in srgb, var(--jp-ok) 45%, var(--jp-line));
+  background: color-mix(in srgb, var(--jp-ok) 10%, var(--jp-surface));
+  color: var(--jp-ink);
+}
+.jp-study-steps__line .jp-step--done .jp-step__dot {
+  border-color: var(--jp-ok);
+  background: var(--jp-ok);
+  color: var(--jp-surface);
+}
+.jp-study-steps__line .jp-step--done .jp-step__dot::before {
+  content: none;
+}
+.jp-study-steps__line .jp-step--done .jp-step__count {
+  background: color-mix(in srgb, var(--jp-ok) 18%, var(--jp-surface));
+  color: var(--jp-ok);
+  font-weight: 500;
+}
+.jp-study-steps__line .jp-step--active {
+  border-color: var(--jp-primary);
+  background: var(--jp-primary-soft);
+  color: var(--jp-primary);
+  font-weight: 500;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--jp-primary) 16%, transparent);
+}
+.jp-study-steps__line .jp-step--active .jp-step__dot {
+  border-color: var(--jp-primary);
+  background: var(--jp-primary);
+  color: var(--jp-surface);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--jp-primary) 22%, transparent);
+}
+.jp-study-steps__line .jp-step--active .jp-step__count {
+  background: var(--jp-surface);
+  color: var(--jp-primary);
+  font-weight: 600;
+}
+.jp-study-steps__line .jp-step-sep {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  flex: 0 0 24px;
+  margin: 0 4px;
+  border-radius: 999px;
+  background: var(--jp-line);
+  font-size: 0;
+  color: transparent;
+  overflow: hidden;
+  vertical-align: middle;
+  transition: background-color .25s ease;
+}
+.jp-study-steps__line .jp-step-sep--done {
+  background: var(--jp-ok);
+}
+.jp-study-steps__left {
+  margin-left: auto;
+  padding-left: 8px;
+  color: var(--jp-muted);
+  font-weight: 600;
+  font-size: .9em;
+  white-space: nowrap;
+}
+.jp-study-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--jp-primary-soft);
+}
+.jp-study-progress > span {
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--jp-primary), color-mix(in srgb, var(--jp-ok) 75%, var(--jp-primary)));
+  transition: width .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* 3D Flashcard container & Front/Back faces */
+.jp-study-main {
+  perspective: 1200px;
+}
+.jp-study-card {
+  position: relative;
+  min-height: 390px;
+  padding: clamp(22px, 4vw, 38px);
+  border: 1px solid var(--jp-line);
+  border-top: 1px solid var(--jp-primary);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--jp-surface) 0%, color-mix(in srgb, var(--jp-primary-soft) 42%, var(--jp-surface)) 100%);
+  box-shadow: 0 14px 34px -10px color-mix(in srgb, var(--jp-primary) 16%, transparent),
+              0 2px 8px color-mix(in srgb, var(--jp-ink) 5%, transparent);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.jp-study-card--front {
+  background: radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--jp-primary-soft) 65%, var(--jp-surface)), var(--jp-surface) 75%);
+  border-top-color: var(--jp-primary);
+}
+.jp-study-card--review.jp-study-card--flipped {
+  border-top-color: var(--jp-ok);
+  background: linear-gradient(180deg, var(--jp-surface) 0%, color-mix(in srgb, var(--jp-primary-soft) 28%, var(--jp-surface)) 100%);
+  animation: jp-card-flip-3d .42s cubic-bezier(.22, 1, .36, 1) both;
+}
+.jp-study-card--review.jp-study-card--front {
+  animation: jp-card-front-in .24s ease-out both;
+}
+.jp-study-card--new {
+  animation: jp-card-front-in .26s ease-out both;
+}
+@keyframes jp-card-flip-3d {
+  0% {
+    opacity: .4;
+    transform: perspective(1200px) rotateY(-78deg) scale(.96);
+  }
+  65% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(5deg) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) rotateY(0deg) scale(1);
+  }
+}
+@keyframes jp-card-front-in {
+  0% {
+    opacity: .55;
+    transform: translateY(8px) scale(.985);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.jp-study-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: 8px;
+}
+.jp-study-card__top .jp-study-tools {
+  margin-bottom: 0;
+  margin-left: auto;
+}
+.jp-study-face-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: .74em;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: var(--jp-primary-soft);
+  color: var(--jp-primary);
+}
+.jp-study-face-tag::after {
+  content: attr(data-label);
+}
+.jp-study-face-tag--back {
+  background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface));
+  color: var(--jp-ok);
+  border: 1px solid color-mix(in srgb, var(--jp-ok) 35%, var(--jp-line));
+}
+.jp-study-face-tag--front {
+  background: var(--jp-primary-soft);
+  color: var(--jp-primary);
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 28%, var(--jp-line));
+}
+.jp-study-flip-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 8px 16px;
+  border: 1px dashed color-mix(in srgb, var(--jp-primary) 55%, var(--jp-line));
+  border-radius: 8px;
+  background: var(--jp-surface);
+  color: var(--jp-primary);
+  font-size: .88em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.jp-study-flip-cue::after {
+  content: attr(data-label);
+}
+.jp-study-flip-cue:hover {
+  transform: translateY(-2px);
+  background: var(--jp-primary-soft);
+  border-color: var(--jp-primary);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--jp-primary) 15%, transparent);
+}
+.jp-study-flip-cue__icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+.jp-study-hanviet {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 6px;
+  background: var(--jp-primary-soft);
+  color: var(--jp-primary);
+  font-size: .92em;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+.jp-study-examples, .jp-study-compounds, .jp-study-confusables, .jp-mnemonic {
+  width: min(100%, 680px);
+  padding: 10px 16px;
+  border: 1px solid var(--jp-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jp-surface) 88%, var(--jp-canvas));
+}
+.jp-rate {
+  border-radius: 12px;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--jp-ink) 8%, transparent);
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
+}
+.jp-rate:hover:not([disabled]) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--jp-ink) 12%, transparent);
+}
+.jp-rate:active:not([disabled]) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--jp-ink) 10%, transparent);
+}
+.jp-rate--flip {
+  min-height: 60px;
+  font-size: 1.05em;
+  letter-spacing: .01em;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--jp-primary) 28%, transparent);
+}
+
+@media (max-width: 640px) {
+  .jp-study-steps { padding: 10px 12px; }
+  .jp-study-steps__line { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 4px; }
+  .jp-study-steps__line .jp-step-sep { width: 14px; flex: 0 0 14px; margin: 0 2px; }
+  .jp-study-card { min-height: 320px; border-radius: 12px; }
+  .jp-study-word { font-size: 3em; }
+  .jp-rate-bar--four { gap: 4px; }
+  .jp-rate-bar--four .jp-rate { min-height: 54px; padding: 6px 2px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-card--review .jp-study-face,
+  .jp-study-card--review.jp-study-card--flipped,
+  .jp-study-card--review.jp-study-card--front,
+  .jp-study-card--new {
+    animation: none !important;
+  }
+  .jp-study-progress > span,
+  .jp-step,
+  .jp-step__dot,
+  .jp-rate,
+  .jp-study-flip-cue {
+    transition: none !important;
+  }
+}
+
+
+/* 06/11 Lượt 5: Bảng màu hài hòa với tím (--jp-c-<name>-{900,500,100}) + Thẻ học lật 2 chiều (~260ms) + Tối giản */
+:root,
+.jp-page,
+.jp-study {
+  --jp-c-purple-900: #260b5c;
+  --jp-c-purple-500: #5521b5;
+  --jp-c-purple-100: #e3d6ff;
+  --jp-c-indigo-900: #1d145c;
+  --jp-c-indigo-500: #3f30b8;
+  --jp-c-indigo-100: #dcdafa;
+  --jp-c-mauve-900: #3d0d66;
+  --jp-c-mauve-500: #7222b8;
+  --jp-c-mauve-100: #ebd6ff;
+  --jp-c-teal-900: #134e4a;
+  --jp-c-teal-500: #0d9488;
+  --jp-c-teal-100: #f0fdfa;
+  --jp-c-sky-900: #0c4a6e;
+  --jp-c-sky-500: #0284c7;
+  --jp-c-sky-100: #f0f9ff;
+  --jp-c-mint-900: #14532d;
+  --jp-c-mint-500: #15803d;
+  --jp-c-mint-100: #f0fdf4;
+  --jp-c-coral-900: #7f1d1d;
+  --jp-c-coral-500: #dc2626;
+  --jp-c-coral-100: #fef2f2;
+  --jp-c-peach-900: #78350f;
+  --jp-c-peach-500: #d97706;
+  --jp-c-peach-100: #fffbeb;
+  --jp-c-slate-900: #0f172a;
+  --jp-c-slate-500: #64748b;
+  --jp-c-slate-100: #f8fafc;
+  --jp-white: #ffffff;
+
+  --jp-study-surface: var(--jp-white);
+  --jp-study-ink: var(--jp-c-slate-900);
+  --jp-study-muted: var(--jp-c-slate-500);
+  --jp-study-line: color-mix(in srgb, var(--jp-c-slate-500) 22%, var(--jp-c-slate-100));
+  --jp-study-done-bg: var(--jp-c-purple-500);
+  --jp-study-active-bg: var(--jp-c-purple-500);
+  --jp-study-active-halo: color-mix(in srgb, var(--jp-c-purple-500) 20%, transparent);
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-study,
+html.dark .jp-study {
+  --jp-c-purple-900: #e9d5ff;
+  --jp-c-purple-500: #a78bfa;
+  --jp-c-purple-100: #2e1d59;
+  --jp-c-indigo-900: #e0e7ff;
+  --jp-c-indigo-500: #818cf8;
+  --jp-c-indigo-100: #1e224d;
+  --jp-c-mauve-900: #f5d0fe;
+  --jp-c-mauve-500: #e879f9;
+  --jp-c-mauve-100: #3b1c47;
+  --jp-c-teal-900: #ccfbf1;
+  --jp-c-teal-500: #2dd4bf;
+  --jp-c-teal-100: #133638;
+  --jp-c-sky-900: #e0f2fe;
+  --jp-c-sky-500: #38bdf8;
+  --jp-c-sky-100: #132d46;
+  --jp-c-mint-900: #dcfce7;
+  --jp-c-mint-500: #4ade80;
+  --jp-c-mint-100: #143524;
+  --jp-c-coral-900: #fee2e2;
+  --jp-c-coral-500: #f87171;
+  --jp-c-coral-100: #3f1d28;
+  --jp-c-peach-900: #fef3c7;
+  --jp-c-peach-500: #fbbf24;
+  --jp-c-peach-100: #3d2c19;
+  --jp-c-slate-900: #f1f5f9;
+  --jp-c-slate-500: #94a3b8;
+  --jp-c-slate-100: #1e293b;
+  --jp-white: #181528;
+
+  --jp-study-surface: var(--jp-c-slate-100);
+  --jp-study-ink: var(--jp-c-slate-900);
+  --jp-study-muted: var(--jp-c-slate-500);
+  --jp-study-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]):not(.light),
+  html:not([data-theme="light"]):not(.light) .jp-page,
+  html:not([data-theme="light"]):not(.light) .jp-study {
+    --jp-c-purple-900: #e9d5ff;
+    --jp-c-purple-500: #a78bfa;
+    --jp-c-purple-100: #2e1d59;
+    --jp-c-indigo-900: #e0e7ff;
+    --jp-c-indigo-500: #818cf8;
+    --jp-c-indigo-100: #1e224d;
+    --jp-c-mauve-900: #f5d0fe;
+    --jp-c-mauve-500: #e879f9;
+    --jp-c-mauve-100: #3b1c47;
+    --jp-c-teal-900: #ccfbf1;
+    --jp-c-teal-500: #2dd4bf;
+    --jp-c-teal-100: #133638;
+    --jp-c-sky-900: #e0f2fe;
+    --jp-c-sky-500: #38bdf8;
+    --jp-c-sky-100: #132d46;
+    --jp-c-mint-900: #dcfce7;
+    --jp-c-mint-500: #4ade80;
+    --jp-c-mint-100: #143524;
+    --jp-c-coral-900: #fee2e2;
+    --jp-c-coral-500: #f87171;
+    --jp-c-coral-100: #3f1d28;
+    --jp-c-peach-900: #fef3c7;
+    --jp-c-peach-500: #fbbf24;
+    --jp-c-peach-100: #3d2c19;
+    --jp-c-slate-900: #f1f5f9;
+    --jp-c-slate-500: #94a3b8;
+    --jp-c-slate-100: #1e293b;
+    --jp-white: #181528;
+
+    --jp-study-surface: var(--jp-c-slate-100);
+    --jp-study-ink: var(--jp-c-slate-900);
+    --jp-study-muted: var(--jp-c-slate-500);
+    --jp-study-line: color-mix(in srgb, var(--jp-c-slate-500) 28%, var(--jp-c-slate-100));
+  }
+}
+
+.jp-study-steps,
+.jp-study-card,
+.jp-study-mascot__bubble,
+.jp-rate {
+  transition:
+    background-color .6s ease,
+    background .6s ease,
+    color .6s ease,
+    border-color .6s ease,
+    box-shadow .6s ease,
+    transform .15s ease;
+}
+
+/* Kitsu companion on Study card (kept as-is, clean flat speech bubble) */
+.jp-study-mascot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+.jp-study-mascot__img {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  object-fit: contain;
+}
+.jp-study-mascot__bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border: 1px solid var(--jp-study-line);
+  border-radius: 12px 12px 12px 4px;
+  background: var(--jp-study-surface);
+  color: var(--jp-study-ink);
+  font-size: .82em;
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+}
+.jp-study-mascot__bubble::after {
+  content: attr(data-speech);
+}
+.jp-study-mascot--ok .jp-study-mascot__bubble {
+  border-color: var(--jp-c-mint-500);
+  background: var(--jp-c-mint-100);
+  color: var(--jp-c-mint-900);
+}
+.jp-study-mascot--bad .jp-study-mascot__bubble {
+  border-color: var(--jp-c-coral-500);
+  background: var(--jp-c-coral-100);
+  color: var(--jp-c-coral-900);
+}
+
+/* Clean step bar */
+.jp-study-steps__line .jp-step--done {
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 40%, var(--jp-study-line));
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+}
+.jp-study-steps__line .jp-step--done .jp-step__dot {
+  border-color: var(--jp-c-purple-500);
+  background: var(--jp-c-purple-500);
+  color: var(--jp-white);
+  box-shadow: none;
+}
+.jp-study-steps__line .jp-step--done .jp-step__count {
+  background: var(--jp-study-surface);
+  color: var(--jp-c-purple-900);
+}
+.jp-study-steps__line .jp-step-sep--done {
+  background: var(--jp-c-purple-500);
+}
+.jp-study-steps__line .jp-step--active .jp-step__dot {
+  border-color: var(--jp-c-purple-500);
+  background: var(--jp-c-purple-500);
+  color: var(--jp-white);
+  box-shadow: 0 0 0 3px var(--jp-study-active-halo);
+}
+
+/* Study Card — Clean surface + Per-type top accent + Two-way 3D flip (~260ms) */
+.jp-study-main {
+  perspective: 1100px;
+}
+.jp-study-card {
+  background: var(--jp-study-surface);
+  color: var(--jp-study-ink);
+  border: 1px solid var(--jp-study-line);
+  border-top: 1px solid var(--jp-c-purple-500);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+.jp-study-card--type-vocab { border-top-color: var(--jp-c-indigo-500); }
+.jp-study-card--type-kanji { border-top-color: var(--jp-c-mauve-500); }
+.jp-study-card--type-grammar { border-top-color: var(--jp-c-teal-500); }
+.jp-study-card--type-kana { border-top-color: var(--jp-c-purple-500); }
+
+.jp-study-card[data-jp-flippable="true"] {
+  cursor: pointer;
+}
+.jp-study-card[data-flip-anim="to-back"] {
+  animation: jpStudyFlipToBack 260ms cubic-bezier(.22, .85, .32, 1) 1 both;
+}
+.jp-study-card[data-flip-anim="to-front"] {
+  animation: jpStudyFlipToFront 260ms cubic-bezier(.22, .85, .32, 1) 1 both;
+}
+@keyframes jpStudyFlipToBack {
+  0% { transform: rotateY(-88deg) scale(.98); opacity: .55; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+@keyframes jpStudyFlipToFront {
+  0% { transform: rotateY(88deg) scale(.98); opacity: .55; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
+.jp-study-flip-cue {
+  cursor: pointer;
+}
+.jp-study-flip-cue__icon,
+.jp-i--morph-flip {
+  transition: transform .22s ease;
+}
+.jp-study-flip-cue:hover .jp-study-flip-cue__icon,
+.jp-rate--flip:hover .jp-i--morph-flip {
+  transform: rotate(180deg);
+}
+
+/* Rating buttons & two-way flip bar (clean, flat, harmonious colors) */
+.jp-rate-stack {
+  display: grid;
+  gap: 8px;
+}
+.jp-rate {
+  border: 1px solid var(--jp-study-line);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.jp-rate:hover:not([disabled]) {
+  transform: translateY(-1px);
+}
+.jp-rate:active:not([disabled]) {
+  transform: translateY(0);
+}
+.jp-rate--remembered,
+.jp-rate--good {
+  border-color: var(--jp-c-mint-500);
+  background: var(--jp-c-mint-100);
+  color: var(--jp-c-mint-900);
+}
+.jp-rate--forgot {
+  border-color: var(--jp-c-coral-500);
+  background: var(--jp-c-coral-100);
+  color: var(--jp-c-coral-900);
+}
+.jp-rate--hard {
+  border-color: var(--jp-c-peach-500);
+  background: var(--jp-c-peach-100);
+  color: var(--jp-c-peach-900);
+}
+.jp-rate--easy {
+  border-color: var(--jp-c-purple-500);
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+}
+.jp-rate--flip,
+.jp-rate--next {
+  flex-direction: row;
+  gap: 7px;
+  border-color: var(--jp-c-purple-500);
+  background: var(--jp-c-purple-500);
+  color: var(--jp-white);
+}
+.jp-rate-bar--flip-inline .jp-rate--flip {
+  min-height: 38px;
+  padding: 6px 14px;
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 40%, var(--jp-study-line));
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-size: .88rem;
+}
+
+@media (max-width: 640px) {
+  .jp-study-mascot__img { width: 44px; height: 44px; flex-basis: 44px; }
+  .jp-study-mascot__bubble { font-size: .76em; padding: 5px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-card[data-flip-anim="to-back"],
+  .jp-study-card[data-flip-anim="to-front"] {
+    animation: none !important;
+  }
+  .jp-study-steps,
+  .jp-study-card,
+  .jp-study-mascot__bubble,
+  .jp-rate,
+  .jp-study-flip-cue__icon,
+  .jp-i--morph-flip {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* 06/11 Lượt 6: Thẻ học vừa một màn hình (~760px), 2 cột Ví dụ & Mẹo nhớ không viền, nút đánh giá dính đáy, Kitsu động */
+.jp-study {
+  padding-top: 8px;
+  padding-bottom: 12px;
+}
+.jp-study-top {
+  margin-bottom: 6px;
+}
+/* Thanh bước "Ôn → Từ mới → Kanji → Ngữ pháp" thu gọn 1 hàng thấp */
+.jp-study-steps {
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+}
+.jp-study-steps__line {
+  gap: 4px;
+}
+.jp-step {
+  padding: 4px 10px;
+  font-size: .82rem;
+}
+.jp-step__dot {
+  width: 20px;
+  height: 20px;
+  font-size: .72rem;
+}
+
+/* Kitsu động ở góc thẻ học + bộ nút Phát / Furigana / Romaji / A- A A+ gom thành 1 hàng nhỏ */
+.jp-study-card {
+  padding: 12px 18px 14px;
+}
+.jp-study-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 6px;
+}
+.jp-study-mascot__img {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  animation: jp-kitsu-bob 2.6s ease-in-out infinite;
+}
+.jp-study-mascot--ok .jp-study-mascot__img {
+  animation: jp-kitsu-cheer .55s ease-out 1, jp-kitsu-bob 2.6s ease-in-out .55s infinite;
+}
+.jp-study-tools {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.jp-study-tools .jp-display-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Mặt thẻ gọn: chữ chính, cách đọc, nghĩa ở trên; Ví dụ & Mẹo nhớ 2 cột cạnh nhau ở màn hình rộng */
+.jp-study-face {
+  min-height: 140px;
+  padding: 6px 4px 4px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 18px;
+  align-items: start;
+}
+.jp-study-face > :not(.jp-study-examples):not(.jp-mnemonic):not(.jp-study-compounds):not(.jp-study-confusables) {
+  grid-column: 1 / -1;
+}
+.jp-study-face > .jp-study-examples,
+.jp-study-face > .jp-mnemonic,
+.jp-study-face > .jp-study-compounds,
+.jp-study-face > .jp-study-confusables {
+  grid-column: span 1;
+  text-align: left;
+  border-top: 1px solid var(--jp-study-line) !important;
+  padding-top: 6px !important;
+  margin-top: 4px !important;
+  max-height: 165px;
+  overflow-y: auto;
+}
+.jp-study-core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+}
+.jp-study-word {
+  font-size: clamp(1.65rem, 2.6vw, 2.25rem);
+  line-height: 1.2;
+  margin: 0;
+}
+.jp-study-glyph {
+  font-size: clamp(2.2rem, 3.6vw, 3rem);
+  line-height: 1.15;
+  margin: 0;
+}
+.jp-study-reading {
+  font-size: 1.05rem;
+  line-height: 1.25;
+  margin: 0;
+}
+.jp-study-meaning {
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 2px 0 0;
+}
+
+/* Ví dụ và Mẹo nhớ đặt cạnh nhau thành 2 cột ở màn hình rộng, bỏ khung viền, chỉ dùng tiêu đề nhỏ */
+.jp-study-extras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 18px;
+  align-items: start;
+  text-align: left;
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--jp-study-line);
+  max-height: 175px;
+  overflow-y: auto;
+}
+.jp-study-extras .jp-study-examples,
+.jp-study-extras .jp-mnemonic,
+.jp-study-extras .jp-study-compounds,
+.jp-study-extras .jp-study-confusables,
+.jp-study-examples,
+.jp-mnemonic {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.jp-study-extras summary,
+.jp-study-examples > summary,
+.jp-mnemonic > summary,
+.jp-study-compounds > summary,
+.jp-study-confusables > summary,
+.jp-study-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 36%, var(--jp-study-line));
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+.jp-study-extras summary::-webkit-details-marker,
+.jp-study-examples > summary::-webkit-details-marker,
+.jp-mnemonic > summary::-webkit-details-marker,
+.jp-study-compounds > summary::-webkit-details-marker,
+.jp-study-confusables > summary::-webkit-details-marker,
+.jp-study-more > summary::-webkit-details-marker {
+  display: none;
+}
+.jp-study-extras summary:hover,
+.jp-study-examples > summary:hover,
+.jp-mnemonic > summary:hover,
+.jp-study-compounds > summary:hover,
+.jp-study-confusables > summary:hover,
+.jp-study-more > summary:hover {
+  border-color: var(--jp-c-purple-500);
+  background: color-mix(in srgb, var(--jp-c-purple-500) 15%, var(--jp-c-purple-100));
+  transform: translateY(-1px);
+}
+.jp-study-extras details > summary::after,
+.jp-study-examples > summary::after,
+.jp-mnemonic > summary::after,
+.jp-study-compounds > summary::after,
+.jp-study-confusables > summary::after,
+.jp-study-more > summary::after {
+  content: "Bấm xem ▾";
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--jp-c-purple-500);
+  padding-left: 6px;
+  border-left: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 28%, transparent);
+}
+.jp-study-extras details[open] > summary,
+.jp-study-examples[open] > summary,
+.jp-mnemonic[open] > summary,
+.jp-study-compounds[open] > summary,
+.jp-study-confusables[open] > summary,
+.jp-study-more[open] > summary {
+  border-color: var(--jp-c-purple-500);
+  background: color-mix(in srgb, var(--jp-c-purple-500) 16%, var(--jp-c-purple-100));
+}
+.jp-study-extras details[open] > summary::after,
+.jp-study-examples[open] > summary::after,
+.jp-mnemonic[open] > summary::after,
+.jp-study-compounds[open] > summary::after,
+.jp-study-confusables[open] > summary::after,
+.jp-study-more[open] > summary::after {
+  content: "Thu gọn ▴";
+}
+.jp-study-extras .jp-ex {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: 0;
+  border-left: 1px solid var(--jp-c-purple-500);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--jp-c-purple-100) 45%, var(--jp-study-surface));
+  font-size: .88rem;
+  line-height: 1.38;
+}
+.jp-study-extras .jp-mnemonic p {
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  border-left: 1px solid var(--jp-c-peach-500);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--jp-c-peach-100) 55%, var(--jp-study-surface));
+  font-size: .86rem;
+  line-height: 1.38;
+}
+
+/* Nút đánh giá (Chưa nhớ / Nhớ rồi…) dính ở đáy khung nhìn để luôn thấy mà không cần cuộn */
+.jp-rate-stack,
+.jp-study > [data-jp-rates],
+.jp-rate-bar {
+  position: sticky;
+  bottom: 8px;
+  z-index: 30;
+}
+.jp-rate-stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--jp-study-surface) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+.jp-rate-stack > .jp-rate-bar--flip-inline {
+  position: static;
+  flex: 0 0 auto;
+  margin: 0;
+}
+.jp-rate-stack > .jp-rate-bar--two,
+.jp-rate-stack > .jp-rate-bar--four {
+  position: static;
+  flex: 1 1 320px;
+  margin: 0;
+}
+.jp-rate {
+  min-height: 44px;
+  padding: 6px 12px;
+}
+.jp-study-skip {
+  margin: 4px 0 0;
+  font-size: .8rem;
+}
+
+@keyframes jp-kitsu-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes jp-kitsu-cheer {
+  0% { transform: scale(.9); }
+  60% { transform: scale(1.08) translateY(-3px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .jp-study-extras {
+    grid-template-columns: minmax(0, 1fr);
+    max-height: none;
+  }
+  .jp-rate-stack {
+    bottom: var(--jlab-mobile-bottom, 6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-mascot__img {
+    animation: none !important;
+  }
+}
+
+/* 06/11 Lượt 7: Tinh chỉnh thẻ học vừa vặn, bỏ phối xanh thô, gọn thanh công cụ & không chồng nút báo cáo */
+.jp-study {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: 10px;
+  padding-bottom: 18px;
+}
+
+/* Bật lại hiệu ứng lật 3D thẻ học (Task 4), tự động tắt khi prefers-reduced-motion: reduce */
+.jp-study-main {
+  perspective: 1100px;
+}
+.jp-study-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jp-study-main {
+    perspective: none !important;
+  }
+  .jp-study-card,
+  .jp-study-card[data-flip-anim],
+  .jp-study-card[data-flip-anim="to-back"],
+  .jp-study-card[data-flip-anim="to-front"] {
+    animation: none !important;
+    transform: none !important;
+    transform-style: flat !important;
+  }
+}
+
+/* Phối màu mặt sau đồng bộ tím dịu / theo loại mục, bỏ hoàn toàn viền và nhãn xanh đậm thô */
+.jp-study-card,
+.jp-study-card--front,
+.jp-study-card--flipped,
+.jp-study-card--review.jp-study-card--flipped {
+  background: var(--jp-study-surface);
+  border: 1px solid var(--jp-study-line);
+  border-top: 1px solid var(--jp-c-purple-500);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px -8px rgb(74 55 122 / 10%), 0 2px 6px rgb(15 23 42 / 4%);
+}
+.jp-study-card--type-vocab,
+.jp-study-card--type-vocab.jp-study-card--flipped,
+.jp-study-card--review.jp-study-card--type-vocab.jp-study-card--flipped {
+  border-top-color: var(--jp-c-indigo-500);
+}
+.jp-study-card--type-kanji,
+.jp-study-card--type-kanji.jp-study-card--flipped,
+.jp-study-card--review.jp-study-card--type-kanji.jp-study-card--flipped {
+  border-top-color: var(--jp-c-mauve-500);
+}
+.jp-study-card--type-grammar,
+.jp-study-card--type-grammar.jp-study-card--flipped,
+.jp-study-card--review.jp-study-card--type-grammar.jp-study-card--flipped {
+  border-top-color: var(--jp-c-teal-500);
+}
+.jp-study-card--type-kana,
+.jp-study-card--type-kana.jp-study-card--flipped,
+.jp-study-card--review.jp-study-card--type-kana.jp-study-card--flipped {
+  border-top-color: var(--jp-c-purple-500);
+}
+
+.jp-study-progress > span {
+  background: var(--jp-c-purple-500);
+}
+
+.jp-study-mascot--flip .jp-study-mascot__bubble,
+.jp-study-mascot--ok .jp-study-mascot__bubble {
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 35%, var(--jp-study-line));
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+}
+
+/* Nhãn hướng dẫn lật thẻ ở đầu mặt thẻ — nhẹ nhàng, dễ đọc, không dùng xanh đậm */
+.jp-study-face-tag,
+.jp-study-face-tag--front,
+.jp-study-face-tag--back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  padding: 5px 14px;
+  border-radius: 6px;
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 28%, var(--jp-study-line));
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Làm gọn hàng nút công cụ (Phát âm, Furigana, Romaji, A-, A, A+) & chừa chỗ cho nút Báo sai (⚑) không đè lên A+ */
+.jp-study-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 10px;
+  min-height: 36px;
+  margin-bottom: 8px;
+  padding-right: 38px;
+}
+.jp-study-tools,
+.jp-study .jp-display-controls {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+.jp-study-tools {
+  margin-left: auto;
+}
+.jp-study-icon,
+.jp-study .jp-display-btn {
+  min-width: 32px;
+  min-height: 32px;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--jp-study-line);
+  border-radius: 8px;
+  background: var(--jp-study-surface);
+  color: var(--jp-study-ink);
+  font-size: .78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.jp-study-icon:hover,
+.jp-study .jp-display-btn:hover {
+  border-color: var(--jp-c-purple-500);
+  color: var(--jp-c-purple-900);
+}
+.jp-study .jp-display-btn[aria-pressed="true"] {
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 45%, var(--jp-study-line));
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+}
+.jp-study-card > .jp-report-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid var(--jp-study-line);
+  border-radius: 8px;
+  background: var(--jp-study-surface);
+  color: var(--jp-study-muted);
+  display: inline-grid;
+  place-items: center;
+  z-index: 2;
+}
+.jp-study-card > .jp-report-btn:hover {
+  border-color: var(--jp-c-coral-500);
+  background: var(--jp-c-coral-100);
+  color: var(--jp-c-coral-900);
+}
+
+/* Nút "Luyện viết" thu gọn vừa vặn ở giữa thẻ, không kéo dài hết chiều ngang */
+.jp-study-card > .jp-writing-btn,
+.jp-study .jp-writing-btn {
+  justify-self: center;
+  align-self: center;
+  width: auto;
+  min-height: 34px;
+  margin: 10px auto 0;
+  padding: 6px 20px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500) 36%, var(--jp-study-line));
+  background: var(--jp-c-purple-100);
+  color: var(--jp-c-purple-900);
+  font-size: .84rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+.jp-study-card > .jp-writing-btn:hover,
+.jp-study .jp-writing-btn:hover {
+  border-color: var(--jp-c-purple-500);
+  background: color-mix(in srgb, var(--jp-c-purple-500) 15%, var(--jp-c-purple-100));
+  transform: translateY(-1px);
+}
+
+/* === ROUND 7 UI POLISH === */
+/* Item 6: Daily step bar — remove circle around number, thin 1px pill, soft active state, 1px connector */
+.jp-study-steps__line .jp-step {
+  border: 1px solid var(--jp-study-line, var(--jp-line)) !important;
+  background: var(--jp-study-surface, var(--jp-surface)) !important;
+  font-weight: 400 !important;
+  padding: 4px 12px !important;
+  gap: 6px !important;
+  box-shadow: none !important;
+}
+
+.jp-study-steps__line .jp-step__dot {
+  width: auto !important;
+  height: auto !important;
+  flex: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jp-muted) !important;
+  font-size: .8rem !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+}
+
+.jp-study-steps__line .jp-step--active {
+  border: 1px solid color-mix(in srgb, var(--jp-c-purple-500, var(--jp-primary)) 32%, var(--jp-line)) !important;
+  background: var(--jp-c-purple-100, var(--jp-primary-soft)) !important;
+  color: var(--jp-c-purple-900, var(--jp-primary)) !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+.jp-study-steps__line .jp-step--active .jp-step__dot {
+  color: var(--jp-c-purple-900, var(--jp-primary)) !important;
+}
+
+.jp-study-steps__line .jp-step--done {
+  border: 1px solid color-mix(in srgb, var(--jp-c-green-600, var(--jp-ok)) 32%, var(--jp-line)) !important;
+  background: var(--jp-c-green-100, var(--jp-ok-soft)) !important;
+  color: var(--jp-c-green-900, var(--jp-ok)) !important;
+}
+
+.jp-study-steps__line .jp-step--done .jp-step__dot {
+  color: var(--jp-c-green-600, var(--jp-ok)) !important;
+}
+
+.jp-study-steps__line .jp-step-sep {
+  height: 1px !important;
+  width: 14px !important;
+  flex: 0 0 14px !important;
+  background: var(--jp-study-line, var(--jp-line)) !important;
+}
+
+html[data-theme="dark"] .jp-study-steps__line .jp-step--active,
+html.dark .jp-study-steps__line .jp-step--active {
+  background: color-mix(in srgb, var(--jp-primary) 18%, var(--jp-surface)) !important;
+  color: var(--jp-ink) !important;
+  border-color: color-mix(in srgb, var(--jp-primary) 45%, var(--jp-line)) !important;
+}
+
+/* === ROUND 8 STUDY POLISH === */
+/* Item 9: Widen study page container from 720px to 1000px */
+.jp-study {
+  max-width: 1000px !important;
+  width: 100% !important;
+  gap: 14px !important;
+}
+
+/* Item 7: Study card & steps border-radius 10px-12px; buttons/pills 6px-8px */
+.jp-study-steps {
+  border-radius: 10px !important;
+}
+.jp-study-step,
+.jp-study-step__count,
+.jp-study-flag,
+.jp-study-card .jp-chip {
+  border-radius: 6px !important;
+}
+.jp-study-card {
+  border-radius: 12px !important;
+  padding: 20px 26px 22px !important;
+  min-height: 290px !important;
+}
+.jp-rate,
+.jp-rate--flip,
+.jp-study-face .jp-rate--flip {
+  border-radius: 8px !important;
+}
+
+/* Item 2: Larger Kitsu mascot (76px) + speech bubble beside */
+.jp-study-mascot {
+  gap: 10px !important;
+}
+.jp-study-mascot__img {
+  width: 76px !important;
+  height: 76px !important;
+}
+.jp-study-mascot__bubble {
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+}
+
+/* Item 5: Hide redundant "MẶT TRƯỚC / MẶT SAU" pill badge on card face */
+.jp-study-face-tag {
+  display: none !important;
+}
+
+/* Item 12: Report flag sits inline inside .jp-study-tools right after A+, never overlapping A+ */
+.jp-study-card__top {
+  padding-right: 0 !important;
+  align-items: center !important;
+}
+.jp-study-tools {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-left: auto !important;
+}
+.jp-study-tools .jp-report-btn,
+.jp-study-card .jp-report-btn--inline {
+  position: static !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--jp-line) !important;
+  border-radius: 8px !important;
+  background: var(--jp-surface) !important;
+  color: var(--jp-muted) !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+}
+.jp-study-icon,
+.jp-study .jp-display-btn {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  height: 40px !important;
+}
+.jp-study-tools .jp-report-btn:hover,
+.jp-study-card .jp-report-btn--inline:hover {
+  border-color: var(--jp-primary) !important;
+  color: var(--jp-primary) !important;
+  background: var(--jp-primary-soft) !important;
+}
+
+/* Item 6: Kanji On & Kun readings displayed directly with small labels + stroke count on same line */
+.jp-study-readings {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 8px 18px !important;
+  margin-top: 4px !important;
+  font-size: 1.25rem !important;
+}
+.jp-study-reading-group {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.jp-study-reading-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--jp-line);
+  background: var(--jp-canvas);
+  color: var(--jp-muted);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  line-height: 1.35;
+}
+.jp-study-strokes {
+  font-size: .85rem;
+  font-weight: 400;
+  color: var(--jp-muted);
+}
+
+/* Item 8: Uniform alignment for "Từ ghép · Ví dụ · Mẹo nhớ · Luyện viết" on card back */
+.jp-study-card--front > .jp-writing-btn {
+  display: none !important;
+}
+.jp-study-extras {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 760px !important;
+  margin: 12px auto 0 !important;
+  padding-top: 12px !important;
+  border-top: 1px solid var(--jp-line) !important;
+}
+.jp-study-extras > details {
+  margin: 0 !important;
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+.jp-study-extras > details > summary,
+.jp-study-extras > .jp-writing-btn,
+.jp-study-card > .jp-writing-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  width: auto !important;
+  border: 1px solid var(--jp-line) !important;
+  border-radius: 8px !important;
+  background: var(--jp-surface) !important;
+  color: var(--jp-ink) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  list-style: none !important;
+}
+.jp-study-extras > details > summary::-webkit-details-marker {
+  display: none !important;
+}
+.jp-study-extras > details > summary:hover,
+.jp-study-extras > .jp-writing-btn:hover,
+.jp-study-card > .jp-writing-btn:hover {
+  border-color: var(--jp-primary) !important;
+  color: var(--jp-primary) !important;
+  background: var(--jp-primary-soft) !important;
+}
+.jp-study-extras > details[open] {
+  flex-basis: 100% !important;
+  border: 1px solid var(--jp-line) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  background: var(--jp-canvas) !important;
+  text-align: left !important;
+}
+.jp-study-extras > details[open] > summary {
+  margin-bottom: 8px !important;
+  border-color: var(--jp-primary) !important;
+  color: var(--jp-primary) !important;
+  background: var(--jp-primary-soft) !important;
+}
+
+/* === ROUND 8 VIVID PURPLE BOOST === */
+:root,
+.jp-page,
+.jp-path,
+.jp-study,
+.jp-check,
+.jp-check-page,
+.cp-page {
+  --jp-c-purple-900: #260b5c !important;
+  --jp-c-purple-500: #5521b5 !important;
+  --jp-c-purple-100: #e3d6ff !important;
+
+  --jp-c-indigo-900: #1d145c !important;
+  --jp-c-indigo-500: #3f30b8 !important;
+  --jp-c-indigo-100: #dcdafa !important;
+
+  --jp-c-mauve-900: #3d0d66 !important;
+  --jp-c-mauve-500: #7222b8 !important;
+  --jp-c-mauve-100: #ebd6ff !important;
+
+  --jp-primary: #5521b5 !important;
+  --jp-primary-soft: #e3d6ff !important;
+  --cp-done: #5521b5 !important;
+  --cp-done-soft: #d9c7ff !important;
+  --cp-done-ring: rgba(85, 33, 181, 0.42) !important;
+}
+
+html[data-theme="dark"],
+html.dark,
+html[data-theme="dark"] .jp-page,
+html.dark .jp-page,
+html[data-theme="dark"] .jp-path,
+html.dark .jp-path,
+html[data-theme="dark"] .jp-study,
+html.dark .jp-study,
+html[data-theme="dark"] .jp-check,
+html.dark .jp-check,
+html[data-theme="dark"] .cp-page,
+html.dark .cp-page {
+  --jp-c-slate-900: var(--text, #f5eef8) !important;
+  --jp-c-slate-500: var(--muted, #d9c9df) !important;
+  --jp-c-slate-100: var(--surface, #2e2035) !important;
+  --jp-white: var(--surface, #2e2035) !important;
+
+  --jp-study-surface: var(--surface, #2e2035) !important;
+  --jp-study-ink: var(--text, #f5eef8) !important;
+  --jp-study-muted: var(--muted, #d9c9df) !important;
+  --jp-study-line: var(--border, #563a5e) !important;
+
+  --jp-c-purple-900: var(--text, #f5eef8) !important;
+  --jp-c-purple-500: #b37cf5 !important;
+  --jp-c-purple-100: var(--surface-2, #382840) !important;
+
+  --jp-c-indigo-900: #e9d8fd !important;
+  --jp-c-indigo-500: #9f7aea !important;
+  --jp-c-indigo-100: #332348 !important;
+
+  --jp-c-mauve-900: #fae8ff !important;
+  --jp-c-mauve-500: #d69ef8 !important;
+  --jp-c-mauve-100: #3d2449 !important;
+
+  --jp-primary: #b37cf5 !important;
+  --jp-primary-soft: var(--surface-2, #382840) !important;
+  --cp-done: #b37cf5 !important;
+  --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
+}

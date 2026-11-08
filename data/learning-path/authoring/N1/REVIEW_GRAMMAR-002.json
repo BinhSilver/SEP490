@@ -1,0 +1,1635 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "夏の音楽祭を皮切りに、各地でイベントが続いた。",
+       "ja_furigana": "夏(なつ)の音楽祭(おんがくさい)を皮切(かわき)りに、各地(かくち)でイベントが続(つづ)いた。",
+       "vi": "Mở đầu bằng lễ hội âm nhạc mùa hè, các sự kiện nối tiếp nhau khắp nơi."
+      },
+      {
+       "ja": "一号店の開店を皮切りに、その会社は全国に店舗を広げていった。",
+       "ja_furigana": "一号店(いちごうてん)の開店(かいてん)を皮切(かわき)りに、その会社(かいしゃ)は全国(ぜんこく)に店舗(てんぽ)を広(ひろ)げていった。",
+       "source": "AI",
+       "vi": "Bắt đầu từ việc khai trương cửa hàng đầu tiên, công ty đó đã mở rộng mạng lưới cửa hàng ra toàn quốc."
+      },
+      {
+       "ja": "部長の発言を皮切りに、会議では反対意見が次々と出された。",
+       "ja_furigana": "部長(ぶちょう)の発言(はつげん)を皮切(かわき)りに、会議(かいぎ)では反対意見(はんたいいけん)が次々(つぎつぎ)と出(だ)された。",
+       "source": "AI",
+       "vi": "Mở đầu bằng phát biểu của trưởng phòng, trong cuộc họp các ý kiến phản đối lần lượt được đưa ra."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng cho chuỗi việc nhỏ đời thường (sai: 朝ご飯を皮切りに歯を磨いた). Khác をきっかけに (nguyên nhân dẫn tới thay đổi), を皮切りに nhấn mạnh điểm xuất phát của một loạt sự việc cùng loại nối tiếp nhau.",
+    "examples": [
+     {
+      "ja": "東京公演を皮切りに、全国ツアーが始まった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "一号店の開店を皮切りに、その会社は全国に店舗を広げていった。",
+      "ja_furigana": "一号店(いちごうてん)の開店(かいてん)を皮切(かわき)りに、その会社(かいしゃ)は全国(ぜんこく)に店舗(てんぽ)を広(ひろ)げていった。",
+      "source": "AI",
+      "vi": "Bắt đầu từ việc khai trương cửa hàng đầu tiên, công ty đó đã mở rộng mạng lưới cửa hàng ra toàn quốc."
+     },
+     {
+      "ja": "部長の発言を皮切りに、会議では反対意見が次々と出された。",
+      "ja_furigana": "部長(ぶちょう)の発言(はつげん)を皮切(かわき)りに、会議(かいぎ)では反対意見(はんたいいけん)が次々(つぎつぎ)と出(だ)された。",
+      "source": "AI",
+      "vi": "Mở đầu bằng phát biểu của trưởng phòng, trong cuộc họp các ý kiến phản đối lần lượt được đưa ra."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 東京公演を皮切りに、全国ツアーが始まった。",
+     "FURIGANA_MISSING: 東京公演を皮切りに、全国ツアーが始まった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を皮切りに; N + を皮切りにして; N + を皮切りとして",
+    "locked_fields": [],
+    "meaning_vi": "Mở đầu bằng rồi lan ra — Bắt đầu từ một điểm rồi phát triển rộng liên tiếp.",
+    "nuance_vi": "Hơi trang trọng, hay dùng trong tin tức và kinh doanh; nhấn mạnh một khởi đầu kéo theo chuỗi sự việc cùng loại phát triển mạnh.",
+    "order_items": [],
+    "pattern": "を皮切(かわき)りに",
+    "pattern_variants": [
+     "N + を皮切りに",
+     "〜を皮切りに/にして/として"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau phải là chuỗi việc nối tiếp nhau. Dạng khác を皮切りとして."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-10deccaf9a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この試合を限りに、彼はサッカー選手を引退する。",
+       "ja_furigana": "この試合(しあい)を限(かぎ)りに、彼(かれ)はサッカー選手(せんしゅ)を引退(いんたい)する。",
+       "vi": "Sau trận đấu này, anh ấy sẽ giải nghệ cầu thủ bóng đá."
+      },
+      {
+       "ja": "今シーズンを限りに、現役を引退することにしました。",
+       "ja_furigana": "今(こん)シーズンを限(かぎ)りに、現役(げんえき)を引退(いんたい)することにしました。",
+       "source": "AI",
+       "vi": "Tôi đã quyết định giải nghệ sau mùa giải này."
+      },
+      {
+       "ja": "長年続いたこの番組も、今月を限りに放送を終える。",
+       "ja_furigana": "長年(ながねん)続(つづ)いたこの番組(ばんぐみ)も、今月(こんげつ)を限(かぎ)りに放送(ほうそう)を終(お)える。",
+       "source": "AI",
+       "vi": "Chương trình đã kéo dài nhiều năm này cũng sẽ dừng phát sóng sau tháng này."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hay nhầm với をもって: をもって dùng cho thông báo chính thức mang tính thủ tục, còn を限りに thường kèm cảm xúc, quyết tâm hay sự tiếc nuối. Riêng 声を限りに là thành ngữ nghĩa 'gào hết cỡ', không mang nghĩa chấm dứt.",
+    "examples": [
+     {
+      "ja": "今日を限りにたばこをやめる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今シーズンを限りに、現役を引退することにしました。",
+      "ja_furigana": "今(こん)シーズンを限(かぎ)りに、現役(げんえき)を引退(いんたい)することにしました。",
+      "source": "AI",
+      "vi": "Tôi đã quyết định giải nghệ sau mùa giải này."
+     },
+     {
+      "ja": "長年続いたこの番組も、今月を限りに放送を終える。",
+      "ja_furigana": "長年(ながねん)続(つづ)いたこの番組(ばんぐみ)も、今月(こんげつ)を限(かぎ)りに放送(ほうそう)を終(お)える。",
+      "source": "AI",
+      "vi": "Chương trình đã kéo dài nhiều năm này cũng sẽ dừng phát sóng sau tháng này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 今日を限りにたばこをやめる。",
+     "FURIGANA_MISSING: 今日を限りにたばこをやめる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を限りに",
+    "locked_fields": [],
+    "meaning_vi": "Kể từ là chấm dứt — Lấy mốc đó làm điểm kết thúc.",
+    "nuance_vi": "Hơi trang trọng; thường dùng khi tuyên bố chấm dứt một thói quen hay hoạt động kéo dài, đi với mốc như 今日, 今回, 今年度.",
+    "order_items": [],
+    "pattern": "を限(かぎ)りに",
+    "pattern_variants": [
+     "N + を限りに",
+     "〜を限りに"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Hay gặp: 今日を限りに, 本日を限りに. Vế sau là việc chấm dứt."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-10d430534e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "試験の結果は、前回にもまして良くなっていた。",
+       "ja_furigana": "試験(しけん)の結果(けっか)は、前回(ぜんかい)にもまして良(よ)くなっていた。",
+       "vi": "Kết quả bài thi còn tốt hơn cả lần trước."
+      },
+      {
+       "ja": "今年の花火は、例年にもまして見事だった。",
+       "ja_furigana": "今年(ことし)の花火(はなび)は、例年(れいねん)にもまして見事(みごと)だった。",
+       "vi": "Pháo hoa năm nay đẹp hơn cả mọi năm."
+      },
+      {
+       "ja": "母にとっては、何にもまして家族の健康が大切だった。",
+       "ja_furigana": "母(はは)にとっては、何(なに)にもまして家族(かぞく)の健康(けんこう)が大切(たいせつ)だった。",
+       "source": "AI",
+       "vi": "Đối với mẹ tôi, sức khỏe của gia đình là quan trọng hơn bất cứ điều gì."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「にもまして」: N + にもまして nghĩa là 'còn hơn cả', hàm ý năm ngoái vốn đã nóng. Nghĩa: Mùa hè năm nay những ngày nóng bức còn kéo dài hơn cả năm ngoái.",
+      "options": [
+       "をよそに",
+       "をもって",
+       "にもまして",
+       "に至っては"
+      ],
+      "prompt_ja": "今年の夏は、去年（　　）暑い日が続いている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「にもまして」: 何にもまして là 'hơn bất cứ điều gì'. Nghĩa: Cô ấy coi trọng thời gian ở bên gia đình hơn bất cứ điều gì.",
+      "options": [
+       "にもまして",
+       "をよそに",
+       "に至るまで",
+       "ともなると"
+      ],
+      "prompt_ja": "彼女は、何（　　）家族と過ごす時間を大切にしている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 試験が近づき、弟は以前にもまして熱心に勉強するようになった。 (Kỳ thi đến gần, em trai tôi đã chăm học hơn cả trước kia.). Mảnh ở ô ★ là 「熱心に」.",
+      "options": [
+       "勉強する",
+       "以前",
+       "熱心に",
+       "にもまして"
+      ],
+      "prompt_ja": "試験が近づき、弟は＿＿ ＿＿ ★ ＿＿ようになった。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 仕事のことにもまして心配なのは、母の体調だ。 (Điều tôi lo lắng còn hơn cả chuyện công việc là sức khỏe của mẹ.). Mảnh ở ô ★ là 「の」.",
+      "options": [
+       "の",
+       "こと",
+       "仕事",
+       "にもまして"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿心配なのは、母の体調だ。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu にもまして (còn hơn cả): \"Trưởng phòng mới còn nghiêm khắc hơn cả trưởng phòng cũ.\"",
+      "options": [
+       "Trưởng phòng mới không nghiêm khắc bằng trưởng phòng cũ.",
+       "Trưởng phòng mới nghiêm khắc giống hệt trưởng phòng cũ.",
+       "Trưởng phòng cũ đã rất nghiêm khắc với trưởng phòng mới.",
+       "Trưởng phòng mới còn nghiêm khắc hơn cả trưởng phòng cũ."
+      ],
+      "prompt_ja": "新しい部長は、前の部長にもまして厳しい。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu にもまして (còn hơn cả, vốn đã cao): \"Kỳ thi lần này còn khó hơn cả lần trước.\"",
+      "options": [
+       "Kỳ thi lần này dễ hơn lần trước.",
+       "Kỳ thi lần này còn khó hơn cả lần trước.",
+       "Kỳ thi lần này khó ngang lần trước.",
+       "Lần trước tôi đã trượt vì đề quá khó."
+      ],
+      "prompt_ja": "今回の試験は、前回にもまして難しかった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「今年の冬は、去年をもまして寒い。」 sai: mẫu là N + にもまして, không dùng を. Câu đúng: 今年の冬は、去年にもまして寒い。",
+      "options": [
+       "台風の後、町は以前にもましてにぎやかになった。",
+       "今年の冬は、去年をもまして寒い。",
+       "何にもまして、健康が一番大切だ。",
+       "新しい商品は、前の商品にもまして売れている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「この町は、以前にもましての静かになった。」 sai: にもまして bổ nghĩa trực tiếp cho tính từ, động từ phía sau, không thêm の. Câu đúng: この町は、以前にもまして静かになった。",
+      "options": [
+       "彼の演奏は、以前にもまして力強くなった。",
+       "引っ越してから、母は前にもまして元気になった。",
+       "今回の旅行は、何にもまして食事が楽しみだ。",
+       "この町は、以前にもましての静かになった。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hay dùng như より để so sánh hai thứ bất kỳ; にもまして hàm ý vế được so sánh vốn đã ở mức cao (前回にもまして難しい = lần trước đã khó, lần này còn khó hơn). Dạng 何にもまして nghĩa là 'hơn tất cả', đừng hiểu thành 'không có gì'.",
+    "examples": [
+     {
+      "ja": "猛暑の今年は昨年にもまして食中毒が多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Năm nay nóng gay gắt nên số vụ ngộ độc thực phẩm còn nhiều hơn năm ngoái."
+     },
+     {
+      "ja": "ここ5年ほどの技術革新のスピードは、以前にもまして速くなっている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tốc độ đổi mới công nghệ trong khoảng năm năm gần đây đã nhanh hơn cả trước kia."
+     },
+     {
+      "ja": "母にとっては、何にもまして家族の健康が大切だった。",
+      "ja_furigana": "母(はは)にとっては、何(なに)にもまして家族(かぞく)の健康(けんこう)が大切(たいせつ)だった。",
+      "source": "AI",
+      "vi": "Đối với mẹ tôi, sức khỏe của gia đình là quan trọng hơn bất cứ điều gì."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「にもまして」: trước đây vốn đã cẩn thận, sau tai nạn còn cẩn thận hơn nữa. Nghĩa: Sau vụ tai nạn, tôi đã cẩn thận khi lái xe hơn cả trước kia.",
+      "options": [
+       "を限りに",
+       "にもまして",
+       "をよそに",
+       "をもって"
+      ],
+      "prompt_ja": "事故の後、運転には以前（　　）気をつけるようになった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 祭りの日はいつにもまして、駅前に人が集まった。 (Ngày lễ hội, trước ga người tụ tập đông hơn hẳn mọi khi.). Mảnh ở ô ★ là 「いつ」.",
+      "options": [
+       "にもまして",
+       "いつ",
+       "日は",
+       "祭りの"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿、駅前に人が集まった。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu 何にもまして (hơn tất cả): \"Hơn bất cứ điều gì, sự an toàn của bọn trẻ là trên hết.\"",
+      "options": [
+       "Không có gì liên quan đến sự an toàn của bọn trẻ.",
+       "Hơn bất cứ điều gì, sự an toàn của bọn trẻ là trên hết.",
+       "Bọn trẻ nghĩ đến sự an toàn đầu tiên.",
+       "Sự an toàn của bọn trẻ không quan trọng bằng việc học."
+      ],
+      "prompt_ja": "何にもまして、子どもたちの安全が第一だ。",
+      "type": "MEANING"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "もまして",
+      "sentence_ja": "今年の新入社員は、去年に＿＿やる気がある。",
+      "translation_vi": "Nhân viên mới năm nay còn hăng hái hơn cả năm ngoái."
+     },
+     {
+      "answer": "まして",
+      "sentence_ja": "何にも＿＿うれしかったのは、母が元気になったことだ。",
+      "translation_vi": "Điều khiến tôi vui hơn bất cứ điều gì là mẹ đã khỏe lại."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 猛暑の今年は昨年にもまして食中毒が多い。",
+     "FURIGANA_MISSING: ここ5年ほどの技術革新のスピードは、以前にもまして速くなっている。"
+    ],
+    "formation": "N + にもまして; Từ nghi vấn + にもまして (何にもまして, 誰にもまして)",
+    "locked_fields": [],
+    "meaning_vi": "Hơn cả…; hơn trước nữa",
+    "nuance_vi": "Trang trọng, văn viết; nhấn mạnh mức độ vượt trội so với một thứ vốn đã ở mức cao.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "面白い",
+       "続編が出た。",
+       "前作",
+       "にもまして"
+      ],
+      "translation_vi": "Phần tiếp theo còn hay hơn cả phần trước đã ra mắt."
+     },
+     {
+      "answer_order": [
+       1,
+       3,
+       2,
+       0
+      ],
+      "pieces": [
+       "明るくなった。",
+       "退院してから、",
+       "にもまして",
+       "以前"
+      ],
+      "translation_vi": "Từ khi xuất viện, cô ấy đã trở nên vui vẻ hơn cả trước kia."
+     }
+    ],
+    "pattern": "〜にもまして",
+    "pattern_variants": [
+     "N + にもまして"
+    ],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "So sánh mức độ và nhấn mạnh điều đang nói còn vượt cả một chuẩn vốn đã đáng kể. Các cách nói cố định như 以前にもまして và いつにもまして lần lượt có nghĩa “hơn trước nữa” và “hơn mọi khi”. 1) Dễ nhầm với ～より／～に比べて. → ～にもまして nhấn mạnh mức độ hiện tại còn vượt qua một chuẩn vốn đã đáng kể. 2) Chú ý các cụm cố định thường gặp. → 以前にもまして là “hơn trước”, いつにもまして là “hơn mọi khi”, 何にもまして là “hơn bất cứ điều gì”. 3) Không dùng cho phép so sánh số liệu đơn thuần. → Mẫu thường nhằm làm nổi bật sự gia tăng hoặc mức độ đặc biệt, chứ không chỉ nêu chênh lệch khách quan."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f4ef21c746"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅まで送りがてら、近くの店で夕食を買った。",
+       "ja_furigana": "駅(えき)まで送(おく)りがてら、近(ちか)くの店(みせ)で夕食(ゆうしょく)を買(か)った。",
+       "vi": "Nhân tiện đưa người ra ga, tôi ghé tiệm gần đó mua bữa tối."
+      },
+      {
+       "ja": "散歩がてら、ポストに手紙を出してきた。",
+       "ja_furigana": "散歩(さんぽ)がてら、ポストに手紙(てがみ)を出(だ)してきた。",
+       "vi": "Nhân tiện đi dạo, tôi gửi thư vào hòm thư."
+      },
+      {
+       "ja": "駅まで友だちを送りがてら、本屋に寄ってきた。",
+       "ja_furigana": "駅(えき)まで友(とも)だちを送(おく)りがてら、本屋(ほんや)に寄(よ)ってきた。",
+       "source": "AI",
+       "vi": "Nhân tiện tiễn bạn ra ga, tôi ghé qua hiệu sách."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「がてら」: N + がてら nghĩa là nhân tiện làm việc đó thì làm thêm việc khác trong cùng chuyến đi. Nghĩa: Trời đẹp nên nhân tiện đi dạo, tôi thử đi bộ đến tiệm bánh mì gần nhà.",
+      "options": [
+       "まみれで",
+       "ずくめで",
+       "がてら",
+       "ならでは"
+      ],
+      "prompt_ja": "天気がいいので、散歩（　　）近くのパン屋まで行ってみた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「がてら」: Vます (bỏ ます) + がてら; nhân đi tiễn khách ra ga thì ghé mua đồ uống. ながらも là 'tuy... nhưng', không hợp nghĩa. Nghĩa: Nhân tiện tiễn khách ra ga, tôi mua đồ uống ở cửa hàng tiện lợi.",
+      "options": [
+       "っぱなしで",
+       "がてら",
+       "かねて",
+       "ながらも"
+      ],
+      "prompt_ja": "駅まで客を送り（　　）、コンビニで飲み物を買った。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 京都の寺を見物しがてら、美術館にも寄ってきた。 (Nhân tiện đi tham quan chùa ở Kyoto, tôi ghé qua cả bảo tàng mỹ thuật.). Mảnh ở ô ★ là 「寺を」.",
+      "options": [
+       "見物しがてら",
+       "の",
+       "京都",
+       "寺を"
+      ],
+      "prompt_ja": "＿＿ ＿＿ ★ ＿＿、美術館にも寄ってきた。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 犬の散歩がてら、近所の古い神社を見てきた。 (Nhân tiện dắt chó đi dạo, tôi ghé xem ngôi đền cổ gần nhà.). Mảnh ở ô ★ là 「の」.",
+      "options": [
+       "の",
+       "犬",
+       "がてら",
+       "散歩"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿、近所の古い神社を見てきた。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu がてら (nhân tiện làm, kết hợp làm thêm): \"Nhân tiện đi ngắm hoa, tôi đã đi bộ trên con đường dọc bờ sông.\"",
+      "options": [
+       "Vì đi bộ dọc bờ sông nên tôi không kịp ngắm hoa.",
+       "Tôi đi bộ dọc bờ sông thay vì đi ngắm hoa.",
+       "Nhân tiện đi ngắm hoa, tôi đã đi bộ trên con đường dọc bờ sông.",
+       "Tôi vừa ngắm hoa vừa phàn nàn về con đường."
+      ],
+      "prompt_ja": "花見がてら、川沿いの道を歩いた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu がてら (nhân tiện, kết hợp làm thêm): \"Tôi đạp xe đến ga, coi như kết hợp tập thể dục luôn.\"",
+      "options": [
+       "Tôi đạp xe đến ga, coi như kết hợp tập thể dục luôn.",
+       "Vì phải tập thể dục nên tôi không đi xe đạp đến ga.",
+       "Tôi tập thể dục ở nhà ga mỗi ngày.",
+       "Tôi định bán xe đạp để đi bộ đến ga."
+      ],
+      "prompt_ja": "運動がてら、駅まで自転車で通っている。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「テレビを見がてら、ご飯を食べた。」 sai: がてら dùng khi nhân một chuyến đi lại để làm thêm việc khác; hai việc đồng thời tại chỗ thì dùng ながら. Câu đúng: テレビを見ながら、ご飯を食べた。",
+      "options": [
+       "買い物がてら、郵便局で荷物を出してきた。",
+       "友だちを空港まで見送りがてら、お土産を買った。",
+       "テレビを見がてら、ご飯を食べた。",
+       "散歩がてら、新しくできたカフェをのぞいてみた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「散歩するがてら、手紙を出してきた。」 sai: がてら đi sau danh từ hoặc Vます bỏ ます, không đi sau Vる. Câu đúng: 散歩がてら、手紙を出してきた。",
+      "options": [
+       "出張がてら、大阪城を見物してきた。",
+       "散歩するがてら、手紙を出してきた。",
+       "本を返しがてら、図書館の近くの店に寄った。",
+       "ドライブがてら、海の近くのレストランで昼ご飯を食べた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Hai việc phải do cùng một người làm trong cùng một lần đi; khi không có sự đi lại thì dùng ついでに sẽ tự nhiên hơn. Khác かたがた (lễ nghi, thư từ trang trọng), がてら dùng cho việc đời thường.",
+    "examples": [
+     {
+      "ja": "散歩がてら、公園の花火大会に出かけた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi dạo, tôi đã đến xem lễ hội pháo hoa ở công viên."
+     },
+     {
+      "ja": "買い物がてら、銀行へ行って用事を済ませた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân tiện đi mua sắm, tôi ghé ngân hàng giải quyết công việc."
+     },
+     {
+      "ja": "駅まで友だちを送りがてら、本屋に寄ってきた。",
+      "ja_furigana": "駅(えき)まで友(とも)だちを送(おく)りがてら、本屋(ほんや)に寄(よ)ってきた。",
+      "source": "AI",
+      "vi": "Nhân tiện tiễn bạn ra ga, tôi ghé qua hiệu sách."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「がてら」: N + がてら; vừa để đổi không khí vừa đi bộ ra sông. Nghĩa: Nhân tiện để thay đổi không khí, tôi thử đi bộ ra con sông gần nhà.",
+      "options": [
+       "ずくめで",
+       "ごとき",
+       "まみれに",
+       "がてら"
+      ],
+      "prompt_ja": "気分転換（　　）、近くの川まで歩いてみた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu がてら (nhân tiện làm thêm việc khác): \"Nhân chuyến công tác, tôi đã gặp người bạn ở Osaka.\"",
+      "options": [
+       "Vì phải đi công tác nên tôi không gặp được bạn ở Osaka.",
+       "Nhân chuyến công tác, tôi đã gặp người bạn ở Osaka.",
+       "Bạn tôi ở Osaka đã đi công tác cùng tôi.",
+       "Tôi đi Osaka chỉ để gặp bạn, không phải công tác."
+      ],
+      "prompt_ja": "出張がてら、大阪の友だちに会ってきた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「ベッドで寝がてら、音楽を聞いた。」 sai: がてら cần một chuyến đi lại làm nền cho việc làm thêm; nằm trên giường thì không có sự di chuyển. Câu đúng: ベッドで寝ながら、音楽を聞いた。",
+      "options": [
+       "駅まで母を迎えに行きがてら、クリーニング店に寄った。",
+       "見学がてら、新しい工場まで足を運んだ。",
+       "ベッドで寝がてら、音楽を聞いた。",
+       "観光がてら、昔住んでいた町を訪ねた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "answer": "がてら",
+      "sentence_ja": "休みの日は、運動＿＿、隣の町まで歩いて買い物に行く。",
+      "translation_vi": "Ngày nghỉ, tôi đi bộ sang thị trấn bên cạnh mua sắm, nhân tiện tập thể dục luôn."
+     },
+     {
+      "answer": "がてら",
+      "sentence_ja": "図書館に本を返し＿＿、公園を一周してきた。",
+      "translation_vi": "Nhân tiện đi trả sách ở thư viện, tôi đi bộ một vòng công viên."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: 散歩がてら、公園の花火大会に出かけた。",
+     "FURIGANA_MISSING: 買い物がてら、銀行へ行って用事を済ませた。"
+    ],
+    "formation": "N + がてら; Vます (bỏ ます) + がてら",
+    "locked_fields": [],
+    "meaning_vi": "Nhân tiện làm..., kết hợp làm thêm...",
+    "nuance_vi": "Dùng được trong văn nói lẫn văn viết nhẹ, giọng thân mật hơn かたがた; vế trước thường là việc có đi lại như 散歩, 買い物, 見物.",
+    "order_items": [
+     {
+      "answer_order": [
+       3,
+       2,
+       0,
+       1
+      ],
+      "pieces": [
+       "新しくできた",
+       "本屋をのぞいた。",
+       "がてら、",
+       "買い物"
+      ],
+      "translation_vi": "Nhân tiện đi mua sắm, tôi đã ghé xem hiệu sách mới mở."
+     },
+     {
+      "answer_order": [
+       3,
+       1,
+       2,
+       0
+      ],
+      "pieces": [
+       "遊びに来ませんか。",
+       "がてら、",
+       "うちにも",
+       "お花見"
+      ],
+      "translation_vi": "Nhân tiện đi ngắm hoa, anh chị ghé chơi nhà tôi luôn nhé?"
+     }
+    ],
+    "pattern": "〜がてら",
+    "pattern_variants": [
+     "N / V thể ます (bỏ ます) + がてら"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Kết hợp một việc phụ trong khi thực hiện mục đích chính, thường dùng với những hoạt động đi lại hoặc sinh hoạt thường ngày. Việc đứng trước がてら là mục đích chính. 1) Dễ nhầm với ～ついでに／～かたがた. → ～がてら kết hợp một việc phụ trong lúc thực hiện việc chính, thường là một chuyến đi hoặc hoạt động sinh hoạt. 2) Việc đứng trước がてら là mục đích chính. → Không nên đảo hai hành động nếu việc phía sau mới là lý do chính khiến chủ thể đi hoặc hành động. 3) Trước mẫu thường là danh từ chỉ hành động. → Các cách kết hợp tự nhiên gồm 散歩がてら, 買い物がてら, 運動がてら; không nối tự do với mọi danh từ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b079f39338"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼はスープを一口飲むなり、むせてしまった。",
+       "ja_furigana": "彼(かれ)はスープを一口(ひとくち)飲(の)むなり、むせてしまった。",
+       "vi": "Anh ấy vừa uống một ngụm súp đã bị sặc."
+      },
+      {
+       "ja": "赤ちゃんは私の顔を見るなり、笑い始めた。",
+       "ja_furigana": "赤(あか)ちゃんは私(わたし)の顔(かお)を見(み)るなり、笑(わら)い始(はじ)めた。",
+       "vi": "Em bé vừa nhìn thấy mặt tôi đã cười."
+      },
+      {
+       "ja": "部長は会議室に入るなり、大声で怒り出した。",
+       "ja_furigana": "部長(ぶちょう)は会議室(かいぎしつ)に入(はい)るなり、大声(おおごえ)で怒(おこ)り出(だ)した。",
+       "source": "AI",
+       "vi": "Trưởng phòng vừa bước vào phòng họp đã lớn tiếng nổi giận."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「なり」: Vる + なり diễn tả vừa làm xong việc trước thì lập tức làm việc bất ngờ. とたん phải đi với Vた (帰ったとたん). Nghĩa: Bố tôi vừa về đến nhà đã chẳng nói gì mà chui vào phòng.",
+      "options": [
+       "なり",
+       "とたん",
+       "わりに",
+       "ことに"
+      ],
+      "prompt_ja": "父は家に帰る（　　）、何も言わずに部屋にこもってしまった。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「なり」: vừa đọc thư xong thì ngay lập tức có phản ứng bất ngờ. Nghĩa: Cô ấy vừa đọc thư đã biến sắc và lao ra khỏi nhà.",
+      "options": [
+       "ついでに",
+       "かぎり",
+       "なり",
+       "ものなら"
+      ],
+      "prompt_ja": "彼女は手紙を読む（　　）、顔色を変えて家を飛び出した。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: 課長は報告書を見るなり大声で怒鳴り始めた。 (Trưởng nhóm vừa nhìn bản báo cáo đã bắt đầu quát tháo ầm ĩ.). Mảnh ở ô ★ là 「見る」.",
+      "options": [
+       "なり",
+       "見る",
+       "を",
+       "報告書"
+      ],
+      "prompt_ja": "課長は＿＿ ＿＿ ★ ＿＿大声で怒鳴り始めた。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 弟は帰って来るなりベッドに倒れ込んだ。 (Em trai tôi vừa về đến nơi đã đổ người xuống giường.). Mảnh ở ô ★ là 「帰って」.",
+      "options": [
+       "来る",
+       "弟は",
+       "なり",
+       "帰って"
+      ],
+      "prompt_ja": "＿＿ ★ ＿＿ ＿＿ベッドに倒れ込んだ。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu dùng mẫu なり (vừa... thì lập tức...): \"Con gái tôi vừa cúp máy đã bật khóc ngay.\"",
+      "options": [
+       "Con gái tôi vừa khóc vừa gọi điện thoại.",
+       "Con gái tôi khóc xong mới cúp máy.",
+       "Con gái tôi cúp máy để khỏi phải khóc.",
+       "Con gái tôi vừa cúp máy đã bật khóc ngay."
+      ],
+      "prompt_ja": "娘は電話を切るなり、泣き出した。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu なり (vừa... thì lập tức...): \"Giám đốc vừa ngồi vào chỗ đã giở báo ra ngay.\"",
+      "options": [
+       "Giám đốc đọc báo xong mới ngồi vào chỗ.",
+       "Giám đốc vừa ngồi vào chỗ đã giở báo ra ngay.",
+       "Giám đốc ngồi vào chỗ nhưng không đọc báo.",
+       "Giám đốc nhờ người mang báo đến chỗ ngồi."
+      ],
+      "prompt_ja": "社長は席に着くなり、新聞を広げた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「家に着くなり、電話してね。」 sai: vế sau của なり không dùng lời nhờ vả, mệnh lệnh hay ý chí. Câu đúng: 家に着いたら、すぐ電話してね。",
+      "options": [
+       "彼は財布の中を見るなり、青い顔になった。",
+       "家に着くなり、電話してね。",
+       "その子は母親を見つけるなり、駆け寄っていった。",
+       "部長は部屋に入るなり、窓を全部開けた。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「彼は部屋に入りなり、上着を脱いだ。」 sai: なり đi sau động từ thể từ điển (Vる), không đi sau thể ます bỏ ます. Câu đúng: 彼は部屋に入るなり、上着を脱いだ。",
+      "options": [
+       "彼は部屋に入りなり、上着を脱いだ。",
+       "祖母は私の顔を見るなり、うれしそうに笑った。",
+       "彼女はそのニュースを聞くなり、黙り込んでしまった。",
+       "犬は玄関のドアが開くなり、外へ飛び出した。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Vế sau không dùng ý chí, mệnh lệnh (sai: 家に着くなり電話してね) và ít dùng để kể việc của chính mình. Khác や否や: なり thường cùng một chủ ngữ cho cả hai vế, còn や否や có thể khác chủ ngữ.",
+    "examples": [
+     {
+      "ja": "ジョンさんは納豆を一口食べるなり吐き出してしまった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "John vừa ăn một miếng natto đã nhổ ra."
+     },
+     {
+      "ja": "彼女は恋人の顔を見るなり泣き出した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cô ấy vừa nhìn thấy mặt người yêu liền òa khóc."
+     },
+     {
+      "ja": "部長は会議室に入るなり、大声で怒り出した。",
+      "ja_furigana": "部長(ぶちょう)は会議室(かいぎしつ)に入(はい)るなり、大声(おおごえ)で怒(おこ)り出(だ)した。",
+      "source": "AI",
+      "vi": "Trưởng phòng vừa bước vào phòng họp đã lớn tiếng nổi giận."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「なり」: vừa ngồi vào chỗ là lập tức mở máy tính làm việc. Nghĩa: Anh ấy vừa ngồi vào chỗ đã mở máy tính bắt đầu làm việc.",
+      "options": [
+       "うえで",
+       "なり",
+       "ばかりか",
+       "とおり"
+      ],
+      "prompt_ja": "彼は席に着く（　　）、パソコンを開いて仕事を始めた。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu なり (vừa... thì lập tức...): \"Ông vừa nhìn thấy mặt cháu đã mỉm cười ngay.\"",
+      "options": [
+       "Ông vừa nhìn thấy mặt cháu đã mỉm cười ngay.",
+       "Ông cười một lúc lâu rồi mới nhìn cháu.",
+       "Ông nhìn mặt cháu nhưng không cười.",
+       "Cháu nhìn thấy ông thì bật cười."
+      ],
+      "prompt_ja": "祖父は孫の顔を見るなり、にっこり笑った。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「試験が終わるなり、一緒に遊びに行こう。」 sai: vế sau của なり không dùng lời rủ rê, ý chí của người nói. Câu đúng: 試験が終わったら、すぐ一緒に遊びに行こう。",
+      "options": [
+       "彼は試合に負けるなり、黙って会場を出ていった。",
+       "試験が終わるなり、一緒に遊びに行こう。",
+       "母は台所に入るなり、何か焦げていると言った。",
+       "客は料理を一口食べるなり、店員を呼んだ。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "や否や",
+       "が早いか"
+      ],
+      "answer": "なり",
+      "sentence_ja": "兄は帰宅する＿＿、自分の部屋に閉じこもった。",
+      "translation_vi": "Anh trai tôi vừa về nhà đã đóng cửa ở lì trong phòng."
+     },
+     {
+      "accept": [
+       "や否や",
+       "が早いか"
+      ],
+      "answer": "なり",
+      "sentence_ja": "その犬は飼い主の声を聞く＿＿、しっぽを振って走ってきた。",
+      "translation_vi": "Con chó vừa nghe tiếng chủ đã vẫy đuôi chạy tới."
+     }
+    ],
+    "findings": [
+     "FURIGANA_MISSING: ジョンさんは納豆を一口食べるなり吐き出してしまった。",
+     "FURIGANA_MISSING: 彼女は恋人の顔を見るなり泣き出した。"
+    ],
+    "formation": "Vる + なり",
+    "locked_fields": [],
+    "meaning_vi": "Vừa… thì lập tức…",
+    "nuance_vi": "Mang tính miêu tả, hay dùng trong văn kể chuyện; vế sau là hành động bất ngờ, khác thường của chính chủ thể ở vế trước.",
+    "order_items": [
+     {
+      "answer_order": [
+       2,
+       1,
+       3,
+       0
+      ],
+      "pieces": [
+       "泣き崩れた。",
+       "閉める",
+       "ドアを",
+       "なり、"
+      ],
+      "translation_vi": "Vừa đóng cửa lại, cô ấy đã òa khóc nức nở."
+     },
+     {
+      "answer_order": [
+       2,
+       3,
+       0,
+       1
+      ],
+      "pieces": [
+       "なり、",
+       "顔をしかめた。",
+       "一口",
+       "飲む"
+      ],
+      "translation_vi": "Vừa uống một ngụm, anh ấy đã nhăn mặt."
+     }
+    ],
+    "pattern": "〜なり",
+    "pattern_variants": [
+     "V từ điển + なり"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Diễn tả chủ thể vừa làm xong hành động trước thì ngay lập tức chuyển sang hành động sau, thường có cảm giác đột ngột. Hai hành động thường do cùng một chủ thể thực hiện và mẫu thiên về văn kể. 1) Dễ nhầm với ～や否や／～が早いか. → ～なり cũng diễn tả hành động sau xảy ra ngay, nhưng thường nhấn mạnh cùng một chủ thể lập tức chuyển sang hành động khác. 2) Trước ～なり dùng động từ thể từ điển. → Vế sau thường là hành động đã xảy ra đột ngột, không dùng tự nhiên với mệnh lệnh hay ý định của người nói. 3) Mẫu thiên về văn kể. → Thường dùng để thuật lại một chuỗi hành động trong quá khứ và có thể hàm ý hành động sau bất ngờ hoặc thiếu bình thường."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-85da526bc7"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "評判は学校内にとどまらず、地域全体に広がった。",
+       "ja_furigana": "評判(ひょうばん)は学校内(がっこうない)にとどまらず、地域(ちいき)全体(ぜんたい)に広(ひろ)がった。",
+       "vi": "Tiếng tăm không dừng lại trong trường mà lan ra cả vùng."
+      },
+      {
+       "ja": "この問題は一企業にとどまらず、業界全体の課題となっている。",
+       "ja_furigana": "この問題(もんだい)は一企業(いちきぎょう)にとどまらず、業界全体(ぎょうかいぜんたい)の課題(かだい)となっている。",
+       "source": "AI",
+       "vi": "Vấn đề này không dừng lại ở một doanh nghiệp mà đã trở thành thách thức của toàn ngành."
+      },
+      {
+       "ja": "彼は自分の研究を発表するにとどまらず、若手の育成にも力を注いでいる。",
+       "ja_furigana": "彼(かれ)は自分(じぶん)の研究(けんきゅう)を発表(はっぴょう)するにとどまらず、若手(わかて)の育成(いくせい)にも力(ちから)を注(そそ)いでいる。",
+       "source": "AI",
+       "vi": "Ông ấy không chỉ công bố nghiên cứu của mình mà còn dồn sức đào tạo lớp trẻ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 2,
+      "explanation_vi": "Điền 「にとどまらず」: N + にとどまらず nghĩa là không dừng lại trong phạm vi đó mà lan rộng hơn. Nghĩa: Sự nổi tiếng của ca sĩ đó không dừng lại ở Nhật Bản mà còn lan ra các nước châu Á.",
+      "options": [
+       "にかかわらず",
+       "に限って",
+       "にとどまらず",
+       "にこたえて"
+      ],
+      "prompt_ja": "その歌手の人気は日本（　　）、アジア各国に広がっている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Điền 「にとどまらず」: Vる + にとどまらず; hoạt động của anh ấy vượt ra ngoài việc viết tiểu thuyết. Nghĩa: Anh ấy không chỉ viết tiểu thuyết mà còn hoạt động tích cực với vai trò đạo diễn phim.",
+      "options": [
+       "にとどまらず",
+       "にかかわらず",
+       "にしては",
+       "にこたえて"
+      ],
+      "prompt_ja": "彼は小説を書く（　　）、映画の監督としても活躍している。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu đúng: この祭りは地元の人々にとどまらず海外からの観光客にも人気がある。 (Lễ hội này không chỉ được người dân địa phương mà cả khách du lịch nước ngoài yêu thích.). Mảnh ở ô ★ là 「にとどまらず」.",
+      "options": [
+       "海外からの",
+       "にとどまらず",
+       "地元の",
+       "人々"
+      ],
+      "prompt_ja": "この祭りは＿＿ ＿＿ ★ ＿＿観光客にも人気がある。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu đúng: 彼女の研究は医学の分野にとどまらず、社会全体に影響を与えた。 (Nghiên cứu của bà ấy không dừng lại trong lĩnh vực y học mà đã ảnh hưởng đến toàn xã hội.). Mảnh ở ô ★ là 「の」.",
+      "options": [
+       "の",
+       "医学",
+       "分野",
+       "にとどまらず"
+      ],
+      "prompt_ja": "彼女の研究は＿＿ ★ ＿＿ ＿＿、社会全体に影響を与えた。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu にとどまらず (không dừng lại ở): \"Sự phổ biến của Internet không chỉ dừng lại ở đời sống mà còn thay đổi cả cách suy nghĩ của con người.\"",
+      "options": [
+       "Internet phổ biến nhưng không làm thay đổi đời sống con người.",
+       "Sự phổ biến của Internet chỉ ảnh hưởng đến cách suy nghĩ chứ không ảnh hưởng đến đời sống.",
+       "Sự phổ biến của Internet không chỉ dừng lại ở đời sống mà còn thay đổi cả cách suy nghĩ của con người.",
+       "Con người đã ngừng sử dụng Internet trong đời sống hằng ngày."
+      ],
+      "prompt_ja": "インターネットの普及は、生活にとどまらず、人々の考え方まで変えた。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu にとどまらず (không dừng lại trong phạm vi đó): \"Vấn đề đó không chỉ giới hạn ở một trường mà đang được bàn luận trên cả nước.\"",
+      "options": [
+       "Vấn đề đó chỉ được bàn luận trong một trường học.",
+       "Vấn đề đó không chỉ giới hạn ở một trường mà đang được bàn luận trên cả nước.",
+       "Vì vấn đề đó, một trường học đã phải đóng cửa.",
+       "Cả nước đã ngừng bàn luận về vấn đề của trường học đó."
+      ],
+      "prompt_ja": "その問題は一つの学校にとどまらず、全国で議論されている。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "「パンにとどまらず、牛乳も買ってきた。」 sai: にとどまらず dùng cho phạm vi, lĩnh vực, khu vực lan rộng, không dùng để liệt kê đồ vật nhỏ lẻ. Câu đúng: パンだけでなく、牛乳も買ってきた。",
+      "options": [
+       "パンにとどまらず、牛乳も買ってきた。",
+       "大雨の被害は県内にとどまらず、隣の県にも及んだ。",
+       "その商品は国内にとどまらず、海外でもよく売れている。",
+       "彼の活動は音楽にとどまらず、絵や映画にまで広がっている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "「被害は町にとどまって、県全体に広がった。」 sai: にとどまって nghĩa là 'chỉ dừng trong', mâu thuẫn với vế sau lan rộng; phải dùng dạng phủ định にとどまらず. Câu đúng: 被害は町にとどまらず、県全体に広がった。",
+      "options": [
+       "その病気は大人にとどまらず、子どもにも広がっている。",
+       "森林の破壊は一つの国にとどまらず、世界の問題になっている。",
+       "被害は町にとどまって、県全体に広がった。",
+       "環境問題への関心は若者にとどまらず、高齢者の間でも高まっている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng cho những thứ nhỏ lẻ không mang tính phạm vi nghe không tự nhiên (vd パンにとどまらず牛乳も買った); mẫu hợp với phạm vi, lĩnh vực, khu vực, đối tượng. Khác だけでなく (trung tính, dùng rộng), にとどまらず nhấn mạnh sự vượt khỏi khuôn khổ.",
+    "examples": [
+     {
+      "ja": "被害は国内にとどまらず、海外にも及んだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この問題は一企業にとどまらず、業界全体の課題となっている。",
+      "ja_furigana": "この問題(もんだい)は一企業(いちきぎょう)にとどまらず、業界全体(ぎょうかいぜんたい)の課題(かだい)となっている。",
+      "source": "AI",
+      "vi": "Vấn đề này không dừng lại ở một doanh nghiệp mà đã trở thành thách thức của toàn ngành."
+     },
+     {
+      "ja": "彼は自分の研究を発表するにとどまらず、若手の育成にも力を注いでいる。",
+      "ja_furigana": "彼(かれ)は自分(じぶん)の研究(けんきゅう)を発表(はっぴょう)するにとどまらず、若手(わかて)の育成(いくせい)にも力(ちから)を注(そそ)いでいる。",
+      "source": "AI",
+      "vi": "Ông ấy không chỉ công bố nghiên cứu của mình mà còn dồn sức đào tạo lớp trẻ."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「にとどまらず」: lượng khách yêu thích không dừng ở giới trẻ mà lan sang cả người lớn tuổi. Nghĩa: Sự nổi tiếng của cửa hàng đó không chỉ dừng ở giới trẻ mà còn lan sang cả khách lớn tuổi.",
+      "options": [
+       "に限って",
+       "にとどまらず",
+       "にこたえて",
+       "にかかわらず"
+      ],
+      "prompt_ja": "その店の人気は若者（　　）、年配の客にも広がっている。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu にとどまらず (không dừng lại ở): \"Phong trào này không dừng lại ở một thị trấn mà đã lan ra khắp cả nước.\"",
+      "options": [
+       "Phong trào này chỉ diễn ra trong một thị trấn.",
+       "Phong trào này đã chấm dứt trước khi lan ra cả nước.",
+       "Phong trào này không dừng lại ở một thị trấn mà đã lan ra khắp cả nước.",
+       "Cả nước đã phản đối phong trào của thị trấn này."
+      ],
+      "prompt_ja": "この運動は一つの町にとどまらず、全国に広がった。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「その影響は国内をとどまらず、世界中に及んだ。」 sai: mẫu là N + にとどまらず, không dùng trợ từ を. Câu đúng: その影響は国内にとどまらず、世界中に及んだ。",
+      "options": [
+       "彼の人気は国内にとどまらず、海外にまで及んでいる。",
+       "その影響は国内をとどまらず、世界中に及んだ。",
+       "この本は子どもにとどまらず、大人にもよく読まれている。",
+       "地震の影響は交通にとどまらず、通信にも出た。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "止まらず"
+      ],
+      "answer": "とどまらず",
+      "sentence_ja": "海の汚れは一つの国の問題に＿＿、地球全体の問題だ。",
+      "translation_vi": "Ô nhiễm biển không chỉ là vấn đề của một quốc gia mà là vấn đề của toàn trái đất."
+     },
+     {
+      "accept": [
+       "だけでなく",
+       "ばかりでなく",
+       "のみならず"
+      ],
+      "answer": "にとどまらず",
+      "sentence_ja": "部長は仕事の指示をする＿＿、部下の相談にもよく乗ってくれる。",
+      "translation_vi": "Trưởng phòng không chỉ giao việc mà còn hay lắng nghe và tư vấn cho cấp dưới."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 被害は国内にとどまらず、海外にも及んだ。",
+     "FURIGANA_MISSING: 被害は国内にとどまらず、海外にも及んだ。"
+    ],
+    "formation": "N + にとどまらず; Vる + にとどまらず",
+    "locked_fields": [],
+    "meaning_vi": "Không dừng lại ở — Ảnh hưởng lan rộng vượt khỏi phạm vi ban đầu.",
+    "nuance_vi": "Trang trọng, hay dùng trong tin tức và văn bản; nhấn mạnh phạm vi lan rộng ra ngoài giới hạn ban đầu.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       2,
+       0,
+       3
+      ],
+      "pieces": [
+       "にとどまらず、",
+       "彼の活動は",
+       "国内",
+       "海外にも広がった。"
+      ],
+      "translation_vi": "Hoạt động của anh ấy không dừng lại trong nước mà còn lan ra cả nước ngoài."
+     },
+     {
+      "answer_order": [
+       0,
+       1,
+       3,
+       2
+      ],
+      "pieces": [
+       "この病気は",
+       "高齢者",
+       "若い人にも増えている。",
+       "にとどまらず、"
+      ],
+      "translation_vi": "Căn bệnh này không chỉ ở người cao tuổi mà còn đang gia tăng ở cả người trẻ."
+     }
+    ],
+    "pattern": "に止(とど)まらず",
+    "pattern_variants": [
+     "V từ điển + にとどまらず"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Trang trọng. Vế sau thường có まで hoặc も."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7be2c41535"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼は事故で、車はおろか自転車にも乗れなくなった。",
+       "ja_furigana": "彼(かれ)は事故(じこ)で、車(くるま)はおろか自転車(じてんしゃ)にも乗(の)れなくなった。",
+       "vi": "Vì tai nạn, anh ấy đừng nói ô tô, đến xe đạp cũng không đi được."
+      },
+      {
+       "ja": "彼女は貯金を増やして、車はおろか家まで買った。",
+       "ja_furigana": "彼女(かのじょ)は貯金(ちょきん)を増(ふ)やして、車(くるま)はおろか家(いえ)まで買(か)った。",
+       "vi": "Cô ấy để dành tiền, không chỉ mua xe mà còn mua được nhà."
+      },
+      {
+       "ja": "骨折してしまい、走ることはおろか歩くことさえできない。",
+       "ja_furigana": "骨折(こっせつ)してしまい、走(はし)ることはおろか歩(ある)くことさえできない。",
+       "source": "AI",
+       "vi": "Tôi bị gãy xương, đừng nói là chạy, ngay cả đi bộ cũng không được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau không dùng ý chí, mệnh lệnh, rủ rê (sai: 英語はおろか中国語も勉強しよう); khi đó dùng だけでなく. Hay đảo hai vế: vế sau phải là trường hợp cực đoan hơn (đúng: 漢字はおろかひらがなも書けない, không nói ngược lại).",
+    "examples": [
+     {
+      "ja": "A氏はだまされて、貯金はおろか、住む所も失った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ông A bị lừa, chẳng những mất tiền tiết kiệm mà ngay cả chỗ ở cũng mất."
+     },
+     {
+      "ja": "A氏は株で大もうけをして、新しい家はおろかヨットまで手に入れた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ông A kiếm lời lớn từ cổ phiếu, không chỉ mua được nhà mới mà còn sắm được cả du thuyền."
+     },
+     {
+      "ja": "骨折してしまい、走ることはおろか歩くことさえできない。",
+      "ja_furigana": "骨折(こっせつ)してしまい、走(はし)ることはおろか歩(ある)くことさえできない。",
+      "source": "AI",
+      "vi": "Tôi bị gãy xương, đừng nói là chạy, ngay cả đi bộ cũng không được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A氏はだまされて、貯金はおろか、住む所も失った。",
+     "FURIGANA_MISSING: A氏は株で大もうけをして、新しい家はおろかヨットまで手に入れた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + はおろか",
+    "locked_fields": [],
+    "meaning_vi": "Không chỉ ～ mà ngay cả … cũng.",
+    "nuance_vi": "Hơi văn viết, mang cảm xúc ngạc nhiên hoặc bất mãn; vế sau thường đi với も, さえ, まで và hay ở dạng phủ định.",
+    "order_items": [],
+    "pattern": "は疎(おろ)か",
+    "pattern_variants": [
+     "〜はおろか"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Nêu một điều vốn đã đáng kể ở vế trước, rồi nhấn mạnh rằng tình trạng còn lan tới một điều xa hơn hoặc bất ngờ hơn ở vế sau. Vế sau thường đi với 「も」「まで」「さえ」「すら」. 1) Dễ nhầm với ～どころか. → ～はおろか nêu A là điều vốn đã đáng kể, rồi B còn xa hơn hoặc bất ngờ hơn; mẫu này trang trọng hơn. 2) Vế sau thường có も・まで・さえ・すら. → Các trợ từ này đánh dấu trường hợp cực đoan hơn được thêm vào sau A. 3) Chú ý thứ tự mức độ. → Phải đặt điều người nghe dễ dự đoán hơn trước はおろか và điều khó tin hoặc nghiêm trọng hơn ở vế sau."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8a42524404"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "味もさることながら、値段の安さがこの店の魅力だ。",
+       "ja_furigana": "味(あじ)もさることながら、値段(ねだん)の安(やす)さがこの店(みせ)の魅力(みりょく)だ。",
+       "vi": "Hương vị đã đành, giá rẻ mới là điểm hấp dẫn của quán này."
+      },
+      {
+       "ja": "仕事を選ぶときは、給料もさることながら、やりがいが大切だ。",
+       "ja_furigana": "仕事(しごと)を選(えら)ぶときは、給料(きゅうりょう)もさることながら、やりがいが大切(たいせつ)だ。",
+       "vi": "Khi chọn việc, lương đã đành, ý nghĩa công việc mới là quan trọng."
+      },
+      {
+       "ja": "この店は料理の味もさることながら、店員の対応がすばらしい。",
+       "ja_furigana": "この店(みせ)は料理(りょうり)の味(あじ)もさることながら、店員(てんいん)の対応(たいおう)がすばらしい。",
+       "source": "AI",
+       "vi": "Nhà hàng này hương vị món ăn đã ngon, nhưng cách tiếp đón của nhân viên còn tuyệt hơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hay hiểu nhầm là vế trước 'không quan trọng'; thực ra vế trước vẫn được công nhận. Khác はもちろん (vế trước hiển nhiên, hai vế ngang nhau), もさることながら đặt trọng tâm rõ ở vế sau và ít dùng trong hội thoại thân mật.",
+    "examples": [
+     {
+      "ja": "結果もさることながら、原因が問題だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Kết quả tất nhiên cũng quan trọng, nhưng nguyên nhân mới là vấn đề đáng bàn."
+     },
+     {
+      "ja": "進学先の決定については、親の希望もさることながら、本人の希望が第一だろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Khi quyết định nơi học tiếp, nguyện vọng của cha mẹ tất nhiên cũng cần xét đến, nhưng nguyện vọng của chính người học phải được đặt lên hàng đầu."
+     },
+     {
+      "ja": "この店は料理の味もさることながら、店員の対応がすばらしい。",
+      "ja_furigana": "この店(みせ)は料理(りょうり)の味(あじ)もさることながら、店員(てんいん)の対応(たいおう)がすばらしい。",
+      "source": "AI",
+      "vi": "Nhà hàng này hương vị món ăn đã ngon, nhưng cách tiếp đón của nhân viên còn tuyệt hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 結果もさることながら、原因が問題だ。",
+     "FURIGANA_MISSING: 進学先の決定については、親の希望もさることながら、本人の希望が第一だろう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + もさることながら",
+    "locked_fields": [],
+    "meaning_vi": "～ tất nhiên cũng quan trọng, nhưng điều ở vế sau còn đáng nhấn mạnh hơn.",
+    "nuance_vi": "Trang trọng, dùng trong văn viết hoặc phát biểu; công nhận vế trước rồi nhấn mạnh vế sau hơn, thường dùng để khen.",
+    "order_items": [],
+    "pattern": "〜もさることながら",
+    "pattern_variants": [
+     "もさることながら"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Thừa nhận giá trị hoặc tầm quan trọng của yếu tố trước, rồi hướng trọng tâm sang yếu tố sau. Có thể dịch là “không chỉ… mà hơn thế còn…”. 1) Dễ nhầm với ～だけでなく. → ～もさることながら trước hết công nhận A quan trọng, rồi chuyển trọng tâm sang B là điều còn đáng nhấn mạnh hơn. 2) Không được đảo trọng tâm khi dịch. → A không bị phủ nhận; B chỉ được người nói đánh giá nổi bật hơn trong ngữ cảnh. 3) Trước mẫu thường là danh từ. → Đây là cách nói trang trọng, thường gặp trong nhận xét về năng lực, sản phẩm, thành tích hoặc nguyên nhân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-bc1a2cff78"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "初心者は初心者なりに、工夫して練習している。",
+       "ja_furigana": "初心者(しょしんしゃ)は初心者(しょしんしゃ)なりに、工夫(くふう)して練習(れんしゅう)している。",
+       "vi": "Người mới cũng có cách riêng, tự mình xoay xở để luyện tập."
+      },
+      {
+       "ja": "新人なりに、できることを精一杯やってみます。",
+       "ja_furigana": "新人(しんじん)なりに、できることを精一杯(せいいっぱい)やってみます。",
+       "source": "AI",
+       "vi": "Tuy là người mới, tôi sẽ cố hết sức làm những gì mình có thể."
+      },
+      {
+       "ja": "お金がないならないなりに、楽しく暮らす方法はある。",
+       "ja_furigana": "お金(かね)がないならないなりに、楽(たの)しく暮(く)らす方法(ほうほう)はある。",
+       "source": "AI",
+       "vi": "Không có tiền thì cũng có cách sống vui vẻ theo kiểu không có tiền."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng để nói về cấp trên hay người cần kính trọng (sai: 社長なりに考えている), vì mẫu hàm ý 'tuy còn hạn chế'. Khác なり (vừa… thì), なりに đứng sau danh từ hoặc thể thường và nghĩa là 'theo cách của'.",
+    "examples": [
+     {
+      "ja": "子供は子供なりに考えている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "新人なりに、できることを精一杯やってみます。",
+      "ja_furigana": "新人(しんじん)なりに、できることを精一杯(せいいっぱい)やってみます。",
+      "source": "AI",
+      "vi": "Tuy là người mới, tôi sẽ cố hết sức làm những gì mình có thể."
+     },
+     {
+      "ja": "お金がないならないなりに、楽しく暮らす方法はある。",
+      "ja_furigana": "お金(かね)がないならないなりに、楽(たの)しく暮(く)らす方法(ほうほう)はある。",
+      "source": "AI",
+      "vi": "Không có tiền thì cũng có cách sống vui vẻ theo kiểu không có tiền."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 子供は子供なりに考えている。",
+     "FURIGANA_MISSING: 子供は子供なりに考えている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + なりに; N + なりの + N; Thể thường + なりに",
+    "locked_fields": [],
+    "meaning_vi": "Theo cách riêng của — Tuy hạn chế nhưng đã cố hết sức theo khả năng của mình.",
+    "nuance_vi": "Trung tính, dùng nhiều trong văn nói; thừa nhận có giới hạn nhưng đánh giá tích cực sự cố gắng phù hợp với khả năng, vị trí đó.",
+    "order_items": [],
+    "pattern": "〜なりに",
+    "pattern_variants": [
+     "N + なりに / なりの",
+     "〜なりに/の"
+    ],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Mang sắc thái thông cảm, thừa nhận nỗ lực. 私なりに = theo cách của riêng tôi."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-cea0279bff"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "家族の安全のためとあれば、私は何でもやる。",
+       "ja_furigana": "家族(かぞく)の安全(あんぜん)のためとあれば、私(わたし)は何(なに)でもやる。",
+       "vi": "Nếu vì an toàn của gia đình thì tôi sẽ làm bất cứ điều gì."
+      },
+      {
+       "ja": "社長の命令とあれば、従わないわけにはいかない。",
+       "ja_furigana": "社長(しゃちょう)の命令(めいれい)とあれば、従(したが)わないわけにはいかない。",
+       "source": "AI",
+       "vi": "Nếu là mệnh lệnh của giám đốc thì không thể không tuân theo."
+      },
+      {
+       "ja": "大好きな歌手に会えるとあれば、どんなに遠くても行きます。",
+       "ja_furigana": "大好(だいす)きな歌手(かしゅ)に会(あ)えるとあれば、どんなに遠(とお)くても行(い)きます。",
+       "source": "AI",
+       "vi": "Nếu được gặp ca sĩ mình hâm mộ thì dù xa đến đâu tôi cũng đi."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [
+     {
+      "answer_index": 1,
+      "explanation_vi": "Điền 「とあれば」: N + とあれば nêu một lý do đặc biệt khiến người nói sẵn sàng hành động. Nghĩa: Nếu là lời nhờ của người bạn quan trọng thì không thể từ chối được.",
+      "options": [
+       "といわず",
+       "とあれば",
+       "なりに",
+       "はおろか"
+      ],
+      "prompt_ja": "大切な友だちの頼み（　　）、断るわけにはいかない。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「とあれば」: vì là sự kiện của bộ anime yêu thích nên làm cả việc bình thường không làm. Nghĩa: Nếu là sự kiện của bộ anime mình thích thì thức trắng đêm xếp hàng cũng chẳng sao.",
+      "options": [
+       "もさることながら",
+       "までもなく",
+       "ならでは",
+       "とあれば"
+      ],
+      "prompt_ja": "好きなアニメのイベント（　　）、徹夜で並ぶことも平気だ。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 母は、孫のためとあれば苦手な料理にも挑戦する。 (Mẹ tôi, nếu là vì cháu thì cả món mình không giỏi cũng thử nấu.). Mảnh ở ô ★ là 「苦手な料理にも」.",
+      "options": [
+       "とあれば",
+       "挑戦する",
+       "孫のため",
+       "苦手な料理にも"
+      ],
+      "prompt_ja": "母は、＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "Câu đúng: 部長は、会社の利益になるとあれば休日でも出勤する。 (Trưởng phòng hễ là việc có lợi cho công ty thì ngày nghỉ cũng đi làm.). Mảnh ở ô ★ là 「とあれば」.",
+      "options": [
+       "出勤する",
+       "休日でも",
+       "会社の利益になる",
+       "とあれば"
+      ],
+      "prompt_ja": "部長は、＿＿ ★ ＿＿ ＿＿。",
+      "type": "ORDER_STAR"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu dùng mẫu 〜とあれば (nếu là vì ~ thì sẵn sàng): \"Nếu là thầy nhờ thì tôi không thể không làm.\"",
+      "options": [
+       "Dù thầy có nhờ, tôi cũng sẽ không làm.",
+       "Vì thầy không nhờ nên tôi không làm.",
+       "Nếu là thầy nhờ thì tôi không thể không làm.",
+       "Tôi đã nhờ thầy làm giúp việc đó."
+      ],
+      "prompt_ja": "先生に頼まれたとあれば、やらないわけにはいかない。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 0,
+      "explanation_vi": "Câu dùng mẫu 〜とあれば (nếu là ~ thì sẵn sàng): \"Nếu cần thì lúc nào tôi cũng sẽ chạy đến ngay.\"",
+      "options": [
+       "Nếu cần thì lúc nào tôi cũng sẽ chạy đến ngay.",
+       "Vì không cần nên tôi sẽ không đến.",
+       "Tôi luôn đến muộn dù là việc cần.",
+       "Lúc nào tôi cũng cần có người chạy đến giúp."
+      ],
+      "prompt_ja": "必要とあれば、いつでも駆けつけます。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "「昨日は雨とあれば、試合は中止になった。」 sai: とあれば là giả định 'nếu là…', không dùng cho sự việc đã xảy ra; nêu nguyên nhân thực tế thì dùng とあって. Câu đúng: 昨日は雨とあって、試合は中止になった。",
+      "options": [
+       "大切な友だちの頼みとあれば、断るわけにはいかない。",
+       "昨日は雨とあれば、試合は中止になった。",
+       "部長は、会社の利益になるとあれば休日でも出勤する。",
+       "必要とあれば、いつでも駆けつけます。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     },
+     {
+      "answer_index": 3,
+      "explanation_vi": "「時間があるとあれば、毎朝ジョギングをしている。」 sai: とあれば dùng cho lý do đặc biệt khiến người ta sẵn sàng làm, không dùng cho điều kiện thường ngày, thói quen. Câu đúng: 時間があれば、毎朝ジョギングをしている。",
+      "options": [
+       "先生に頼まれたとあれば、やらないわけにはいかない。",
+       "母は、孫のためとあれば苦手な料理にも挑戦する。",
+       "好きなアニメのイベントとあれば、徹夜で並ぶことも平気だ。",
+       "時間があるとあれば、毎朝ジョギングをしている。"
+      ],
+      "prompt_ja": "Câu nào dùng sai mẫu?",
+      "type": "ERROR"
+     }
+    ],
+    "common_mistakes_vi": "Dùng cho điều kiện giả định bình thường nghe không tự nhiên (vd 雨が降るとあれば傘を持っていく); vế trước phải là lý do đặc biệt khiến người ta sẵn sàng hành động. Khác とあって (nêu kết quả đã xảy ra trên thực tế), とあれば là giả định 'nếu là… thì'.",
+    "examples": [
+     {
+      "ja": "子供のためとあれば、何でもする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "社長の命令とあれば、従わないわけにはいかない。",
+      "ja_furigana": "社長(しゃちょう)の命令(めいれい)とあれば、従(したが)わないわけにはいかない。",
+      "source": "AI",
+      "vi": "Nếu là mệnh lệnh của giám đốc thì không thể không tuân theo."
+     },
+     {
+      "ja": "大好きな歌手に会えるとあれば、どんなに遠くても行きます。",
+      "ja_furigana": "大好(だいす)きな歌手(かしゅ)に会(あ)えるとあれば、どんなに遠(とお)くても行(い)きます。",
+      "source": "AI",
+      "vi": "Nếu được gặp ca sĩ mình hâm mộ thì dù xa đến đâu tôi cũng đi."
+     }
+    ],
+    "extra_practice": [
+     {
+      "answer_index": 3,
+      "explanation_vi": "Điền 「とあれば」: vì là yêu cầu của khách nên sẵn sàng làm cả việc bình thường không làm. Nghĩa: Nếu là yêu cầu của quý khách, chúng tôi sẽ nấu cả món không có trong thực đơn.",
+      "options": [
+       "はおろか",
+       "といわず",
+       "なりに",
+       "とあれば"
+      ],
+      "prompt_ja": "お客様のご要望（　　）、メニューにない料理もお作りします。",
+      "type": "FILL"
+     },
+     {
+      "answer_index": 1,
+      "explanation_vi": "Câu dùng mẫu 〜とあれば (nếu là ~ thì sẵn sàng): \"Hễ là việc kiếm được tiền thì việc gì anh ấy cũng nhận.\"",
+      "options": [
+       "Anh ấy không nhận việc gì nếu không được trả tiền trước.",
+       "Hễ là việc kiếm được tiền thì việc gì anh ấy cũng nhận.",
+       "Anh ấy làm việc gì cũng không vì tiền.",
+       "Anh ấy đã nhận một công việc lương rất cao."
+      ],
+      "prompt_ja": "彼は、お金になるとあれば、どんな仕事でも引き受ける。",
+      "type": "MEANING"
+     },
+     {
+      "answer_index": 2,
+      "explanation_vi": "Câu đúng: 父は娘の結婚式とあれば仕事を休んでも出席するだろう。 (Nếu là đám cưới của con gái thì chắc bố tôi sẽ nghỉ làm để dự.). Mảnh ở ô ★ là 「仕事を休んでも」.",
+      "options": [
+       "出席するだろう",
+       "娘の結婚式",
+       "仕事を休んでも",
+       "とあれば"
+      ],
+      "prompt_ja": "父は＿＿ ＿＿ ★ ＿＿。",
+      "type": "ORDER_STAR"
+     }
+    ],
+    "fill_items": [
+     {
+      "accept": [
+       "なら"
+      ],
+      "answer": "とあれば",
+      "sentence_ja": "子どもの健康のため＿＿、多少高くても買う親は多い。",
+      "translation_vi": "Nếu là vì sức khỏe của con thì nhiều cha mẹ sẵn sàng mua dù có hơi đắt."
+     },
+     {
+      "accept": [
+       "なら"
+      ],
+      "answer": "とあれば",
+      "sentence_ja": "彼女に会える＿＿、どこへでも行く。",
+      "translation_vi": "Nếu được gặp cô ấy thì đi đâu tôi cũng đi."
+     }
+    ],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 子供のためとあれば、何でもする。",
+     "FURIGANA_MISSING: 子供のためとあれば、何でもする。"
+    ],
+    "formation": "Thể thường + とあれば; N + とあれば",
+    "locked_fields": [],
+    "meaning_vi": "Nếu vì thì — Nếu vì mục đích đó thì sẵn sàng làm bất cứ gì.",
+    "nuance_vi": "Hơi trang trọng; nhấn mạnh rằng vì điều kiện đặc biệt đó nên người nói sẵn lòng làm cả việc mà bình thường không làm.",
+    "order_items": [
+     {
+      "answer_order": [
+       1,
+       3,
+       0,
+       2
+      ],
+      "pieces": [
+       "とあれば、",
+       "大好きな",
+       "喜んで手伝います。",
+       "先輩の頼み"
+      ],
+      "translation_vi": "Nếu là lời nhờ của đàn anh mà tôi rất quý thì tôi sẵn lòng giúp."
+     },
+     {
+      "answer_order": [
+       3,
+       0,
+       1,
+       2
+      ],
+      "pieces": [
+       "とあれば",
+       "行列にも",
+       "並ぶ。",
+       "限定のケーキ"
+      ],
+      "translation_vi": "Nếu là bánh phiên bản giới hạn thì tôi sẵn sàng xếp hàng."
+     }
+    ],
+    "pattern": "〜とあれば",
+    "pattern_variants": [
+     "Thể thường / N + とあれば"
+    ],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Thể hiện quyết tâm mạnh. Vế sau thường là việc bình thường không làm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7cef8a4a55"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-002"
+}

@@ -1,0 +1,719 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この部屋は暑くてしようがない。",
+       "ja_furigana": "この部屋(へや)は暑(あつ)くてしようがない。",
+       "vi": "Căn phòng này nóng không chịu nổi."
+      },
+      {
+       "ja": "試験の結果が気になってしようがなくて、夜もあまり眠れなかった。",
+       "ja_furigana": "試験(しけん)の結果(けっか)が気(き)になってしようがなくて、夜(よる)もあまり眠(ねむ)れなかった。",
+       "source": "AI",
+       "vi": "Tôi lo lắng về kết quả kỳ thi đến mức ban đêm cũng không ngủ được mấy."
+      },
+      {
+       "ja": "久しぶりに家族に会えると思うと、うれしくてしようがない。",
+       "ja_furigana": "久(ひさ)しぶりに家族(かぞく)に会(あ)えると思(おも)うと、うれしくてしようがない。",
+       "source": "AI",
+       "vi": "Nghĩ đến việc lâu lắm mới được gặp gia đình là tôi vui không chịu nổi."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay gắn với động từ chỉ ý chí (×勉強してしようがない); phải là cảm giác, trạng thái tự nhiên. Không nhầm với しようがない đứng một mình nghĩa là 'hết cách'.",
+    "examples": [
+     {
+      "ja": "退屈でしようがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "試験の結果が気になってしようがなくて、夜もあまり眠れなかった。",
+      "ja_furigana": "試験(しけん)の結果(けっか)が気(き)になってしようがなくて、夜(よる)もあまり眠(ねむ)れなかった。",
+      "source": "AI",
+      "vi": "Tôi lo lắng về kết quả kỳ thi đến mức ban đêm cũng không ngủ được mấy."
+     },
+     {
+      "ja": "久しぶりに家族に会えると思うと、うれしくてしようがない。",
+      "ja_furigana": "久(ひさ)しぶりに家族(かぞく)に会(あ)えると思(おも)うと、うれしくてしようがない。",
+      "source": "AI",
+      "vi": "Nghĩ đến việc lâu lắm mới được gặp gia đình là tôi vui không chịu nổi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 退屈でしようがない。",
+     "FURIGANA_MISSING: 退屈でしようがない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + しようがない; Aくて + しようがない; Aなで + しようがない",
+    "locked_fields": [],
+    "meaning_vi": "Hết cách, quá đỗi — Dạng trang trọng hơn của しょうがない.",
+    "nuance_vi": "Cảm giác hay cảm xúc mạnh đến mức không chịu nổi; hay đi với từ chỉ cảm giác như 気になる, うれしい, 眠い. Tương tự てしかたがない, てたまらない nhưng hơi thiên về văn nói.",
+    "order_items": [],
+    "pattern": "V-て + しようがない",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": null,
+    "usage_vi": "Nghĩa gần てたまらない. Chỉ dùng cho cảm giác của bản thân."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-25a0a40527"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "買うにしても借りるにしても、まずよく考えたほうがいい。",
+       "ja_furigana": "買(か)うにしても借(か)りるにしても、まずよく考(かんが)えたほうがいい。",
+       "vi": "Dù mua hay thuê, trước hết nên suy nghĩ kỹ."
+      },
+      {
+       "ja": "勝つにしても負けるにしても、最後まで全力でやろう。",
+       "ja_furigana": "勝(か)つにしても負(ま)けるにしても、最後(さいご)まで全力(ぜんりょく)でやろう。",
+       "vi": "Dù thắng hay thua, hãy làm hết sức đến cùng."
+      },
+      {
+       "ja": "和食にしても洋食にしても、食べすぎないことが大切だ。",
+       "ja_furigana": "和食(わしょく)にしても洋食(ようしょく)にしても、食(た)べすぎないことが大切(たいせつ)だ。",
+       "source": "AI",
+       "vi": "Dù là món Nhật hay món Tây, điều quan trọng là không ăn quá nhiều."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép sách; thêm furigana + bản dịch"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay chỉ nêu một vế, hoặc để vế sau là sự việc cụ thể đã xảy ra. Danh từ và tính từ な bỏ だ khi nối với にしても.",
+    "examples": [
+     {
+      "ja": "電車で行くにしても車で行くにしても、朝七時までには出発したほうがいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù đi bằng tàu hay bằng ô tô, tốt hơn hết vẫn nên xuất phát trước bảy giờ sáng."
+     },
+     {
+      "ja": "賛成するにしろ反対するにしろ、まず資料を最後まで読んでください。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù tán thành hay phản đối, trước hết hãy đọc tài liệu đến cuối."
+     },
+     {
+      "ja": "和食にしても洋食にしても、食べすぎないことが大切だ。",
+      "ja_furigana": "和食(わしょく)にしても洋食(ようしょく)にしても、食(た)べすぎないことが大切(たいせつ)だ。",
+      "source": "AI",
+      "vi": "Dù là món Nhật hay món Tây, điều quan trọng là không ăn quá nhiều."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 電車で行くにしても車で行くにしても、朝七時までには出発したほうがいい。",
+     "FURIGANA_MISSING: 賛成するにしろ反対するにしろ、まず資料を最後まで読んでください。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + にしても + thể thường + にしても; N + にしても + N + にしても",
+    "locked_fields": [],
+    "meaning_vi": "Dù là... hay là...",
+    "nuance_vi": "Nêu hai khả năng rồi nói điều đúng trong cả hai trường hợp; にしても thiên về văn nói hơn にしろ và にせよ. Vế sau là phán đoán hay yêu cầu chung.",
+    "order_items": [],
+    "pattern": "Dù là... hay là...",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": null,
+    "usage_vi": "Ý nghĩa: Nêu hai khả năng đối lập hoặc tiêu biểu và khẳng định cùng một kết luận cho cả hai. Cách dùng: Ba cặp mẫu này đưa ra hai lựa chọn, trạng thái hoặc trường hợp rồi nói rằng kết luận phía sau vẫn đúng bất kể trường hợp nào. Hai vế thường đối lập như đi hay không đi, đồng ý hay phản đối, hoặc đại diện cho toàn bộ một phạm vi. にしても tương đối trung tính; にしろ thường trực tiếp hơn; にせよ trang trọng và hay gặp trong lập luận, quy định hoặc chỉ dẫn. Sắc thái: Trọng tâm không nằm ở việc chọn phương án nào mà ở điều kiện, nghĩa vụ hoặc đánh giá chung áp dụng cho cả hai. Lưu ý: Mỗi phương án trong cặp phải đi kèm cùng loại biểu thức để cấu trúc rõ và cân xứng. Hai phương án cần tạo thành một cặp đối lập hoặc đủ sức đại diện cho phạm vi đang nói."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-77ec44ca3e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "卒業式では、心を込めて歌を歌った。",
+       "ja_furigana": "卒業式(そつぎょうしき)では、心(こころ)を込(こ)めて歌(うた)を歌(うた)った。",
+       "vi": "Trong lễ tốt nghiệp, chúng tôi đã hát bằng cả trái tim."
+      },
+      {
+       "ja": "母へのかんしゃの気持ちを込めて、花を贈った。",
+       "ja_furigana": "母(はは)へのかんしゃの気持(きも)ちを込(こ)めて、花(はな)を贈(おく)った。",
+       "source": "AI",
+       "vi": "Tôi tặng hoa cho mẹ với tất cả lòng biết ơn."
+      },
+      {
+       "ja": "工場の人たちは、一つ一つ思いを込めて、この商品を作っています。",
+       "ja_furigana": "工場(こうじょう)の人(ひと)たちは、一(ひと)つ一(ひと)つ思(おも)いを込(こ)めて、この商品(しょうひん)を作(つく)っています。",
+       "source": "AI",
+       "vi": "Những người ở nhà máy làm món hàng này với tất cả tâm huyết cho từng chiếc một."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; sửa câu AI dùng 謝 ngoài danh sách"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với danh từ không phải tình cảm, hoặc nhầm trợ từ thành に (×心に込めて). Mẫu đúng là 〜を込めて, không dùng với vật thể cụ thể.",
+    "examples": [
+     {
+      "ja": "心を込めて手紙を書いた。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "母への感謝の気持ちを込めて、花を贈った。",
+      "ja_furigana": "母(はは)への感謝(かんしゃ)の気持(きも)ちを込(こ)めて、花(はな)を贈(おく)った。",
+      "source": "AI",
+      "vi": "Tôi tặng hoa cho mẹ với tất cả lòng biết ơn."
+     },
+     {
+      "ja": "工場の人たちは、一つ一つ思いを込めて、この商品を作っています。",
+      "ja_furigana": "工場(こうじょう)の人(ひと)たちは、一(ひと)つ一(ひと)つ思(おも)いを込(こ)めて、この商品(しょうひん)を作(つく)っています。",
+      "source": "AI",
+      "vi": "Những người ở nhà máy làm món hàng này với tất cả tâm huyết cho từng chiếc một."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 心を込めて手紙を書いた。",
+     "FURIGANA_MISSING: 心を込めて手紙を書いた。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を込めて",
+    "locked_fields": [],
+    "meaning_vi": "Với trọn, dồn cả — Dồn tình cảm hoặc tâm huyết vào việc gì.",
+    "nuance_vi": "Dồn tình cảm, tâm huyết vào việc làm; hay đi với 心, 愛, 感謝の気持ち, 思い. Hợp với lời cảm ơn, quà tặng, thư từ; làm định ngữ thì dùng を込めた + N.",
+    "order_items": [],
+    "pattern": "N + を込めて",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng với danh từ trừu tượng chỉ tình cảm: 心, 愛, 感謝, 祈り."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-03416c5da3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "ただの風邪だから、心配するほどのことではない。",
+       "ja_furigana": "ただの風邪(かぜ)だから、心配(しんぱい)するほどのことではない。",
+       "vi": "Chỉ là cảm thường thôi, không đến mức phải lo lắng."
+      },
+      {
+       "ja": "少し頭が痛いだけだから、病院に行くほどのことではないよ。",
+       "ja_furigana": "少(すこ)し頭(あたま)が痛(いた)いだけだから、病院(びょういん)に行(い)くほどのことではないよ。",
+       "source": "AI",
+       "vi": "Chỉ hơi đau đầu thôi nên chưa đến mức phải đi bệnh viện đâu."
+      },
+      {
+       "ja": "これくらいの失敗は、怒るほどのことではありません。気にしないでください。",
+       "ja_furigana": "これくらいの失敗(しっぱい)は、怒(おこ)るほどのことではありません。気(き)にしないでください。",
+       "source": "AI",
+       "vi": "Lỗi nhỏ thế này chưa đến mức phải giận. Xin đừng bận tâm."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay gắn vào Vた hoặc dùng cho việc nghiêm trọng thật sự. Cũng không nhầm với 〜ほどだ (đến mức), vốn dùng để minh họa mức độ.",
+    "examples": [
+     {
+      "ja": "わざわざ来ていただくほどのことではありません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "少し頭が痛いだけだから、病院に行くほどのことではないよ。",
+      "ja_furigana": "少(すこ)し頭(あたま)が痛(いた)いだけだから、病院(びょういん)に行(い)くほどのことではないよ。",
+      "source": "AI",
+      "vi": "Chỉ hơi đau đầu thôi nên chưa đến mức phải đi bệnh viện đâu."
+     },
+     {
+      "ja": "これくらいの失敗は、怒るほどのことではありません。気にしないでください。",
+      "ja_furigana": "これくらいの失敗(しっぱい)は、怒(おこ)るほどのことではありません。気(き)にしないでください。",
+      "source": "AI",
+      "vi": "Lỗi nhỏ thế này chưa đến mức phải giận. Xin đừng bận tâm."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: わざわざ来ていただくほどのことではありません。",
+     "FURIGANA_MISSING: わざわざ来ていただくほどのことではありません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + ほどのことではない; Vる + ほどのことはない",
+    "locked_fields": [],
+    "meaning_vi": "Không đến mức phải — Việc đó nhỏ, không đáng để phản ứng mạnh như vậy.",
+    "nuance_vi": "Nói việc đó nhỏ, không đáng để phản ứng quá mạnh như vậy; dùng khi an ủi, khiêm tốn hoặc từ chối nhẹ nhàng. Khác ことはない (không cần phải làm).",
+    "order_items": [],
+    "pattern": "V từ điển + ほどのことではない",
+    "pattern_variants": [],
+    "unit_no": 24,
+    "unit_title_vi": null,
+    "usage_vi": "Hay dùng để trấn an. Gần với ことはない nhưng nhấn mạnh mức độ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-db6f287fa4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は味に加えて、値段も安い。",
+       "ja_furigana": "この店(みせ)は味(あじ)に加(くわ)えて、値段(ねだん)も安(やす)い。",
+       "vi": "Quán này ngoài ngon ra, giá cũng rẻ."
+      },
+      {
+       "ja": "今年は台風の被害に加えて、雨の日が多くて、野菜の値段が上がっている。",
+       "ja_furigana": "今年(ことし)は台風(たいふう)の被害(ひがい)に加(くわ)えて、雨(あめ)の日(ひ)が多(おお)くて、野菜(やさい)の値段(ねだん)が上(あ)がっている。",
+       "source": "AI",
+       "vi": "Năm nay ngoài thiệt hại do bão còn có nhiều ngày mưa nên giá rau đang tăng."
+      },
+      {
+       "ja": "この仕事は給料に加えて、交通費もすべて会社が出してくれる。",
+       "ja_furigana": "この仕事(しごと)は給料(きゅうりょう)に加(くわ)えて、交通費(こうつうひ)もすべて会社(かいしゃ)が出(だ)してくれる。",
+       "source": "AI",
+       "vi": "Công việc này ngoài lương ra thì tiền đi lại công ty cũng trả hết cho mình."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng để nối hai vế trái chiều. Danh từ đứng trước phải là sự việc, không chỉ người thuần túy; động từ cần có こと. Không nhầm với 加える (động từ).",
+    "examples": [
+     {
+      "ja": "雨に加えて風も強くなった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今年は台風の被害に加えて、雨の日が多くて、野菜の値段が上がっている。",
+      "ja_furigana": "今年(ことし)は台風(たいふう)の被害(ひがい)に加(くわ)えて、雨(あめ)の日(ひ)が多(おお)くて、野菜(やさい)の値段(ねだん)が上(あ)がっている。",
+      "source": "AI",
+      "vi": "Năm nay ngoài thiệt hại do bão còn có nhiều ngày mưa nên giá rau đang tăng."
+     },
+     {
+      "ja": "この仕事は給料に加えて、交通費もすべて会社が出してくれる。",
+      "ja_furigana": "この仕事(しごと)は給料(きゅうりょう)に加(くわ)えて、交通費(こうつうひ)もすべて会社(かいしゃ)が出(だ)してくれる。",
+      "source": "AI",
+      "vi": "Công việc này ngoài lương ra thì tiền đi lại công ty cũng trả hết cho mình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 雨に加えて風も強くなった。",
+     "FURIGANA_MISSING: 雨に加えて風も強くなった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に加えて; N + に加え; Vる + ことに加えて",
+    "locked_fields": [],
+    "meaning_vi": "Thêm vào đó — Bổ sung thêm yếu tố nữa vào điều đã có.",
+    "nuance_vi": "Thêm một yếu tố nữa vào cái đã có, thường hai vế cùng hướng (tốt với tốt, xấu với xấu); hơi trang trọng. Khác それに ở chỗ đi kèm danh từ.",
+    "order_items": [],
+    "pattern": "N + に加えて",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": null,
+    "usage_vi": "Trang trọng hơn そのうえ. Hai yếu tố cùng chiều."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-97d8466d44"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "三人を除いて、ほかの学生は合格した。",
+       "ja_furigana": "三人(さんにん)を除(のぞ)いて、ほかの学生(がくせい)は合格(ごうかく)した。",
+       "vi": "Ngoại trừ ba người, những học sinh còn lại đều đỗ."
+      },
+      {
+       "ja": "山田さんを除いて、全員がパーティーに出席した。",
+       "ja_furigana": "山田(やまだ)さんを除(のぞ)いて、全員(ぜんいん)がパーティーに出席(しゅっせき)した。",
+       "source": "AI",
+       "vi": "Ngoại trừ anh Yamada, tất cả mọi người đều tham dự bữa tiệc."
+      },
+      {
+       "ja": "祝日を除き、図書館は毎日午前九時から開いています。",
+       "ja_furigana": "祝日(しゅくじつ)を除(のぞ)き、図書館(としょかん)は毎日(まいにち)午前(ごぜん)九時(くじ)から開(あ)いています。",
+       "source": "AI",
+       "vi": "Trừ ngày lễ, thư viện mở cửa mỗi ngày từ chín giờ sáng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nhầm với 以外に (cần đi với phủ định). を除いて đi với cả khẳng định lẫn phủ định. Không nhầm với 抜きで (bỏ thứ không cần).",
+    "examples": [
+     {
+      "ja": "日曜を除いて毎日営業しています。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "山田さんを除いて、全員がパーティーに出席した。",
+      "ja_furigana": "山田(やまだ)さんを除(のぞ)いて、全員(ぜんいん)がパーティーに出席(しゅっせき)した。",
+      "source": "AI",
+      "vi": "Ngoại trừ anh Yamada, tất cả mọi người đều tham dự bữa tiệc."
+     },
+     {
+      "ja": "祝日を除き、図書館は毎日午前九時から開いています。",
+      "ja_furigana": "祝日(しゅくじつ)を除(のぞ)き、図書館(としょかん)は毎日(まいにち)午前(ごぜん)九時(くじ)から開(あ)いています。",
+      "source": "AI",
+      "vi": "Trừ ngày lễ, thư viện mở cửa mỗi ngày từ chín giờ sáng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 日曜を除いて毎日営業しています。",
+     "FURIGANA_MISSING: 日曜を除いて毎日営業しています。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + を除いて; N + を除き; N + を除いては",
+    "locked_fields": [],
+    "meaning_vi": "Ngoại trừ — Loại một đối tượng ra khỏi phạm vi đang nói.",
+    "nuance_vi": "Loại một đối tượng ra khỏi phạm vi đang nói; vế sau thường là 'tất cả, hầu hết', hợp với thông báo, văn bản. Khác 以外 ở chỗ nhấn mạnh phần bị loại ra.",
+    "order_items": [],
+    "pattern": "N + を除いて",
+    "pattern_variants": [],
+    "unit_no": 11,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng khác を除き. Trang trọng hơn 以外."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5a0249bec4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この仕事は給料がいい反面、とても忙しい。",
+       "ja_furigana": "この仕事(しごと)は給料(きゅうりょう)がいい反面(はんめん)、とても忙(いそが)しい。",
+       "vi": "Công việc này lương cao, mặt khác lại rất bận."
+      },
+      {
+       "ja": "この町は静かで住みやすい反面、買い物が不便だ。",
+       "ja_furigana": "この町(まち)は静(しず)かで住(す)みやすい反面(はんめん)、買(か)い物(もの)が不便(ふべん)だ。",
+       "source": "AI",
+       "vi": "Thị trấn này yên tĩnh dễ sống, nhưng mặt khác mua sắm lại bất tiện."
+      },
+      {
+       "ja": "彼は人前では明るい反面、一人になるとひどく落ち込むことがある。",
+       "ja_furigana": "彼(かれ)は人前(ひとまえ)では明(あか)るい反面(はんめん)、一人(ひとり)になるとひどく落(お)ち込(こ)むことがある。",
+       "source": "AI",
+       "vi": "Anh ấy trước mặt người khác thì vui vẻ, nhưng ngược lại khi ở một mình đôi khi lại buồn bã nặng nề."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay nối hai chủ thể khác nhau hoặc hai vế cùng chiều. Tính từ な nhớ thêm な, danh từ thêm である hay の: 便利な反面.",
+    "examples": [
+     {
+      "ja": "便利な反面、危険も多い。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "この町は静かで住みやすい反面、買い物が不便だ。",
+      "ja_furigana": "この町(まち)は静(しず)かで住(す)みやすい反面(はんめん)、買(か)い物(もの)が不便(ふべん)だ。",
+      "source": "AI",
+      "vi": "Thị trấn này yên tĩnh dễ sống, nhưng mặt khác mua sắm lại bất tiện."
+     },
+     {
+      "ja": "彼は人前では明るい反面、一人になるとひどく落ち込むことがある。",
+      "ja_furigana": "彼(かれ)は人前(ひとまえ)では明(あか)るい反面(はんめん)、一人(ひとり)になるとひどく落(お)ち込(こ)むことがある。",
+      "source": "AI",
+      "vi": "Anh ấy trước mặt người khác thì vui vẻ, nhưng ngược lại khi ở một mình đôi khi lại buồn bã nặng nề."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 便利な反面、危険も多い。",
+     "FURIGANA_MISSING: 便利な反面、危険も多い。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + 反面; Aな (な / である) + 反面; N (である) + 反面",
+    "locked_fields": [],
+    "meaning_vi": "Trái lại, mặt trái là — Nêu hai mặt trái ngược của cùng một đối tượng.",
+    "nuance_vi": "Nêu hai mặt trái ngược của cùng một người hay sự việc, thường là mặt tốt và mặt xấu; văn viết hoặc giải thích. Khác 一方で ở chỗ hai mặt phải đối lập rõ rệt.",
+    "order_items": [],
+    "pattern": "Thể thường + 反面",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": null,
+    "usage_vi": "Gần với 一方で nhưng nhấn mạnh sự tương phản rõ hơn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0012ecbc4c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "外国で生活するには、その国の言葉を学ぶ必要がある。",
+       "ja_furigana": "外国(がいこく)で生活(せいかつ)するには、その国(くに)の言葉(ことば)を学(まな)ぶ必要(ひつよう)がある。",
+       "vi": "Để sống ở nước ngoài, cần học ngôn ngữ của nước đó."
+      },
+      {
+       "ja": "健康でいるには、毎日の食事と運動が大切だ。",
+       "ja_furigana": "健康(けんこう)でいるには、毎日(まいにち)の食事(しょくじ)と運動(うんどう)が大切(たいせつ)だ。",
+       "source": "AI",
+       "vi": "Để giữ sức khỏe thì bữa ăn và vận động hằng ngày rất quan trọng."
+      },
+      {
+       "ja": "この機械を動かすには、まずこのボタンを押す必要があります。",
+       "ja_furigana": "この機械(きかい)を動(うご)かすには、まずこのボタンを押(お)す必要(ひつよう)があります。",
+       "source": "AI",
+       "vi": "Để chạy máy này thì trước hết cần nhấn nút này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau là hành động đã xảy ra hoặc ý chí (×日本に行くには、パスポートを取った). Vế sau phải là điều kiện, phán đoán chung.",
+    "examples": [
+     {
+      "ja": "日本で働くには、ビザが必要です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "健康でいるには、毎日の食事と運動が大切だ。",
+      "ja_furigana": "健康(けんこう)でいるには、毎日(まいにち)の食事(しょくじ)と運動(うんどう)が大切(たいせつ)だ。",
+      "source": "AI",
+      "vi": "Để giữ sức khỏe thì bữa ăn và vận động hằng ngày rất quan trọng."
+     },
+     {
+      "ja": "この機械を動かすには、まずこのボタンを押す必要があります。",
+      "ja_furigana": "この機械(きかい)を動(うご)かすには、まずこのボタンを押(お)す必要(ひつよう)があります。",
+      "source": "AI",
+      "vi": "Để chạy máy này thì trước hết cần nhấn nút này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 日本で働くには、ビザが必要です。",
+     "FURIGANA_MISSING: 日本で働くには、ビザが必要です。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + には",
+    "locked_fields": [],
+    "meaning_vi": "Để mà thì cần — Nêu mục đích rồi đưa ra điều kiện cần thiết.",
+    "nuance_vi": "Nêu mục đích rồi đưa ra điều cần thiết hay cách làm để đạt mục đích đó; vế sau thường là 必要だ, ~なければならない, いい. Khác ために ở chỗ vế sau không phải hành động theo ý chí.",
+    "order_items": [],
+    "pattern": "V từ điển + には",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau thường là 必要だ, いい, 大切だ. Khác ために ở chỗ には hướng tới đánh giá điều kiện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-1bcafa12d5"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "宿題を終わらせてからでないと、ゲームをしてはいけないよ。",
+       "ja_furigana": "宿題(しゅくだい)を終(お)わらせてからでないと、ゲームをしてはいけないよ。",
+       "vi": "Chưa làm xong bài tập thì không được chơi game đâu."
+      },
+      {
+       "ja": "医者に相談してからでないと、新しい薬は飲めません。",
+       "ja_furigana": "医者(いしゃ)に相談(そうだん)してからでないと、新(あたら)しい薬(くすり)は飲(の)めません。",
+       "source": "AI",
+       "vi": "Nếu chưa hỏi ý kiến bác sĩ thì tôi không thể uống thuốc mới."
+      },
+      {
+       "ja": "契約書をよく読んでからでないと、サインしないほうがいいよ。",
+       "ja_furigana": "契約書(けいやくしょ)をよく読(よ)んでからでないと、サインしないほうがいいよ。",
+       "source": "AI",
+       "vi": "Nếu chưa đọc kỹ hợp đồng thì đừng ký thì hơn."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay để vế sau khẳng định (×食べてからでないと行く); vế sau phải là phủ định hoặc không thể. Cũng không nhầm với てから đơn thuần chỉ thứ tự.",
+    "examples": [
+     {
+      "ja": "上司に確認してからでないと、返事できません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "医者に相談してからでないと、新しい薬は飲めません。",
+      "ja_furigana": "医者(いしゃ)に相談(そうだん)してからでないと、新(あたら)しい薬(くすり)は飲(の)めません。",
+      "source": "AI",
+      "vi": "Nếu chưa hỏi ý kiến bác sĩ thì tôi không thể uống thuốc mới."
+     },
+     {
+      "ja": "契約書をよく読んでからでないと、サインしないほうがいいよ。",
+      "ja_furigana": "契約書(けいやくしょ)をよく読(よ)んでからでないと、サインしないほうがいいよ。",
+      "source": "AI",
+      "vi": "Nếu chưa đọc kỹ hợp đồng thì đừng ký thì hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 上司に確認してからでないと、返事できません。",
+     "FURIGANA_MISSING: 上司に確認してからでないと、返事できません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "V-て + からでないと + 〜ない",
+    "locked_fields": [],
+    "meaning_vi": "Nếu chưa thì không — Phải xong việc trước mới làm được việc sau.",
+    "nuance_vi": "Nếu chưa làm việc đó trước thì không làm được việc sau; nhấn mạnh thứ tự bắt buộc. Trang trọng hơn một chút là てからでなければ.",
+    "order_items": [],
+    "pattern": "V-て + からでないと",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": null,
+    "usage_vi": "Vế sau bắt buộc phủ định. Dạng khác てからでなければ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-71bd86ae87"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "両親の希望に反して、彼は音楽の道に進んだ。",
+       "ja_furigana": "両親(りょうしん)の希望(きぼう)に反(はん)して、彼(かれ)は音楽(おんがく)の道(みち)に進(すす)んだ。",
+       "vi": "Trái với mong muốn của bố mẹ, anh ấy đi theo con đường âm nhạc."
+      },
+      {
+       "ja": "みんなの期待に反して、新商品はあまり売れなかった。",
+       "ja_furigana": "みんなの期待(きたい)に反(はん)して、新商品(しんしょうひん)はあまり売(う)れなかった。",
+       "source": "AI",
+       "vi": "Trái với kỳ vọng của mọi người, hàng mới bán không chạy lắm."
+      },
+      {
+       "ja": "天気予報に反して、午後から大雨になった。",
+       "ja_furigana": "天気予報(てんきよほう)に反(はん)して、午後(ごご)から大雨(おおあめ)になった。",
+       "source": "AI",
+       "vi": "Trái với dự báo thời tiết, từ chiều trời mưa to."
+      }
+     ]
+    },
+    "note": "viết lại câu chép sách; thêm bản dịch + furigana"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Người học hay dùng với danh từ chỉ người cụ thể (×兄に反して) hay nhầm với に対して (đối với). Danh từ phải là thứ có thể 'bị đi ngược lại'.",
+    "examples": [
+     {
+      "ja": "予想に反して、彼が勝った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "みんなの期待に反して、新商品はあまり売れなかった。",
+      "ja_furigana": "みんなの期待(きたい)に反(はん)して、新商品(しんしょうひん)はあまり売(う)れなかった。",
+      "source": "AI",
+      "vi": "Trái với kỳ vọng của mọi người, hàng mới bán không chạy lắm."
+     },
+     {
+      "ja": "天気予報に反して、午後から大雨になった。",
+      "ja_furigana": "天気予報(てんきよほう)に反(はん)して、午後(ごご)から大雨(おおあめ)になった。",
+      "source": "AI",
+      "vi": "Trái với dự báo thời tiết, từ chiều trời mưa to."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 予想に反して、彼が勝った。",
+     "FURIGANA_MISSING: 予想に反して、彼が勝った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に反して; N + に反し; N + に反する + N",
+    "locked_fields": [],
+    "meaning_vi": "Trái với — Kết quả đi ngược lại điều mong đợi hoặc dự đoán.",
+    "nuance_vi": "Kết quả trái với kỳ vọng, dự đoán, quy tắc; danh từ hay là 期待, 予想, 予定, 規則. Thuộc văn viết, khá cứng.",
+    "order_items": [],
+    "pattern": "N + に反して",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": null,
+    "usage_vi": "Dạng định ngữ に反する. Hay đi với 予想, 期待, 予測."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-04534b5fc2"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-013"
+}

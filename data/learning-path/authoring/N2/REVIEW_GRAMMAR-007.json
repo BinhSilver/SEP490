@@ -1,0 +1,740 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "心配性の母のことだから、もう何度も電話してくるに違いない。",
+       "ja_furigana": "心配性(しんぱいしょう)の母(はは)のことだから、もう何度(なんど)も電話(でんわ)してくるに違(ちが)いない。",
+       "vi": "Vì mẹ tôi là người hay lo nên chắc đã gọi điện mấy lần rồi."
+      },
+      {
+       "ja": "山田さんのことだから、きっと約束の時間より早く来ているだろう。",
+       "ja_furigana": "山田(やまだ)さんのことだから、きっと約束(やくそく)の時間(じかん)より早(はや)く来(き)ているだろう。",
+       "source": "AI",
+       "vi": "Là anh Yamada thì chắc chắn đã đến sớm hơn giờ hẹn rồi."
+      },
+      {
+       "ja": "責任感の強い田中さんのことだから、頼めば最後までやってくれるはずだ。",
+       "ja_furigana": "責任感(せきにんかん)の強(つよ)い田中(たなか)さんのことだから、頼(たの)めば最後(さいご)までやってくれるはずだ。",
+       "source": "AI",
+       "vi": "Với người có tinh thần trách nhiệm cao như anh Tanaka, nhờ là chắc chắn anh ấy sẽ làm đến cùng."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là người mà người nói hiểu rõ, không dùng với người lạ. Vế sau là suy đoán, không phải ý chí hay mệnh lệnh. Khác だから: ことだから đặt trọng tâm vào tính cách người đó.",
+    "examples": [
+     {
+      "ja": "彼のことだから、また遅れるだろう。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "山田さんのことだから、きっと約束の時間より早く来ているだろう。",
+      "ja_furigana": "山田(やまだ)さんのことだから、きっと約束(やくそく)の時間(じかん)より早(はや)く来(き)ているだろう。",
+      "source": "AI",
+      "vi": "Là anh Yamada thì chắc chắn đã đến sớm hơn giờ hẹn rồi."
+     },
+     {
+      "ja": "責任感の強い田中さんのことだから、頼めば最後までやってくれるはずだ。",
+      "ja_furigana": "責任感(せきにんかん)の強(つよ)い田中(たなか)さんのことだから、頼(たの)めば最後(さいご)までやってくれるはずだ。",
+      "source": "AI",
+      "vi": "Với người có tinh thần trách nhiệm cao như anh Tanaka, nhờ là chắc chắn anh ấy sẽ làm đến cùng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼のことだから、また遅れるだろう。",
+     "FURIGANA_MISSING: 彼のことだから、また遅れるだろう。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N の + ことだから; Thể thường + ことだから",
+    "locked_fields": [],
+    "meaning_vi": "Vì là nên chắc — Dựa vào tính cách quen thuộc của ai đó mà suy đoán.",
+    "nuance_vi": "Dựa vào tính cách, thói quen của người mà người nói biết rõ để suy đoán; vế sau thường là phán đoán như だろう, はず, きっと.",
+    "order_items": [],
+    "pattern": "事(こと)だから",
+    "pattern_variants": [
+     "N の + ことだから",
+     "〜ことだから"
+    ],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Chỉ dùng với người mà cả hai bên đều biết rõ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f2ed843b34"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "苦労して手に入れただけに、このバイクへの愛着は強い。",
+       "ja_furigana": "苦労(くろう)して手(て)に入(はい)れただけに、このバイクへの愛着(あいちゃく)は強(つよ)い。",
+       "vi": "Chính vì vất vả mới có được nên tôi rất gắn bó với chiếc xe máy này."
+      },
+      {
+       "ja": "期待が大きかっただけに、結果を見た時の失望も大きかった。",
+       "ja_furigana": "期待(きたい)が大(おお)きかっただけに、結果(けっか)を見(み)た時(とき)の失望(しつぼう)も大(おお)きかった。",
+       "vi": "Chính vì kỳ vọng lớn nên khi thấy kết quả nỗi thất vọng cũng lớn."
+      },
+      {
+       "ja": "母は長年看護師をしていただけに、病気のことをよく知っている。",
+       "ja_furigana": "母(はは)は長年(ながねん)看護師(かんごし)をしていただけに、病気(びょうき)のことをよく知(し)っている。",
+       "source": "AI",
+       "vi": "Mẹ tôi làm y tá nhiều năm nên hiểu rõ về bệnh tật."
+      }
+     ],
+     "meaning_vi": "Chính vì… nên lại càng… (mức độ tương ứng với vế trước)."
+    },
+    "note": "viết lại câu chép nguồn, sửa nghĩa"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải hợp với vế trước, là kết quả tự nhiên (khác のに, kết quả trái ngược). Khác ばかりに (chỉ vì… mà xảy ra chuyện xấu). Dùng khi lý do đặc biệt đáng kể.",
+    "examples": [
+     {
+      "ja": "彼は１０年も日本にいただけに、日本事情に詳しい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì anh ta ở Nhật 10 năm, nên hiểu biết chi tiết về Nhật Bản."
+     },
+     {
+      "ja": "この機種は今一番人気があるだけに、なかなか手に入らないそうだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Vì dòng máy này đang bán chạy nhất nên nghe nói giờ không mua được đâu."
+     },
+     {
+      "ja": "母は長年看護師をしていただけに、病気のことをよく知っている。",
+      "ja_furigana": "母(はは)は長年(ながねん)看護師(かんごし)をしていただけに、病気(びょうき)のことをよく知(し)っている。",
+      "source": "AI",
+      "vi": "Mẹ tôi làm y tá nhiều năm nên hiểu rõ về bệnh tật."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は１０年も日本にいただけに、日本事情に詳しい。",
+     "FURIGANA_MISSING: この機種は今一番人気があるだけに、なかなか手に入らないそうだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + だけに (Aな: な、N: bỏ だ/である)",
+    "locked_fields": [],
+    "meaning_vi": "Cách kết hợp:",
+    "nuance_vi": "'Vì… nên càng…' hay 'đúng là…': vế sau là kết quả hợp lý, đúng như mong đợi hoặc càng thêm nghiêm trọng so với lý do ở vế trước.",
+    "order_items": [],
+    "pattern": "〜だけに",
+    "pattern_variants": [
+     "だけに",
+     "Thể thường + だけに"
+    ],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 名詞／【動詞・イ形容詞・ナ形容詞】の名詞修飾形 Ý nghĩa: ～だからやはり（当然）、～だからなおさら Vì Ví dụ: 1. 彼は１０年も日本にいただけに、日本事情に詳しい。 Vì anh ta ở Nhật 10 năm, nên hiểu biết chi tiết về Nhật Bản. 2. この機種は今一番人気があるだけに、なかなか手に入らないそうだ。 Vì dòng máy này đang bán chạy nhất nên nghe nói giờ không mua được đâu. 3. 苦しい試合だっただけいに、、優勝できてうれしい。 Vì trận đấu đầy cam go nên tôi rất vui vì đã giành thắng. 4. 周囲の期待が大きいだけに、失敗は許されない。 Vì mọi người kỳ vọng vào tôi quá nhiều nên tôi không cho phép mình thất bại."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7e78c871a0"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "引き受けた以上、最後まで責任を持ってやるつもりだ。",
+       "ja_furigana": "引(ひ)き受(う)けた以上(いじょう)、最後(さいご)まで責任(せきにん)を持(も)ってやるつもりだ。",
+       "vi": "Đã nhận lời thì tôi định làm đến cùng với tinh thần trách nhiệm."
+      },
+      {
+       "ja": "お金を借りた以上、必ず返さなければならない。",
+       "ja_furigana": "お金(かね)を借(か)りた以上(いじょう)、必(かなら)ず返(かえ)さなければならない。",
+       "vi": "Đã vay tiền thì nhất định phải trả."
+      },
+      {
+       "ja": "学生である以上、まず勉強を一番に考えるべきだ。",
+       "ja_furigana": "学生(がくせい)である以上(いじょう)、まず勉強(べんきょう)を一番(いちばん)に考(かんが)えるべきだ。",
+       "source": "AI",
+       "vi": "Một khi đã là học sinh thì trước hết nên đặt việc học lên hàng đầu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau thường là ý chí, nghĩa vụ; không dùng cho sự thật khách quan thông thường. Gần nghĩa 〜からには. Đừng nhầm với 以上 nghĩa 'từ… trở lên'.",
+    "examples": [
+     {
+      "ja": "A: 前にハワイに連れて行ってくれるって言ったのは本当？",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Lúc trước anh có nói sẽ đưa tôi đi Hawaii, thật không？"
+     },
+     {
+      "ja": "B: もちろん。約束した以上、そのつもりだよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Tất nhiên. Đã hứa thì tôi sẽ thực hiện。"
+     },
+     {
+      "ja": "学生である以上、まず勉強を一番に考えるべきだ。",
+      "ja_furigana": "学生(がくせい)である以上(いじょう)、まず勉強(べんきょう)を一番(いちばん)に考(かんが)えるべきだ。",
+      "source": "AI",
+      "vi": "Một khi đã là học sinh thì trước hết nên đặt việc học lên hàng đầu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A: 前にハワイに連れて行ってくれるって言ったのは本当？",
+     "FURIGANA_MISSING: B: もちろん。約束した以上、そのつもりだよ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + 以上(は)",
+    "locked_fields": [],
+    "meaning_vi": "Một khi đã… thì (phải…).",
+    "nuance_vi": "Hơi cứng; vế sau thể hiện nghĩa vụ, trách nhiệm, quyết tâm (べきだ, なければならない, つもりだ).",
+    "order_items": [],
+    "pattern": "以上(いじょう) 2",
+    "pattern_variants": [
+     "〜以上"
+    ],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Nêu một sự thật hay quyết định đã có làm cơ sở để nói rằng đương nhiên phải làm, phải chịu trách nhiệm hay có quyết tâm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-301506980b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "計算上は、この計画は問題なく進むはずだ。",
+       "ja_furigana": "計算上(けいさんじょう)は、この計画(けいかく)は問題(もんだい)なく進(すす)むはずだ。",
+       "vi": "Về mặt tính toán, kế hoạch này lẽ ra sẽ tiến triển không vấn đề."
+      },
+      {
+       "ja": "書類上は問題ないが、実際に調べると足りない部品があった。",
+       "ja_furigana": "書類上(しょるいじょう)は問題(もんだい)ないが、実際(じっさい)に調(しら)べると足(た)りない部品(ぶひん)があった。",
+       "source": "AI",
+       "vi": "Trên giấy tờ thì không có vấn đề, nhưng khi kiểm tra thực tế thì thiếu mất một bộ phận."
+      },
+      {
+       "ja": "法律上は、二十歳にならないとお酒は飲めない。",
+       "ja_furigana": "法律上(ほうりつじょう)は、二十歳(はたち)にならないとお酒(さけ)は飲(の)めない。",
+       "source": "AI",
+       "vi": "Về mặt luật pháp, chưa đủ hai mươi tuổi thì không được uống rượu."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với một số danh từ cố định, đọc là じょう (法律上). Khác 上で (sau khi…) và 上に (hơn nữa). Vế sau hay có ý 'nhưng thực tế…'.",
+    "examples": [
+     {
+      "ja": "表面上は問題ないように見える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "書類上は問題ないが、実際に調べると足りない部品があった。",
+      "ja_furigana": "書類上(しょるいじょう)は問題(もんだい)ないが、実際(じっさい)に調(しら)べると足(た)りない部品(ぶひん)があった。",
+      "source": "AI",
+      "vi": "Trên giấy tờ thì không có vấn đề, nhưng khi kiểm tra thực tế thì thiếu mất một bộ phận."
+     },
+     {
+      "ja": "法律上は、二十歳にならないとお酒は飲めない。",
+      "ja_furigana": "法律上(ほうりつじょう)は、二十歳(はたち)にならないとお酒(さけ)は飲(の)めない。",
+      "source": "AI",
+      "vi": "Về mặt luật pháp, chưa đủ hai mươi tuổi thì không được uống rượu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 表面上は問題ないように見える。",
+     "FURIGANA_MISSING: 表面上は問題ないように見える。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + 上は",
+    "locked_fields": [],
+    "meaning_vi": "Về mặt thì — Xét trên phương diện chính thức hoặc hình thức.",
+    "nuance_vi": "Xét về mặt N (chính thức, trên giấy tờ, lý thuyết); thường đi với 法律上, 書類上, 表面上, 理論上 và hàm ý 'thực tế có thể khác'.",
+    "order_items": [],
+    "pattern": "上(うえ)は",
+    "pattern_variants": [
+     "N + 上は"
+    ],
+    "unit_no": 17,
+    "unit_title_vi": null,
+    "usage_vi": "Hay gặp: 法律上は, 表面上は, 建前上は. Hàm ý thực tế có thể khác."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f2b90cfa77"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "親の看病があるので、旅行に行くわけにはいかない。",
+       "ja_furigana": "親(おや)の看病(かんびょう)があるので、旅行(りょこう)に行(い)くわけにはいかない。",
+       "vi": "Vì phải chăm sóc bố mẹ nên tôi không thể đi du lịch."
+      },
+      {
+       "ja": "明日は大事な試験があるので、今夜は遅くまで遊ぶわけにはいかない。",
+       "ja_furigana": "明日(あした)は大事(だいじ)な試験(しけん)があるので、今夜(こんや)は遅(おそ)くまで遊(あそ)ぶわけにはいかない。",
+       "source": "AI",
+       "vi": "Ngày mai có kỳ thi quan trọng nên tối nay không thể chơi đến khuya."
+      },
+      {
+       "ja": "課長にすすめられたお酒を、断るわけにはいかなかった。",
+       "ja_furigana": "課長(かちょう)にすすめられたお酒(さけ)を、断(ことわ)るわけにはいかなかった。",
+       "source": "AI",
+       "vi": "Ly rượu do trưởng phòng mời thì tôi không thể từ chối."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác Vられない (không có khả năng): わけにはいかない là không thể vì lý do hoàn cảnh. Ngược lại, ないわけにはいかない nghĩa là phải làm, tránh nhầm với 'không thể làm'.",
+    "examples": [
+     {
+      "ja": "大事な会議だから、休むわけにはいかない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "明日は大事な試験があるので、今夜は遅くまで遊ぶわけにはいかない。",
+      "ja_furigana": "明日(あした)は大事(だいじ)な試験(しけん)があるので、今夜(こんや)は遅(おそ)くまで遊(あそ)ぶわけにはいかない。",
+      "source": "AI",
+      "vi": "Ngày mai có kỳ thi quan trọng nên tối nay không thể chơi đến khuya."
+     },
+     {
+      "ja": "課長にすすめられたお酒を、断るわけにはいかなかった。",
+      "ja_furigana": "課長(かちょう)にすすめられたお酒(さけ)を、断(ことわ)るわけにはいかなかった。",
+      "source": "AI",
+      "vi": "Ly rượu do trưởng phòng mời thì tôi không thể từ chối."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 大事な会議だから、休むわけにはいかない。",
+     "FURIGANA_MISSING: 大事な会議だから、休むわけにはいかない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vる + わけにはいかない; Vない + わけにはいかない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể (vì lý do xã hội) — Về lý thuyết thì làm được nhưng vì hoàn cảnh hoặc đạo lý nên không thể.",
+    "nuance_vi": "Dù về khả năng thì làm được, nhưng vì hoàn cảnh xã hội, đạo lý hay trách nhiệm nên không thể làm; dạng phủ định Vない+わけにはいかない nghĩa là 'không thể không làm'.",
+    "order_items": [],
+    "pattern": "訳(わけ)には行(い)かない",
+    "pattern_variants": [
+     "V từ điển + わけにはいかない"
+    ],
+    "unit_no": 18,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với できない (không có khả năng). Phủ định ないわけにはいかない = buộc phải làm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aedcbdd728"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "その場では、私からは何とも申しかねます。",
+       "ja_furigana": "その場(ば)では、私(わたし)からは何(なん)とも申(もう)しかねます。",
+       "vi": "Ở đây thì tôi khó có thể nói gì được."
+      },
+      {
+       "ja": "子どもはお菓子を待ちかねて、台所をのぞいている。",
+       "ja_furigana": "子(こ)どもはお菓子(かし)を待(ま)ちかねて、台所(だいどころ)をのぞいている。",
+       "vi": "Đứa trẻ nóng lòng chờ bánh kẹo nên cứ ngó vào bếp."
+      },
+      {
+       "ja": "すみませんが、その件は私一人では判断しかねます。",
+       "ja_furigana": "すみませんが、その件(けん)は私(わたし)一人(ひとり)では判断(はんだん)しかねます。",
+       "source": "AI",
+       "vi": "Xin lỗi, vấn đề đó một mình tôi khó có thể quyết định được."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Là phủ định ẩn (khó có thể), không phải 'có thể'. Đừng nhầm với 〜かねない (có thể xảy ra điều xấu). Chủ yếu dùng với một số động từ như 判断する, 賛成する, 受け入れる.",
+    "examples": [
+     {
+      "ja": "息子は受験のプレッシャーに耐えかねて、体調を崩した。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Con trai không chịu được áp lực thi cử, cơ thể bị suy nhược."
+     },
+     {
+      "ja": "父親は初孫を連れた娘の帰りを待ちかねて、駅前で迎えに行った。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ông bố không thể chờ đợi con gái dẫn đứa cháu đầu tiên của mình trở về nên đã ra tận nhà ga đón."
+     },
+     {
+      "ja": "すみませんが、その件は私一人では判断しかねます。",
+      "ja_furigana": "すみませんが、その件(けん)は私(わたし)一人(ひとり)では判断(はんだん)しかねます。",
+      "source": "AI",
+      "vi": "Xin lỗi, vấn đề đó một mình tôi khó có thể quyết định được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 息子は受験のプレッシャーに耐えかねて、体調を崩した。",
+     "FURIGANA_MISSING: 父親は初孫を連れた娘の帰りを待ちかねて、駅前で迎えに行った。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + かねる",
+    "locked_fields": [],
+    "meaning_vi": "Không thể",
+    "nuance_vi": "Khó hoặc không thể làm vì lý do tâm lý hay quy định; trong kinh doanh là cách từ chối lịch sự; còn có nghĩa 'không chịu nổi' khi đi với 耐える, 待つ.",
+    "order_items": [],
+    "pattern": "兼(か)ねる",
+    "pattern_variants": [
+     "〜かねる",
+     "V thể ます (bỏ ます) + かねる"
+    ],
+    "unit_no": 18,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のマス形 Ý nghĩa: ～できない Không thể Ví dụ: 1. 息子は受験のプレッシャーに耐えかねて、体調を崩した。 Con trai không chịu được áp lực thi cử, cơ thể bị suy nhược. 2. 父親は初孫を連れた娘の帰りを待ちかねて、駅前で迎えに行った。 Ông bố không thể chờ đợi con gái dẫn đứa cháu đầu tiên của mình trở về nên đã ra tận nhà ga đón. 3. 「申し訳ございません。お客様のご希望には応じかねます」 Thành thực xin lỗi quý khách, chúng tôi không thể đáp ứng nguyện vọng. 4. 情報が少なすぎて現場の状況がわかりかねた。 Quá ít thông tin nên đã không thể hiểu bối cảnh hiện trường được. * 見るにかかねて手伝う。・「皆さん、お待ちかねです」 ・Vì không thể đứng nhìn nên tôi sẽ giúp. ・Tôi sẽ không để mọi người chờ thêm nữa!"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ce44d82e34"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "名前も分からないので、調べようがない。",
+       "ja_furigana": "名前(なまえ)も分(わ)からないので、調(しら)べようがない。",
+       "vi": "Vì không biết cả tên nên không có cách nào tra cứu."
+      },
+      {
+       "ja": "住所が書いていないので、手紙の出しようがない。",
+       "ja_furigana": "住所(じゅうしょ)が書(か)いていないので、手紙(てがみ)の出(だ)しようがない。",
+       "source": "AI",
+       "vi": "Vì không ghi địa chỉ nên không có cách nào gửi thư."
+      },
+      {
+       "ja": "ここまで壊れてしまっては、もう直しようがない。",
+       "ja_furigana": "ここまで壊(こわ)れてしまっては、もう直(なお)しようがない。",
+       "source": "AI",
+       "vi": "Hỏng đến mức này rồi thì không còn cách nào sửa nữa."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác わけにはいかない (làm được nhưng hoàn cảnh không cho phép) và 〜ことができない (nói khả năng thông thường). Với する dùng しようがない; đừng nhầm với 〜てしょうがない (cảm xúc mạnh không chịu nổi).",
+    "examples": [
+     {
+      "ja": "連絡先が分からないので、知らせようがない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "住所が書いていないので、手紙の出しようがない。",
+      "ja_furigana": "住所(じゅうしょ)が書(か)いていないので、手紙(てがみ)の出(だ)しようがない。",
+      "source": "AI",
+      "vi": "Vì không ghi địa chỉ nên không có cách nào gửi thư."
+     },
+     {
+      "ja": "ここまで壊れてしまっては、もう直しようがない。",
+      "ja_furigana": "ここまで壊(こわ)れてしまっては、もう直(なお)しようがない。",
+      "source": "AI",
+      "vi": "Hỏng đến mức này rồi thì không còn cách nào sửa nữa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 連絡先が分からないので、知らせようがない。",
+     "FURIGANA_MISSING: 連絡先が分からないので、知らせようがない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + ようがない",
+    "locked_fields": [],
+    "meaning_vi": "Không còn cách nào — Muốn làm cũng không có cách nào thực hiện.",
+    "nuance_vi": "Muốn làm cũng không có phương pháp hay cách nào để làm, thường vì thiếu thông tin hay điều kiện; nhấn mạnh 'hết cách', không phải thiếu ý muốn.",
+    "order_items": [],
+    "pattern": "様(よう)がない",
+    "pattern_variants": [
+     "V thể ます (bỏ ます) + ようがない"
+    ],
+    "unit_no": 18,
+    "unit_title_vi": null,
+    "usage_vi": "Khác với できない ở chỗ ようがない nhấn mạnh không có phương tiện, không có cách."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-df00d02bd4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "誰にでも、失敗することはあり得る。",
+       "ja_furigana": "誰(だれ)にでも、失敗(しっぱい)することはあり得(え)る。",
+       "vi": "Ai cũng có thể gặp thất bại."
+      },
+      {
+       "ja": "そんな勝手な考えは、私たちの会社ではあり得ない。",
+       "ja_furigana": "そんな勝手(かって)な考(かんが)えは、私(わたし)たちの会社(かいしゃ)ではあり得(え)ない。",
+       "vi": "Suy nghĩ tùy tiện như thế thì ở công ty chúng tôi không thể có."
+      },
+      {
+       "ja": "この天気では、明日の試合が中止になることも十分あり得る。",
+       "ja_furigana": "この天気(てんき)では、明日(あした)の試合(しあい)が中止(ちゅうし)になることも十分(じゅうぶん)あり得(う)る。",
+       "source": "AI",
+       "vi": "Với thời tiết này thì việc trận đấu ngày mai bị hủy hoàn toàn có thể xảy ra."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khác Vられる (khả năng của người làm); 得る chỉ dùng cho khả năng xảy ra và với số ít động từ. Phủ định là 得ない (えない), không nói 得らない.",
+    "examples": [
+     {
+      "ja": "この不況では大手企業の倒産もあり得る",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Trong tình huống suy thoái kinh tế này thì công ty lớn cũng có thể phá sản."
+     },
+     {
+      "ja": "あのまじめな彼が犯人！？ そんなことはあり得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Người chính trực như anh ấy là thủ phạm sao! Không thể có chuyện đó được."
+     },
+     {
+      "ja": "この天気では、明日の試合が中止になることも十分あり得る。",
+      "ja_furigana": "この天気(てんき)では、明日(あした)の試合(しあい)が中止(ちゅうし)になることも十分(じゅうぶん)あり得(う)る。",
+      "source": "AI",
+      "vi": "Với thời tiết này thì việc trận đấu ngày mai bị hủy hoàn toàn có thể xảy ra."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この不況では大手企業の倒産もあり得る",
+     "FURIGANA_MISSING: あのまじめな彼が犯人！？ そんなことはあり得ない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + 得る",
+    "locked_fields": [],
+    "meaning_vi": "Có khả năng",
+    "nuance_vi": "Văn viết, trang trọng; nói về khả năng có thể xảy ra, đọc là うる hoặc える; thường đi với một số động từ cố định như あり得る, 考え得る, 起こり得る.",
+    "order_items": [],
+    "pattern": "得(え)る",
+    "pattern_variants": [
+     "〜得る",
+     "V thể ます (bỏ ます) + 得る / 得ない"
+    ],
+    "unit_no": 18,
+    "unit_title_vi": null,
+    "usage_vi": "Cách kết hợp: 動詞のマス形 Ý nghĩa: ～することができる、可能性がある Có khả năng Ví dụ: 1. この不況では大手企業の倒産もあり得る Trong tình huống suy thoái kinh tế này thì công ty lớn cũng có thể phá sản. 2. あのまじめな彼が犯人！？ そんなことはあり得ない。 Người chính trực như anh ấy là thủ phạm sao! Không thể có chuyện đó được. 3. 株価がこれほど急激に下がるとは予想し得ず、大損してしまった。 Tôi không thể tưởng tượng được là giá cổ phiếu giảm mạnh đến mức này, lỗ to rồi. 4. 考え得る方法はすべて試してみたが、うまくいかなかった。 Tôi đã thử hết những cách có thể nghĩ ra nhưng cũng không tốt hơn. *～やむを得ない Ý nghĩa: しかたがない Không thể tránh khỏi Ví dụ: 1. 熱が３９度もあるのでは、欠席もやむを得ない。 Sốt cao 39 độ, không thể tránh khỏi việc nghỉ. 2. 事故で入院してしまったので、やむを得ず仕事を後輩に頼んだ。 Tôi phải nhập viện do tai nạn nên công việc đành phải nhờ hậu bối thôi. 3. やむを得ぬ理由で家賃の支払いが遅れてしまった。 Vì lý do bất đắc dĩ nên tôi đã đóng tiền nhà muộn."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-55be0484f3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼がそんなことを言うなんて、私には信じ得ない話だ。",
+       "ja_furigana": "彼(かれ)がそんなことを言(い)うなんて、私(わたし)には信(しん)じ得(え)ない話(はなし)だ。",
+       "vi": "Anh ấy nói thế ư, đó là chuyện tôi không thể tin nổi."
+      },
+      {
+       "ja": "普通の人間には到底なし得ない技だ。",
+       "ja_furigana": "普通(ふつう)の人間(にんげん)には到底(とうてい)なし得(え)ない技(わざ)だ。",
+       "vi": "Đó là kỹ thuật mà người thường không đời nào làm được."
+      },
+      {
+       "ja": "常識では考え得ない事件が、この町で起きた。",
+       "ja_furigana": "常識(じょうしき)では考(かんが)え得(え)ない事件(じけん)が、この町(まち)で起(お)きた。",
+       "source": "AI",
+       "vi": "Một vụ việc không thể nghĩ tới theo lẽ thường đã xảy ra ở thị trấn này."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với một số động từ (あり得ない, 考え得ない, 理解し得ない). Đừng nhầm với ざるを得ない (đành phải làm): chữ 得 giống nhau nhưng nghĩa khác hẳn. Khác ようがない (không có cách làm).",
+    "examples": [
+     {
+      "ja": "〈銀行の両替機を使って〉",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "〈Dùng máy đổi tiền của ngân hàng〉"
+     },
+     {
+      "ja": "A: おかしいなあ。100円足りない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Lạ quá. Thiếu 100 yên。"
+     },
+     {
+      "ja": "常識では考え得ない事件が、この町で起きた。",
+      "ja_furigana": "常識(じょうしき)では考(かんが)え得(え)ない事件(じけん)が、この町(まち)で起(お)きた。",
+      "source": "AI",
+      "vi": "Một vụ việc không thể nghĩ tới theo lẽ thường đã xảy ra ở thị trấn này."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 〈銀行の両替機を使って〉",
+     "FURIGANA_MISSING: A: おかしいなあ。100円足りない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます(bỏ ます) + 得ない",
+    "locked_fields": [],
+    "meaning_vi": "Không thể xảy ra, không có khả năng.",
+    "nuance_vi": "Văn viết hoặc lời nói cứng, đọc là えない; mạnh hơn nhiều so với できない thông thường.",
+    "order_items": [],
+    "pattern": "得(え)ない",
+    "pattern_variants": [
+     "〜得ない"
+    ],
+    "unit_no": 18,
+    "unit_title_vi": null,
+    "usage_vi": "Phủ định khả năng: việc đó không thể xảy ra hay không thể làm được xét về lý lẽ hoặc hoàn cảnh."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8a99154124"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店は有名なだけのことはあって、料理が本当においしい。",
+       "ja_furigana": "この店(みせ)は有名(ゆうめい)なだけのことはあって、料理(りょうり)が本当(ほんとう)においしい。",
+       "vi": "Quán này quả đúng là nổi tiếng, món ăn thực sự ngon."
+      },
+      {
+       "ja": "長年愛されているだけのことはあって、この歌は今でも人気だ。",
+       "ja_furigana": "長年(ながねん)愛(あい)されているだけのことはあって、この歌(うた)は今(いま)でも人気(にんき)だ。",
+       "vi": "Đúng là được yêu mến bao năm, bài hát này đến giờ vẫn nổi tiếng."
+      },
+      {
+       "ja": "毎日練習を続けただけのことはあって、彼のピアノは本当に上手になった。",
+       "ja_furigana": "毎日(まいにち)練習(れんしゅう)を続(つづ)けただけのことはあって、彼(かれ)のピアノは本当(ほんとう)に上手(じょうず)になった。",
+       "source": "AI",
+       "vi": "Đúng là xứng với việc luyện tập mỗi ngày, đàn piano của anh ấy đã giỏi lên thật sự."
+      }
+     ]
+    },
+    "note": "viết lại câu chép nguồn"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau là đánh giá tích cực, không dùng cho kết quả xấu. Khác だけに (kết quả tự nhiên, có thể xấu) và かいがある (công sức được đền đáp); だけのことはある nhấn mạnh sự xứng đáng.",
+    "examples": [
+     {
+      "ja": "A: このイタリア製の靴、10万円だって。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "A: Đôi giày sản xuất ở Ý này giá 100.000 yên đấy。"
+     },
+     {
+      "ja": "B: へー。でも、高いだけのことはあるね。形も色もすごくいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "B: Ồ。Nhưng đúng là xứng với giá. Cả kiểu dáng lẫn màu đều rất đẹp。"
+     },
+     {
+      "ja": "毎日練習を続けただけのことはあって、彼のピアノは本当に上手になった。",
+      "ja_furigana": "毎日(まいにち)練習(れんしゅう)を続(つづ)けただけのことはあって、彼(かれ)のピアノは本当(ほんとう)に上手(じょうず)になった。",
+      "source": "AI",
+      "vi": "Đúng là xứng với việc luyện tập mỗi ngày, đàn piano của anh ấy đã giỏi lên thật sự."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: A: このイタリア製の靴、10万円だって。",
+     "FURIGANA_MISSING: B: へー。でも、高いだけのことはあるね。形も色もすごくいい。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + だけのことはある",
+    "locked_fields": [],
+    "meaning_vi": "Đúng là xứng đáng với…",
+    "nuance_vi": "Có sắc thái tán thưởng, người nói tâm phục; vế trước là căn cứ làm nên sự đánh giá.",
+    "order_items": [],
+    "pattern": "〜だけのことはある",
+    "pattern_variants": [
+     "だけのことはある",
+     "Thể thường + だけのことはある"
+    ],
+    "unit_no": 19,
+    "unit_title_vi": null,
+    "usage_vi": "Khen và thừa nhận rằng kết quả hay năng lực tốt là xứng đáng với danh tiếng, công sức, giá tiền hay địa vị."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-3d5aec3c0e"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N2",
+ "packet_id": "REVIEW_GRAMMAR-007"
+}

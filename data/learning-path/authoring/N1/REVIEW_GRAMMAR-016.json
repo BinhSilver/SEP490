@@ -1,0 +1,580 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "上司も上司なら、部下も部下だ。",
+       "ja_furigana": "上司(じょうし)も上司(じょうし)なら、部下(ぶか)も部下(ぶか)だ。",
+       "vi": "Sếp cũng chẳng ra sao, nhân viên cũng vậy."
+      },
+      {
+       "ja": "先生も先生なら、生徒も生徒だ。",
+       "ja_furigana": "先生(せんせい)も先生(せんせい)なら、生徒(せいと)も生徒(せいと)だ。",
+       "vi": "Thầy cũng chẳng ra gì, trò cũng chẳng hơn."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "親も親なら、子も子だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bố mẹ cũng ra bố mẹ, con cái cũng ra con cái (đều có vấn đề cả)."
+     },
+     {
+      "ja": "店員も店員なら、客も客だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nhân viên thì cũng chẳng ra gì, khách cũng vậy."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 親も親なら、子も子だ。",
+     "FURIGANA_MISSING: 店員も店員なら、客も客だ。"
+    ],
+    "formation": "N + も + N + なら、N + も + N + だ",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa: “Cả A cũng ra A, B cũng ra B” → nhấn mạnh cả hai phía đều có vấn đề/đáng nói, thường mang sắc thái phê phán, mỉa mai hoặc than phiền. Cảm xúc người nói: đánh giá chủ quan mạnh; hay dùng khi thất vọng, bức xúc, hoặc “chán không buồn nói”. Ngữ dụng: thường dùng với danh từ chỉ người/tổ chức/đối tượng cùng loại để so sánh song hành: 親−子, 店−客, 上司−部下, 学校−生徒. Cú pháp: N trước và sau も thường lặp lại chính danh từ đó (nhấn mạnh tính “đúng là… thì…”). Vế sau dùng だ/だった để kết luận đánh giá. Thời: hiện tại/ quá khứ đều được; hiếm dùng tương lai. Có thể dùng ở dạng lịch sự です nhưng sắc thái châm biếm vẫn giữ.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cả... cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong văn nói, mạng xã hội, tiêu đề báo chí giật tít có sắc thái mỉa mai. Hai danh từ thường là hai “bên” liên hệ hoặc tương ứng (cha–con, cửa hàng–khách, đội–cổ động viên). Không thích hợp trong văn cảnh cực kỳ trang trọng hay khi cần trung lập cảm xúc. Thường đi kèm những từ đánh giá: ひどい, 最低, いい加減, 雑, ずさん … Có thể đứng độc lập như lời bình: 親も親なら、子も子だ。 [6. Ghi chú mở rộng] Cấu trúc này thường song song âm tiết, tạo “nhịp” mỉa mai; do đó hay lặp đúng danh từ. Có thể đảo ngược trật tự hai vế tùy muốn nhấn mạnh bên nào hơn. Khi muốn giảm độ gắt, có thể thêm ね, なあ ở cuối câu hoặc dùng です/ます. [7. Biến thể & cụm cố định] 親も親なら、子も子だ: thành ngữ “cha nào con nấy” nhưng hàm ý chê nhiều. 上司も上司なら、部下も部下だ: phê phán cả hai phía trong công việc. 店も店なら、客も客だ: nói về dịch vụ và khách hàng đều kém. [8. Lỗi thường gặp & bẫy JLPT] Dùng với tính từ/động từ thay vì danh từ lặp: sai. Mẫu chuẩn là danh từ lặp lại trước も. Dùng trong văn bản trang trọng như báo cáo chính thức: không phù hợp vì sắc thái cảm xúc mạnh. Hiểu nhầm là khen cả hai: hầu như luôn mang nghĩa tiêu cực/than phiền. Quên thì/phủ định: vế sau cần kết bằng だ/です/だった theo thì phù hợp."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9a195464d1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "遅かれ早かれ、真実は明らかになる。",
+       "ja_furigana": "遅(おそ)かれ早(はや)かれ、真実(しんじつ)は明(あき)らかになる。",
+       "vi": "Sớm hay muộn, sự thật rồi cũng sáng tỏ."
+      },
+      {
+       "ja": "良かれ悪しかれ、この経験は彼の将来に役立つ。",
+       "ja_furigana": "良(よ)かれ悪(あ)しかれ、この経験(けいけん)は彼(かれ)の将来(しょうらい)に役立(やくだ)つ。",
+       "vi": "Dù tốt hay xấu, trải nghiệm này cũng có ích cho tương lai của anh ấy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "多かれ少なかれ、誰でも失敗はする。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Ai rồi cũng có lúc mắc lỗi, ít nhiều."
+     },
+     {
+      "ja": "良かれ悪しかれ、その決定は会社に大きな影響を与える。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù tốt hay xấu, quyết định đó sẽ tác động lớn đến công ty."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 多かれ少なかれ、誰でも失敗はする。",
+     "FURIGANA_MISSING: 良かれ悪しかれ、その決定は会社に大きな影響を与える。"
+    ],
+    "formation": "Aい（〜い→〜かれ）+ Aい（〜い→〜かれ）、〜",
+    "locked_fields": [],
+    "meaning_vi": "Ý nghĩa 1: “Dù A hay B thì… / Bất kể ở mức A hay B thì…” - Nhấn mạnh kết luận không đổi dù ở hai cực đối lập của một thang độ. - Tính từ ghép thường là cặp đối nghĩa hoặc hai đầu mút về mức độ, thời điểm, chất lượng. Ý nghĩa 2: “Ít nhiều / sớm muộn / gần xa / đắt rẻ” - Diễn đạt tính phổ quát hoặc tất yếu: điều đó sẽ xảy ra hoặc đúng trong phạm vi nào đó. Sắc thái: Hơi trang trọng, văn viết; mang tính thành ngữ. Một số cụm rất thông dụng: 多かれ少なかれ (ít nhiều), 遅かれ早かれ (sớm muộn), 良かれ悪しかれ (dù tốt hay xấu).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù ít hay nhiều",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Mẫu: ～かれ～かれ (ghép hai tính từ đối lập, dạng cổ của i-tính từ) Cách hình thành: i-tính từ (～い) → đổi ～い thành ～かれ, ghép cặp đối nghĩa. 多い → 多かれ 少ない → 少なかれ 良い → 良かれ 悪い → 悪しかれ（dạng cố định; không dùng “悪かれ” trong cụm này） 遅い → 遅かれ / 早い → 早かれ 遠い → 遠かれ / 近い → 近かれ 高い → 高かれ / 安い → 安かれ Vị trí: Thường đứng đầu câu như trạng ngữ, hoặc trước mệnh đề chính. Ví dụ: 多かれ少なかれ、～。 / 遅かれ早かれ～。 Tính chất: Chủ yếu là các cụm cố định; không sản xuất tự do như mẫu “AかBか”. [4. Cách dùng & sắc thái] Cách dùng: Dùng như trạng ngữ nêu điều kiện bao quát hai cực: 多かれ少なかれ、～ Diễn đạt kết quả/nhận định mang tính khái quát hoặc tất yếu. Chủ yếu đi với i-tính từ; một số cụm dùng danh từ/tính chất hóa: 若かれ老いかれ. Sắc thái: Trang trọng, thành ngữ; thường gặp trong bài viết, diễn văn, báo chí. Hàm ý “bất kể dao động ở mức nào trong thang độ, kết luận vẫn đúng”. Lưu ý: Không tự ý tạo cặp mới nếu không tự nhiên trong tiếng Nhật. Ưu tiên dùng các cụm đã quen thuộc. Một số từ có thứ tự gần như cố định: 多かれ少なかれ, 遅かれ早かれ, 良かれ悪しかれ. [6. Ghi chú mở rộng] Nguồn gốc hình thái: “～かれ” là tàn dư dạng cổ của i-tính từ trong tiếng Nhật, bảo lưu trong một số thành ngữ như 良かれ悪しかれ, 遅かれ早かれ. Do tính lịch sử, nhiều cụm mang tính cố định, khó tự chế. “悪しかれ”: Dạng này là cố định trong cụm 良かれ悪しかれ; người học hay nhầm thành “悪かれ”. Hãy thuộc lòng theo cụm chuẩn. Dấu phẩy: Thường có dấu phẩy sau cụm khi đứng đầu câu: 多かれ少なかれ、～ để tách trạng ngữ. Ngữ dụng: Phù hợp văn viết trang trọng, báo chí, thuyết trình. Trong hội thoại đời thường, có thể thay bằng 多少, いずれ, どっちにしても tùy ngữ cảnh. [7. Biến thể & cụm cố định] 多かれ少なかれ: ít nhiều 遅かれ早かれ: sớm muộn 良かれ悪しかれ: dù tốt hay xấu; “for better or worse” 遠かれ近かれ: gần hay xa (hàm ý sớm muộn/không thể tránh) 高かれ安かれ: đắt hay rẻ 若かれ老いかれ: trẻ hay già (sắc thái văn viết) 強かれ弱かれ: mạnh hay yếu (ít gặp hơn; tính thành ngữ yếu hơn các cụm trên) [8. Lỗi thường gặp & bẫy JLPT] Dùng sai hình thái: Sai: 良いかれ悪いかれ → Đúng: 良かれ悪しかれ Sai: 悪かれ trong cụm trên → Đúng: 悪しかれ Tự chế cặp không tự nhiên: Sai: 美しかれ綺麗かれ (không tự nhiên) Hãy ưu tiên dùng các cụm quen thuộc như 多かれ少なかれ, 遅かれ早かれ. Lẫn với “AかBか” (câu lựa chọn/hỏi): 行くか行かないか ≠ 遅かれ早かれ. Mẫu “～かれ～かれ” không phải mẫu hỏi hay lựa chọn mà là thành ngữ bao quát hai cực. Trật tự từ cố định: Thường là: 多かれ少なかれ, 遅かれ早かれ. Đảo thứ tự dễ nghe lạ tai trong đề thi. Bẫy lựa chọn trong JLPT: Chọn giữa 多かれ少なかれ và 多少なりとも: cả hai đều “ít nhiều”, nhưng yêu cầu sắc thái thành ngữ trang trọng → ưu tiên 多かれ少なかれ. Chọn giữa 遅かれ早かれ và いずれ: nếu cần cặp đối lập/nhấn mạnh hai cực → 遅かれ早かれ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-159195ea3e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "一言知らせてくれれば迎えに行ったものを。",
+       "ja_furigana": "一言(ひとこと)知(し)らせてくれれば迎(むか)えに行(い)ったものを。",
+       "vi": "Giá như cậu báo một câu thì tôi đã ra đón rồi."
+      },
+      {
+       "ja": "もっと早く言えば直してあげられたものを。",
+       "ja_furigana": "もっと早(はや)く言(い)えば直(なお)してあげられたものを。",
+       "vi": "Giá như nói sớm hơn thì tôi đã sửa giúp được rồi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一言相談してくれば助けられたものを。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu cậu hỏi tớ một câu thôi thì đã giúp được rồi, vậy mà…"
+     },
+     {
+      "ja": "もっと早く病院に行けば治ったものを。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu đi bệnh viện sớm hơn thì đã khỏi rồi…"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一言相談してくれば助けられたものを。",
+     "FURIGANA_MISSING: もっと早く病院に行けば治ったものを。"
+    ],
+    "formation": "V-ば／Aければ／Nなら + 〜ものを",
+    "locked_fields": [],
+    "meaning_vi": "～ば～ものを dùng để diễn đạt sự tiếc nuối, bất mãn, trách móc vì “ nếu mà… thì đã… rồi, vậy mà…”. Người nói cho rằng nếu điều kiện ở vế trước xảy ra thì kết quả đã tốt hơn, nhưng thực tế lại không như vậy. Sắc thái: tiếc nuối + trách móc nhẹ hoặc bất mãn. Ngữ cảnh: văn viết, hội thoại nghiêm túc, mang tính cảm xúc. Cấu trúc logic: (Nếu A xảy ra) → (thì B tốt đẹp hơn), nhưng thực tế không phải vậy. Ví dụ logic: Nếu cậu nói sớm hơn thì đã tránh được chuyện này rồi… (nhưng cậu không nói).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Giá như... thì... (tiếc nuối)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng khi người nói cảm thấy đáng tiếc, bất mãn về kết quả hiện tại. Có thể mang hàm ý trách đối phương nhẹ nhàng: “giá mà…”, “phải chi…”. Không dùng trong ngữ cảnh vui vẻ, thông thường. Thường đi kèm với các cách nói mang cảm xúc: のに, くせに, ったら nhưng mang sắc thái mạnh hơn. [6. Ghi chú mở rộng] Mẫu này mang hơi hướng “giá như… thì đã…”, nhưng cũng hàm ý “vậy mà không làm”. Thường xuất hiện trong văn viết, truyện, phim, hoặc lời thoại mang cảm xúc mạnh. Không dùng để khuyên nhủ đơn thuần, vì sắc thái cảm xúc khá mạnh. [7. Biến thể & cụm cố định] ～たら～ものを: ít gặp hơn, nhưng mang nghĩa tương tự. ～ものを… cũng có thể đứng cuối câu để bỏ lửng, tăng cảm xúc tiếc nuối. 例：言ってくれればよかったものを… ～ものの: khác nghĩa, mang ý “mặc dù… nhưng…”, không mang sắc thái tiếc nuối mạnh. [8. Lỗi thường gặp & bẫy JLPT] Dùng nhầm với ～のに trong câu thi JLPT – hãy chú ý nếu câu chứa cảm xúc tiếc nuối hoặc trách móc thì chọn ～ば～ものを. Quên chia động từ theo thể điều kiện ば trước khi dùng ものを. Không dùng trong hội thoại vui vẻ hoặc lịch sự cao – dễ thiếu tự nhiên. Sau ものを thường không đi với mệnh lệnh, yêu cầu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-531b89f49b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "会うにつけ、彼の成長に驚かされる。",
+       "ja_furigana": "会(あ)うにつけ、彼(かれ)の成長(せいちょう)に驚(おどろ)かされる。",
+       "vi": "Mỗi lần gặp, tôi lại ngạc nhiên trước sự trưởng thành của anh ấy."
+      },
+      {
+       "ja": "楽しいにつけつらいにつけ、母はいつも手紙をくれる。",
+       "ja_furigana": "楽(たの)しいにつけつらいにつけ、母(はは)はいつも手紙(てがみ)をくれる。",
+       "vi": "Dù vui hay buồn, mẹ luôn viết thư cho tôi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "見るにつけ聞くにつけ、彼の努力に頭が下がる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Mỗi khi thấy hay nghe, tôi đều khâm phục nỗ lực của anh ấy."
+     },
+     {
+      "ja": "うれしいにつけ悲しいにつけ、彼女は日記に書き留める。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù vui hay buồn, cô ấy đều ghi lại vào nhật ký."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 見るにつけ聞くにつけ、彼の努力に頭が下がる。",
+     "FURIGANA_MISSING: うれしいにつけ悲しいにつけ、彼女は日記に書き留める。"
+    ],
+    "formation": "Vる／Aい + につけ + Vる／Aい + につけ、〜",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu cặp: “hễ A cũng …, hễ B cũng …” → kết quả/ cảm xúc ở mệnh đề sau giống nhau. Mẫu đơn: “cứ mỗi khi V thì …”, gần với ～たびに nhưng thường gắn với cảm xúc, hồi tưởng, đánh giá. Sắc thái thiên về cảm xúc, thở than, suy ngẫm; không hợp với mệnh lệnh/ý định cụ thể. Thường kết hợp với động từ cảm xúc/hồi tưởng: 思い出す, 感心する, 心が痛む, 考えさせられる, 胸が熱くなる.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hễ... thì... / mỗi lần...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Khi dùng dạng cặp, hai yếu tố trước につけ nên cân xứng (động từ/ tính từ cùng loại hoặc cặp đối lập). Mệnh đề sau thường diễn tả cảm xúc, đánh giá, thói quen chung; hạn chế dùng mệnh lệnh/ý định. Dạng đơn Vる + につけ nhấn vào “mỗi lần/ mỗi dịp gặp tình huống ấy” thì phản ứng cảm xúc phát sinh. Phong cách hơi trang trọng; dùng nhiều trong viết, phát biểu, bài luận. [6. Ghi chú mở rộng] Cặp điển hình: 見るにつけ聞くにつけ／読むにつけ書くにつけ／うれしいにつけ悲しいにつけ. “何事につけ” mang nghĩa “hễ chuyện gì cũng …”, rất hay gặp trong văn viết. Mẫu này hợp với chủ đề mang tính khái quát, lặp lại; tránh dùng cho sự kiện đơn lẻ, một lần duy nhất trong tương lai. [7. Biến thể & cụm cố định] Dạng đơn: Vる + につけ / Vる + につけて Cụm cố định: うれしいにつけ悲しいにつけ; 見るにつけ聞くにつけ; 何事につけ; 何かにつけ Biểu đạt tương tự: ～たびに (trung tính hơn) [8. Lỗi thường gặp & bẫy JLPT] Dùng mệnh lệnh/ý chí sau ～につけ: không tự nhiên. Ví dụ sai: “見るにつけ、来てください”。 Ghép hai vế không cân xứng: “見るにつけ悲しいにつけ” (động từ + tính từ) là sai; nên đồng loại. Nhầm với ～につれて: ～につけ không diễn tả biến đổi dần theo thời gian. Dùng cho sự kiện duy nhất: “明日会うにつけ、報告する” là không hợp; nên dùng ～たら/～とき."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-a9d45ae0a9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "お茶なり水なり、好きなものをどうぞ。",
+       "ja_furigana": "お茶(ちゃ)なり水(みず)なり、好(す)きなものをどうぞ。",
+       "vi": "Trà hay nước, cứ dùng món mình thích."
+      },
+      {
+       "ja": "迷ったら、先輩に相談するなり、自分で試すなりしなさい。",
+       "ja_furigana": "迷(まよ)ったら、先輩(せんぱい)に相談(そうだん)するなり、自分(じぶん)で試(ため)すなりしなさい。",
+       "vi": "Nếu phân vân thì hoặc hỏi đàn anh, hoặc tự mình thử đi."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "コーヒーなり紅茶なり、何か飲みませんか。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cà phê hay trà gì đó, uống chút chứ?"
+     },
+     {
+      "ja": "困ったら、先生に聞くなり、図書館で調べるなりしなさい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu gặp khó thì hoặc hỏi thầy, hoặc tra ở thư viện đi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: コーヒーなり紅茶なり、何か飲みませんか。",
+     "FURIGANA_MISSING: 困ったら、先生に聞くなり、図書館で調べるなりしなさい。"
+    ],
+    "formation": "N／Vる + なり + N／Vる + なり、〜",
+    "locked_fields": [],
+    "meaning_vi": "Đưa ra hai (hoặc hơn) lựa chọn “ví dụ như A hoặc B”, với hàm ý “cách nào cũng được, hãy chọn một để thực hiện”. Sắc thái gợi ý/yêu cầu nhẹ đến vừa; đôi khi có cảm giác thúc giục “làm gì đó đi”. Dùng trong hướng dẫn, khuyên bảo, hoặc đề nghị lịch sự; không trung tính như とか/や, mạnh hơn về “hành động”. Thường kết câu bằng してください／したらどうですか／しなさい／しよう／すればいい.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hoặc... hoặc... (gợi ý)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Hai mục liệt kê nên đồng loại (cùng là danh từ hoặc cùng là động từ dạng từ điển). Nhấn mạnh vào “hành động cụ thể” hơn là chỉ liệt kê thông tin. Sắc thái có thể hơi thúc ép; dùng với người ngang hàng/quen biết. Với khách hàng/cấp trên nên chọn cách mềm hơn. Thường đi kèm kết thúc mang tính đề nghị/mệnh lệnh nhẹ. [6. Ghi chú mở rộng] Trong văn lịch sự, có thể đổi kết thúc: ～してはいかがでしょうか／～されてはどうでしょうか để giảm mức ép. “A なり B なりして” là khung rất tự nhiên khi khuyên người nghe “hãy làm gì đó đi”. Khi liệt kê nhiều hơn hai, có thể dùng ba mục nhưng nên giữ nhịp gọn, tránh dài dòng. [7. Biến thể & cụm cố định] NなりNなりで（方法／手段） VるなりVるなりして（行動） 連絡するなり相談するなり（常用） 電話なりメールなり（固定 trong hướng dẫn liên lạc） [8. Lỗi thường gặp & bẫy JLPT] Trộn loại từ: “N なり Vるなり” không tự nhiên; cần cùng loại (N-N, V-V). Dùng để tả sự kiện quá khứ một lần mà không có ý gợi ý → chọn とか/や tốt hơn. Nhầm với “Vるなり” nghĩa “vừa… thì…”; đề thi hay gài cặp này. Dùng với cấp trên/khách hàng nguyên dạng mệnh lệnh nghe thô; nên chuyển sang dạng lịch sự đề nghị."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8e77f76c1b"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女はうれしいのやら悲しいのやら、表情が読めない。",
+       "ja_furigana": "彼女(かのじょ)はうれしいのやら悲(かな)しいのやら、表情(ひょうじょう)が読(よ)めない。",
+       "vi": "Không biết cô ấy đang vui hay buồn, tôi không đọc được nét mặt."
+      },
+      {
+       "ja": "当選して、驚いているのやら喜んでいるのやら、しばらく動けなかった。",
+       "ja_furigana": "当選(とうせん)して、驚(おどろ)いているのやら喜(よろこ)んでいるのやら、しばらく動(うご)けなかった。",
+       "vi": "Trúng cử rồi, không biết là ngạc nhiên hay vui mừng, tôi đứng sững một lúc."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は怒っているのやら冗談を言っているのやら、さっぱりわからない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Không biết anh ta đang giận thật hay đang đùa, tôi hoàn toàn không hiểu."
+     },
+     {
+      "ja": "合格して、うれしいのやらほっとしたのやら、言葉が出なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đậu rồi, không biết là vui hay nhẹ nhõm nữa, tôi không thốt nên lời."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は怒っているのやら冗談を言っているのやら、さっぱりわからない。",
+     "FURIGANA_MISSING: 合格して、うれしいのやらほっとしたのやら、言葉が出なかった。"
+    ],
+    "formation": "Thể thường + のやら + Thể thường + のやら、〜",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～のやら～のやら diễn tả sự lẫn lộn/khó xác định giữa hai khả năng, hai trạng thái A và B (“không biết là A hay B”). Thường dùng khi người nói chỉ quan sát bề ngoài hoặc ở trong trạng thái bối rối, không thể phán đoán rõ. Sau cặp ～のやら～のやら thường có mệnh đề tổng kết như: ～か（どうか）わからない／見当がつかない／判断がつかない／困る. Với A-na và danh từ phải dùng なのやら để nối vào “の”. Sắc thái thiên về văn viết hoặc diễn đạt nghiêm chỉnh; trong khẩu ngữ hằng ngày có thể thay bằng ～のか～のか／～のかどうか. Hai vế A và B thường mang tính đối lập hoặc loại trừ nhau, nhấn mạnh tính “không rõ ràng”.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Không biết... hay...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng khi người nói thiếu thông tin, không chắc chắn; mang sắc thái bối rối, ngờ vực nhẹ. Thường đi với động từ tri giác/nhận định ở cuối: わからない／見分けがつかない／迷う／困る. Không dùng khi người nói đã biết đáp án; khi xác nhận, dùng ～かどうか/～か. Về ngữ điệu: nhấn mạnh vào のやら để bộc lộ sự bối rối. Trang trọng hơn so với ～のか～のか; trong văn viết hoặc thuyết minh, ～のやら tạo cảm giác khách quan hơn. [6. Ghi chú mở rộng] Với từ nghi vấn: 何・どこ・いつ・だれ… + のやら nhấn mạnh “chẳng biết…”. Ví dụ: 何を考えているのやら。 Thời/Thể: ～のやら bản thân không mang thì; thì được biểu hiện ở mệnh đề sau (わからなかった／困っているなど). Tránh lạm dụng trong hội thoại thân mật nếu muốn tự nhiên: ưu tiên ～のか／～かな khi không cần sắc thái văn viết. Trong văn học, ～のやら có thể đứng cuối câu để tạo cảm giác bỏ lửng: どこへ行ったのやら。 [7. Biến thể & cụm cố định] どうしたらいいのやら／どうすればいいのやら：không biết phải làm sao. 何が起きたのやら：không biết chuyện gì đã xảy ra. 本当なのやら嘘なのやら／生きているのやら死んでいるのやら：cặp đối lập điển hình. ～のやら～のやら、～（か）わからない／見当がつかない：kết cấu thường trực. [8. Lỗi thường gặp & bẫy JLPT] Quên “な” với A-na/N: sai 本当のやら→ đúng 本当なのやら. Dùng ～やら～やら thay cho ～のやら～のやら khi muốn diễn tả “không biết”: hai mẫu khác chức năng. Bỏ mệnh đề tổng kết: nhiều câu cần “～わからない／判断がつかない”; thiếu sẽ thiếu trọn nghĩa. Chọn sai thì ở mệnh đề sau: nếu bối cảnh quá khứ → わからなかった, không phải わからない. Trộn với ～かどうか: khi có hai khả năng cụ thể A/B → ưu tiên ～のやら～のやら hoặc ～のだか～のだか."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-36aed87642"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "雨なら雨で、家でゆっくり過ごすのもいい。",
+       "ja_furigana": "雨(あめ)なら雨(あめ)で、家(いえ)でゆっくり過(す)ごすのもいい。",
+       "vi": "Nếu trời mưa thì cũng có cách vui riêng, ở nhà thong thả cũng được."
+      },
+      {
+       "ja": "道具がなかったらなかったで、手近な物で工夫すればいい。",
+       "ja_furigana": "道具(どうぐ)がなかったらなかったで、手近(てぢか)な物(もの)で工夫(くふう)すればいい。",
+       "vi": "Nếu không có dụng cụ thì cứ khéo léo dùng những thứ sẵn có."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "雨なら雨で、楽しみ方はある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu trời mưa thì mưa cũng có cách tận hưởng của nó."
+     },
+     {
+      "ja": "お金がなかったらなかったで、工夫すればいい。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Nếu không có tiền thì không có cũng xoay xở được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 雨なら雨で、楽しみ方はある。",
+     "FURIGANA_MISSING: お金がなかったらなかったで、工夫すればいい。"
+    ],
+    "formation": "Vたら + Vたで／Aかったら + Aかったで／N + なら + N + で、〜",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～たら～たで nêu rằng: Dù xảy ra A thì “trong tình huống A” cũng có cách xử lý/khó khăn riêng. Dùng để bày tỏ thái độ: không quá bận tâm, hoặc mỗi phương án đều có vấn đề tương ứng. Hai sắc thái thường gặp: Trung hòa/bao dung: “thì sao cũng được, sẽ lo theo cách của nó”. Nêu vấn đề đôi bên đều có nhược điểm: “thế nào cũng khổ riêng”. Vế sau thường chứa mô tả hệ quả cụ thể “～なりの問題/メリット・デメリット”. Với Na/N dùng なら～で, không dùng だったら～だったで trong văn viết chuẩn.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu... thì cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Tạo nhịp điệu lặp từ, biểu lộ tính “tùy cơ ứng biến” hoặc “bên nào cũng có cái khó”. Thường đi đôi cặp đối lập: 行ったら…行かなかったら…, あるならあるで…ないならないで… Không nhấn mạnh điều kiện dẫn đến bắt buộc; mang tính bình luận/nhận xét đời thường. Thân mật đến trung tính; dùng được trong văn nói và viết nhẹ nhàng. [6. Ghi chú mở rộng] Mẫu nhịp điệu dễ dùng trong quảng cáo/sales: 高かったら高かったで価値がある. Có thể kết hợp chuỗi dài để nhấn “bên nào cũng khổ”: ～したらしたで…, しなかったらしなかったで… Với phủ định dùng ないならないで/なかったらなかったで tự nhiên hơn so với じゃないならじゃないで. [7. Biến thể & cụm cố định] あるならあるで / ないならないで 行くなら行くで / 行かないなら行かないで 忙しかったら忙しかったで / 暇だったら暇だったで 雨なら雨で / 晴れなら晴れで [8. Lỗi thường gặp & bẫy JLPT] Dùng だったら～だったで với Na/N trong văn viết chuẩn → nên dùng なら～で. Nhầm là điều kiện bắt buộc như ～ならば → sai sắc thái; đây là bình luận về “trong hoàn cảnh đó”. Bỏ lặp từ gốc ở vế sau → sai mẫu. Cần giữ cùng một từ: 高かったら高かったで. JLPT bẫy: đáp án đúng thường có cặp đối ứng “あるならあるで／ないならないで”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7861708008"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "兄が兄なら、弟も弟だ。",
+       "ja_furigana": "兄(あに)が兄(あに)なら、弟(おとうと)も弟(おとうと)だ。",
+       "vi": "Anh đã như thế thì em cũng chẳng khác."
+      },
+      {
+       "ja": "社長が社長なら、社員も社員だ。",
+       "ja_furigana": "社長(しゃちょう)が社長(しゃちょう)なら、社員(しゃいん)も社員(しゃいん)だ。",
+       "vi": "Giám đốc như thế thì nhân viên cũng vậy."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "親が親なら、子も子だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cha đã thế thì con cũng thế (cả hai đều tệ/tương tự)."
+     },
+     {
+      "ja": "上司が上司なら、部下も部下だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Sếp như thế thì nhân viên cũng như thế."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 親が親なら、子も子だ。",
+     "FURIGANA_MISSING: 上司が上司なら、部下も部下だ。"
+    ],
+    "formation": "N + が／も + N + なら、N + も + N + だ",
+    "locked_fields": [],
+    "meaning_vi": "Mẫu ～が～なら、～も～だ (cũng như biến thể ～も～なら、～も～だ) đánh giá rằng cả A và B đều “đúng là A/B như thế” và có xu hướng tương đồng (thường là tiêu cực). Tức là, nếu A đã như thế thì B cũng chẳng khá hơn, cả hai tương xứng nhau về mức độ tốt/xấu (đa phần là chê trách). “なら” ở đây không phải là điều kiện thực hiện, mà là “xét về tư cách/tính chất”. Hầu như chỉ kết hợp với danh từ (vai trò, tư cách, nhóm người/vật). Sử dụng như lời bình phẩm/cảm thán, nhiều khi mang sắc thái mỉa mai.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nếu... thì... cũng...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng để chê trách, mỉa mai, bực dọc; tránh dùng trực diện với người trên để không thất lễ. Hai danh từ nên là cặp có quan hệ (cha–con, thầy–trò, sếp–nhân viên, khách–cửa hàng...). Không mang nghĩa điều kiện thực (nếu A thì B). Ý nghĩa là “xét A là A như thế, thì B cũng B như thế”. Đuôi câu thường là だ; có thể thêm よ/ね/な để điều chỉnh sắc thái khẩu ngữ. [6. Ghi chú mở rộng] Có thể lược bỏ chủ ngữ thực tế; tính công thức cao, dễ gặp trong báo chí/bình luận. Có thể thêm phó từ cảm thán: まったく／本当に／やれやれ, nhưng nên cân nhắc lịch sự. Tính đối xứng: nên giữ cùng một loại danh từ (vai trò/tư cách) ở cả hai vế để tự nhiên. Ở văn nói, “だ” có thể thay bằng “だよ／だね／だな” tùy thái độ. [7. Biến thể & cụm cố định] 親が親なら、子も子だ／親も親なら、子も子だ：cặp điển hình “cha nào con nấy”. 上司が上司なら、部下も部下だ：nói về văn hóa tổ chức tệ. 客が客なら、店も店だ；先生が先生なら、生徒も生徒だ：các cặp cố định thường gặp. Biến thể nhấn mạnh: まったくAがAなら、BもBだ；本当にAがAなら、BもBだ。 [8. Lỗi thường gặp & bẫy JLPT] Dùng với động/tính từ: mẫu này gần như chỉ đi với danh từ. Sai: 忙しいが忙しいなら… → Tránh. Hiểu “なら” là điều kiện thông thường; ở đây là đánh giá tư cách/tính chất, không phải “nếu… thì…”. Sai hạt nhân: dùng は thay が/も làm mất sắc thái công thức. Ưu tiên “NがNなら、NもNだ／NもNなら、NもNだ”. Dùng trong tình huống trang trọng với người liên quan trực tiếp có thể gây thất lễ do sắc thái chê trách. Thi JLPT: chọn đúng trật tự cặp danh từ có quan hệ (親–子, 師–弟…), và chọn đuôi だ (không đổi sang ～ている...)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-02e009df06"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この味は辛いというか苦いというか、何とも言えない。",
+       "ja_furigana": "この味(あじ)は辛(から)いというか苦(にが)いというか、何(なん)とも言(い)えない。",
+       "vi": "Vị này bảo là cay hay đắng thì đúng hơn, thật khó diễn tả."
+      },
+      {
+       "ja": "うれしいというか寂しいというか、複雑な気持ちだ。",
+       "ja_furigana": "うれしいというか寂(さび)しいというか、複雑(ふくざつ)な気持(きも)ちだ。",
+       "vi": "Bảo là vui hay buồn thì đúng hơn, lòng tôi thật phức tạp."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "彼は優しいというか甘いというか、人に厳しくできない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy hiền, hay nói đúng hơn là dễ dãi, không thể nghiêm khắc với người khác."
+     },
+     {
+      "ja": "驚いたというか呆れたというか、言葉が出なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bảo là ngạc nhiên hay là ngán ngẩm thì đúng hơn, tôi không thốt nên lời."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 彼は優しいというか甘いというか、人に厳しくできない。",
+     "FURIGANA_MISSING: 驚いたというか呆れたというか、言葉が出なかった。"
+    ],
+    "formation": "Thể thường + というか + Thể thường + というか、〜",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt sự lưỡng lự/chỉnh sửa cách nói: “nói thế này cũng đúng mà nói thế kia cũng đúng”, “hay đúng hơn là…”. Thường nêu hai biểu thức gần nghĩa hoặc hai mặt của cùng một sự việc, thể hiện đánh giá mơ hồ, khó diễn đạt dứt khoát. Có thể dùng để đính chính phát ngôn ngay trước đó: “A… à không, nói đúng hơn là B”. Sắc thái hội thoại, mềm, mang tính tự sự/cảm thán hơn là phán đoán quy phạm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Nói là... hay...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Phù hợp hội thoại, blog, mạng xã hội; ít dùng trong văn bản trang trọng. Hai biểu thức thường gần nhau về ý nghĩa hoặc cùng phục vụ việc tự sửa lời nói; không bắt buộc phải cùng từ loại nếu sự chuyển ý vẫn rõ và tự nhiên. Có thể dùng một lần để chỉnh sửa: A、というか、B（正確にはB）. Biểu đạt thái độ khiêm tốn/giảm nhẹ, tránh khẳng định mạnh. Biến thể っていうか mang sắc thái thân mật hơn. [6. Ghi chú mở rộng] Đặt “AというかB” ngay sau phát ngôn trước để chỉnh cho tự nhiên: A（大雑把）→ というかB（精確/婉曲）. Đừng lạm dụng nhiều cặp quá dài; tối đa hai cụm là tự nhiên nhất. Trong thuyết trình trang trọng, ưu tiên というより/すなわち/つまり để rõ ràng hơn というか. [7. Biến thể & cụm cố định] AというかBというか（mẫu cơ bản） …、というか、B（đính chính nhẹ/đệm lời） …、っていうか…（khẩu ngữ thân mật） どちらかというと（nói nghiêng về…） なんというか（mở đầu do dự） [8. Lỗi thường gặp & bẫy JLPT] Không cần tuyệt đối cùng từ loại. Điều quan trọng là A và B phải tạo quan hệ do dự, bổ sung hoặc tự sửa lời nói; tránh ghép hai ý không liên quan. Dùng trong văn bản trang trọng (báo cáo, luận văn) làm giảm tính nghiêm túc; JLPT thường gài bẫy bằng văn cảnh trang trọng → chọn というより/すなわち. Nhầm với というより: Nếu câu cần “phủ định A để chọn B”, phải dùng というより, không dùng というか. Lặp quá nhiều というか trong một câu khiến câu rườm rà, thiếu mạch lạc. Mức JLPT: というか thường xuất hiện ở N2 (cũng thấy ở N3 bối cảnh hội thoại); đề hay kiểm tra sắc thái “điều chỉnh phát ngôn”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ca892aa274"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "「宿題はどこまで進んだ？」「半分といったところかな」",
+       "ja_furigana": "「宿題(しゅくだい)はどこまで進(すす)んだ？」「半分(はんぶん)といったところかな」",
+       "vi": "“Bài tập tiến triển đến đâu rồi?” “Chắc được khoảng một nửa.”"
+      },
+      {
+       "ja": "「新しい職場はどう？」「まあまあといったところだね」",
+       "ja_furigana": "「新(あたら)しい職場(しょくば)はどう？」「まあまあといったところだね」",
+       "vi": "“Nơi làm mới thế nào?” “Cũng tạm ổn thôi.”"
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "「卒論、どこまで進んだ？」「3分の1といったところかな」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Luận văn tốt nghiệp tiến triển đến đâu rồi?” “Chắc khoảng một phần ba thôi.”"
+     },
+     {
+      "ja": "「今度の仕事、給料はどう？」「まあまあといったところだね」",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "“Lương ở công việc mới thế nào?” “Cũng tạm được, đại khái vậy.”"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 「卒論、どこまで進んだ？」「3分の1といったところかな」",
+     "FURIGANA_MISSING: 「今度の仕事、給料はどう？」「まあまあといったところだね」"
+    ],
+    "formation": "N／数量／Thể thường + といったところ(だ)",
+    "locked_fields": [],
+    "meaning_vi": "Khoảng…; đại khái ở mức…",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜という/〜といったところだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "Dùng để đưa ra con số, mức độ hoặc phạm vi ước chừng thay vì khẳng định chính xác. Cách nói này thường hàm ý “nhiều nhất hay đại khái chỉ đến mức đó”. 1) Dễ nhầm với ～くらい／～ほど. → ～という／～といったところだ đưa ra mức ước lượng và thường hàm ý “đại khái hoặc nhiều nhất chỉ đến mức ấy”. 2) Phía trước thường là số lượng, thời gian hoặc mức độ. → Mẫu không dùng để khẳng định một con số chính xác. 3) Chú ý sắc thái giới hạn. → Tùy ngữ cảnh, cách nói này có thể cho thấy người nói đánh giá con số ấy không nhiều hoặc không vượt quá phạm vi vừa nêu."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-138b9b1e67"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-016"
+}

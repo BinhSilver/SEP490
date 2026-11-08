@@ -1,0 +1,721 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女の活躍は、チームの勝利を支えたと言っても過言ではない。",
+       "ja_furigana": "彼女(かのじょ)の活躍(かつやく)は、チームの勝利(しょうり)を支(ささ)えたと言(い)っても過言(かごん)ではない。",
+       "vi": "Nói sự tỏa sáng của cô ấy đã chống đỡ cho chiến thắng của cả đội cũng không ngoa."
+      },
+      {
+       "ja": "今の彼の成功は、努力の結果だと言っても過言ではない。",
+       "ja_furigana": "今(いま)の彼(かれ)の成功(せいこう)は、努力(どりょく)の結果(けっか)だと言(い)っても過言(かごん)ではない。",
+       "source": "AI",
+       "vi": "Nói thành công hiện nay của anh ấy là kết quả của nỗ lực cũng không ngoa."
+      },
+      {
+       "ja": "インターネットは、現代社会に欠かせない存在だと言っても過言ではない。",
+       "ja_furigana": "インターネットは、現代社会(げんだいしゃかい)に欠(か)かせない存在(そんざい)だと言(い)っても過言(かごん)ではない。",
+       "source": "AI",
+       "vi": "Nói Internet là thứ không thể thiếu trong xã hội hiện đại cũng không ngoa."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng cho nhận định vô căn cứ hoặc cường điệu quá mức. Đừng hiểu 過言 là 'lỡ lời' đơn thuần: cả cụm có nghĩa 'nói thế cũng không quá'. Còn có dạng と言っていいほどだ.",
+    "examples": [
+     {
+      "ja": "彼は天才だと言っても過言ではない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "今の彼の成功は、努力の結果だと言っても過言ではない。",
+      "ja_furigana": "今(いま)の彼(かれ)の成功(せいこう)は、努力(どりょく)の結果(けっか)だと言(い)っても過言(かごん)ではない。",
+      "source": "AI",
+      "vi": "Nói thành công hiện nay của anh ấy là kết quả của nỗ lực cũng không ngoa."
+     },
+     {
+      "ja": "インターネットは、現代社会に欠かせない存在だと言っても過言ではない。",
+      "ja_furigana": "インターネットは、現代社会(げんだいしゃかい)に欠(か)かせない存在(そんざい)だと言(い)っても過言(かごん)ではない。",
+      "source": "AI",
+      "vi": "Nói Internet là thứ không thể thiếu trong xã hội hiện đại cũng không ngoa."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は天才だと言っても過言ではない。",
+     "FURIGANA_MISSING: 彼は天才だと言っても過言ではない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Thể thường + と言っても過言ではない",
+    "locked_fields": [],
+    "meaning_vi": "Nói là cũng không ngoa — Khẳng định mạnh rằng cách nói đó không hề phóng đại.",
+    "nuance_vi": "Văn viết hoặc lời nói trang trọng; khẳng định mạnh, thường là khen, rằng nói như vậy cũng không bị coi là phóng đại.",
+    "order_items": [],
+    "pattern": "Thể thường + と言っても過言ではない",
+    "pattern_variants": [],
+    "unit_no": 6,
+    "unit_title_vi": "Đánh giá, giá trị",
+    "usage_vi": "Cụm cố định trang trọng, hay dùng khi đánh giá cao."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-14fde66764"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この村には、昔ながらの祭りが今も残っている。",
+       "ja_furigana": "この村(むら)には、昔(むかし)ながらの祭(まつ)りが今(いま)も残(のこ)っている。",
+       "vi": "Ở ngôi làng này, lễ hội xưa vẫn còn được giữ đến nay."
+      },
+      {
+       "ja": "昔ながらの町並みが残る観光地は、外国人にも人気がある。",
+       "ja_furigana": "昔(むかし)ながらの町並(まちな)みが残(のこ)る観光地(かんこうち)は、外国人(がいこくじん)にも人気(にんき)がある。",
+       "source": "AI",
+       "vi": "Khu du lịch còn giữ lại khung cảnh phố xá như xưa cũng được người nước ngoài ưa chuộng."
+      },
+      {
+       "ja": "生まれながらの才能があると言われているが、彼は毎日の練習を欠かさない。",
+       "ja_furigana": "生(う)まれながらの才能(さいのう)があると言(い)われているが、彼(かれ)は毎日(まいにち)の練習(れんしゅう)を欠(か)かさない。",
+       "source": "AI",
+       "vi": "Dù được nói là có tài năng bẩm sinh, anh ấy không bỏ buổi luyện tập nào mỗi ngày."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ đi với một số danh từ cố định (昔ながらの, 生まれながらの), không ghép tùy ý. Đừng nhầm với ながら chỉ hai hành động cùng lúc; ở đây bổ nghĩa cho danh từ phía sau.",
+    "examples": [
+     {
+      "ja": "昔ながらの製法を守っている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "昔ながらの町並みが残る観光地は、外国人にも人気がある。",
+      "ja_furigana": "昔(むかし)ながらの町並(まちな)みが残(のこ)る観光地(かんこうち)は、外国人(がいこくじん)にも人気(にんき)がある。",
+      "source": "AI",
+      "vi": "Khu du lịch còn giữ lại khung cảnh phố xá như xưa cũng được người nước ngoài ưa chuộng."
+     },
+     {
+      "ja": "生まれながらの才能があると言われているが、彼は毎日の練習を欠かさない。",
+      "ja_furigana": "生(う)まれながらの才能(さいのう)があると言(い)われているが、彼(かれ)は毎日(まいにち)の練習(れんしゅう)を欠(か)かさない。",
+      "source": "AI",
+      "vi": "Dù được nói là có tài năng bẩm sinh, anh ấy không bỏ buổi luyện tập nào mỗi ngày."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 昔ながらの製法を守っている。",
+     "FURIGANA_MISSING: 昔ながらの製法を守っている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + ながらの + N",
+    "locked_fields": [],
+    "meaning_vi": "Nguyên vẹn như xưa — Giữ nguyên trạng thái từ trước đến nay.",
+    "nuance_vi": "Diễn tả việc giữ nguyên trạng thái như trước đây hay như vốn có, thường đi với 昔, 生まれ, 涙, 普段.",
+    "order_items": [],
+    "pattern": "N + ながらの",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": "Nhượng bộ, giữ nguyên",
+    "usage_vi": "Hay gặp: 昔ながらの, 生まれながらの."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-06a618e57d"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "信頼なくして、よい人間関係は築けない。",
+       "ja_furigana": "信頼(しんらい)なくして、よい人間関係(にんげんかんけい)は築(きず)けない。",
+       "vi": "Không có lòng tin thì không xây dựng được mối quan hệ tốt."
+      },
+      {
+       "ja": "先輩方の協力なくして、この事業の成功はなかった。",
+       "ja_furigana": "先輩方(せんぱいがた)の協力(きょうりょく)なくして、この事業(じぎょう)の成功(せいこう)はなかった。",
+       "source": "AI",
+       "vi": "Nếu không có sự hợp tác của các anh chị đi trước, đã không có thành công của dự án này."
+      },
+      {
+       "ja": "平和なくして、経済の発展は望めない。",
+       "ja_furigana": "平和(へいわ)なくして、経済(けいざい)の発展(はってん)は望(のぞ)めない。",
+       "source": "AI",
+       "vi": "Không có hòa bình thì không thể mong phát triển kinh tế."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải là phủ định hay khả năng phủ định. Cứng hơn なしには. Đừng nhầm với なくて (dạng て của ない), vốn chỉ nguyên nhân hay liệt kê.",
+    "examples": [
+     {
+      "ja": "努力なくして成功はない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "先輩方の協力なくして、この事業の成功はなかった。",
+      "ja_furigana": "先輩方(せんぱいがた)の協力(きょうりょく)なくして、この事業(じぎょう)の成功(せいこう)はなかった。",
+      "source": "AI",
+      "vi": "Nếu không có sự hợp tác của các anh chị đi trước, đã không có thành công của dự án này."
+     },
+     {
+      "ja": "平和なくして、経済の発展は望めない。",
+      "ja_furigana": "平和(へいわ)なくして、経済(けいざい)の発展(はってん)は望(のぞ)めない。",
+      "source": "AI",
+      "vi": "Không có hòa bình thì không thể mong phát triển kinh tế."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 努力なくして成功はない。",
+     "FURIGANA_MISSING: 努力なくして成功はない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + なくして(は)",
+    "locked_fields": [],
+    "meaning_vi": "Nếu không có thì — Thiếu điều kiện đó thì việc kia không thành.",
+    "nuance_vi": "Văn viết, trang trọng; nếu không có N thì điều ở vế sau không thể hoặc không thành, vế sau là phủ định.",
+    "order_items": [],
+    "pattern": "N + なくして",
+    "pattern_variants": [],
+    "unit_no": 5,
+    "unit_title_vi": "Nếu không có thì không thể",
+    "usage_vi": "Vế sau bắt buộc phủ định. Trang trọng hơn なしには."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-4280cd120e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "美しい音楽と相まって、会場は幻想的な雰囲気に包まれた。",
+       "ja_furigana": "美(うつく)しい音楽(おんがく)と相(あい)まって、会場(かいじょう)は幻想的(げんそうてき)な雰囲気(ふんいき)に包(つつ)まれた。",
+       "vi": "Kết hợp với âm nhạc đẹp, hội trường được bao phủ trong bầu không khí huyền ảo."
+      },
+      {
+       "ja": "彼女の優れた技術は、生まれ持ったセンスと相まって、多くの人を魅了した。",
+       "ja_furigana": "彼女(かのじょ)の優(すぐ)れた技術(ぎじゅつ)は、生(う)まれ持(も)ったセンスと相(あい)まって、多(おお)くの人(ひと)を魅了(みりょう)した。",
+       "source": "AI",
+       "vi": "Kỹ thuật xuất sắc của cô ấy, kết hợp với năng khiếu bẩm sinh, đã làm say mê nhiều người."
+      },
+      {
+       "ja": "円安と相まって、輸入品の価格が急に上がっている。",
+       "ja_furigana": "円安(えんやす)と相(あい)まって、輸入品(ゆにゅうひん)の価格(かかく)が急(きゅう)に上(あ)がっている。",
+       "source": "AI",
+       "vi": "Cộng hưởng với đồng yên mất giá, giá hàng nhập khẩu đang tăng nhanh."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Hai yếu tố phải tác động cùng chiều, không dùng với hai yếu tố đối lập. Chỉ đi sau danh từ, không gắn với động từ. Đừng đọc 相 là そう; ở đây đọc あい.",
+    "examples": [
+     {
+      "ja": "好天と相まって、来場者は過去最多となった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼女の優れた技術は、生まれ持ったセンスと相まって、多くの人を魅了した。",
+      "ja_furigana": "彼女(かのじょ)の優(すぐ)れた技術(ぎじゅつ)は、生(う)まれ持(も)ったセンスと相(あい)まって、多(おお)くの人(ひと)を魅了(みりょう)した。",
+      "source": "AI",
+      "vi": "Kỹ thuật xuất sắc của cô ấy, kết hợp với năng khiếu bẩm sinh, đã làm say mê nhiều người."
+     },
+     {
+      "ja": "円安と相まって、輸入品の価格が急に上がっている。",
+      "ja_furigana": "円安(えんやす)と相(あい)まって、輸入品(ゆにゅうひん)の価格(かかく)が急(きゅう)に上(あ)がっている。",
+      "source": "AI",
+      "vi": "Cộng hưởng với đồng yên mất giá, giá hàng nhập khẩu đang tăng nhanh."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 好天と相まって、来場者は過去最多となった。",
+     "FURIGANA_MISSING: 好天と相まって、来場者は過去最多となった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + と相まって",
+    "locked_fields": [],
+    "meaning_vi": "Kết hợp với — Hai yếu tố cộng hưởng tạo nên kết quả lớn hơn.",
+    "nuance_vi": "Văn viết; hai yếu tố cộng hưởng với nhau tạo ra hiệu quả lớn hơn, thường theo hướng tích cực hoặc làm tình trạng mạnh thêm.",
+    "order_items": [],
+    "pattern": "N + と相まって",
+    "pattern_variants": [],
+    "unit_no": 14,
+    "unit_title_vi": "Biểu đạt đặc biệt, văn cổ",
+    "usage_vi": "Văn viết. Cả hai yếu tố đều góp phần, không phải nguyên nhân đơn lẻ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d0a31bf7c9"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "助けてくれた人には、感謝こそすれ、文句を言う気持ちはない。",
+       "ja_furigana": "助(たす)けてくれた人(ひと)には、感謝(かんしゃ)こそすれ、文句(もんく)を言(い)う気持(きも)ちはない。",
+       "vi": "Với người đã giúp mình, tôi chỉ biết cảm ơn chứ không có ý trách móc."
+      },
+      {
+       "ja": "彼の行動は、非難されこそすれ、賞賛されるものではない。",
+       "ja_furigana": "彼(かれ)の行動(こうどう)は、非難(ひなん)されこそすれ、賞賛(しょうさん)されるものではない。",
+       "source": "AI",
+       "vi": "Hành động của anh ta chỉ đáng bị chỉ trích chứ không phải thứ được khen ngợi."
+      },
+      {
+       "ja": "彼の親切な行いは、感謝されこそすれ、疑われる理由はない。",
+       "ja_furigana": "彼(かれ)の親切(しんせつ)な行(おこな)いは、感謝(かんしゃ)されこそすれ、疑(うたが)われる理由(りゆう)はない。",
+       "source": "AI",
+       "vi": "Việc làm tử tế của anh ấy chỉ đáng được cảm ơn chứ không có lý do gì để bị nghi ngờ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải là phủ định tương ứng (〜はしない, 〜ことはない); không dùng cho hai việc không đối lập. Đứng sau danh từ hay động từ dạng bỏ ます.",
+    "examples": [
+     {
+      "ja": "感謝こそすれ、恨むことはない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼の行動は、非難されこそすれ、賞賛されるものではない。",
+      "ja_furigana": "彼(かれ)の行動(こうどう)は、非難(ひなん)されこそすれ、賞賛(しょうさん)されるものではない。",
+      "source": "AI",
+      "vi": "Hành động của anh ta chỉ đáng bị chỉ trích chứ không phải thứ được khen ngợi."
+     },
+     {
+      "ja": "彼の親切な行いは、感謝されこそすれ、疑われる理由はない。",
+      "ja_furigana": "彼(かれ)の親切(しんせつ)な行(おこな)いは、感謝(かんしゃ)されこそすれ、疑(うたが)われる理由(りゆう)はない。",
+      "source": "AI",
+      "vi": "Việc làm tử tế của anh ấy chỉ đáng được cảm ơn chứ không có lý do gì để bị nghi ngờ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 感謝こそすれ、恨むことはない。",
+     "FURIGANA_MISSING: 感謝こそすれ、恨むことはない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます (bỏ ます) + こそすれ; N + こそすれ",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ có chứ không — Khẳng định một chiều và phủ định chiều ngược lại.",
+    "nuance_vi": "Văn viết, cứng; khẳng định chiều này rồi phủ định hẳn chiều ngược lại ở vế sau, thường đi kèm 〜ない.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + こそすれ",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nhấn mạnh nguyên nhân, điều kiện",
+    "usage_vi": "Vế sau bắt buộc phủ định. Văn viết trang trọng."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-603137e58e"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "どんな理由であろうと、遅刻は遅刻だ。",
+       "ja_furigana": "どんな理由(りゆう)であろうと、遅刻(ちこく)は遅刻(ちこく)だ。",
+       "vi": "Dù lý do gì đi nữa, muộn vẫn là muộn."
+      },
+      {
+       "ja": "相手が誰であろうと、間違っていることは間違っていると言うべきだ。",
+       "ja_furigana": "相手(あいて)が誰(だれ)であろうと、間違(まちが)っていることは間違(まちが)っていると言(い)うべきだ。",
+       "source": "AI",
+       "vi": "Dù đối phương là ai, điều sai thì vẫn phải nói là sai."
+      },
+      {
+       "ja": "どんなに忙しい時であろうと、家族との食事の時間は大切にしたい。",
+       "ja_furigana": "どんなに忙(いそが)しい時(とき)であろうと、家族(かぞく)との食事(しょくじ)の時間(じかん)は大切(たいせつ)にしたい。",
+       "source": "AI",
+       "vi": "Dù bận đến đâu, tôi vẫn muốn trân trọng giờ ăn cùng gia đình."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau là kết luận hay phán đoán chắc chắn, không phải câu hỏi. So với であれ thì であろうと mang sắc thái giả định rõ hơn, thường đi với từ nghi vấn hay danh từ.",
+    "examples": [
+     {
+      "ja": "誰であろうと規則は守るべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "相手が誰であろうと、間違っていることは間違っていると言うべきだ。",
+      "ja_furigana": "相手(あいて)が誰(だれ)であろうと、間違(まちが)っていることは間違(まちが)っていると言(い)うべきだ。",
+      "source": "AI",
+      "vi": "Dù đối phương là ai, điều sai thì vẫn phải nói là sai."
+     },
+     {
+      "ja": "どんなに忙しい時であろうと、家族との食事の時間は大切にしたい。",
+      "ja_furigana": "どんなに忙(いそが)しい時(とき)であろうと、家族(かぞく)との食事(しょくじ)の時間(じかん)は大切(たいせつ)にしたい。",
+      "source": "AI",
+      "vi": "Dù bận đến đâu, tôi vẫn muốn trân trọng giờ ăn cùng gia đình."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 誰であろうと規則は守るべきだ。",
+     "FURIGANA_MISSING: 誰であろうと規則は守るべきだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "疑問詞 + であろうと; N + であろうと; N + であろうと + N + であろうと",
+    "locked_fields": [],
+    "meaning_vi": "Dù là gì đi nữa — Bất kể trường hợp nào, kết luận vẫn không đổi.",
+    "nuance_vi": "Văn viết, cứng; nhượng bộ rằng bất kể là trường hợp nào, kết luận vẫn không đổi, thường đi với 誰, 何, どんな.",
+    "order_items": [],
+    "pattern": "Câu hỏi + であろうと",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Bất kể, dù là",
+    "usage_vi": "Hay đi với 誰, 何, どこ. Trang trọng hơn でも."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-f137d9a329"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "言葉のかけ方ひとつで、相手の印象は大きく変わる。",
+       "ja_furigana": "言葉(ことば)のかけ方(かた)ひとつで、相手(あいて)の印象(いんしょう)は大(おお)きく変(か)わる。",
+       "vi": "Chỉ một cách nói chuyện thôi cũng làm thay đổi lớn ấn tượng của đối phương."
+      },
+      {
+       "ja": "同じ失敗でも、受け止め方ひとつで、次への意欲は大きく変わる。",
+       "ja_furigana": "同(おな)じ失敗(しっぱい)でも、受(う)け止(と)め方(かた)ひとつで、次(つぎ)への意欲(いよく)は大(おお)きく変(か)わる。",
+       "source": "AI",
+       "vi": "Cùng một thất bại, chỉ cần cách đón nhận khác đi là động lực cho lần sau thay đổi rất nhiều."
+      },
+      {
+       "ja": "この試合に勝てるかどうかは、監督の判断ひとつにかかっている。",
+       "ja_furigana": "この試合(しあい)に勝(か)てるかどうかは、監督(かんとく)の判断(はんだん)ひとつにかかっている。",
+       "source": "AI",
+       "vi": "Có thắng được trận này hay không chỉ phụ thuộc vào phán đoán của huấn luyện viên."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đây không phải số đếm 'một cái'. Danh từ phía trước là cách thức, thái độ, lời nói; vế sau là sự thay đổi hay quyết định, thường đi với で, だ, にかかっている.",
+    "examples": [
+     {
+      "ja": "考え方ひとつで人生は変わる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "同じ失敗でも、受け止め方ひとつで、次への意欲は大きく変わる。",
+      "ja_furigana": "同(おな)じ失敗(しっぱい)でも、受(う)け止(と)め方(かた)ひとつで、次(つぎ)への意欲(いよく)は大(おお)きく変(か)わる。",
+      "source": "AI",
+      "vi": "Cùng một thất bại, chỉ cần cách đón nhận khác đi là động lực cho lần sau thay đổi rất nhiều."
+     },
+     {
+      "ja": "この試合に勝てるかどうかは、監督の判断ひとつにかかっている。",
+      "ja_furigana": "この試合(しあい)に勝(か)てるかどうかは、監督(かんとく)の判断(はんだん)ひとつにかかっている。",
+      "source": "AI",
+      "vi": "Có thắng được trận này hay không chỉ phụ thuộc vào phán đoán của huấn luyện viên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 考え方ひとつで人生は変わる。",
+     "FURIGANA_MISSING: 考え方ひとつで人生は変わる。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + ひとつ + で / だ / にかかっている",
+    "locked_fields": [],
+    "meaning_vi": "Chỉ cần một cái thôi — Một yếu tố nhỏ cũng đủ thay đổi cục diện.",
+    "nuance_vi": "Dùng cả văn nói lẫn văn viết; nhấn mạnh rằng kết quả thay đổi hoặc được quyết định chỉ bởi yếu tố N đó.",
+    "order_items": [],
+    "pattern": "N + ひとつ",
+    "pattern_variants": [],
+    "unit_no": 7,
+    "unit_title_vi": "Hậu tố và cách nói đặc trưng",
+    "usage_vi": "Cụm hay gặp: 考えひとつで, やり方ひとつで. Nhấn mạnh tính quyết định."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2055c54251"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "仲間が支えてくれればこそ、この仕事を続けられた。",
+       "ja_furigana": "仲間(なかま)が支(ささ)えてくれればこそ、この仕事(しごと)を続(つづ)けられた。",
+       "vi": "Chính vì có đồng đội nâng đỡ mà tôi mới tiếp tục công việc này được."
+      },
+      {
+       "ja": "厳しく指導してくれる先生がいればこそ、私はここまで成長できた。",
+       "ja_furigana": "厳(きび)しく指導(しどう)してくれる先生(せんせい)がいればこそ、私(わたし)はここまで成長(せいちょう)できた。",
+       "source": "AI",
+       "vi": "Chính vì có người thầy hướng dẫn nghiêm khắc mà tôi mới trưởng thành được đến mức này."
+      },
+      {
+       "ja": "家族が応援してくれればこそ、慣れない土地でも頑張れるのだ。",
+       "ja_furigana": "家族(かぞく)が応援(おうえん)してくれればこそ、慣(な)れない土地(とち)でも頑張(がんば)れるのだ。",
+       "source": "AI",
+       "vi": "Chính vì gia đình ủng hộ mà tôi mới cố gắng được cả ở nơi chưa quen."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Phải chia vế trước ở thể điều kiện ば rồi mới gắn こそ, không dùng から. Không dùng khi lý do là điều xấu hổ hay tiêu cực. Cứng hơn からこそ.",
+    "examples": [
+     {
+      "ja": "努力があればこそ、今の成功がある。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "厳しく指導してくれる先生がいればこそ、私はここまで成長できた。",
+      "ja_furigana": "厳(きび)しく指導(しどう)してくれる先生(せんせい)がいればこそ、私(わたし)はここまで成長(せいちょう)できた。",
+      "source": "AI",
+      "vi": "Chính vì có người thầy hướng dẫn nghiêm khắc mà tôi mới trưởng thành được đến mức này."
+     },
+     {
+      "ja": "家族が応援してくれればこそ、慣れない土地でも頑張れるのだ。",
+      "ja_furigana": "家族(かぞく)が応援(おうえん)してくれればこそ、慣(な)れない土地(とち)でも頑張(がんば)れるのだ。",
+      "source": "AI",
+      "vi": "Chính vì gia đình ủng hộ mà tôi mới cố gắng được cả ở nơi chưa quen."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 努力があればこそ、今の成功がある。",
+     "FURIGANA_MISSING: 努力があればこそ、今の成功がある。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vば / Aければ / Nであれば + こそ",
+    "locked_fields": [],
+    "meaning_vi": "Chính vì có mà — Nhấn mạnh rằng đúng điều đó mới là nguyên nhân thật sự.",
+    "nuance_vi": "Văn viết; nhấn mạnh đây mới là lý do thật sự, thường nêu lý do mang thiện ý hay hoàn cảnh tốt và hay kết bằng 〜のだ.",
+    "order_items": [],
+    "pattern": "N / V thể ば + こそ",
+    "pattern_variants": [],
+    "unit_no": 10,
+    "unit_title_vi": "Nhấn mạnh nguyên nhân, điều kiện",
+    "usage_vi": "Trang trọng hơn からこそ. Vế sau thường kết bằng のだ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-b33c37f6ec"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "計画なしには、大きな目標は達成できない。",
+       "ja_furigana": "計画(けいかく)なしには、大(おお)きな目標(もくひょう)は達成(たっせい)できない。",
+       "vi": "Không có kế hoạch thì không thể đạt được mục tiêu lớn."
+      },
+      {
+       "ja": "十分な準備なしには、新しい事業を始めることはできない。",
+       "ja_furigana": "十分(じゅうぶん)な準備(じゅんび)なしには、新(あたら)しい事業(じぎょう)を始(はじ)めることはできない。",
+       "source": "AI",
+       "vi": "Nếu không chuẩn bị đầy đủ thì không thể bắt đầu công việc kinh doanh mới."
+      },
+      {
+       "ja": "この問題は、国民の理解なしには解決しない。",
+       "ja_furigana": "この問題(もんだい)は、国民(こくみん)の理解(りかい)なしには解決(かいけつ)しない。",
+       "source": "AI",
+       "vi": "Vấn đề này không thể giải quyết nếu không có sự thấu hiểu của người dân."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Vế sau phải là phủ định hay khả năng phủ định. Đừng nhầm với なしに (mà không có… vẫn làm: 断りなしに入る), vốn không bắt buộc vế sau phủ định.",
+    "examples": [
+     {
+      "ja": "努力なしには成功はあり得ない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "十分な準備なしには、新しい事業を始めることはできない。",
+      "ja_furigana": "十分(じゅうぶん)な準備(じゅんび)なしには、新(あたら)しい事業(じぎょう)を始(はじ)めることはできない。",
+      "source": "AI",
+      "vi": "Nếu không chuẩn bị đầy đủ thì không thể bắt đầu công việc kinh doanh mới."
+     },
+     {
+      "ja": "この問題は、国民の理解なしには解決しない。",
+      "ja_furigana": "この問題(もんだい)は、国民(こくみん)の理解(りかい)なしには解決(かいけつ)しない。",
+      "source": "AI",
+      "vi": "Vấn đề này không thể giải quyết nếu không có sự thấu hiểu của người dân."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 努力なしには成功はあり得ない。",
+     "FURIGANA_MISSING: 努力なしには成功はあり得ない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + なしには; Vる + ことなしには",
+    "locked_fields": [],
+    "meaning_vi": "Nếu không có thì không — Thiếu điều kiện đó thì không thể thực hiện được.",
+    "nuance_vi": "Văn nói và viết trang trọng; thiếu điều kiện đó thì không thể thực hiện, vế sau là phủ định, nghe mềm hơn なくして một chút.",
+    "order_items": [],
+    "pattern": "N + なしには",
+    "pattern_variants": [
+     "〜なしに(は)"
+    ],
+    "unit_no": 5,
+    "unit_title_vi": "Nếu không có thì không thể",
+    "usage_vi": "Vế sau bắt buộc phủ định. Dạng khác: なくしては, なしでは."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ec06e7092f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この歌は、小さな子どもですら口ずさめる。",
+       "ja_furigana": "この歌(うた)は、小(ちい)さな子(こ)どもですら口(くち)ずさめる。",
+       "vi": "Bài hát này đến trẻ nhỏ cũng có thể ngân nga."
+      },
+      {
+       "ja": "彼女は疲れすぎて、立ち上がる力すらない。",
+       "ja_furigana": "彼女(かのじょ)は疲(つか)れすぎて、立(た)ち上(あ)がる力(ちから)すらない。",
+       "vi": "Cô ấy mệt đến mức không còn cả sức đứng dậy."
+      },
+      {
+       "ja": "専門家ですら見分けがつかないほど、その偽物は精巧に作られていた。",
+       "ja_furigana": "専門家(せんもんか)ですら見分(みわ)けがつかないほど、その偽物(にせもの)は精巧(せいこう)に作(つく)られていた。",
+       "source": "AI",
+       "vi": "Món hàng giả đó được làm tinh vi đến mức ngay cả chuyên gia cũng không phân biệt được."
+      }
+     ]
+    },
+    "note": "viết lại 2 câu chép nguồn BOOK"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Khi cần trợ từ cách (に, と, から) thì không dùng ですら mà dùng N + trợ từ + すら (友達にすら). Vế sau thường là phủ định hay điều bất ngờ.",
+    "examples": [
+     {
+      "ja": "この説明は子どもですら理解できる。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Lời giải thích này ngay cả trẻ con cũng hiểu được."
+     },
+     {
+      "ja": "彼は忙しすぎて、昼食の時間すらない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy bận đến mức ngay cả thời gian ăn trưa cũng không có."
+     },
+     {
+      "ja": "専門家ですら見分けがつかないほど、その偽物は精巧に作られていた。",
+      "ja_furigana": "専門家(せんもんか)ですら見分(みわ)けがつかないほど、その偽物(にせもの)は精巧(せいこう)に作(つく)られていた。",
+      "source": "AI",
+      "vi": "Món hàng giả đó được làm tinh vi đến mức ngay cả chuyên gia cũng không phân biệt được."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: この説明は子どもですら理解できる。",
+     "FURIGANA_MISSING: 彼は忙しすぎて、昼食の時間すらない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + ですら; N + すら; N + trợ từ + すら",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh mức độ bất ngờ: ngay cả đối tượng ở rìa dưới/ngoài dự kiến cũng (không) … “ですら” mang sắc thái trang trọng; “すら/でさえ/さえ” dùng thông dụng hơn. Khi cần trợ từ cách (に/と/から…), “ですら” không chen vào được; dùng “N＋助詞＋すら”.",
+    "nuance_vi": "Văn viết, trang trọng; nêu trường hợp cực đoan để ngầm suy ra các trường hợp khác, ですら cứng hơn すら và でさえ.",
+    "order_items": [],
+    "pattern": "Ngay cả...",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Nhấn mạnh cả trường hợp cực đoan",
+    "usage_vi": "[4. Cách dùng & sắc thái] Dùng để đẩy mạnh tính bất ngờ/ngoài dự đoán; cả khẳng định và phủ định đều dùng được. Trong văn viết/diễn văn, “ですら” trang trọng hơn “さえ/でさえ”. Nếu cần giữ trợ từ cách: dùng “N＋助詞＋すら” (夢にすら, 彼とすら…). [6. Ghi chú mở rộng] Trong phủ định mạnh có thể đi với まったく／全然: 彼は挨拶すらしない. Tránh lặp trợ từ: × 子どもにですら → hoặc 子どもですら (không cần に), hoặc 子どもにすら. [7. Biến thể & cụm cố định] 子どもですら／専門家ですら／初心者ですら 夢にすら／名前すら／時間すら／力すら [8. Lỗi thường gặp & bẫy JLPT] Nhầm vị trí trợ từ: × 彼ですらに → đúng: 彼にすら. Dùng “ですら” ngay sau trợ từ cách: × 学校にですら → dùng 学校にすら hoặc 学校ですら (tùy nghĩa). Nhầm sắc thái với “まで”: “まで” là đến mức/đến cả nhưng không luôn mang tính bất ngờ như “すら”."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-d93f258ae0"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-009"
+}

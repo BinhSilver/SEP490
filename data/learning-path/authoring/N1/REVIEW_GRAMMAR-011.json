@@ -1,0 +1,726 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "遅刻して平然としているとは、無責任極まりない。",
+       "ja_furigana": "遅刻(ちこく)して平然(へいぜん)としているとは、無責任(むせきにん)極(きわ)まりない。",
+       "vi": "Đến muộn mà vẫn tỉnh bơ, thật là vô trách nhiệm hết mức."
+      },
+      {
+       "ja": "夜中に大音量で音楽を流すなんて、非常識極まる行為だ。",
+       "ja_furigana": "夜中(よなか)に大音量(だいおんりょう)で音楽(おんがく)を流(なが)すなんて、非常識(ひじょうしき)極(きわ)まる行為(こうい)だ。",
+       "source": "AI",
+       "vi": "Bật nhạc thật to giữa đêm là hành vi cực kỳ vô ý thức."
+      },
+      {
+       "ja": "彼の説明は不親切極まりなく、何度聞いても理解できなかった。",
+       "ja_furigana": "彼(かれ)の説明(せつめい)は不親切(ふしんせつ)極(きわ)まりなく、何度(なんど)聞(き)いても理解(りかい)できなかった。",
+       "source": "AI",
+       "vi": "Lời giải thích của anh ta cực kỳ thiếu thân thiện, nghe bao nhiêu lần tôi cũng không hiểu."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng với từ tích cực hay trung tính (sai: 親切極まりない trong nghĩa khen). Tính từ い phải qua dạng こと (うるさいこと極まりない). Khác 〜の極み (danh từ 'tột đỉnh' dùng cả tốt và xấu).",
+    "examples": [
+     {
+      "ja": "彼の態度は失礼極まりない。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "夜中に大音量で音楽を流すなんて、非常識極まる行為だ。",
+      "ja_furigana": "夜中(よなか)に大音量(だいおんりょう)で音楽(おんがく)を流(なが)すなんて、非常識(ひじょうしき)極(きわ)まる行為(こうい)だ。",
+      "source": "AI",
+      "vi": "Bật nhạc thật to giữa đêm là hành vi cực kỳ vô ý thức."
+     },
+     {
+      "ja": "彼の説明は不親切極まりなく、何度聞いても理解できなかった。",
+      "ja_furigana": "彼(かれ)の説明(せつめい)は不親切(ふしんせつ)極(きわ)まりなく、何度(なんど)聞(き)いても理解(りかい)できなかった。",
+      "source": "AI",
+      "vi": "Lời giải thích của anh ta cực kỳ thiếu thân thiện, nghe bao nhiêu lần tôi cũng không hiểu."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼の態度は失礼極まりない。",
+     "FURIGANA_MISSING: 彼の態度は失礼極まりない。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Aな語幹 / N + 極まる / 極まりない",
+    "locked_fields": [],
+    "meaning_vi": "Vô cùng, hết mức — Mức độ đạt tới cực điểm, hầu như luôn tiêu cực.",
+    "nuance_vi": "Văn viết, trang trọng, hầu như chỉ dùng với đánh giá tiêu cực; 極まる và 極まりない có nghĩa như nhau, 極まる thường đứng trực tiếp trước danh từ.",
+    "order_items": [],
+    "pattern": "A / N + 極まる / 極まりない",
+    "pattern_variants": [
+     "〜極まる/極まりない"
+    ],
+    "unit_no": 13,
+    "unit_title_vi": "Mức độ cực điểm",
+    "usage_vi": "極まる và 極まりない nghĩa giống nhau dù một cái có ない. Đây là điểm dễ nhầm."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6f8d19f2a1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "小さな店ながらも、常連客でいつもにぎわっている。",
+       "ja_furigana": "小(ちい)さな店(みせ)ながらも、常連客(じょうれんきゃく)でいつもにぎわっている。",
+       "vi": "Dù là quán nhỏ nhưng lúc nào cũng nhộn nhịp khách quen."
+      },
+      {
+       "ja": "彼は不安を抱えながらも、笑顔で新しい仕事に向かった。",
+       "ja_furigana": "彼(かれ)は不安(ふあん)を抱(かか)えながらも、笑顔(えがお)で新(あたら)しい仕事(しごと)に向(む)かった。",
+       "source": "AI",
+       "vi": "Dù mang trong lòng nỗi lo, anh ấy vẫn tươi cười bước vào công việc mới."
+      },
+      {
+       "ja": "事情を知りながらも、田中さんは何も言わなかった。",
+       "ja_furigana": "事情(じじょう)を知(し)りながらも、田中(たなか)さんは何(なに)も言(い)わなかった。",
+       "source": "AI",
+       "vi": "Dù biết rõ sự tình, anh Tanaka vẫn không nói gì."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chủ ngữ của hai vế phải giống nhau. Khác 〜ながら chỉ hai việc đồng thời: ながらも luôn mang nghĩa tương phản, nên vế sau không thể là việc cùng diễn ra tự nhiên với vế trước.",
+    "examples": [
+     {
+      "ja": "狭いながらも楽しい我が家。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼は不安を抱えながらも、笑顔で新しい仕事に向かった。",
+      "ja_furigana": "彼(かれ)は不安(ふあん)を抱(かか)えながらも、笑顔(えがお)で新(あたら)しい仕事(しごと)に向(む)かった。",
+      "source": "AI",
+      "vi": "Dù mang trong lòng nỗi lo, anh ấy vẫn tươi cười bước vào công việc mới."
+     },
+     {
+      "ja": "事情を知りながらも、田中さんは何も言わなかった。",
+      "ja_furigana": "事情(じじょう)を知(し)りながらも、田中(たなか)さんは何(なに)も言(い)わなかった。",
+      "source": "AI",
+      "vi": "Dù biết rõ sự tình, anh Tanaka vẫn không nói gì."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 狭いながらも楽しい我が家。",
+     "FURIGANA_MISSING: 狭いながらも楽しい我が家。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます（ます を取る）/ Aい / Aな語幹 / N + ながらも",
+    "locked_fields": [],
+    "meaning_vi": "Tuy mà vẫn — Nhượng bộ: dù ở trạng thái đó nhưng vẫn làm được điều khác.",
+    "nuance_vi": "Văn viết hoặc lời nói trang trọng; nhượng bộ 'dù ở trạng thái A nhưng vẫn B', nhấn mạnh sự đối lập giữa hai vế.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) / A / N + ながらも",
+    "pattern_variants": [],
+    "unit_no": 4,
+    "unit_title_vi": "Nhượng bộ, giữ nguyên",
+    "usage_vi": "Khác ながら chỉ sự đồng thời. ながらも luôn mang nghĩa nhượng bộ."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-30182cd916"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "好きなだけ本を読めるとは、幸せの極みだ。",
+       "ja_furigana": "好(す)きなだけ本(ほん)を読(よ)めるとは、幸(しあわ)せの極(きわ)みだ。",
+       "vi": "Được đọc sách thoải mái đúng là tột đỉnh của hạnh phúc."
+      },
+      {
+       "ja": "徹夜続きで、疲労の極みに達していた。",
+       "ja_furigana": "徹夜(てつや)続(つづ)きで、疲労(ひろう)の極(きわ)みに達(たっ)していた。",
+       "source": "AI",
+       "vi": "Thức trắng nhiều đêm liền, tôi đã mệt đến cực điểm."
+      },
+      {
+       "ja": "約束を破っておいて謝らないとは、無礼の極みだ。",
+       "ja_furigana": "約束(やくそく)を破(やぶ)っておいて謝(あやま)らないとは、無礼(ぶれい)の極(きわ)みだ。",
+       "source": "AI",
+       "vi": "Thất hẹn mà còn không xin lỗi thì thật là vô lễ hết mức."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Đi sau danh từ chỉ trạng thái hoặc cảm xúc, không đi sau động từ. Khác 〜極まりない (đi sau tính từ, thiên về tiêu cực): 〜の極み tự nó là danh từ nên có thể làm vị ngữ 〜の極みだ/に達する.",
+    "examples": [
+     {
+      "ja": "これは贅沢の極みだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "徹夜続きで、疲労の極みに達していた。",
+      "ja_furigana": "徹夜(てつや)続(つづ)きで、疲労(ひろう)の極(きわ)みに達(たっ)していた。",
+      "source": "AI",
+      "vi": "Thức trắng nhiều đêm liền, tôi đã mệt đến cực điểm."
+     },
+     {
+      "ja": "約束を破っておいて謝らないとは、無礼の極みだ。",
+      "ja_furigana": "約束(やくそく)を破(やぶ)っておいて謝(あやま)らないとは、無礼(ぶれい)の極(きわ)みだ。",
+      "source": "AI",
+      "vi": "Thất hẹn mà còn không xin lỗi thì thật là vô lễ hết mức."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: これは贅沢の極みだ。",
+     "FURIGANA_MISSING: これは贅沢の極みだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + の極み",
+    "locked_fields": [],
+    "meaning_vi": "Tột đỉnh của — Đạt tới đỉnh điểm của một trạng thái, dùng trong văn viết.",
+    "nuance_vi": "Văn viết, trang trọng; danh từ chỉ trạng thái đạt đến đỉnh điểm, dùng được cho cả điều tốt (贅沢の極み) lẫn xấu (無礼の極み).",
+    "order_items": [],
+    "pattern": "N + の極み",
+    "pattern_variants": [
+     "〜の極み"
+    ],
+    "unit_no": 13,
+    "unit_title_vi": "Mức độ cực điểm",
+    "usage_vi": "Hay gặp: 感激の極み, 贅沢の極み, 疲労の極み."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0d541f4f87"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "皆様にお越しいただき、感謝の至りです。",
+       "ja_furigana": "皆様(みなさま)にお越(こ)しいただき、感謝(かんしゃ)の至(いた)りです。",
+       "vi": "Được quý vị ghé thăm, tôi vô cùng biết ơn."
+      },
+      {
+       "ja": "このような賞をいただき、感激の至りでございます。",
+       "ja_furigana": "このような賞(しょう)をいただき、感激(かんげき)の至(いた)りでございます。",
+       "source": "AI",
+       "vi": "Được nhận giải thưởng như thế này, tôi vô cùng xúc động."
+      },
+      {
+       "ja": "若気の至りで、あんなことを言ってしまいました。",
+       "ja_furigana": "若気(わかげ)の至(いた)りで、あんなことを言(い)ってしまいました。",
+       "source": "AI",
+       "vi": "Do tuổi trẻ bồng bột, tôi đã lỡ nói những lời như thế."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ dùng với một số danh từ cảm xúc cố định (光栄, 感激, 赤面, 恐縮), không dùng để tả cảm xúc người khác. Khác 〜の極み: の至り thiên về cảm xúc cá nhân và lễ nghi, còn の極み dùng rộng hơn.",
+    "examples": [
+     {
+      "ja": "お招きいただき光栄の至りです。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "このような賞をいただき、感激の至りでございます。",
+      "ja_furigana": "このような賞(しょう)をいただき、感激(かんげき)の至(いた)りでございます。",
+      "source": "AI",
+      "vi": "Được nhận giải thưởng như thế này, tôi vô cùng xúc động."
+     },
+     {
+      "ja": "若気の至りで、あんなことを言ってしまいました。",
+      "ja_furigana": "若気(わかげ)の至(いた)りで、あんなことを言(い)ってしまいました。",
+      "source": "AI",
+      "vi": "Do tuổi trẻ bồng bột, tôi đã lỡ nói những lời như thế."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: お招きいただき光栄の至りです。",
+     "FURIGANA_MISSING: お招きいただき光栄の至りです。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（感情を表す語）+ の至り",
+    "locked_fields": [],
+    "meaning_vi": "Thật là, vô cùng — Cảm xúc dâng đến mức cao nhất, dùng trong lời chào trang trọng.",
+    "nuance_vi": "Văn viết hoặc lời chào trang trọng; diễn tả cảm xúc của chính người nói đạt đến mức cao nhất (光栄, 感激, 恐縮), cũng có cách nói cố định 若気の至り.",
+    "order_items": [],
+    "pattern": "N + の至り",
+    "pattern_variants": [
+     "〜の至り"
+    ],
+    "unit_no": 13,
+    "unit_title_vi": "Mức độ cực điểm",
+    "usage_vi": "Hay gặp: 光栄の至り, 恐縮の至り, 若気の至り (bồng bột tuổi trẻ)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-5a9d864924"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "彼女はこちらの説明を聞きもしないで、立ち去ってしまった。",
+       "ja_furigana": "彼女(かのじょ)はこちらの説明(せつめい)を聞(き)きもしないで、立(た)ち去(さ)ってしまった。",
+       "vi": "Cô ấy còn không thèm nghe lời giải thích của tôi mà đã bỏ đi."
+      },
+      {
+       "ja": "彼は私の話を聞きもしないで、反対した。",
+       "ja_furigana": "彼(かれ)は私(わたし)の話(はなし)を聞(き)きもしないで、反対(はんたい)した。",
+       "source": "AI",
+       "vi": "Anh ta không thèm nghe tôi nói mà đã phản đối."
+      },
+      {
+       "ja": "弟は部屋を片付けもしないのに、文句ばかり言う。",
+       "ja_furigana": "弟(おとうと)は部屋(へや)を片付(かたづ)けもしないのに、文句(もんく)ばかり言(い)う。",
+       "source": "AI",
+       "vi": "Em trai tôi chẳng thèm dọn phòng mà chỉ toàn phàn nàn."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Dùng với động từ chỉ hành động thường lệ; danh từ + する thì thành N + もしない (勉強もしない). Khác 〜ない đơn thuần (chỉ phủ định): もしない thêm ý bất mãn nên không dùng cho nói về bản thân với giọng lịch sự.",
+    "examples": [
+     {
+      "ja": "彼は謝りもしなかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "彼は私の話を聞きもしないで、反対した。",
+      "ja_furigana": "彼(かれ)は私(わたし)の話(はなし)を聞(き)きもしないで、反対(はんたい)した。",
+      "source": "AI",
+      "vi": "Anh ta không thèm nghe tôi nói mà đã phản đối."
+     },
+     {
+      "ja": "弟は部屋を片付けもしないのに、文句ばかり言う。",
+      "ja_furigana": "弟(おとうと)は部屋(へや)を片付(かたづ)けもしないのに、文句(もんく)ばかり言(い)う。",
+      "source": "AI",
+      "vi": "Em trai tôi chẳng thèm dọn phòng mà chỉ toàn phàn nàn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 彼は謝りもしなかった。",
+     "FURIGANA_MISSING: 彼は謝りもしなかった。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vます（ます を取る）+ もしない",
+    "locked_fields": [],
+    "meaning_vi": "Đến cả cũng không thèm — Phủ định mạnh kèm chê trách: không thèm làm dù chỉ chút ít.",
+    "nuance_vi": "Văn nói lẫn văn viết, giọng chê trách; nhấn mạnh người đó không làm dù chỉ một việc nhỏ nhất, thường hàm ý đáng ra phải làm.",
+    "order_items": [],
+    "pattern": "V thể ます (bỏ ます) + もしない",
+    "pattern_variants": [],
+    "unit_no": 8,
+    "unit_title_vi": "Nhấn mạnh cả trường hợp cực đoan",
+    "usage_vi": "Nhấn mạnh sự thờ ơ. Dạng liên quan: 見向きもしない."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2c841c0cac"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "リーダーたるもの、責任ある発言をすべきだ。",
+       "ja_furigana": "リーダーたるもの、責任(せきにん)ある発言(はつげん)をすべきだ。",
+       "vi": "Đã là người lãnh đạo thì phải phát ngôn có trách nhiệm."
+      },
+      {
+       "ja": "医者たるもの、患者の命を最優先に考えなければならない。",
+       "ja_furigana": "医者(いしゃ)たるもの、患者(かんじゃ)の命(いのち)を最優先(さいゆうせん)に考(かんが)えなければならない。",
+       "source": "AI",
+       "vi": "Đã là bác sĩ thì phải đặt tính mạng bệnh nhân lên hàng đầu."
+      },
+      {
+       "ja": "社会人たるもの、時間を守るのは当然のことだ。",
+       "ja_furigana": "社会人(しゃかいじん)たるもの、時間(じかん)を守(まも)るのは当然(とうぜん)のことだ。",
+       "source": "AI",
+       "vi": "Đã là người đi làm thì giữ đúng giờ là chuyện đương nhiên."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N phải là người có vai trò, nghề nghiệp hay địa vị đáng kính; không dùng với người hoặc vật bình thường. Vế sau là mệnh lệnh, bổn phận (べきだ, なければならない), không phải mô tả sự việc đã xảy ra. Khác 〜として (với tư cách): たるもの mang yêu cầu đạo đức.",
+    "examples": [
+     {
+      "ja": "教師たるもの、学生の模範であるべきだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "医者たるもの、患者の命を最優先に考えなければならない。",
+      "ja_furigana": "医者(いしゃ)たるもの、患者(かんじゃ)の命(いのち)を最優先(さいゆうせん)に考(かんが)えなければならない。",
+      "source": "AI",
+      "vi": "Đã là bác sĩ thì phải đặt tính mạng bệnh nhân lên hàng đầu."
+     },
+     {
+      "ja": "社会人たるもの、時間を守るのは当然のことだ。",
+      "ja_furigana": "社会人(しゃかいじん)たるもの、時間(じかん)を守(まも)るのは当然(とうぜん)のことだ。",
+      "source": "AI",
+      "vi": "Đã là người đi làm thì giữ đúng giờ là chuyện đương nhiên."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 教師たるもの、学生の模範であるべきだ。",
+     "FURIGANA_MISSING: 教師たるもの、学生の模範であるべきだ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（地位・職業・身分）+ たるもの",
+    "locked_fields": [],
+    "meaning_vi": "Đã là thì phải — Người ở vị trí đó thì đương nhiên phải có trách nhiệm tương xứng.",
+    "nuance_vi": "Văn viết hoặc phát biểu trang trọng, giọng đề cao trách nhiệm; vế sau thường là điều nên làm, phải làm.",
+    "order_items": [],
+    "pattern": "N + たるもの",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Văn viết, quy định, phán đoán",
+    "usage_vi": "Chỉ dùng với chức danh hoặc vai trò: 教師たるもの, リーダーたるもの."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-64fc6ad3a4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "小さなミスが、会社の信用に関わることもある。",
+       "ja_furigana": "小(ちい)さなミスが、会社(かいしゃ)の信用(しんよう)に関(かか)わることもある。",
+       "vi": "Một sai sót nhỏ đôi khi cũng liên quan đến uy tín của công ty."
+      },
+      {
+       "ja": "会社の評判に関わる問題なので、慎重に対応してください。",
+       "ja_furigana": "会社(かいしゃ)の評判(ひょうばん)に関(かか)わる問題(もんだい)なので、慎重(しんちょう)に対応(たいおう)してください。",
+       "source": "AI",
+       "vi": "Đây là vấn đề ảnh hưởng đến uy tín của công ty, nên hãy xử lý thận trọng."
+      },
+      {
+       "ja": "睡眠不足は健康に関わるから、軽く考えてはいけない。",
+       "ja_furigana": "睡眠不足(すいみんぶそく)は健康(けんこう)に関(かか)わるから、軽(かる)く考(かんが)えてはいけない。",
+       "source": "AI",
+       "vi": "Thiếu ngủ ảnh hưởng đến sức khỏe nên đừng xem nhẹ."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N thường là thứ trọng đại (命, 名誉, 評判, 信用); không dùng với chuyện nhỏ. Dạng danh từ bổ nghĩa là 〜に関わる + N, còn 〜に関する chỉ nói trung tính 'liên quan đến', không nhấn mạnh tầm quan trọng.",
+    "examples": [
+     {
+      "ja": "これは命に関わる問題だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "会社の評判に関わる問題なので、慎重に対応してください。",
+      "ja_furigana": "会社(かいしゃ)の評判(ひょうばん)に関(かか)わる問題(もんだい)なので、慎重(しんちょう)に対応(たいおう)してください。",
+      "source": "AI",
+      "vi": "Đây là vấn đề ảnh hưởng đến uy tín của công ty, nên hãy xử lý thận trọng."
+     },
+     {
+      "ja": "睡眠不足は健康に関わるから、軽く考えてはいけない。",
+      "ja_furigana": "睡眠不足(すいみんぶそく)は健康(けんこう)に関(かか)わるから、軽(かる)く考(かんが)えてはいけない。",
+      "source": "AI",
+      "vi": "Thiếu ngủ ảnh hưởng đến sức khỏe nên đừng xem nhẹ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: これは命に関わる問題だ。",
+     "FURIGANA_MISSING: これは命に関わる問題だ。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + に関わる",
+    "locked_fields": [],
+    "meaning_vi": "Liên quan sống còn đến — Ảnh hưởng nghiêm trọng đến điều quan trọng.",
+    "nuance_vi": "Văn nói lẫn văn viết; N là thứ quan trọng như mạng sống, danh dự, uy tín, và hàm ý việc đó ảnh hưởng nghiêm trọng đến N.",
+    "order_items": [],
+    "pattern": "N + に関わる",
+    "pattern_variants": [],
+    "unit_no": 15,
+    "unit_title_vi": "Liên quan, lập trường",
+    "usage_vi": "Chỉ dùng với việc hệ trọng: 命, 名誉, 信用. Khác に関して (chỉ nêu đề tài)."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-2f40a5dc7a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "寒い日が続いておりますが、お変わりないことと存じます。",
+       "ja_furigana": "寒(さむ)い日(ひ)が続(つづ)いておりますが、お変(か)わりないことと存(ぞん)じます。",
+       "vi": "Những ngày giá rét kéo dài, mong ngài vẫn được mạnh khỏe."
+      },
+      {
+       "ja": "新しい生活にもすっかり慣れたことと存じます。",
+       "ja_furigana": "新(あたら)しい生活(せいかつ)にもすっかり慣(な)れたことと存(ぞん)じます。",
+       "source": "AI",
+       "vi": "Chắc hẳn anh chị đã hoàn toàn quen với cuộc sống mới."
+      },
+      {
+       "ja": "皆様にはますますご活躍のことと存じます。",
+       "ja_furigana": "皆様(みなさま)にはますますご活躍(かつやく)のことと存(ぞん)じます。",
+       "source": "AI",
+       "vi": "Tôi tin rằng quý vị ngày càng thành công trong công việc."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Chỉ phỏng đoán về đối phương hoặc tình hình chung, không dùng cho việc của bản thân. Khác 〜と思います (thường ngày): 存じます là khiêm nhường ngữ nên không dùng với bạn bè; cũng không dùng cho tin xấu hay điều không chắc.",
+    "examples": [
+     {
+      "ja": "皆様お元気のことと存じます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "新しい生活にもすっかり慣れたことと存じます。",
+      "ja_furigana": "新(あたら)しい生活(せいかつ)にもすっかり慣(な)れたことと存(ぞん)じます。",
+      "source": "AI",
+      "vi": "Chắc hẳn anh chị đã hoàn toàn quen với cuộc sống mới."
+     },
+     {
+      "ja": "皆様にはますますご活躍のことと存じます。",
+      "ja_furigana": "皆様(みなさま)にはますますご活躍(かつやく)のことと存(ぞん)じます。",
+      "source": "AI",
+      "vi": "Tôi tin rằng quý vị ngày càng thành công trong công việc."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 皆様お元気のことと存じます。",
+     "FURIGANA_MISSING: 皆様お元気のことと存じます。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "Vた / 普通形 / N の + ことと存じます",
+    "locked_fields": [],
+    "meaning_vi": "Kính mong rằng, chắc là — Phỏng đoán lịch sự về tình hình của đối phương, dùng trong thư từ.",
+    "nuance_vi": "Rất trang trọng, dùng trong thư từ, email công việc hoặc lời chào; người nói lịch sự phỏng đoán tình hình tốt đẹp của người nhận.",
+    "order_items": [],
+    "pattern": "V-た / Thể thường + ことと存じます",
+    "pattern_variants": [],
+    "unit_no": 12,
+    "unit_title_vi": "Văn viết, quy định, phán đoán",
+    "usage_vi": "Cụm lễ nghi trong thư thương mại: お元気のことと存じます."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-8174e26f3f"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "有名な指導者のもとで、若い選手が育っている。",
+       "ja_furigana": "有名(ゆうめい)な指導者(しどうしゃ)のもとで、若(わか)い選手(せんしゅ)が育(そだ)っている。",
+       "vi": "Dưới sự dẫn dắt của huấn luyện viên nổi tiếng, những vận động viên trẻ đang trưởng thành."
+      },
+      {
+       "ja": "優秀な指導者のもとで、選手たちは力をつけていった。",
+       "ja_furigana": "優秀(ゆうしゅう)な指導者(しどうしゃ)のもとで、選手(せんしゅ)たちは力(ちから)をつけていった。",
+       "source": "AI",
+       "vi": "Dưới sự dẫn dắt của người huấn luyện giỏi, các tuyển thủ dần mạnh lên."
+      },
+      {
+       "ja": "法律のもとに、すべての人は平等である。",
+       "ja_furigana": "法律(ほうりつ)のもとに、すべての人(ひと)は平等(びょうどう)である。",
+       "source": "AI",
+       "vi": "Dưới pháp luật, mọi người đều bình đẳng."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "N là người có quyền chỉ đạo hoặc điều kiện, quy định (先生, 法律, 約束); không dùng với nơi chốn thông thường. Khác 〜をもとに (dựa trên tài liệu) và 〜において (tại, trong lĩnh vực).",
+    "examples": [
+     {
+      "ja": "先生のもとで研究を続けている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "優秀な指導者のもとで、選手たちは力をつけていった。",
+      "ja_furigana": "優秀(ゆうしゅう)な指導者(しどうしゃ)のもとで、選手(せんしゅ)たちは力(ちから)をつけていった。",
+      "source": "AI",
+      "vi": "Dưới sự dẫn dắt của người huấn luyện giỏi, các tuyển thủ dần mạnh lên."
+     },
+     {
+      "ja": "法律のもとに、すべての人は平等である。",
+      "ja_furigana": "法律(ほうりつ)のもとに、すべての人(ひと)は平等(びょうどう)である。",
+      "source": "AI",
+      "vi": "Dưới pháp luật, mọi người đều bình đẳng."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 先生のもとで研究を続けている。",
+     "FURIGANA_MISSING: 先生のもとで研究を続けている。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N + のもとで / のもとに",
+    "locked_fields": [],
+    "meaning_vi": "Dưới sự — Dưới sự chỉ đạo, điều kiện hoặc ảnh hưởng của cái gì.",
+    "nuance_vi": "Văn viết, trang trọng; 'dưới sự chỉ đạo, ảnh hưởng, điều kiện của N'. のもとで nhấn phạm vi hoạt động, のもとに nhấn điều kiện hay căn cứ.",
+    "order_items": [],
+    "pattern": "N + のもとで / のもとに",
+    "pattern_variants": [],
+    "unit_no": 2,
+    "unit_title_vi": "Dựa trên, căn cứ vào",
+    "usage_vi": "のもとで nhấn mạnh nơi chốn hoặc sự giám sát; のもとに nhấn mạnh điều kiện."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-7aad04d3c1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "年齢のいかんによらず、この研修に参加できる。",
+       "ja_furigana": "年齢(ねんれい)のいかんによらず、この研修(けんしゅう)に参加(さんか)できる。",
+       "vi": "Bất kể độ tuổi, ai cũng có thể tham gia khóa tập huấn này."
+      },
+      {
+       "ja": "天候のいかんによらず、試合は予定どおり行われる。",
+       "ja_furigana": "天候(てんこう)のいかんによらず、試合(しあい)は予定(よてい)どおり行(おこな)われる。",
+       "source": "AI",
+       "vi": "Bất kể thời tiết thế nào, trận đấu vẫn diễn ra theo kế hoạch."
+      },
+      {
+       "ja": "景気のいかんで、来年の採用人数が決まる。",
+       "ja_furigana": "景気(けいき)のいかんで、来年(らいねん)の採用人数(さいようにんずう)が決(き)まる。",
+       "source": "AI",
+       "vi": "Số người tuyển dụng năm sau được quyết định tùy vào tình hình kinh tế."
+      }
+     ]
+    },
+    "note": "viết lại 1 câu chép nguồn BOOK (thiếu vi)"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": "Không dùng trong hội thoại thân mật. いかんによらず (bất kể) khác hẳn いかんで/いかんによっては (tùy vào): đừng dùng nhầm hai nghĩa ngược nhau. いかんによらず gần nghĩa với いかんにかかわらず, còn いかんで thì không.",
+    "examples": [
+     {
+      "ja": "理由のいかんによらず、返品はできません。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": null
+     },
+     {
+      "ja": "天候のいかんによらず、試合は予定どおり行われる。",
+      "ja_furigana": "天候(てんこう)のいかんによらず、試合(しあい)は予定(よてい)どおり行(おこな)われる。",
+      "source": "AI",
+      "vi": "Bất kể thời tiết thế nào, trận đấu vẫn diễn ra theo kế hoạch."
+     },
+     {
+      "ja": "景気のいかんで、来年の採用人数が決まる。",
+      "ja_furigana": "景気(けいき)のいかんで、来年(らいねん)の採用人数(さいようにんずう)が決(き)まる。",
+      "source": "AI",
+      "vi": "Số người tuyển dụng năm sau được quyết định tùy vào tình hình kinh tế."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "EXAMPLE_TRANSLATION_MISSING: 理由のいかんによらず、返品はできません。",
+     "FURIGANA_MISSING: 理由のいかんによらず、返品はできません。",
+     "GRAMMAR_BANK_SHORT: bank 0 [0/0/0/0]"
+    ],
+    "formation": "N（の）+ いかんによらず / いかんで",
+    "locked_fields": [],
+    "meaning_vi": "Bất kể, tuỳ thuộc — いかんで = tuỳ vào; いかんによらず = bất kể thế nào.",
+    "nuance_vi": "Văn viết, trang trọng, thường gặp trong quy định, thông báo; いかんによらず là 'bất kể N thế nào', いかんで là 'tùy thuộc vào N'.",
+    "order_items": [],
+    "pattern": "N + いかんによらず / いかんで",
+    "pattern_variants": [],
+    "unit_no": 3,
+    "unit_title_vi": "Bất kể, dù là",
+    "usage_vi": "Hai dạng nghĩa ngược nhau, phải nhìn kỹ đuôi. 理由のいかんによらず = bất kể lý do gì."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-04de8ed233"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N1",
+ "packet_id": "REVIEW_GRAMMAR-011"
+}

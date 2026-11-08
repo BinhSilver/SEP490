@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Study card page (/learning/jlpt/study?session=); jpath-study.js draws it from
+     GET /api/learning/jlpt/sessions/{id}. Card text keeps Look up (data-inline-dictionary); micro-checks embedded
+     under a card use the check styles. -->
+<head th:replace="~{fragments/head :: standard('Học thẻ - JLAS', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-study')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-check.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-study" data-inline-dictionary>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Học hôm nay')}"></th:block>
+    <div class="jp-study-head">
+        <h1 class="jp-study-title">Học hôm nay</h1>
+        <a class="jp-link-btn" href="/learning">Tạm dừng</a>
+    </div>
+    <div id="jpathStudyRoot" class="jp-study-root" aria-busy="true" th:attr="data-session-id=${sessionId}">
+        <p class="jp-study-muted" role="status">Đang tải thẻ học…</p>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-offline-queue.js(v=${jpathAssetVersion})}"></script>
+<!-- "Bỏ qua (kiểm 1 câu)" draws its one-question check under the card with jpath-check.js. -->
+<script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-study.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

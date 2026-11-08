@@ -1,0 +1,574 @@
+{
+ "header": {
+  "instructions": "verdict: {\"ok\": true} nếu mục đúng; sai thì {\"fix\": {<trường>: <giá trị mới>}, \"note\": \"lý do ngắn\"} (chỉ ghi trường cần sửa, theo đúng khuôn của trường đó); mục và một \"twins\" là cùng một từ thì thêm \"same_word_as\": \"<id twin>\"; (ngữ pháp: sửa mẫu bằng \"fix\": {\"pattern\": \"〜…\"}, mẫu trùng một mẫu khác thì thêm \"same_pattern_as\": \"<id>\"); mục bị ghép nhầm với một từ khác thì thêm \"not_same_word_as\": \"<id từ kia>\" hoặc \"drop_variant\": \"<cách viết sai>\" (bỏ một cách viết thuộc từ khác khỏi \"variants\"); câu ví dụ sai (kể cả câu đã duyệt) thì thêm \"drop_example\": \"<câu ja>\"; câu đã duyệt thiếu ja_furigana thì chép lại nguyên câu trong \"fix.examples\" kèm ja_furigana."
+ },
+ "items": [
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "駅は近いのに、父は車で行った。",
+       "ja_furigana": "駅(えき)は近(ちか)いのに、父(ちち)は車(くるま)で行(おこな)った。",
+       "vi": "Ga gần thế mà bố lại đi bằng ô tô.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "一生けんめい勉強したのに、試験に落ちた。",
+       "ja_furigana": "一生(いっしょう)けんめい勉強(べんきょう)したのに、試験(しけん)に落(お)ちた。",
+       "vi": "Đã học hết sức vậy mà vẫn thi trượt.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "約束したのに",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã hứa rồi thế mà ..."
+     },
+     {
+      "ja": "来ると約束したのに、彼は来なかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Đã hứa là sẽ đến rồi vậy mà anh ấy đã không đến."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 約束したのに",
+     "FURIGANA_MISSING: 来ると約束したのに、彼は来なかった。"
+    ],
+    "formation": "V / Aい / Aな(な)・N(な) + のに",
+    "locked_fields": [],
+    "meaning_vi": "Thể hiện liên kết ngược",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のに(逆接)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-afc3520a32"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "昨日一番遅く帰ったのは兄だった。",
+       "ja_furigana": "昨日(きのう)一(いち)番(ばん)遅(おそ)く帰(かえ)ったのは兄(あに)だった。",
+       "vi": "Người về muộn nhất hôm qua là anh trai.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "私が一番好きなのは、母の作るカレーだ。",
+       "ja_furigana": "私(わたし)が一番(いちばん)好(す)きなのは、母(はは)の作(つく)るカレーだ。",
+       "vi": "Món tôi thích nhất là cà ri mẹ nấu.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "一番若いのは彼だ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Anh ấy là người trẻ nhất."
+     },
+     {
+      "ja": "合格したのは二人だけだ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Chỉ có hai người thi đỗ."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 一番若いのは彼だ。",
+     "FURIGANA_MISSING: 合格したのは二人だけだ。"
+    ],
+    "formation": "V / Aい / Aな(な) + のは + N + だ",
+    "locked_fields": [],
+    "meaning_vi": "Nhấn mạnh phần nằm trong ...",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜のは ...だ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "復習5 正しいほうを選びなさい。 １．映画を（a.見るの b.見る）が好きです。 ２．手続きに写真が（a.必要な b.必要）のを知っていますか。 ３．昨日、学校を（a.休む b.休んだ）のは、だれですか。 ４．若者の就職が（a.難しい b.難しいだ）ということが問題になっている。 ５．ワイン（a.の b.のこと）を教えてください。 ６．その実験が（a.危険な b.危険だ）ということを忘れないでください。 ７．新しい駅ができる（a.のこと b.ということ）を知って、びっくりしました。 ８．さくらと健太がデートしている（a.の b.こと）を見た。 ９．今年の目標は、日本語能力試験N3に合格する（a.の b.こと）です。 １０．「ありがとう」「いいえ。お礼を言いたい（a.の b.こと）は、私のほうです」 １１．明日からお祭りが始まる（a.のが b.のを）知っていますか。 １２．暗い部屋に一人で帰る(a.のが b.のを）いやです。"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ffc37e4f16"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この窓から海が見えます。",
+       "ja_furigana": "この窓(まど)から海(うみ)が見(み)えます。",
+       "vi": "Từ cửa sổ này có thể nhìn thấy biển.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "ここから山が見えます。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Có thể nhìn thấy núi từ đây. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: ここから山が見えます。"
+    ],
+    "formation": "N + が + V(thể khả năng: 見える・聞こえる・V-える / V-られる)",
+    "locked_fields": [],
+    "meaning_vi": "Có thể ~",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "〜可能動詞",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "書く→書ける 言う→言える 食べる→食べられる する→できる くる→こられる プラス１"
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-428e9beea3"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "この店を選んだのは、駅に近いからだ。",
+       "ja_furigana": "この店(みせ)を選(えら)んだのは、駅(えき)に近(ちか)いからだ。",
+       "vi": "Tôi chọn quán này vì gần ga.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "今朝遅れたのは、バスが来なかったからだ。",
+       "ja_furigana": "今朝(けさ)遅(おく)れたのは、バスが来(こ)なかったからだ。",
+       "vi": "Sáng nay tôi đến muộn là vì xe buýt không đến.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "よくないと思ったからだ",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Bởi vì tôi nghĩ nó không tốt."
+     },
+     {
+      "ja": "また、朝寝坊をしてしまった。きっと疲れているからだ。（≒疲れているから朝寝坊した）",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi lại ngủ quên mất tiêu. Chắc là do mệt mỏi."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: よくないと思ったからだ",
+     "FURIGANA_MISSING: また、朝寝坊をしてしまった。きっと疲れているからだ。（≒疲れているから朝寝坊した）"
+    ],
+    "formation": "(〜のは) + V / Aい / Aな(だ)・N(だ) + からだ",
+    "locked_fields": [],
+    "meaning_vi": "Thể hiện lý do. Dùng khi muốn nói “... là bởi lý do ...”",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "(・・・のは)〜からだ",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": null
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-9cffc7b59c"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "たとえ一人でも、この本を読み終えます。",
+       "ja_furigana": "たとえ一(いち)人(にん)でも、この本(ほん)を読(よ)み終(お)えます。",
+       "vi": "Dù chỉ một mình, tôi vẫn sẽ đọc xong cuốn sách.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "たとえ反対されても、この仕事を続けたい。",
+       "ja_furigana": "たとえ反対(はんたい)されても、この仕事(しごと)を続(つづ)けたい。",
+       "vi": "Cho dù bị phản đối, tôi vẫn muốn tiếp tục công việc này.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "たとえ雨でも、試合は行います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cho dù trời mưa, trận đấu vẫn diễn ra."
+     },
+     {
+      "ja": "たとえ失敗しても、挑戦し続ける。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù có thất bại, tôi vẫn tiếp tục thử thách."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: たとえ雨でも、試合は行います。",
+     "FURIGANA_MISSING: たとえ失敗しても、挑戦し続ける。"
+    ],
+    "formation": "たとえ + V-て / Aい(くて) / Aな・N(で) + も",
+    "locked_fields": [],
+    "meaning_vi": "Diễn đạt nhượng bộ giả định: “Cho dù … thì (vẫn) …”. たとえ là phụ từ nhấn mạnh; về ngữ pháp có thể lược bỏ, nhưng thêm vào để tăng sức nhấn/điểm tựa. Mệnh đề sau thường là ý chí/quyết tâm/đánh giá không bị ảnh hưởng bởi điều kiện trước. Dùng cho tình huống giả định hoặc có khả năng xảy ra; không dùng để miêu tả sự thật hiển nhiên.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Cho dù... vẫn",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Thường dùng trong phát biểu mang tính quyết tâm/chính sách: たとえ〜ても、〜する。 Vế sau hiếm khi là mệnh đề yêu cầu trực tiếp đối phương trừ khi mang sắc thái mềm: たとえ〜でも、〜してください。 Trong văn nói, có thể lược たとえ chỉ dùng 〜ても/〜でも; thêm たとえ để nhấn mạnh. Kết hợp tốt với từ nhấn: いくら／どんなに／たとえ… [6. Ghi chú mở rộng] Chính tả: たとえ（平仮名） là thường gặp; 漢字 “例え” ít dùng trong mẫu cố định. Đi với mệnh đề mệnh lệnh/cấm đoán trực tiếp thường bị tránh; dùng cách nói gián tiếp để tự nhiên hơn. Vế sau thường không mâu thuẫn logic với vế trước (giữ tính khả thi và lập trường nhất quán). [7. Biến thể & cụm cố định] たとえ〜たとしても（trang trọng hơn, nhấn giả định） たとえ〜にしても／〜としても たとえどんなに〜ても／いくら〜ても たとえAでもB（N/なA） [8. Lỗi thường gặp & bẫy JLPT] Sai hạt nối với N/なA: × たとえ雨ても → √ たとえ雨でも。 Bỏ たとえ khi đề yêu cầu nhấn mạnh; trên đề JLPT, có thể là bẫy lựa chọn “ても” vs “たとえ〜ても”. Dùng cho sự thật hiển nhiên → không tự nhiên: × たとえ火は熱くても（vì ai cũng biết, không cần nhượng bộ). Vế sau mệnh lệnh/cấm đoán thô: × たとえ遅れても来るな → nên dùng cách nói khác mềm hơn hoặc đổi cấu trúc."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-e958d613e4"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "白い服を買ったつもりだったが、青い服だった。",
+       "ja_furigana": "白(しろ)い服(ふく)を買(か)ったつもりだったが、青(あお)い服(ふく)だった。",
+       "vi": "Tôi tưởng mình đã mua áo trắng nhưng hóa ra là áo xanh.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "かぎをかけたつもりだったが、ドアが開いていた。",
+       "ja_furigana": "かぎをかけたつもりだったが、ドアが開(あ)いていた。",
+       "vi": "Tôi cứ nghĩ là đã khóa cửa, nhưng cửa lại đang mở.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "明日は早く起きるつもりでしたが、寝坊してしまいました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Hôm qua tôi đã định sáng nay dậy sớm, nhưng lại ngủ quên."
+     },
+     {
+      "ja": "そのメールはもう送ったつもりでしたが、下書きに残っていました。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Tôi cứ tưởng đã gửi mail đó rồi, nhưng nó còn ở bản nháp."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 明日は早く起きるつもりでしたが、寝坊してしまいました。",
+     "FURIGANA_MISSING: そのメールはもう送ったつもりでしたが、下書きに残っていました。"
+    ],
+    "formation": "V-る / V-ない + つもりだったが / つもりでしたが",
+    "locked_fields": [],
+    "meaning_vi": "Ý định trong quá khứ: “đã dự định/định sẽ …” tại một thời điểm quá khứ. Thực hiện hay không tùy ngữ cảnh sau đó. Niềm tin sai/hiểu lầm: “tưởng là đã …” dùng với Vた, thường kéo theo kết quả trái ngược và lời xin lỗi/đính chính. Phủ định ý định: Vない + つもりでした = “đã định không …”. Chủ thể thường là người nói; với người khác cần dẫn lời/uyển chuyển.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Định... nhưng (không xảy ra)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Dạng lịch sự, hay dùng để giải thích kèm “が／けど” đưa ra kết quả trái ngược. Vた + つもりでした thường đi với “が／のに／けど” để báo hiệu sự khác biệt so với thực tế. Nói ý định của người khác: dùng ～つもりだったようだ／と言っていた để lịch sự và chính xác. Xin lỗi/đính chính: “～したつもりでしたが…” là khuôn mẫu rất tự nhiên trong email/công việc. [6. Ghi chú mở rộng] Dạng phủ định hiện tại “～つもりはない” (không có ý định) khác với quá khứ lịch sự “～つもりでした”. Trong email công việc, “送ったつもりでしたが、確認が足りませんでした” là cách xin lỗi khéo. Với N: “冗談のつもり” là thành ngữ phổ biến khi giải thích hiểu lầm. [7. Biến thể & cụm cố định] ～するつもりでしたが、… ～したつもりでしたが、… 冗談のつもりでした／親切のつもりでした ～ないつもりでしたが、… [8. Lỗi thường gặp & bẫy JLPT] Dùng cho người khác mà không dẫn lời: “彼は行くつもりでした” dễ gây suy đoán chủ quan; nên “と言っていました/だったようです”. Nhầm với ～はずだった: “つもり” là ý định cá nhân; “はず” là mong đợi có cơ sở. Nhầm “tưởng đã V” với “định V”: phải dùng Vた + つもり để diễn đạt “tưởng đã”. Bỏ mệnh đề trái ngược sau đó: với Vた + つもりでした thường cần nêu thực tế khác để rõ nghĩa."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-ccf73f37f2"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "休みといっても、午後だけです。",
+       "ja_furigana": "休(やす)みといっても、午後(ごご)だけです。",
+       "vi": "Gọi là nghỉ nhưng chỉ được buổi chiều.",
+       "role": "MAIN"
+      }
+     ]
+    },
+    "note": "thay 1 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "先生といっても、まだ若い人です。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù gọi là giáo viên nhưng người đó vẫn còn trẻ. · Ví dụ J-LAS soạn bổ sung"
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: 先生といっても、まだ若い人です。"
+    ],
+    "formation": "N / V / A(thể thông thường) + といっても",
+    "locked_fields": [],
+    "meaning_vi": "“Tuy nói là A… nhưng (thực ra) B”: nêu nhãn/khái niệm A rồi hạ kỳ vọng, làm rõ thực tế B. Nhấn mạnh khoảng cách giữa danh xưng/khuôn mẫu và thực tế: “gọi là rẻ nhưng thực ra không rẻ lắm…”. Thường dùng để hạn định phạm vi, mức độ, ngoại lệ; B thường là thông tin sửa kỳ vọng. Sắc thái nhượng bộ, khách quan hơn けど/が, ít cảm xúc mạnh.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù nói là... nhưng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] B dùng thông tin thực tế để điều chỉnh kỳ vọng từ A; hay xuất hiện trong giải thích, khiêm tốn. Phổ biến trong hội thoại tự nhiên, cũng dùng được trong văn viết trung lập. Vế B thường là thông tin điều chỉnh kỳ vọng, nhưng vẫn có thể là yêu cầu/đề nghị nếu mạch ý hợp lý. Ví dụ: 初心者といっても、基本ルールは守ってください. [6. Ghi chú mở rộng] A thường là “nhãn/tiêu đề”: mùa, chức danh, quốc tịch, trạng thái… Khi cần khiêm nhường: できるといっても、少しだけです。 B có thể phủ định một phần kỳ vọng hoặc đưa ngoại lệ/điều kiện giới hạn. [7. Biến thể & cụm cố định] ～とは言っても（chính tả kanji, trang trọng nhẹ） ～っていっても（rất khẩu ngữ） なんといっても（“suy cho cùng/điều quan trọng nhất là…”, khác nghĩa, là quán ngữ） ～といっても過言ではない（“không hề quá lời khi nói rằng…”, mẫu riêng biệt） [8. Lỗi thường gặp & bẫy JLPT] Không nên đánh dấu mọi câu Aといっても、～してください／～ましょう là sai. Hãy kiểm tra B có thực sự sửa hoặc giới hạn kỳ vọng do A tạo ra hay không. Nhầm với とはいえ trong văn phong: đề bài yêu cầu sắc thái trang trọng → chọn とはいえ. A không phải “nhãn” nên câu gượng gạo: ưu tiên A là khung chung, B là thực tế cụ thể."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-86cdcae758"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "時間がなくても、母に電話します。",
+       "ja_furigana": "時間(じかん)がなくても、母(はは)に電話(でんわ)します。",
+       "vi": "Dù không có thời gian, tôi vẫn gọi cho mẹ.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "少し熱があっても、学校には行きます。",
+       "ja_furigana": "少(すこ)し熱(ねつ)があっても、学校(がっこう)には行(い)きます。",
+       "vi": "Dù hơi sốt một chút, tôi vẫn đi học.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "たとえ雨が降っても、試合は行います。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dẫu có mưa, trận đấu vẫn diễn ra."
+     },
+     {
+      "ja": "忙しくても、運動するようにしている。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Dù bận, tôi vẫn cố gắng tập thể dục."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: たとえ雨が降っても、試合は行います。",
+     "FURIGANA_MISSING: 忙しくても、運動するようにしている。"
+    ],
+    "formation": "たとえ + V-ても / Aい(くても) / Aな・N + でも",
+    "locked_fields": [],
+    "meaning_vi": "Nghĩa chính: Nhượng bộ/nhượng bộ giả định “dẫu cho X thì Y vẫn…”, Y không bị ảnh hưởng bởi X. Phạm vi: Có thể chỉ giả định (chưa có) hoặc thực tế; khác のに (đã thực tế, trái mong đợi). Cấu trúc phổ biến: たとえ～ても, いくら～ても, もし～ても; Y thường mang ý chí/phán đoán/thói quen. Biến thể cho phép/không vấn đề: ～てもいい (được phép), ～てもかまわない (không sao).",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Dù... cũng",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Y thường là ý chí/định hướng của người nói: 行く／頑張る／続ける／構わない… Khi Y là sự thật khách quan, vẫn dùng được nếu nêu quan hệ “không ảnh hưởng”. Kết hợp với từ nhấn (たとえ／いくら／どんなに／もし) để tăng sức giả định/cường độ. Phân biệt với ～てもいい: khi thêm いい chuyển nghĩa sang “được phép/không sao”. [6. Ghi chú mở rộng] Mẫu nghịch liên kết trong lập luận: 「Aても、Bと言えない」 để phủ định suy diễn. Trong quảng cáo/slogan: 「どれだけ動いても、快適。」 mang sắc thái cam kết chất lượng. Khi nối nhiều vế nhượng bộ: 「安くても、軽くても、丈夫でなければ意味がない。」 [7. Biến thể & cụm cố định] どんなに～ても: Dù đến mức nào đi nữa. もし～ても／仮に～ても: Nếu có lỡ/dù giả sử. たとえ～なくても: Dù không… Vたって (khẩu ngữ) = Vても. Ví dụ: 何言ったって無駄だ。 [8. Lỗi thường gặp & bẫy JLPT] Nhầm với のに: nếu câu mang sắc thái tiếc nuối/trái kỳ vọng → chọn のに, không phải ても. Sai dạng kết hợp với な-adj/N: phải là で＋も (きれいでも), không phải にも. Lẫn なくても vs も…ない cấu trúc khác; “dù không” là ～なくても, không phải ～ないでも (trừ khẩu ngữ hạn chế). JLPT: bẫy てもいい (cho phép) vs ても (nhượng bộ). Từ khóa hỏi xin phép/OK → てもいい."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-aa570d2fc1"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "あの店で切符を買えばよかった。",
+       "ja_furigana": "あの店(みせ)で切符(きっぷ)を買(か)えばよかった。",
+       "vi": "Giá mà tôi mua vé ở cửa hàng đó.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "もっと若いときに、たくさん本を読めばよかった。",
+       "ja_furigana": "もっと若(わか)いときに、たくさん本(ほん)を読(よ)めばよかった。",
+       "vi": "Giá mà hồi còn trẻ tôi đã đọc nhiều sách hơn.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "あのとき謝ればよかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Giá mà lúc đó mình xin lỗi."
+     },
+     {
+      "ja": "もっと早く医者に行けばよかった。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Phải chi mình đi bác sĩ sớm hơn."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: あのとき謝ればよかった。",
+     "FURIGANA_MISSING: もっと早く医者に行けばよかった。"
+    ],
+    "formation": "V-ば / V-たら + よかった",
+    "locked_fields": [],
+    "meaning_vi": "Biểu hiện sự tiếc nuối, hối hận về một việc trong quá khứ đã không làm (hoặc đã làm). Dịch tự nhiên: “Giá mà…”, “Phải chi…”, “Ước gì đã…”. Thường nói về hành động chưa thực hiện nhưng đáng lẽ nên làm, hoặc hành động đã làm nhưng ước gì không làm. Đây là cách nói cảm xúc, sử dụng nhiều trong hội thoại, phim ảnh, nhật ký nội tâm.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Giá mà đã... (hối tiếc)",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Sắc thái mạnh của sự tiếc nuối hoặc trách bản thân. Có thể dùng với ngữ khí nhẹ nhàng, đôi khi mang cảm giác tự trách hoặc ngậm ngùi. Dạng mềm mại hơn có thể thêm: ～ばよかったのに → “Giá mà…, vậy mà…” (có chút phàn nàn, trách móc). [6. Ghi chú mở rộng] Đây là mẫu N3–N2, xuất hiện nhiều trong hội thoại và đề thi phần nghe – đọc. Trong câu nói thân mật, có thể lược bỏ だ: ～ばよかったなぁ, ～ばよかったのに…. Có thể đi kèm って → ～ばよかったって để nhấn mạnh khi kể lại. [7. Biến thể & cụm cố định] ～ばよかったのに：Giá mà… vậy mà… (trách móc nhẹ). ～なければよかった：Giá mà đừng… ～たらよかった：Dạng tương đương, mềm hơn. ～ばよかったなあ：Giá mà… (than nhẹ với chính mình). [8. Lỗi thường gặp & bẫy JLPT] Dùng sai thì động từ: phải dùng Vば hoặc Vたら. Nhầm với ～といい／～ばいい (ước tương lai). Bỏ よかった mà chỉ dùng Vば → sai ý. Với phủ định, phải dùng なければよかった hoặc なかったらよかった."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-0070feac6a"
+  },
+  {
+   "answer": {
+    "fix": {
+     "examples": [
+      {
+       "ja": "このお茶を飲んでごらん。温かいよ。",
+       "ja_furigana": "このお茶(ちゃ)を飲(の)んでごらん。温(あたた)かいよ。",
+       "vi": "Thử uống trà này xem, ấm lắm.",
+       "role": "MAIN"
+      },
+      {
+       "ja": "この服、一度着てごらん。きっと似合うよ。",
+       "ja_furigana": "この服(ふく)、一度(いちど)着(き)てごらん。きっと似合(にあ)うよ。",
+       "vi": "Mặc thử cái áo này một lần xem. Chắc chắn sẽ hợp đấy.",
+       "role": "EXTRA"
+      }
+     ]
+    },
+    "note": "thay 2 câu BOOK/VNJPCLUB"
+   },
+   "context": {
+    "check_bank": [],
+    "common_mistakes_vi": null,
+    "examples": [
+     {
+      "ja": "これ、食べてごらん。おいしいよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Cái này, thử ăn xem. Ngon lắm."
+     },
+     {
+      "ja": "もう一度やってごらん。できるはずだよ。",
+      "ja_furigana": null,
+      "source": "BOOK",
+      "vi": "Thử làm lại lần nữa đi. Chắc chắn làm được mà."
+     }
+    ],
+    "extra_practice": [],
+    "fill_items": [],
+    "findings": [
+     "FURIGANA_MISSING: これ、食べてごらん。おいしいよ。",
+     "FURIGANA_MISSING: もう一度やってごらん。できるはずだよ。"
+    ],
+    "formation": "V-て + ごらん",
+    "locked_fields": [],
+    "meaning_vi": "Đề nghị/mệnh lệnh nhẹ “hãy thử làm … xem” hướng tới người nghe ở vai dưới/quan hệ thân mật. Mang sắc thái khuyến khích trải nghiệm trực tiếp: làm thử để tự cảm nhận/kết luận. ～てごらん là biến dạng mệnh lệnh của “ご覧になる/ごらん” (xem/nhìn), mở rộng sang mọi động từ qua Vて.",
+    "nuance_vi": null,
+    "order_items": [],
+    "pattern": "Hãy thử...",
+    "pattern_variants": [],
+    "unit_no": 0,
+    "unit_title_vi": null,
+    "usage_vi": "[4. Cách dùng & sắc thái] Chỉ dùng với người dưới/trẻ em/người thân mật; không dùng với cấp trên/khách. “～てごらんなさい” nghe mềm hơn “～てごらん”. Cùng chức năng với “～てみなさい”; “～てみる” là tự nguyện, không mang mệnh lệnh. Có thể hơi áp đặt nếu quan hệ không đủ thân. [6. Ghi chú mở rộng] Nguồn gốc từ “ご覧なさい” (hãy nhìn đi), mở rộng thành khuôn mệnh lệnh nhẹ cho mọi động từ qua Vて. Trong marketing/ứng dụng: “まずは無料で試してごらん” nghe khá thân mật; trong văn chuẩn nên dùng “お試しください”. Dạng nghi vấn “～てごらん？” mang sắc thái rủ rê hoặc mỉa tùy ngữ điệu. [7. Biến thể & cụm cố định] ～てごらん／～てごらんなさい 見てごらん（= nhìn đi）／聞いてごらん／やってごらん ちょっと～てごらん（nhấn nhẹ） ～ないでごらん（hiếm, sắc thái thách thức/mỉa） [8. Lỗi thường gặp & bẫy JLPT] Dùng với cấp trên/khách hàng: không phù hợp. Hãy dùng “～てください／～ていただけますか”. Nhầm với “～てみる”: ～てごらん có tính mệnh lệnh; ～てみる là tự mình thử. Phủ định “～ないでごらん” dùng không đúng chỗ dễ thành mỉa/khó chịu. Quên biến thể lịch sự “～てごらんなさい” trong ngữ cảnh giáo dục/cha mẹ - con cái."
+   },
+   "fields_needed": [
+    "verdict"
+   ],
+   "id": "JG-6926b68318"
+  }
+ ],
+ "kind": "REVIEW_GRAMMAR",
+ "level": "N3",
+ "packet_id": "REVIEW_GRAMMAR-041"
+}
