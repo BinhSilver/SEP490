@@ -30,8 +30,10 @@ public class GameRoom {
     private final GameType gameType;
     private final RoomVisibility visibility;
     private final Instant createdAt;
-    /** Phòng do ghép trận nhanh tạo ra (không cần mời bằng mã). */
-    private final boolean quickMatch;
+    /** Đang chọn cài đặt bằng tung đồng xu: phòng ghép nhanh, hoặc phòng mời đã đủ hai người. */
+    private boolean quickMatch;
+    /** Phòng tạo để mời bạn bè bằng mã: đối thủ rời đi thì lại chờ người mới. */
+    private final boolean invited;
     /** userId → player, giữ thứ tự vào phòng để chuyển chủ phòng xác định. */
     private final Map<Long, RoomPlayer> players = new LinkedHashMap<>();
 
@@ -53,6 +55,7 @@ public class GameRoom {
                     GameSettings settings, Instant createdAt, boolean quickMatch) {
         this.roomId = roomId;
         this.quickMatch = quickMatch;
+        this.invited = !quickMatch;
         this.code = code;
         this.gameType = gameType;
         this.visibility = visibility;
@@ -102,6 +105,14 @@ public class GameRoom {
 
     public boolean isQuickMatch() {
         return quickMatch;
+    }
+
+    public void setQuickMatch(boolean quickMatch) {
+        this.quickMatch = quickMatch;
+    }
+
+    public boolean isInvited() {
+        return invited;
     }
 
     public long getHostUserId() {

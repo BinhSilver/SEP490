@@ -6,7 +6,9 @@ import com.jlas.shadowing.dto.*;
 import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
+import com.jlas.shadowing.service.ShadowingBlobStore;
 import com.jlas.shadowing.service.VideoService;
+import com.jlas.shadowing.util.youtube.YoutubeUrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -27,6 +29,7 @@ import java.util.Objects;
 public class VideoController {
 
     @Autowired private VideoService videoService;
+    @Autowired private ShadowingBlobStore blobStore;
 
     @GetMapping
     public ResponseEntity<List<VideoSummaryDto>> getAll(
@@ -211,10 +214,12 @@ public class VideoController {
     @GetMapping("/{id}/stream")
     public ResponseEntity<Resource> streamVideo(@PathVariable Long id) {
         Video video = videoService.getVideoForViewing(id);
-        // Embeddable YouTube videos are played through the YouTube embed; the server never serves a copy of them.
-        // Only uploads and YouTube videos that cannot be embedded (playback mode FILE) are streamed from file.
         if (video.getVideoPath() == null || video.getVideoPath().isBlank() || video.isYoutubeEmbed()) {
             return ResponseEntity.notFound().build();
+        }
+        if (ShadowingBlobStore.isBlob(video.getVideoPath())) {
+            // No link (Azure not configured here): the 404 makes the player switch to YouTube (youtube-media.js).
+            return redirectTo(blobStore.signedUrl(video.getVideoPath()), org.springframework.http.CacheControl.noStore());
         }
         File file = new File(video.getVideoPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
@@ -223,6 +228,13 @@ public class VideoController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
                 .contentType(Objects.requireNonNull(resolveStreamMediaType(file.getName())))
                 .body(resource);
+    }
+
+    private static ResponseEntity<Resource> redirectTo(java.util.Optional<java.net.URI> target,
+                                                       org.springframework.http.CacheControl cache) {
+        return target
+                .map(url -> ResponseEntity.status(HttpStatus.FOUND).location(url).cacheControl(cache).<Resource>build())
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     private static MediaType resolveStreamMediaType(String fileName) {
@@ -242,6 +254,13 @@ public class VideoController {
     public ResponseEntity<Resource> thumbnail(@PathVariable Long id) {
         Video video = videoService.getVideo(id);
         if (video.getThumbnailPath() == null) return ResponseEntity.notFound().build();
+        if (ShadowingBlobStore.isBlob(video.getThumbnailPath())) {
+            // Without Azure on this machine a YouTube video still shows YouTube's own thumbnail.
+            return redirectTo(blobStore.signedUrl(video.getThumbnailPath()).or(() ->
+                            YoutubeUrlValidator.extractVideoId(video.getSourceUrl())
+                                    .map(youtubeId -> java.net.URI.create("https://i.ytimg.com/vi/" + youtubeId + "/hqdefault.jpg"))),
+                    org.springframework.http.CacheControl.maxAge(java.time.Duration.ofHours(1)).cachePrivate());
+        }
         File file = new File(video.getThumbnailPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
         Resource resource = new FileSystemResource(file);

@@ -31,6 +31,7 @@ public interface VideoUserStateRepository extends JpaRepository<VideoUserState, 
                     @Param("position") double position, @Param("counted") boolean counted);
     Optional<VideoUserState> findByUserIdAndVideoId(Long userId, Long videoId);
     List<VideoUserState> findByUserIdAndFavoriteTrue(Long userId);
+    List<VideoUserState> findByUserIdAndVideoIdInAndRatingIsNotNull(Long userId, java.util.Collection<Long> videoIds);
     List<VideoUserState> findByVideoId(Long videoId);
     @Query("select avg(s.rating) from VideoUserState s where s.videoId = :videoId and s.rating is not null")
     Double averageRating(@Param("videoId") Long videoId);

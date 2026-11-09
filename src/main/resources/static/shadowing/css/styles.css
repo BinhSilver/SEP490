@@ -1319,6 +1319,86 @@ a:focus:not(:focus-visible) {
     border-radius: var(--radius-pill);
 }
 
+.transcript-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.transcript-collapse-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color var(--transition-med), color var(--transition-med);
+}
+
+.transcript-collapse-btn:hover {
+    background: var(--color-divider);
+    color: var(--color-primary);
+}
+
+/* Thu cột phụ đề: chỉ có ở bố cục hai cột; fr trong cả hai trạng thái để cột chạy mượt. */
+@media (min-width: 1069px) {
+    .transcript-collapse-btn {
+        display: inline-flex;
+    }
+
+    .page-player .player-layout {
+        grid-template-columns: minmax(0, 7fr) minmax(56px, 3fr);
+    }
+
+    .page-player .player-layout.transcript-animated {
+        transition: grid-template-columns 280ms ease;
+    }
+
+    .page-player .player-layout.transcript-collapsed {
+        grid-template-columns: minmax(0, 1fr) minmax(56px, 0fr);
+    }
+
+    .page-player .player-layout.transcript-collapsed .transcript-column {
+        overflow: hidden;
+    }
+
+    .page-player .player-layout.transcript-collapsed .transcript-header {
+        justify-content: center;
+        padding: var(--space-md) 0;
+        border-bottom: 0;
+    }
+
+    .page-player .player-layout.transcript-collapsed :is(.transcript-header h2, .transcript-count, .subtitle-list) {
+        display: none;
+    }
+
+    /* Khung cao cố định: giữ chỗ cho phụ đề dưới video, video chỉ lấy phần còn lại thay vì cao theo chiều rộng mới. */
+    .page-player:not(.audio-mode) .player-layout.transcript-collapsed .video-media-row {
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    .page-player:not(.audio-mode) .player-layout.transcript-collapsed .video-stack {
+        min-height: 0;
+    }
+
+    .page-player:not(.audio-mode) .player-layout.transcript-collapsed .video-surface {
+        flex: 1 1 0;
+        min-height: 0;
+        aspect-ratio: auto;
+    }
+
+    .page-player:not(.audio-mode) .player-layout.transcript-collapsed #large-subtitle-viewer {
+        flex: 0 0 clamp(180px, 28%, 240px);
+    }
+}
+
 .subtitle-list {
     padding: var(--space-md) var(--space-md) 120px;
     flex: 1;
@@ -4180,6 +4260,10 @@ html[data-theme="dark"] .pill-btn.active i {
 }
 html[data-theme="dark"] .transcript-header {
     background: var(--dm-shadowing-surface)
+}
+html[data-theme="dark"] .transcript-collapse-btn:hover {
+    background: var(--dm-shadowing-line);
+    color: var(--dm-shadowing-ink)
 }
 html[data-theme="dark"] .subtitle-item:hover {
     border-color: var(--dm-shadowing-line)

@@ -24,7 +24,7 @@ public class EmailService {
     @Async
     public void sendVerificationEmail(String toEmail, String fullName, String otp) {
         String name = fullName == null || fullName.isBlank() ? "Learner" : fullName;
-        String subject = "[JLAS] Ma OTP xac thuc tai khoan";
+        String subject = "[KotsuKotsu] Ma OTP xac thuc tai khoan";
         String body = "Xin chao %s,%n%nMa OTP xac thuc cua ban la: %s%nMa co hieu luc trong %d phut.%n"
                 .formatted(name, otp, Math.max(1, verificationTokenTtl / 60));
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
@@ -49,7 +49,7 @@ public class EmailService {
     @Async
     public void sendPasswordResetOtp(String toEmail, String fullName, String otp) {
         String name = fullName == null || fullName.isBlank() ? "Learner" : fullName;
-        send(toEmail, "[JLAS] Ma OTP dat lai mat khau",
+        send(toEmail, "[KotsuKotsu] Ma OTP dat lai mat khau",
                 "Xin chao %s,%n%nMa OTP dat lai mat khau cua ban la: %s%nMa co hieu luc trong 15 phut.%n"
                         .formatted(name, otp), otp);
     }
@@ -58,7 +58,7 @@ public class EmailService {
     public void sendEmailChangeOtp(String toEmail, String fullName, String otp, boolean newAddress) {
         String name = fullName == null || fullName.isBlank() ? "bạn" : fullName;
         String address = newAddress ? "email mới" : "email hiện tại";
-        send(toEmail, "[JLAS] Xác nhận đổi email",
+        send(toEmail, "[KotsuKotsu] Xác nhận đổi email",
                 "Xin chào %s,%n%nMã OTP xác nhận gửi tới %s là: %s%n"
                         .formatted(name, address, otp)
                         + "Mã có hiệu lực trong 15 phút. Không chia sẻ mã này với bất kỳ ai.\n",
@@ -68,8 +68,8 @@ public class EmailService {
     @Async
     public void sendEmailChangedNotice(String toEmail, String fullName, String newEmail) {
         String name = fullName == null || fullName.isBlank() ? "bạn" : fullName;
-        send(toEmail, "[JLAS] Email tài khoản đã được thay đổi",
-                "Xin chào %s,%n%nEmail đăng nhập JLAS đã được đổi thành %s.%n"
+        send(toEmail, "[KotsuKotsu] Email tài khoản đã được thay đổi",
+                "Xin chào %s,%n%nEmail đăng nhập KotsuKotsu đã được đổi thành %s.%n"
                         .formatted(name, newEmail)
                         + "Nếu bạn không thực hiện thay đổi này, hãy liên hệ hỗ trợ ngay.\n",
                 newEmail);

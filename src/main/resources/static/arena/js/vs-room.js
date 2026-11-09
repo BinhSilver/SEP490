@@ -69,7 +69,7 @@
   function build() {
     root.innerHTML = ''
       + '<header class="vs__top">'
-      + '  <div><h1 class="vs__title" data-vs-game></h1><p class="vs__deck">Ghép trận nhanh với bộ <strong data-vs-deck></strong></p></div>'
+      + '  <div><h1 class="vs__title" data-vs-game></h1><p class="vs__deck">Bộ <strong data-vs-deck></strong></p></div>'
       + '  <span class="vs__conn"><span class="ar-dot" data-vs-dot aria-hidden="true"></span><span data-vs-conn>Đang kết nối</span></span>'
       + '</header>'
       + '<ol class="vs__steps" data-vs-steps aria-label="Các cài đặt của trận"></ol>'
@@ -103,7 +103,7 @@
     return '<div class="vs__coin vs__coin--' + (slot ? 'right' : 'left') + '" data-vs-coin="' + slot + '">'
       + '<div class="vs__coin-inner" data-vs-coin-inner>'
       + '<span class="vs__coin-face vs__coin-face--fox"><span class="vs__coin-emboss"><i class="vs__coin-fox"></i></span></span>'
-      + '<span class="vs__coin-face vs__coin-face--jlas"><b>JLAS</b><small>コツコツ</small></span>'
+      + '<span class="vs__coin-face vs__coin-face--jlas"><b>KotsuKotsu</b><small>コツコツ</small></span>'
       + '</div><small class="vs__coin-name" data-vs-coin-name></small></div>';
   }
 

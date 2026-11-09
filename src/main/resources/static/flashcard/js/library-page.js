@@ -485,7 +485,7 @@
               actions +
             '</div>' +
             '<div class="lib-card__foot">' +
-              '<span class="lib-card__owner"><span class="lib-card__avatar"><i class="fa-solid fa-user"></i></span>' + FlashShell.esc(s.ownerName || 'Người học JLAS') + '</span>' +
+              '<span class="lib-card__owner"><span class="lib-card__avatar"><i class="fa-solid fa-user"></i></span>' + FlashShell.esc(s.ownerName || 'Người học KotsuKotsu') + '</span>' +
               '<span class="lib-card__usage" title="Số lượt hoàn thành"><i class="fa-solid fa-graduation-cap"></i> ' + (s.studyCount || 0) + ' lượt học</span>' +
             '</div>' +
           '</div>' +

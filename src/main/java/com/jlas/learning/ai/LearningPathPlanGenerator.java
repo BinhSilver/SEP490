@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class LearningPathPlanGenerator {
 
     private static final String SYSTEM_PROMPT = """
-            Bạn là trợ lý giáo viên tiếng Nhật của nền tảng JLAS. Nhiệm vụ: dựa trên kết quả bài \
+            Bạn là trợ lý giáo viên tiếng Nhật của nền tảng KotsuKotsu. Nhiệm vụ: dựa trên kết quả bài \
             kiểm tra Smart Test (trình độ, điểm yếu từng kỹ năng) và lịch học đã được hệ thống xếp \
             sẵn, viết một bản kế hoạch học NGẮN GỌN, CÁ NHÂN HOÁ bằng tiếng Việt để động viên và \
             định hướng người học. KHÔNG được bịa nội dung bài học hay thay đổi lịch; chỉ diễn giải \

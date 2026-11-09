@@ -52,6 +52,11 @@
     const STYLE = '.shadowing-youtube-surface{position:relative;width:100%;aspect-ratio:16/9;background:#000;'
         + 'border-radius:12px;overflow:hidden}'
         + '.shadowing-youtube-surface iframe{position:absolute;inset:0;width:100%;height:100%;border:0}'
+        + '.shadowing-youtube-paused{position:absolute;left:50%;top:50%;width:72px;height:72px;margin:-36px 0 0 -36px;'
+        + 'z-index:1;border-radius:50%;background:#000;pointer-events:none}'
+        + '.shadowing-youtube-paused::after{content:"";position:absolute;inset:22px 20px 22px 26px;background:#fff;'
+        + 'clip-path:polygon(0 0,100% 50%,0 100%)}'
+        + '.shadowing-youtube-shield{position:absolute;inset:0;z-index:1;cursor:pointer}'
         + '.shadowing-youtube-error{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;'
         + 'justify-content:center;gap:8px;padding:16px;color:#fff;text-align:center;font-size:14px;line-height:1.5}'
         + '.shadowing-youtube-error a{color:#fff;font-weight:600;text-decoration:underline}';
@@ -72,6 +77,23 @@
         host.className = 'shadowing-youtube-surface';
         const mount = document.createElement('div');
         host.appendChild(mount);
+        // Keeps the pointer off the iframe, so YouTube's hover buttons stay away; playback goes through our controls.
+        // Touch browsers may only start a video from a tap on the iframe, so there it waits for the first play.
+        const shield = document.createElement('div');
+        const touch = typeof root.matchMedia === 'function' && root.matchMedia('(pointer: coarse)').matches;
+        shield.className = 'shadowing-youtube-shield';
+        shield.setAttribute('aria-hidden', 'true');
+        shield.hidden = touch;
+        shield.addEventListener('click', () => {
+            if (media.paused) media.play().catch(() => { }); else media.pause();
+        });
+        // YouTube always draws a play button on a paused video and no player option removes it, so this sits on top.
+        const pausedMark = document.createElement('div');
+        pausedMark.className = 'shadowing-youtube-paused';
+        pausedMark.setAttribute('aria-hidden', 'true');
+        pausedMark.hidden = true;
+        host.appendChild(pausedMark);
+        host.appendChild(shield);
         media.insertAdjacentElement('afterend', host);
         media.style.setProperty('display', 'none', 'important');
 
@@ -128,14 +150,18 @@
             const previous = state;
             state = event.data;
             if (state === STATE.PLAYING) {
+                shield.hidden = false;
+                pausedMark.hidden = true;
                 startTimer();
                 if (previous !== STATE.PLAYING) emit('play');
                 emit('playing');
             } else if (state === STATE.PAUSED) {
                 stopTimer(); wantPlay = false;
+                pausedMark.hidden = false;
                 emit('timeupdate'); emit('pause');
             } else if (state === STATE.ENDED) {
                 stopTimer(); wantPlay = false;
+                pausedMark.hidden = true;
                 emit('timeupdate'); emit('pause'); emit('ended');
             } else if (state === STATE.BUFFERING) {
                 emit('waiting');
@@ -228,6 +254,8 @@
             load(id) {
                 currentId = id;
                 state = -1; wantPlay = false; pendingSeek = null; lastSeek = null;
+                shield.hidden = touch;
+                pausedMark.hidden = true;
                 stopTimer();
                 if (ready) player.cueVideoById(id);
             },
@@ -244,7 +272,7 @@
         loadApi().then(YT => {
             player = new YT.Player(mount, {
                 videoId: currentId,
-                playerVars: { controls: 0, disablekb: 1, rel: 0, modestbranding: 1, playsinline: 1, iv_load_policy: 3, fs: 1, origin: root.location && root.location.origin },
+                playerVars: { controls: 0, disablekb: 1, rel: 0, modestbranding: 1, playsinline: 1, iv_load_policy: 3, fs: 0, origin: root.location && root.location.origin },
                 events: { onReady, onStateChange: onState, onError: event => showError(event.data) }
             });
         }).catch(() => showError(0));
@@ -252,8 +280,8 @@
     }
 
     /**
-     * Chọn nguồn phát cho {@code media}: video YouTube cho nhúng (server báo youtubeEmbed) dùng trình phát YouTube;
-     * video tải lên và video YouTube không cho nhúng (đã tải về) phát file qua streamUrl.
+     * Chọn nguồn phát cho {@code media}: video có file thì phát file qua streamUrl, file không mở được thì chuyển sang
+     * trình phát YouTube nếu video có nguồn YouTube; video YouTube không có file (server báo youtubeEmbed) phát nhúng.
      * Nếu không truyền {@code opts.meta} thì tự lấy thông tin video từ API.
      * @returns Promise<boolean> true khi đang dùng YouTube
      */
@@ -269,10 +297,17 @@
                 meta = null;
             }
         }
-        const id = meta && meta.youtubeEmbed === true ? idFromUrl(meta.sourceUrl) : null;
-        if (id) {
+        const id = meta ? idFromUrl(meta.sourceUrl) : null;
+        if (media.__fileFallback) media.removeEventListener('error', media.__fileFallback);
+        media.__fileFallback = null;
+        if (id && meta.youtubeEmbed === true) {
             attach(media, id, { duration: meta.duration });
             return true;
+        }
+        if (id && options.streamUrl) {
+            // Only a file that never opened falls back; a network blip mid-video must not restart it on YouTube.
+            media.__fileFallback = () => { if (!media.readyState) attach(media, id, { duration: meta.duration }); };
+            media.addEventListener('error', media.__fileFallback, { once: true });
         }
         if (options.streamUrl) media.src = options.streamUrl;
         return false;

@@ -120,14 +120,13 @@ public class Video {
     public static final String PLAYBACK_EMBED = "EMBED";
     public static final String PLAYBACK_FILE = "FILE";
 
-    /** True when this is a YouTube video played through the YouTube embed (the server serves no file for it). */
+    /** True when a YouTube video has no file of its own: a stored file always plays first, the embed is the fallback. */
     @Transient
     @JsonProperty("youtubeEmbed")
     public boolean isYoutubeEmbed() {
         if (com.jlas.shadowing.util.youtube.YoutubeUrlValidator.extractVideoId(sourceUrl).isEmpty()) return false;
-        if (PLAYBACK_FILE.equals(playbackMode)) return false;
-        if (PLAYBACK_EMBED.equals(playbackMode)) return true;
-        return videoPath == null || videoPath.isBlank();
+        if (videoPath != null && !videoPath.isBlank()) return false;
+        return !PLAYBACK_FILE.equals(playbackMode);
     }
 
     @ManyToMany(fetch = FetchType.EAGER)
