@@ -760,6 +760,7 @@ public class DictionaryServiceImpl implements DictionaryService {
             textbookRepository.findByJlptLevelInAndStatusAndIsLearningPathSourceTrueOrderByIdAsc(
                             List.copyOf(DraftStudySourcePolicy.OPEN_DRAFT_LEVELS), "DRAFT").stream()
                     .filter(this::isOpenDraftForLearner)
+                    .filter(TextbookRepository::isLibraryBook)
                     .filter(t -> withOpenDraft.stream().noneMatch(existing -> existing.getId().equals(t.getId())))
                     .forEach(withOpenDraft::add);
             withOpenDraft.sort(Comparator.comparing(Textbook::getId));

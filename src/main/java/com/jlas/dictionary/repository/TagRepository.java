@@ -34,6 +34,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
               join l.unit u
               join u.textbook t
             where tg.tagType = :tagType and l.status = :status and t.status = :status
+              and """ + TextbookRepository.LIBRARY_BOOK_CONDITION + """
+
             group by lt.tag.id
             """)
     List<Object[]> countLessonsByTagTypeAndStatus(@Param("tagType") String tagType, @Param("status") String status);
@@ -49,6 +51,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
               join l.unit u
               join u.textbook t
             where tg.tagType = :tagType and l.status <> :excludedStatus and t.status <> :excludedStatus
+              and """ + TextbookRepository.LIBRARY_BOOK_CONDITION + """
+
             group by lt.tag.id
             """)
     List<Object[]> countLessonsByTagTypeAndStatusNot(@Param("tagType") String tagType,
