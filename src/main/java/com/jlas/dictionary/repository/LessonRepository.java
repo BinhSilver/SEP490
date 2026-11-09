@@ -96,6 +96,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
               join fetch l.unit u
               join fetch u.textbook t
             where lt.tag.code = :tagCode and l.status = :status and t.status = :status
+              and """ + TextbookRepository.LIBRARY_BOOK_CONDITION + """
+
             order by t.id, u.orderIndex, u.id, l.orderIndex, l.id
             """)
     List<Lesson> findByTagCodeAndStatus(@Param("tagCode") String tagCode, @Param("status") String status);
@@ -167,6 +169,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
               join fetch l.unit u
               join fetch u.textbook t
             where lt.tag.code = :tagCode and l.status <> :excludedStatus and t.status <> :excludedStatus
+              and """ + TextbookRepository.LIBRARY_BOOK_CONDITION + """
+
             order by t.id, u.orderIndex, u.id, l.orderIndex, l.id
             """)
     List<Lesson> findByTagCodeAndStatusNot(@Param("tagCode") String tagCode,
