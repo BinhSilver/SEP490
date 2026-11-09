@@ -441,8 +441,20 @@
   }
 
   /* Round 6 Item 1d: 1 side Kitsu per week, pose varies by week */
-  function weekSideKitsuHtml(weekNum, side) {
-    var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
+  // [JLAS-W0108] C2: the side Kitsu follows the week's progress - celebrates a finished week, points at the
+  // current one, wonders about the weeks ahead (the old per-week pose stays when the state is unknown)
+  var K = '/images/mascots/kitsu/';
+  var MOOD_KITSUS = {
+    past: [{ src: K + 'kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Xong tuần này rồi!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Giỏi lắm!' }],
+    current: [{ src: K + 'kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Tuần này đây!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Từng bước một!' }],
+    upcoming: [{ src: K + 'kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Sắp tới nè!' },
+      { src: K + 'kitsu-preparing.webp', alt: 'Kitsu chuẩn bị', say: 'Chờ mình nhé!' }]
+  };
+  function weekSideKitsuHtml(weekNum, side, state, second) {
+    var mood = MOOD_KITSUS[state];
+    var k = mood ? mood[second ? 1 : 0] : SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
       + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
@@ -698,9 +710,9 @@
     }
     if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
       var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
-      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide);
+      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide, weekObj.state, false);
     } else if (stepIdx === 5 && !isToday && !isTodayDone) {
-      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide);
+      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide, weekObj.state, true);
     } else if (stepIdx === 2 || stepIdx === 4) {
       var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
       marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
