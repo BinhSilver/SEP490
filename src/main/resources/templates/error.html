@@ -4,7 +4,7 @@
     <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Không thể mở trang · JLAS</title>
+    <title>Không thể mở trang · KotsuKotsu</title>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800&display=swap">
@@ -32,7 +32,7 @@
 <main id="jlabBaseContent" class="error-page">
     <section class="error-card" th:with="forbidden=${status == 403}">
         <span class="error-card__code"
-              th:text="${status != null and status != 999 ? 'ERROR ' + status : 'JLAS'}">JLAS</span>
+              th:text="${status != null and status != 999 ? 'ERROR ' + status : 'KotsuKotsu'}">KotsuKotsu</span>
         <div id="errorKitsuGuide">
             <div th:replace="~{fragments/components/kitsu-guide :: guide(
                 'Kitsu-chan đang ở đây',

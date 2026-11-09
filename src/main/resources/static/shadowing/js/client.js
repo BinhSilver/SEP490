@@ -98,7 +98,7 @@ window.mediaStreamUrl = function mediaStreamUrl(videoId) {
 
 window.shareVideo = async function shareVideo(videoId, title) {
     const url = `${location.origin}/shadowing/practice/${videoId}`;
-    const shareData = { title: title || 'JLAS — Luyện shadowing', text: title, url };
+    const shareData = { title: title || 'KotsuKotsu — Luyện shadowing', text: title, url };
     if (navigator.share) {
         try {
             await navigator.share(shareData);

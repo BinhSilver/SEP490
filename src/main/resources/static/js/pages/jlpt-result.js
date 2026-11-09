@@ -51,13 +51,13 @@
     var level = esc(result.level || 'JLPT');
     var passAction = passed ? '<a class="jrr-button jrr-button--primary" href="/jlpt/certificate?attemptId=' + encodeURIComponent(result.attemptId) + '">Mở chứng nhận kết quả</a>' : '';
     return '<main class="jrr-page"><header class="jrr-top"><a href="/jlpt?level=' + encodeURIComponent(result.level || 'N5') + '">← Thư viện đề</a>' +
-      '<span>J-LAS · Hồ sơ thi thử</span></header>' +
+      '<span>KotsuKotsu · Hồ sơ thi thử</span></header>' +
       '<section class="jrr-hero ' + (passed ? 'is-pass' : 'is-fail') + '"><div class="jrr-seal" aria-hidden="true">' + (passed ? '合' : '学') + '</div>' +
       '<p class="jrr-eyebrow">KẾT QUẢ ĐÃ LƯU · LƯỢT #' + esc(result.attemptId) + '</p>' +
       '<h1>' + (passed ? 'Đạt bài thi thử ' : 'Chưa đạt bài thi thử ') + level + '</h1>' +
       '<p class="jrr-lede">' + (passed ? 'Bạn đã đạt ngưỡng đánh giá nội bộ cho đề thi thử này.' : 'Hãy xem lại từng phần và thử lại khi bạn sẵn sàng.') + '</p>' +
       '<div class="jrr-score"><strong>' + esc(result.scorePercent) + '<small>%</small></strong><span>' + esc(result.correctCount) + ' / ' + esc(result.questionCount) + ' câu đúng</span></div>' +
-      '<p class="jrr-disclaimer">Đây là kết quả tự đánh giá của bài thi thử J-LAS, không phải kết quả kỳ thi JLPT chính thức.</p>' +
+      '<p class="jrr-disclaimer">Đây là kết quả tự đánh giá của bài thi thử KotsuKotsu, không phải kết quả kỳ thi JLPT chính thức.</p>' +
       '<div class="jrr-actions">' + passAction + '<a class="jrr-button" href="/jlpt?level=' + encodeURIComponent(result.level || 'N5') + '">Thi thử lại</a>' +
       '<a class="jrr-text-link" href="/learning/path/v2/summary">Về tổng kết lộ trình</a></div></section>' +
       '<section class="jrr-breakdown"><header><p>Kết quả theo phần</p><h2>Điểm mạnh và phần cần ôn</h2></header>' +

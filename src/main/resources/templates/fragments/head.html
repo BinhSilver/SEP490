@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"
           th:content="${pageCss == 'login' ? 'width=device-width, initial-scale=1.0, viewport-fit=cover' : 'width=device-width, initial-scale=1.0'}" />
-    <title th:text="${pageTitle}">JLAS</title>
+    <title th:text="${pageTitle}">KotsuKotsu</title>
 
     <script>/* Apply saved light/dark theme before paint to avoid a flash (key matches jlab-base-shell.js). */
       (function () { try { var t = localStorage.getItem('jlas-theme'); if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); document.documentElement.classList.remove('light', 'dark'); document.documentElement.classList.add(t); } catch (e) {} })();
@@ -76,7 +76,7 @@
 <head th:fragment="feature(pageTitle, extraCss)">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="${pageTitle}">JLAS</title>
+    <title th:text="${pageTitle}">KotsuKotsu</title>
 
     <script>/* Apply saved light/dark theme before paint to avoid a flash (key matches jlab-base-shell.js). */
       (function () { try { var t = localStorage.getItem('jlas-theme'); if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; document.documentElement.setAttribute('data-theme', t); document.documentElement.classList.remove('light', 'dark'); document.documentElement.classList.add(t); } catch (e) {} })();

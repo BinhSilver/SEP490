@@ -27,6 +27,7 @@ public class ProcessingJobService {
     @Autowired private VideoRepository videoRepository;
     @Autowired private SubtitleRepository subtitleRepository;
     @Autowired private FfmpegService ffmpegService;
+    @Autowired private ShadowingBlobStore blobStore;
     @Autowired private YoutubeService youtubeService;
     @Autowired private DeepgramService deepgramService;
     @Autowired private OpenRouterService openRouterService;
@@ -241,7 +242,7 @@ public class ProcessingJobService {
         if (!result.japanese()) {
             throw new IllegalArgumentException(
                     "Video không được nhận diện là tiếng Nhật. " + result.reason()
-                            + " JLAS đã dừng tạo bài để tránh tạo phụ đề sai ngôn ngữ.");
+                            + " KotsuKotsu đã dừng tạo bài để tránh tạo phụ đề sai ngôn ngữ.");
         }
     }
 
@@ -250,7 +251,7 @@ public class ProcessingJobService {
         try {
             return deepgramService.transcribe(audioPath);
         } finally {
-            if (video.getVideoPath() == null || video.getVideoPath().isBlank()) {
+            if (video.getVideoPath() == null || video.getVideoPath().isBlank() || ShadowingBlobStore.isBlob(video.getVideoPath())) {
                 try { java.nio.file.Files.deleteIfExists(java.nio.file.Path.of(audioPath)); } catch (Exception ignored) { }
             }
         }
@@ -262,6 +263,14 @@ public class ProcessingJobService {
      */
     private String audioForStt(Video video) throws Exception {
         String path = video.getVideoPath();
+        if (ShadowingBlobStore.isBlob(path)) {
+            java.nio.file.Path copy = blobStore.download(path);
+            try {
+                return ffmpegService.prepareAudioForStt(copy.toString());
+            } finally {
+                java.nio.file.Files.deleteIfExists(copy);
+            }
+        }
         if (path != null && !path.isBlank()) return ffmpegService.prepareAudioForStt(path);
         if (ShadowingTakedownService.sourceKey(video.getSourceUrl()).isPresent()) {
             return youtubeService.downloadAudio(video.getSourceUrl());

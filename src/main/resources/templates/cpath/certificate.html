@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: standard('Chứng nhận lộ trình giao tiếp - JLAS', 'certificate')}"></head>
+<head th:replace="~{fragments/head :: standard('Chứng nhận lộ trình giao tiếp - KotsuKotsu', 'certificate')}"></head>
 <body id="jlabBasePage" class="app-body certificate-body journey-ui">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="certificate-page">
     <section class="cert-card">
-        <p class="cert-eyebrow">J-LAS · Chứng nhận thành tựu nội bộ</p>
+        <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
         <h1 th:text="${earned} ? 'Hoàn thành lộ trình giao tiếp' : 'Tiến độ chứng nhận giao tiếp'">Hoàn thành lộ trình giao tiếp</h1>
         <p class="cert-level">Mục tiêu: <strong th:text="${targetLevel}">Giao tiếp</strong></p>
         <p class="cert-date" th:unless="${earned}">Đã đạt <strong th:text="${passedTopics}">0</strong>/<strong th:text="${totalTopics}">0</strong> chủ đề. Hoàn thành bài test cuối để nhận chứng nhận.</p>
         <p class="cert-date" th:if="${earned}">Ngày hoàn thành:
             <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
         </p>
-        <p class="cert-disclaimer">Đây là chứng nhận thành tựu học tập nội bộ của J-LAS.</p>
+        <p class="cert-disclaimer">Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu.</p>
         <button class="cert-print-button" th:if="${earned}" type="button" onclick="window.print()">In / Lưu PDF</button>
         <p th:unless="${earned}"><a th:href="@{/learning/comm/path}">Về lộ trình giao tiếp</a></p>
         <nav class="cp-next-steps" th:if="${earned}" aria-label="Bước học tiếp">

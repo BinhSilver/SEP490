@@ -4,13 +4,13 @@
     <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luyện shadowing | JLAS Shadowing</title>
+    <title>Luyện shadowing | KotsuKotsu Shadowing</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261105-plum">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261109-transcript">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261105-plum"/>
     <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
@@ -236,7 +236,12 @@
             <div class="transcript-column">
                 <div class="transcript-header">
                     <h2><i class="fa-solid fa-list-ul"></i> Phụ đề</h2>
-                    <span class="transcript-count" id="transcript-count">0 câu</span>
+                    <div class="transcript-header-actions">
+                        <span class="transcript-count" id="transcript-count">0 câu</span>
+                        <button type="button" id="transcript-collapse-btn" class="transcript-collapse-btn" aria-controls="subtitle-list" aria-expanded="true" aria-label="Thu gọn phụ đề" title="Thu gọn phụ đề">
+                            <i class="fa-solid fa-angles-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
                 <div id="subtitle-list" class="subtitle-list" data-inline-dictionary></div>
             </div>
@@ -249,7 +254,7 @@
     <script defer src="/js/inline-dictionary.js?v=20261103-auto"></script>
     <script src="/js/components/cp-confirm.js?v=20261103-auto"></script>
     <script src="/js/jlab-base-shell.js"></script>
-    <script src="/shadowing/js/client.js?v=20260712"></script>
+    <script src="/shadowing/js/client.js?v=20261109-kotsu"></script>
     <div th:replace="~{shadowing/fragments/age-gate :: dialog(${videoId})}"></div>
     <script src="/js/components/date-wheel.js?v=20261105-age-range"></script>
     <script src="/shadowing/js/age-gate.js?v=20261105-age-range"></script>
@@ -260,7 +265,8 @@
     <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
     <script src="/shadowing/js/focus-mode.js?v=20261012-focus-romaji"></script>
     <script src="/shadowing/js/listen-record.js?v=20261012-mic-tools"></script>
-    <script src="/shadowing/js/youtube-media.js?v=20261021-yt"></script>
+    <script src="/shadowing/js/youtube-media.js?v=20261109-file-first"></script>
+    <script src="/shadowing/js/transcript-collapse.js?v=20261109-1"></script>
     <script src="/shadowing/js/app.js?v=20261101-age-gate"></script>
     <script src="/shadowing/js/video-report.js?v=20261021-report-3"></script>
     <script src="/shadowing/js/player-timeline.js?v=20261012-mic-tools"></script>

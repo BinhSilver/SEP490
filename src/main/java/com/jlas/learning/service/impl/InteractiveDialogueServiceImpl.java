@@ -89,7 +89,7 @@ public class InteractiveDialogueServiceImpl implements InteractiveDialogueServic
     static final int CHALLENGE_CREDITS = 2;
     static final String CHALLENGE_REFERENCE = "COMM_CHALLENGE";
 
-    static final String AID_LABEL = "Nội dung bổ sung J-LAS · cần rà soát";
+    static final String AID_LABEL = "Nội dung bổ sung KotsuKotsu · cần rà soát";
     private static final Pattern RUBY = Pattern.compile("\\{([^{}|]+)\\|([^{}|]+)\\}");
     private static final ObjectMapper JSON = new ObjectMapper();
 

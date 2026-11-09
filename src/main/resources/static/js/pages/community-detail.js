@@ -26,7 +26,7 @@
   }
 
   function renderDetail() {
-    document.title = detail.title + ' | Cộng đồng JLAS';
+    document.title = detail.title + ' | Cộng đồng KotsuKotsu';
     el('cmThumb').innerHTML = detail.thumbnailUrl
       ? '<img src="' + UI.esc(UI.safeUrl(detail.thumbnailUrl)) + '" alt="">'
       : '<i class="fa-solid ' + (detail.contentType === 'SHADOWING_VIDEO' ? 'fa-film' : 'fa-layer-group') + '"></i>';

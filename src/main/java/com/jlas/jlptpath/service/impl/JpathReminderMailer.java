@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class JpathReminderMailer {
 
-    static final String SUBJECT_PREFIX = "J-LAS · ";
+    static final String SUBJECT_PREFIX = "KotsuKotsu · ";
     static final String FOOTER =
-            "\n\nMở J-LAS và vào Lộ trình học để bắt đầu.\nTắt nhắc qua email trong Cài đặt lộ trình.";
+            "\n\nMở KotsuKotsu và vào Lộ trình học để bắt đầu.\nTắt nhắc qua email trong Cài đặt lộ trình.";
 
     private final ObjectProvider<JavaMailSender> senders;
     private final UserRepository users;

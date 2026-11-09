@@ -41,7 +41,7 @@
     render: async function (root) {
       var o = await A.api.get(API + '/overview');
       var cards = [
-        ['reports', 'Báo cáo chờ xử lý', o.pendingReports, 'fa-flag', o.reportsAvailable ? '' : 'Chờ tích hợp JLAS2-37'],
+        ['reports', 'Báo cáo chờ xử lý', o.pendingReports, 'fa-flag', o.reportsAvailable ? '' : 'Chờ tích hợp báo cáo nội dung'],
         ['queue', 'Hàng đợi AI', o.pendingQueue, 'fa-robot', ''],
         ['appeals', 'Kháng nghị chờ', o.pendingAppeals, 'fa-scale-balanced', ''],
         ['dictionary', 'Đóng góp từ điển chờ', o.pendingContributions, 'fa-book', ''],
@@ -68,7 +68,7 @@
       var data = await A.api.get(API + '/reports');
       if (!data.available) {
         root.innerHTML = A.empty('fa-plug', 'Chức năng báo cáo chưa được kết nối',
-          'Màn này sẽ tự hoạt động khi tính năng báo cáo nội dung (JLAS2-37) được tích hợp.');
+          'Màn này sẽ tự hoạt động khi tính năng báo cáo nội dung được tích hợp.');
         return;
       }
       if (!data.items.length) {

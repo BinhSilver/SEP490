@@ -394,7 +394,7 @@
     if (data.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + data.estimatedMinutes + ' phút</span>');
     meta.push(statusToggle('lesson', data.id, data.status));
     document.getElementById('lessonMeta').innerHTML = meta.join('');
-    document.title = (data.title || 'Bài học') + ' - JLAS';
+    document.title = (data.title || 'Bài học') + ' - KotsuKotsu';
     headerEl.hidden = false;
   }
 
@@ -2828,7 +2828,7 @@
     if (descEl) { descEl.textContent = desc; descEl.hidden = !desc; }
     var deco = document.getElementById('lessonKanjiDeco');
     if (deco) deco.textContent = decoKanji(data);
-    document.title = (data.title || 'Bài học') + ' - JLAS';
+    document.title = (data.title || 'Bài học') + ' - KotsuKotsu';
     headerEl.hidden = false;
   }
 

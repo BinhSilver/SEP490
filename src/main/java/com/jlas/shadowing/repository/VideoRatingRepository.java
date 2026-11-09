@@ -3,7 +3,10 @@ package com.jlas.shadowing.repository;
 import com.jlas.shadowing.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository @RequiredArgsConstructor
 public class VideoRatingRepository {
@@ -11,6 +14,12 @@ public class VideoRatingRepository {
     public Optional<VideoRating> findByClientIdAndVideoId(String client, Long video) {
         Long user = userId(client); if (user == null) return Optional.empty();
         return states.findByUserIdAndVideoId(user, video).filter(s -> s.getRating() != null).map(this::projection);
+    }
+    /** video id -> this user's rating, for the videos they have rated. */
+    public Map<Long, Integer> findRatings(String client, Collection<Long> videos) {
+        Long user = userId(client); if (user == null || videos.isEmpty()) return Map.of();
+        return states.findByUserIdAndVideoIdInAndRatingIsNotNull(user, videos).stream()
+                .collect(Collectors.toMap(VideoUserState::getVideoId, VideoUserState::getRating));
     }
     public VideoRating save(VideoRating rating) {
         Long user = userId(rating.getClientId());

@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PremiumCheckoutService {
     static final String PROVIDER = "PAYOS";
     /** PayOS limits the transfer note to 9 characters for bank accounts not linked through PayOS. */
-    static final String DESCRIPTION = "JLAS PREM";
+    static final String DESCRIPTION = "KOTSU PRM";
     private static final String FREE_PLAN = "FREE";
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
     private static final Logger log = LoggerFactory.getLogger(PremiumCheckoutService.class);
@@ -219,7 +219,7 @@ public class PremiumCheckoutService {
             return openOrder(userId, null, pack, quote, now);
         });
         if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
-        return createLink(payment, "JLAS CP");
+        return createLink(payment, "KOTSU CP");
     }
 
     private OrderView createLink(Payment payment, String description) {
