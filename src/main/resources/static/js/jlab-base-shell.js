@@ -325,7 +325,7 @@
               '<div id="' + ids.testBuilderMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
-                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
+                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span>Soạn đề Smart Test</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
