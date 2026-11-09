@@ -504,3 +504,13 @@ html.dark .cp-page {
   line-height: 1.5;
   color: var(--jp-muted);
 }
+/* [JLAS-W0108] A5: shared notice when the server cannot be reached */
+.jp-net-notice {
+  position: fixed; left: 16px; right: 16px; margin: 0 auto; width: fit-content; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 1000;
+  display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 10px 12px 10px 16px;
+  border-radius: 12px; background: var(--jp-ink, #1f1a33); color: var(--jp-surface, #fff); box-shadow: 0 6px 24px rgba(0,0,0,.25);
+  font-size: .92rem;
+}
+.jp-net-notice[hidden] { display: none; }
+.jp-net-notice__retry { min-height: 36px; padding: 6px 12px; border: 0; border-radius: 8px; background: var(--jp-primary, #6b4bd6); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.jp-net-notice__close { min-width: 36px; min-height: 36px; border: 0; background: transparent; color: inherit; font-size: 1.2rem; cursor: pointer; }

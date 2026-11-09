@@ -21,7 +21,39 @@
   var MSG_NETWORK = 'Không kết nối được máy chủ. Thử lại sau.';
   var MSG_UNAUTHORIZED = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
 
+  // [JLAS-W0108] A5: one shared notice when the server cannot be reached or fails (5xx), so no page is left blank.
+  var NOTICE_ID = 'jp-net-notice';
+  function showNotice(text) {
+    var doc = root && root.document;
+    if (!doc || !doc.body) return;
+    var el = doc.getElementById(NOTICE_ID);
+    if (!el) {
+      el = doc.createElement('div');
+      el.id = NOTICE_ID;
+      el.className = 'jp-net-notice';
+      el.setAttribute('role', 'alert');
+      el.innerHTML = '<span class="jp-net-notice__text"></span>'
+        + '<button type="button" class="jp-net-notice__retry">Thử lại</button>'
+        + '<button type="button" class="jp-net-notice__close" aria-label="Đóng">×</button>';
+      el.querySelector('.jp-net-notice__retry').addEventListener('click', function () { root.location.reload(); });
+      el.querySelector('.jp-net-notice__close').addEventListener('click', function () { el.hidden = true; });
+      doc.body.appendChild(el);
+    }
+    el.querySelector('.jp-net-notice__text').textContent = text;
+    el.hidden = false;
+  }
+  function hideNotice() {
+    var el = root && root.document && root.document.getElementById(NOTICE_ID);
+    if (el) el.hidden = true;
+  }
+  if (root && root.addEventListener) {
+    root.addEventListener('offline', function () { showNotice('Mất kết nối mạng. Tiến độ sẽ lưu khi có mạng lại.'); });
+    root.addEventListener('online', hideNotice);
+  }
+
   function failure(code, message, status) {
+    if (code === 'NETWORK') showNotice(MSG_NETWORK);
+    else if (status >= 500) showNotice(MSG_BUSY);
     var error = new Error(message);
     error.code = code;
     error.status = status;
