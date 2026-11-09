@@ -53,7 +53,7 @@
   var BOARD_DONE_MS = 450;
   var KIND_TITLE = Object.freeze({
     MICRO_CHECK: 'Micro-check', GROUP_EXERCISE: 'Bài tập nhóm', SKIP_ONE: 'Kiểm 1 câu',
-    TOPIC_KNOWN: 'Tôi biết chủ đề này', FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt chữ dễ nhầm',
+    TOPIC_KNOWN: 'Tôi biết chủ đề này', FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt dễ nhầm',
     KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay', GRAMMAR_EXTRA: 'Luyện thêm', GRAMMAR_REVIEW: 'Ôn ngữ pháp',
     WEEK_KNOWN: 'Tôi biết tuần này'
   });

@@ -20,6 +20,12 @@
 
   var BASE = '/api/learning/jlpt';
   var NO_PAIR = 'Bạn cần học cả hai mục của một cặp trước';
+  // an empty tab says why: a pair shows once both of its sides are learned
+  var EMPTY = {
+    VOCAB: 'Chưa có cặp nào: một cặp từ dễ nhầm hiện ở đây khi bạn đã học cả hai từ.',
+    KANJI: 'Chưa có cặp nào: một cặp Kanji dễ nhầm hiện ở đây khi bạn đã học cả hai chữ.',
+    GRAMMAR: 'Chưa có cặp nào: một cặp mẫu ngữ pháp dễ nhầm (kèm giải thích, ví dụ và câu luyện) hiện ở đây khi bạn đã học cả hai mẫu.'
+  };
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -97,7 +103,7 @@
       pager.querySelector('[data-page="prev"]').disabled = page === 0;
       pager.querySelector('[data-page="next"]').disabled = page + 1 >= pages;
       pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (page + 1) + '/' + pages;
-      status.textContent = filtered.length ? filtered.length + ' cặp' : (pairs.length ? 'Không tìm thấy cặp phù hợp.' : NO_PAIR);
+      status.textContent = filtered.length ? filtered.length + ' cặp' : (pairs.length ? 'Không tìm thấy cặp phù hợp.' : EMPTY[tab] || NO_PAIR);
     }
 
     function load() {
