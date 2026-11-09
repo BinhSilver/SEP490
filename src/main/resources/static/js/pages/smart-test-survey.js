@@ -126,7 +126,8 @@
     slides.forEach(function (slide) { slide.classList.toggle('is-active', slide === active); });
     var progress = ((currentIndex + 1) / activeSlides.length) * 100;
     document.getElementById('surveyProgress').style.width = progress + '%';
-    document.getElementById('surveyStepCounter').textContent = (currentIndex + 1) + '/' + activeSlides.length;
+    // [JLAS-W0108] F11: the total depends on the answers (branches), so only the step number is shown
+    document.getElementById('surveyStepCounter').textContent = 'Bước ' + (currentIndex + 1);
     backButton.disabled = currentIndex === 0;
     nextButton.disabled = !hasAnswer(active);
     nextButton.querySelector('span').textContent =
