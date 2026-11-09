@@ -118,7 +118,7 @@
       el.shell.hidden = true;
       el.vs.hidden = false;
       document.body.classList.add('is-vs-room');
-      document.title = room.gameName + ' · Đấu tay đôi - JLAS';
+      document.title = room.gameName + ' · Đấu tay đôi - KotsuKotsu';
       window.JlasVsRoom.render(room);
       var vsSkinRoot = el.vs.querySelector('[data-vs-skins]');
       var skinGame = room.gameType === 'NEKO_CATCH' || room.gameType === 'AIR_DEFENSE';
@@ -135,7 +135,7 @@
     el.shell.hidden = false;
     document.body.classList.remove('is-vs-room');
     el.room.hidden = false;
-    document.title = 'Phòng ' + room.code + ' · ' + room.gameName + ' - JLAS';
+    document.title = 'Phòng ' + room.code + ' · ' + room.gameName + ' - KotsuKotsu';
     el.game.textContent = room.gameName + ' · Đấu tay đôi';
     el.code.textContent = room.code;
     el.visibility.textContent = 'Chỉ người có mã hoặc link mời mới vào được';

@@ -9,7 +9,8 @@
 .coin-choice small { font-size: 12px; overflow-wrap: anywhere; }
 .coin-choice:focus-visible,.coin-leave:focus-visible { outline: 3px solid #8160cc; outline-offset: 3px; }
 .coin-face { display: grid; place-items: center; width: 128px; height: 128px; box-sizing: border-box; border: 7px solid #c7902b; border-radius: 50%; background: #ffe5a0; color: #65420a; }
-.coin-face__brand { font-size: 30px; font-weight: 900; letter-spacing: .02em; }
+.coin-face__brand { font-size: 17px; font-weight: 900; letter-spacing: .02em; }
+.coin-choice__face .coin-face__brand { font-size: clamp(11px, 3.1vw, 16px); }
 .coin-face__mascot { width: 92%; height: 92%; object-fit: contain; }
 .coin-choice__face { position: relative; width: clamp(78px,23vw,116px); height: clamp(78px,23vw,116px); }
 .coin-stage { position: relative; display: grid; place-items: end center; height: 260px; padding-bottom: 22px; perspective: 900px; }
@@ -31,5 +32,5 @@ html[data-theme="dark"] .coin-dialog,html.dark .coin-dialog { background: #1b1c2
 html[data-theme="dark"] .coin-choice,html.dark .coin-choice { border-color: #535067; }
 html[data-theme="dark"] .coin-choice.is-selected,html.dark .coin-choice.is-selected { border-color: #c18bff; }
 html[data-theme="dark"] .coin-error,html.dark .coin-error { color: #ffacb9; }
-@media (max-width: 380px) { .coin-dialog { padding: 20px 12px; } .coin-choices { gap: 8px; } .coin-choice__face .coin-face__brand { font-size: 24px; } }
+@media (max-width: 380px) { .coin-dialog { padding: 20px 12px; } .coin-choices { gap: 8px; } }
 @media (prefers-reduced-motion: reduce) { .coin-flight,.coin-shadow { animation: none; } .coin-body { animation: none; transform: rotateX(var(--coin-end)); } }

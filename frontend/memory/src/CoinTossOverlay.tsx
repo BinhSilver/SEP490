@@ -11,7 +11,7 @@ export function coinMoment(coin: CoinTossState, now: number) {
     complete: coin.playStartsAt != null && now >= coin.playStartsAt }
 }
 export function CoinFace({ side, imageSrc = MASCOT }: { side: CoinSide; imageSrc?: string }) {
-  return side === 'JLAS' ? <strong className="coin-face__brand">JLAS</strong>
+  return side === 'JLAS' ? <strong className="coin-face__brand">KotsuKotsu</strong>
     : <img className="coin-face__mascot" src={imageSrc} alt="Mascot đang cười" />
 }
 
@@ -100,13 +100,13 @@ export function CoinTossOverlay({ coin, players, meId, serverNow, onChoose, onDo
               aria-pressed={mine} disabled={busy || !assetReady || meId == null || !!(owner && !mine)}
               onClick={() => void choose(side)}>
               <span className="coin-face coin-choice__face"><CoinFace side={side} imageSrc={imageSrc} /></span>
-              <strong>{side === 'JLAS' ? 'JLAS' : 'Mascot'}</strong>
+              <strong>{side === 'JLAS' ? 'KotsuKotsu' : 'Mascot'}</strong>
               <small>{owner ? (mine ? 'Bạn đã chọn' : owner.displayName) : 'Chọn mặt này'}</small>
             </button>
           })}
         </div>}
       <p className="coin-status" role="status" aria-live="polite">
-        {landed ? `${coin.result === 'JLAS' ? 'JLAS' : 'Mascot'} · ${starter?.displayName || 'Người chơi'} đi trước!`
+        {landed ? `${coin.result === 'JLAS' ? 'KotsuKotsu' : 'Mascot'} · ${starter?.displayName || 'Người chơi'} đi trước!`
           : started ? 'Đang tung đồng xu…'
             : busy ? 'Đang chọn…' : meId != null && coin.choices[meId] ? 'Chờ đối thủ chọn mặt còn lại…'
               : assetReady ? 'Chọn một mặt để bắt đầu' : 'Đang tải đồng xu…'}
