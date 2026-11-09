@@ -14,6 +14,10 @@
   var lessonId = main ? main.getAttribute('data-lesson-id') : null;
   // Chỉ trang lộ trình (path-lesson.html) mới có cờ này → nút "Học bằng flashcard" chỉ hiện ở lộ trình, không đụng giáo trình.
   var isLearningPath = main ? main.getAttribute('data-learning-path') === 'true' : false;
+  // Trang bài học GIÁO TRÌNH (textbooks/lesson.html). Hành vi audio mới (file → /api/dictionary/tts → giọng máy,
+  // xử lý điện thoại) CHỈ áp dụng khi cờ này bật; trang lộ trình giữ nguyên hành vi audio cũ.
+  var IS_TEXTBOOK_PAGE = !isLearningPath;
+  var IS_MOBILE = isIos() || /Android/i.test(navigator.userAgent);
   // Giao diện mới (hero, tab trượt, lưới thẻ, phân trang...) chỉ cho textbooks/lesson.html (main.lesson-page);
   // path-lesson.html dùng chung file này nhưng không có class nên giữ nguyên giao diện cũ.
   var NEW_UI = !!(main && main.classList.contains('lesson-page'));
@@ -262,7 +266,12 @@
   /** Kiểm tra 1 file mẫu (HEAD) để biết máy này có bộ mp3 hay không; quyết định chế độ toàn trang. */
   function probeAudioFiles(data) {
     var sample = null;
-    (data.vocabularies || []).some(function (v) { var a = audioForVoice(v.audios); if (a && a.audioUrl) { sample = a.audioUrl; return true; } return false; });
+    (data.vocabularies || []).some(function (v) {
+      var a = audioForVoice(v.audios);
+      // Giáo trình: "tts:..." là sentinel giọng máy, không phải file → không dùng làm file mẫu.
+      if (a && a.audioUrl && !(IS_TEXTBOOK_PAGE && isTtsSentinel(a.audioUrl))) { sample = a.audioUrl; return true; }
+      return false;
+    });
     if (!sample) { filesAvailable = false; applySpeakButtonVisibility(); return; }
     fetch(AUDIO_BASE + sample, { method: 'HEAD' })
       .then(function (res) { filesAvailable = res.ok; })
@@ -278,7 +287,8 @@
     contentEl.setAttribute('data-ja-voice', jaVoice ? jaVoice.name : '');
     document.querySelectorAll('.speak-btn').forEach(function (btn) {
       var hasFile = !!btn.getAttribute('data-src');
-      var silent = !(hasFile && filesAvailable) && !jaVoice;
+      // Giáo trình: getVoices() hay thiếu/sai giọng ja nhưng vẫn còn /api/dictionary/tts → không ẩn nút.
+      var silent = !(hasFile && filesAvailable) && !jaVoice && !IS_TEXTBOOK_PAGE;
       // Ô kana / bong bóng hội thoại / nút có nhãn là nội dung học: không ẩn, chỉ tắt chức năng nghe khi máy không có giọng ja-JP.
       if (btn.classList.contains('kana-tile') || btn.classList.contains('lp-keep')) {
         btn.classList.toggle('speak-btn--silent', silent);
@@ -290,8 +300,190 @@
 
   function stopCurrent() {
     if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (IS_TEXTBOOK_PAGE) {
+      playToken++;
+      if (speechWatchdog) { window.clearTimeout(speechWatchdog); speechWatchdog = null; }
+      // Chỉ cancel khi thật sự có câu đang đọc/chờ: cancel() thừa trên iOS/Android làm câu kế tiếp bị nuốt.
+      if ('speechSynthesis' in window && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+        window.speechSynthesis.cancel();
+      }
+    } else if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (currentBtn) { currentBtn.classList.remove('is-playing', 'is-tts', 'is-loading'); currentBtn = null; }
+  }
+
+  /* ---------- Audio trang GIÁO TRÌNH (IS_TEXTBOOK_PAGE) ----------
+   * Thứ tự nguồn: (a) file mp3 của mục → (b) /api/dictionary/tts (Azure, audio/mpeg) → (c) speechSynthesis.
+   * Một HTMLAudioElement cho mỗi nút, tạo + play() ĐỒNG BỘ trong click handler (iOS chỉ cho phát khi có cử chỉ);
+   * nguồn kế tiếp được gán vào CHÍNH element đó (đã được "mở khoá") thay vì tạo element mới.
+   */
+  var TTS_SENTINEL = 'tts:';
+  var SERVER_TTS_URL = '/api/dictionary/tts?text=';
+  var SERVER_TTS_MAX_CHARS = 200;
+  var SPEECH_START_TIMEOUT_MS = 2500;
+  var playToken = 0;             // tăng mỗi lần dừng/phát mới → bỏ qua callback của lượt phát cũ
+  var speechWatchdog = null;     // hẹn giờ chờ onstart của speechSynthesis
+  var activeUtterance = null;    // giữ tham chiếu tới onend/onerror (Chrome/Safari GC utterance → mất sự kiện)
+
+  function isTtsSentinel(audioUrl) {
+    return String(audioUrl || '').indexOf(TTS_SENTINEL) === 0;
+  }
+
+  /**
+   * Hàm thuần: danh sách nguồn phát theo thứ tự ưu tiên cho một mục.
+   * audioUrl: content_audio.audio_url (tương đối, hoặc URL đã ghép '/...'); "tts:..." = không có file.
+   * Trả về [{ kind: 'file'|'server', url }, ..., { kind: 'speech', text, setVoice }].
+   */
+  function textbookAudioSources(audioUrl, text, isMobile) {
+    var sources = [];
+    var path = String(audioUrl || '').trim();
+    if (path && !isTtsSentinel(path)) {
+      sources.push({ kind: 'file', url: /^(https?:|\/)/i.test(path) ? path : AUDIO_BASE + path.replace(/^\.\//, '') });
+    }
+    var t = String(text || '').trim();
+    if (t && t.length <= SERVER_TTS_MAX_CHARS) sources.push({ kind: 'server', url: SERVER_TTS_URL + encodeURIComponent(t) });
+    // Điện thoại: không gán u.voice (giọng liệt kê nhưng chưa cài → im lặng), chỉ đặt lang = ja-JP.
+    if (t) sources.push({ kind: 'speech', text: t, setVoice: !isMobile });
+    return sources;
+  }
+
+  /** data-src của nút loa: '' khi không có file; giáo trình coi sentinel "tts:" là không có file. */
+  function fileSrc(audio) {
+    if (!audio || !audio.audioUrl) return '';
+    if (!IS_TEXTBOOK_PAGE) return AUDIO_BASE + audio.audioUrl;
+    var file = textbookAudioSources(audio.audioUrl, '', IS_MOBILE)[0];
+    return file ? file.url : '';
+  }
+
+  function toast(message, type) {
+    if (window.JlasUI && typeof JlasUI.toast === 'function') JlasUI.toast(message, type || 'error');
+  }
+
+  /** pitch/rate theo vai; trên điện thoại roleVoices có thể rỗng (không có giọng ja) → lấy thẳng hồ sơ của vai. */
+  function roleProfile(roleId) {
+    if (roleId == null || roleId === '') return null;
+    if (roleVoices[roleId]) return roleVoices[roleId];
+    var role = ((lesson && lesson.dialogueRoles) || []).filter(function (r) { return String(r.id) === String(roleId); })[0];
+    if (!role) return null;
+    var p = VOICE_PROFILES[role.voiceCode] || DEFAULT_PROFILE;
+    return { voice: null, pitch: p.pitch, rate: p.rate, code: role.voiceCode || '' };
+  }
+
+  function playTextbookAudio(btn) {
+    var text = btn.getAttribute('data-text') || '';
+    var src = btn.getAttribute('data-src') || '';
+    var sources = textbookAudioSources(src && filesAvailable !== false ? src : '', text, IS_MOBILE);
+    var media = sources.filter(function (s) { return s.kind !== 'speech'; });
+    var speech = sources.filter(function (s) { return s.kind === 'speech'; })[0] || null;
+    var token = playToken;
+    // File đã biết là lỗi → bắt đầu từ nguồn kế tiếp.
+    var firstIdx = media.length && media[0].kind === 'file' && btn.getAttribute('data-file-missing') === 'true' ? 1 : 0;
+
+    if (firstIdx >= media.length) { speakTextbookSpeech(speech, btn, token); return; }
+
+    // Bấm lại cùng nút: dùng lại element cũ (cùng danh sách nguồn, đang ở nguồn chạy được) → không tạo request mới.
+    var key = media.map(function (s) { return s.url; }).join('|');
+    var state = btn._jlasAudio;
+    if (!state || state.key !== key || state.failed) {
+      // Tạo + play() đồng bộ trong click handler (iOS).
+      state = { key: key, idx: firstIdx, el: new Audio(media[firstIdx].url), failed: false };
+      btn._jlasAudio = state;
+    } else {
+      try { state.el.currentTime = 0; } catch (e) { /* chưa có metadata */ }
+    }
+    var audio = state.el;
+    currentAudio = audio;
+    btn.classList.add('is-loading');
+
+    var attempt = 0;   // mỗi nguồn một lượt; lỗi/reject muộn của lượt cũ (vd. AbortError khi đổi src) bị bỏ qua
+    function fail(forAttempt) {
+      if (forAttempt !== attempt || token !== playToken) return;
+      attempt++;
+      if (media[state.idx].kind === 'file') btn.setAttribute('data-file-missing', 'true');
+      state.idx++;
+      if (state.idx < media.length) {
+        audio.src = media[state.idx].url;   // cùng element đã được mở khoá bởi cú bấm → iOS vẫn cho phát
+        start();
+        return;
+      }
+      state.failed = true;
+      currentAudio = null;
+      btn.classList.remove('is-loading');
+      speakTextbookSpeech(speech, btn, token);
+    }
+    function start() {
+      var mine = attempt;
+      var failMine = function () { fail(mine); };
+      audio.onplaying = function () {
+        if (token !== playToken) return;
+        btn.classList.remove('is-loading');
+        btn.classList.add('is-playing');
+      };
+      audio.onended = function () { if (token === playToken && currentBtn === btn) stopCurrent(); };
+      audio.onerror = failMine;
+      var p;
+      try { p = audio.play(); } catch (e) { failMine(); return; }
+      if (p && typeof p.catch === 'function') p.catch(failMine);
+    }
+    start();
+  }
+
+  /** (c) Đường lùi cuối: speechSynthesis. Điện thoại không gán u.voice; máy tính giữ cách chọn giọng cũ. */
+  function speakTextbookSpeech(speech, btn, token) {
+    if (token !== playToken || currentBtn !== btn) return;
+    if (!speech || !('speechSynthesis' in window)) {
+      stopCurrent();
+      showSpeechHelp();
+      return;
+    }
+    var rv = roleProfile(btn.getAttribute('data-role-id'));
+    var voice = null;
+    if (speech.setVoice) {
+      voice = rv && rv.voice ? rv.voice : jaVoice;
+      if (!voice) { btn.hidden = true; stopCurrent(); return; }   // máy tính không có giọng ja-JP: như cũ
+    }
+    var synth = window.speechSynthesis;
+    if (synth.speaking || synth.pending) synth.cancel();
+    var retried = false;
+    function speak(v) {
+      var u;
+      try {
+        u = new SpeechSynthesisUtterance(speech.text);
+        if (v) { u.voice = v; u.lang = v.lang || 'ja-JP'; } else u.lang = 'ja-JP';
+        u.rate = rv ? rv.rate : (NEW_UI ? 0.85 : 0.9);
+        u.pitch = rv ? rv.pitch : 1.0;
+      } catch (e) { stopCurrent(); return; }
+      activeUtterance = u;
+      btn.classList.add('is-playing', 'is-tts');
+      btn.title = 'Giọng máy' + (v ? ' (' + v.name + ')' : '');
+      if (speechWatchdog) window.clearTimeout(speechWatchdog);
+      speechWatchdog = window.setTimeout(function () {
+        speechWatchdog = null;
+        if (token !== playToken || currentBtn !== btn) return;
+        stopCurrent();
+        showSpeechHelp();
+      }, SPEECH_START_TIMEOUT_MS);
+      u.onstart = function () {
+        if (speechWatchdog) { window.clearTimeout(speechWatchdog); speechWatchdog = null; }
+      };
+      u.onend = function () {
+        if (activeUtterance === u) activeUtterance = null;
+        if (token === playToken && currentBtn === btn) stopCurrent();
+      };
+      u.onerror = function () {
+        if (activeUtterance === u) activeUtterance = null;
+        if (token !== playToken || currentBtn !== btn) return;
+        if (v && rv && rv.voice === v && v !== jaVoice && jaVoice && !retried) { retried = true; speak(jaVoice); return; }
+        stopCurrent();
+      };
+      try { synth.speak(u); } catch (e) { activeUtterance = null; stopCurrent(); }
+    }
+    speak(voice);
+  }
+
+  function showSpeechHelp() {
+    toast(isIos()
+      ? 'Không phát được âm thanh. Hãy tắt chế độ im lặng (gạt nút bên hông iPhone), tăng âm lượng, hoặc cài giọng tiếng Nhật: Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Nhật.'
+      : 'Không phát được âm thanh. Hãy tăng âm lượng hoặc cài giọng đọc tiếng Nhật cho máy (Cài đặt → Ngôn ngữ / Chuyển văn bản thành giọng nói → Tiếng Nhật).');
   }
 
   function speakWithTts(text, btn) {
@@ -351,6 +543,7 @@
     if (currentBtn === btn) { stopCurrent(); return; }
     stopCurrent();
     currentBtn = btn;
+    if (IS_TEXTBOOK_PAGE) { playTextbookAudio(btn); return; }
     var src = btn.getAttribute('data-src');
     var text = btn.getAttribute('data-text') || '';
     var useFile = src && filesAvailable !== false && btn.getAttribute('data-file-missing') !== 'true';
@@ -364,7 +557,7 @@
    */
   function speakButton(audios, text, label, roleId) {
     var audio = audioForVoice(audios);
-    var src = audio && audio.audioUrl ? AUDIO_BASE + audio.audioUrl : '';
+    var src = fileSrc(audio);
     if (!src && !text) return '';
     return '<button type="button" class="speak-btn" data-src="' + escapeHtml(src) + '" data-text="' + escapeHtml(text || '') + '"' +
       (roleId != null ? ' data-role-id="' + escapeHtml(roleId) + '"' : '') +
@@ -3270,7 +3463,7 @@
     var name = line.roleNameVi || line.roleCode || '';
     var initial = (name.trim().charAt(0) || '?').toUpperCase();
     var audio = audioForVoice(line.audios);
-    var src = audio && audio.audioUrl ? AUDIO_BASE + audio.audioUrl : '';
+    var src = fileSrc(audio);
     return '<div class="lp-msg lp-anim' + (right ? ' lp-msg--right' : '') + '">' +
       '<span class="lp-msg__avatar" aria-hidden="true">' + escapeHtml(initial) + '</span>' +
       '<div class="lp-msg__col">' +
