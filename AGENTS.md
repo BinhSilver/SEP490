@@ -110,6 +110,8 @@ Server-rendered Thymeleaf templates (`src/main/resources/templates/`) per featur
 No bundler/transpiler — JS is written to run as-is in the browser and is unit-tested with Node's `node:test`
 directly against the same files the browser loads.
 
+MP3s under `static/audio` are not packaged in the jar; `/audio/**` serves them from the private Azure Blob container `audio` via signed redirects. Upload new or changed MP3s there (for example, `az storage blob upload-batch -d audio -s src/main/resources/static/audio --overwrite`); deployment requires `AZURE_STORAGE_CONNECTION_STRING`.
+
 ### Vocabulary normalization
 
 `normalized_expression` / `normalized_reading` columns are always

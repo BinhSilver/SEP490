@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,14 +42,18 @@ public class ShadowingBlobStore {
     private final String account;
     private final String endpointSuffix;
     private final String container;
+    private final String audioContainer;
     private final byte[] accountKey;
+    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
 
     public ShadowingBlobStore(@Value("${azure.storage.connection-string:}") String connectionString,
-                              @Value("${azure.storage.container:jlas-media}") String container) {
+                              @Value("${azure.storage.container:jlas-media}") String container,
+                              @Value("${azure.storage.audio-container:audio}") String audioContainer) {
         Map<String, String> parts = parse(connectionString);
         this.account = parts.get("AccountName");
         this.endpointSuffix = parts.getOrDefault("EndpointSuffix", "core.windows.net");
         this.container = container;
+        this.audioContainer = audioContainer;
         this.accountKey = decode(parts.get("AccountKey"));
     }
 
@@ -62,13 +69,46 @@ public class ShadowingBlobStore {
     Optional<URI> signedUrl(String path, Instant expiry) {
         if (!isBlob(path) || account == null || accountKey == null) return Optional.empty();
         String name = path.substring(PREFIX.length());
-        if (!SAFE_NAME.matcher(name).matches()) return Optional.empty();
+        return signedUrl(container, name, expiry);
+    }
+
+    public static boolean isSafeAudioName(String name) {
+        return name != null && !name.contains("..") && SAFE_NAME.matcher(name).matches();
+    }
+
+    /** Stable for one clock hour so repeated audio requests share the same signed URL. */
+    public Optional<URI> signedAudioUrl(String name) {
+        return signedAudioUrl(name, Instant.now());
+    }
+
+    Optional<URI> signedAudioUrl(String name, Instant now) {
+        Instant expiry = now.truncatedTo(ChronoUnit.HOURS).plus(2, ChronoUnit.HOURS);
+        return signedUrl(audioContainer, name, expiry);
+    }
+
+    public boolean audioExists(String name) {
+        Optional<URI> url = signedAudioUrl(name);
+        if (url.isEmpty()) return false;
+        try {
+            HttpRequest request = HttpRequest.newBuilder(url.get()).timeout(Duration.ofSeconds(5))
+                    .method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
+            return httpClient.send(request, HttpResponse.BodyHandlers.discarding()).statusCode() == 200;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Optional<URI> signedUrl(String targetContainer, String name, Instant expiry) {
+        if (account == null || accountKey == null || !isSafeAudioName(name)) return Optional.empty();
         String expires = expiry.truncatedTo(ChronoUnit.SECONDS).toString();
-        String resource = "/blob/" + account + "/" + container + "/" + name;
+        String resource = "/blob/" + account + "/" + targetContainer + "/" + name;
         // Field order is fixed by the Azure service SAS format; the empty lines are fields this link does not use.
         String toSign = String.join("\n", "r", "", expires, resource, "", "", "https", SAS_VERSION, "b",
                 "", "", "", "", "", "", "");
-        return Optional.of(URI.create("https://" + account + ".blob." + endpointSuffix + "/" + container + "/" + name
+        return Optional.of(URI.create("https://" + account + ".blob." + endpointSuffix + "/" + targetContainer + "/" + name
                 + "?sv=" + SAS_VERSION + "&sr=b&sp=r&spr=https&se=" + encode(expires) + "&sig=" + encode(sign(toSign))));
     }
 
