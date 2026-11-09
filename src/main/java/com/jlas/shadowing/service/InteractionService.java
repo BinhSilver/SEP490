@@ -117,9 +117,10 @@ public class InteractionService {
         Map<Long, Long> parents = threads.parents(ids);
         Map<Long, Map<String, Long>> reactions = threads.counts(ids);
         Map<Long, String> mine = threads.mine(ids, currentUserId);
+        Map<Long, Integer> ratings = threads.ratings(ids);
         List<CommentDto> all = withProfiles(visible.stream()
                 .map(c -> {
-                    commentRatingRepository.find(c.getId()).ifPresent(c::setRating);
+                    if (ratings.containsKey(c.getId())) c.setRating(ratings.get(c.getId()));
                     CommentDto dto = toCommentDto(c, currentClientId);
                     dto.setParentId(parents.get(c.getId()));
                     dto.setReactions(reactions.getOrDefault(c.getId(), new LinkedHashMap<>()));
