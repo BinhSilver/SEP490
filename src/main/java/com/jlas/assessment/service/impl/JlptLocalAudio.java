@@ -98,8 +98,7 @@ public class JlptLocalAudio {
                     int m = mondai.path("number").asInt(), q = question.path("number").asInt();
                     String file = "Mondai" + m + "/" + q + ".mp3";
                     double duration = question.path("durationMs").asDouble() / 1000;
-                    if (!file.equals(question.path("file").asText()) || duration <= 0
-                            || !new ClassPathResource(base + file).exists()) {
+                    if (!file.equals(question.path("file").asText()) || duration <= 0) {
                         throw new IOException("Invalid local clip: " + file);
                     }
                     List<JlptExamResponse.TranscriptSegment> segments = new ArrayList<>();
