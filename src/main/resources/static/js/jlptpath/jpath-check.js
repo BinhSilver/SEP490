@@ -619,14 +619,33 @@
       + '</div>';
   }
 
+  // [JLAS-W0108] C3: the weekly test (a FREE_QUIZ with source WEEK) ends with a short summary in place:
+  // score, the weak items of this week and one next step (no separate summary page, owner 05/11)
+  var TAB_VI = { VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp' };
+  function isWeekly(check) { return !!(check && check.issue && check.issue.source === 'WEEK'); }
+  function weeklySummaryHtml(r, check, pct) {
+    var wrong = (r.wrongItems || []).length;
+    var tabName = TAB_VI[check.tab || (check.issue && check.issue.tab)] || '';
+    var strong = pct >= PASS_PERCENT;
+    var tip = !wrong ? 'Tuần này bạn nắm chắc hết. Cứ giữ nhịp học như hiện tại nhé.'
+      : strong ? 'Tuần này khá vững. Ôn nhanh ' + wrong + ' mục sai trong Sổ tay là đủ.'
+      : 'Nên ôn lại ' + wrong + ' mục sai trong Sổ tay trước khi học mục mới.';
+    return '<div class="jp-result__score' + (strong ? ' jp-ok' : ' jp-bad') + '">' + esc(pct) + '%</div>'
+      + '<h2 class="jp-result__title" id="jp-result-title" tabindex="-1">Tổng kết tuần' + (tabName ? ' · ' + esc(tabName) : '')
+      + ': đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu</h2>'
+      + '<p class="jp-result__note" data-part="week-tip">' + esc(tip)
+      + (wrong ? ' <a href="/learning/jlpt/notebook">Mở Sổ tay</a>' : '') + '</p>';
+  }
+
   function resultHtml(result, check, opts) {
     var r = result || {};
     var kind = check && check.kind;
     var o = opts || {};
     var pct = Number(r.scorePercent) || 0;
-    var celCls = r.passed === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
+    var mood = kind === 'FREE_QUIZ' && isWeekly(check) ? pct >= PASS_PERCENT : r.passed;
+    var celCls = mood === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
     var html = '<section class="jp-result jp-card' + celCls + '" aria-labelledby="jp-result-title">'
-      + celebrateArtHtml(r.passed);
+      + celebrateArtHtml(mood);
     var tone = r.passed === true ? ' jp-ok' : (r.passed === false ? ' jp-bad' : '');
     if (kind === 'GROUP_EXERCISE') {
       html += '<h2 class="jp-result__title" id="jp-result-title" tabindex="-1">Xong bài tập nhóm. Câu sai sẽ được ôn lại trong lượt này.</h2>'
@@ -643,6 +662,8 @@
         + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">' + (wk
           ? esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu: tuần này được bỏ qua. Mục trả lời đúng vào Đã biết, mục chưa hỏi tới sẽ được ôn sớm để xác nhận.')
           : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu, chưa tới 90% nên tuần này vẫn học như bình thường.')) + '</p>';
+    } else if (kind === 'FREE_QUIZ' && isWeekly(check)) {
+      html += weeklySummaryHtml(r, check, pct);
     } else if (kind === 'FREE_QUIZ') {
       html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
         + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
