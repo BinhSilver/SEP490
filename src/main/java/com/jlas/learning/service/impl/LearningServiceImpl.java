@@ -1743,7 +1743,7 @@ public class LearningServiceImpl implements LearningService {
                 .map(entry -> "cấp " + entry.getKey() + " còn thiếu " + String.join(", ", entry.getValue()))
                 .collect(java.util.stream.Collectors.joining("; "));
         return "Chưa thể tạo lộ trình đầy đủ: " + levels
-                + ". J-LAS không tạo lộ trình thiếu kỹ năng — nội dung sẽ được bổ sung trước khi mở "
+                + ". KotsuKotsu không tạo lộ trình thiếu kỹ năng — nội dung sẽ được bổ sung trước khi mở "
                 + (missing.size() > 1 ? "các cấp này." : "cấp này.");
     }
 

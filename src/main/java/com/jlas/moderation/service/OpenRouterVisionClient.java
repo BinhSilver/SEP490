@@ -101,7 +101,7 @@ public class OpenRouterVisionClient {
         Map<String, Object> systemMsg = Map.of(
                 "role", "system",
                 "content", """
-                        You are a content moderator for JLAS, a Japanese learning community (not a large social network).
+                        You are a content moderator for KotsuKotsu, a Japanese learning community (not a large social network).
                         Flag policy risks in the IMAGE:
                         - sexual/NSFW, nudity level, pornography, sexualized minors / grooming cues
                         - graphic gore, extreme violence
