@@ -326,7 +326,7 @@
       ? (todayObj.restDay ? 'Hôm nay nghỉ ngơi nhé! Muốn thì học thêm 1 tình huống.' : 'Hôm nay chưa có tình huống mới, mình ôn lại bài cũ nhé!')
       : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
         : 'Còn ' + left + ' tình huống hôm nay, mình cùng đóng vai リン nhé!');
-    return '<section class="jp-today cp-today" aria-label="Hôm nay của bạn">'
+    return '<section class="jp-today cp-today" data-tour="cp-today" aria-label="Hôm nay của bạn">'
       + '<header class="cp-today__head">'
       + '<div class="cp-today__lead"><h1 class="jp-section-title">Hôm nay của bạn</h1>'
       + '<p class="cp-today__meta">' + esc(dateLine) + (dateLine ? ' · ' : '') + esc(d.nameVi || 'Giao tiếp')
@@ -561,9 +561,10 @@
       + '</div>'
       + '</div>'
       + '<div class="jp-parts__banner-sub">'
-      + '<details class="cp-goal-switch"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
+      + '<details class="cp-goal-switch" data-tour="cp-goal"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
       + '<a href="/survey?edit=goal">Đổi mục tiêu chính</a> · '
-      + '<a href="/learning/comm/survey">Thêm mục tiêu phụ</a></details>'
+      + '<a href="/learning/comm/survey">Thêm mục tiêu phụ</a> · '
+      + '<a href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></details>'
       + '<div class="jp-parts__legend" aria-label="Chú giải bản đồ">'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">' + svgMedal('jp-parts__legend-svg') + '</span>Đã học</span>'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">' + svgStar() + '</span>Hôm nay</span>'
@@ -597,7 +598,7 @@
       + bannerHtml
       + '<div class="jp-parts__stage jp-parts__stage--' + sceneKey + '" data-tab-scene="' + sceneKey + '">'
       + sceneBackdropHtml(sceneKey)
-      + '<ol class="jp-parts__list jp-parts__map">' + nodesHtml + '</ol>'
+      + '<ol class="jp-parts__list jp-parts__map" data-tour="cp-map">' + nodesHtml + '</ol>'
       + '</div>'
       + '</div>';
   }
@@ -617,7 +618,7 @@
       + '<a class="cp-goal-card__progress" href="/learning/comm/certificate" title="Xem chứng nhận">'
       + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
-      + '<div class="cp-goal-card__pace" role="group" aria-label="Số tình huống mỗi ngày">'
+      + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
       + '<span>Mỗi ngày</span>'
       + [1, 2].map(function (n) {
         return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
@@ -737,6 +738,26 @@
       slot.prepend(alert);
     }
 
+    // [JLAS-W0108] C5: first visit (or ?tour=1) gets a 4-step guide; "seen" is a per-browser convenience
+    var TOUR_KEY = 'cpath.tourDone';
+    var TOUR_STEPS = [
+      { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–2 tình huống giao tiếp. Bấm Học tiếp để vào tình huống kế tiếp.' },
+      { target: '[data-tour="cp-map"]', text: 'Bản đồ theo tuần: mỗi tình huống có 4 bước, cuối tuần có bài kiểm tra để mở tuần sau.' },
+      { target: '[data-tour="cp-pace"]', text: 'Chọn học 1 hay 2 tình huống mỗi ngày; đổi lúc nào cũng được.' },
+      { target: '[data-tour="cp-goal"]', text: 'Đổi mục tiêu chính hoặc thêm mục tiêu phụ ở đây; tiến độ đã học vẫn được giữ.' }
+    ];
+    function startTour() {
+      var tour = root.JpathTour;
+      if (!tour || !root.document) return;
+      var forced = /(^|[?&])tour=1(&|$)/.test((root.location && root.location.search) || '');
+      var seen = false;
+      try { seen = root.localStorage.getItem(TOUR_KEY) === '1'; } catch (e) { seen = false; }
+      if (seen && !forced) return;
+      tour.create({ doc: root.document, steps: TOUR_STEPS, onFinish: function () {
+        try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
+      } }).start();
+    }
+
     function renderAll() {
       rootEl.setAttribute('aria-busy', 'false');
       if (sideSlot && pathData) sideSlot.innerHTML = sideGoalHtml(pathData);
@@ -841,6 +862,7 @@
       }
       state.focusedWeek = Number(mapData.currentWeek) || 1;
       renderAll();
+      startTour();
       // a goal AI call taken since the last visit: read its score (kaiwa, read only) and redraw when it passed
       if (root.JpathApi.send) {
         Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/goal-test/check')).then(function (g) {
