@@ -16,8 +16,7 @@ import com.jlas.shadowing.repository.TagRepository;
 import com.jlas.shadowing.repository.VideoFavoriteRepository;
 import com.jlas.shadowing.repository.VideoRatingRepository;
 import com.jlas.shadowing.repository.VideoRepository;
-import com.jlas.shadowing.repository.VideoViewRepository;
-import com.jlas.shadowing.repository.ShadowingQuestionBankRepository;
+import com.jlas.shadowing.repository.VideoSummaryStatsRepository;
 import com.jlas.shadowing.repository.VideoWatchSessionRepository;
 import com.jlas.shadowing.util.NullSafe;
 import com.jlas.shadowing.util.ShadowingModerationState;
@@ -56,11 +55,10 @@ public class VideoService {
     @Autowired private VideoRatingRepository ratingRepository;
     @Autowired private VideoFavoriteRepository favoriteRepository;
     @Autowired private VideoWatchSessionRepository watchSessionRepository;
-    @Autowired private VideoViewRepository videoViews;
     @Autowired private com.jlas.common.history.ViewHistoryRepository viewHistory;
     @Autowired private ShadowingLibraryCatalog libraryCatalog;
     @Autowired private ShadowingVideoTags videoTags;
-    @Autowired private ShadowingQuestionBankRepository questionBank;
+    @Autowired private VideoSummaryStatsRepository summaryStats;
     @Autowired private YoutubeImportService youtubeImportService;
     @Autowired private YoutubeImportJobService youtubeImportJobService;
     @Autowired private ContentModerationPort moderationPort;
@@ -260,10 +258,18 @@ public class VideoService {
     }
 
     private List<VideoSummaryDto> mapSummaries(List<Video> videos, String clientId) {
-        Set<Long> favoriteIds = interactionService.getFavoriteVideoIds(clientId);
+        return toSummaries(videos, clientId, interactionService.getFavoriteVideoIds(clientId),
+                CurrentUser.currentUserId().orElse(null));
+    }
+
+    private List<VideoSummaryDto> toSummaries(List<Video> videos, String clientId, Set<Long> favoriteIds,
+                                              Long currentUserId) {
         Map<Long, Integer> userRatings = loadUserRatings(clientId, videos);
+        Map<Long, VideoSummaryStatsRepository.Stats> stats =
+                summaryStats.forVideos(videos.stream().map(Video::getId).toList());
         return videos.stream()
-                .map(v -> toSummary(v, clientId, favoriteIds, userRatings))
+                .map(v -> toSummary(v, clientId, favoriteIds, userRatings, currentUserId,
+                        stats.getOrDefault(v.getId(), VideoSummaryStatsRepository.Stats.NONE)))
                 .collect(Collectors.toList());
     }
 
@@ -341,11 +347,7 @@ public class VideoService {
             videos = videos.stream().filter(v -> favoriteIds.contains(v.getId())).collect(Collectors.toList());
         }
 
-        Map<Long, Integer> userRatings = loadUserRatings(clientId, videos);
-        Long currentUser = me;
-        List<VideoSummaryDto> summaries = videos.stream()
-                .map(v -> toSummary(v, clientId, favoriteIds, userRatings, currentUser))
-                .collect(Collectors.toList());
+        List<VideoSummaryDto> summaries = toSummaries(videos, clientId, favoriteIds, me);
         Set<String> levels = LibraryFilters.values(level);
         if (!levels.isEmpty()) {
             summaries = summaries.stream()
@@ -368,16 +370,27 @@ public class VideoService {
         String client = me == null ? null : String.valueOf(me);
         Map<Long, LocalDateTime> viewed = "history".equals(scope) && me != null
                 ? viewHistory.recent(me, com.jlas.common.history.ViewHistoryRepository.Item.SHADOWING_VIDEO) : Map.of();
-        return libraryCatalog.videos(query, category, genre, level, sort, scope, status, favorites, me, page, size)
+        LibraryPageDto<ShadowingLibraryCatalog.Entry> entries =
+                libraryCatalog.videos(query, category, genre, level, sort, scope, status, favorites, me, page, size);
+        List<Video> videos = videoRepository.findAllById(
+                entries.items().stream().map(ShadowingLibraryCatalog.Entry::id).toList());
+        videos.forEach(this::requireReadable);
+        Map<Long, VideoSummaryDto> summaries =
+                toSummaries(videos, client, interactionService.getFavoriteVideoIds(client), me).stream()
+                        .collect(Collectors.toMap(VideoSummaryDto::getId, dto -> dto));
+        // A video deleted after the catalog was read has no summary; the rest of the page still renders.
+        List<VideoSummaryDto> items = entries.items().stream()
+                .filter(entry -> summaries.containsKey(entry.id()))
                 .map(entry -> {
-                    VideoSummaryDto dto = getSummary(entry.id(), client);
+                    VideoSummaryDto dto = summaries.get(entry.id());
                     dto.setViewedAt(viewed.get(entry.id()));
                     dto.setAvgRating(entry.metrics().ratingCount() > 0 ? entry.metrics().averageRating() : null);
                     dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().ratingCount()));
                     dto.setViewCount((int) Math.min(Integer.MAX_VALUE, entry.metrics().views()));
                     dto.setEstimatedLevel(entry.level());
                     return dto;
-                });
+                }).toList();
+        return new LibraryPageDto<>(items, entries.page(), entries.size(), entries.totalItems(), entries.totalPages());
     }
 
     /** Lịch sử: người đã đăng nhập mở trang luyện một video có thật thì ghi lại lần ghé. */
@@ -520,10 +533,24 @@ public class VideoService {
     /** Summary used by public playlist/detail pages. */
     public VideoSummaryDto getSummary(Long id, String clientId) {
         Video video = getVideo(id);
-        Set<Long> favoriteIds = interactionService.getFavoriteVideoIds(clientId);
-        Map<Long, Integer> userRatings = loadUserRatings(clientId, List.of(video));
-        return toSummary(video, clientId, favoriteIds, userRatings,
-                CurrentUser.currentUserId().orElse(null));
+        return mapSummaries(List.of(video), clientId).get(0);
+    }
+
+    /** Summaries in the order of {@code ids}, leaving out the videos this user may not open. */
+    public List<VideoSummaryDto> getReadableSummaries(List<Long> ids, String clientId) {
+        Map<Long, Video> byId = new HashMap<>();
+        videoRepository.findAllById(ids).forEach(video -> byId.put(video.getId(), video));
+        return mapSummaries(ids.stream().map(byId::get).filter(Objects::nonNull).filter(this::isReadable).toList(), clientId);
+    }
+
+    private boolean isReadable(Video video) {
+        try {
+            requireReadable(video);
+            return true;
+        } catch (ApiException e) {
+            if (e.getErrorCode() != ErrorCode.FORBIDDEN) throw e;
+            return false;
+        }
     }
 
     /** Load without permission (internal processing). */
@@ -752,10 +779,7 @@ public class VideoService {
     }
 
     /** Falls back to the level chosen (or suggested by AI) on the question preparation page. */
-    private void applyPreparedLevel(VideoSummaryDto dto, Long videoId) {
-        String[] levels = questionBank.jlptLevels(videoId);
-        if (levels == null) return;
-        String selected = levels[0], suggested = levels[1];
+    private void applyPreparedLevel(VideoSummaryDto dto, String selected, String suggested) {
         if (selected != null && !selected.isBlank()) {
             dto.setEstimatedLevel(selected.toUpperCase(Locale.ROOT));
             dto.setLevelSource(selected.equalsIgnoreCase(suggested) ? "AI" : "CREATOR");
@@ -765,13 +789,8 @@ public class VideoService {
         }
     }
 
-    private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds,
-                                      Map<Long, Integer> userRatings) {
-        return toSummary(v, clientId, favoriteIds, userRatings, CurrentUser.currentUserId().orElse(null));
-    }
-
-    private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds,
-                                      Map<Long, Integer> userRatings, Long currentUserId) {
+    private VideoSummaryDto toSummary(Video v, String clientId, Set<Long> favoriteIds, Map<Long, Integer> userRatings,
+                                      Long currentUserId, VideoSummaryStatsRepository.Stats stats) {
         VideoSummaryDto dto = new VideoSummaryDto();
         dto.setId(v.getId());
         dto.setTitle(v.getTitle());
@@ -790,16 +809,16 @@ public class VideoService {
                     dto.setEstimatedLevel(level.toUpperCase(Locale.ROOT));
                     dto.setLevelSource("CREATOR");
                 });
-        if (dto.getEstimatedLevel() == null) applyPreparedLevel(dto, v.getId());
-        dto.setSubtitleCount(subtitleRepository.findByVideoIdOrderBySortOrderAscStartTimeAsc(v.getId()).size());
+        if (dto.getEstimatedLevel() == null) applyPreparedLevel(dto, stats.selectedLevel(), stats.suggestedLevel());
+        dto.setSubtitleCount(stats.subtitles());
         dto.setOwnerId(v.getOwnerId());
         dto.setVisibility(v.getVisibility() != null ? v.getVisibility().name() : VideoVisibility.PRIVATE.name());
         dto.setMinAge(v.getMinAge());
         dto.setOwnedByMe(currentUserId != null && currentUserId.equals(v.getOwnerId()));
-        dto.setViewCount(videoViews.viewCount(v.getId()));
-        dto.setAvgRating(ratingRepository.averageByVideoId(v.getId()));
-        dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, ratingRepository.countByVideoId(v.getId())));
-        dto.setCommentCount(commentRepository.countByVideoId(v.getId()));
+        dto.setViewCount(stats.views());
+        dto.setAvgRating(stats.averageRating());
+        dto.setRatingCount((int) Math.min(Integer.MAX_VALUE, stats.ratings()));
+        dto.setCommentCount(stats.comments());
         if (clientId != null) {
             dto.setFavorited(favoriteIds.contains(v.getId()));
             dto.setUserRating(userRatings.get(v.getId()));
@@ -809,12 +828,7 @@ public class VideoService {
 
     private Map<Long, Integer> loadUserRatings(String clientId, List<Video> videos) {
         if (clientId == null || clientId.isBlank()) return Map.of();
-        Map<Long, Integer> map = new HashMap<>();
-        for (Video v : videos) {
-            ratingRepository.findByClientIdAndVideoId(clientId, v.getId())
-                    .ifPresent(r -> map.put(v.getId(), r.getRating()));
-        }
-        return map;
+        return ratingRepository.findRatings(clientId, videos.stream().map(Video::getId).toList());
     }
 
     private String extractCategory(Video v) {

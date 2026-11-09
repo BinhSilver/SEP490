@@ -129,7 +129,7 @@ public class YoutubeAnalyzeService {
             dto.setLanguageMessage(dto.isJapaneseDetected()
                     ? "Đã nhận diện tiếng Nhật từ metadata của video."
                     : "Video được nhận diện là " + languageLabel(normalized)
-                            + ". JLAS chỉ nhận nội dung tiếng Nhật.");
+                            + ". KotsuKotsu chỉ nhận nội dung tiếng Nhật.");
             return;
         }
 

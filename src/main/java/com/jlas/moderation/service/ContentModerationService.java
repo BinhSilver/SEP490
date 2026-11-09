@@ -516,7 +516,7 @@ public class ContentModerationService {
                 .verdict(ModerationVerdict.BLOCKED)
                 .categories(cats)
                 .confidence(0.95)
-                .summary("Nội dung không phù hợp chính sách cộng đồng JLAS.")
+                .summary("Nội dung không phù hợp chính sách cộng đồng KotsuKotsu.")
                 .modelName("keyword-blocklist")
                 .build());
     }

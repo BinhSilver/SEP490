@@ -30,7 +30,7 @@ public class GamePageController {
     @GetMapping
     public String hub(Model model) {
         model.addAttribute("games", GameRules.catalog());
-        model.addAttribute("pageTitle", "Trò chơi - JLAS");
+        model.addAttribute("pageTitle", "Trò chơi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "arena/games";
     }
@@ -38,7 +38,7 @@ public class GamePageController {
     /** Thiết lập trận: ?game=NEKO_CATCH&mode=VERSUS|SOLO&setId=... (đều tuỳ chọn). */
     @GetMapping("/lobby")
     public String setup(Model model) {
-        model.addAttribute("pageTitle", "Thiết lập trận - Trò chơi - JLAS");
+        model.addAttribute("pageTitle", "Thiết lập trận - Trò chơi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "arena/lobby";
     }
@@ -46,7 +46,7 @@ public class GamePageController {
     /** Cửa hàng: trang phục mèo và máy bay, mua bằng CP chung. */
     @GetMapping("/shop")
     public String shop(Model model) {
-        model.addAttribute("pageTitle", "Cửa hàng - Trò chơi - JLAS");
+        model.addAttribute("pageTitle", "Cửa hàng - Trò chơi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "arena/shop";
     }
@@ -54,7 +54,7 @@ public class GamePageController {
     @GetMapping("/room/{roomId}")
     public String room(@PathVariable String roomId, Model model) {
         model.addAttribute("roomId", roomId);
-        model.addAttribute("pageTitle", "Phòng đấu - Trò chơi - JLAS");
+        model.addAttribute("pageTitle", "Phòng đấu - Trò chơi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "arena/room";
     }
@@ -91,7 +91,7 @@ public class GamePageController {
         model.addAttribute("skin", skinCode);
         model.addAttribute("skinItem", skinCatalog.find(skinCode).orElse(null));
         model.addAttribute("sessionId", sessionId);
-        model.addAttribute("pageTitle", session.deckTitle() + " - Trò chơi - JLAS");
+        model.addAttribute("pageTitle", session.deckTitle() + " - Trò chơi - KotsuKotsu");
         return view;
     }
 }

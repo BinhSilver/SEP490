@@ -16,7 +16,7 @@ import java.util.Map;
 @Component
 public class KanjiMeaningCatalog {
     static final String RESOURCE = "learning/kanji-meaning-vi.json";
-    static final String ATTRIBUTION = "Nghĩa tiếng Việt theo VNJPClub; chữ VNJPClub chưa có nghĩa do J-LAS bổ sung.";
+    static final String ATTRIBUTION = "Nghĩa tiếng Việt theo VNJPClub; chữ VNJPClub chưa có nghĩa do KotsuKotsu bổ sung.";
     private final Map<String, String> meanings;
 
     public KanjiMeaningCatalog() {

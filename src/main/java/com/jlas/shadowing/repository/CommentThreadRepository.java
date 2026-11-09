@@ -56,6 +56,16 @@ public class CommentThreadRepository {
         return ordered;
     }
 
+    /** comment id → the star rating stored with it, for the comments that have one. */
+    public Map<Long, Integer> ratings(Collection<Long> commentIds) {
+        Map<Long, Integer> ratings = new HashMap<>();
+        if (commentIds.isEmpty()) return ratings;
+        jdbc.query("SELECT comment_id, rating FROM content_comment_rating WHERE comment_id IN (:ids)",
+                new MapSqlParameterSource("ids", commentIds),
+                rs -> { ratings.put(rs.getLong("comment_id"), rs.getInt("rating")); });
+        return ratings;
+    }
+
     /** comment id → the reaction this user left on it. */
     public Map<Long, String> mine(Collection<Long> commentIds, Long userId) {
         Map<Long, String> mine = new HashMap<>();
