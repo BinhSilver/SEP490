@@ -3836,3 +3836,17 @@ html.dark .cp-page {
 @media (max-width: 480px) {
   .jp-parts__mascot--today .jp-parts__mascot-img { width: 52px !important; height: 52px !important; }
 }
+/* [JLAS-W0108] 09/11 A1: today Kitsu was squeezed to 54x84 on phones (its box could shrink) */
+.jp-path .jp-today .jp-today__top .jp-today__kitsu { flex: 0 0 auto !important; }
+.jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img { flex: 0 0 auto !important; }
+@media (max-width: 480px) {
+  .jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img { width: 64px !important; height: 64px !important; }
+}
+/* [JLAS-W0108] 09/11 A1: side Kitsu were hidden below 820px, so phones and tablets saw no map Kitsu at all */
+@media (max-width: 820px) {
+  .jp-parts__map .jp-parts__mascot--side { display: block !important; }
+  .jp-parts__map .jp-parts__mascot--side.jp-parts__mascot--left { left: 6px !important; }
+  .jp-parts__map .jp-parts__mascot--side.jp-parts__mascot--right { right: 6px !important; }
+  .jp-parts__mascot--side .jp-parts__mascot-img { width: 44px !important; height: 44px !important; }
+  .jp-parts__map .jp-parts__mascot--side .jp-parts__mascot-speech { display: none !important; }
+}
