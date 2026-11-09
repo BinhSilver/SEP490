@@ -13,7 +13,16 @@ import java.util.Optional;
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
+    /**
+     * Chủ đề của GIÁO TRÌNH có code bắt đầu bằng tiền tố này (tools/generate_seed.py: TOPIC-DAILY, TOPIC-TRAVEL…).
+     * Tag SITUATION khác (vd. JLPT/BA/TRAVEL/DAILY_LIFE của Smart Test) dùng chung tag_type nhưng không thuộc Giáo trình.
+     */
+    String TEXTBOOK_TOPIC_CODE_PREFIX = "TOPIC-";
+
     List<Tag> findByTagTypeOrderByCodeAsc(String tagType);
+
+    /** Chủ đề Giáo trình: tag loại {@code tagType} có code bắt đầu bằng {@code codePrefix}, xếp theo code. */
+    List<Tag> findByTagTypeAndCodeStartingWithOrderByCodeAsc(String tagType, String codePrefix);
 
     Optional<Tag> findByCodeAndTagType(String code, String tagType);
 

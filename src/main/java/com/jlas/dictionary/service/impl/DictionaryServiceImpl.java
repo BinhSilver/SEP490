@@ -822,7 +822,9 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public List<TopicResponse> listTopics() {
-        List<Tag> topics = tagRepository.findByTagTypeOrderByCodeAsc(TAG_TYPE_TOPIC);
+        // Chỉ chủ đề của Giáo trình (TOPIC-*); tag SITUATION của Smart Test dùng chung tag_type nên phải lọc theo code.
+        List<Tag> topics = tagRepository.findByTagTypeAndCodeStartingWithOrderByCodeAsc(
+                TAG_TYPE_TOPIC, TagRepository.TEXTBOOK_TOPIC_CODE_PREFIX);
         Map<Long, Long> countByTag = new HashMap<>();
         List<Object[]> rows = canViewDraft()
                 ? tagRepository.countLessonsByTagTypeAndStatusNot(TAG_TYPE_TOPIC, STATUS_ARCHIVED)
@@ -837,7 +839,11 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public TopicLessonsResponse getTopicLessons(String code) {
-        // NOT_FOUND chỉ khi tag không tồn tại; tag tồn tại mà không có bài được xem → 200 với lessons rỗng.
+        // NOT_FOUND khi tag không tồn tại hoặc không phải chủ đề Giáo trình (TOPIC-*);
+        // tag tồn tại mà không có bài được xem → 200 với lessons rỗng.
+        if (code == null || !code.startsWith(TagRepository.TEXTBOOK_TOPIC_CODE_PREFIX)) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "Topic not found: " + code);
+        }
         Tag tag = tagRepository.findByCodeAndTagType(code, TAG_TYPE_TOPIC)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Topic not found: " + code));
         List<Lesson> lessons = canViewDraft()
