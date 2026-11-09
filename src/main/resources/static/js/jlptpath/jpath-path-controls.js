@@ -249,7 +249,7 @@
       + '</svg>'
       + '<div class="jp-today__cal-inner">'
       + '<strong class="jp-today__cal-day">' + esc(m[3]) + '</strong>'
-      + '<span class="jp-today__cal-jp" lang="ja">' + esc(monthNum + '月') + ' <span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
+      + '<span class="jp-today__cal-jp" lang="ja"><span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
       + '</div>'
       + '</div>';
   }
@@ -578,5 +578,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });

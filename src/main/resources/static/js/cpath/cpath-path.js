@@ -326,15 +326,24 @@
       ? (todayObj.restDay ? 'Hôm nay nghỉ ngơi nhé! Muốn thì học thêm 1 tình huống.' : 'Hôm nay chưa có tình huống mới, mình ôn lại bài cũ nhé!')
       : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
         : 'Còn ' + left + ' tình huống hôm nay, mình cùng đóng vai リン nhé!');
-    return '<section class="jp-today cp-today" data-tour="cp-today" aria-label="Hôm nay của bạn">'
-      + '<header class="cp-today__head">'
-      + '<div class="cp-today__lead"><h1 class="jp-section-title">Hôm nay của bạn</h1>'
-      + '<p class="cp-today__meta">' + esc(dateLine) + (dateLine ? ' · ' : '') + esc(d.nameVi || 'Giao tiếp')
+    // [JLAS-W0108] C1: same head as the JLPT "Hôm nay" block - calendar stamp, title, Kitsu - then the main button
+    var ctl = root && root.JpathPathControls;
+    var cal = ctl && typeof ctl.calendarStampHtml === 'function' && dayIso
+      ? ctl.calendarStampHtml(dayIso, { allDone: allDone, tabs: [{ tab: 'COMM', newTarget: situations.length, newDone: doneCount }] })
+      : '';
+    return '<section class="jp-card jp-today cp-today" data-tour="cp-today" aria-labelledby="cp-today-title">'
+      + '<div class="jp-today__top">'
+      + cal
+      + '<div class="jp-today__lead"><div class="jp-today__title-row">'
+      + '<h1 class="jp-section-title" id="cp-today-title">Hôm nay của bạn</h1>'
+      + (allDone ? '<span class="jp-today__badge jp-today__badge--done">Đã học hôm nay</span>' : '')
+      + '</div>'
+      + '<p class="jp-today__subtitle">' + esc(cal ? '' : dateLine + (dateLine ? ' · ' : '')) + esc(d.nameVi || 'Giao tiếp')
       + (lead ? ' · ' + esc(lead) : '') + '</p></div>'
-      + '<div class="cp-today__kitsu"><img src="' + esc(kitsuSrc(kitsuFile)) + '" width="64" height="64" alt="" />'
-      + '<span class="cp-today__bubble">' + esc(kitsuSay) + '</span></div>'
-      + (firstActive ? '<a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a>' : '')
-      + '</header>'
+      + '<div class="jp-today__kitsu" aria-hidden="true"><span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
+      + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="" /></div>'
+      + '</div>'
+      + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
       + body
       + actions
       + '</section>';
