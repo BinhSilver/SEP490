@@ -4,6 +4,7 @@ import com.jlas.assessment.dto.JlptAdminExamSummaryResponse;
 import com.jlas.assessment.service.JlptAdminService;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.shadowing.service.ShadowingBlobStore;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -55,6 +56,7 @@ public class JlptExcelImportService {
 
     private final JdbcTemplate jdbc;
     private final JlptAdminService adminService;
+    private final ShadowingBlobStore blobStore;
 
     public record Issue(String sheet, int row, String message) {}
     public record Preview(String code, String title, String level, int mondaiCount,
@@ -439,7 +441,8 @@ public class JlptExcelImportService {
 
     private void media(String url, String prefix, String sheet, int row, List<Issue> errors) {
         if (!url.startsWith(prefix) || url.contains("..") || url.contains("\\") || url.contains("?") || url.contains("#") ||
-                !new ClassPathResource("static" + url).exists())
+                !(new ClassPathResource("static" + url).exists() ||
+                        (prefix.equals("/audio/JLPT/") && blobStore.audioExists(url.substring("/audio/".length())))))
             errors.add(new Issue(sheet, row, "File media không tồn tại hoặc đường dẫn local không hợp lệ: " + url));
     }
 
