@@ -335,9 +335,22 @@
   function numbersHtml(path, tab, today) {
     if (tab === 'skills') return skillsTabHtml(path, today);
     if (root && root.JpathParts && (tab === 'vocab' || tab === 'kanji' || tab === 'grammar')) {
-      return '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
+      return lockedTabNoteHtml(path, tab)
+        + '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
     }
-    return estimateHtml(path, tab) + volumeHtml(path, tab);
+    // [JLAS-W0108] F13: the kana tab has no finish estimate; show only its volume instead of "—"
+    var est = (path && path.estimates || {})[TAB_KEY[tab]];
+    return (tab === 'kana' && !est ? '' : estimateHtml(path, tab)) + volumeHtml(path, tab);
+  }
+
+  /** [JLAS-W0108] F12: a tab that opens after kana says why its map is locked and links to the kana tab. */
+  function lockedTabNoteHtml(path, tab) {
+    var info = tabInfo(path, tab);
+    var kanaFirst = !!(path && path.kanaTab && !path.kanaCompleted);
+    if (!info || (info.open !== false && !kanaFirst)) return '';
+    var text = info.open === false ? 'Học xong <strong>Chữ cái</strong> để mở tab này.'
+      : 'Lộ trình đang học <strong>Chữ cái</strong> trước; các phần ở đây mở dần sau khi xong Chữ cái.';
+    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=kana">Về tab Chữ cái</a></p>';
   }
 
   // tab buttons are updated in place so focus stays on the activated tab
