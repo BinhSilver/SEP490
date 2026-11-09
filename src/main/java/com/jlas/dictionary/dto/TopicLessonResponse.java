@@ -23,4 +23,7 @@ public class TopicLessonResponse {
     private Long textbookId;
     private String textbookTitle;
     private String jlptLevel;
+
+    /** Sách chứa bài bị khóa với người xem hiện tại (cần Premium — TextbookAccessPolicy). */
+    private Boolean locked;
 }

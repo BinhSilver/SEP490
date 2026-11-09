@@ -12,6 +12,7 @@ import com.jlas.dictionary.handwriting.StrokeMatcher;
 import com.jlas.dictionary.mapper.DictionaryMapper;
 import com.jlas.dictionary.repository.*;
 import com.jlas.dictionary.service.DictionaryService;
+import com.jlas.dictionary.service.TextbookAccessPolicy;
 import com.jlas.dictionary.util.DictionaryUtil;
 import com.jlas.dictionary.util.VerbDeinflector;
 import lombok.RequiredArgsConstructor;
@@ -118,6 +119,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     private final ContentAudioRepository contentAudioRepository;
     private final LessonKanjiRepository lessonKanjiRepository;
     private final ObjectMapper objectMapper;
+    private final TextbookAccessPolicy accessPolicy;
 
     @Override
     public SearchResultResponse search(String query, int page, int size, Long userId) {
@@ -753,6 +755,8 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public List<TextbookResponse> listTextbooks() {
+        // Khách → 401. Premium đọc lười tối đa 1 lần cho cả danh sách (TextbookAccessPolicy.Viewer).
+        TextbookAccessPolicy.Viewer viewer = accessPolicy.requireViewer();
         List<Textbook> textbooks = textbookRepository.findLibraryTextbooks(canViewDraft(), STATUS_PUBLISHED);
         if (!canViewDraft() && CurrentUser.current().isPresent()) {
             // OD-45: signed-in learners also see the owner-opened DRAFT N3 textbook, labelled by its DRAFT status.
@@ -777,16 +781,22 @@ public class DictionaryServiceImpl implements DictionaryService {
         for (Object[] row : textbookRepository.countSituationTaggedLessonsByTextbookIds(textbookIds, TAG_TYPE_TOPIC)) {
             situationLessonsByTextbook.put((Long) row[0], (Long) row[1]);
         }
+        // Vẫn hiện mọi sách; sách không học được mang cờ locked (FE hiện ổ khóa + hộp thoại nâng cấp).
         return textbooks.stream()
-                .map(t -> mapper.toTextbookResponse(t,
-                        unitCountByTextbook.getOrDefault(t.getId(), 0L),
-                        isTopicBased(t, situationLessonsByTextbook.getOrDefault(t.getId(), 0L))))
+                .map(t -> {
+                    boolean topicBook = TextbookAccessPolicy.isTopicBook(t, situationLessonsByTextbook.getOrDefault(t.getId(), 0L));
+                    TextbookResponse response = mapper.toTextbookResponse(t,
+                            unitCountByTextbook.getOrDefault(t.getId(), 0L), topicBook);
+                    response.setLocked(!TextbookAccessPolicy.canStudy(viewer, t, topicBook));
+                    return response;
+                })
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public TextbookUnitsResponse getTextbookUnits(Long textbookId) {
+        TextbookAccessPolicy.Viewer viewer = accessPolicy.requireViewer();
         boolean viewDraft = canViewDraft();
         // Giáo trình đã lưu trữ coi như không tồn tại ở màn hình duyệt, kể cả với CONTENT_CREATOR.
         Textbook textbook = (viewDraft
@@ -798,6 +808,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         if (textbookRepository.countOnyomiLessonsByTextbookId(textbookId) > 0) {
             throw new ApiException(ErrorCode.NOT_FOUND, "Textbook not found: " + textbookId);
         }
+        accessPolicy.requireApiAccess(viewer, textbook);   // sách bị khóa → 403 PREMIUM_REQUIRED (trừ sách nguồn lộ trình)
 
         List<Unit> units = unitRepository.findByTextbookIdOrderByOrderIndexAscIdAsc(textbookId);
         List<Lesson> lessons = viewDraft || openDraft
@@ -822,6 +833,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public List<TopicResponse> listTopics() {
+        accessPolicy.requireViewer();   // khách → 401
         // Chỉ chủ đề của Giáo trình (TOPIC-*); tag SITUATION của Smart Test dùng chung tag_type nên phải lọc theo code.
         List<Tag> topics = tagRepository.findByTagTypeAndCodeStartingWithOrderByCodeAsc(
                 TAG_TYPE_TOPIC, TagRepository.TEXTBOOK_TOPIC_CODE_PREFIX);
@@ -839,6 +851,7 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public TopicLessonsResponse getTopicLessons(String code) {
+        TextbookAccessPolicy.Viewer viewer = accessPolicy.requireViewer();
         // NOT_FOUND khi tag không tồn tại hoặc không phải chủ đề Giáo trình (TOPIC-*);
         // tag tồn tại mà không có bài được xem → 200 với lessons rỗng.
         if (code == null || !code.startsWith(TagRepository.TEXTBOOK_TOPIC_CODE_PREFIX)) {
@@ -849,9 +862,25 @@ public class DictionaryServiceImpl implements DictionaryService {
         List<Lesson> lessons = canViewDraft()
                 ? lessonRepository.findByTagCodeAndStatusNot(code, STATUS_ARCHIVED)
                 : lessonRepository.findByTagCodeAndStatus(code, STATUS_PUBLISHED);
+        // Không trả 403: mỗi bài mang cờ locked theo sách chứa nó (nội dung bài vẫn chặn ở /content).
+        List<Long> textbookIds = lessons.stream().map(l -> l.getUnit().getTextbook().getId()).distinct().toList();
+        Map<Long, Long> topicLessonsByTextbook = new HashMap<>();
+        if (!textbookIds.isEmpty()) {
+            for (Object[] row : textbookRepository.countSituationTaggedLessonsByTextbookIds(textbookIds, TAG_TYPE_TOPIC)) {
+                topicLessonsByTextbook.put((Long) row[0], (Long) row[1]);
+            }
+        }
+        Map<Long, Boolean> lockedByTextbook = new HashMap<>();
         return TopicLessonsResponse.builder()
                 .topic(mapper.toTopicResponse(tag, (long) lessons.size()))
-                .lessons(lessons.stream().map(mapper::toTopicLessonResponse).toList())
+                .lessons(lessons.stream().map(l -> {
+                    Textbook t = l.getUnit().getTextbook();
+                    boolean locked = lockedByTextbook.computeIfAbsent(t.getId(), id -> !TextbookAccessPolicy.canStudy(viewer, t,
+                            TextbookAccessPolicy.isTopicBook(t, topicLessonsByTextbook.getOrDefault(id, 0L))));
+                    TopicLessonResponse response = mapper.toTopicLessonResponse(l);
+                    response.setLocked(locked);
+                    return response;
+                }).toList())
                 .build();
     }
 
@@ -998,10 +1027,13 @@ public class DictionaryServiceImpl implements DictionaryService {
     @Override
     @Transactional(readOnly = true)
     public LessonContentResponse getLessonContent(Long lessonId) {
+        TextbookAccessPolicy.Viewer viewer = accessPolicy.requireViewer();
         Lesson lesson = lessonRepository.findWithUnitById(lessonId)
                 .filter(l -> !("AMON".equals(l.getLessonType()) && "ONYOMI".equals(l.getSkill())))
                 .filter(l -> canViewDraft() || isPublished(l) || isOpenDraftLessonForLearner(l))
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Lesson not found: " + lessonId));
+        // Sách bị khóa → 403 PREMIUM_REQUIRED; sách nguồn lộ trình không chặn (trang /learning/lesson/{id} dùng chung API).
+        accessPolicy.requireApiAccess(viewer, lesson.getUnit().getTextbook());
 
         LessonContentResponse response = mapper.toLessonContentResponse(lesson);
         List<VocabularyEntry> vocabularies = contentVocabularyRepository.findVocabularyByLessonId(lessonId);
@@ -1366,16 +1398,6 @@ public class DictionaryServiceImpl implements DictionaryService {
     /** CONTENT_CREATOR thấy mọi trạng thái; mọi vai khác (kể cả ADMIN, theo quyết định team) và người chưa đăng nhập chỉ thấy PUBLISHED. */
     private static boolean canViewDraft() {
         return CurrentUser.hasRole(ROLE_CONTENT_CREATOR);
-    }
-
-    /**
-     * Giáo trình thuộc nhóm "Theo chủ đề" khi hội ĐỦ HAI điều kiện: không có cấp độ JLPT,
-     * và có ít nhất một bài gắn tag SITUATION. Chỉ vế sau là chưa đủ — Sekai N5/N4 cũng có bài
-     * gắn tag SITUATION nhưng có jlpt_level nên vẫn thuộc nhóm theo cấp độ.
-     */
-    private static boolean isTopicBased(Textbook textbook, long situationTaggedLessons) {
-        String level = textbook.getJlptLevel();
-        return (level == null || level.isBlank()) && situationTaggedLessons > 0;
     }
 
     /**

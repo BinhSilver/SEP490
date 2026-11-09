@@ -35,4 +35,10 @@ public class TextbookResponse {
      * (GET /manage/textbooks) cho bộ lọc "Chủ đề"; các API khác để null.
      */
     private List<String> topicCodes;
+
+    /**
+     * Người xem hiện tại chưa học được sách này (cần Premium — TextbookAccessPolicy). Chỉ điền ở danh sách
+     * /textbooks (GET /api/dictionary/textbooks); các API khác để null.
+     */
+    private Boolean locked;
 }

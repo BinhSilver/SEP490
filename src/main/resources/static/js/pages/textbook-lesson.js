@@ -3634,6 +3634,17 @@
     applySpeakButtonVisibility();
   }
 
+  /** Trang GIÁO TRÌNH: 403 + message PREMIUM_REQUIRED (TextbookAccessPolicy) → hộp thoại nâng cấp (#tbPremiumDialog). */
+  var PREMIUM_REQUIRED = 'PREMIUM_REQUIRED';
+  function openPremiumDialog() {
+    var dialog = document.getElementById('tbPremiumDialog');
+    if (dialog && typeof dialog.showModal === 'function') {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      window.location.href = '/premium';
+    }
+  }
+
   function load() {
     if (!lessonId) { showError('Thiếu mã bài học.'); return; }
     var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
@@ -3641,6 +3652,10 @@
       .then(function (res) {
         return res.json().catch(function () { return null; }).then(function (json) {
           if (res.status === 404) throw new Error('Không tìm thấy bài học hoặc bài chưa được công bố.');
+          if (IS_TEXTBOOK_PAGE && res.status === 403 && json && json.message === PREMIUM_REQUIRED) {
+            openPremiumDialog();
+            throw new Error('Bài học này thuộc giáo trình Premium. Nâng cấp để mở toàn bộ giáo trình.');
+          }
           if (!res.ok || !json || json.success === false) {
             throw new Error((json && json.message) || ('Không tải được bài học (HTTP ' + res.status + ')'));
           }

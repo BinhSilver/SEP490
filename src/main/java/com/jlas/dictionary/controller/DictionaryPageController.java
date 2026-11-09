@@ -1,6 +1,9 @@
 package com.jlas.dictionary.controller;
 
+import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.repository.LessonRepository;
+import com.jlas.dictionary.repository.TextbookRepository;
+import com.jlas.dictionary.service.TextbookAccessPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,8 +22,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class DictionaryPageController {
 
     private static final String SKILL_ONYOMI = "ONYOMI";
+    /** Sách bị khóa (cần Premium): về danh sách, textbooks.js mở hộp thoại nâng cấp theo tham số này. */
+    static final String PREMIUM_REDIRECT = "redirect:/textbooks?premium=required";
 
     private final LessonRepository lessonRepository;
+    private final TextbookRepository textbookRepository;
+    private final TextbookAccessPolicy accessPolicy;
     private final com.jlas.flashcard.repository.FlashcardTextbookLinks flashcardLinks;
 
     @GetMapping({"/search", "/search/{tab:word|kanji|example|grammar|japanese}",
@@ -88,6 +95,11 @@ public class DictionaryPageController {
 
     @GetMapping("/textbooks/{textbookId}")
     public String textbookUnits(@PathVariable Long textbookId, Model model) {
+        var textbook = textbookRepository.findById(textbookId);
+        // Sách riêng của lộ trình (LP-OWNED-/LP-REVIEWED-): lộ trình không có trang mục lục tương ứng → về danh sách Giáo trình.
+        if (textbook.map(TextbookAccessPolicy::isLearningPathBook).orElse(false)) return "redirect:/textbooks";
+        // Khóa MỌI sách không học được, kể cả sách nguồn lộ trình (ngoại lệ chỉ áp cho API). Không tồn tại → để API báo 404.
+        if (textbook.map(this::isLocked).orElse(false)) return PREMIUM_REDIRECT;
         model.addAttribute("layoutMode", "app");
         model.addAttribute("textbookId", textbookId);
         return "textbooks/units";
@@ -100,10 +112,15 @@ public class DictionaryPageController {
      */
     @GetMapping("/textbooks/{textbookId}/lessons/{lessonId}")
     public String lesson(@PathVariable Long textbookId, @PathVariable Long lessonId, Model model) {
-        boolean onyomi = lessonRepository.findById(lessonId)
-                .map(l -> SKILL_ONYOMI.equals(l.getSkill()))
-                .orElse(false);
+        var lesson = lessonRepository.findWithUnitById(lessonId);
+        boolean onyomi = lesson.map(l -> SKILL_ONYOMI.equals(l.getSkill())).orElse(false);
         if (onyomi) return "redirect:/learning/onyomi/lessons/" + lessonId;
+        // Xét theo sách THẬT của bài (không tin textbookId trên URL).
+        // Bài của sách riêng lộ trình: dữ liệu kiểu lộ trình, chỉ trang lộ trình hiển thị đúng → chuyển sang đó (TRƯỚC kiểm Premium).
+        if (lesson.map(l -> TextbookAccessPolicy.isLearningPathBook(l.getUnit().getTextbook())).orElse(false)) {
+            return "redirect:/learning/lesson/" + lessonId;
+        }
+        if (lesson.map(l -> isLocked(l.getUnit().getTextbook())).orElse(false)) return PREMIUM_REDIRECT;
         model.addAttribute("layoutMode", "app");
         model.addAttribute("textbookId", textbookId);
         model.addAttribute("lessonId", lessonId);
@@ -114,5 +131,9 @@ public class DictionaryPageController {
         model.addAttribute("flashcardVocabSetId", links.stream().filter(link -> !link.kanji())
                 .map(com.jlas.flashcard.repository.FlashcardTextbookLinks.Link::setId).findFirst().orElse(null));
         return "textbooks/lesson";
+    }
+
+    private boolean isLocked(Textbook textbook) {
+        return !accessPolicy.canStudy(accessPolicy.currentViewer(), textbook);
     }
 }
