@@ -14,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.time.Duration;
+
 @Controller
 @RequiredArgsConstructor
 public class AudioController {
@@ -33,7 +35,7 @@ public class AudioController {
         }
         return blobStore.signedAudioUrl(name)
                 .map(url -> ResponseEntity.status(HttpStatus.FOUND).location(url)
-                        .cacheControl(CacheControl.noStore()).<Resource>build())
+                        .cacheControl(CacheControl.maxAge(Duration.ofMinutes(30)).cachePrivate()).<Resource>build())
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
