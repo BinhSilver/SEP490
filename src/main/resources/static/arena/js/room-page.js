@@ -118,7 +118,7 @@
       el.shell.hidden = true;
       el.vs.hidden = false;
       document.body.classList.add('is-vs-room');
-      document.title = room.gameName + ' · Ghép trận nhanh - JLAS';
+      document.title = room.gameName + ' · Đấu tay đôi - KotsuKotsu';
       window.JlasVsRoom.render(room);
       var vsSkinRoot = el.vs.querySelector('[data-vs-skins]');
       var skinGame = room.gameType === 'NEKO_CATCH' || room.gameType === 'AIR_DEFENSE';
@@ -131,8 +131,11 @@
       return;
     }
     el.status.hidden = true;
+    el.vs.hidden = true;
+    el.shell.hidden = false;
+    document.body.classList.remove('is-vs-room');
     el.room.hidden = false;
-    document.title = 'Phòng ' + room.code + ' · ' + room.gameName + ' - JLAS';
+    document.title = 'Phòng ' + room.code + ' · ' + room.gameName + ' - KotsuKotsu';
     el.game.textContent = room.gameName + ' · Đấu tay đôi';
     el.code.textContent = room.code;
     el.visibility.textContent = 'Chỉ người có mã hoặc link mời mới vào được';
@@ -185,14 +188,12 @@
     var settings = room.settings || {};
     var rows = [
       ['Bộ flashcard', settings.setTitle || '—'],
-      ['Câu hỏi', arena.fieldLabel(settings.questionField)],
-      ['Đáp án', arena.fieldLabel(settings.answerField)],
-      ['Tuỳ chọn', setup.describeOptions(room.gameType, settings.options, 'VERSUS')]
+      ['Cài đặt trận', 'Tung đồng xu khi đủ 2 người']
     ];
     el.settings.innerHTML = rows.map(function (row) {
       return '<dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd>';
     }).join('');
-    el.editSettings.hidden = !isHost() || room.status !== 'WAITING';
+    el.editSettings.hidden = true;
   }
 
   function renderActions(room) {

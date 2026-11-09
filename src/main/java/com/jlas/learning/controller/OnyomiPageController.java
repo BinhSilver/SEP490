@@ -33,7 +33,7 @@ public class OnyomiPageController {
                          @AuthenticationPrincipal UserPrincipal user, Model model) {
         model.addAttribute("course", courseService.course(user.userId()));
         model.addAttribute("lockedNotice", locked);
-        model.addAttribute("pageTitle", "Lộ trình Onyomi - JLAS");
+        model.addAttribute("pageTitle", "Lộ trình Onyomi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/path";
     }
@@ -48,7 +48,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE + lockedLesson(user, id);
         }
         model.addAttribute("lesson", lesson);
-        model.addAttribute("pageTitle", "Bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - JLAS");
+        model.addAttribute("pageTitle", "Bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/lesson";
     }
@@ -68,7 +68,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE + "/lessons/" + id;
         }
         model.addAttribute("lesson", lesson);
-        model.addAttribute("pageTitle", "Luyện tập bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - JLAS");
+        model.addAttribute("pageTitle", "Luyện tập bài " + lesson.order() + ": " + lesson.title() + " - Onyomi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/practice";
     }
@@ -83,7 +83,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE + lockedLesson(user, page.lessonId());
         }
         model.addAttribute("page", page);
-        model.addAttribute("pageTitle", page.rule().title() + " - Onyomi - JLAS");
+        model.addAttribute("pageTitle", page.rule().title() + " - Onyomi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/rule";
     }
@@ -99,7 +99,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE + lockedFinal(user);
         }
         model.addAttribute("stage", stage);
-        model.addAttribute("pageTitle", "Kiểm tra cuối giai đoạn " + stage.stageOrder() + " - Onyomi - JLAS");
+        model.addAttribute("pageTitle", "Kiểm tra cuối giai đoạn " + stage.stageOrder() + " - Onyomi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/final";
     }
@@ -116,7 +116,7 @@ public class OnyomiPageController {
             return "redirect:" + COURSE + lockedFinal(user);
         }
         model.addAttribute("stage", stage);
-        model.addAttribute("pageTitle", "Làm bài kiểm tra giai đoạn " + stage.stageOrder() + " - Onyomi - JLAS");
+        model.addAttribute("pageTitle", "Làm bài kiểm tra giai đoạn " + stage.stageOrder() + " - Onyomi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "learning/onyomi/final-test";
     }

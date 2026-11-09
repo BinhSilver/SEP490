@@ -67,7 +67,8 @@ final class ReviewedGrammarApplications {
             for (JsonNode node : new ObjectMapper().readTree(in).path("items")) {
                 List<String> options = new ArrayList<>();
                 node.path("options").forEach(option -> options.add(option.asText()));
-                String label = node.path("label").asText("");
+                // The file is generated from reviewed content, so the brand in its label is replaced where it is shown.
+                String label = node.path("label").asText("").replace("J-LAS", "KotsuKotsu");
                 String explanation = node.path("explanation_vi").asText("");
                 items.add(new Item(node.path("id").asText(), node.path("level").asText(null), node.path("pattern").asText(),
                         node.path("context_vi").asText(""), node.path("prompt_ja").asText(""), List.copyOf(options),

@@ -134,7 +134,7 @@
       + '<div class="ar-deck-tools">'
       + '  <label class="ar-search"><span class="sr-only">Tìm bộ flashcard theo tên</span>'
       + '    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>'
-      + '    <input class="ar-input" type="search" placeholder="Tìm bộ theo tên…" autocomplete="off" data-deck-search>'
+      + '    <input class="ar-input input--with-icon" type="search" placeholder="Tìm bộ theo tên…" autocomplete="off" data-deck-search>'
       + '  </label>'
       + '  <label class="ar-deck-filter" title="Nguồn bộ flashcard: Bộ của tôi">'
       + '    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16l-6 7v7l-4 2v-9L4 4z"/></svg>'

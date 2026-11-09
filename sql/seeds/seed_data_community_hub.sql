@@ -9,12 +9,10 @@
 -- Cuoi file tinh lai rating_avg/rating_count/comment_count/report_count tu bang con.
 --
 -- Du lieu tao ra:
---   * 4 bo flashcard mau tieu de "Cộng đồng: ...": 3 PUBLIC (N3, N2, N1) + 1 PRIVATE (kiem tra khong hien o feed).
---   * Rating va binh luan tren cac bo mau va toi da 3 bo PUBLIC co san khac.
---   * Bo "Cộng đồng: Từ vựng N1 chuyên ngành" o trang thai TEMPORARILY_HIDDEN (3 bao cao OPEN = nguong mac dinh).
---   * 1 binh luan TEMPORARILY_HIDDEN cua learner.clean@jlas.local (3 bao cao OPEN).
---   * 3 video Shadowing "Cộng đồng: ...": 2 PUBLIC READY (N4, N3) + 1 PRIVATE, kem phu de, danh gia
---     (video_user_state) va binh luan cong dong. Video PUBLIC co san khac tu hien trong feed.
+--   * 1 bo flashcard mau PRIVATE "Cộng đồng: Bộ thẻ riêng tư" (kiem tra khong hien o feed).
+--   * Rating va binh luan tren toi da 3 bo PUBLIC co san.
+--   * 1 video Shadowing PRIVATE "Cộng đồng: Video luyện nghe riêng tư". Video PUBLIC co san tu hien trong feed.
+--   Cac bo 3 the va video 7 giay PUBLIC truoc day da bo: chung lam rac thu vien cong khai (xem migration 071).
 
 SET NAMES utf8mb4;
 
@@ -34,9 +32,6 @@ CREATE TEMPORARY TABLE tmp_cm_set (
 ) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO tmp_cm_set (owner_id, title, description, visibility, level) VALUES
-    (@cm_owner_b, 'Cộng đồng: 30 Kanji N3 thường gặp', 'Kanji N3 hay xuất hiện trong đề đọc hiểu, kèm âm On/Kun và ví dụ.', 'PUBLIC', 'N3'),
-    (@cm_owner_a, 'Cộng đồng: Ngữ pháp N2 qua ví dụ', 'Mẫu ngữ pháp N2 dễ nhầm lẫn, mỗi thẻ một câu ví dụ ngắn.', 'PUBLIC', 'N2'),
-    (@cm_owner_b, 'Cộng đồng: Từ vựng N1 chuyên ngành', 'Từ vựng N1 về kinh tế và xã hội (bộ mẫu đang bị báo cáo để demo kiểm duyệt).', 'PUBLIC', 'N1'),
     (@cm_owner_a, 'Cộng đồng: Bộ thẻ riêng tư', 'Bộ thẻ PRIVATE: không được xuất hiện trong feed cộng đồng.', 'PRIVATE', 'N5');
 
 INSERT INTO flashcard_set (owner_id, title, description, visibility, is_draft, moderation_status)
@@ -182,8 +177,6 @@ CREATE TEMPORARY TABLE tmp_cm_video (
 ) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO tmp_cm_video (owner_id, title, visibility, level, tag) VALUES
-    (@cm_owner_b, 'Cộng đồng: Hội thoại mua sắm ở konbini', 'PUBLIC', 'N4', 'VIDEO_N4'),
-    (@cm_owner_a, 'Cộng đồng: Hỏi đường ở nhà ga', 'PUBLIC', 'N3', 'VIDEO_N3'),
     (@cm_owner_b, 'Cộng đồng: Video luyện nghe riêng tư', 'PRIVATE', 'N5', 'VIDEO_PRIVATE');
 
 INSERT INTO video (owner_id, title, video_path, duration_seconds, status, progress_percent, target_language,

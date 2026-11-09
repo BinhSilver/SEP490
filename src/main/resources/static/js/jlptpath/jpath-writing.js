@@ -331,7 +331,7 @@
       + 'padding-bottom:2mm;margin-bottom:6mm;font-size:9.5pt;color:#4b3a8c}header b{font-size:11pt}'
       + '.who{display:flex;gap:10mm;font-size:9.5pt;color:#555;margin:-3mm 0 6mm}.who span{flex:1;border-bottom:.2mm dotted #999}'
       + '</style></head><body>'
-      + '<header><b>J-LAS · Phiếu luyện viết</b><span>' + esc(new Date().toLocaleDateString('vi-VN')) + '</span></header>'
+      + '<header><b>KotsuKotsu · Phiếu luyện viết</b><span>' + esc(new Date().toLocaleDateString('vi-VN')) + '</span></header>'
       + '<div class="who"><span>Họ tên:</span><span>Ngày viết:</span></div>'
       + '<h1>' + esc(v.word || '') + '</h1>' + (meta ? '<p>' + meta + '</p>' : '') + rows + '</body></html>';
   }

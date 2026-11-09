@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (analyzeData.blockedNonJapanese) {
-            showAlert({ title: 'Đã chặn video', message: analyzeData.languageMessage || 'JLAS chỉ nhận nội dung tiếng Nhật.', variant: 'warning' });
+            showAlert({ title: 'Đã chặn video', message: analyzeData.languageMessage || 'KotsuKotsu chỉ nhận nội dung tiếng Nhật.', variant: 'warning' });
             return;
         }
         const ytFuri = document.getElementById('yt-furigana-check');

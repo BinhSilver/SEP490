@@ -111,7 +111,7 @@
     document.getElementById('textbookMeta').innerHTML =
       '<span class="tb-badge"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ' + (textbook.unitCount || 0) + ' unit</span>' +
       statusToggle('textbook', textbook.id, textbook.status);
-    document.title = (textbook.title || 'Giáo trình') + ' - JLAS';
+    document.title = (textbook.title || 'Giáo trình') + ' - KotsuKotsu';
     headerEl.hidden = false;
   }
 

@@ -24,6 +24,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+        default_batch_fetch_size: 50
         jdbc:
           time_zone: Asia/Ho_Chi_Minh
 
@@ -212,6 +213,10 @@ aicall:
     credit-per-turn: ${AICALL_CREDIT_PER_TURN:10}
 
 azure:
+  storage:
+    connection-string: ${AZURE_STORAGE_CONNECTION_STRING:}
+    container: ${AZURE_STORAGE_CONTAINER:jlas-media}
+    audio-container: ${AZURE_STORAGE_AUDIO_CONTAINER:audio}
   speech:
     pronunciation:
       key: ${AZURE_SPEECH_PRONUNCIATION_KEY:}

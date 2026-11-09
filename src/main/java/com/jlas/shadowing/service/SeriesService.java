@@ -175,16 +175,8 @@ public class SeriesService {
         List<Long> ids = jdbc.query(
                 "SELECT video_id FROM shadowing_series_video WHERE series_id = ? ORDER BY position ASC",
                 (rs, n) -> rs.getLong("video_id"), series.getId());
-        List<VideoSummaryDto> videos = new ArrayList<>();
-        for (Long id : ids) {
-            try {
-                videos.add(videoService.getSummary(id, null));
-            } catch (ApiException e) {
-                // A member may have become private since its public series was created.
-                if (e.getErrorCode() != ErrorCode.FORBIDDEN) throw e;
-            }
-        }
-        return videos;
+        // A member may have become private since its public series was created.
+        return videoService.getReadableSummaries(ids, null);
     }
 
     private static SeriesSummaryDto mapRow(long id, long ownerId, String title, String description, String level,

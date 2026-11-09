@@ -752,7 +752,7 @@ window.AdminShell.ready.then(function (allowed) {
     var units = (tree.units || []).slice();
     var archived = textbook.status === 'ARCHIVED';
     document.getElementById('acCrumbTextbook').textContent = textbook.title || 'Giáo trình';
-    document.title = 'Thêm bài học · ' + (textbook.title || '') + ' - JLAS';
+    document.title = 'Thêm bài học · ' + (textbook.title || '') + ' - KotsuKotsu';
 
     var initialUnit = presetUnit && units.some(function (u) { return String(u.id) === String(presetUnit); })
       ? String(presetUnit) : (units.length === 1 ? String(units[0].id) : '');

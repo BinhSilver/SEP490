@@ -203,6 +203,9 @@ public class GameServiceImpl implements GameService {
         if (room.isQuickMatch()) {
             throw new ApiException(ErrorCode.CONFLICT, "Phòng ghép trận nhanh không nhận thêm người");
         }
+        // Bộ có thể là bộ riêng của chủ phòng nên đọc theo quyền của chủ phòng, trước khi rời phòng đang ở.
+        GameSettings roomSettings = room.withLock(room::getSettings);
+        List<DeckPairView> pairs = decks.deck(room.withLock(room::getHostUserId), roomSettings.setId()).pairs();
         cancelQuickMatch(userId);
         leaveCurrentRoom(userId, roomId);
         PlayerSeat me = seatOf(userId, 0);
@@ -223,6 +226,13 @@ public class GameServiceImpl implements GameService {
             room.playersByUserId().put(userId,
                     new RoomPlayer(me, room.freeSlot(), now));
             rooms.bindUser(userId, roomId);
+            if (room.isFull()) {
+                room.setQuickMatch(true);
+                room.setStatus(RoomStatus.DRAFTING);
+                room.setDraft(new QuickDraft(room.getGameType(), room.getHostUserId(), userId, pairs,
+                        room.getSettings(), now));
+                scheduleDraftLocked(room);
+            }
             room.touch(now);
             return mapper.toRoomView(room);
         });
@@ -406,6 +416,10 @@ public class GameServiceImpl implements GameService {
             }
             if (room.getStatus() == RoomStatus.DRAFTING) {
                 room.setStatus(RoomStatus.WAITING);
+            }
+            if (room.isInvited()) {
+                room.setQuickMatch(false);
+                room.setDraft(null);
             }
             if (room.getStatus() == RoomStatus.COUNTDOWN) {
                 if (room.getCountdownTask() != null) {

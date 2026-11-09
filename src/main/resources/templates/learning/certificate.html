@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: standard('Chứng chỉ thành tựu - JLAS', 'certificate')}"></head>
+<head th:replace="~{fragments/head :: standard('Chứng chỉ thành tựu - KotsuKotsu', 'certificate')}"></head>
 <body id="jlabBasePage" class="app-body certificate-body journey-ui">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="certificate-page">
     <section class="cert-card">
-        <p class="cert-eyebrow">J-LAS · Chứng nhận thành tựu nội bộ</p>
+        <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
         <h1>Chứng chỉ hoàn thành lộ trình</h1>
         <p class="cert-level">Cấp độ đạt được: <strong th:text="${targetLevel}">N4</strong></p>
         <p class="cert-date">
@@ -14,7 +14,7 @@
             <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
         </p>
         <p class="cert-disclaimer">
-            Đây là chứng nhận thành tựu học tập nội bộ của J-LAS, không phải điểm số hay chứng chỉ
+            Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu, không phải điểm số hay chứng chỉ
             JLPT chính thức.
         </p>
         <button class="cert-print-button" type="button" onclick="window.print()">In / Lưu PDF</button>
