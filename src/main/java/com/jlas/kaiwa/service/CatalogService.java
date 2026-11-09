@@ -65,10 +65,12 @@ public class CatalogService {
         Map<Long, String> scenarioIcons = new LinkedHashMap<>();
         Map<Long, String> caseIcons = new LinkedHashMap<>();
         int caseCount = 0;
+        Map<Long, List<Scenario>> casesByRoot =
+                scenarioRepository.findActiveCasesByRoot(roots.stream().map(Scenario::getId).toList());
         for (Scenario root : roots) {
             if (scenarioContent.isGraph(root)) graphs.put(root.getId(), scenarioContent.flow(root).orElseThrow());
             scenarioIcons.put(root.getId(), ScenarioIcons.topic(root));
-            List<Scenario> cases = scenarioRepository.findActiveCases(root.getId());
+            List<Scenario> cases = casesByRoot.getOrDefault(root.getId(), List.of());
             casesByScenario.put(root.getId(), cases);
             caseCount += cases.size();
             for (Scenario practiceCase : cases) {
