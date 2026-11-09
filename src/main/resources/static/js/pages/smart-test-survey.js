@@ -13,6 +13,15 @@
   var invitation = document.getElementById('surveyInvitation');
   var startTest = document.getElementById('surveyStartTest');
   var goHome = document.getElementById('surveyGoHome');
+  // [JLAS-W0108] A8: "Để sau" returns to the page the learner came from (same site, not the survey itself).
+  var later = document.getElementById('surveyLater');
+  if (later) {
+    try {
+      var ref = document.referrer ? new URL(document.referrer) : null;
+      if (ref && ref.origin === window.location.origin && ref.pathname.indexOf('/survey') !== 0
+          && ref.pathname.indexOf('/learning') !== 0) later.href = ref.pathname + ref.search;
+    } catch (e) { /* keep the home link */ }
+  }
   var noTest = false;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/survey')) return;
 
