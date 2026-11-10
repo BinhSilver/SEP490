@@ -735,7 +735,8 @@
         const chip = e.target.closest('.suggest-chip');
         if (!chip) return;
         input.value = chip.textContent;
-        input.focus();
+        // On a phone, focus opens the keyboard and scrolls the page for it, although nothing needs typing.
+        if (!coarsePointer()) input.focus();
       });
     }
     if (btnMic && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
@@ -956,8 +957,13 @@
     } finally {
       busy = false;
       if (!input.disabled) btnSend.disabled = false;
-      input.focus();
+      if (!coarsePointer()) input.focus();
     }
+  }
+
+  /** Touch screens: focusing the input would pop the keyboard up and push the page up for it. */
+  function coarsePointer() {
+    return typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
   }
 
   // Người học chủ động kết thúc phiên (JLAS-W0205): kịch bản thì chấm điểm rồi sang trang kết quả.
