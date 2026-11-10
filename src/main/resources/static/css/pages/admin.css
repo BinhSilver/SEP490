@@ -451,28 +451,28 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-admin-bg: #0b0d13;
-  --dm-admin-surface: #12151f;
-  --dm-admin-raised: #1e2635;
-  --dm-admin-ink: #f8fafc;
-  --dm-admin-muted: #b2bfd2;
-  --dm-admin-line: #40485d;
-  --dm-admin-accent: #c084fc;
-  --dm-admin-action: #7335a6;
-  --dm-admin-accent-soft: #281d3a;
-  --dm-admin-on-accent: #211b34;
-  --dm-admin-success: #8eddb6;
-  --dm-admin-success-bg: #1b3d32;
-  --dm-admin-success-line: #43816b;
-  --dm-admin-danger: #ffb4bd;
-  --dm-admin-danger-bg: #452832;
-  --dm-admin-danger-line: #96616d;
-  --dm-admin-warning: #f3d28a;
-  --dm-admin-warning-bg: #403522;
-  --dm-admin-warning-line: #947a46;
-  --dm-admin-pink: #f4aed2;
-  --dm-admin-pink-bg: #432d40;
-  --dm-admin-pink-line: #88637b;
+  --dm-admin-bg: var(--dark-bg);
+  --dm-admin-surface: var(--dark-surface);
+  --dm-admin-raised: var(--dark-raised);
+  --dm-admin-ink: var(--dark-ink);
+  --dm-admin-muted: var(--dark-muted);
+  --dm-admin-line: var(--dark-line);
+  --dm-admin-accent: var(--dark-accent);
+  --dm-admin-action: var(--dark-button);
+  --dm-admin-accent-soft: var(--dark-soft);
+  --dm-admin-on-accent: var(--dark-on-button);
+  --dm-admin-success: var(--dark-success);
+  --dm-admin-success-bg: var(--dark-success-bg);
+  --dm-admin-success-line: var(--dark-success-line);
+  --dm-admin-danger: var(--dark-danger);
+  --dm-admin-danger-bg: var(--dark-danger-bg);
+  --dm-admin-danger-line: var(--dark-danger-line);
+  --dm-admin-warning: var(--dark-warning);
+  --dm-admin-warning-bg: var(--dark-warning-bg);
+  --dm-admin-warning-line: var(--dark-warning-line);
+  --dm-admin-pink: var(--dark-pink);
+  --dm-admin-pink-bg: var(--dark-pink-bg);
+  --dm-admin-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] #jlabBaseContent .adm-badge--warn {
     background: var(--dm-admin-warning-bg);
@@ -507,6 +507,59 @@ html[data-theme="dark"] .adm-toast--warning i {
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"] .page-admin{--color-background:var(--dm-admin-bg);--color-surface:var(--dm-admin-bg);--color-surface-lowest:var(--dm-admin-surface);--color-surface-low:var(--dm-admin-raised);--color-surface-mid:var(--dm-admin-raised);--color-surface-high:var(--dm-admin-raised);--color-surface-container:var(--dm-admin-raised);--color-surface-container-high:var(--dm-admin-raised);--color-on-surface:var(--dm-admin-ink);--color-on-surface-variant:var(--dm-admin-muted);--color-secondary:var(--dm-admin-muted);--color-outline:var(--dm-admin-muted);--color-outline-variant:var(--dm-admin-line);--color-primary:var(--dm-admin-accent);--color-primary-container:var(--dm-admin-action);--color-on-primary:var(--dm-admin-on-accent);--color-on-primary-container:var(--dm-admin-ink);--color-primary-fixed:var(--dm-admin-accent-soft);--color-on-primary-fixed:var(--dm-admin-accent);--color-secondary-container:var(--dm-admin-accent-soft);--color-secondary-fixed:var(--dm-admin-accent-soft);--color-success:var(--dm-admin-success);--color-success-bg:var(--dm-admin-success-bg);--color-error:var(--dm-admin-danger);--color-error-container:var(--dm-admin-danger-bg);--color-on-error-container:var(--dm-admin-danger);--color-tertiary:var(--dm-admin-warning);--color-tertiary-container:var(--dm-admin-warning-bg);--color-on-tertiary-container:var(--dm-admin-warning);--color-focus:var(--dm-admin-accent);--jlab-base-page-background:var(--dm-admin-bg);}
-html[data-theme="dark"] .page-admin .btn--primary{background:var(--dm-admin-action)!important;color:var(--dm-admin-ink)!important;}
-html[data-theme="dark"] .page-admin .btn--primary:hover{background:#8166c4!important;}
+html[data-theme="dark"] .page-admin{--color-background:var(--dm-admin-bg);--color-surface:var(--dm-admin-bg);--color-surface-lowest:var(--dm-admin-surface);--color-surface-low:var(--dm-admin-raised);--color-surface-mid:var(--dm-admin-raised);--color-surface-high:var(--dm-admin-raised);--color-surface-container:var(--dm-admin-raised);--color-surface-container-high:var(--dm-admin-raised);--color-on-surface:var(--dm-admin-ink);--color-on-surface-variant:var(--dm-admin-muted);--color-secondary:var(--dm-admin-muted);--color-outline:var(--dm-admin-muted);--color-outline-variant:var(--dm-admin-line);--color-primary:var(--dm-admin-accent);--color-primary-container:var(--dark-button-hover);--color-on-primary:var(--dm-admin-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-admin-accent-soft);--color-on-primary-fixed:var(--dm-admin-accent);--color-secondary-container:var(--dm-admin-accent-soft);--color-secondary-fixed:var(--dm-admin-accent-soft);--color-success:var(--dm-admin-success);--color-success-bg:var(--dm-admin-success-bg);--color-error:var(--dm-admin-danger);--color-error-container:var(--dm-admin-danger-bg);--color-on-error-container:var(--dm-admin-danger);--color-tertiary:var(--dm-admin-warning);--color-tertiary-container:var(--dm-admin-warning-bg);--color-on-tertiary-container:var(--dm-admin-warning);--color-focus:var(--dm-admin-accent);--jlab-base-page-background:var(--dm-admin-bg);}
+html[data-theme="dark"] .page-admin .btn--primary{background:var(--dark-button)!important;color:var(--dark-on-button)!important;}
+html[data-theme="dark"] .page-admin .btn--primary:hover{background:var(--dark-button-hover)!important;}
+
+/* Plum dark mode */
+html[data-theme="dark"] #jlabBaseContent .adm-badge--count { color: var(--dark-on-button); }
+html[data-theme="dark"] #jlabBaseContent .adm-btn--danger,
+html[data-theme="dark"] .adm-modal .adm-btn--danger { color: var(--dark-on-button); }
+html[data-theme="dark"] #jlabBaseContent .adm-note--ok { background: var(--dark-success-bg); color: var(--dark-success); }
+html[data-theme="dark"] .adm-modal { background: var(--dark-shadow); }
+html[data-theme="dark"] .adm-toast { background: var(--dark-raised); color: var(--dark-ink); }
+html[data-theme="dark"] .adm-toast--error { background: var(--dark-danger-bg); color: var(--dark-danger); }
+html[data-theme="dark"] .page-admin :is(input, select, textarea) { caret-color: var(--dark-accent); }
+html[data-theme="dark"] .page-admin :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }
+
+/* Workspace tables are transparent in the light design. Give every system and
+   moderation list an explicit dark surface so cells never inherit a light table
+   background from the shared component styles. */
+html[data-theme="dark"] #jlabBasePage.page-admin { background: var(--dark-bg); color: var(--dark-ink); }
+/* Shared input components use !important light colors; pair their dark field
+   fill and 3:1 border without changing their size or shape. */
+html[data-theme="dark"] #jlabBasePage.page-admin :is(.input, .select, .textarea, select) {
+  background-color: var(--dark-input) !important;
+  border-color: var(--dark-input-line) !important;
+  color: var(--dark-ink) !important;
+}
+html[data-theme="dark"] #jlabBasePage.page-admin :is(.input, .select, .textarea, select):focus {
+  border-color: var(--dark-focus) !important;
+  box-shadow: 0 0 0 3px var(--dark-focus-ring) !important;
+}
+html[data-theme="dark"] #jlabBasePage.page-admin :is(.input, .textarea)::placeholder { color: var(--dark-muted) !important; }
+html[data-theme="dark"] #jlabBasePage.page-admin select option { background-color: var(--dark-input) !important; color: var(--dark-ink) !important; }
+html[data-theme="dark"] #jlabBaseContent .adm-table-wrap { background: var(--dark-surface); border-color: var(--dark-line); }
+html[data-theme="dark"] #jlabBaseContent .adm-table { background: var(--dark-surface); color: var(--dark-ink); }
+html[data-theme="dark"] #jlabBaseContent .adm-table th { background: var(--dark-raised); color: var(--dark-muted); }
+html[data-theme="dark"] #jlabBaseContent .adm-table td { background: var(--dark-surface); color: var(--dark-ink); border-top-color: var(--dark-line); }
+html[data-theme="dark"] #jlabBaseContent .adm-table :is(tr:hover, .adm-row-link:hover) td { background: var(--dark-raised); }
+html[data-theme="dark"] #jlabBaseContent .adm-table td.adm-muted,
+html[data-theme="dark"] #jlabBaseContent .adm-table td .adm-muted { color: var(--dark-muted); }
+html[data-theme="dark"] #jlabBaseContent .adm-table tr.is-off td { opacity: 1; color: var(--dark-faint); }
+html[data-theme="dark"] #jlabBaseContent :is(.adm-panel, .adm-card, .adm-stat) { background: var(--dark-surface); border-color: var(--dark-line); color: var(--dark-ink); }
+html[data-theme="dark"] #jlabBaseContent :is(.adm-card__preview, .adm-tab[aria-selected="true"]) { background: var(--dark-raised); color: var(--dark-ink); }
+html[data-theme="dark"] #jlabBaseContent :is(.adm-tabs, .adm-badge) { background: var(--dark-soft); color: var(--dark-muted); }
+html[data-theme="dark"] #jlabBaseContent .adm-badge--ok { background: var(--dark-success-bg); color: var(--dark-success); }
+html[data-theme="dark"] #jlabBaseContent .adm-badge--warn { background: var(--dark-warning-bg); color: var(--dark-warning); }
+html[data-theme="dark"] #jlabBaseContent .adm-badge--danger { background: var(--dark-danger-bg); color: var(--dark-danger); }
+html[data-theme="dark"] #jlabBaseContent .adm-badge--count { background: var(--dark-danger); color: var(--dark-on-button); }
+html[data-theme="dark"] #jlabBaseContent .adm-tab[aria-selected="true"] { color: var(--dark-accent); }
+html[data-theme="dark"] .adm-modal__dialog { background: var(--dark-surface); color: var(--dark-ink); box-shadow: 0 16px 48px var(--dark-shadow); }
+html[data-theme="dark"] .adm-modal :is(.adm-revise > span, .adm-revise > span:last-child) { background: var(--dark-raised); border-color: var(--dark-line); color: var(--dark-ink); }
+html[data-theme="dark"] .adm-modal .adm-revise > span:last-child { background: var(--dark-soft); border-color: var(--dark-input-line); }
+html[data-theme="dark"] .adm-modal :is(.adm-modal__text, .adm-field-foot, .adm-hint) { color: var(--dark-muted); }
+html[data-theme="dark"] .adm-modal :is(input:not([type="checkbox"], [type="radio"]), select, textarea) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] .adm-modal :is(input, textarea)::placeholder { color: var(--dark-muted); }
+html[data-theme="dark"] .adm-modal :is(input, select, textarea):focus-visible { outline-color: var(--dark-focus); border-color: var(--dark-focus); }

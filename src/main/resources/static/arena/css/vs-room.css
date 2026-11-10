@@ -388,8 +388,8 @@ body.is-vs-room .ar-page {
 
 .vs__coin-face--jlas b {
   color: #7a5200;
-  font: 900 calc(var(--coin) * 0.26) / 1 var(--ar-display);
-  letter-spacing: 0.04em;
+  font: 900 calc(var(--coin) * 0.105) / 1 var(--ar-display);
+  letter-spacing: 0.02em;
   text-shadow: 0 1px 0 rgb(255 244 200 / 95%), 0 -1px 0 rgb(70 40 0 / 50%);
 }
 
@@ -479,9 +479,13 @@ body.is-vs-room .ar-page {
   --ar-accent: var(--st-action);
   --ar-accent-soft: var(--st-raised);
   --ar-on-accent: var(--st-on-action);
+  /* css/controls.css colours every .ar-btn from these in the light theme (dark already matches the stage). */
+  --color-primary: var(--st-action);
+  --color-on-primary: var(--st-on-action);
+  --color-primary-container: var(--st-action-hover);
+  --color-primary-fixed: var(--st-raised);
 }
 .vs .ar-dialog::backdrop { background: rgb(10 6 14 / 62%); }
-.vs .ar-dialog .ar-btn--primary { --btn-line: color-mix(in srgb, var(--st-action) 55%, #000); }
 
 .vs__skins-dialog { width: min(720px, calc(100% - 24px)); padding: 18px 20px 20px; }
 .vs__skins-close { position: absolute; top: 12px; right: 12px; }

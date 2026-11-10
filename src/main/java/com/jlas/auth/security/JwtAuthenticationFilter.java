@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -26,6 +27,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final AuthProperties authProperties;
     private final UserDetailsService userDetailsService;
+
+    /**
+     * Public file folders (see SecurityConfig). The access_token cookie comes with every request, and looking the
+     * user up for each CSS/JS/image cost a database call per file without any of them using the result.
+     */
+    private static final List<String> PUBLIC_FILE_PREFIXES = List.of("/css/", "/js/", "/images/", "/assets/", "/fonts/",
+            "/arena/js/", "/arena/images/", "/arena/app/", "/shadowing/css/", "/shadowing/js/", "/shadowing/icon/",
+            "/flashcard/js/", "/uploads/");
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        return path.equals("/favicon.ico") || path.startsWith("/flashcard/") && path.endsWith(".css")
+                || PUBLIC_FILE_PREFIXES.stream().anyMatch(path::startsWith);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

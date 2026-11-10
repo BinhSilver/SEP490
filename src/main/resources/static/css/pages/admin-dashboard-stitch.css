@@ -17,22 +17,6 @@
   max-width: 1400px;
 }
 
-/* --- Hide the shared topbar when on the dashboard --- */
-body.dashboard-view .admin-topbar,
-body.admin-portal:has(#admRoot[data-section="system-dashboard"]) .admin-topbar {
-  display: none !important;
-}
-
-body.dashboard-view,
-body.admin-portal:has(#admRoot[data-section="system-dashboard"]) {
-  padding-top: 24px !important;
-}
-
-body.dashboard-view #jlabBaseContent,
-body.admin-portal:has(#admRoot[data-section="system-dashboard"]) #jlabBaseContent {
-  padding-top: 0 !important;
-}
-
 /* --- Scope Root & Variables --- */
 /* The KPI source popover lives under <body>, outside .st-dashboard, so it shares the variables. */
 .st-dashboard,
@@ -1133,3 +1117,55 @@ a.st-icon-btn, a.st-btn-outline-wide, a.st-pill { text-decoration: none; }
     text-align: left;
   }
 }
+
+/* Plum dark mode */
+html[data-theme="dark"] :is(.st-dashboard, .st-source-pop) {
+  --st-bg: var(--dark-bg); --st-surface: var(--dark-surface);
+  --st-surface-low: var(--dark-raised); --st-surface-container: var(--dark-raised);
+  --st-surface-high: var(--dark-soft); --st-on-surface: var(--dark-ink);
+  --st-on-surface-variant: var(--dark-muted); --st-outline: var(--dark-faint);
+  --st-outline-variant: var(--dark-line); --st-primary: var(--dark-accent);
+  --st-primary-container: var(--dark-button); --st-primary-hover: var(--dark-button-hover);
+  --st-primary-active: var(--dark-accent); --st-primary-fixed: var(--dark-soft);
+  --st-on-primary-fixed: var(--dark-ink); --st-secondary: var(--dark-success);
+  --st-secondary-container: var(--dark-success-bg);
+  --st-on-secondary-container: var(--dark-success);
+  --st-amber: var(--dark-warning); --st-amber-container: var(--dark-warning-bg);
+  --st-on-amber-container: var(--dark-warning);
+  --st-error: var(--dark-danger); --st-error-container: var(--dark-danger-bg);
+}
+html[data-theme="dark"] .st-topbar { background: var(--dark-raised); box-shadow: 0 2px 8px var(--dark-shadow); }
+html[data-theme="dark"] .st-btn-export { color: var(--dark-on-button); box-shadow: 0 2px 6px var(--dark-shadow); }
+html[data-theme="dark"] .st-btn-export:hover { box-shadow: 0 4px 12px var(--dark-shadow); }
+html[data-theme="dark"] .st-card { box-shadow: 0 2px 10px var(--dark-shadow); }
+html[data-theme="dark"] .st-card:hover { border-color: var(--dark-input-line); box-shadow: 0 8px 24px var(--dark-shadow); }
+html[data-theme="dark"] .st-annual-col__bar,
+html[data-theme="dark"] .st-annual-col--peak .st-annual-col__bar,
+html[data-theme="dark"] .st-monthly-col--max .st-monthly-col__bar { background: linear-gradient(to top, var(--dark-soft), var(--dark-accent)); box-shadow: 0 4px 16px var(--dark-shadow); }
+html[data-theme="dark"] .st-annual-col--peak .st-annual-col__bar::before { background: var(--dark-button-hover); }
+html[data-theme="dark"] :is(.st-monthly-col:hover, .st-monthly-col--highlight, .st-monthly-col--peak) .st-monthly-col__bar { background: var(--dark-accent); }
+html[data-theme="dark"] .st-bar-tooltip,
+html[data-theme="dark"] .st-source-pop { background: var(--dark-raised); color: var(--dark-ink); box-shadow: 0 4px 14px var(--dark-shadow); }
+html[data-theme="dark"] .st-bar-tooltip::after { background: var(--dark-raised); }
+html[data-theme="dark"] .st-bar-tooltip__title { color: var(--dark-ink); }
+html[data-theme="dark"] .st-bar-tooltip__detail { color: var(--dark-success); }
+html[data-theme="dark"] .st-segmented__btn.active { box-shadow: 0 1px 3px var(--dark-shadow); }
+html[data-theme="dark"] .st-seg-bar__slice--green { background: var(--dark-success); }
+html[data-theme="dark"] .st-seg-bar__slice--amber { background: var(--dark-warning); }
+html[data-theme="dark"] .st-seg-bar__slice--red { background: var(--dark-danger); }
+html[data-theme="dark"] .st-table th { background: var(--dark-raised); }
+html[data-theme="dark"] .st-table td { border-bottom-color: var(--dark-line); }
+html[data-theme="dark"] .st-table tr:hover td { background: var(--dark-raised); }
+html[data-theme="dark"] .st-donut circle:nth-child(1) { stroke: var(--dark-soft); }
+html[data-theme="dark"] .st-donut circle:nth-child(2) { stroke: var(--dark-accent); }
+html[data-theme="dark"] .st-donut circle:nth-child(3) { stroke: var(--dark-warning); }
+html[data-theme="dark"] .st-status-box:nth-child(1) .st-status-box__left > span:first-child { background: var(--dark-success) !important; }
+html[data-theme="dark"] .st-legend-item:nth-child(1) .st-legend-dot { background: var(--dark-accent) !important; }
+html[data-theme="dark"] .st-legend-item:nth-child(2) .st-legend-dot,
+html[data-theme="dark"] .st-status-box:nth-child(2) .st-status-box__left > span:first-child { background: var(--dark-warning) !important; }
+html[data-theme="dark"] .st-status-box:nth-child(3) .st-status-box__left > span:first-child { background: var(--dark-danger) !important; }
+html[data-theme="dark"] .st-status-box:nth-child(2) .st-status-box__right > span:first-child { color: var(--dark-warning) !important; }
+html[data-theme="dark"] .st-status-box:nth-child(3) .st-status-box__right > span:first-child { color: var(--dark-danger) !important; }
+html[data-theme="dark"] .st-dashboard :is(input, select) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] .st-dashboard :is(input, select):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

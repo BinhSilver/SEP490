@@ -3,6 +3,7 @@ package com.jlas.dictionary.repository;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import com.jlas.dictionary.entity.VocabularyKanji;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -84,7 +85,12 @@ public interface VocabularyKanjiRepository
             + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
             + "where k.`character` = :kanjiChar "
             + "and ve.dictionary_status = 'PUBLISHED' "
-            + "order by vk.character_position asc, vk.vocabulary_id asc", nativeQuery = true)
-    List<VocabularyEntry> findVocabularyByKanjiCharacter(
+            + "order by vk.character_position asc, vk.vocabulary_id asc",
+            countQuery = "select count(*) from vocabulary_kanji vk "
+                    + "join kanji k on k.id = vk.kanji_id "
+                    + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
+                    + "where k.`character` = :kanjiChar and ve.dictionary_status = 'PUBLISHED'",
+            nativeQuery = true)
+    Page<VocabularyEntry> findVocabularyByKanjiCharacter(
             @Param("kanjiChar") String character, Pageable pageable);
 }

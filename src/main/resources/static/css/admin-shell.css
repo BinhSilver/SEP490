@@ -1,3 +1,4 @@
+@import url("dark-page.css");
 body.admin-portal {
   margin: 0;
   padding: 76px 24px 32px 284px;
@@ -157,3 +158,30 @@ body.admin-portal {
   .admin-topbar > span { display: none; }
   .admin-sidebar { top: 104px; width: min(280px, 90vw); }
 }
+
+/* Plum dark mode */
+html[data-theme="dark"] body.admin-portal { background: var(--dark-bg); color: var(--dark-ink); }
+/* base.css paints a fixed pale layer over every non-home page. */
+html[data-theme="dark"] body.admin-portal::before { background: var(--dark-bg) !important; }
+html[data-theme="dark"] .admin-topbar,
+html[data-theme="dark"] .admin-sidebar,
+html[data-theme="dark"] .admin-skip { background: var(--dark-surface); border-color: var(--dark-line); color: var(--dark-ink); }
+html[data-theme="dark"] .admin-nav-list a[aria-current="page"],
+html[data-theme="dark"] .admin-nav-count { background: var(--dark-soft); color: var(--dark-accent); }
+html[data-theme="dark"] .admin-nav-list a:hover,
+html[data-theme="dark"] .admin-nav-group:hover { background: var(--dark-raised); }
+html[data-theme="dark"] .admin-logout,
+html[data-theme="dark"] .admin-menu-button { background: var(--dark-raised); border-color: var(--dark-line); color: var(--dark-ink); }
+html[data-theme="dark"] .admin-logout:hover { background: var(--dark-danger-bg); color: var(--dark-danger); }
+html[data-theme="dark"] .admin-portal .adm-filter-toggle,
+html[data-theme="dark"] .admin-portal .adm-filter-choices label { background: var(--dark-raised); border-color: var(--dark-line); color: var(--dark-ink); }
+html[data-theme="dark"] .admin-portal .adm-filter-toggle:hover,
+html[data-theme="dark"] .admin-portal .adm-filter-toggle[aria-expanded="true"],
+html[data-theme="dark"] .admin-portal .adm-filter-choices label:hover { background: var(--dark-soft); }
+html[data-theme="dark"] .admin-portal .adm-filter-choices label:has(input:checked) { background: var(--dark-button); border-color: var(--dark-button); color: var(--dark-on-button); }
+html[data-theme="dark"] .admin-portal .adm-filter-panel { background: var(--dark-raised); border-color: var(--dark-line); box-shadow: 0 8px 24px var(--dark-shadow); }
+html[data-theme="dark"] .admin-portal .adm-filter-count { background: var(--dark-button); color: var(--dark-on-button); }
+html[data-theme="dark"] .admin-portal :is(input, select, textarea) { caret-color: var(--dark-accent); }
+html[data-theme="dark"] .admin-portal :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] .admin-portal :focus-visible { outline-color: var(--dark-focus); }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

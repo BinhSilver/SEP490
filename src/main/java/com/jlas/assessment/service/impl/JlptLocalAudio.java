@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 /** Resolves question MP3s independently of the legacy remote URLs in the database. */
 @Component
 public class JlptLocalAudio {
+    static final String ADMIN_OVERRIDE_TYPE = "ADMIN_OVERRIDE";
     private static final Pattern SPEAKER = Pattern.compile("(?im)^(narrator|man|woman)(\\d*)\\s*[:：]\\s*");
     private final Map<String, Map<String, LocalClip>> exams = new ConcurrentHashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
@@ -47,6 +48,9 @@ public class JlptLocalAudio {
                 new JlptExamResponse.TranscriptSegment(0d, local.duration(), ja, null, vi));
         boolean aligned = !local.timedScript().isEmpty();
         if (aligned) script = local.timedScript();
+        if (previous != null && ADMIN_OVERRIDE_TYPE.equals(previous.type()) && !local.url().equals(previous.audioUrl())) {
+            return new JlptExamResponse.AudioClip(previous.id(), previous.type(), previous.audioUrl(), 0, null, script, false);
+        }
         return new JlptExamResponse.AudioClip(previous == null ? questionId : previous.id(),
                 "QUESTION", local.url(), 0, local.duration(), script, aligned);
     }
@@ -98,8 +102,7 @@ public class JlptLocalAudio {
                     int m = mondai.path("number").asInt(), q = question.path("number").asInt();
                     String file = "Mondai" + m + "/" + q + ".mp3";
                     double duration = question.path("durationMs").asDouble() / 1000;
-                    if (!file.equals(question.path("file").asText()) || duration <= 0
-                            || !new ClassPathResource(base + file).exists()) {
+                    if (!file.equals(question.path("file").asText()) || duration <= 0) {
                         throw new IOException("Invalid local clip: " + file);
                     }
                     List<JlptExamResponse.TranscriptSegment> segments = new ArrayList<>();

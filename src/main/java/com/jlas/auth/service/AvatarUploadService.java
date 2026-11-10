@@ -13,7 +13,16 @@ import com.jlas.moderation.service.UserActionPolicyPort;
 import com.jlas.moderation.model.ModerationVerdict;
 import com.jlas.moderation.util.ImageUploads;
 import com.jlas.moderation.util.UploadFiles;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
@@ -51,9 +60,12 @@ public class AvatarUploadService implements ModerationTargetHandler {
     @Transactional
     public UploadResult store(Long userId, MultipartFile file) {
         actionPolicy.assertCanAct(userId);
-        byte[] bytes = ImageUploads.validate(file, MAX_SIZE, false);
+        byte[] original = ImageUploads.validate(file, MAX_SIZE, false);
         rateLimits.checkImageUpload("avatar:" + userId);
-        String key = "u" + userId + "-" + UUID.randomUUID() + "." + extension(file.getOriginalFilename());
+        // Shrink before the scan: the vision model, the stored file and every viewer get the small copy.
+        Shrunk image = shrink(original, extension(file.getOriginalFilename()));
+        byte[] bytes = image.bytes();
+        String key = "u" + userId + "-" + UUID.randomUUID() + "." + image.extension();
         Path target = privateDirectory.resolve(key);
         UploadFiles.write(target, bytes);
         var result = moderation.scanImage(target, file.getOriginalFilename());
@@ -116,6 +128,104 @@ public class AvatarUploadService implements ModerationTargetHandler {
     }
     private String url(AvatarSubmission submission) { return "/uploads/avatar/" + submission.getStorageKey(); }
     public static String extension(String filename) { return UploadFiles.extension(filename); }
+
+    /** Avatars show at 150px at most; 512px stays sharp on 2x/3x screens. */
+    static final int MAX_EDGE = 512;
+    record Shrunk(byte[] bytes, String extension) {}
+
+    /**
+     * Scales JPEG/PNG avatars down to MAX_EDGE (PNG with transparency stays PNG, the rest becomes JPEG) and
+     * drops their metadata. Keeps the original for WebP (ImageIO cannot read it), small images, JPEGs that
+     * rely on an EXIF rotation, and whenever re-encoding fails or would not make the file smaller.
+     */
+    static Shrunk shrink(byte[] bytes, String extension) {
+        Shrunk original = new Shrunk(bytes, extension);
+        if ("webp".equals(extension) || hasExifRotation(bytes)) return original;
+        try {
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
+            if (image == null || Math.max(image.getWidth(), image.getHeight()) <= MAX_EDGE) return original;
+            double scale = (double) MAX_EDGE / Math.max(image.getWidth(), image.getHeight());
+            int width = Math.max(1, (int) Math.round(image.getWidth() * scale));
+            int height = Math.max(1, (int) Math.round(image.getHeight() * scale));
+            boolean alpha = image.getColorModel().hasAlpha();
+            // Halve step by step first: one big bicubic jump from 3000px to 512px looks jagged.
+            while (image.getWidth() / 2 >= width && image.getHeight() / 2 >= height) {
+                image = scaled(image, image.getWidth() / 2, image.getHeight() / 2, alpha);
+            }
+            image = scaled(image, width, height, alpha);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            if (alpha) {
+                ImageIO.write(image, "png", out);
+            } else {
+                ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+                ImageWriteParam param = writer.getDefaultWriteParam();
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(0.85f);
+                try (var output = ImageIO.createImageOutputStream(out)) {
+                    writer.setOutput(output);
+                    writer.write(null, new IIOImage(image, null, null), param);
+                } finally { writer.dispose(); }
+            }
+            return out.size() > 0 && out.size() < bytes.length
+                    ? new Shrunk(out.toByteArray(), alpha ? "png" : "jpg") : original;
+        } catch (IOException | RuntimeException e) {
+            return original; // validate() already accepted the original, so it is still safe to store
+        }
+    }
+
+    private static BufferedImage scaled(BufferedImage source, int width, int height, boolean alpha) {
+        BufferedImage target = new BufferedImage(width, height, alpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = target.createGraphics();
+        try {
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g.drawImage(source, 0, 0, width, height, null);
+        } finally { g.dispose(); }
+        return target;
+    }
+
+    /**
+     * True when a JPEG carries an EXIF orientation other than "normal". Browsers rotate such photos but
+     * ImageIO does not, so re-encoding them would store a sideways avatar. Unreadable EXIF counts as rotated.
+     * ponytail: PNG eXIf orientation is ignored (very rare for avatars); handle it if sideways PNGs show up.
+     */
+    static boolean hasExifRotation(byte[] b) {
+        if (b.length < 4 || (b[0] & 255) != 0xFF || (b[1] & 255) != 0xD8) return false;
+        try {
+            int i = 2;
+            while (i + 4 <= b.length && (b[i] & 255) == 0xFF) {
+                int marker = b[i + 1] & 255;
+                int length = u16(b, i + 2, false);
+                if (marker == 0xDA) return false; // image data starts; no EXIF block before it
+                if (marker == 0xE1 && b[i + 4] == 'E' && b[i + 5] == 'x' && b[i + 6] == 'i' && b[i + 7] == 'f') {
+                    int tiff = i + 10;
+                    boolean little = b[tiff] == 'I';
+                    int ifd = tiff + (int) u32(b, tiff + 4, little);
+                    int entries = u16(b, ifd, little);
+                    for (int k = 0; k < entries; k++) {
+                        int entry = ifd + 2 + 12 * k;
+                        if (u16(b, entry, little) == 0x0112) {
+                            int orientation = u16(b, entry + 8, little);
+                            return orientation > 1;
+                        }
+                    }
+                    return false;
+                }
+                i += 2 + length;
+            }
+            return false;
+        } catch (RuntimeException e) {
+            return true;
+        }
+    }
+
+    private static int u16(byte[] b, int at, boolean little) {
+        return little ? (b[at] & 255) | (b[at + 1] & 255) << 8 : (b[at] & 255) << 8 | (b[at + 1] & 255);
+    }
+
+    private static long u32(byte[] b, int at, boolean little) {
+        return little ? (long) u16(b, at + 2, true) << 16 | u16(b, at, true) : (long) u16(b, at, false) << 16 | u16(b, at + 2, false);
+    }
     public static boolean hasImageSignature(byte[] bytes, String extension) {
         if (bytes == null || bytes.length < 12) return false;
         if (!"webp".equals(extension)) return ImageUploads.hasSignature(bytes, extension);

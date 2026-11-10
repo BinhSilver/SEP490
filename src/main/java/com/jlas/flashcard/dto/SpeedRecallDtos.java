@@ -12,7 +12,9 @@ public final class SpeedRecallDtos {
         @NotBlank @Pattern(regexp="ALL|LEARNING|STARRED|CUSTOM|RANDOM") String filter,
         @Min(1) int count, boolean autoSubmit,
         @Pattern(regexp=SpeedRecallMode.PATTERN, message="Chế độ luyện không hợp lệ") String mode,
-        List<@NotNull @Positive Long> selectedCardIds) {}
+        List<@NotNull @Positive Long> selectedCardIds,
+        /** Seconds per word (SpeedRecallRules.TIME_LIMIT_CHOICES); null keeps the automatic time. */
+        Integer timeLimitSeconds) {}
     public record RetryRequest(@NotBlank @Pattern(regexp="[0-9a-fA-F-]{36}") String requestId) {}
     public record NextRequest(@Min(0) int questionIndex) {}
     public record AnswerRequest(@NotNull @Positive Long questionId,

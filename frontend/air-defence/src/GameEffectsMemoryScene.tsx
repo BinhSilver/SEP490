@@ -7,7 +7,7 @@ import '../../memory/src/coin-toss.css';
 function PreviewCoin() {
   return <div className="coin-stage" aria-hidden="true"><div className="coin-shadow" /><div className="coin-flight">
     <div className="coin-body" style={{ '--coin-end': '2160deg' } as React.CSSProperties}>
-      <div className="coin-face coin-face--front"><strong className="coin-face__brand">JLAS</strong></div>
+      <div className="coin-face coin-face--front"><strong className="coin-face__brand">KotsuKotsu</strong></div>
       <div className="coin-face coin-face--back"><img className="coin-face__mascot" src="/images/mascots/kitsu/kitsu-coin-smile.png" alt="" /></div>
     </div></div></div>;
 }

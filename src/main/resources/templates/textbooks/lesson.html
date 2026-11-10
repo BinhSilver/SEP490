@@ -9,7 +9,7 @@
 
     <!-- Giao diện mới trang học bài: class lesson-page bật bộ component mới trong textbook-lesson.js + css/pages/lesson-page.css.
          path-lesson.html (lộ trình) dùng chung JS nhưng không có class này nên giữ giao diện cũ. -->
-    <link rel="stylesheet" th:href="@{/css/pages/lesson-page.css(v=20261031-flashcard)}" />
+    <link rel="stylesheet" th:href="@{/css/pages/lesson-page.css(v=20261108-plum)}" />
 
     <main id="jlabBaseContent" class="app-main textbooks-main lesson-page" data-inline-dictionary
           th:attr="data-textbook-id=${textbookId}, data-lesson-id=${lessonId}, data-flashcard-set-id=${flashcardVocabSetId}">
@@ -89,8 +89,10 @@
         </section>
     </main>
 
+    <dialog th:replace="~{textbooks/premium-dialog :: premiumDialog}"></dialog>
+
     <script th:src="@{/js/jlab-base-shell.js}"></script>
-    <script th:src="@{/js/pages/textbook-lesson.js(v=20261031-flashcard)}"></script>
+    <script th:src="@{/js/pages/textbook-lesson.js(v=20261109-kotsu)}"></script>
 
 </body>
 

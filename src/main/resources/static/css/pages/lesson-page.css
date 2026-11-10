@@ -1243,3 +1243,62 @@ html.lp-zoom-open { overflow: hidden; }
 .lesson-page .lp-flashcard-link small { font-weight: 600; opacity: .85; }
 .lesson-page .lp-flashcard-link:hover { filter: brightness(1.08); transform: translateY(-1px); }
 .lesson-page .lp-flashcard-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+
+/* Plum dark mode */
+html[data-theme="dark"] .lesson-page {
+  --primary: var(--dark-accent); --primary-deep: var(--dark-accent);
+  --primary-soft: var(--dark-soft); --bg: var(--dark-bg);
+  --card: var(--dark-surface); --border: var(--dark-line);
+  --ink: var(--dark-ink); --muted: var(--dark-muted);
+  --success: var(--dark-success); --success-soft: var(--dark-success-bg);
+  --success-ink: var(--dark-success); --warn-soft: var(--dark-warning-bg);
+  --gold-soft: var(--dark-warning-bg);
+}
+html[data-theme="dark"] .lesson-page .lp-hero { background: var(--dark-raised); color: var(--dark-ink); }
+html[data-theme="dark"] .lesson-page .lp-hero__eyebrow,
+html[data-theme="dark"] .lesson-page .lp-hero__desc { color: var(--dark-muted); }
+html[data-theme="dark"] .lesson-page .lp-hero__title,
+html[data-theme="dark"] .lesson-page .lp-hero__kanji { color: var(--dark-ink); }
+html[data-theme="dark"] .lesson-page .lp-hero__chip { background: var(--dark-soft); color: var(--dark-ink); }
+html[data-theme="dark"] .lesson-page .speak-btn.lp-listen,
+html[data-theme="dark"] .lesson-page .lp-msg--right .speak-btn.lp-bubble { color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .speak-btn.lp-listen:hover,
+html[data-theme="dark"] .lesson-page .lp-msg--right .speak-btn.lp-bubble:hover,
+html[data-theme="dark"] .lesson-page .lp-msg--right .speak-btn.lp-bubble.is-playing { background: var(--dark-button-hover); color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .lp-status--draft,
+html[data-theme="dark"] .lesson-page .lp-chip--copula,
+html[data-theme="dark"] .lesson-page .lp-chip-s--ex { color: var(--dark-warning); }
+html[data-theme="dark"] .lesson-page .lp-status--draft { background: var(--dark-warning-bg); }
+html[data-theme="dark"] .lesson-page .lp-note > i { color: var(--dark-warning); }
+html[data-theme="dark"] .lesson-page :is(.lesson-tab.is-active, .lp-btn[aria-pressed="true"], .speak-btn:hover, .speak-btn.is-playing, .lp-gitem.is-selected .lp-gitem__num, .lp-chip--particle, .lp-msg--right .lp-msg__avatar, .lp-msg--right .speak-btn.lp-bubble:hover, .lp-msg--right .speak-btn.lp-bubble.is-playing) { color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .lesson-tab.is-active .lesson-tab__count { background: var(--dark-soft); color: var(--dark-ink); }
+html[data-theme="dark"] .lesson-page :is(.lp-gitem:hover, .lp-example:hover) { background: var(--dark-raised); }
+html[data-theme="dark"] .lesson-page :is(.lp-chip--slot, .lp-example:hover, .lp-rimg-btn, .lp-rimg-upload) { border-color: var(--dark-line); }
+html[data-theme="dark"] .lesson-page .lp-chip--slot { background: var(--dark-raised); }
+html[data-theme="dark"] .lesson-page :is(.lp-example, .practice-q, .practice-q__passage, .lp-sec--practice, .lp-rimg, .lp-rimg-upload, .practice-q__images--grid .practice-q__image, .lp-common-images__img, details.lp-gsec) { background: var(--dark-raised); }
+html[data-theme="dark"] .lesson-page :is(.lp-ktile.is-selected .lp-ktile__hv, .lp-ktile.is-selected .lp-ktile__meaning, .lp-msg--right .lp-bubble__vi) { color: var(--dark-muted); }
+html[data-theme="dark"] .lesson-page .lp-ktile.is-selected .lp-ktile__more { background: var(--dark-soft); color: var(--dark-ink); }
+html[data-theme="dark"] .lesson-page .lp-msg--right .lp-bubble__vi { color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .lp-chip-s--answer { box-shadow: inset 0 0 0 1px var(--dark-success-line); }
+html[data-theme="dark"] .lesson-page .lp-sec--answer[open] { border-color: var(--dark-success-line); }
+html[data-theme="dark"] .lesson-page .lp-rimg-btn--danger,
+html[data-theme="dark"] .lesson-page .lp-rimg-tools__error { color: var(--dark-danger); }
+html[data-theme="dark"] .lesson-page .lp-rimg-btn--danger { border-color: var(--dark-danger-line); }
+html[data-theme="dark"] .lesson-page :is(.lp-vcard__example, .lp-glist, .reading-line--pair, .lp-card, .lp-sline--pair, .lp-page-images, .lp-page-images__img, .practice-q-shared, .lp-rimg-tools) { background: var(--dark-raised); }
+html[data-theme="dark"] .lesson-page :is(.lp-rimg-tools, .lp-rimg-btn--sm) { border-color: var(--dark-line); }
+html[data-theme="dark"] .lesson-page :is(.lp-pager__btn.is-current, .lp-num, .lp-rimg-btn:not(.lp-rimg-btn--ghost):not(.lp-rimg-btn--danger):not(.lp-rimg-btn--sm)) { color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .lp-rimg-btn--sm { background: var(--dark-surface); color: var(--dark-accent); }
+html[data-theme="dark"] .lesson-page .lp-vcard:hover { border-color: var(--dark-input-line); box-shadow: 0 16px 32px var(--dark-shadow); }
+html[data-theme="dark"] .lesson-page .lp-ktile.is-selected,
+html[data-theme="dark"] .lesson-page .lp-ktile.is-selected:hover { background: var(--dark-raised); border-color: var(--dark-accent); color: var(--dark-ink); }
+html[data-theme="dark"] .lesson-page .lp-track__num { color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .lp-gojuon__cell--empty { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--dark-soft) 6px 12px); }
+html[data-theme="dark"] .lesson-page .lp-gojuon .kana-tile.is-playing .kana-tile__romaji { color: var(--dark-on-button); }
+html[data-theme="dark"] .lesson-page .lp-gojuon .kana-tile:focus-visible { box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] .lesson-page :is(input, textarea, select) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] .lesson-page :is(input, textarea, select):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] .lp-zoom { background: var(--dark-shadow); }
+html[data-theme="dark"] .lp-zoom__img,
+html[data-theme="dark"] .lp-zoom__close { background: var(--dark-surface); color: var(--dark-ink); }
+html[data-theme="dark"] .lp-zoom__close:focus-visible { outline-color: var(--dark-focus); }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

@@ -1,7 +1,7 @@
 /**
  * Trang thiết lập trận (/games/lobby?game=…&mode=QUICK|VERSUS|SOLO&setId=…):
  * - QUICK: chọn game + bộ rồi tìm đối thủ cùng bộ; cài đặt do hai bên tung đồng xu trong phòng.
- * - VERSUS: chọn đủ cài đặt rồi tạo phòng riêng, gửi mã cho bạn bè.
+ * - VERSUS: chọn game + bộ rồi tạo phòng, gửi mã cho bạn bè; đủ hai người thì tung đồng xu chọn cài đặt.
  * - SOLO: chỉ chọn game + bộ; hỏi – đáp, thẻ và tuỳ chọn chọn ở màn chuẩn bị trong game.
  */
 (function () {
@@ -40,12 +40,8 @@
     modeSeg: document.querySelector('[data-mode-seg]'),
     gamePicker: document.querySelector('[data-game-picker]'),
     deckPicker: document.querySelector('[data-deck-picker]'),
-    fieldPicker: document.querySelector('[data-field-picker]'),
-    options: document.querySelector('[data-options]'),
     problem: document.querySelector('[data-summary-problem]'),
     submits: document.querySelectorAll('[data-submit]'),
-    stepFields: document.querySelector('[data-step-fields]'),
-    stepOptions: document.querySelector('[data-step-options]'),
     stepMode: document.querySelector('[data-step-mode]'),
     stepGame: document.querySelector('[data-step-game]'),
     stepDeck: document.querySelector('[data-step-deck]'),
@@ -125,10 +121,6 @@
     el.stepDeck.hidden = isMobile && mobileStep !== 3;
     el.stepGame.querySelector('.ar-step__no').textContent = isMobile ? '2' : '1';
     el.stepDeck.querySelector('.ar-step__no').textContent = isMobile ? '3' : '2';
-    // Phòng riêng giữ phần hỏi–đáp và tuỳ chọn ngay sau bộ thẻ ở bước cuối.
-    var hideSettings = state.mode !== 'VERSUS' || (isMobile && mobileStep !== 3);
-    el.stepFields.hidden = hideSettings;
-    el.stepOptions.hidden = hideSettings;
     el.mobileBar.hidden = !isMobile || mobileStep !== 3;
     el.mobileSubmit.hidden = !isMobile || mobileStep !== 3;
   }
@@ -184,40 +176,6 @@
     });
   }
 
-  function renderFields() {
-    if (!state.detail || state.mode !== 'VERSUS') return;
-    setup.renderFieldPicker(el.fieldPicker, {
-      detail: state.detail,
-      gameType: state.gameType,
-      options: state.options,
-      question: state.question,
-      answer: state.answer,
-      onChange: function (question, answer) {
-        state.question = question;
-        state.answer = answer;
-        normalize();
-        render();
-      }
-    });
-  }
-
-  function renderOptions() {
-    if (state.mode !== 'VERSUS') return;
-    setup.renderOptions(el.options, {
-      catalogItem: item(),
-      mode: state.mode,
-      options: state.options,
-      detail: state.detail,
-      question: state.question,
-      answer: state.answer,
-      onChange: function (options) {
-        state.options = options;
-        normalize();
-        render();
-      }
-    });
-  }
-
   /** Ghép nhanh chỉ cần bộ có ít nhất một cặp hỏi–đáp đủ thẻ; cặp cụ thể sẽ tung đồng xu chọn. */
   function quickNeed() {
     return state.gameType === 'MEMORY_MATCH' ? 6 : setup.minWords(state.gameType, {});
@@ -227,20 +185,16 @@
     if (!arena.canPlayGame(state.gameType)) return 'Bắn máy bay cần bàn phím. Hãy mở game trên máy tính.';
     if (!state.deck) return 'Chọn một bộ flashcard để tiếp tục.';
     if (state.deck.draft) return 'Bộ này đang là bản nháp; xuất bản bộ ở trang Flashcard rồi mới chơi được.';
-    if (state.mode === 'QUICK') {
+    if (state.mode !== 'SOLO') {
       var need = quickNeed();
       var playable = (state.detail && state.detail.pairs || []).some(function (pair) { return pair.usableCards >= need; });
       return playable ? null : 'Bộ "' + state.deck.title + '" chưa có cặp hỏi – đáp nào đủ ' + need + ' thẻ cho ' + item().name + '.';
     }
     var need = setup.minWords(state.gameType, state.options);
     var count = setup.usable(state.detail, state.question, state.answer);
-    if (count < need && state.mode === 'SOLO') {
+    if (count < need) {
       return 'Bộ "' + state.deck.title + '" chưa có đủ ' + need + ' thẻ có cùng phần hỏi và phần đáp để chơi '
         + item().name + '.';
-    }
-    if (count < need) {
-      return 'Bộ "' + state.deck.title + '" chỉ có ' + count + ' thẻ có đủ ' + arena.fieldLabel(state.question)
-        + ' và ' + arena.fieldLabel(state.answer) + '. ' + item().name + ' cần ít nhất ' + need + ' thẻ.';
     }
     return null;
   }
@@ -273,8 +227,6 @@
     renderMode();
     renderWizard();
     renderGames();
-    renderFields();
-    renderOptions();
     renderSummary();
     syncUrl();
     if (key) {

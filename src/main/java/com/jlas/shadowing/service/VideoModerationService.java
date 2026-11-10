@@ -167,7 +167,8 @@ public class VideoModerationService {
         }
 
         List<ModerationResult> visionParts = new ArrayList<>();
-        String mediaPath = video.getVideoPath();
+        // Cloud files are the reviewed seed videos; like YouTube embeds they have no local frames to scan.
+        String mediaPath = ShadowingBlobStore.isBlob(video.getVideoPath()) ? null : video.getVideoPath();
         boolean audioOnly = mediaPath != null && FfmpegService.isAudioFile(mediaPath);
 
         if (!audioOnly && mediaPath != null) {

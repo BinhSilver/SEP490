@@ -55,7 +55,7 @@ public class SampleConversationService {
                 .flatMap(flow -> flow.stages() == null ? java.util.stream.Stream.empty() : flow.stages().stream())
                 .filter(stage -> code.equals(stage.code())).map(stage -> stage.imageUrl())
                 .filter(url -> url != null && url.matches("/images/[a-zA-Z0-9/_.-]+\\.(webp|png|jpg)"))
-                .findFirst().orElse("/images/scenarios/" + scenario.getSlug() + ".png");
+                .findFirst().orElse("/images/scenarios/" + scenario.getSlug() + ".webp");
         return new SamplePage(scenario, code, title, lines, background);
     }
 

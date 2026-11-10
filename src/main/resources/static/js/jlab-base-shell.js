@@ -55,9 +55,8 @@
     homeLink: 'jlabBaseHomeLink',
     homeIcon: 'jlabBaseHomeIcon',
     homeLabel: 'jlabBaseHomeLabel',
-    learningPathLink: 'jlabBaseLearningPathLink',
-    learningPathIcon: 'jlabBaseLearningPathIcon',
-    learningPathLabel: 'jlabBaseLearningPathLabel',
+    onyomiItem: 'jlabBaseOnyomiItem',
+    onyomiIcon: 'jlabBaseOnyomiIcon',
     textbooksLink: 'jlabBaseTextbooksLink',
     textbooksIcon: 'jlabBaseTextbooksIcon',
     textbooksLabel: 'jlabBaseTextbooksLabel',
@@ -251,7 +250,7 @@
 
   function replaceShellIcons() {
     replaceIcon(ids.homeIcon, 'home');
-    replaceIcon(ids.learningPathIcon, 'route');
+    replaceIcon(ids.onyomiIcon, 'route');
     replaceIcon(ids.textbooksIcon, 'book');
     replaceIcon(ids.lookupIcon, 'search');
     replaceIcon(ids.gameIcon, 'game');
@@ -297,9 +296,6 @@
             '<a id="' + ids.homeLink + '" href="/" title="Trang chủ KotsuKotsu">' +
               '<i id="' + ids.homeIcon + '" aria-hidden="true"></i><span id="' + ids.homeLabel + '">Trang ch\u1ee7</span>' +
             '</a>' +
-            '<a id="' + ids.learningPathLink + '" href="/learning/onyomi" title="Lộ trình Hán Việt → On">' +
-              '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
-            '</a>' +
             '<a id="' + ids.textbooksLink + '" href="/textbooks" title="Giáo trình số hoá theo cấp độ">' +
               '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
             '</a>' +
@@ -311,6 +307,7 @@
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
+                '<a id="' + ids.onyomiItem + '" class="dropdown__item" href="/learning/onyomi" role="menuitem"><i id="' + ids.onyomiIcon + '" aria-hidden="true"></i><span>Onyomi</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
                 '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
                 '<a id="jlabBaseVerbPracticeLink" class="dropdown__item" href="/practice/verbs" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
@@ -488,7 +485,7 @@
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.textbooksLink, isTextbooks);
-    markCurrent(ids.learningPathLink, isOnyomi);
+    markCurrent(ids.onyomiItem, isOnyomi);
     markCurrent(ids.lookupLink, isDictionary);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.communityLink, isCommunity);
@@ -517,7 +514,7 @@
     }
     markCurrent('jlabBaseVerbPracticeLink', path === '/practice/verbs');
     markCurrent('jlabBaseKanjiMapLink', isKanjiMap);
-    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice || path === "/practice/verbs" || isKanjiMap);
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isOnyomi || isJlpt || isJlptPractice || path === "/practice/verbs" || isKanjiMap);
   }
 
   function fallbackUser() {
@@ -779,7 +776,7 @@
     if (!document.querySelector('link[href*="font-awesome"]')) {
       addStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
     }
-    if (!document.querySelector('link[href*="reward-fx.css"]')) {
+    if (!document.querySelector('link[href*="/reward-fx"]')) {
       addStylesheet('/css/components/reward-fx.css?v=20260926y');
     }
     if (window.RewardFX) {
@@ -800,7 +797,7 @@
    */
   function ensureAvatarFrameStyles() {
     // Luôn nạp CSS (nhẹ): tên có màu của người khác (bình luận…) chỉ cần CSS, kể cả khi người xem không có khung.
-    if (!document.querySelector('link[href*="avatar-frame.css"]')) {
+    if (!document.querySelector('link[href*="/avatar-frame"]')) {
       addStylesheet('/css/components/avatar-frame.css?v=20261021-catalog');
     }
   }
@@ -1057,7 +1054,7 @@
         bottomNav.insertBefore(byId(ids.gameLink), byId(ids.bottomAccountButton));
         bottomNav.insertBefore(byId(ids.textbooksLink), byId(ids.bottomAccountButton));
       } else {
-        nav.insertBefore(byId(ids.homeLink), byId(ids.learningPathLink));
+        nav.insertBefore(byId(ids.homeLink), byId(ids.examsWrapper));
         nav.insertBefore(byId(ids.textbooksLink), byId(ids.examsWrapper));
         nav.insertBefore(byId(ids.gameLink), byId(ids.toolsWrapper));
       }
@@ -1078,7 +1075,7 @@
       var willOpen = !state.mobileNavOpen;
       closeAllMenus();
       setMobileNavigation(willOpen);
-      if (state.mobileNavOpen) byId(ids.learningPathLink).focus();
+      if (state.mobileNavOpen) byId(ids.examsButton).focus();
     });
     nav.addEventListener('click', function (event) {
       var link = event.target.closest('a[href]');

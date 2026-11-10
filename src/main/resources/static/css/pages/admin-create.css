@@ -300,3 +300,40 @@
   }
   .admin-create-page .ac-success__check { stroke-dashoffset: 0; }
 }
+
+/* Plum dark mode */
+html[data-theme="dark"] .admin-create-page {
+  --primary: var(--dark-accent); --primary-deep: var(--dark-accent);
+  --primary-soft: var(--dark-soft); --bg: var(--dark-bg);
+  --card: var(--dark-surface); --border: var(--dark-line);
+  --ink: var(--dark-ink); --muted: var(--dark-muted);
+  --success: var(--dark-success); --success-soft: var(--dark-success-bg);
+  --success-ink: var(--dark-success); --warn-soft: var(--dark-warning-bg);
+  --danger: var(--dark-danger-line); --danger-ink: var(--dark-danger);
+}
+html[data-theme="dark"] .admin-create-page :is(.ac-input, .ac-adv) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] .admin-create-page .ac-input:focus { border-color: var(--dark-focus); box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] .admin-create-page .ac-field.is-invalid .ac-input,
+html[data-theme="dark"] .admin-create-page .ac-field.is-invalid [role="radiogroup"] { border-color: var(--dark-danger-line); box-shadow: 0 0 0 3px var(--dark-danger-bg); }
+html[data-theme="dark"] .admin-create-page :is(.ac-input, textarea, select):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] .admin-create-page :is(.ac-stepper__item.is-current .ac-stepper__num, .ac-chip.is-checked, .ac-switch__item.is-checked, .ac-btn--primary, .ac-check.is-ok .ac-check__icon) { color: var(--dark-on-button); }
+html[data-theme="dark"] .admin-create-page .ac-btn--primary:hover { background: var(--dark-button-hover); }
+html[data-theme="dark"] .admin-create-page :is([role="radio"]:focus-visible, .ac-drop:focus-visible, .ac-stepper__btn:focus-visible) { outline-color: var(--dark-focus); }
+html[data-theme="dark"] .admin-create-page :is(.ac-btn, .ac-link-btn, .ac-kanji-pick):focus-visible { outline-color: var(--dark-focus); }
+html[data-theme="dark"] .admin-create-page .ac-swatches__item.is-checked { box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] .admin-create-page :is(.ac-drop, .ac-newtag, .ac-excel) { background: var(--dark-raised); border-color: var(--dark-line); }
+html[data-theme="dark"] .admin-create-page .ac-tag__dot { border-color: var(--dark-input-line); }
+html[data-theme="dark"] .admin-create-page .ac-tag__code { background: var(--dark-soft); }
+html[data-theme="dark"] .admin-create-page .ac-alert--warn,
+html[data-theme="dark"] .admin-create-page .ac-thumb__badge--status { background: var(--dark-warning-bg); color: var(--dark-warning); }
+html[data-theme="dark"] .admin-create-page .ac-alert--error { background: var(--dark-danger-bg); color: var(--dark-danger); }
+html[data-theme="dark"] .admin-create-page .ac-thumb__badge { background: var(--dark-soft); color: var(--dark-ink); }
+html[data-theme="dark"] .admin-create-page .ac-thumb__badge--status { background: var(--dark-warning-bg); color: var(--dark-warning); }
+html[data-theme="dark"] .admin-create-page .ac-thumb { background: var(--dark-raised); }
+html[data-theme="dark"] .admin-create-page .ac-thumb__kanji { color: var(--dark-accent); }
+html[data-theme="dark"] .admin-create-page .ac-tbcard__title.is-placeholder { color: var(--dark-faint); }
+html[data-theme="dark"] .admin-create-page .ac-card { box-shadow: 0 10px 30px var(--dark-shadow); }
+html[data-theme="dark"] .admin-create-page .ac-swatch,
+html[data-theme="dark"] .admin-create-page .ac-swatch-inline { box-shadow: inset 0 0 0 1px var(--dark-line); }
+html[data-theme="dark"] .admin-create-page .ac-success__check { stroke: var(--dark-on-button); }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

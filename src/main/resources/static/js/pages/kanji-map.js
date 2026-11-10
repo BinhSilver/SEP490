@@ -107,7 +107,7 @@
   function meaning(node) { return model.vietnameseMeaning(node); }
   function transform() {
     var v = state.view;
-    $('world').style.transform = 'translate(' + v.x + 'px,' + v.y + 'px) scale(' + v.scale + ')';
+    $('world').style.transform = 'translate(' + Math.round(v.x) + 'px,' + Math.round(v.y) + 'px) scale(' + v.scale + ')';
     $('zoom-value').textContent = Math.round(v.scale * 100) + '%';
   }
   function zoom(factor, x, y) {

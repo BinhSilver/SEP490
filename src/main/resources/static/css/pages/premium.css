@@ -1,4 +1,5 @@
 /* Premium pricing, checkout and billing (JLAS2-49). */
+@import url("../dark-page.css");
 #jlabBaseContent .pm { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; font-family: var(--font-body); color: var(--color-on-surface); }
 #jlabBaseContent .pm-loading { padding: 64px 0; text-align: center; color: var(--color-on-surface-variant); }
 #jlabBaseContent .pm-hero { text-align: center; margin-bottom: 28px; }
@@ -79,3 +80,13 @@
 }
 .pm-coupon { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 1rem 0; }
 .pm-coupon .input { flex: 1 1 9rem; }
+
+/* Plum dark mode */
+html[data-theme="dark"] #jlabBaseContent .pm-qr { background: var(--dark-button-light); }
+html[data-theme="dark"] #jlabBaseContent .pm-qr :is(img, canvas) { color: var(--dark-on-button); }
+html[data-theme="dark"] #jlabBaseContent .pm-coupon .input { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] #jlabBaseContent .pm-coupon .input:focus { border-color: var(--dark-focus); box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] #jlabBaseContent .pm-coupon .input:-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] #jlabBaseContent .pm button:disabled { background: var(--dark-soft); border-color: var(--dark-line); color: var(--dark-muted); }
+html[data-theme="dark"] #jlabBaseContent .pm :is(button, a):focus-visible { outline-color: var(--dark-focus); }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

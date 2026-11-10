@@ -1,4 +1,5 @@
 /* Dictionary Home luôn dùng nền sáng Komorebi; navbar vẫn do shell dùng chung quản lý. */
+@import url("/css/dark-page.css");
 .dictionary-page {
   --jlab-base-page-background: var(--color-background);
   background: var(--color-background);
@@ -382,11 +383,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.dict-load-more:not([hidden]) {
-  display: flex;
-  margin: var(--space-4) auto 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1546,7 +1542,7 @@
   max-width: 1320px;
   padding-block: var(--space-5) var(--space-7);
 }
-.dict-search-card, .dict-word-card, #dict-other-results, .dict-home-panel, .dict-detail-pane > .dict-empty-state {
+.dict-search-card, .dict-word-card, #dict-other-results, .dict-words-page .dict-panel, .dict-home-panel, .dict-detail-pane > .dict-empty-state {
   background: var(--color-surface-lowest);
   border: 1px solid #e7ebf0;
   border-radius: var(--radius-lg);
@@ -1831,9 +1827,13 @@
 }
 .dict-pagination {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
 }
+.dict-pagination__label { padding: 5px 2px; }
+.dict-pagination button:disabled { opacity: .5; cursor: default; }
 .dict-pagination button {
   border: 1px solid #dbe3eb;
   border-radius: 7px;
@@ -1872,6 +1872,7 @@
   background: transparent;
   appearance: none;
   color: inherit;
+  text-decoration: none;
   text-align: left;
   font: inherit;
   cursor: pointer;
@@ -1914,6 +1915,12 @@
   font: inherit;
   font-weight: 600;
 }
+.dict-words-page { max-width: 900px; }
+.dict-words-page > .dict-text-button { display: inline-block; margin-bottom: var(--space-4); }
+.dict-words-page .dict-search-card { padding-bottom: var(--space-5); margin-bottom: var(--space-5); }
+.dict-words-page .dict-search-card h1 { margin: 0 0 var(--space-4); }
+.dict-words-page .dict-panel { padding: var(--space-5); }
+.dict-words-page .dict-ai-chip[aria-pressed="true"] { background: var(--dict-blue); color: #fff; }
 .dict-kanji-mini-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2052,3 +2059,61 @@
     padding: 16px;
   }
 }
+
+/* Plum dark mode */
+html[data-theme="dark"] .dictionary-page,
+html[data-theme="dark"] .dictionary-page #jlabBaseContent {
+  --dict-blue: var(--dark-accent);
+  --dict-blue-soft: var(--dark-soft);
+  background: var(--dark-bg);
+}
+html[data-theme="dark"] .dict-search-card,
+html[data-theme="dark"] .dict-words-page .dict-panel,
+html[data-theme="dark"] .dict-word-card,
+html[data-theme="dark"] #dict-other-results,
+html[data-theme="dark"] .dict-home-panel,
+html[data-theme="dark"] .dict-detail-pane > .dict-empty-state,
+html[data-theme="dark"] .dict-kanji-mini { border-color: var(--dark-line); box-shadow: 0 3px 16px var(--dark-shadow); }
+html[data-theme="dark"] .dict-search-bar__input,
+html[data-theme="dark"] .dict-contribution-form textarea { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
+html[data-theme="dark"] .dict-search-bar__input:focus { border-color: var(--dark-focus); box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] .dict-search-bar__input:-webkit-autofill,
+html[data-theme="dark"] .dict-contribution-form textarea:-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; caret-color: var(--dark-ink); }
+html[data-theme="dark"] .dict-suggest__item small,
+html[data-theme="dark"] .dict-word-head p,
+html[data-theme="dark"] .dict-related-row__reading,
+html[data-theme="dark"] .dict-related-row__meaning,
+html[data-theme="dark"] .dict-kanji-mini h3 small,
+html[data-theme="dark"] .dict-empty-state,
+html[data-theme="dark"] .dict-detail__empty { color: var(--dark-muted); }
+html[data-theme="dark"] .dict-search-icon-btn,
+html[data-theme="dark"] .dict-domain,
+html[data-theme="dark"] .dict-contribution__meta,
+html[data-theme="dark"] .dict-pitch-source { color: var(--dark-faint); }
+html[data-theme="dark"] .dict-verified { color: var(--dark-success); }
+html[data-theme="dark"] .dict-badge--n4 { background: var(--dark-soft); color: var(--dark-accent); }
+html[data-theme="dark"] .dict-action,
+html[data-theme="dark"] .dict-ai-chip,
+html[data-theme="dark"] .dict-pagination button { border-color: var(--dark-line); background: var(--dark-raised); color: var(--dark-ink); }
+html[data-theme="dark"] .dict-action:hover,
+html[data-theme="dark"] .dict-ai-chip:hover,
+html[data-theme="dark"] .dict-pagination button:hover { background: var(--dark-soft); }
+html[data-theme="dark"] .dict-action--ai,
+html[data-theme="dark"] .dict-contribution-form button { background: var(--dark-button); color: var(--dark-on-button); }
+html[data-theme="dark"] .dict-action--ai:hover,
+html[data-theme="dark"] .dict-contribution-form button:hover { background: var(--dark-button-hover); }
+html[data-theme="dark"] .dict-word-section,
+html[data-theme="dark"] .dict-contribution { border-top-color: var(--dark-line); }
+html[data-theme="dark"] .dict-word-section h2 { color: var(--dark-ink); }
+html[data-theme="dark"] .dict-domain { background: var(--dark-soft); }
+html[data-theme="dark"] .dict-conjugation th,
+html[data-theme="dark"] .dict-kanji-mini__glyph { background: var(--dark-raised); }
+html[data-theme="dark"] .dict-conjugation th,
+html[data-theme="dark"] .dict-conjugation td,
+html[data-theme="dark"] .dict-related-row { border-bottom-color: var(--dark-line); }
+html[data-theme="dark"] .dict-related-row:hover { background: var(--dark-raised); }
+html[data-theme="dark"] .dict-pitch__mora.is-high { border-top-color: var(--dark-danger); }
+html[data-theme="dark"] .dict-pitch__mora.is-low { border-bottom-color: var(--dark-danger); }
+html[data-theme="dark"] .dict-pitch__mora.has-change::after { border-right-color: var(--dark-danger); }
+html[data-theme="dark"] .dict-empty-state__icon { color: var(--dark-accent); }
+html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

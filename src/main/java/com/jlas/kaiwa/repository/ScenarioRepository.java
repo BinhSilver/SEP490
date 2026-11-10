@@ -1,8 +1,12 @@
 package com.jlas.kaiwa.repository;
 
 import com.jlas.kaiwa.model.Scenario;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -52,6 +56,32 @@ public interface ScenarioRepository extends JpaRepository<Scenario, Long> {
         return findActiveCasesUnordered(rootId).stream()
                 .sorted(Comparator.comparing((Scenario s) -> !s.getId().equals(rootId)).thenComparing(Scenario::getId))
                 .toList();
+    }
+
+    @Query("""
+        SELECT s FROM Scenario s
+        LEFT JOIN FETCH s.parentScenario parent
+        WHERE s.active = true AND (s.id IN :rootIds OR parent.id IN :rootIds)
+          AND (parent IS NULL OR parent.active = true)
+        """)
+    List<Scenario> findActiveCasesUnorderedIn(@Param("rootIds") Collection<Long> rootIds);
+
+    /** {@link #findActiveCases} for several roots at once, keyed by root. */
+    default Map<Long, List<Scenario>> findActiveCasesByRoot(Collection<Long> rootIds) {
+        Map<Long, List<Scenario>> byRoot = new HashMap<>();
+        if (rootIds.isEmpty()) return byRoot;
+        for (Scenario scenario : findActiveCasesUnorderedIn(rootIds)) {
+            if (rootIds.contains(scenario.getId())) {
+                byRoot.computeIfAbsent(scenario.getId(), id -> new ArrayList<>()).add(scenario);
+            }
+            Scenario parent = scenario.getParentScenario();
+            if (parent != null && rootIds.contains(parent.getId())) {
+                byRoot.computeIfAbsent(parent.getId(), id -> new ArrayList<>()).add(scenario);
+            }
+        }
+        byRoot.forEach((root, cases) -> cases.sort(
+                Comparator.comparing((Scenario s) -> !s.getId().equals(root)).thenComparing(Scenario::getId)));
+        return byRoot;
     }
 
     Optional<Scenario> findBySlug(String slug);

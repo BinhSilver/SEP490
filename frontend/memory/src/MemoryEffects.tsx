@@ -55,53 +55,87 @@ export function ResultPanel({ state, userId, backUrl, onReplay, replaying }: {
           ? 'Ai ghép nhiều cặp hơn thắng; bằng cặp thì ai ít lần sai hơn thắng.'
           : 'Bạn đã ghép hết các cặp trên bàn.'
   const ranked = [...state.players].sort((a, b) => b.pairsFound - a.pairsFound || a.mistakes - b.mistakes)
+  const won = versus ? !result?.draw && result?.winnerUserId === userId : !!result?.success
+  // The seal is the one bold element: a hanko stamped onto the panel, its character naming the outcome.
+  const seal = state.status === 'ABORTED' ? '止' : versus ? (result?.draw ? '引' : won ? '勝' : '負') : (won ? '完' : '終')
+  const tone = state.status === 'ABORTED' ? 'muted' : won ? 'won' : result?.draw ? 'draw' : 'lost'
+  const totalPairs = ranked.reduce((sum, player) => sum + player.pairsFound, 0)
+  const terms = result?.strugglingTerms ?? []
 
   return (
     <motion.section
-      className="memory-result"
+      className={`memory-final memory-final--${tone}`}
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       role="dialog"
       aria-labelledby="memory-result-title"
     >
-      <div className="memory-result__seal" aria-hidden="true">勝</div>
-      <p className="memory-kicker">Kết quả Lật thẻ</p>
+      <motion.div
+        className="memory-final__seal"
+        aria-hidden="true"
+        initial={{ scale: 1.6, rotate: -18, opacity: 0 }}
+        animate={{ scale: 1, rotate: -6, opacity: 1 }}
+        transition={{ delay: 0.25, type: 'spring', stiffness: 420, damping: 18 }}
+      >{seal}</motion.div>
       <h2 id="memory-result-title">{title}</h2>
-      <p>{subtitle}</p>
+      <p className="memory-final__lead">{subtitle}</p>
+
       {versus ? (
-        <ol className="memory-result__ranking" aria-label="Bảng xếp hạng ván đấu">
-          {ranked.map((player) => (
-            <li key={player.userId} className={result?.winnerUserId === player.userId ? 'is-winner' : ''}>
-              <strong>{player.displayName}{player.userId === userId ? ' (bạn)' : ''}</strong>
-              <span>{player.pairsFound} cặp · {player.mistakes} lần sai · {player.moves} lượt</span>
-            </li>
-          ))}
-        </ol>
+        <>
+          <ol className="memory-final__players" aria-label="Kết quả từng người chơi">
+            {ranked.map((player) => {
+              const winner = !result?.draw && result?.winnerUserId === player.userId
+              return (
+                <li key={player.userId} className={winner ? 'is-winner' : ''}>
+                  {winner && <span className="memory-final__badge">Thắng</span>}
+                  <span className="memory-final__name">
+                    {player.displayName}{player.userId === userId && <small> (bạn)</small>}
+                  </span>
+                  <span className="memory-final__pairs"><strong>{player.pairsFound}</strong> cặp</span>
+                  <span className="memory-final__facts">
+                    <span><b>{player.mistakes}</b> lần sai</span>
+                    <span><b>{player.moves}</b> lượt</span>
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+          {totalPairs > 0 && ranked.length === 2 && (
+            <div className="memory-final__race" role="img"
+              aria-label={`Số cặp: ${ranked[0].displayName} ${ranked[0].pairsFound}, ${ranked[1].displayName} ${ranked[1].pairsFound}`}>
+              <i style={{ flexGrow: ranked[0].pairsFound }} />
+              <i style={{ flexGrow: ranked[1].pairsFound }} />
+            </div>
+          )}
+        </>
       ) : (
-        <div className="memory-result__stats">
-          <span><strong>{state.pairsMatched}/{state.pairsTotal}</strong>Cặp đúng</span>
-          <span><strong>{state.movesUsed}</strong>Lượt lật</span>
-          <span><strong>{formatDuration(result?.durationMs ?? state.elapsedMs)}</strong>Thời gian</span>
-        </div>
+        <dl className="memory-final__stats">
+          <div><dt>Cặp đúng</dt><dd>{state.pairsMatched}<small>/{state.pairsTotal}</small></dd></div>
+          <div><dt>Lượt lật</dt><dd>{state.movesUsed}</dd></div>
+          <div><dt>Thời gian</dt><dd>{formatDuration(result?.durationMs ?? state.elapsedMs)}</dd></div>
+        </dl>
       )}
-      {!!result?.strugglingTerms?.length && (
-        <div className="memory-review">
-          <h3>Từ nên ôn lại</h3>
-          <div className="memory-review__list">
-            {result.strugglingTerms.map((term) => (
-              <div key={`${term.question}-${term.answer}`}>
-                <strong className={isJapaneseField(state.config.questionField) ? 'jp' : ''}>{term.question}</strong>
-                <span>
-                  {[term.answer, term.reading, term.meaning, term.hanViet]
-                    .filter((value, index, list): value is string => !!value && value !== term.question && list.indexOf(value) === index)
-                    .join(' · ')}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+
+      {terms.length > 0 && (
+        <section className="memory-final__review" aria-labelledby="memory-review-title">
+          <h3 id="memory-review-title">Từ nên ôn lại <span>{terms.length} từ</span></h3>
+          <ul>
+            {terms.map((term) => {
+              const extra = [term.reading, term.meaning, term.hanViet]
+                .filter((value, index, list): value is string => !!value && value !== term.question
+                  && value !== term.answer && list.indexOf(value) === index)
+              return (
+                <li key={`${term.question}-${term.answer}`}>
+                  <strong className={isJapaneseField(state.config.questionField) ? 'jp' : ''}>{term.question}</strong>
+                  <span>{term.answer}</span>
+                  {extra.length > 0 && <small>{extra.join(', ')}</small>}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
       )}
-      <div className="memory-result__actions">
+      <div className="memory-final__actions">
         {!versus && (
           <button className="memory-btn memory-btn--primary" onClick={onReplay} disabled={replaying}>
             {replaying ? 'Đang tạo ván…' : 'Chơi lại'}

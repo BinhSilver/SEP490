@@ -69,7 +69,7 @@
   function build() {
     root.innerHTML = ''
       + '<header class="vs__top">'
-      + '  <div><h1 class="vs__title" data-vs-game></h1><p class="vs__deck">Ghép trận nhanh với bộ <strong data-vs-deck></strong></p></div>'
+      + '  <div><h1 class="vs__title" data-vs-game></h1><p class="vs__deck">Bộ <strong data-vs-deck></strong></p></div>'
       + '  <span class="vs__conn"><span class="ar-dot" data-vs-dot aria-hidden="true"></span><span data-vs-conn>Đang kết nối</span></span>'
       + '</header>'
       + '<ol class="vs__steps" data-vs-steps aria-label="Các cài đặt của trận"></ol>'
