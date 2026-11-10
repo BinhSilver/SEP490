@@ -15,33 +15,29 @@
 
 .hwd-bar {
   position: absolute;
-  top: -48px;
+  top: -36px;
   right: 0;
   z-index: 3;
 }
 
-/* one round glass button; everything else lives in its menu */
+/* owner 10/11: while the cards are open the menu button is Kitsu awake (asleep = .hwd-kitsu when hidden) */
 .hwd-more {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
+  display: block;
+  width: 56px;
+  height: 56px;
   padding: 0;
-  border: 1px solid rgb(255 255 255 / .7);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--hwd-paper) 55%, transparent);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  color: var(--hwd-ink);
-  font-size: 1.2rem;
-  line-height: 1;
+  border: 0;
+  background: none;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgb(0 0 0 / .12);
-  transition: transform .2s ease, background .2s ease;
+  transition: transform .2s ease;
 }
 
+.hwd-more img { display: block; width: 56px; height: 56px; filter: drop-shadow(0 8px 14px rgb(0 0 0 / .2)); }
 .hwd-more:hover,
-.hwd-more[aria-expanded="true"] { transform: scale(1.06); background: color-mix(in srgb, var(--hwd-paper) 80%, transparent); }
+.hwd-more[aria-expanded="true"] { transform: scale(1.08) rotate(4deg); }
+.hwd-more:focus-visible { outline: 2px solid rgb(255 255 255 / .9); outline-offset: 4px; border-radius: 50%; }
+.hwd-more.is-waking { animation: hwdWake .6s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes hwdWake { 0% { transform: translateY(10px) scale(.7); opacity: .4; } 60% { transform: translateY(-6px) scale(1.08); opacity: 1; } }
 
 .hwd-menu {
   position: absolute;
@@ -309,7 +305,7 @@
 @media (max-width: 1100px) {
   .home-hero { flex-direction: column; }
   .hwd { position: relative; top: auto; right: auto; width: min(460px, calc(100% - 32px)); margin: 72px auto 40px; padding-left: 12%; box-sizing: border-box; }
-  .hwd-bar { top: -48px; }
+  .hwd-bar { top: -36px; }
 }
 
 @media (max-width: 560px) {
@@ -328,6 +324,6 @@
 }
 
 /* owned-mobile.css gives buttons inside #jlabBaseContent a 48px min height; the round button and menu rows stay compact */
-#jlabBaseContent .hwd .hwd-more { min-height: 0 !important; height: 38px !important; padding: 0 !important; }
+#jlabBaseContent .hwd .hwd-more { min-height: 0 !important; height: 56px !important; padding: 0 !important; }
 #jlabBaseContent .hwd .hwd-menu__item,
 #jlabBaseContent .hwd .hwd-kitsu { min-height: 0 !important; }

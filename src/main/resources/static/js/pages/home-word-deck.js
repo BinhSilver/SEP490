@@ -81,7 +81,7 @@
   function deckHtml() {
     return '<div class="hwd-bar">'
       + '<button type="button" class="hwd-more" data-hwd="menu" aria-haspopup="menu" aria-expanded="false" aria-label="Tùy chọn thẻ từ">'
-      + '<span aria-hidden="true">⋯</span></button>'
+      + '<img src="/images/mascots/kitsu/kitsu-announcing-128.webp" alt="" width="56" height="56" loading="lazy"></button>'
       + '<div class="hwd-menu" role="menu" hidden>'
       + '<div class="hwd-menu__title">Nguồn từ</div>'
       + SOURCES.map(function (o) {
@@ -219,7 +219,14 @@
 
     box.addEventListener('click', function (e) {
       if (e.target.closest('.hwd-card__learn')) return;
-      if (e.target.closest('[data-hwd="show"]')) { setHidden(false); writeHidden(false); return; }
+      if (e.target.closest('[data-hwd="show"]')) {
+        setHidden(false);
+        writeHidden(false);
+        more.classList.remove('is-waking');
+        void more.offsetWidth; // restart the wake-up animation
+        more.classList.add('is-waking');
+        return;
+      }
       if (e.target.closest('[data-hwd="menu"]')) { openMenu(menu.hidden); return; }
       var src = e.target.closest('[data-hwd-source]');
       if (src) {
