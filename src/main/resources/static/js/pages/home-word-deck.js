@@ -118,9 +118,6 @@
   }
 
   function readHidden() {
-    // F24: a signed-out visitor always sees the deck; the saved "hide" choice only applies once signed in
-    var auth = root.JlasAuth;
-    if (!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn())) return false;
     try { return root.localStorage.getItem(HIDE_KEY) === '1'; } catch (e) { return false; }
   }
 
@@ -173,6 +170,9 @@
     var doc = root && root.document;
     var hero = doc && doc.querySelector('.home-hero');
     if (mounted || !hero) return;
+    // F24: the word deck and glass frame are for signed-in learners only; guests get the plain hero
+    var auth = root.JlasAuth;
+    if (!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn())) return;
     mounted = true;
     var box = doc.createElement('aside');
     box.className = 'hwd';
