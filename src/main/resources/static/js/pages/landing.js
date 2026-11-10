@@ -1,11 +1,12 @@
 /* F24 landing: hiện dần các khối khi cuộn tới; tắt khi người dùng giảm chuyển động. */
 (function () {
   'use strict';
-  // the guest blocks show only for a browser with no signed-in token
+  // the intro blocks show for everyone (owner 11/11); sign-up prompts are for signed-out visitors only.
+  // Every sample in these blocks is static; only the public price lists are fetched.
   var auth = window.JlasAuth;
   var signedIn = !!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn());
-  document.querySelectorAll('[data-lp-guest]').forEach(function (el) { el.hidden = signedIn; });
-  if (signedIn) return;
+  document.querySelectorAll('[data-lp-guest]').forEach(function (el) { el.hidden = false; });
+  document.querySelectorAll('[data-lp-guest-only]').forEach(function (el) { el.hidden = signedIn; });
   wireDemos();
   loadPlans();
   var items = document.querySelectorAll('.lp-reveal');

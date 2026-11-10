@@ -26,7 +26,7 @@
     { key: 'NOTEBOOK', label: 'Sổ tay của tôi' },
     { key: 'NEW', label: 'Từ mới cấp hiện tại' }
   ];
-  var TITLES = { REVIEW: 'Từ đang ôn hôm nay', NOTEBOOK: 'Từ trong sổ tay', NEW: 'Từ mới hôm nay', START: 'Một từ, một khởi đầu',
+  var TITLES = { QUICK: 'Ôn nhanh hôm nay', REVIEW: 'Từ đang ôn hôm nay', NOTEBOOK: 'Từ trong sổ tay', NEW: 'Từ mới hôm nay', START: 'Một từ, một khởi đầu',
     EMPTY_REVIEW: 'Chưa có từ đang ôn · gợi ý từ của cấp', EMPTY_NOTEBOOK: 'Sổ tay trống · gợi ý từ của cấp',
     EMPTY_NEW: 'Đã học hết từ mới · gợi ý từ của cấp' };
   var BASE = '/api/learning/jlpt';
@@ -64,8 +64,11 @@
     return TITLES[kind] || TITLES.START;
   }
 
-  function cardHtml(word, title) {
+  function cardHtml(word, title, kind) {
     var w = word || {};
+    var link = kind === 'QUICK'
+      ? '<a class="hwd-card__learn" href="/search/word/' + encodeURIComponent(w.expression || '') + '">Tra từ này ↗</a>'
+      : '<a class="hwd-card__learn" href="/learning">Học từ này ↗</a>';
     return '<div class="hwd-card__eyebrow">' + esc(title) + '</div>'
       + '<span class="hwd-card__spark" aria-hidden="true">✦</span>'
       + '<div class="hwd-card__face">'
@@ -74,7 +77,7 @@
       + '<div class="hwd-card__meaning" hidden>' + esc(w.meaning) + '</div>'
       + '</div>'
       + '<div class="hwd-card__hint">↻ Chạm để xem nghĩa</div>'
-      + '<div class="hwd-card__foot"><a class="hwd-card__learn" href="/learning">Học từ này ↗</a>'
+      + '<div class="hwd-card__foot">' + link
       + '<button type="button" class="hwd-card__next" data-hwd="next" aria-label="Từ tiếp theo">→</button></div>';
   }
 
@@ -161,7 +164,11 @@
       return chain.then(function (r) {
         return r || getJson(url).then(function (all) { return { words: pickWords(itemsOf(all), null, 5), kind: source && source !== 'AUTO' ? 'EMPTY_' + source : 'START' }; });
       });
-    }).catch(function () { return { words: FALLBACK.slice(), kind: 'START' }; });
+    }).catch(function () {
+      return getJson(BASE + '/lists/vocabulary?level=N5')
+        .then(function (all) { return { words: pickWords(itemsOf(all), null, 5), kind: 'QUICK' }; })
+        .catch(function () { return { words: FALLBACK.slice(), kind: 'QUICK' }; });
+    });
   }
 
   var mounted = false;
@@ -205,7 +212,11 @@
     }
 
     function draw() {
-      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind));
+      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind), state.kind);
+      // without a path there is nothing being reviewed or saved yet: only "Tự động" and "Từ mới" stay in the menu
+      box.querySelectorAll('[data-hwd-source="REVIEW"], [data-hwd-source="NOTEBOOK"]').forEach(function (el) {
+        el.hidden = state.kind === 'QUICK';
+      });
       card.classList.remove('is-flipped');
     }
 

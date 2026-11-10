@@ -265,7 +265,7 @@
                         <li>Từ điển, flashcard, mini-game</li>
                         <li data-lp-ai-free>Gọi AI vài phút mỗi ngày</li>
                     </ul>
-                    <a class="lp-btn lp-btn--ghost" th:href="@{/register}">Tạo tài khoản</a>
+                    <a class="lp-btn lp-btn--ghost" data-lp-guest-only th:href="@{/register}">Tạo tài khoản</a>
                 </article>
                 <article class="lp-plan-card lp-plan-card--pro lp-reveal" data-lp-plan="MONTHLY">
                     <p class="lp-plan-card__name">Premium tháng</p>
@@ -301,7 +301,7 @@
     </section>
 
     <!-- CTA -->
-    <section class="lp-cta2" aria-labelledby="lp-cta-title">
+    <section class="lp-cta2" data-lp-guest-only aria-labelledby="lp-cta-title">
         <div class="lp-wrap">
             <div class="lp-cta2__inner lp-reveal">
                 <span class="lp-cta2__char" aria-hidden="true">始</span>
@@ -352,7 +352,7 @@
                 </div>
                 <div class="lp-foot__bottom">
                     <span>© 2026 KotsuKotsu</span>
-                    <span><a th:href="@{/login}">Đăng nhập</a> · <a th:href="@{/register}">Đăng ký</a></span>
+                    <span data-lp-guest-only><a th:href="@{/login}">Đăng nhập</a> · <a th:href="@{/register}">Đăng ký</a></span>
                 </div>
             </div>
         </div>
