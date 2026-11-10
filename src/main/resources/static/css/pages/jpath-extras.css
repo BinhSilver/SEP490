@@ -356,3 +356,7 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
 }
 @media (max-width: 640px) { .jp-report-fab { right: 14px; bottom: calc(var(--jlab-mobile-bottom, 0px) + 14px); } }
 @media (prefers-reduced-motion: reduce) { .jp-report-fab { transition: none; } }
+
+/* [JLAS-W0108] Owner 10/11: on Learning pages the quick lookup keeps "Sổ tay" only; "Lưu từ" (dictionary favourites)
+   is hidden here, not removed — the button stays in the DOM because jpath-lookup-rich.js reads the word id from it */
+.inline-dict [data-inline-save] { display: none !important; }
