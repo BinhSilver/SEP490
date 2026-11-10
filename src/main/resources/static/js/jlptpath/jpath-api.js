@@ -14,6 +14,18 @@
   var api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathApi = api;
+  // F34 (owner 10/11): one toast for short Learning messages, drawn by the team's JlasUI.toast (components.js);
+  // returns false when no toast is available so the caller can keep its inline text
+  if (root && !root.JlasToast) {
+    root.JlasToast = {
+      show: function (message, type) {
+        var ui = root.JlasUI;
+        if (!message || !ui || typeof ui.toast !== 'function') return false;
+        ui.toast(message, type || 'success');
+        return true;
+      }
+    };
+  }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 

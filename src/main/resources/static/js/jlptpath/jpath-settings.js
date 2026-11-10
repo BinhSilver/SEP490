@@ -224,6 +224,7 @@
     }
     function message(scope, role, text) {
       var box = part(role, scope);
+      if (text && /saved$/.test(role) && root && root.JlasToast && root.JlasToast.show(text, 'success')) text = '';
       if (!box) return;
       box.textContent = text || '';
       box.hidden = !text;

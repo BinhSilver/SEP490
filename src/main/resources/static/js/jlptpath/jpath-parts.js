@@ -32,7 +32,10 @@
   if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
     var notice = function () {
       var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem ngày học hôm nay".';
-      if (root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg);
+      if (root.JlasToast && typeof root.JlasToast.show === 'function' && root.JlasToast.show(msg, 'success')) {
+        try { root.history.replaceState(null, '', root.location.pathname); } catch (e) { /* keep the url */ }
+        return;
+      }
       var div = root.document.createElement('div');
       div.className = 'jp-saved-note';
       div.setAttribute('role', 'status');

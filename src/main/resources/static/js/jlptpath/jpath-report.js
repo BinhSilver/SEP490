@@ -157,6 +157,7 @@
       send.disabled = true;
       status.textContent = 'Đang gửi…';
       apiClient().send('POST', REPORT_URL, body).then(function () {
+        if (root && root.JlasToast && root.JlasToast.show(MSG_THANKS, 'success')) { close(true); return; }
         status.textContent = MSG_THANKS;
         form.querySelector('.jp-report__types').disabled = true;
         send.hidden = true;

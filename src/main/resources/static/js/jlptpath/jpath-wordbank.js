@@ -120,7 +120,10 @@
       if (rm) {
         rm.disabled = true;
         api.send('DELETE', BASE + '/items/' + encodeURIComponent(rm.getAttribute('data-type')) + '/'
-          + encodeURIComponent(rm.getAttribute('data-remove')) + '/notebook').then(load, function (err) {
+          + encodeURIComponent(rm.getAttribute('data-remove')) + '/notebook').then(function () {
+          if (root.JlasToast) root.JlasToast.show('Đã bỏ khỏi Sổ tay.', 'success');
+          return load();
+        }, function (err) {
           rm.disabled = false;
           status.textContent = (err && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
         });
