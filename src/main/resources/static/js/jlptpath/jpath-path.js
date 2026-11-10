@@ -725,13 +725,33 @@
       rootEl.setAttribute('aria-busy', 'false');
       rendered(rootEl);
       startTour();
+      premiumBox(rootEl, apiClient);
     }, function () {
       setHtml(rootEl, 'hero', '<p class="jp-alert" role="alert">' + esc(MSG_LOAD_FAILED) + '</p>');
       rootEl.setAttribute('aria-busy', 'false');
     });
   }
 
+  /** F5 (owner 10/11): N3–N1 need Premium; a locked learner sees an upgrade box above the path. */
+  function premiumBoxHtml(gate) {
+    if (!gate || !gate.locked) return '';
+    return '<section class="jp-premium-box" role="note">'
+      + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+      + '<div><p class="jp-premium-box__title">' + esc(gate.level || 'N3') + ' dành cho tài khoản Premium</p>'
+      + '<p class="jp-premium-box__text">N5 và N4 học miễn phí. Từ N3 đến N1, hãy nâng cấp Premium để mở bài học hằng ngày.</p></div>'
+      + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>';
+  }
+
+  function premiumBox(rootEl, apiClient) {
+    if (!apiClient || !rootEl || typeof rootEl.insertAdjacentHTML !== 'function') return;
+    Promise.resolve(apiClient.get('/api/learning/jlpt/premium-gate')).then(function (gate) {
+      var html = premiumBoxHtml(gate);
+      if (html && !rootEl.querySelector('.jp-premium-box')) rootEl.insertAdjacentHTML('afterbegin', html);
+    }, function () { /* the server still blocks the sessions */ });
+  }
+
   var api = Object.assign({}, C, {
+    premiumBoxHtml: premiumBoxHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,

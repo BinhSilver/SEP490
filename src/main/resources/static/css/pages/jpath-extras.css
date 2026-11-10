@@ -360,3 +360,13 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
 /* [JLAS-W0108] Owner 10/11: on Learning pages the quick lookup keeps "Sổ tay" only; "Lưu từ" (dictionary favourites)
    is hidden here, not removed — the button stays in the DOM because jpath-lookup-rich.js reads the word id from it */
 .inline-dict [data-inline-save] { display: none !important; }
+
+/* [JLAS-W0108] F5: N3–N1 Premium upgrade box on the path page */
+.jp-premium-box {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 16px; padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line)); border-radius: var(--jp-radius-panel, 14px);
+  background: color-mix(in srgb, var(--jp-primary) 8%, var(--jp-surface));
+}
+.jp-premium-box > div { flex: 1 1 240px; }
+.jp-premium-box__title { margin: 0 0 4px; font-weight: 700; }
+.jp-premium-box__text { margin: 0; color: var(--jp-muted); }

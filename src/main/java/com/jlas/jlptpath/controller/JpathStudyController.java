@@ -37,6 +37,9 @@ public class JpathStudyController {
 
     private final JpathDailyPlanService dailyPlans;
     private final JpathStudyService study;
+    /** F5: N3–N1 need Premium (optional so unit tests building the controller by hand still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
 
     @GetMapping("/today")
     public ResponseEntity<ApiResponse<JpathTodayView>> today(@AuthenticationPrincipal UserPrincipal user) {
@@ -53,9 +56,17 @@ public class JpathStudyController {
         return ResponseEntity.ok(ApiResponse.ok("OK", dailyPlans.summary(user.userId())));
     }
 
+    /** F5: whether the open level needs Premium the learner does not have ({locked, level}). */
+    @GetMapping("/premium-gate")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> premiumGate(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", premiumGate == null ? java.util.Map.of("locked", false)
+                : premiumGate.status(user.userId())));
+    }
+
     @PostMapping("/sessions")
     public ResponseEntity<ApiResponse<JpathSessionView>> start(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSessionStartRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId());
         return ResponseEntity.ok(ApiResponse.ok("OK", study.start(user.userId(), request)));
     }
 
