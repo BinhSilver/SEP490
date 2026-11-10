@@ -1021,6 +1021,12 @@ body.mode-free-chat .toggle-list .switch.on::after { left: 22px; }
   .cv-settings-dialog :is(.btn-tts-test, .tts-gender-btn, .btn) { min-height: 44px; font-size: 14px; }
   .cv-settings-dialog :is(button, select, input, summary):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
   .cv-settings-dialog ::selection { background: var(--color-primary-fixed); color: var(--color-on-primary-fixed); }
+  /* The page's dark rules give every .side-card a border, fill and shadow, every list item a fill and every .switch a
+     fill. In this dialog the light theme shows none of them (flat sections on the dialog, a 44px tap area around the
+     pill), so dark keeps the same flat look. */
+  html[data-theme="dark"] .cv-settings-dialog .side-card { border: 0; background: transparent; box-shadow: none; }
+  html[data-theme="dark"] .cv-settings-dialog :is(.mission-list li, .vocab-item, .grammar-item) { background: transparent !important; }
+  html[data-theme="dark"] .cv-settings-dialog .switch { background: transparent; }
 }
 
 /* Page-owned dark mode: css/conversation.css.

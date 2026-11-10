@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const id = root?.dataset.seriesId;
     if (!root) return;
     const ui = window.ShadowingLibraryUi;
+    const PAGE_SIZE = 10;
     const esc = text => { const element = document.createElement('div'); element.textContent = text || ''; return element.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
     const copy = (text, compact) => `<span class="series-copy-full">${esc(text)}</span><span class="series-copy-compact">${esc(compact)}</span>`;
     const clock = seconds => {
@@ -29,28 +30,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span class="badge badge-primary"><i class="fa-solid fa-list"></i> Series shadowing</span>
             <h1 class="hero-display">${copy(series.title, ui.compactTitle(series.title))}</h1>
             <div class="video-card-meta">${series.estimatedLevel ? `<span class="badge badge-primary">${esc(series.estimatedLevel)}</span>` : '<span class="badge badge-category">Chưa xác định trình độ</span>'}<span class="badge badge-lesson">${videos.length} video</span><span class="badge ${series.visibility === 'PUBLIC' ? 'badge-ready' : 'badge-draft'}">${series.visibility === 'PUBLIC' ? 'Công khai' : 'Riêng tư'}</span></div>
-            </header><div class="series-video-list"></div>`;
+            </header><div class="series-video-list"></div>
+            <nav class="library-pagination" aria-label="Phân trang video trong danh sách" hidden></nav>`;
         const list = root.querySelector('.series-video-list');
         if (!videos.length) list.innerHTML = '<p class="caption">Danh sách chưa có video sẵn sàng để bạn luyện tập.</p>';
-        videos.forEach((video, index) => {
-            const item = document.createElement('article');
-            item.className = 'store-utility-card series-video-row';
-            const thumbHtml = video.thumbnailPath
-                ? `<img src="/api/videos/${video.id}/thumbnail" alt="" loading="lazy">`
-                : '<i class="fa-solid fa-play" aria-hidden="true"></i>';
-            const durationHtml = video.duration > 0 ? `<span class="series-video-duration">${clock(video.duration)}</span>` : '';
-            item.innerHTML = `<div class="series-video-thumb"><span class="series-position">${index + 1}</span>${thumbHtml}${durationHtml}</div>
-                <div class="series-video-main"><h3>${esc(video.title)}</h3><div class="video-card-meta"><span class="badge badge-lesson">${video.subtitleCount || 0} câu</span><span class="caption"><i class="fa-solid fa-eye"></i> ${video.viewCount || 0}</span><span class="card-avg-rating" data-avg-rating></span></div></div>
-                <button class="button-primary btn-sm" aria-label="Mở video ${esc(video.title)}"><i class="fa-solid fa-play series-video-open-icon" aria-hidden="true"></i><span class="series-video-open-label">Mở</span></button>`;
-            item.querySelector('button').onclick = () => { location.href = `/shadowing/practice/${video.id}`; };
-            const avgEl = item.querySelector('[data-avg-rating]');
-            if (avgEl && window.renderAvgStars) avgEl.appendChild(window.renderAvgStars(video.avgRating, video.ratingCount));
-            list.appendChild(item);
-        });
+        // The API returns the whole series; a long one is shown a page at a time, like the library.
+        const totalPages = Math.max(1, Math.ceil(videos.length / PAGE_SIZE));
+        const pager = ui.createPager(root.querySelector('.library-pagination'), page => showPage(page, true));
+        const showPage = (page, scroll) => {
+            const current = Math.min(Math.max(1, page), totalPages);
+            list.replaceChildren();
+            videos.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
+                .forEach((video, offset) => list.appendChild(videoRow(video, (current - 1) * PAGE_SIZE + offset)));
+            if (videos.length) pager.render({ page: current, size: PAGE_SIZE, totalItems: videos.length, totalPages });
+            ui.remember({ page: current > 1 ? String(current) : '' });
+            if (scroll) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        showPage(Number(new URLSearchParams(location.search).get('page')) || 1, false);
     } catch (error) {
         const message = document.createElement('p');
         message.className = 'lead';
         message.textContent = error.message || 'Không tải được danh sách. Vui lòng thử lại.';
         root.replaceChildren(message);
+    }
+
+    function videoRow(video, index) {
+        const item = document.createElement('article');
+        item.className = 'store-utility-card series-video-row';
+        const thumbHtml = video.thumbnailPath
+            ? `<img src="/api/videos/${video.id}/thumbnail" alt="" loading="lazy">`
+            : '<i class="fa-solid fa-play" aria-hidden="true"></i>';
+        const durationHtml = video.duration > 0 ? `<span class="series-video-duration">${clock(video.duration)}</span>` : '';
+        item.innerHTML = `<div class="series-video-thumb"><span class="series-position">${index + 1}</span>${thumbHtml}${durationHtml}</div>
+            <div class="series-video-main"><h3>${esc(video.title)}</h3><div class="video-card-meta"><span class="badge badge-lesson">${video.subtitleCount || 0} câu</span><span class="caption"><i class="fa-solid fa-eye"></i> ${video.viewCount || 0}</span><span class="card-avg-rating" data-avg-rating></span></div></div>
+            <button class="button-primary btn-sm" aria-label="Mở video ${esc(video.title)}"><i class="fa-solid fa-play series-video-open-icon" aria-hidden="true"></i><span class="series-video-open-label">Mở</span></button>`;
+        item.querySelector('button').onclick = () => { location.href = `/shadowing/practice/${video.id}`; };
+        const avgEl = item.querySelector('[data-avg-rating]');
+        if (avgEl && window.renderAvgStars) avgEl.appendChild(window.renderAvgStars(video.avgRating, video.ratingCount));
+        return item;
     }
 });

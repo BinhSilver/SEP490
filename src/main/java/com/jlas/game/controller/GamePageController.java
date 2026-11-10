@@ -80,7 +80,9 @@ public class GamePageController {
         try {
             session = gameService.session(user.userId(), sessionId);
         } catch (ApiException ex) {
-            return "redirect:/games";
+            // The match is gone (finished, expired): a player still in a room goes back to it, not to the game list.
+            String roomId = gameService.lobby(user.userId()).myRoomId();
+            return roomId == null ? "redirect:/games" : "redirect:/games/room/" + roomId + "?fromMatch=1";
         }
         if (session.gameType() != type) {
             return "redirect:" + session.playUrl();

@@ -78,6 +78,11 @@ html[data-theme="dark"] .page-login #jlabBaseContent .input {
 html[data-theme="dark"] .page-login #googleBtnContainer > div {
   filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeColorMatrix values='1.0769 0 0 0 -0.1161 0 1.1204 0 0 -0.1871 0 0 1.1011 0 -0.1285 0 0 0 1 0'/%3E%3C/filter%3E%3C/svg%3E#t");
 }
+/* Google's iframe is a light document. Inside a dark page Chrome paints a mismatched iframe with an opaque white
+   canvas, which shows as a white box around the personalised "Sign in as ..." button; matching schemes keeps it clear. */
+html[data-theme="dark"] .page-login #googleBtnContainer iframe {
+  color-scheme: light;
+}
 html[data-theme="dark"] .page-login #googleBtnContainer > div:hover {
   filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeColorMatrix values='1.1056 0 0 0 -0.1229 0 1.0884 0 0 -0.1790 0 0 1.0642 0 -0.1188 0 0 0 1 0'/%3E%3C/filter%3E%3C/svg%3E#t");
 }
@@ -366,13 +371,17 @@ body.page-login::before {
   justify-content: center;
 }
 
-/* Google GIS gắn width:400px inline vào wrapper; ép wrapper bám đúng form. */
-.page-login #googleBtnContainer > div,
-.page-login #googleBtnContainer [role="button"],
-.page-login #googleBtnContainer iframe {
-  width: 100% !important;
+/* login.js already asks Google for the form width (max 400px), so only cap it here. Stretching the iframe made the
+   personalised "Đăng nhập với tên ..." button sit at the left of a wider, white iframe. Google draws that iframe
+   10px wider than the button on each side, so the wrapper clips it to the pill and nothing shows around it. */
+.page-login #googleBtnContainer > div {
   max-width: 100% !important;
-  min-width: 0 !important;
+  margin-inline: auto;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.page-login #googleBtnContainer [role="button"] {
+  max-width: 100% !important;
   box-sizing: border-box;
 }
 

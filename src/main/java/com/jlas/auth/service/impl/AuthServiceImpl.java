@@ -285,10 +285,8 @@ public class AuthServiceImpl implements AuthService {
             if (linkedId != null && !linkedId.equals(googleUser.googleId())) {
                 throw new ApiException(ErrorCode.CONFLICT, "Email này đã liên kết với tài khoản Google khác.");
             }
-            if (linkedId == null && Boolean.TRUE.equals(user.getIsVerified())) {
-                throw new ApiException(ErrorCode.CONFLICT,
-                        "Vui lòng đăng nhập bằng mật khẩu rồi liên kết Google trong phần bảo mật tài khoản.");
-            }
+            // A verified local account with the same Google-verified email is linked on the spot. Both sides
+            // prove ownership of the same mailbox, so the password and login type stay as they are.
             if (!Boolean.TRUE.equals(user.getIsVerified())) {
                 // Google proves mailbox ownership; pre-registration does not prove the old local credential.
                 user.setPasswordHash(null);

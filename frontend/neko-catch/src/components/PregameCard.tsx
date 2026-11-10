@@ -294,7 +294,7 @@ function DropdownGroup<T extends string | number>({ label, value, options, forma
   useEffect(() => { if (disabled) setOpen(false); }, [disabled]);
 
   const tag = (option: T) => (recommended != null && option === recommended
-    ? <span className="shrink-0 px-1.5 rounded-full bg-emerald-400 text-slate-950 text-[9px] font-black leading-[16px]">Gợi ý</span>
+    ? <span className="shrink-0 whitespace-nowrap px-1.5 rounded-full bg-emerald-400 text-slate-950 text-[9px] font-black leading-[16px]">Gợi ý</span>
     : null);
   const choose = (option: T) => { onChange(option); setOpen(false); };
   const openAtValue = () => { setOpen(true); setActive(Math.max(0, options.indexOf(value))); };
@@ -324,7 +324,7 @@ function DropdownGroup<T extends string | number>({ label, value, options, forma
           className={`w-full min-h-[36px] flex items-center justify-between gap-2 px-3 rounded-lg border text-xs font-black text-white bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:opacity-50 disabled:cursor-not-allowed ${
             open ? 'border-amber-300' : 'border-white/10'
           }`}>
-          <span className="flex items-center gap-1.5 min-w-0 truncate">{format(value)}{tag(value)}</span>
+          <span className="flex items-center gap-1.5 min-w-0"><span className="min-w-0 truncate">{format(value)}</span>{tag(value)}</span>
           <svg className={`w-3 h-3 shrink-0 text-amber-300 transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 12 12" aria-hidden="true">
             <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -510,7 +510,7 @@ const SoloSetup: React.FC<{
           </select>
         </label>
       </div>
-      <div className="neko-setup__quick-desktop w-full grid grid-cols-1 sm:grid-cols-[minmax(0,3fr)_minmax(0,5fr)_minmax(0,5fr)] gap-2 mt-2 text-xs">
+      <div className="neko-setup__quick-desktop w-full grid grid-cols-1 sm:grid-cols-[minmax(0,4fr)_minmax(0,5fr)_minmax(0,5fr)] gap-2 mt-2 text-xs">
         <DropdownGroup label="Thời gian" value={durationSeconds} options={DURATIONS} format={durationLabel} onChange={setDuration}
           recommended={deckCards ? suggested : null} disabled={starting || skinSaving} />
         <OptionGroup label="Số tim" value={lives} options={LIVES} format={String} onChange={setLives} stretch />
