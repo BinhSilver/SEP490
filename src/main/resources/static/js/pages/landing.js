@@ -170,22 +170,50 @@
       ['勉強', 'べんきょう', 'học tập', 'Danh từ · N5'],
       ['友達', 'ともだち', 'bạn bè', 'Danh từ · N5']
     ];
-    document.querySelectorAll('[data-lp-flash-next]').forEach(function (btn) {
-      var box = btn.parentNode;
+    // the card shows the word, turns to its meaning, then the next word flies in; on its own, no button.
+    // It waits while off screen, while hovered, or when the visitor asks for less motion.
+    document.querySelectorAll('.lp-flash').forEach(function (box) {
       var card = box.querySelector('[data-lp-flip]');
       var count = box.querySelector('[data-lp-flash-count]');
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var k = 0;
-      btn.addEventListener('click', function () {
+      var phase = 0; // 0 = word showing, 1 = meaning showing
+      var onScreen = false;
+      var hovered = false;
+      if (!card || reduce) return;
+      function setFlipped(on) {
+        card.classList.toggle('is-flipped', on);
+        card.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      function showWord(i) {
+        box.querySelector('[data-lp-w]').textContent = words[i][0];
+        box.querySelector('[data-lp-r]').textContent = words[i][1];
+        box.querySelector('[data-lp-m]').textContent = words[i][2];
+        box.querySelector('[data-lp-t]').textContent = words[i][3];
+        if (count) count.textContent = (i + 1) + ' / ' + words.length;
+      }
+      function tick() {
+        if (!onScreen || hovered || document.hidden) return;
+        if (phase === 0) {
+          setFlipped(true);
+          phase = 1;
+          return;
+        }
         k = (k + 1) % words.length;
-        card.classList.remove('is-flipped');
-        card.setAttribute('aria-pressed', 'false');
-        box.querySelector('[data-lp-w]').textContent = words[k][0];
-        box.querySelector('[data-lp-r]').textContent = words[k][1];
-        box.querySelector('[data-lp-m]').textContent = words[k][2];
-        box.querySelector('[data-lp-t]').textContent = words[k][3];
-        if (count) count.textContent = (k + 1) + ' / ' + words.length;
+        setFlipped(false);
+        showWord(k);
         replay(card, 'is-arriving');
-      });
+        phase = 0;
+      }
+      card.addEventListener('click', function () { phase = card.classList.contains('is-flipped') ? 1 : 0; });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) { onScreen = entries[0].isIntersecting; }, { threshold: 0.4 }).observe(box);
+      } else {
+        onScreen = true;
+      }
+      box.addEventListener('mouseenter', function () { hovered = true; });
+      box.addEventListener('mouseleave', function () { hovered = false; });
+      setInterval(tick, 2600);
     });
 
     // open book: turns its own pages like a real book (one leaf at a time), then closes back and starts over;
