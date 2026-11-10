@@ -13,11 +13,35 @@ import java.util.Optional;
 @Repository
 public interface TextbookRepository extends JpaRepository<Textbook, Long> {
 
+    /*
+     * Sách do Lộ trình học (W0108) sinh ra cho riêng nó, nhận theo NGUỒN GỐC source_code: LP-OWNED-* (sách nội dung
+     * riêng của lộ trình, bản sao Sekai N4, Quy tắc đọc Kana, J-LAS tổng hợp, J-LAS giao tiếp…) và LP-REVIEWED-*
+     * (bản "Đã duyệt"). Màn Giáo trình ẩn chúng khỏi MỌI danh sách; route /textbooks/{id} vẫn mở được để lộ trình
+     * link vào bài. KHÔNG lọc theo is_learning_path_source: Sekai N5, Bảng chữ cái… vừa là giáo trình vừa là nguồn
+     * lộ trình nên phải hiện ở cả hai bên. Đây là chỗ DUY NHẤT định nghĩa điều kiện này.
+     */
+    String LEARNING_PATH_OWNED_PREFIX = "LP-OWNED-";
+    String LEARNING_PATH_REVIEWED_PREFIX = "LP-REVIEWED-";
+
+    /** Điều kiện JPQL "không phải sách của lộ trình" cho textbook có alias {@code t}; ghép vào các query danh sách Giáo trình. */
+    String LIBRARY_BOOK_CONDITION = " (t.sourceCode is null or (t.sourceCode not like '" + LEARNING_PATH_OWNED_PREFIX
+            + "%' and t.sourceCode not like '" + LEARNING_PATH_REVIEWED_PREFIX + "%'))";
+
+    /** Bản Java của {@link #LIBRARY_BOOK_CONDITION} cho các danh sách ghép trong service. */
+    static boolean isLibraryBook(Textbook textbook) {
+        String code = textbook.getSourceCode();
+        return code == null
+                || !(code.startsWith(LEARNING_PATH_OWNED_PREFIX) || code.startsWith(LEARNING_PATH_REVIEWED_PREFIX));
+    }
+
     List<Textbook> findAllByOrderByIdAsc();
 
     List<Textbook> findByStatusOrderByIdAsc(String status);
 
-    /** Library textbooks exclude the separately presented Onyomi course, identified by its lessons. */
+    /**
+     * Library textbooks exclude the separately presented Onyomi course, identified by its lessons, and the
+     * Learning Path's own books ({@link #LIBRARY_BOOK_CONDITION}).
+     */
     @Query("""
             select t from Textbook t
             where ((:includeDraft = true and t.status <> 'ARCHIVED') or t.status = :status)
@@ -25,6 +49,8 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
                 select l.id from Lesson l join l.unit u
                 where u.textbook = t and l.lessonType = 'AMON' and l.skill = 'ONYOMI'
               )
+              and """ + LIBRARY_BOOK_CONDITION + """
+
             order by t.id
             """)
     List<Textbook> findLibraryTextbooks(@Param("includeDraft") boolean includeDraft,

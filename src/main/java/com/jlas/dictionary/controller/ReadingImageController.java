@@ -5,6 +5,7 @@ import com.jlas.auth.security.UserPrincipal;
 import com.jlas.dictionary.dto.LessonReadingImagesResponse;
 import com.jlas.dictionary.dto.ReadingImageResponse;
 import com.jlas.dictionary.service.ReadingImageService;
+import com.jlas.dictionary.service.TextbookAccessPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class ReadingImageController {
 
     private final ReadingImageService readingImageService;
+    private final TextbookAccessPolicy accessPolicy;
 
     /** GET /api/dictionary/lessons/{lessonId}/reading-images — ảnh đã chỉnh của các bài đọc trong bài học. */
     @GetMapping("/lessons/{lessonId}/reading-images")
     public ResponseEntity<ApiResponse<LessonReadingImagesResponse>> list(@PathVariable Long lessonId) {
+        accessPolicy.requireLessonApiAccess(lessonId);   // khách → 401; sách bị khóa → 403 PREMIUM_REQUIRED
         return ResponseEntity.ok(ApiResponse.ok("OK", readingImageService.listForLesson(lessonId)));
     }
 
