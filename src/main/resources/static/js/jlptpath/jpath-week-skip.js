@@ -21,7 +21,7 @@
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
-  var TABS = [['VOCAB', 'Từ vựng'], ['KANJI', 'Kanji'], ['GRAMMAR', 'Ngữ pháp']];
+  var TABS = [['VOCAB', 'Từ vựng'], ['KANJI', 'Kanji'], ['GRAMMAR', 'Ngữ pháp'], ['KANA', 'Chữ cái']];
   var BASE = '/api/learning/jlpt/week-skip';
 
   function esc(s) {
@@ -38,9 +38,22 @@
     try { root.localStorage.setItem(hiddenKey(), today()); } catch (e) { /* private mode */ }
   }
 
+  /** AI 1 #11 (owner 10/11): a learner reviewing kana tests out of the next rows (matching boards, ≥ 90% = known). */
+  function kanaHtml(o) {
+    return '<div class="jp-warmup jp-week-skip" role="region" aria-label="Kiểm tra nhanh chữ cái">'
+      + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã thuộc chữ cái?</p>'
+      + '<p class="jp-warmup__sub">Bạn chọn ôn lại bảng chữ cái. Nối chữ với cách đọc cho mấy hàng tiếp theo; '
+      + 'đúng từ 90% thì các hàng đó tính là đã thuộc, khỏi học lại.</p></div>'
+      + '<div class="jp-warmup__actions"><button type="button" class="jp-btn" data-week-skip-tab="KANA">Kiểm tra nhanh · '
+      + esc(o.items) + ' chữ</button>'
+      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
+  }
+
   function cardHtml(offers) {
-    var list = (offers || []).filter(function (o) { return o && o.offer; });
-    if (!list.length) return '';
+    var all = (offers || []).filter(function (o) { return o && o.offer; });
+    var kana = all.filter(function (o) { return o.tab === 'KANA'; })[0];
+    var list = all.filter(function (o) { return o.tab !== 'KANA'; });
+    if (!list.length) return kana ? kanaHtml(kana) : '';
     var level = list[0].level;
     var buttons = list.map(function (o) {
       var name = (TABS.filter(function (t) { return t[0] === o.tab; })[0] || [o.tab, o.tab])[1];
@@ -53,7 +66,8 @@
       + '<p class="jp-warmup__sub">Kết quả Smart Test của bạn từ Căn bản trở lên. Làm bài kiểm tra ngắn (tối đa 20 câu) '
       + 'cho tuần tới; đúng từ 90% thì tuần đó được bỏ qua trên lộ trình.</p></div>'
       + '<div class="jp-warmup__actions">' + buttons
-      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
+      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>'
+      + (kana ? kanaHtml(kana) : '');
   }
 
   function mount(el) {

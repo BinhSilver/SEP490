@@ -480,7 +480,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 level = level == null ? open : level;
             }
             case WEEK_KNOWN -> {
-                JpathCheckPicker.sliderType(tab);
+                if (tab != JpathTab.KANA) JpathCheckPicker.sliderType(tab);
                 level = open;
             }
             case FREE_QUIZ -> {

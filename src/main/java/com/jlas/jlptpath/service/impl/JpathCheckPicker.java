@@ -162,6 +162,14 @@ public class JpathCheckPicker {
         if (codes == null || codes.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Không còn tuần nào để kiểm.");
         }
+        if (tab == JpathTab.KANA) {
+            // AI 1 #11: the quick kana check matches every kana of the offered rows (fast board questions)
+            Set<String> wanted = new HashSet<>(codes);
+            List<JpathKana> kana = content.kana(null).stream().filter(k -> wanted.contains(k.getCode())).toList();
+            BuiltCheck kanaCheck = requireQuestions(builder.kanaRowCheck(kana, seed));
+            Set<String> askedKana = new HashSet<>(kanaCheck.itemCodes());
+            return new Built(kanaCheck, codes.stream().filter(c -> !askedKana.contains(c)).toList());
+        }
         BuiltCheck check = switch (sliderType(tab)) {
             case VOCAB -> {
                 List<JpathVocabulary> words = content.vocabs(codes).stream().filter(content::learnable).toList();
