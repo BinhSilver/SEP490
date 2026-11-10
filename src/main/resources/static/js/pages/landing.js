@@ -188,26 +188,57 @@
       });
     });
 
-    // open book: each tap turns one leaf
+    // open book: turns its own pages like a real book (one leaf at a time), then closes back and starts over;
+    // it waits while off screen, while hovered, or when the visitor asks for less motion
     document.querySelectorAll('[data-lp-book]').forEach(function (book) {
-      var leaves = book.querySelectorAll('.lp-book__leaf');
-      var prev = book.querySelector('[data-lp-book-prev]');
-      var next = book.querySelector('[data-lp-book-next]');
-      var count = book.querySelector('[data-lp-book-count]');
+      var open = book.querySelector('.lp-book__open');
+      var leaves = Array.prototype.slice.call(book.querySelectorAll('.lp-book__leaf'));
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var TURN_MS = 1500;
       var turned = 0;
-      function pad(n) { return (n < 10 ? '0' : '') + n; }
-      function show() {
-        leaves.forEach(function (leaf, i) { leaf.classList.toggle('is-turned', i < turned); });
-        prev.disabled = turned === 0;
-        next.disabled = turned === leaves.length;
-        count.textContent = pad(turned * 2 + 1) + ' — ' + pad(turned * 2 + 2) + ' / ' + pad(leaves.length * 2 + 2);
+      var busy = false;
+      var onScreen = false;
+      var hovered = false;
+
+      function turn(leaf, forward, done) {
+        leaf.classList.remove('is-turning-fwd', 'is-turning-back');
+        void leaf.offsetWidth;
+        leaf.classList.toggle('is-turned', forward);
+        leaf.classList.add(forward ? 'is-turning-fwd' : 'is-turning-back');
+        open.classList.add('is-turning');
+        setTimeout(function () {
+          leaf.classList.remove('is-turning-fwd', 'is-turning-back');
+          open.classList.remove('is-turning');
+          if (done) done();
+        }, TURN_MS);
       }
-      prev.addEventListener('click', function () { if (turned > 0) { turned--; show(); } });
-      next.addEventListener('click', function () { if (turned < leaves.length) { turned++; show(); } });
-      book.querySelectorAll('.lp-book__leaf').forEach(function (leaf, i) {
-        leaf.addEventListener('click', function () { turned = leaf.classList.contains('is-turned') ? i : i + 1; show(); });
-      });
-      show();
+
+      function step() {
+        if (busy || !onScreen || hovered || document.hidden) return;
+        busy = true;
+        if (turned < leaves.length) {
+          turn(leaves[turned], true, function () { turned++; busy = false; });
+          return;
+        }
+        // last spread shown: close the book back, leaf after leaf, then start again
+        var i = leaves.length - 1;
+        (function back() {
+          if (i < 0) { turned = 0; busy = false; return; }
+          turn(leaves[i], false);
+          i--;
+          setTimeout(back, 380);
+        })();
+      }
+
+      if (reduce) return;
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) { onScreen = entries[0].isIntersecting; }, { threshold: 0.4 }).observe(book);
+      } else {
+        onScreen = true;
+      }
+      book.addEventListener('mouseenter', function () { hovered = true; });
+      book.addEventListener('mouseleave', function () { hovered = false; });
+      setInterval(step, 3600);
     });
 
     // kanji stroke steps: show strokes up to the chosen one
