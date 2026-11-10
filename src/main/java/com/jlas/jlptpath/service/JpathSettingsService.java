@@ -40,6 +40,9 @@ public interface JpathSettingsService {
      */
     JpathPathView lowerLevel(Long userId, String level);
 
+    /** AI 1 #13: back to a higher level already reached (see JpathSettingsView.returnLevels). */
+    JpathPathView returnLevel(Long userId, String level);
+
     /**
      * Restart from the beginning (spec 4.12): the text must pass {@link #restartTextMatches}
      * (JPATH_RESTART_CONFIRM_MISMATCH). Deletes the learner's items, daily plans, study sessions, check sets and study

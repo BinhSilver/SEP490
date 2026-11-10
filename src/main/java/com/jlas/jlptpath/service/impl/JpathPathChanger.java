@@ -8,6 +8,7 @@ import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.enums.JpathSliderKind;
 import com.jlas.jlptpath.enums.JpathStage;
+import com.jlas.jlptpath.entity.JpathUserLevelId;
 import com.jlas.jlptpath.repository.JpathCheckSetRepository;
 import com.jlas.jlptpath.repository.JpathDailyPlanRepository;
 import com.jlas.jlptpath.repository.JpathSliderAdjustmentRepository;
@@ -44,6 +45,7 @@ public class JpathPathChanger {
 
     private static final Logger log = LoggerFactory.getLogger(JpathPathChanger.class);
     static final String LOWER_ONLY = "Chỉ chuyển được xuống cấp thấp hơn.";
+    static final String RETURN_ONLY = "Chỉ quay lại được cấp bạn đã lên tới, khi các cấp bên dưới đã vượt qua.";
 
     private final JpathUserPathRepository paths;
     private final JpathUserLevelRepository userLevels;
@@ -110,6 +112,38 @@ public class JpathPathChanger {
         JpathPathViewAssembler.Pacing pacing = views.pacing(path, row);
         row.setPriorityMode(pacing.pace().skippedLowPriority() > 0);
         // The port reads the stored open level and sliders.
+        paths.flush();
+        return new JpathPathUpdater.Change(path, row, pacing, JpathPathRules.refreshToday(todayTargets, userId));
+    }
+
+    /**
+     * [JLAS-W0108] AI 1 #13: higher levels the learner may go straight back to after studying a lower one: a level
+     * above the open level whose row exists, while every level from the open one up to it is already PASSED. A level
+     * not passed yet still goes up through its mock test, as before.
+     */
+    public java.util.List<String> returnLevels(Long pathId, String openLevel) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        for (int i = LEVELS.indexOf(openLevel); i >= 0 && i + 1 < LEVELS.size(); i++) {
+            JpathUserLevel passed = userLevels.findById(new JpathUserLevelId(pathId, LEVELS.get(i))).orElse(null);
+            if (passed == null || passed.getStage() != JpathStage.PASSED) break;
+            String up = LEVELS.get(i + 1);
+            if (userLevels.findById(new JpathUserLevelId(pathId, up)).isEmpty()) break;
+            out.add(up);
+        }
+        return out;
+    }
+
+    /** Opens again a higher level from {@link #returnLevels}; its row (progress) is kept as it was. */
+    public JpathPathUpdater.Change returnLevel(Long userId, String level) {
+        String wanted = JpathPathRules.releasedLevel(catalog, level);
+        JpathUserPath path = lockActive(userId);
+        if (!returnLevels(path.getId(), path.getOpenLevel()).contains(wanted)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, RETURN_ONLY);
+        }
+        JpathUserLevel row = userLevels.findForUpdate(path.getId(), wanted).orElseThrow();
+        path.setOpenLevel(wanted);
+        JpathPathViewAssembler.Pacing pacing = views.pacing(path, row);
+        row.setPriorityMode(pacing.pace().skippedLowPriority() > 0);
         paths.flush();
         return new JpathPathUpdater.Change(path, row, pacing, JpathPathRules.refreshToday(todayTargets, userId));
     }

@@ -182,7 +182,9 @@
     var mark = state === 'PASSED' ? icon('check') : (state === 'LOCKED' ? icon('lock') : '');
     var sub;
     if (state === 'PASSED') sub = '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="'
-      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>';
+      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>'
+      // AI 1 #13: a passed level also opens its level summary
+      + '<a class="jp-level-cell__summary" href="/learning/jlpt/levels/' + encodeURIComponent(c.level) + '/summary">Xem tổng kết</a>';
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
       + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
       + '%"></span></span>';
