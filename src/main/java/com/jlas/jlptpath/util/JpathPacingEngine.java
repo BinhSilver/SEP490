@@ -116,6 +116,12 @@ public final class JpathPacingEngine {
                     break;
                 }
             }
+            // AI 1 #12: no option alone is in time, but more minutes still brings the finish closer; offer the most
+            int most = MINUTE_OPTIONS.get(MINUTE_OPTIONS.size() - 1);
+            if (suggestions.isEmpty() && m < most) {
+                Walk fastest = walk(in, recommend(openLevel, most), most);
+                suggestions.add(new JpathPaceSuggestion("MORE_MINUTES", most, null, null, fastest.targetFinish()));
+            }
             if (exam != null) {
                 LocalDate from = latest(walk.targetFinish(), exam).plusDays(1);
                 suggestions.add(new JpathPaceSuggestion("LATER_EXAM", null,
