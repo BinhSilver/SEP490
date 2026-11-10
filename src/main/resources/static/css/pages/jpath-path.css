@@ -3917,3 +3917,17 @@ html.dark .cp-page {
 /* owner 10/11: the seal was clipped by the card top and still too strong; drop it a little and fade it */
 .jp-today__stamp { top: 14px; opacity: .45; }
 @keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .45; transform: rotate(-12deg); } }
+/* AI 1 #13: link to a passed level's summary under its cell */
+.jp-level-cell__summary { display: inline-block; margin-top: 2px; font-size: .72rem; font-weight: 700; color: var(--jp-primary); text-decoration: underline; text-underline-offset: 2px; }
+/* owner 10/11: the seal sits beside the title without covering anything; the "Xem ngày học hôm nay" button
+   (shown once the day is done) is a soft secondary action */
+.jp-today__stamp { top: 0; width: 84px; height: 84px; margin: -8px 0 -8px 18px; mix-blend-mode: normal; }
+.jp-path .jp-today .jp-today__review-btn {
+  background: color-mix(in srgb, var(--jp-primary) 12%, transparent) !important;
+  color: var(--jp-primary) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 30%, transparent) !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-today .jp-today__review-btn:hover { background: color-mix(in srgb, var(--jp-primary) 20%, transparent) !important; }
+@media (max-width: 480px) { .jp-today__stamp { width: 66px; height: 66px; margin: -6px 0 -6px 10px; } }
+.jp-today__stamp { margin: -6px 0 6px 18px; }

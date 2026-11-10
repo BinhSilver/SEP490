@@ -473,7 +473,7 @@
     if (t.allDone) {
       return html + '<div class="jp-today__done-bar">'
         + '<p class="jp-today__done">' + medalMiniSvg() + ' Bạn đã hoàn thành toàn bộ bài học hôm nay!</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/day">Xem ngày học hôm nay</a>'
+        + '<a class="jp-btn jp-btn--primary jp-today__review-btn" href="/learning/jlpt/day">Xem ngày học hôm nay</a>'
         + '</div>'
         + (t.kind !== 'REST' && t.kind !== 'SKILL' && !t.kanaPhase ? studyPillsHtml(t) : '')
         + missed + end;
