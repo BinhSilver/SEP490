@@ -99,7 +99,48 @@
 @keyframes hwdMenu { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
 
 .hwd.is-hidden .hwd-stage { display: none; }
-.hwd.is-hidden .hwd-bar { position: relative; top: 0; display: flex; justify-content: flex-end; }
+/* hidden: only a small resting Kitsu stays; hovering shows "Mở thẻ từ" */
+.hwd.is-hidden .hwd-bar { display: none; }
+.hwd-kitsu { display: none; }
+.hwd.is-hidden .hwd-kitsu {
+  position: relative;
+  display: block;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  animation: hwdBob 3.2s ease-in-out infinite;
+}
+.hwd-kitsu img { display: block; width: 72px; height: 72px; filter: drop-shadow(0 8px 14px rgb(0 0 0 / .2)); transition: transform .2s ease; }
+.hwd-kitsu:hover img,
+.hwd-kitsu:focus-visible img { transform: scale(1.08) rotate(-4deg); }
+.hwd-kitsu:focus-visible { outline: 2px solid rgb(255 255 255 / .9); outline-offset: 4px; border-radius: 50%; }
+.hwd-kitsu__bubble {
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 50%;
+  padding: 7px 12px;
+  border: 1px solid rgb(255 255 255 / .7);
+  border-radius: 14px 14px 4px 14px;
+  background: color-mix(in srgb, var(--hwd-paper) 82%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 18px rgb(0 0 0 / .14);
+  color: var(--hwd-ink);
+  font-size: .8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(6px, -50%);
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;
+}
+.hwd-kitsu:hover .hwd-kitsu__bubble,
+.hwd-kitsu:focus-visible .hwd-kitsu__bubble { opacity: 1; transform: translate(0, -50%); }
+@keyframes hwdBob { 50% { transform: translateY(-5px); } }
+@media (hover: none) { .hwd.is-hidden .hwd-kitsu__bubble { opacity: 1; transform: translate(0, -50%); } }
+@media (prefers-reduced-motion: reduce) { .hwd.is-hidden .hwd-kitsu { animation: none; } }
 
 .hwd-stage { position: relative; aspect-ratio: 5 / 5.2; animation: hwdIn .7s ease-out both; }
 
@@ -288,4 +329,5 @@
 
 /* owned-mobile.css gives buttons inside #jlabBaseContent a 48px min height; the round button and menu rows stay compact */
 #jlabBaseContent .hwd .hwd-more { min-height: 0 !important; height: 38px !important; padding: 0 !important; }
-#jlabBaseContent .hwd .hwd-menu__item { min-height: 0 !important; }
+#jlabBaseContent .hwd .hwd-menu__item,
+#jlabBaseContent .hwd .hwd-kitsu { min-height: 0 !important; }

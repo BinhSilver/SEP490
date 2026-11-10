@@ -92,6 +92,10 @@
       + '<button type="button" class="hwd-menu__item" role="menuitem" data-hwd="toggle"><span class="hwd-menu__check" aria-hidden="true"></span>'
       + '<span class="hwd-toggle__text">Ẩn thẻ từ</span></button>'
       + '</div></div>'
+      // shown only while the cards are hidden: Kitsu resting, hover or focus says what a click does
+      + '<button type="button" class="hwd-kitsu" data-hwd="show" aria-label="Mở thẻ từ">'
+      + '<img src="/images/mascots/kitsu/kitsu-resting-30-128.webp" alt="" width="72" height="72" loading="lazy">'
+      + '<span class="hwd-kitsu__bubble" aria-hidden="true">Mở thẻ từ</span></button>'
       + '<div class="hwd-stage">'
       + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__glass"></span>'
       + '<span class="hwd-photo__poem" lang="ja">毎日、こつこつ。</span>'
@@ -215,6 +219,7 @@
 
     box.addEventListener('click', function (e) {
       if (e.target.closest('.hwd-card__learn')) return;
+      if (e.target.closest('[data-hwd="show"]')) { setHidden(false); writeHidden(false); return; }
       if (e.target.closest('[data-hwd="menu"]')) { openMenu(menu.hidden); return; }
       var src = e.target.closest('[data-hwd-source]');
       if (src) {
