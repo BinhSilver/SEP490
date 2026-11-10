@@ -175,8 +175,7 @@
   async function refreshTargetOptions() {
     var request = ++targetOptionsRequest;
     var studied = document.querySelector('input[name="studied"]:checked');
-    // The JLPT path does not ask the level step, so an old hidden answer must not steer the targets.
-    var selfLevel = jpathOn && checkedValue('goal') === 'JLPT' ? null : document.querySelector('input[name="selfLevel"]:checked');
+    var selfLevel = document.querySelector('input[name="selfLevel"]:checked');
     var assessed = window.SmartTestSurveyTargets.assessedLevelFor({
       studied: studied ? studied.value : null, selfLevel: selfLevel ? selfLevel.value : null });
     try {
@@ -292,7 +291,7 @@
     };
     var jpathJlpt = Boolean(jpathOn && Flow && goal === 'JLPT');
     // [JLAS-W0108] The JLPT path has no level step: a learner who studied is UNKNOWN (Smart Test finds the level).
-    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied);
+    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied, selfLevelEl ? selfLevelEl.value : null);
 
     if (goal === 'JLPT') {
       var dateStr = examDateInput && examDateInput.value ? examDateInput.value.trim() : '';
