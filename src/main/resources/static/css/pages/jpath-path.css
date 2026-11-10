@@ -3832,3 +3832,8 @@ html.dark .cp-page {
 /* [JLAS-W0108] F27 Phân biệt dễ nhầm: Của bạn / Xem trước */
 .jp-confusables-mode { margin: 4px 0 8px; }
 .jp-side-btn[hidden] { display: none; }
+
+/* [JLAS-W0108] F29 owner 10/11: Kitsu pictures carry different empty margins (encouraging ~60/128px, preparing ~71px tall,
+   the others ~100px), so these two are scaled up to look the same size as the rest on the path map */
+.jp-parts__mascot-img[src*="kitsu-encouraging"] { transform: scale(1.6); transform-origin: 50% 70%; }
+.jp-parts__mascot-img[src*="kitsu-preparing"] { transform: scale(1.3); transform-origin: 50% 70%; }
