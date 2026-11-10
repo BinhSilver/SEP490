@@ -9,7 +9,7 @@ task needs go into these files, never into `sql/migrations/` or `sql/seeds/`.
 | File | Content |
 |---|---|
 | `learning_schema.sql` | Part A: every Learning table, final shape, `CREATE TABLE IF NOT EXISTS`. Part B: guarded upgrades (columns, indexes, FKs, CHECKs, Learning columns on shared tables) for older databases. Part C: jpath and cpath tables. |
-| `learning_data_N5.sql` | Common data (Learning flags on the base textbooks, kana rules, goal catalogue, jpath base data), then every N5 row. |
+| `learning_data_N5.sql` | Common data (clears the learning-path flag on the textbook team's books, kana rules, goal catalogue, jpath base data), then every N5 row. |
 | `learning_data_N4.sql` … `learning_data_N1.sql` | Every row of one JLPT level. A level may read rows of a lower level, never of a higher one. |
 | `learning_data_comm.sql` | The communication path: goals, topics, situations, lines, words and phrases, AI call scenarios. |
 
@@ -29,8 +29,11 @@ mysql -u root -p --default-character-set=utf8mb4 <db> < sql/learning/learning_sc
 for F in N5 N4 N3 N2 N1 comm; do mysql -u root -p --default-character-set=utf8mb4 <db> < sql/learning/learning_data_$F.sql; done   # 2. data, in this order
 ```
 
+- **Only some levels** (a demo machine, a quick install): run the schema, then `learning_data_N5.sql` and stop at the
+  highest level you need, e.g. `for F in N5 N4; do …; done`. A level reads only lower levels, so a shorter chain is
+  complete for those levels; add the next file later the same way. `learning_data_comm.sql` needs only N5.
 - **Schema first**: the data writes Learning tables and Learning columns that the schema creates.
-- **Data order**: N5 carries the common data first (it sets the Learning flags on the base textbooks and holds
+- **Data order**: N5 carries the common data first (it clears the learning-path flag on the textbook team's books and holds
   the goal catalogue) and the levels run from N5 up to N1 (a level may read rows that a lower level inserted, never a
   higher one).
 - Every file is re-runnable (upserts by stable keys); a second run changes nothing. Never use `--force`.
