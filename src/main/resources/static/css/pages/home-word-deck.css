@@ -39,30 +39,27 @@
   width: 74%;
   height: 86%;
   margin: 0;
-  padding: 10px;
-  border: 2px solid var(--hwd-ink);
-  border-radius: 28px;
+  padding: 4px;
+  border: 1.5px solid var(--hwd-ink);
+  border-radius: 24px;
   background: var(--hwd-paper);
-  box-shadow: 6px 8px 0 var(--hwd-ink);
-  transform: rotate(3deg);
-  animation: hwdFloat 7s ease-in-out infinite;
+  box-shadow: 3px 4px 0 var(--hwd-ink);
 }
 
 .hwd-photo__img {
   position: absolute;
-  inset: 10px;
+  inset: 4px;
   border-radius: 20px;
   background: url("/images/home-scene-day.png?v=20261009") no-repeat;
-  /* owner 10/11: crop on Kitsu (bottom right of the home background) so the frame reads as its own picture */
-  background-size: 300% auto;
-  background-position: 86% 92%;
+  /* size and position are set by home-word-deck.js so the picture lines up with the background outside */
+  background-size: cover;
 }
 
 /* night layer fades in with the scene's own --home-night (mirrored by home-word-deck.js), never a hard swap */
 .hwd-photo__img--night { background-image: url("/images/home-scene-night.png?v=20261009"); opacity: var(--hwd-night, 0); }
 .hwd-photo__dusk {
   position: absolute;
-  inset: 10px;
+  inset: 4px;
   border-radius: 20px;
   background: linear-gradient(180deg, var(--color-home-dusk-top), var(--color-home-dusk-horizon) 65%, var(--color-home-clear));
   opacity: var(--hwd-dusk, 0);
@@ -117,7 +114,7 @@
 .hwd-card {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--hwd-ink);
+  border: 1.5px solid var(--hwd-ink);
   border-radius: 22px;
 }
 
@@ -130,7 +127,7 @@
   padding: 16px 16px 12px;
   background: var(--hwd-paper);
   color: var(--hwd-ink);
-  box-shadow: 4px 6px 0 var(--hwd-ink);
+  box-shadow: 3px 4px 0 var(--hwd-ink);
   transform: rotate(-2deg);
   cursor: pointer;
   transition: transform .25s ease, opacity .22s ease;
@@ -173,11 +170,10 @@
 }
 
 @keyframes hwdIn { from { opacity: 0; transform: translateY(24px); } }
-@keyframes hwdFloat { 50% { transform: rotate(3deg) translateY(-8px); } }
 @keyframes hwdFlip { from { transform: rotateY(90deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .hwd-stage, .hwd-photo, .hwd-card.is-flipped .hwd-card__face { animation: none; }
+  .hwd-stage, .hwd-card.is-flipped .hwd-card__face { animation: none; }
 }
 
 /* narrow screens: the block sits under the title instead of beside it */

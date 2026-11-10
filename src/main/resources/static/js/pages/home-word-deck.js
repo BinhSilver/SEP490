@@ -170,6 +170,32 @@
     }
     syncSky();
 
+    // owner 10/11: the frame is a window on the same background, so the picture inside lines up with the one
+    // outside (the frame edge cuts across Kitsu). Re-done on resize; the scene layer is background-size: cover.
+    var dayLayer = doc.querySelector('.home-scene__layer--day');
+    var imgs = box.querySelectorAll('.hwd-photo__img');
+    var ratio = 0;
+    function align() {
+      if (!dayLayer || !ratio) return;
+      var L = dayLayer.getBoundingClientRect();
+      var cs = root.getComputedStyle(dayLayer).backgroundPosition.split(' ');
+      var px = parseFloat(cs[0]) / 100, py = parseFloat(cs[1] || cs[0]) / 100;
+      if (isNaN(px)) px = 0.5;
+      if (isNaN(py)) py = 0.5;
+      var w = Math.max(L.width, L.height * ratio), h = w / ratio;
+      var ox = L.left + (L.width - w) * px, oy = L.top + (L.height - h) * py;
+      imgs.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        el.style.backgroundSize = w + 'px ' + h + 'px';
+        el.style.backgroundPosition = (ox - r.left) + 'px ' + (oy - r.top) + 'px';
+      });
+    }
+    var probe = new root.Image();
+    probe.onload = function () { ratio = probe.naturalWidth / probe.naturalHeight; align(); };
+    probe.src = '/images/home-scene-day.png?v=20261009';
+    root.addEventListener('resize', align);
+    root.addEventListener('scroll', align, { passive: true });
+
     setHidden(readHidden());
     draw();
     loadWords().then(function (r) { state.words = r.words; state.learning = r.learning; state.i = 0; draw(); });
