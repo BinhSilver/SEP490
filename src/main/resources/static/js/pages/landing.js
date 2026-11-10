@@ -7,6 +7,14 @@
   var signedIn = !!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn());
   document.querySelectorAll('[data-lp-guest]').forEach(function (el) { el.hidden = false; });
   document.querySelectorAll('[data-lp-guest-only]').forEach(function (el) { el.hidden = signedIn; });
+  // hero button: a learner who already has a path gets "Tiếp tục học" (own data, own token); everyone else keeps
+  // "Xem lộ trình học", which only shows what a path looks like and does not create one
+  var startLabel = document.querySelector('[data-home-start]');
+  if (signedIn && startLabel && window.fetch && typeof auth.authHeaders === 'function') {
+    fetch('/api/learning/jlpt/path', { headers: auth.authHeaders() })
+      .then(function (r) { if (r.ok) startLabel.textContent = 'Tiếp tục học'; })
+      .catch(function () { /* keep the default label */ });
+  }
   wireDemos();
   loadPlans();
   var items = document.querySelectorAll('.lp-reveal');

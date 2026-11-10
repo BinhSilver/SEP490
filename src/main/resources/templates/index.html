@@ -41,9 +41,9 @@
                     <span class="home-hero__line">sống thêm <span class="home-hero__accent">1</span> đời.</span>
                 </h1>
                 <div class="home-hero__actions">
+                    <!-- F24: the label says what the button opens; landing.js turns it into "Tiếp tục học" for a learner with a path -->
                     <a class="home-hero__button home-hero__button--primary" th:href="@{/learning/path}">
-                        <span>Bắt đầu học</span>
-                        <span class="home-hero__arrow" aria-hidden="true"></span>
+                        <span data-home-start>Xem lộ trình học</span>
                     </a>
                     <a class="home-hero__button home-hero__button--secondary" th:href="@{/shadowing}">
                         <span>Khám phá</span>
@@ -60,7 +60,7 @@
     <link rel="stylesheet" th:href="@{/css/pages/landing.css?v=20261111-member}">
     <script th:src="@{/js/pages/home-word-deck.js?v=20261111-n5words}"></script>
     <script th:src="@{/js/pages/home-theme-scene.js?v=20261009-setting-arc}"></script>
-    <script th:src="@{/js/pages/landing.js?v=20261111-member}"></script>
+    <script th:src="@{/js/pages/landing.js?v=20261111-start}"></script>
     <script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
 
 </body>
