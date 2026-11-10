@@ -74,7 +74,8 @@ public class GameMapper {
                 .map(seat -> new SessionPlayerView(seat.userId(), seat.displayName(), seat.avatarUrl(), seat.slot(),
                         session.isOnline(seat.userId()), seat.avatarFrame(), seat.nameStyle()))
                 .toList();
-        String backUrl = session.getRoomId() == null ? "/games" : "/games/room/" + session.getRoomId();
+        // fromMatch=1 keeps the room page from sending the player straight back into the match they just left.
+        String backUrl = session.getRoomId() == null ? "/games" : "/games/room/" + session.getRoomId() + "?fromMatch=1";
         return new SessionInfoView(session.getSessionId(), session.getGameType(), session.getMode(),
                 session.getRoomId(), session.getRoomCode() == null ? null : RoomRegistry.displayCode(session.getRoomCode()),
                 session.getStatus(), session.getDeckId(), session.getDeckTitle(), session.getQuestionField(),
