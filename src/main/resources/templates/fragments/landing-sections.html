@@ -32,10 +32,12 @@
                             <span class="lp-chip-word" style="--x:6%;--y:14%;--r:-8deg">夢<small>ゆめ</small></span>
                             <span class="lp-chip-word lp-chip-word--pink" style="--x:80%;--y:8%;--r:10deg">旅</span>
                             <span class="lp-chip-word lp-chip-word--yellow" style="--x:78%;--y:66%;--r:6deg">空<small>そら</small></span>
-                            <button type="button" class="lp-flipcard" data-lp-flip aria-pressed="false" aria-label="Lật thẻ 旅行">
-                                <span class="lp-flipcard__face">旅行<small>りょこう</small><em>Chạm để lật thẻ</em></span>
-                                <span class="lp-flipcard__face lp-flipcard__back">du lịch<small>Danh từ · N5</small><em>Chạm để lật lại</em></span>
+                            <button type="button" class="lp-flipcard" data-lp-flip aria-pressed="false" aria-label="Lật thẻ">
+                                <span class="lp-flipcard__face"><span data-lp-w>旅行</span><small data-lp-r>りょこう</small><em>Chạm để lật thẻ</em></span>
+                                <span class="lp-flipcard__face lp-flipcard__back"><span data-lp-m>du lịch</span><small data-lp-t>Danh từ · N5</small><em>Chạm để lật lại</em></span>
                             </button>
+                            <span class="lp-flash__count" data-lp-flash-count>1 / 3</span>
+                            <button type="button" class="lp-mini-btn lp-flash__next" data-lp-flash-next>Từ tiếp theo →</button>
                         </div>
                     </div>
                     <a class="lp-tile__cta" th:href="@{/flashcard/library.html}">Mở kho flashcard <span aria-hidden="true">→</span></a>
@@ -61,6 +63,9 @@
                                 </svg>
                                 <em>Chạm để vẽ lại</em>
                             </button>
+                            <div class="lp-kanji__steps" role="group" aria-label="Chọn nét">
+                                <button type="button" data-lp-stroke="1">1</button><button type="button" data-lp-stroke="2">2</button><button type="button" data-lp-stroke="3">3</button><button type="button" data-lp-stroke="4" aria-pressed="true">4</button>
+                            </div>
                             <dl class="lp-kanji__info">
                                 <dt>JLPT N5</dt>
                                 <dd class="lp-kanji__hv">NHẬT · ngày, mặt trời</dd>
@@ -103,16 +108,23 @@
                     <p>Đọc giáo trình ngay trên web, có furigana, bản dịch và từ mới đi kèm từng bài.</p>
                     <div class="lp-screen">
                         <div class="lp-screen__bar"><i></i><i></i><i></i><b>Giáo trình · Bài 1</b><em>Xem thử</em></div>
-                        <div class="lp-screen__body lp-book">
-                            <div class="lp-book__page">
-                                <small>01 / はじめまして</small>
-                                <strong>こんにちは。</strong>
-                                <p>Bắt đầu bằng một lời chào. Một từ mới, một kết nối mới.</p>
+                        <div class="lp-screen__body lp-book" data-lp-book>
+                            <div class="lp-book__open">
+                                <div class="lp-book__page lp-book__page--left"><small>NIHONGO / はじめの一歩</small><strong>こんにちは。</strong><p>Bắt đầu bằng một lời chào. Một từ mới, một kết nối mới.</p><span class="lp-book__no">01</span></div>
+                                <div class="lp-book__leaf" style="--n:0">
+                                    <div class="lp-book__page lp-book__face"><small>02 / まいにち</small><strong>毎日、こつこつ。</strong><p>Mỗi ngày một chút. Mỗi trang mở thêm một điều mới.</p><span class="lp-book__no">02</span></div>
+                                    <div class="lp-book__page lp-book__face lp-book__back"><small>ことば / TỪ MỚI</small><strong>新しい世界へ。</strong><p>世界 せかい · thế giới<br>友達 ともだち · bạn bè</p><span class="lp-book__no">03</span></div>
+                                </div>
+                                <div class="lp-book__leaf" style="--n:1">
+                                    <div class="lp-book__page lp-book__face"><small>ぶんぽう / NGỮ PHÁP</small><strong>〜たいです。</strong><p>食べたいです。<br>Tôi muốn ăn.</p><span class="lp-book__no">04</span></div>
+                                    <div class="lp-book__page lp-book__face lp-book__back"><small>よみもの / BÀI ĐỌC</small><strong>好きから、はじめよう。</strong><p>Bắt đầu từ điều bạn thích, học theo nhịp của mình.</p><span class="lp-book__no">05</span></div>
+                                </div>
+                                <div class="lp-book__page lp-book__page--right"><small>まとめ / ÔN TẬP</small><strong>よくできました！</strong><p>Làm tốt lắm! Hẹn bạn ở bài tiếp theo.</p><span class="lp-book__no">06</span></div>
                             </div>
-                            <div class="lp-book__page">
-                                <small>02 / まいにち</small>
-                                <strong>毎日、こつこつ。</strong>
-                                <p>Mỗi ngày một chút. Mỗi trang mở thêm một điều mới.</p>
+                            <div class="lp-book__nav">
+                                <button type="button" class="lp-mini-btn" data-lp-book-prev aria-label="Trang trước" disabled>←</button>
+                                <span data-lp-book-count aria-live="polite">01 — 02 / 06</span>
+                                <button type="button" class="lp-mini-btn" data-lp-book-next aria-label="Trang sau">→</button>
                             </div>
                         </div>
                     </div>
@@ -240,6 +252,61 @@
         </div>
     </section>
 
+    <!-- 04 Gói học (prices come from /api/premium/plans and /api/credits/packages) -->
+    <section class="lp-section" aria-labelledby="lp-plans-title" data-lp-plans>
+        <div class="lp-wrap">
+            <header class="lp-head2 lp-reveal">
+                <div>
+                    <p class="lp-kicker">04 / Gói học</p>
+                    <h2 id="lp-plans-title">Bắt đầu miễn phí.<br>Nâng cấp khi bạn sẵn sàng.</h2>
+                </div>
+                <p>N5–N4 dùng miễn phí. Premium mở lộ trình N3–N1 và thêm phút gọi AI; CP dùng để mua lượt tra cứu và vật phẩm.</p>
+            </header>
+            <div class="lp-plans">
+                <article class="lp-plan-card lp-reveal">
+                    <p class="lp-plan-card__name">Miễn phí</p>
+                    <p class="lp-plan-card__price">0đ</p>
+                    <ul>
+                        <li>Smart Test xếp cấp độ</li>
+                        <li>Lộ trình JLPT N5–N4 và lộ trình Giao tiếp</li>
+                        <li>Từ điển, flashcard, mini-game</li>
+                        <li data-lp-ai-free>Gọi AI vài phút mỗi ngày</li>
+                    </ul>
+                    <a class="lp-btn lp-btn--ghost" th:href="@{/register}">Tạo tài khoản</a>
+                </article>
+                <article class="lp-plan-card lp-plan-card--pro lp-reveal" data-lp-plan="MONTHLY">
+                    <p class="lp-plan-card__name">Premium tháng</p>
+                    <p class="lp-plan-card__price"><span data-lp-price>—</span><small data-lp-per>/ 30 ngày</small></p>
+                    <ul>
+                        <li>Mọi thứ của gói miễn phí</li>
+                        <li>Mở lộ trình N3, N2, N1</li>
+                        <li data-lp-ai-pro>Thêm phút gọi AI mỗi ngày</li>
+                    </ul>
+                    <a class="lp-btn lp-btn--primary" th:href="@{/premium}">Xem Premium</a>
+                </article>
+                <article class="lp-plan-card lp-plan-card--best lp-reveal" data-lp-plan="YEARLY">
+                    <span class="lp-plan-card__badge" data-lp-save hidden></span>
+                    <p class="lp-plan-card__name">Premium năm</p>
+                    <p class="lp-plan-card__price"><span data-lp-price>—</span><small data-lp-per>/ 365 ngày</small></p>
+                    <ul>
+                        <li>Mọi thứ của Premium tháng</li>
+                        <li>Học trọn một năm, trả một lần</li>
+                        <li>Phù hợp ôn thi N3–N1</li>
+                    </ul>
+                    <a class="lp-btn lp-btn--primary" th:href="@{/premium}">Chọn gói năm</a>
+                </article>
+            </div>
+            <div class="lp-cp lp-reveal" data-lp-cp hidden>
+                <div>
+                    <p class="lp-plan-card__name">Gói CP</p>
+                    <p>Học đều cũng nhận CP miễn phí; cần thêm thì mua theo gói.</p>
+                </div>
+                <ul class="lp-cp__list" data-lp-cp-list></ul>
+                <a class="lp-btn lp-btn--ghost" th:href="@{/credits}">Mua CP</a>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA -->
     <section class="lp-cta2" aria-labelledby="lp-cta-title">
         <div class="lp-wrap">
@@ -260,7 +327,7 @@
         <div class="lp-wrap">
             <div class="lp-foot__card">
                 <span class="lp-foot__ring" aria-hidden="true"></span>
-                <p class="lp-kicker">04 / Cùng đi xa hơn</p>
+                <p class="lp-kicker">05 / Cùng đi xa hơn</p>
                 <div class="lp-foot__grid">
                     <div class="lp-foot__brand">
                         <strong>KotsuKotsu</strong>
