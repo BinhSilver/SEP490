@@ -36,6 +36,8 @@
 
   function list(v) { return Array.isArray(v) ? v : []; }
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy
+  function kitsuSmall(file) { return kitsuSrc(String(file).replace(/\.webp$/, '-128.webp')); }
   function kitsuSrc(file) {
     return '/images/mascots/kitsu/' + file;
   }
@@ -284,7 +286,7 @@
     var whyText = turn.whyVi || turn.why_vi || '';
     var whyHtml = isAnswered
       ? '<div class="cp-why-box" role="status">'
-        + '<img src="' + esc(kitsuSrc(ansCorrect ? 'kitsu-cheer-30.webp' : 'kitsu-thinking-30.webp')) + '" width="44" height="44" alt="" />'
+        + '<img src="' + esc(kitsuSmall(ansCorrect ? 'kitsu-cheer-30.webp' : 'kitsu-thinking-30.webp')) + '" width="44" height="44" alt="" />'
         + '<div><strong>' + (ansCorrect ? 'Chính xác!' : 'Chưa đúng rồi:') + '</strong> ' + esc(whyText) + '</div>'
         + '</div>'
       : '';
@@ -406,7 +408,7 @@
     var scoreHtml = scoreObj
       ? '<div class="cp-score-panel ' + (isPass ? 'is-pass' : 'is-retry') + '" role="status">'
         + '<div style="display:flex;align-items:flex-start;gap:12px;flex:1 1 auto;">'
-        + '<img src="' + esc(kitsuSrc(isPass ? 'kitsu-celebrate-30.webp' : 'kitsu-encouraging.webp')) + '" width="48" height="48" alt="" />'
+        + '<img src="' + esc(kitsuSmall(isPass ? 'kitsu-celebrate-30.webp' : 'kitsu-encouraging.webp')) + '" width="48" height="48" alt="" />'
         + '<div style="display:grid;gap:4px;">'
         + '<div><strong>Điểm phát âm: ' + esc(scoreObj.score) + '/100</strong> '
         + '<span class="cp-survey__sub">(Chính xác: ' + esc(scoreObj.accuracy) + ' · Trôi chảy: ' + esc(scoreObj.fluency) + ' · Đầy đủ: ' + esc(scoreObj.completeness) + ')</span>'

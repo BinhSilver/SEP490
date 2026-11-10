@@ -41,6 +41,8 @@
 
   function list(v) { return Array.isArray(v) ? v : []; }
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy
+  function kitsuSmall(file) { return kitsuSrc(String(file).replace(/\.webp$/, '-128.webp')); }
   function kitsuSrc(file) {
     return '/images/mascots/kitsu/' + file;
   }
@@ -218,7 +220,7 @@
   function weekSideKitsuHtml(weekNum, side) {
     var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
-      + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSrc(k.file)) + '" width="52" height="52" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSmall(k.file)) + '" width="52" height="52" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
       + '</span>';
   }
@@ -403,7 +405,7 @@
     return '<div class="jp-parts__popover ' + sideCls + ' ' + toneCls + '" data-parts-popover role="dialog" aria-label="' + esc(item.titleVi) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + esc(kitsuSrc(kitsuFile)) + '" width="46" height="46" alt="" />'
+      + '<img class="jp-parts__pop-kitsu" src="' + esc(kitsuSmall(kitsuFile)) + '" width="46" height="46" alt="" />'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill ' + (isDone ? 'jp-parts__pop-pill--done' : 'jp-parts__pop-pill--today') + '">' + esc(typeBadge) + '</span>'
@@ -503,7 +505,7 @@
     var todayKitsu = (isToday || isTodayDone)
       ? '<span class="jp-parts__mascot jp-parts__mascot--today jp-parts__mascot--' + (labelSide === 'left' ? 'right' : 'left') + '" aria-hidden="true">'
         + '<span class="jp-parts__mascot-speech">' + (isTodayDone ? 'Giỏi quá!' : 'Vào tình huống này nhé!') + '</span>'
-        + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSrc(isTodayDone ? 'kitsu-celebrate-30.webp' : 'kitsu-cheer-30.webp')) + '" width="58" height="58" alt="" />'
+        + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSmall(isTodayDone ? 'kitsu-celebrate-30.webp' : 'kitsu-cheer-30.webp')) + '" width="58" height="58" alt="" />'
         + '</span>'
       : '';
     var popHtml = isSelected ? nodePopoverHtml(item, pos) : '';

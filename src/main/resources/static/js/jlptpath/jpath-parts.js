@@ -55,6 +55,9 @@
   var WAVE_POS = ['center', 'left', 'center', 'right'];
   var WAVE_X = { left: 20, center: 240, right: 460 };
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy (about a third of the bytes)
+  function small(src) { return String(src).replace(/\.webp$/, '-128.webp'); }
+
   var SIDE_KITSUS = [
     { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Cố lên nhé!' },
     { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
@@ -88,7 +91,7 @@
         + '" style="--cf-i:' + i + '" aria-hidden="true"></span>');
     }
     return '<div class="jp-saved-note__confetti-wrap" aria-hidden="true">' + pieces.join('') + '</div>'
-      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
+      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
       + '<div class="jp-saved-note__body">'
       + '<strong class="jp-saved-note__title">Hoàn thành xuất sắc!</strong>'
       + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".') + '</span>'
@@ -456,7 +459,7 @@
     var mood = MOOD_KITSUS[state];
     var k = mood ? mood[second ? 1 : 0] : SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
-      + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<img class="jp-parts__mascot-img" src="' + small(k.src) + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
       + '</span>';
   }
@@ -609,7 +612,7 @@
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
@@ -649,7 +652,7 @@
       + ' data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
