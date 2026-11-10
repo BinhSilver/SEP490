@@ -15,10 +15,8 @@ public class AuthPageController {
     @GetMapping("/")
     public String index(Model model, org.springframework.security.core.Authentication authentication) {
         model.addAttribute("layoutMode", "marketing");
-        // F24: khách chưa đăng nhập thấy trang giới thiệu; người đã đăng nhập giữ trang chủ cũ.
-        boolean signedIn = authentication != null && authentication.isAuthenticated()
-                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
-        return signedIn ? "index" : "landing";
+        // F24: one home page for everyone; the guest blocks inside it are shown by landing.js (no JWT on page loads)
+        return "index";
     }
 
     @GetMapping("/login")

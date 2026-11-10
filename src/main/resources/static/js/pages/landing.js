@@ -1,6 +1,11 @@
 /* F24 landing: hiện dần các khối khi cuộn tới; tắt khi người dùng giảm chuyển động. */
 (function () {
   'use strict';
+  // the guest blocks show only for a browser with no signed-in token
+  var auth = window.JlasAuth;
+  var signedIn = !!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn());
+  document.querySelectorAll('[data-lp-guest]').forEach(function (el) { el.hidden = signedIn; });
+  if (signedIn) return;
   var items = document.querySelectorAll('.lp-reveal');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce || !('IntersectionObserver' in window)) {

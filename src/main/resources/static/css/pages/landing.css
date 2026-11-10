@@ -100,3 +100,8 @@
   .lp-features, .lp-levels { grid-template-columns: 1fr; }
   .lp-btn { width: 100%; }
 }
+
+/* F24: the guest blocks inside index.html stay hidden until landing.js confirms a signed-out browser */
+[data-lp-guest][hidden] { display: none !important; }
+/* F24: inside index the guest blocks sit on the page colour, above the fixed hero scene */
+.lp-guest { position: relative; z-index: 2; background: var(--color-background); color: var(--color-on-surface); }
