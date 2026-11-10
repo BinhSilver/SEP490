@@ -71,7 +71,7 @@
     if (!list.length) {
       box.innerHTML = '<div class="apl-empty"><i class="fa-solid fa-shield-heart" aria-hidden="true"></i>' +
         '<strong>Tài khoản của bạn không có chế tài nào</strong>' +
-        '<span>Bạn đang dùng JLAS bình thường.</span><a class="btn btn--secondary btn--sm" href="/">Về trang chủ</a></div>';
+        '<span>Bạn đang dùng KotsuKotsu bình thường.</span><a class="btn btn--secondary btn--sm" href="/">Về trang chủ</a></div>';
       return;
     }
     box.innerHTML = list.map(function (s) {

@@ -290,11 +290,11 @@
       '<div id="' + ids.background + '" aria-hidden="true"></div>' +
       '<header id="' + ids.header + '" class="site-header">' +
         '<div id="' + ids.headerInner + '" class="site-header__inner">' +
-          '<a id="' + ids.brand + '" class="brand-logo" href="/" title="JLAS" aria-label="Trang chủ JLAS">' +
+          '<a id="' + ids.brand + '" class="brand-logo" href="/" title="KotsuKotsu" aria-label="Trang chủ KotsuKotsu">' +
             '<img id="' + ids.brandLogo + '" class="brand-logo__img" src="/images/jlab.png?v=20260901-logo2" alt="" width="42" height="42">' +
           '</a>' +
           '<nav id="' + ids.primaryNav + '" class="site-header__nav jlas-platform-nav__links" aria-label="Điều hướng chính">' +
-            '<a id="' + ids.homeLink + '" href="/" title="Trang chủ JLAS">' +
+            '<a id="' + ids.homeLink + '" href="/" title="Trang chủ KotsuKotsu">' +
               '<i id="' + ids.homeIcon + '" aria-hidden="true"></i><span id="' + ids.homeLabel + '">Trang ch\u1ee7</span>' +
             '</a>' +
             '<a id="' + ids.learningPathLink + '" href="/learning/onyomi" title="Lộ trình Hán Việt → On">' +

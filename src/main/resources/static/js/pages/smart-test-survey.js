@@ -218,10 +218,10 @@
       document.getElementById('inviteText').textContent = 'Bạn đã có bài Smart Test. Tiếp tục để xem kết quả và xác nhận lộ trình JLPT.';
     } else if (surveyOnlyGoal) {
       document.getElementById('inviteTitle').textContent = 'Chọn tình huống bạn muốn luyện!';
-      document.getElementById('inviteText').textContent = 'Mục tiêu giao tiếp không dùng Smart Test. J-LAS sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
+      document.getElementById('inviteText').textContent = 'Mục tiêu giao tiếp không dùng Smart Test. KotsuKotsu sẽ dùng khảo sát chủ đề để tạo lộ trình giao tiếp phù hợp.';
     } else if (fromZero) {
       document.getElementById('inviteTitle').textContent = 'Bạn sẽ bắt đầu từ con số 0!';
-      document.getElementById('inviteText').textContent = 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. J-LAS sẽ xây lộ trình học từ đầu cho bạn.';
+      document.getElementById('inviteText').textContent = 'Bạn chưa từng học tiếng Nhật nên không cần làm bài kiểm tra. KotsuKotsu sẽ xây lộ trình học từ đầu cho bạn.';
     } else {
       document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';

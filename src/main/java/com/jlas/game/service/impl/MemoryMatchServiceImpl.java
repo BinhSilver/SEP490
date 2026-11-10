@@ -262,7 +262,7 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
                 throw new ApiException(ErrorCode.CONFLICT, "Không chọn mặt đồng xu ở ván này");
             }
             if (!List.of("JLAS", "MASCOT").contains(side == null ? "" : side)) {
-                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn mặt JLAS hoặc mascot");
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn mặt KotsuKotsu hoặc mascot");
             }
             if (session.getCoinStartedAt() != null) {
                 if (side.equals(session.getCoinChoices().get(userId))) return false;

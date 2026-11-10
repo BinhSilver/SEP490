@@ -10,7 +10,7 @@ import java.util.Optional;
  * source of truth afterwards, so titles, targets and rewards can be tuned without a release.
  */
 public enum MissionCode {
-    DAILY_CHECK_IN("DAILY", "Điểm danh hôm nay", "Ghé J-LAS và nhận thưởng điểm danh.",
+    DAILY_CHECK_IN("DAILY", "Điểm danh hôm nay", "Ghé KotsuKotsu và nhận thưởng điểm danh.",
             1, 5, 10, CreditReason.DAILY_CHECKIN, null),
     COMPLETE_LESSON("DAILY", "Hoàn thành một bài học", "Học xong trọn vẹn một bài học.",
             1, 10, 20, CreditReason.STUDY_REWARD, LearningEventType.LESSON_COMPLETED),

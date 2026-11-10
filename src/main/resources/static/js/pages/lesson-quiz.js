@@ -106,7 +106,7 @@
   function renderLoading() {
     return '<section class="lq-state lq-state--loading" role="status">' +
       '<span class="lq-spinner" aria-hidden="true"></span>' +
-      '<h1>Đang tải bài kiểm tra</h1><p>JLAS đang chuẩn bị câu hỏi cho bạn.</p></section>';
+      '<h1>Đang tải bài kiểm tra</h1><p>KotsuKotsu đang chuẩn bị câu hỏi cho bạn.</p></section>';
   }
 
   function renderError(message) {
