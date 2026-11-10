@@ -72,7 +72,7 @@
       + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__glass"></span>'
       + '<span class="hwd-photo__poem" lang="ja">毎日、こつこつ。</span>'
       + '<span class="hwd-photo__badge" lang="ja">日<br>本</span>'
-      + '<figcaption class="hwd-photo__cap">KotsuKotsu · mỗi ngày một chút</figcaption></figure>'
+      + '<figcaption><span class="hwd-photo__tag">Mỗi ngày một chút</span><span class="hwd-photo__cap">KotsuKotsu</span></figcaption></figure>'
       + '<div class="hwd-deck"><span class="hwd-deck__back hwd-deck__back--2"></span><span class="hwd-deck__back hwd-deck__back--1"></span>'
       + '<div class="hwd-card" role="button" tabindex="0" aria-live="polite" data-hwd="flip"></div></div>'
       + '</div>';

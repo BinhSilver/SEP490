@@ -88,10 +88,24 @@
   transform: rotate(8deg);
 }
 
-/* owner 10/11: the caption runs down the frame's left edge */
+/* owner 10/11: "Mỗi ngày một chút" across the top-left corner, "KotsuKotsu" running down the left edge under it */
+.hwd-photo__tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 1px 6px rgb(0 0 0 / .45);
+  opacity: .9;
+}
+
 .hwd-photo__cap {
   position: absolute;
-  top: 22px;
+  top: 40px;
   left: 14px;
   writing-mode: vertical-rl;
   white-space: nowrap;
@@ -185,7 +199,8 @@
   .hwd { --hwd-tilt: 2deg; width: calc(100% - 40px); margin-top: 64px; }
   .hwd-photo__badge { right: -8px; width: 44px; height: 54px; }
   .hwd-photo__poem { font-size: 1.3rem; }
-  .hwd-photo__cap { top: 14px; left: 8px; font-size: .52rem; letter-spacing: .06em; }
+  .hwd-photo__tag { top: 12px; left: 12px; font-size: .56rem; }
+  .hwd-photo__cap { top: 32px; left: 10px; font-size: .6rem; }
   .hwd-stage { aspect-ratio: 5 / 5.8; }
   .hwd-photo { width: 78%; height: 80%; }
   .hwd-deck { width: 58%; }
