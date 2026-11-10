@@ -248,9 +248,14 @@
       + '</svg>';
   }
 
+  var SCENE_MARK = { vocab: '語', kanji: '漢', grammar: '文', kana: 'あ', skills: '読' };
+
   function sceneBackdropHtml(sceneKey) {
     return '<div class="jp-parts__backdrop jp-parts__backdrop--' + esc(sceneKey) + '" aria-hidden="true">'
       + '<div class="jp-parts__sky-pattern jp-parts__sky-pattern--' + esc(sceneKey) + '"></div>'
+      // F23: a faint treasure-map layer (grid + contour rings) and one big kanji watermark per tab
+      + '<div class="jp-parts__mapgrid"></div>'
+      + '<span class="jp-parts__watermark" lang="ja">' + (SCENE_MARK[sceneKey] || '学') + '</span>'
       + '<div class="jp-parts__clouds">'
       + smallCloudSvg('jp-parts__cloud--1')
       + smallCloudSvg('jp-parts__cloud--2')

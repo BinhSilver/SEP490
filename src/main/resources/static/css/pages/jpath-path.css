@@ -3944,3 +3944,25 @@ html.dark .cp-page {
 .jp-tour.jp-tour--anchored .jp-tour__box { position: fixed; box-shadow: 0 12px 32px rgba(0,0,0,.28); transition: top .2s ease, left .2s ease; }
 .jp-tour-scrim__hole { outline: 3px solid var(--jp-accent, #8b5cf6); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .jp-tour.jp-tour--anchored .jp-tour__box { transition: none; } }
+
+/* [JLAS-W0108] F23: path map backdrop — faint map grid with contour rings and a big kanji watermark (team colours) */
+.jp-parts__mapgrid {
+  position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image:
+    radial-gradient(circle at 78% 30%, transparent 0 46px, color-mix(in srgb, var(--jp-c-indigo-500) 14%, transparent) 47px 48px, transparent 49px 70px, color-mix(in srgb, var(--jp-c-indigo-500) 10%, transparent) 71px 72px, transparent 73px),
+    radial-gradient(circle at 14% 72%, transparent 0 34px, color-mix(in srgb, var(--jp-c-purple-500) 12%, transparent) 35px 36px, transparent 37px 56px, color-mix(in srgb, var(--jp-c-purple-500) 9%, transparent) 57px 58px, transparent 59px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--jp-c-slate-500) 8%, transparent) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--jp-c-slate-500) 8%, transparent) 0 1px, transparent 1px 48px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  animation: jpMapDrift 40s linear infinite;
+}
+.jp-parts__watermark {
+  position: absolute; right: 4%; top: 6%; pointer-events: none; user-select: none;
+  font-size: clamp(110px, 16vw, 200px); line-height: 1; font-weight: 800;
+  color: color-mix(in srgb, var(--jp-c-indigo-500) 7%, transparent);
+  font-family: "Noto Serif JP", "Noto Sans JP", serif;
+}
+@keyframes jpMapDrift { to { background-position: 0 0, 0 0, 0 48px, 48px 0; } }
+@media (max-width: 640px) { .jp-parts__watermark { font-size: 96px; top: 4%; } }
+@media (prefers-reduced-motion: reduce) { .jp-parts__mapgrid { animation: none; } }
