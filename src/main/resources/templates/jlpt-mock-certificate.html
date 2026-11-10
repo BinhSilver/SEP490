@@ -17,7 +17,7 @@
                 <div><dt>Kết quả</dt><dd th:text="${result.correctCount + ' / ' + result.questionCount + ' câu · ' + result.scorePercent + '%'}">93 / 93 câu · 100%</dd></div>
                 <div><dt>Ngày hoàn thành</dt><dd th:text="${#temporals.format(result.submittedAt, 'dd/MM/yyyy')}">16/10/2026</dd></div>
             </dl>
-            <footer class="jcert-footer"><div class="jcert-seal" aria-label="Dấu xác nhận KotsuKotsu">ã³ã<br /><span>ã³ã</span></div>
+            <footer class="jcert-footer"><div class="jcert-seal" aria-label="Dấu xác nhận KotsuKotsu">コツ<br />コツ</div>
                 <p><strong th:text="${'MOCK-' + result.attemptId}">MOCK-000001</strong><br />Chứng nhận tự đánh giá nội bộ của KotsuKotsu</p></footer>
             <p class="jcert-notice">Không phải chứng chỉ JLPT chính thức và không thay thế kết quả do đơn vị tổ chức JLPT cấp.</p>
         </div>
