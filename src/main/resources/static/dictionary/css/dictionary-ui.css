@@ -385,11 +385,6 @@
   white-space: nowrap;
 }
 
-.dict-load-more:not([hidden]) {
-  display: flex;
-  margin: var(--space-4) auto 0;
-}
-
 /* ------------------------------------------------------------------ */
 /* Badges                                                               */
 /* ------------------------------------------------------------------ */
@@ -1547,7 +1542,7 @@
   max-width: 1320px;
   padding-block: var(--space-5) var(--space-7);
 }
-.dict-search-card, .dict-word-card, #dict-other-results, .dict-home-panel, .dict-detail-pane > .dict-empty-state {
+.dict-search-card, .dict-word-card, #dict-other-results, .dict-words-page .dict-panel, .dict-home-panel, .dict-detail-pane > .dict-empty-state {
   background: var(--color-surface-lowest);
   border: 1px solid #e7ebf0;
   border-radius: var(--radius-lg);
@@ -1832,9 +1827,13 @@
 }
 .dict-pagination {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
 }
+.dict-pagination__label { padding: 5px 2px; }
+.dict-pagination button:disabled { opacity: .5; cursor: default; }
 .dict-pagination button {
   border: 1px solid #dbe3eb;
   border-radius: 7px;
@@ -1873,6 +1872,7 @@
   background: transparent;
   appearance: none;
   color: inherit;
+  text-decoration: none;
   text-align: left;
   font: inherit;
   cursor: pointer;
@@ -1915,6 +1915,12 @@
   font: inherit;
   font-weight: 600;
 }
+.dict-words-page { max-width: 900px; }
+.dict-words-page > .dict-text-button { display: inline-block; margin-bottom: var(--space-4); }
+.dict-words-page .dict-search-card { padding-bottom: var(--space-5); margin-bottom: var(--space-5); }
+.dict-words-page .dict-search-card h1 { margin: 0 0 var(--space-4); }
+.dict-words-page .dict-panel { padding: var(--space-5); }
+.dict-words-page .dict-ai-chip[aria-pressed="true"] { background: var(--dict-blue); color: #fff; }
 .dict-kanji-mini-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2062,6 +2068,7 @@ html[data-theme="dark"] .dictionary-page #jlabBaseContent {
   background: var(--dark-bg);
 }
 html[data-theme="dark"] .dict-search-card,
+html[data-theme="dark"] .dict-words-page .dict-panel,
 html[data-theme="dark"] .dict-word-card,
 html[data-theme="dark"] #dict-other-results,
 html[data-theme="dark"] .dict-home-panel,

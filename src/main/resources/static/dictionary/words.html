@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Từ vựng chứa Kanji · KotsuKotsu</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <link rel="stylesheet" href="/css/theme-bridge.css" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components/buttons.css" />
+  <link rel="stylesheet" href="/css/components/cards.css" />
+  <link rel="stylesheet" href="/css/components/inputs.css" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261103-nav-hover-2" />
+  <link rel="icon" href="/images/jlab.png" type="image/png" />
+  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261110-words" />
+</head>
+<body id="jlabBasePage" class="dictionary-page">
+  <div id="jlabBaseShellMount"></div>
+  <main id="jlabBaseContent" class="app-main">
+    <div class="container dict-container dict-words-page">
+      <a id="dict-words-back" class="dict-text-button" href="/dictionary/index.html">← Quay lại tra cứu</a>
+      <section class="dict-search-card" aria-labelledby="dict-words-title">
+        <h1 id="dict-words-title">Từ vựng chứa Kanji</h1>
+        <div id="dict-words-chips" class="dict-chip-row" aria-label="Chọn Kanji"></div>
+      </section>
+      <section class="dict-panel" aria-label="Danh sách từ vựng">
+        <p id="dict-words-status" class="dict-status" role="status">Đang tải từ vựng...</p>
+        <div id="dict-words-list"></div>
+        <nav id="dict-words-pagination" class="dict-pagination" aria-label="Trang từ vựng"></nav>
+      </section>
+    </div>
+  </main>
+  <script src="/js/auth-session.js"></script>
+  <script src="/js/jlab-base-shell.js?v=20261109-kotsu"></script>
+  <script src="/js/components.js"></script>
+  <script src="/dictionary/js/api-client.js?v=20261110-words"></script>
+  <script src="/dictionary/js/ja-render.js?v=20261030-4"></script>
+  <script src="/dictionary/js/words-page.js?v=20261110-words"></script>
+</body>
+</html>

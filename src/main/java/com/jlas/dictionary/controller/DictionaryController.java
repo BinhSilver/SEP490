@@ -25,6 +25,7 @@ import com.jlas.dictionary.dto.LessonKanjiRequest;
 import com.jlas.dictionary.dto.LessonSummaryResponse;
 import com.jlas.dictionary.dto.LessonUpsertRequest;
 import com.jlas.dictionary.dto.PagedResponse;
+import com.jlas.dictionary.dto.PageResponse;
 import com.jlas.dictionary.dto.ReorderRequest;
 import com.jlas.dictionary.dto.SearchHistoryResponse;
 import com.jlas.dictionary.dto.SearchResultResponse;
@@ -122,6 +123,14 @@ public class DictionaryController {
     @GetMapping("/kanji/{character}")
     public ApiResponse<KanjiResponse> kanjiDetail(@PathVariable String character) {
         return ApiResponse.ok("OK", dictionaryService.getKanjiDetail(character));
+    }
+
+    @GetMapping("/kanji/{character}/vocabulary")
+    public ResponseEntity<ApiResponse<PageResponse<VocabularyResponse>>> kanjiVocabulary(
+            @PathVariable String character,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", dictionaryService.getKanjiVocabulary(character, page, size)));
     }
 
     /** Nhận diện Kanji vẽ tay theo thời gian thực; FE gọi sau mỗi nét (đã debounce), không gọi theo mousemove. */

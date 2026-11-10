@@ -5,8 +5,8 @@
   var esc = ui.escapeHtml;
   var tabs = ['word', 'kanji', 'example', 'grammar', 'japanese'];
   var state = { tab: 'word', query: '', result: null, selectedId: null, word: null,
-    page: 0, size: 20, token: 0, suggestionResult: null, related: [], relatedShown: 5,
-    kanjiRelated: [], kanjiRelatedShown: 10 };
+    page: 0, size: 20, token: 0, otherPageToken: 0, suggestionResult: null,
+    related: [], relatedKanji: [], kanjiRelated: [], kanjiCharacter: '' };
   var els = {};
   var suggestionTimer;
 
@@ -70,9 +70,14 @@
     });
     var page = state.result && state.result.vocabularyResults;
     var hasMore = !!page && page.last === false;
-    els.other.hidden = state.tab !== 'word' || (!others.length && !hasMore);
+    els.other.hidden = state.tab !== 'word' || (!others.length && !hasMore && state.page === 0);
     els.vocabList.innerHTML = others.map(vocabRowHtml).join('');
-    els.loadMore.hidden = !hasMore;
+    els.otherPagination.innerHTML = page && (state.page > 0 || hasMore)
+      ? '<button type="button" data-other-page="' + (state.page - 1) + '"' +
+          (state.page === 0 ? ' disabled' : '') + '>Trước</button>' +
+        '<span class="dict-pagination__label">Trang ' + (state.page + 1) + '</span>' +
+        '<button type="button" data-other-page="' + (state.page + 1) + '"' +
+          (hasMore ? '' : ' disabled') + '>Tiếp</button>' : '';
   }
 
   function sensesHtml(senses) {
@@ -106,13 +111,21 @@
       ui.jlptBadgeHtml(word.jlptLevel) + '</span>' +
       '<span class="dict-related-row__meaning">' + esc(word.meaning || firstGloss(word)) + '</span></button>';
   }
+  function relatedWordsUrl(kanji, exclude) {
+    var params = new URLSearchParams({ kanji: kanji.join('') });
+    if (exclude) params.set('exclude', exclude);
+    return '/dictionary/words.html?' + params.toString();
+  }
   function renderRelated() {
     var host = byId('dict-related-words');
     if (!host) return;
-    host.hidden = !state.related.length;
-    if (!state.related.length) return;
-    host.innerHTML = '<h2>Từ liên quan</h2>' + state.related.slice(0, state.relatedShown).map(relatedRowHtml).join('') +
-      (state.relatedShown < state.related.length ? '<button type="button" class="dict-text-button" data-related-more>Xem thêm</button>' : '');
+    host.hidden = !state.relatedKanji.length;
+    if (!state.relatedKanji.length) return;
+    host.innerHTML = '<h2>Từ liên quan</h2>' +
+      (state.related.length ? state.related.slice(0, 5).map(relatedRowHtml).join('')
+        : '<p class="dict-detail__empty">Chưa có từ vựng liên quan.</p>') +
+      (state.relatedKanji.length ? '<a class="dict-text-button" href="' +
+        esc(relatedWordsUrl(state.relatedKanji, state.word.expression)) + '">Xem thêm</a>' : '');
   }
   function kanjiMiniHtml(kanji) {
     var readings = kanji.readings || [];
@@ -159,14 +172,15 @@
       });
     });
     state.related = related;
+    state.relatedKanji = Array.from(new Set(composition.map(function (part) { return part.character; }).filter(Boolean)));
     renderRelated();
   }
 
   function renderWord(word, token) {
     var data = word;
     state.word = data;
-    state.relatedShown = 5;
     state.related = [];
+    state.relatedKanji = [];
     var pos = [];
     (data.senses || []).forEach(function (sense) { pos.push.apply(pos, sense.partsOfSpeech || []); });
     var conjugations = window.DictConjugation.conjugate(data.expression, pos);
@@ -214,11 +228,11 @@
   function renderKanjiRelated() {
     var host = byId('dict-kanji-related');
     if (!host) return;
-    host.innerHTML = state.kanjiRelated.length
-      ? state.kanjiRelated.slice(0, state.kanjiRelatedShown).map(relatedRowHtml).join('') +
-        (state.kanjiRelatedShown < state.kanjiRelated.length
-          ? '<button type="button" class="dict-text-button" data-kanji-related-more>Xem thêm</button>' : '')
-      : '<p class="dict-detail__empty">Chưa có từ vựng liên quan.</p>';
+    host.innerHTML = (state.kanjiRelated.length
+      ? state.kanjiRelated.slice(0, 5).map(relatedRowHtml).join('')
+      : '<p class="dict-detail__empty">Chưa có từ vựng liên quan.</p>') +
+      (state.kanjiCharacter ? '<a class="dict-text-button" href="' +
+        esc(relatedWordsUrl([state.kanjiCharacter])) + '">Xem thêm</a>' : '');
   }
 
   async function loadContributions(host, page, token) {
@@ -326,7 +340,7 @@
   function renderKanjiDetail(kanji) {
     var relatedVocabulary = kanji.relatedVocabulary || [];
     state.kanjiRelated = relatedVocabulary;
-    state.kanjiRelatedShown = 10;
+    state.kanjiCharacter = kanji.character;
     var radical = kanji.radical;
     var radicalHtml = radical
       ? '<div class="dict-kanji-radical">' +
@@ -394,7 +408,7 @@
         '<section class="dict-kanji-section" aria-labelledby="dict-kanji-vocab-title">' +
           '<div class="dict-kanji-section-heading">' +
             '<h2 id="dict-kanji-vocab-title">Từ vựng chứa Kanji</h2>' +
-            '<span>' + relatedVocabulary.length + ' từ</span>' +
+             '<span>' + Math.min(relatedVocabulary.length, 5) + ' từ hiển thị</span>' +
           '</div>' +
           '<div id="dict-kanji-related"></div>' +
         '</section>' +
@@ -464,6 +478,7 @@
     state.tab = route.tab;
     state.query = route.query;
     state.page = 0;
+    state.otherPageToken++;
     var token = ++state.token;
     els.input.value = state.query;
     setShell(!state.query);
@@ -511,6 +526,24 @@
       state.suggestionResult = result;
       renderSuggestions(result);
     } catch (_err) { hideSuggestions(); }
+  }
+  async function loadOtherPage(page) {
+    if (page < 0 || !state.result || !state.result.vocabularyResults) return;
+    var token = state.token;
+    var request = ++state.otherPageToken;
+    Array.prototype.forEach.call(els.otherPagination.querySelectorAll('button'), function (button) { button.disabled = true; });
+    try {
+      var result = await window.DictApi.search(state.query, page, state.size);
+      if (token !== state.token || request !== state.otherPageToken) return;
+      state.page = page;
+      state.result = result;
+      renderOtherResults();
+    } catch (_err) {
+      if (token === state.token && request === state.otherPageToken) {
+        renderOtherResults();
+        ui.toast('Không thể tải kết quả');
+      }
+    }
   }
   function commitSearch() {
     var query = els.input.value.trim();
@@ -562,7 +595,7 @@
     els.suggest = byId('dict-suggest'); els.tabs = byId('dict-tabs');
     els.layout = byId('dict-results-layout'); els.detail = byId('dict-detail-pane');
     els.other = byId('dict-other-results'); els.vocabList = byId('dict-vocab-list');
-    els.loadMore = byId('dict-load-more'); els.status = byId('dict-status');
+    els.otherPagination = byId('dict-other-pagination'); els.status = byId('dict-status');
     els.recent = byId('dict-recent-list'); els.recentEmpty = byId('dict-recent-empty');
     els.input.addEventListener('input', function () {
       els.clear.hidden = !els.input.value;
@@ -589,29 +622,12 @@
       if (!event.target.closest('.dict-search-bar')) hideSuggestions();
       var coming = event.target.closest('[data-coming-soon]');
       if (coming) ui.toast('Sắp ra mắt');
-      var relatedMore = event.target.closest('[data-related-more]');
-      if (relatedMore) { state.relatedShown += 5; renderRelated(); }
-      var kanjiRelatedMore = event.target.closest('[data-kanji-related-more]');
-      if (kanjiRelatedMore) { state.kanjiRelatedShown += 10; renderKanjiRelated(); }
+      var otherPage = event.target.closest('[data-other-page]');
+      if (otherPage && !otherPage.disabled) { loadOtherPage(Number(otherPage.dataset.otherPage)); return; }
       var kanji = event.target.closest('[data-kanji]');
       if (kanji) { navigate('kanji', kanji.dataset.kanji); return; }
       var word = event.target.closest('[data-word]');
       if (word) navigate('word', word.dataset.word, word.dataset.vocabId || null);
-    });
-    els.loadMore.addEventListener('click', async function () {
-      if (els.loadMore.disabled) return;
-      els.loadMore.disabled = true;
-      var query = state.query, token = state.token;
-      try {
-        var next = await window.DictApi.search(query, state.page + 1, state.size);
-        if (token !== state.token) return;
-        state.page++;
-        var page = state.result.vocabularyResults;
-        page.content = page.content.concat(next.vocabularyResults.content || []);
-        page.last = next.vocabularyResults.last;
-        renderOtherResults();
-      } catch (_err) { ui.toast('Không thể tải thêm kết quả'); }
-      finally { els.loadMore.disabled = false; }
     });
     byId('dict-open-handwriting').addEventListener('click', function () {
       if (window.DictHandwriting) window.DictHandwriting.clear();
