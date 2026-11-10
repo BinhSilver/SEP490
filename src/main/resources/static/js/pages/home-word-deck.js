@@ -26,15 +26,43 @@
     { key: 'NOTEBOOK', label: 'Sổ tay của tôi' },
     { key: 'NEW', label: 'Từ mới cấp hiện tại' }
   ];
-  var TITLES = { QUICK: 'Ôn nhanh hôm nay', REVIEW: 'Từ đang ôn hôm nay', NOTEBOOK: 'Từ trong sổ tay', NEW: 'Từ mới hôm nay', START: 'Một từ, một khởi đầu',
+  var SOURCE_TITLES = { AUTO: 'Gợi ý cho bạn', REVIEW: 'Từ đang ôn', NOTEBOOK: 'Sổ tay của tôi', NEW: 'Từ mới cấp hiện tại' };
+  var TITLES = { QUICK: 'Một từ mới mỗi ngày', REVIEW: 'Từ đang ôn hôm nay', NOTEBOOK: 'Từ trong sổ tay', NEW: 'Từ mới hôm nay', START: 'Một từ, một khởi đầu',
     EMPTY_REVIEW: 'Chưa có từ đang ôn · gợi ý từ của cấp', EMPTY_NOTEBOOK: 'Sổ tay trống · gợi ý từ của cấp',
     EMPTY_NEW: 'Đã học hết từ mới · gợi ý từ của cấp' };
   var BASE = '/api/learning/jlpt';
+  // owner 11/11: at least 30 fixed N5 words, shown to a learner without a path (and if a call fails)
   var FALLBACK = [
     { expression: '私', reading: 'わたし', meaning: 'tôi' },
     { expression: '学校', reading: 'がっこう', meaning: 'trường học' },
     { expression: '友達', reading: 'ともだち', meaning: 'bạn bè' },
-    { expression: '毎日', reading: 'まいにち', meaning: 'mỗi ngày' }
+    { expression: '毎日', reading: 'まいにち', meaning: 'mỗi ngày' },
+    { expression: '先生', reading: 'せんせい', meaning: 'giáo viên' },
+    { expression: '学生', reading: 'がくせい', meaning: 'học sinh, sinh viên' },
+    { expression: '日本語', reading: 'にほんご', meaning: 'tiếng Nhật' },
+    { expression: '水', reading: 'みず', meaning: 'nước' },
+    { expression: '山', reading: 'やま', meaning: 'núi' },
+    { expression: '川', reading: 'かわ', meaning: 'sông' },
+    { expression: '花', reading: 'はな', meaning: 'hoa' },
+    { expression: '雨', reading: 'あめ', meaning: 'mưa' },
+    { expression: '天気', reading: 'てんき', meaning: 'thời tiết' },
+    { expression: '今日', reading: 'きょう', meaning: 'hôm nay' },
+    { expression: '明日', reading: 'あした', meaning: 'ngày mai' },
+    { expression: '時間', reading: 'じかん', meaning: 'thời gian' },
+    { expression: '電車', reading: 'でんしゃ', meaning: 'tàu điện' },
+    { expression: '駅', reading: 'えき', meaning: 'nhà ga' },
+    { expression: '家', reading: 'いえ', meaning: 'nhà' },
+    { expression: '家族', reading: 'かぞく', meaning: 'gia đình' },
+    { expression: '母', reading: 'はは', meaning: 'mẹ (của mình)' },
+    { expression: '父', reading: 'ちち', meaning: 'bố (của mình)' },
+    { expression: '本', reading: 'ほん', meaning: 'sách' },
+    { expression: '名前', reading: 'なまえ', meaning: 'tên' },
+    { expression: '食べる', reading: 'たべる', meaning: 'ăn' },
+    { expression: '飲む', reading: 'のむ', meaning: 'uống' },
+    { expression: '行く', reading: 'いく', meaning: 'đi' },
+    { expression: '見る', reading: 'みる', meaning: 'xem, nhìn' },
+    { expression: '大きい', reading: 'おおきい', meaning: 'to, lớn' },
+    { expression: '新しい', reading: 'あたらしい', meaning: 'mới' }
   ];
 
   function esc(s) {
@@ -60,8 +88,10 @@
   }
 
   /** Card eyebrow for the kind of list actually shown (REVIEW / NOTEBOOK / NEW / START). */
-  function label(kind) {
-    return TITLES[kind] || TITLES.START;
+  function label(kind, source, level) {
+    if (kind === 'QUICK' || /^EMPTY_/.test(kind || '') || !source) return TITLES[kind] || TITLES.START;
+    var t = SOURCE_TITLES[source] || SOURCE_TITLES.AUTO;
+    return source === 'NEW' && level ? 'Từ mới cấp ' + level : t;
   }
 
   function cardHtml(word, title, kind) {
@@ -144,9 +174,12 @@
    * learner's starred words, NEW = not-yet-learned words of the open level, AUTO = REVIEW else NEW. An empty choice
    * falls back to the level's list; a guest or a failed call gets the fixed starter words (kind START).
    */
+  var state0 = { level: null };
+
   function loadWords(source) {
     return getJson(BASE + '/path').then(function (path) {
       var level = (path && path.openLevel) || 'N5';
+      state0.level = level;
       var url = BASE + '/lists/vocabulary?level=' + encodeURIComponent(level);
       function pick(kind, req) {
         return req.then(function (page) {
@@ -164,11 +197,7 @@
       return chain.then(function (r) {
         return r || getJson(url).then(function (all) { return { words: pickWords(itemsOf(all), null, 5), kind: source && source !== 'AUTO' ? 'EMPTY_' + source : 'START' }; });
       });
-    }).catch(function () {
-      return getJson(BASE + '/lists/vocabulary?level=N5')
-        .then(function (all) { return { words: pickWords(itemsOf(all), null, 5), kind: 'QUICK' }; })
-        .catch(function () { return { words: FALLBACK.slice(), kind: 'QUICK' }; });
-    });
+    }).catch(function () { return { words: pickWords(FALLBACK, null, FALLBACK.length), kind: 'QUICK' }; });
   }
 
   var mounted = false;
@@ -212,7 +241,7 @@
     }
 
     function draw() {
-      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind), state.kind);
+      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind, state.source, state0.level), state.kind);
       // without a path there is nothing being reviewed or saved yet: only "Tự động" and "Từ mới" stay in the menu
       box.querySelectorAll('[data-hwd-source="REVIEW"], [data-hwd-source="NOTEBOOK"]').forEach(function (el) {
         el.hidden = state.kind === 'QUICK';
