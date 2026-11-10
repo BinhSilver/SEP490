@@ -3787,3 +3787,44 @@ html.dark .cp-page {
 /* [JLAS-W0108] F12: why a tab after kana is locked */
 .jp-path .jp-locked-note { grid-column: 1 / -1; margin: 0; font-weight: 600; }
 .jp-path .jp-locked-note a { margin-left: 6px; color: var(--jp-primary); }
+
+/* [JLAS-W0108] F22: compact 50-sound kana table, one group at a time */
+.jp-kana-groups { margin: 4px 0 12px; }
+.jp-kana-groups small { margin-left: 4px; font-weight: 500; opacity: .75; }
+.jp-kana-panel .jp-table-wrap { border: 1px solid var(--jp-line); border-radius: 16px; background: var(--jp-surface);
+  padding: 8px; overflow-x: auto; }
+.jp-kana-table { width: 100%; border-collapse: separate; border-spacing: 6px; table-layout: fixed; }
+.jp-kana-table thead th { font-size: .78rem; font-weight: 600; color: var(--jp-muted); text-transform: uppercase;
+  letter-spacing: .06em; padding: 0 0 2px; text-align: center; }
+.jp-kana-table thead th:first-child { width: 92px; }
+.jp-kana-table td { padding: 0; }
+.jp-kana-table .jp-kana-cell { width: 100%; min-height: 0; padding: 6px 2px; border-radius: 12px;
+  background: var(--jp-surface-2, #f7f5fb); border-color: transparent; transition: transform .12s, border-color .12s; }
+.jp-kana-table .jp-kana-cell:hover { border-color: var(--jp-primary); transform: translateY(-1px); }
+.jp-kana-table .jp-kana-cell__kana { font-size: 1.35em; }
+.jp-kana-table .jp-kana-cell .jp-romaji { font-size: .72rem; color: var(--jp-muted); }
+.jp-kana-table .jp-kana-cell--known { background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface)); }
+.jp-kana-table .jp-kana-cell--learning { border-color: var(--jp-primary); }
+.jp-kana-table__head { text-align: left; white-space: nowrap; padding: 0 4px; vertical-align: middle;
+  border-left: 3px solid var(--jp-line); border-radius: 4px; }
+.jp-kana-table tr.is-passed .jp-kana-table__head { border-left-color: var(--jp-ok); }
+.jp-kana-table__title { font-weight: 700; font-size: 1.05rem; }
+.jp-kana-table__ok { color: var(--jp-ok); margin-left: 4px; display: inline-flex; vertical-align: middle; }
+.jp-kana-table__ok .jp-i { width: 14px; height: 14px; }
+.jp-kana-table__learn { display: block; margin-top: 2px; padding: 0; border: 0; background: none; font: inherit;
+  font-size: .78rem; font-weight: 600; color: var(--jp-primary); cursor: pointer; }
+.jp-kana-table__learn:hover { text-decoration: underline; }
+.jp-kana-table--yoon thead th:first-child { width: 110px; }
+@media (max-width: 560px) {
+  .jp-kana-table { border-spacing: 4px; }
+  .jp-kana-table thead th:first-child { width: 58px; }
+  .jp-kana-table__title { font-size: .92rem; }
+  .jp-kana-table .jp-kana-cell__kana { font-size: 1.15em; }
+}
+
+/* [JLAS-W0108] narrow screens (≤400px): the calendar and Kitsu no longer squeeze the title to one letter per line */
+@media (max-width: 400px) {
+  .jp-path .jp-today__top { flex-wrap: wrap !important; }
+  .jp-path .jp-today__lead { flex: 1 1 140px !important; }
+  .jp-path .jp-today__top .jp-today__kitsu { display: none !important; }
+}
