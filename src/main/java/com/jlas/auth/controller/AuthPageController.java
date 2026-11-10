@@ -13,9 +13,12 @@ public class AuthPageController {
     private String googleClientId;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, org.springframework.security.core.Authentication authentication) {
         model.addAttribute("layoutMode", "marketing");
-        return "index";
+        // F24: khách chưa đăng nhập thấy trang giới thiệu; người đã đăng nhập giữ trang chủ cũ.
+        boolean signedIn = authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
+        return signedIn ? "index" : "landing";
     }
 
     @GetMapping("/login")

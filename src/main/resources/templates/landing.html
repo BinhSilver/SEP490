@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: standard('KotsuKotsu', 'landing')}"></head>
+
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body app-body--marketing page-landing">
+
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="app-main lp">
+        <!-- 1. Hero -->
+        <section class="lp-hero" aria-labelledby="lp-hero-title">
+            <div class="lp-wrap lp-hero__grid">
+                <div class="lp-hero__text">
+                    <p class="lp-eyebrow">こつこつ · Kiên trì mỗi ngày</p>
+                    <h1 id="lp-hero-title" class="lp-hero__title">
+                        Học tiếng Nhật <span class="lp-accent">từng chút một</span>, đi xa mỗi ngày.
+                    </h1>
+                    <p class="lp-hero__lead">
+                        KotsuKotsu kiểm tra trình độ của bạn bằng Smart Test, rồi dựng lộ trình JLPT N5–N1
+                        hoặc lộ trình Giao tiếp theo từng ngày — kèm từ điển, flashcard, shadowing và luyện nói với AI.
+                    </p>
+                    <div class="lp-actions">
+                        <a class="lp-btn lp-btn--primary" th:href="@{/register}">Bắt đầu miễn phí</a>
+                        <a class="lp-btn lp-btn--ghost" th:href="@{/login}">Tôi đã có tài khoản</a>
+                    </div>
+                    <ul class="lp-hero__chips" aria-label="Điểm nổi bật">
+                        <li>JLPT N5 → N1</li>
+                        <li>Lộ trình theo ngày</li>
+                        <li>Luyện nói với AI</li>
+                    </ul>
+                </div>
+                <div class="lp-hero__art" aria-hidden="true">
+                    <div class="lp-hero__blob"></div>
+                    <img class="lp-hero__mascot" th:src="@{/images/mascots/kitsu/kitsu-waving.svg}" alt="" width="320" height="320">
+                    <div class="lp-float lp-float--a">日本語 <small>N5</small></div>
+                    <div class="lp-float lp-float--b">🔥 7 ngày liên tiếp</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Tính năng -->
+        <section class="lp-section" aria-labelledby="lp-features-title">
+            <div class="lp-wrap">
+                <header class="lp-head lp-reveal">
+                    <p class="lp-eyebrow">Mọi thứ ở một nơi</p>
+                    <h2 id="lp-features-title">Công cụ cho cả hành trình học</h2>
+                </header>
+                <div class="lp-features">
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">quiz</span>
+                        <h3>Smart Test</h3>
+                        <p>Bài kiểm tra thích ứng: câu hỏi đổi độ khó theo câu trả lời để xếp đúng cấp JLPT của bạn.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">route</span>
+                        <h3>Lộ trình JLPT</h3>
+                        <p>Kế hoạch học từng ngày từ N5 đến N1: từ vựng, kanji, ngữ pháp, đọc, nghe và bài kiểm tra định kỳ.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">forum</span>
+                        <h3>Lộ trình Giao tiếp</h3>
+                        <p>Học theo tình huống thực tế rồi gọi điện luyện nói với AI để áp dụng ngay.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">menu_book</span>
+                        <h3>Từ điển & tra nhanh</h3>
+                        <p>Tra từ, kanji, cách đọc và ví dụ trong vài giây, lưu ngay vào bộ thẻ của bạn.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">style</span>
+                        <h3>Flashcard</h3>
+                        <p>Ôn tập lặp lại ngắt quãng và chế độ Speed Recall giúp nhớ lâu hơn.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">record_voice_over</span>
+                        <h3>Shadowing & Kaiwa AI</h3>
+                        <p>Nhại theo video, chấm phát âm, và hội thoại tự do với AI bằng tiếng Nhật.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">sports_esports</span>
+                        <h3>Mini-game & nhiệm vụ</h3>
+                        <p>Trò chơi kana, kanji, đấu trường và nhiệm vụ hằng ngày để học mà không chán.</p>
+                    </article>
+                    <article class="lp-card lp-reveal">
+                        <span class="lp-card__icon material-symbols-outlined" aria-hidden="true">workspace_premium</span>
+                        <h3>CP & Premium</h3>
+                        <p>Học đều để nhận CP. Premium mở khoá lộ trình N3–N1 và các tính năng AI nâng cao.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Cách hoạt động -->
+        <section class="lp-section lp-section--tint" aria-labelledby="lp-steps-title">
+            <div class="lp-wrap">
+                <header class="lp-head lp-reveal">
+                    <p class="lp-eyebrow">Bắt đầu trong 3 bước</p>
+                    <h2 id="lp-steps-title">Học như thế nào trên KotsuKotsu?</h2>
+                </header>
+                <ol class="lp-steps">
+                    <li class="lp-step lp-reveal">
+                        <span class="lp-step__num">1</span>
+                        <h3>Làm Smart Test</h3>
+                        <p>Khoảng 15 phút để biết bạn đang ở cấp nào và mạnh, yếu phần nào.</p>
+                    </li>
+                    <li class="lp-step lp-reveal">
+                        <span class="lp-step__num">2</span>
+                        <h3>Nhận lộ trình riêng</h3>
+                        <p>Hệ thống chia bài học theo số phút bạn có mỗi ngày, ưu tiên phần còn yếu.</p>
+                    </li>
+                    <li class="lp-step lp-reveal">
+                        <span class="lp-step__num">3</span>
+                        <h3>Học đều, lên cấp</h3>
+                        <p>Hoàn thành bài mỗi ngày, vượt bài kiểm tra chặng để mở cấp tiếp theo.</p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- 4. Cấp độ -->
+        <section class="lp-section" aria-labelledby="lp-levels-title">
+            <div class="lp-wrap">
+                <header class="lp-head lp-reveal">
+                    <p class="lp-eyebrow">Lộ trình JLPT</p>
+                    <h2 id="lp-levels-title">Chọn cấp độ phù hợp với bạn</h2>
+                </header>
+                <div class="lp-levels">
+                    <article class="lp-level lp-reveal"><span class="lp-level__tag">N5</span><h3>Nhập môn</h3><p>Kana, từ vựng và mẫu câu cơ bản nhất.</p><span class="lp-badge">Miễn phí</span></article>
+                    <article class="lp-level lp-reveal"><span class="lp-level__tag">N4</span><h3>Sơ cấp</h3><p>Hội thoại hằng ngày, kanji thông dụng.</p><span class="lp-badge">Miễn phí</span></article>
+                    <article class="lp-level lp-reveal"><span class="lp-level__tag">N3</span><h3>Trung cấp</h3><p>Đọc hiểu đoạn văn, nghe tốc độ tự nhiên.</p><span class="lp-badge lp-badge--pro">Premium</span></article>
+                    <article class="lp-level lp-reveal"><span class="lp-level__tag">N2</span><h3>Trung cao cấp</h3><p>Báo chí, công việc, ngữ pháp phức tạp.</p><span class="lp-badge lp-badge--pro">Premium</span></article>
+                    <article class="lp-level lp-reveal"><span class="lp-level__tag">N1</span><h3>Cao cấp</h3><p>Văn bản học thuật, sắc thái tinh tế.</p><span class="lp-badge lp-badge--pro">Premium</span></article>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Số liệu -->
+        <section class="lp-stats" aria-label="KotsuKotsu qua con số">
+            <div class="lp-wrap lp-stats__grid">
+                <div class="lp-stat"><strong>5</strong><span>cấp độ JLPT</span></div>
+                <div class="lp-stat"><strong>2</strong><span>loại lộ trình: JLPT & Giao tiếp</span></div>
+                <div class="lp-stat"><strong>8+</strong><span>công cụ học trong một nơi</span></div>
+                <div class="lp-stat"><strong>24/7</strong><span>luyện nói cùng AI</span></div>
+            </div>
+        </section>
+
+        <!-- 6. FAQ -->
+        <section class="lp-section" aria-labelledby="lp-faq-title">
+            <div class="lp-wrap lp-wrap--narrow">
+                <header class="lp-head lp-reveal">
+                    <p class="lp-eyebrow">Câu hỏi thường gặp</p>
+                    <h2 id="lp-faq-title">Bạn còn thắc mắc?</h2>
+                </header>
+                <div class="lp-faq">
+                    <details class="lp-faq__item">
+                        <summary>KotsuKotsu có miễn phí không?</summary>
+                        <p>Có. Smart Test, lộ trình N5–N4, từ điển, flashcard và mini-game đều dùng miễn phí. Premium mở thêm lộ trình N3–N1 và tính năng AI nâng cao.</p>
+                    </details>
+                    <details class="lp-faq__item">
+                        <summary>Tôi chưa biết gì về tiếng Nhật thì bắt đầu từ đâu?</summary>
+                        <p>Bạn có thể bỏ qua bài test và bắt đầu từ cấp nhập môn, học bảng chữ kana trước rồi đến N5.</p>
+                    </details>
+                    <details class="lp-faq__item">
+                        <summary>Mỗi ngày cần học bao lâu?</summary>
+                        <p>Bạn tự chọn số phút mỗi ngày; lộ trình sẽ chia lại bài học cho vừa thời gian đó.</p>
+                    </details>
+                    <details class="lp-faq__item">
+                        <summary>CP là gì?</summary>
+                        <p>CP là điểm thưởng khi bạn hoàn thành bài học và nhiệm vụ, dùng để mở một số nội dung và vật phẩm trong ứng dụng.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. CTA cuối -->
+        <section class="lp-cta" aria-labelledby="lp-cta-title">
+            <div class="lp-wrap lp-cta__inner lp-reveal">
+                <img th:src="@{/images/mascots/kitsu/kitsu-cheer-30.webp}" alt="" width="120" height="120" loading="lazy">
+                <div>
+                    <h2 id="lp-cta-title">Mỗi ngày một chút — bắt đầu hôm nay.</h2>
+                    <p>Tạo tài khoản miễn phí và làm Smart Test đầu tiên của bạn.</p>
+                </div>
+                <a class="lp-btn lp-btn--light" th:href="@{/register}">Tạo tài khoản</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 8. Footer -->
+    <footer class="lp-footer">
+        <div class="lp-wrap lp-footer__grid">
+            <div>
+                <strong class="lp-footer__brand">KotsuKotsu</strong>
+                <p>Nền tảng học và đánh giá tiếng Nhật cá nhân hoá.</p>
+            </div>
+            <nav aria-label="Khám phá">
+                <h3>Khám phá</h3>
+                <a th:href="@{/dictionary}">Từ điển</a>
+                <a th:href="@{/shadowing}">Shadowing</a>
+                <a th:href="@{/premium}">Premium</a>
+            </nav>
+            <nav aria-label="Tài khoản">
+                <h3>Tài khoản</h3>
+                <a th:href="@{/login}">Đăng nhập</a>
+                <a th:href="@{/register}">Đăng ký</a>
+            </nav>
+        </div>
+        <p class="lp-footer__copy">© 2026 KotsuKotsu</p>
+    </footer>
+
+    <script th:src="@{/js/pages/landing.js?v=20261110-f24}"></script>
+    <script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+</body>
+
+</html>
