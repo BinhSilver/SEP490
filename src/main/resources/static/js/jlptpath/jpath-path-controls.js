@@ -454,7 +454,7 @@
       + '<div class="jp-today__lead">'
       + '<div class="jp-today__title-row">'
       + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
-      + (t.allDone ? '<span class="jp-today__stamp" role="img" aria-label="Đã học hôm nay" title="Đã học hôm nay"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="jpStampArc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"></path></defs><circle class="jp-today__stamp-o" cx="50" cy="50" r="47"></circle><circle class="jp-today__stamp-i" cx="50" cy="50" r="29"></circle><text class="jp-today__stamp-arc"><textPath href="#jpStampArc" startOffset="0">KOTSUKOTSU ・ ĐÃ HỌC HÔM NAY ・</textPath></text><text class="jp-today__stamp-jp" x="50" y="58" text-anchor="middle" lang="ja">済</text></svg></span>' : '')
+      + (t.allDone ? '<span class="jp-today__stamp" role="img" tabindex="0" aria-label="Bạn đã hoàn thành toàn bộ bài học hôm nay!" data-tip="Bạn đã hoàn thành toàn bộ bài học hôm nay!"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="jpStampArc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"></path></defs><circle class="jp-today__stamp-o" cx="50" cy="50" r="47"></circle><circle class="jp-today__stamp-i" cx="50" cy="50" r="29"></circle><text class="jp-today__stamp-arc"><textPath href="#jpStampArc" startOffset="0">KOTSUKOTSU ・ ĐÃ HỌC HÔM NAY ・</textPath></text><text class="jp-today__stamp-jp" x="50" y="58" text-anchor="middle" lang="ja">済</text></svg></span>' : '')
       + '</div>'
       + '<p class="jp-today__subtitle">' + esc(dayLine(t)) + '</p>'
       + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '')
@@ -472,8 +472,7 @@
 
     if (t.allDone) {
       return html + '<div class="jp-today__done-bar">'
-        + '<p class="jp-today__done">' + medalMiniSvg() + ' Bạn đã hoàn thành toàn bộ bài học hôm nay!</p>'
-        + '<a class="jp-btn jp-btn--primary jp-today__review-btn" href="/learning/jlpt/day">Xem ngày học hôm nay</a>'
+        + '<a class="jp-btn jp-btn--primary jp-today__review-btn" href="/learning/jlpt/day">Xem lại phần đã học hôm nay</a>'
         + '</div>'
         + (t.kind !== 'REST' && t.kind !== 'SKILL' && !t.kanaPhase ? studyPillsHtml(t) : '')
         + missed + end;
