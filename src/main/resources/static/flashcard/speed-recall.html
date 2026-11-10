@@ -45,6 +45,9 @@
           <div class="sr-setup__field"><span>Đáp bằng</span>
             <div class="sr-setup__segments" style="--mode-count:4" role="group" aria-label="Nội dung đáp án"><button type="button" data-answer="KANJI" aria-pressed="false">Kanji</button><button type="button" data-answer="HIRAGANA" class="is-active" aria-pressed="true">Hiragana</button><button type="button" data-answer="MEANING" aria-pressed="false">Nghĩa</button><button type="button" data-answer="HAN_VIET" aria-pressed="false">Hán Việt</button></div>
           </div>
+          <div class="sr-setup__field"><label for="time-limit">Thời gian mỗi từ</label>
+            <div class="sr-setup__control"><select id="time-limit"><option value="">Tự động (6 giây, nhanh dần)</option><option value="6">6 giây</option><option value="10">10 giây</option><option value="15">15 giây</option><option value="20">20 giây</option><option value="30">30 giây</option><option value="45">45 giây</option><option value="60">60 giây</option></select></div>
+          </div>
         </div>
         <div id="selection-list"></div>
         <div class="sr-setup__help"><span><i class="fa-regular fa-keyboard" aria-hidden="true"></i> <span id="answer-hint">Gõ Romaji bằng bàn phím ENG hoặc nhập kana</span></span><span>Phím tắt Enter để bắt đầu</span></div>
@@ -145,6 +148,6 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
-  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261015-pager"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261110-time-limit"></script>
 </body>
 </html>
