@@ -18,6 +18,17 @@
   'use strict';
 
   var HIDE_KEY = 'home.wordDeck.hidden';
+  var SOURCE_KEY = 'home.wordDeck.source';
+  // owner 10/11: the learner picks where the cards come from; AUTO = review words, else new words of the level
+  var SOURCES = [
+    { key: 'AUTO', label: 'Tự động (gợi ý)' },
+    { key: 'REVIEW', label: 'Từ đang ôn' },
+    { key: 'NOTEBOOK', label: 'Sổ tay của tôi' },
+    { key: 'NEW', label: 'Từ mới cấp hiện tại' }
+  ];
+  var TITLES = { REVIEW: 'Từ đang ôn hôm nay', NOTEBOOK: 'Từ trong sổ tay', NEW: 'Từ mới hôm nay', START: 'Một từ, một khởi đầu',
+    EMPTY_REVIEW: 'Chưa có từ đang ôn · gợi ý từ của cấp', EMPTY_NOTEBOOK: 'Sổ tay trống · gợi ý từ của cấp',
+    EMPTY_NEW: 'Đã học hết từ mới · gợi ý từ của cấp' };
   var BASE = '/api/learning/jlpt';
   var FALLBACK = [
     { expression: '私', reading: 'わたし', meaning: 'tôi' },
@@ -48,8 +59,9 @@
     return out;
   }
 
-  function label(learning) {
-    return learning ? 'Từ đang ôn hôm nay' : 'Một từ, một khởi đầu';
+  /** Card eyebrow for the kind of list actually shown (REVIEW / NOTEBOOK / NEW / START). */
+  function label(kind) {
+    return TITLES[kind] || TITLES.START;
   }
 
   function cardHtml(word, title) {
@@ -67,7 +79,19 @@
   }
 
   function deckHtml() {
-    return '<button type="button" class="hwd-toggle" data-hwd="toggle" aria-expanded="true">Ẩn thẻ từ</button>'
+    return '<div class="hwd-bar">'
+      + '<button type="button" class="hwd-more" data-hwd="menu" aria-haspopup="menu" aria-expanded="false" aria-label="Tùy chọn thẻ từ">'
+      + '<span aria-hidden="true">⋯</span></button>'
+      + '<div class="hwd-menu" role="menu" hidden>'
+      + '<div class="hwd-menu__title">Nguồn từ</div>'
+      + SOURCES.map(function (o) {
+        return '<button type="button" class="hwd-menu__item" role="menuitemradio" aria-checked="false" data-hwd-source="'
+          + o.key + '"><span class="hwd-menu__check" aria-hidden="true">✓</span>' + esc(o.label) + '</button>';
+      }).join('')
+      + '<div class="hwd-menu__sep" role="separator"></div>'
+      + '<button type="button" class="hwd-menu__item" role="menuitem" data-hwd="toggle"><span class="hwd-menu__check" aria-hidden="true"></span>'
+      + '<span class="hwd-toggle__text">Ẩn thẻ từ</span></button>'
+      + '</div></div>'
       + '<div class="hwd-stage">'
       + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__glass"></span>'
       + '<span class="hwd-photo__poem" lang="ja">毎日、こつこつ。</span>'
@@ -76,6 +100,17 @@
       + '<div class="hwd-deck"><span class="hwd-deck__back hwd-deck__back--2"></span><span class="hwd-deck__back hwd-deck__back--1"></span>'
       + '<div class="hwd-card" role="button" tabindex="0" aria-live="polite" data-hwd="flip"></div></div>'
       + '</div>';
+  }
+
+  function readSource() {
+    try {
+      var v = root.localStorage.getItem(SOURCE_KEY);
+      return SOURCES.some(function (o) { return o.key === v; }) ? v : 'AUTO';
+    } catch (e) { return 'AUTO'; }
+  }
+
+  function writeSource(v) {
+    try { root.localStorage.setItem(SOURCE_KEY, v); } catch (e) { /* private mode: not kept */ }
   }
 
   function readHidden() {
@@ -95,17 +130,34 @@
     }).then(function (env) { return env && env.data; });
   }
 
-  /** Resolves to {words, learning}: words being learned at the open level, else that level's list. */
-  function loadWords() {
+  function itemsOf(page) { return (page && page.items) || []; }
+
+  /**
+   * Resolves to {words, kind} for {@code source}: REVIEW = words being learned at the open level, NOTEBOOK = the
+   * learner's starred words, NEW = not-yet-learned words of the open level, AUTO = REVIEW else NEW. An empty choice
+   * falls back to the level's list; a guest or a failed call gets the fixed starter words (kind START).
+   */
+  function loadWords(source) {
     return getJson(BASE + '/path').then(function (path) {
       var level = (path && path.openLevel) || 'N5';
       var url = BASE + '/lists/vocabulary?level=' + encodeURIComponent(level);
-      return getJson(url + '&state=LEARNING').then(function (page) {
-        var items = page && page.items;
-        if (items && items.length) return { words: pickWords(items, null, 5), learning: true };
-        return getJson(url).then(function (all) { return { words: pickWords(all && all.items, null, 5), learning: false }; });
+      function pick(kind, req) {
+        return req.then(function (page) {
+          var items = itemsOf(page);
+          return items.length ? { words: pickWords(items, null, 5), kind: kind } : null;
+        });
+      }
+      function review() { return pick('REVIEW', getJson(url + '&state=LEARNING')); }
+      function fresh() { return pick('NEW', getJson(url + '&state=NEW')); }
+      var chain;
+      if (source === 'REVIEW') chain = review();
+      else if (source === 'NOTEBOOK') chain = pick('NOTEBOOK', getJson(BASE + '/notebook?tab=VOCAB'));
+      else if (source === 'NEW') chain = fresh();
+      else chain = review().then(function (r) { return r || fresh(); });
+      return chain.then(function (r) {
+        return r || getJson(url).then(function (all) { return { words: pickWords(itemsOf(all), null, 5), kind: source && source !== 'AUTO' ? 'EMPTY_' + source : 'START' }; });
       });
-    }).catch(function () { return { words: FALLBACK.slice(), learning: false }; });
+    }).catch(function () { return { words: FALLBACK.slice(), kind: 'START' }; });
   }
 
   var mounted = false;
@@ -122,17 +174,37 @@
     hero.appendChild(box);
     var card = box.querySelector('.hwd-card');
     var toggle = box.querySelector('[data-hwd="toggle"]');
-    var state = { words: FALLBACK.slice(), learning: false, i: 0 };
+    var menu = box.querySelector('.hwd-menu');
+    var more = box.querySelector('[data-hwd="menu"]');
+    var state = { words: FALLBACK.slice(), kind: 'START', i: 0, source: readSource() };
+    var auth = root.JlasAuth;
+    if (!(auth && auth.isLoggedIn && auth.isLoggedIn())) { // a guest has no path: only hide/show is offered
+      box.querySelectorAll('[data-hwd-source], .hwd-menu__title, .hwd-menu__sep').forEach(function (el) { el.hidden = true; });
+    }
+
+    function markSource() {
+      box.querySelectorAll('[data-hwd-source]').forEach(function (el) {
+        el.setAttribute('aria-checked', String(el.getAttribute('data-hwd-source') === state.source));
+      });
+    }
+
+    function openMenu(v) {
+      menu.hidden = !v;
+      more.setAttribute('aria-expanded', String(v));
+    }
+
+    function reload() {
+      loadWords(state.source).then(function (r) { state.words = r.words; state.kind = r.kind; state.i = 0; draw(); });
+    }
 
     function draw() {
-      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.learning));
+      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind));
       card.classList.remove('is-flipped');
     }
 
     function setHidden(v) {
       box.classList.toggle('is-hidden', v);
-      toggle.textContent = v ? 'Hiện thẻ từ' : 'Ẩn thẻ từ';
-      toggle.setAttribute('aria-expanded', String(!v));
+      toggle.querySelector('.hwd-toggle__text').textContent = v ? 'Hiện thẻ từ' : 'Ẩn thẻ từ';
     }
 
     function flip() {
@@ -143,7 +215,23 @@
 
     box.addEventListener('click', function (e) {
       if (e.target.closest('.hwd-card__learn')) return;
-      if (e.target.closest('[data-hwd="toggle"]')) { var v = !box.classList.contains('is-hidden'); setHidden(v); writeHidden(v); return; }
+      if (e.target.closest('[data-hwd="menu"]')) { openMenu(menu.hidden); return; }
+      var src = e.target.closest('[data-hwd-source]');
+      if (src) {
+        state.source = src.getAttribute('data-hwd-source');
+        writeSource(state.source);
+        markSource();
+        openMenu(false);
+        reload();
+        return;
+      }
+      if (e.target.closest('[data-hwd="toggle"]')) {
+        var v = !box.classList.contains('is-hidden');
+        setHidden(v);
+        writeHidden(v);
+        openMenu(false);
+        return;
+      }
       if (e.target.closest('[data-hwd="next"]')) {
         state.i = (state.i + 1) % state.words.length;
         card.classList.add('is-leaving');
@@ -152,14 +240,17 @@
       }
       if (e.target.closest('[data-hwd="flip"]')) flip();
     });
+    doc.addEventListener('click', function (e) { if (!box.contains(e.target)) openMenu(false); });
+    doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { openMenu(false); more.focus(); } });
+    markSource();
     card.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); flip(); }
     });
 
     setHidden(readHidden());
     draw();
-    loadWords().then(function (r) { state.words = r.words; state.learning = r.learning; state.i = 0; draw(); });
+    reload();
   }
 
-  return { pickWords: pickWords, cardHtml: cardHtml, label: label, FALLBACK: FALLBACK, mount: mount };
+  return { pickWords: pickWords, cardHtml: cardHtml, label: label, loadWords: loadWords, SOURCES: SOURCES, FALLBACK: FALLBACK, mount: mount };
 });
