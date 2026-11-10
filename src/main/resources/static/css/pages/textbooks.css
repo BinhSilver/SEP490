@@ -260,6 +260,7 @@
 .topic-chip--empty { cursor: default; color: var(--color-on-surface-variant); background: var(--color-surface-low); }
 .topic-chip--empty:hover { border-color: var(--color-outline-variant); }
 .topic-chip__note { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
+.topic-chip.is-active .topic-chip__note { color: inherit; }
 .topic-lessons { display: flex; flex-direction: column; gap: var(--space-4); }
 .topic-lessons__header { display: flex; align-items: baseline; gap: var(--space-3); }
 .textbooks-empty--inline { padding: var(--space-4); box-shadow: none; background: var(--color-surface-low); }
@@ -1780,8 +1781,8 @@
 
 /* Plum dark mode */
 html[data-theme="dark"] .textbook-thumb__badge--level { background: var(--dark-raised); color: var(--dark-ink); box-shadow: 0 1px 2px var(--dark-shadow); }
-html[data-theme="dark"] .textbook-thumb { background: var(--dark-raised); }
-html[data-theme="dark"] .textbook-thumb__kanji { color: var(--dark-accent); }
+html[data-theme="dark"] .textbook-thumb:not(.textbook-thumb--custom) { background: var(--dark-raised); }
+html[data-theme="dark"] .textbook-thumb:not(.textbook-thumb--custom) .textbook-thumb__kanji { color: var(--dark-accent); }
 html[data-theme="dark"] .practice-q__option.is-correct .practice-q__option-no,
 html[data-theme="dark"] .practice-q__option.is-wrong .practice-q__option-no,
 html[data-theme="dark"] .manage-main .manage-chip.is-on { color: var(--dark-on-button); }
@@ -1853,4 +1854,5 @@ html[data-theme="dark"] ::selection { background: var(--dark-selection); color: 
 }
 .tb-premium-dialog__title { margin: 0; font-size: var(--text-lg); font-weight: 700; color: var(--color-on-surface); }
 .tb-premium-dialog__text { margin: 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
-.tb-premium-dialog__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); margin-top: var(--space-2); }
+.tb-premium-dialog__actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.tb-premium-dialog__actions .btn { min-height: 44px; }
