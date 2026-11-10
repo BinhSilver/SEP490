@@ -19,26 +19,6 @@
 .lp-btn--ghost { border: 2px solid var(--color-outline-variant); color: var(--color-primary); background: var(--color-surface-lowest); }
 .lp-btn--light { background: var(--color-surface-lowest); color: var(--color-primary); }
 
-/* Hero */
-.lp-hero { padding: clamp(32px, 6vw, 80px) 0; background:
-  radial-gradient(60% 80% at 90% 10%, var(--color-primary-fixed) 0%, transparent 70%),
-  radial-gradient(40% 60% at 0% 100%, color-mix(in srgb, var(--color-tertiary-fixed-dim) 35%, transparent) 0%, transparent 70%); }
-.lp-hero__grid { display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 32px; }
-.lp-hero__title { margin: 0; font-size: clamp(1.9rem, 1.2rem + 3vw, 3.4rem); line-height: 1.15; }
-.lp-hero__lead { margin: 16px 0 0; max-width: 56ch; font-size: 1.05rem; color: var(--color-on-surface-variant); }
-.lp-hero__chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; padding: 0; list-style: none; }
-.lp-hero__chips li { padding: 6px 12px; border-radius: 999px; font-size: .85rem; background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant); color: var(--color-on-surface-variant); }
-.lp-hero__art { position: relative; display: grid; place-items: center; min-height: 320px; }
-.lp-hero__blob { position: absolute; width: 85%; aspect-ratio: 1; border-radius: 42% 58% 55% 45% / 50% 40% 60% 50%;
-  background: linear-gradient(135deg, var(--color-primary-fixed), var(--color-secondary-container)); }
-.lp-hero__mascot { position: relative; width: min(320px, 70%); height: auto; }
-.lp-float { position: absolute; padding: 8px 14px; border-radius: 14px; background: var(--color-surface-lowest);
-  box-shadow: 0 10px 24px rgb(0 0 0 / .1); font-weight: 700; font-size: .9rem; }
-.lp-float small { color: var(--color-primary-container); }
-.lp-float--a { top: 12%; left: 4%; }
-.lp-float--b { bottom: 12%; right: 2%; }
-
 /* Sections */
 .lp-section { padding: clamp(48px, 7vw, 88px) 0; }
 .lp-section--tint { background: var(--color-surface-low); }
@@ -109,9 +89,6 @@
   .lp-levels { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 760px) {
-  .lp-hero__grid { grid-template-columns: 1fr; }
-  .lp-hero__art { order: -1; min-height: 220px; }
-  .lp-hero__mascot { width: 180px; }
   .lp-steps, .lp-stats__grid { grid-template-columns: repeat(2, 1fr); }
   .lp-steps { grid-template-columns: 1fr; }
   .lp-levels { grid-template-columns: repeat(2, 1fr); }
@@ -122,5 +99,4 @@
 @media (max-width: 420px) {
   .lp-features, .lp-levels { grid-template-columns: 1fr; }
   .lp-btn { width: 100%; }
-  .lp-float { font-size: .78rem; }
 }
