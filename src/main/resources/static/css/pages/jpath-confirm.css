@@ -335,3 +335,8 @@
 .jp-confirm .jp-confirm-field__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .jp-confirm .jp-confirm-field__row .jp-confirm-plan__summary { flex: 1 1 240px; }
 .jp-confirm .jp-confirm-field__row .jp-confirm-btn--small { flex: 0 0 auto; min-height: 36px; padding: 6px 16px; }
+
+/* [JLAS-W0108] AI 1 #9: the confirm page is one screen; the three former wizard steps stack as groups */
+.jp-confirm__group { display: grid; gap: 28px; width: 100%; min-width: 0; }
+.jp-confirm__group + .jp-confirm__group { margin-top: 28px; }
+@media (max-width: 720px) { .jp-confirm__group { gap: 22px; } .jp-confirm__group + .jp-confirm__group { margin-top: 22px; } }
