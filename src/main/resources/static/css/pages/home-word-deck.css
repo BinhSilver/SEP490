@@ -4,6 +4,7 @@
   --hwd-ink: var(--color-home-ink-day);
   --hwd-paper: #fff8ec; /* = --color-home-paper (day) */
   --hwd-accent: var(--color-home-accent-day);
+  --hwd-tilt: 3deg;
   position: absolute;
   z-index: 2;
   top: clamp(96px, 16vh, 170px);
@@ -39,31 +40,22 @@
   width: 74%;
   height: 86%;
   margin: 0;
-  padding: 4px;
-  border: 1.5px solid var(--hwd-ink);
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / .7);
   border-radius: 24px;
-  background: var(--hwd-paper);
-  box-shadow: 3px 4px 0 var(--hwd-ink);
+  background: transparent;
+  box-shadow: 0 18px 40px rgb(0 0 0 / .18);
+  transform: rotate(var(--hwd-tilt));
 }
 
-.hwd-photo__img {
+/* owner 10/11: a pane of glass — the home background shows through, so inside and outside always line up */
+.hwd-photo__glass {
   position: absolute;
-  inset: 4px;
-  border-radius: 20px;
-  background: url("/images/home-scene-day.png?v=20261009") no-repeat;
-  /* size and position are set by home-word-deck.js so the picture lines up with the background outside */
-  background-size: cover;
-}
-
-/* night layer fades in with the scene's own --home-night (mirrored by home-word-deck.js), never a hard swap */
-.hwd-photo__img--night { background-image: url("/images/home-scene-night.png?v=20261009"); opacity: var(--hwd-night, 0); }
-.hwd-photo__dusk {
-  position: absolute;
-  inset: 4px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, var(--color-home-dusk-top), var(--color-home-dusk-horizon) 65%, var(--color-home-clear));
-  opacity: var(--hwd-dusk, 0);
-  pointer-events: none;
+  inset: 0;
+  border-radius: 23px;
+  background: linear-gradient(135deg, rgb(255 255 255 / .22), rgb(255 255 255 / .04) 40%, rgb(255 255 255 / 0) 60%, rgb(255 255 255 / .10));
+  -webkit-backdrop-filter: saturate(1.15) brightness(1.06);
+  backdrop-filter: saturate(1.15) brightness(1.06);
 }
 
 .hwd-photo__poem {
@@ -138,13 +130,13 @@
 .hwd-card.is-leaving { opacity: 0; transform: rotate(-14deg) translateX(-30px); }
 .hwd-card.is-flipped .hwd-card__face { animation: hwdFlip .35s ease; }
 
-.hwd-card__eyebrow { margin: 0; font-size: .66rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+.hwd .hwd-card .hwd-card__eyebrow { margin: 0; font-size: .66rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
 .hwd-card__spark { position: absolute; top: 12px; right: 14px; color: var(--color-home-action); }
 .hwd-card__face { flex: 1; display: grid; place-content: center; text-align: center; gap: 4px; }
-.hwd-card__word { margin: 0; font-size: clamp(2rem, 3.6vw, 3.2rem); font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
-.hwd-card__reading { margin: 0; font-size: .95rem; opacity: .7; }
-.hwd-card__meaning { margin: 4px 0 0; font-size: 1.05rem; font-weight: 700; color: var(--color-home-action); }
-.hwd-card__hint { margin: 0 0 8px; text-align: center; font-size: .72rem; opacity: .7; }
+.hwd .hwd-card .hwd-card__word { margin: 0; font-size: clamp(2rem, 3.6vw, 3.2rem); font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
+.hwd .hwd-card .hwd-card__reading { margin: 0; font-size: .95rem; opacity: .7; }
+.hwd .hwd-card .hwd-card__meaning { margin: 4px 0 0; font-size: 1.05rem; font-weight: 700; color: var(--color-home-action); }
+.hwd .hwd-card .hwd-card__hint { margin: 0 0 8px; text-align: center; font-size: .72rem; opacity: .7; }
 
 .hwd-card__foot {
   display: flex;
@@ -176,8 +168,24 @@
   .hwd-stage, .hwd-card.is-flipped .hwd-card__face { animation: none; }
 }
 
-/* narrow screens: the block sits under the title instead of beside it */
-@media (max-width: 900px) {
-  .hwd { position: relative; top: auto; right: auto; width: min(420px, calc(100% - 32px)); margin: 56px auto 32px; }
+/* below ~1100px the title needs the full width: the block moves under the title buttons */
+@media (max-width: 1100px) {
   .home-hero { flex-direction: column; }
+  .hwd { position: relative; top: auto; right: auto; width: min(460px, calc(100% - 32px)); margin: 72px auto 40px; }
+  .hwd-toggle { top: -44px; }
+}
+
+@media (max-width: 560px) {
+  .hwd { --hwd-tilt: 2deg; width: calc(100% - 40px); margin-top: 64px; }
+  .hwd-photo__badge { right: -8px; width: 44px; height: 54px; }
+  .hwd-photo__poem { font-size: 1.3rem; }
+  .hwd-photo__cap { right: 16px; bottom: 14px; font-size: .62rem; }
+  .hwd-stage { aspect-ratio: 5 / 5.8; }
+  .hwd-photo { width: 78%; height: 80%; }
+  .hwd-deck { width: 58%; }
+  .hwd-card { padding: 12px 12px 10px; }
+  .hwd .hwd-card .hwd-card__eyebrow { font-size: .56rem; }
+  .hwd .hwd-card .hwd-card__word { font-size: 1.9rem; }
+  .hwd .hwd-card .hwd-card__hint { font-size: .64rem; }
+  .hwd-card__next { width: 30px; height: 30px; }
 }

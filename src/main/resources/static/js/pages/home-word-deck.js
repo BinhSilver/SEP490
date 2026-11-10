@@ -1,6 +1,6 @@
 /* [JLAS-W0108] F25 home-word-deck.js — word cards beside the home hero.
  *
- * A framed copy of the home background (day/night image of .home-scene) with a stack of word cards in front:
+ * A tilted glass frame over the home background (the scene shows through it, so it always matches) with a stack of word cards in front:
  * the front shows one word, a tap flips it to the meaning, the arrow moves to the next word and "Học từ này"
  * opens the learning path. Words come from the learner's JLPT path (state LEARNING at the open level, else the
  * open level's list, rotated by day); a guest or a failed call gets a few fixed N5 words.
@@ -54,14 +54,14 @@
 
   function cardHtml(word, title) {
     var w = word || {};
-    return '<p class="hwd-card__eyebrow">' + esc(title) + '</p>'
+    return '<div class="hwd-card__eyebrow">' + esc(title) + '</div>'
       + '<span class="hwd-card__spark" aria-hidden="true">✦</span>'
       + '<div class="hwd-card__face">'
-      + '<p class="hwd-card__word" lang="ja">' + esc(w.expression) + '</p>'
-      + (w.reading && w.reading !== w.expression ? '<p class="hwd-card__reading" lang="ja">' + esc(w.reading) + '</p>' : '')
-      + '<p class="hwd-card__meaning" hidden>' + esc(w.meaning) + '</p>'
+      + '<div class="hwd-card__word" lang="ja">' + esc(w.expression) + '</div>'
+      + (w.reading && w.reading !== w.expression ? '<div class="hwd-card__reading" lang="ja">' + esc(w.reading) + '</div>' : '')
+      + '<div class="hwd-card__meaning" hidden>' + esc(w.meaning) + '</div>'
       + '</div>'
-      + '<p class="hwd-card__hint">↻ Chạm để xem nghĩa</p>'
+      + '<div class="hwd-card__hint">↻ Chạm để xem nghĩa</div>'
       + '<div class="hwd-card__foot"><a class="hwd-card__learn" href="/learning">Học từ này ↗</a>'
       + '<button type="button" class="hwd-card__next" data-hwd="next" aria-label="Từ tiếp theo">→</button></div>';
   }
@@ -69,7 +69,7 @@
   function deckHtml() {
     return '<button type="button" class="hwd-toggle" data-hwd="toggle" aria-expanded="true">Ẩn thẻ từ</button>'
       + '<div class="hwd-stage">'
-      + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__img"></span><span class="hwd-photo__img hwd-photo__img--night"></span><span class="hwd-photo__dusk"></span>'
+      + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__glass"></span>'
       + '<span class="hwd-photo__poem" lang="ja">毎日、こつこつ。</span>'
       + '<span class="hwd-photo__badge" lang="ja">日<br>本</span>'
       + '<figcaption class="hwd-photo__cap">KotsuKotsu · mỗi ngày một chút</figcaption></figure>'
@@ -155,46 +155,6 @@
     card.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); flip(); }
     });
-
-    // the frame follows the home scene's own day/night blend (home-theme-scene.js animates --home-night/--home-dusk)
-    var scene = doc.querySelector('[data-home-scene]');
-    function syncSky() {
-      if (!scene) return;
-      var st = root.getComputedStyle(scene);
-      box.style.setProperty('--hwd-night', st.getPropertyValue('--home-night').trim() || '0');
-      box.style.setProperty('--hwd-dusk', st.getPropertyValue('--home-dusk').trim() || '0');
-    }
-    if (scene && root.MutationObserver) {
-      new root.MutationObserver(syncSky).observe(scene, { attributes: true, attributeFilter: ['style', 'class'] });
-      new root.MutationObserver(syncSky).observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    }
-    syncSky();
-
-    // owner 10/11: the frame is a window on the same background, so the picture inside lines up with the one
-    // outside (the frame edge cuts across Kitsu). Re-done on resize; the scene layer is background-size: cover.
-    var dayLayer = doc.querySelector('.home-scene__layer--day');
-    var imgs = box.querySelectorAll('.hwd-photo__img');
-    var ratio = 0;
-    function align() {
-      if (!dayLayer || !ratio) return;
-      var L = dayLayer.getBoundingClientRect();
-      var cs = root.getComputedStyle(dayLayer).backgroundPosition.split(' ');
-      var px = parseFloat(cs[0]) / 100, py = parseFloat(cs[1] || cs[0]) / 100;
-      if (isNaN(px)) px = 0.5;
-      if (isNaN(py)) py = 0.5;
-      var w = Math.max(L.width, L.height * ratio), h = w / ratio;
-      var ox = L.left + (L.width - w) * px, oy = L.top + (L.height - h) * py;
-      imgs.forEach(function (el) {
-        var r = el.getBoundingClientRect();
-        el.style.backgroundSize = w + 'px ' + h + 'px';
-        el.style.backgroundPosition = (ox - r.left) + 'px ' + (oy - r.top) + 'px';
-      });
-    }
-    var probe = new root.Image();
-    probe.onload = function () { ratio = probe.naturalWidth / probe.naturalHeight; align(); };
-    probe.src = '/images/home-scene-day.png?v=20261009';
-    root.addEventListener('resize', align);
-    root.addEventListener('scroll', align, { passive: true });
 
     setHidden(readHidden());
     draw();
