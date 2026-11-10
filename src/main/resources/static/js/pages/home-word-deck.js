@@ -118,6 +118,9 @@
   }
 
   function readHidden() {
+    // F24: a signed-out visitor always sees the deck; the saved "hide" choice only applies once signed in
+    var auth = root.JlasAuth;
+    if (!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn())) return false;
     try { return root.localStorage.getItem(HIDE_KEY) === '1'; } catch (e) { return false; }
   }
 
