@@ -58,7 +58,16 @@
   background-position: 86% 92%;
 }
 
-html[data-theme="dark"] .hwd-photo__img { background-image: url("/images/home-scene-night.png?v=20261009"); }
+/* night layer fades in with the scene's own --home-night (mirrored by home-word-deck.js), never a hard swap */
+.hwd-photo__img--night { background-image: url("/images/home-scene-night.png?v=20261009"); opacity: var(--hwd-night, 0); }
+.hwd-photo__dusk {
+  position: absolute;
+  inset: 10px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--color-home-dusk-top), var(--color-home-dusk-horizon) 65%, var(--color-home-clear));
+  opacity: var(--hwd-dusk, 0);
+  pointer-events: none;
+}
 
 .hwd-photo__poem {
   position: absolute;

@@ -69,7 +69,7 @@
   function deckHtml() {
     return '<button type="button" class="hwd-toggle" data-hwd="toggle" aria-expanded="true">Ẩn thẻ từ</button>'
       + '<div class="hwd-stage">'
-      + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__img"></span>'
+      + '<figure class="hwd-photo" aria-hidden="true"><span class="hwd-photo__img"></span><span class="hwd-photo__img hwd-photo__img--night"></span><span class="hwd-photo__dusk"></span>'
       + '<span class="hwd-photo__poem" lang="ja">毎日、こつこつ。</span>'
       + '<span class="hwd-photo__badge" lang="ja">日<br>本</span>'
       + '<figcaption class="hwd-photo__cap">KotsuKotsu · mỗi ngày một chút</figcaption></figure>'
@@ -155,6 +155,20 @@
     card.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); flip(); }
     });
+
+    // the frame follows the home scene's own day/night blend (home-theme-scene.js animates --home-night/--home-dusk)
+    var scene = doc.querySelector('[data-home-scene]');
+    function syncSky() {
+      if (!scene) return;
+      var st = root.getComputedStyle(scene);
+      box.style.setProperty('--hwd-night', st.getPropertyValue('--home-night').trim() || '0');
+      box.style.setProperty('--hwd-dusk', st.getPropertyValue('--home-dusk').trim() || '0');
+    }
+    if (scene && root.MutationObserver) {
+      new root.MutationObserver(syncSky).observe(scene, { attributes: true, attributeFilter: ['style', 'class'] });
+      new root.MutationObserver(syncSky).observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    }
+    syncSky();
 
     setHidden(readHidden());
     draw();
