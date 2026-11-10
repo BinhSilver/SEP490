@@ -3938,3 +3938,9 @@ html.dark .cp-page {
 .jp-page .jp-today .jp-today__stamp[data-tip]:focus-visible::after { transform: translateX(-50%) rotate(12deg); }
 .jp-today__stamp:focus-visible { outline: 2px solid var(--jp-primary); outline-offset: 4px; border-radius: 50%; }
 .jp-page .jp-today .jp-today__stamp[data-tip]::after { top: calc(100% + 8px); bottom: auto; z-index: 6; }
+
+/* [JLAS-W0108] AI 1 #10: wide screens anchor the tour box beside the lit target; a ring makes the target obvious */
+.jp-tour.jp-tour--anchored { inset: 0; padding: 0; display: block; }
+.jp-tour.jp-tour--anchored .jp-tour__box { position: fixed; box-shadow: 0 12px 32px rgba(0,0,0,.28); transition: top .2s ease, left .2s ease; }
+.jp-tour-scrim__hole { outline: 3px solid var(--jp-accent, #8b5cf6); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .jp-tour.jp-tour--anchored .jp-tour__box { transition: none; } }
