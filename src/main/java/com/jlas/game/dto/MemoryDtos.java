@@ -59,7 +59,7 @@ public final class MemoryDtos {
                                Long startedAt, Long playStartsAt) { }
 
     public record CoinChoiceRequest(@NotBlank(message = "Chọn mặt đồng xu") @Pattern(regexp = "JLAS|MASCOT",
-            message = "Chọn mặt JLAS hoặc mascot") String side) { }
+            message = "Chọn mặt KotsuKotsu hoặc mascot") String side) { }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record FlipRequest(@NotBlank(message = "Thiếu thẻ") String cardInstanceId) {

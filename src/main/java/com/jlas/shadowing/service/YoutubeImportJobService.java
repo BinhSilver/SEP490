@@ -292,7 +292,7 @@ public class YoutubeImportJobService {
         if (!result.japanese()) {
             throw new IllegalArgumentException(
                     "Video không được nhận diện là tiếng Nhật. " + result.reason()
-                            + " JLAS đã dừng tạo bài để tránh tạo phụ đề sai ngôn ngữ.");
+                            + " KotsuKotsu đã dừng tạo bài để tránh tạo phụ đề sai ngôn ngữ.");
         }
     }
 
