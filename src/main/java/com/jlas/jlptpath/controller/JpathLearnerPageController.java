@@ -73,15 +73,14 @@ public class JpathLearnerPageController {
         return "jlptpath/study";
     }
 
-    /** "Xong hôm nay" page; jpath-done.js draws it from {@code GET /api/learning/jlpt/today/summary}. */
+    /**
+     * AI 1 #14: owner 05/11 dropped the separate "Xong hôm nay" page; a finished session already returns to
+     * {@code /learning?saved=1}, so an old link or bookmark to /done goes there too.
+     */
     @GetMapping("/learning/jlpt/done")
-    public String done(@AuthenticationPrincipal UserPrincipal user, Model model) {
+    public String done(@AuthenticationPrincipal UserPrincipal user) {
         String blocked = guard(user);
-        if (blocked != null) {
-            return blocked;
-        }
-        model.addAttribute("layoutMode", "app");
-        return "jlptpath/done";
+        return blocked != null ? blocked : "redirect:/learning?saved=1";
     }
 
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
