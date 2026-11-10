@@ -3,6 +3,7 @@ package com.jlas.assessment.controller;
 import com.jlas.assessment.dto.JlptAdminExamDetailResponse;
 import com.jlas.assessment.dto.JlptAdminExamRequest;
 import com.jlas.assessment.dto.JlptAdminExamSummaryResponse;
+import com.jlas.assessment.dto.JlptAdminQuestionAudioRequest;
 import com.jlas.assessment.dto.JlptAdminQuestionRequest;
 import com.jlas.assessment.service.JlptAdminService;
 import com.jlas.assessment.service.impl.JlptPracticeAdminService;
@@ -128,6 +129,13 @@ public class JlptAdminController {
                                              @Valid @RequestBody JlptAdminQuestionRequest request) {
         service.updateQuestion(questionId, request);
         return ApiResponse.ok("Đã cập nhật câu hỏi.", null);
+    }
+
+    @PutMapping("/questions/{questionId}/audio")
+    public ApiResponse<Void> updateQuestionAudio(@PathVariable long questionId,
+            @Valid @RequestBody JlptAdminQuestionAudioRequest request) {
+        service.updateQuestionAudio(questionId, request.audioUrl());
+        return ApiResponse.ok("Đã lưu riêng audio.", null);
     }
 
     @DeleteMapping("/questions/{questionId}")

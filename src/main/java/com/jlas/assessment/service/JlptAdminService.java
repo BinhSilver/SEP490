@@ -13,6 +13,7 @@ public interface JlptAdminService {
     JlptAdminExamSummaryResponse updateExam(String code, JlptAdminExamRequest request);
     long createQuestion(String examCode, JlptAdminQuestionRequest request);
     void updateQuestion(long questionId, JlptAdminQuestionRequest request);
+    void updateQuestionAudio(long questionId, String audioUrl);
     void deleteQuestion(long questionId);
     long duplicateQuestion(long questionId);
 }
