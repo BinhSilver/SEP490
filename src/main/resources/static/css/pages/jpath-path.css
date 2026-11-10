@@ -3914,3 +3914,6 @@ html.dark .cp-page {
 @keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .72; transform: rotate(-12deg); } }
 @media (prefers-color-scheme: dark) { .jp-today__stamp { mix-blend-mode: normal; } }
 @media (max-width: 480px) { .jp-today__stamp { width: 76px; height: 76px; margin: -12px 0 -12px -20px; } }
+/* owner 10/11: the seal was clipped by the card top and still too strong; drop it a little and fade it */
+.jp-today__stamp { top: 14px; opacity: .45; }
+@keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .45; transform: rotate(-12deg); } }
