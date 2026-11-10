@@ -726,7 +726,7 @@
       timeNote = ' (khoảng ' + Number(notice.estimatedDays) + ' ngày với ' + Number(notice.minutesPerDay) + ' phút/ngày)';
     }
 
-    var para2 = 'J-LAS khuyến khích học lại ' + weakLevel + ' cho vững' + timeNote + (afterText ? ', sau đó mới tới ' + afterText + '.' : '.');
+    var para2 = 'KotsuKotsu khuyến khích học lại ' + weakLevel + ' cho vững' + timeNote + (afterText ? ', sau đó mới tới ' + afterText + '.' : '.');
     return { title: title, message: para1 + ' ' + para2 };
   }
 

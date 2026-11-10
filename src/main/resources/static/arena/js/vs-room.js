@@ -103,7 +103,7 @@
     return '<div class="vs__coin vs__coin--' + (slot ? 'right' : 'left') + '" data-vs-coin="' + slot + '">'
       + '<div class="vs__coin-inner" data-vs-coin-inner>'
       + '<span class="vs__coin-face vs__coin-face--fox"><span class="vs__coin-emboss"><i class="vs__coin-fox"></i></span></span>'
-      + '<span class="vs__coin-face vs__coin-face--jlas"><b>JLAS</b><small>コツコツ</small></span>'
+      + '<span class="vs__coin-face vs__coin-face--jlas"><b>KotsuKotsu</b><small>コツコツ</small></span>'
       + '</div><small class="vs__coin-name" data-vs-coin-name></small></div>';
   }
 

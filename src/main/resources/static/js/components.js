@@ -205,7 +205,7 @@
           '<button type="button" class="sakura-close-btn" id="sakuraAiCloseBtn" aria-label="Ẩn cửa sổ tiến độ">&times;</button>' +
           '<div class="header">' +
             '<div>' +
-              '<div class="lesson-label" id="sakuraAiCategory">JLAS AI ASSISTANT</div>' +
+              '<div class="lesson-label" id="sakuraAiCategory">KOTSUKOTSU AI ASSISTANT</div>' +
               '<div class="title" id="sakuraAiTitle">Hành trình hôm nay 🌸</div>' +
             '</div>' +
             '<div class="progress-number">' +
@@ -353,7 +353,7 @@
     var completeMsg = modal.querySelector('#sakuraAiCompleteMessage');
 
     if (titleEl) titleEl.textContent = options.title || 'Đang xử lý AI... 🌸';
-    if (categoryEl) categoryEl.textContent = options.category || 'JLAS AI ASSISTANT';
+    if (categoryEl) categoryEl.textContent = options.category || 'KOTSUKOTSU AI ASSISTANT';
     if (subtitleEl) subtitleEl.textContent = options.subtitle || 'Mỗi từ mới là một cánh hoa trên hành trình của bạn.';
     if (unitEl) unitEl.textContent = options.unit || 'mục';
     if (completeMsg) completeMsg.classList.remove('show');

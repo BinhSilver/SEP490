@@ -33,7 +33,7 @@ window.AdminShell.ready.then(function (allowed) {
     }
     document.getElementById('admTitle').textContent = item.label;
     document.getElementById('admSubtitle').textContent = section.subtitle || '';
-    document.title = item.label + ' | Trang quản trị | JLAS';
+    document.title = item.label + ' | Trang quản trị | KotsuKotsu';
     if (!A.can(item.roles)) {
       content.innerHTML = A.empty('fa-lock', 'Bạn không có quyền xem mục này',
         'Liên hệ quản trị viên nếu bạn cần được cấp quyền.');
