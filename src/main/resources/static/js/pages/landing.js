@@ -7,13 +7,19 @@
   var signedIn = !!(auth && typeof auth.isLoggedIn === 'function' && auth.isLoggedIn());
   document.querySelectorAll('[data-lp-guest]').forEach(function (el) { el.hidden = false; });
   document.querySelectorAll('[data-lp-guest-only]').forEach(function (el) { el.hidden = signedIn; });
-  // hero button: a learner who already has a path gets "Tiếp tục học" (own data, own token); everyone else keeps
-  // "Xem lộ trình học", which only shows what a path looks like and does not create one
-  var startLabel = document.querySelector('[data-home-start]');
-  if (signedIn && startLabel && window.fetch && typeof auth.authHeaders === 'function') {
+  // hero button, one label per case: guest = "Đăng ký học miễn phí" (/register, from the page);
+  // signed in without a path (404) = "Tạo lộ trình học"; with a path = "Tiếp tục học". Own data, own token.
+  var start = document.querySelector('[data-home-start]');
+  var startText = document.querySelector('[data-home-start-text]');
+  if (signedIn && start && startText && window.fetch && typeof auth.authHeaders === 'function') {
+    start.setAttribute('href', '/learning/path');
+    startText.textContent = 'Vào trang học';
     fetch('/api/learning/jlpt/path', { headers: auth.authHeaders() })
-      .then(function (r) { if (r.ok) startLabel.textContent = 'Tiếp tục học'; })
-      .catch(function () { /* keep the default label */ });
+      .then(function (r) {
+        if (r.ok) startText.textContent = 'Tiếp tục học';
+        else if (r.status === 404) startText.textContent = 'Tạo lộ trình học';
+      })
+      .catch(function () { /* keep "Vào trang học" */ });
   }
   wireDemos();
   loadPlans();
