@@ -3805,15 +3805,15 @@ html.dark .cp-page {
 .jp-kana-table .jp-kana-cell .jp-romaji { font-size: .72rem; color: var(--jp-muted); }
 .jp-kana-table .jp-kana-cell--known { background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface)); }
 .jp-kana-table .jp-kana-cell--learning { border-color: var(--jp-primary); }
-.jp-kana-table__head { text-align: left; white-space: nowrap; padding: 0 4px; vertical-align: middle;
-  border-left: 3px solid var(--jp-line); border-radius: 4px; }
-.jp-kana-table tr.is-passed .jp-kana-table__head { border-left-color: var(--jp-ok); }
-.jp-kana-table__title { font-weight: 700; font-size: 1.05rem; }
-.jp-kana-table__ok { color: var(--jp-ok); margin-left: 4px; display: inline-flex; vertical-align: middle; }
-.jp-kana-table__ok .jp-i { width: 14px; height: 14px; }
-.jp-kana-table__learn { display: block; margin-top: 2px; padding: 0; border: 0; background: none; font: inherit;
-  font-size: .78rem; font-weight: 600; color: var(--jp-primary); cursor: pointer; }
-.jp-kana-table__learn:hover { text-decoration: underline; }
+.jp-kana-table__head { position: relative; text-align: center; white-space: nowrap; padding: 6px 4px; vertical-align: middle;
+  border-radius: 12px; background: color-mix(in srgb, var(--jp-primary) 7%, var(--jp-surface)); }
+.jp-kana-table tr.is-passed .jp-kana-table__head { background: color-mix(in srgb, var(--jp-ok) 12%, var(--jp-surface)); }
+.jp-kana-table__title { display: block; font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+.jp-kana-table__ok { position: absolute; top: 4px; right: 4px; color: var(--jp-ok); display: inline-flex; margin: 0; }
+.jp-kana-table__ok .jp-i { width: 12px; height: 12px; }
+.jp-kana-table__learn { display: inline-block; margin-top: 4px; padding: 1px 10px; border: 1px solid var(--jp-primary); border-radius: 999px;
+  background: var(--jp-surface); font: inherit; font-size: .72rem; font-weight: 600; color: var(--jp-primary); cursor: pointer; }
+.jp-kana-table__learn:hover { background: var(--jp-primary); color: var(--jp-on-primary, #fff); }
 .jp-kana-table--yoon thead th:first-child { width: 110px; }
 @media (max-width: 560px) {
   .jp-kana-table { border-spacing: 4px; }
