@@ -371,13 +371,17 @@ body.page-login::before {
   justify-content: center;
 }
 
-/* Google GIS gắn width:400px inline vào wrapper; ép wrapper bám đúng form. */
-.page-login #googleBtnContainer > div,
-.page-login #googleBtnContainer [role="button"],
-.page-login #googleBtnContainer iframe {
-  width: 100% !important;
+/* login.js already asks Google for the form width (max 400px), so only cap it here. Stretching the iframe made the
+   personalised "Đăng nhập với tên ..." button sit at the left of a wider, white iframe. Google draws that iframe
+   10px wider than the button on each side, so the wrapper clips it to the pill and nothing shows around it. */
+.page-login #googleBtnContainer > div {
   max-width: 100% !important;
-  min-width: 0 !important;
+  margin-inline: auto;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.page-login #googleBtnContainer [role="button"] {
+  max-width: 100% !important;
   box-sizing: border-box;
 }
 
