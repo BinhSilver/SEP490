@@ -31,7 +31,7 @@ for F in N5 N4 N3 N2 N1 comm; do mysql -u root -p --default-character-set=utf8mb
 
 - **Only some levels** (a demo machine, a quick install): run the schema, then `learning_data_N5.sql` and stop at the
   highest level you need, e.g. `for F in N5 N4; do …; done`. A level reads only lower levels, so a shorter chain is
-  complete for those levels; add the next file later the same way. `learning_data_comm.sql` needs only N5.
+  complete for those levels; add the next file later the same way. Run `learning_data_comm.sql` last, as in the full order.
 - **Schema first**: the data writes Learning tables and Learning columns that the schema creates.
 - **Data order**: N5 carries the common data first (it clears the learning-path flag on the textbook team's books and holds
   the goal catalogue) and the levels run from N5 up to N1 (a level may read rows that a lower level inserted, never a
