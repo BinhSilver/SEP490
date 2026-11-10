@@ -73,6 +73,7 @@ window.AdminShell.ready.then(function (allowed) {
     $('editExamButton').addEventListener('click', function () { openExamDialog(activeExam()); }); $('addQuestionButton').addEventListener('click', function () { openQuestionDialog(); });
     $('examForm').addEventListener('submit', saveExam);
     $('questionSection').addEventListener('change', function () { populateMondai(this.value); }); $('questionForm').addEventListener('submit', saveQuestion); $('deleteQuestionButton').addEventListener('click', requestDeleteQuestion);
+    $('saveQuestionAudioButton').addEventListener('click', saveQuestionAudio);
     $('questionList').addEventListener('click', handleQuestionAction);
     $('confirmDialog').addEventListener('close', function () { var action = this.returnValue === 'confirm' ? state.pendingAction : null; state.pendingAction = null; if (action) Promise.resolve(action()).catch(function (error) { toast(error.message); }); });
   }
@@ -254,6 +255,7 @@ window.AdminShell.ready.then(function (allowed) {
 
   function openQuestionDialog(ref) {
     state.editingQuestion = ref || null; var form = $('questionForm'); form.reset(); $('questionDialogTitle').textContent = ref ? 'Sửa câu ' + ref.question.number : 'Thêm câu hỏi'; $('deleteQuestionButton').hidden = !ref;
+    $('saveQuestionAudioControls').hidden = !ref;
     var location = ref || selectedTreeLocation(), section = ref ? ref.section : state.content.sections[location.sectionIndex], mondai = ref ? ref.mondai : section.mondai[location.mondaiIndex]; populateQuestionSelectors(section && section.id, mondai && mondai.id);
     if (ref) { var q = ref.question; form.elements.number.value = q.number; form.elements.type.value = q.type || ref.mondai.type || ''; form.elements.prompt.value = q.prompt || ''; form.elements.passage.value = typeof ref.group.passage === 'string' ? ref.group.passage : ''; (q.choices || []).slice(0, 4).forEach(function (choice, index) { form.elements['choice' + (index + 1)].value = choice.content || ''; }); form.elements.correctChoice.value = q.correctChoice == null ? '' : q.correctChoice; form.elements.correctOrder.value = (q.correctOrder || []).join(','); form.elements.imageRef.value = q.imageRef || ''; form.elements.sourcePage.value = q.sourcePage || ''; form.elements.targetVocabularyId.value = q.targetVocabularyId || ''; form.elements.explanation.value = q.explanation || ''; form.elements.scriptText.value = q.scriptText || ''; form.elements.scriptTranslation.value = q.scriptTranslation || ''; form.elements.audioUrl.value = q.audioUrl || ''; }
     else { form.elements.number.value = allQuestions(state.content).reduce(function (max, row) { return Math.max(max, Number(row.question.number) || 0); }, 0) + 1; form.elements.type.value = section && section.id === 'listening' ? 'LISTENING_TASK_BASED' : section && section.id === 'grammar_reading' ? 'GRAMMAR_FORM' : 'KANJI_READING'; }
@@ -263,11 +265,30 @@ window.AdminShell.ready.then(function (allowed) {
 
   function saveQuestion(event) {
     event.preventDefault(); var data = Object.fromEntries(new FormData(event.currentTarget).entries());
-    var payload = { mondaiId: Number(data.mondaiIndex), number: Number(data.number), type: data.type.trim().toUpperCase(), prompt: data.prompt.trim(), passage: data.passage.trim() || null, choices: [data.choice1, data.choice2, data.choice3, data.choice4].map(function (value) { return value.trim(); }), correctChoice: data.correctChoice ? Number(data.correctChoice) : null, correctOrder: data.correctOrder.trim() ? data.correctOrder.trim().split(/[,，\s]+/).map(Number) : null, score: 1, imageUrl: data.imageRef.trim() || null, sourcePage: data.sourcePage ? Number(data.sourcePage) : null, targetVocabularyId: data.targetVocabularyId ? Number(data.targetVocabularyId) : null, explanation: data.explanation.trim() || null, scriptText: data.scriptText.trim() || null, scriptTranslation: data.scriptTranslation.trim() || null, audioUrl: data.audioUrl.trim() || null }, ref = state.editingQuestion;
+    var payload = { mondaiId: Number(data.mondaiIndex), number: Number(data.number), type: data.type.trim().toUpperCase(), prompt: data.prompt.trim(), passage: data.passage.trim() || null, choices: [data.choice1, data.choice2, data.choice3, data.choice4].map(function (value) { return value.trim(); }), correctChoice: data.correctChoice ? Number(data.correctChoice) : null, correctOrder: data.correctOrder.trim() ? data.correctOrder.trim().split(/[,，\s]+/).map(Number) : null, imageUrl: data.imageRef.trim() || null, sourcePage: data.sourcePage ? Number(data.sourcePage) : null, targetVocabularyId: data.targetVocabularyId ? Number(data.targetVocabularyId) : null, explanation: data.explanation.trim() || null, scriptText: data.scriptText.trim() || null, scriptTranslation: data.scriptTranslation.trim() || null, audioUrl: data.audioUrl.trim() || null }, ref = state.editingQuestion;
     if (payload.correctOrder && (payload.correctOrder.length !== 4 || new Set(payload.correctOrder).size !== 4 || payload.correctOrder.some(function (n) { return !Number.isInteger(n) || n < 1 || n > 4; }) || payload.type !== 'SENTENCE_COMPOSITION')) { toast('Thứ tự đúng cần đủ 1, 2, 3, 4, mỗi số một lần, cho dạng SENTENCE_COMPOSITION.'); return; }
     confirmAction(ref ? 'Lưu thay đổi câu ' + ref.question.number + '?' : 'Thêm câu hỏi mới?', ref ? 'Nội dung, đáp án và media của câu hỏi sẽ được cập nhật.' : 'Câu ' + payload.number + ' sẽ được thêm vào 問題 đã chọn.', function () {
       return (ref ? api('/questions/' + ref.question.id, { method: 'PUT', body: JSON.stringify(payload) }) : api('/exams/' + encodeURIComponent(state.activeCode) + '/questions', { method: 'POST', body: JSON.stringify(payload) })).then(function () { $('questionDialog').close(); return refreshActive(); }).then(function () { toast(ref ? 'Đã cập nhật câu hỏi.' : 'Đã thêm câu hỏi.'); });
     }, { confirmLabel: ref ? 'Lưu thay đổi' : 'Thêm câu hỏi' });
+  }
+
+  function saveQuestionAudio() {
+    var ref = state.editingQuestion;
+    if (!ref) return;
+    var audioUrl = $('questionForm').elements.audioUrl.value.trim();
+    if (!audioUrl) { toast('Nhập đường dẫn audio JLPT.'); return; }
+    confirmAction('Lưu riêng audio câu ' + ref.question.number + '?', 'Cập nhật đường dẫn audio của câu hỏi.', function () {
+      var button = $('saveQuestionAudioButton');
+      button.disabled = true;
+      return api('/questions/' + ref.question.id + '/audio', {
+        method: 'PUT', body: JSON.stringify({ audioUrl: audioUrl })
+      }).then(function () {
+        ref.question.audioUrl = audioUrl;
+        ref.question.audioRequired = true;
+        renderQuestions();
+        toast('Đã lưu riêng audio.');
+      }).finally(function () { button.disabled = false; });
+    }, { confirmLabel: 'Lưu audio' });
   }
 
   function handleQuestionAction(event) { var button = event.target.closest('[data-action]'); if (!button) return; var ref = getQuestionRef(button.dataset.key); if (!ref) return; if (button.dataset.action === 'edit') openQuestionDialog(ref); if (button.dataset.action === 'delete') requestQuestionDelete(ref); if (button.dataset.action === 'duplicate') confirmAction('Nhân bản câu ' + ref.question.number + '?', 'Một bản sao của câu hỏi cùng đáp án, giải thích và media sẽ được tạo.', function () { return api('/questions/' + ref.question.id + '/duplicate', { method: 'POST' }).then(refreshActive).then(function () { toast('Đã nhân bản câu hỏi.'); }); }, { confirmLabel: 'Nhân bản' }); }
