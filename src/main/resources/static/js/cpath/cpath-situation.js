@@ -375,8 +375,8 @@
   function renderStepSpeak(sit, state) {
     var lLines = learnerLines(sit);
     if (!lLines.length) {
-      return '<div class="cp-sit-stage"><p>Không có câu luyện nói.</p></div>'
-        + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="SPEAK">Hoàn thành tình huống</button></footer>';
+      return '<div class="cp-sit-stage"><p class="jp-alert" role="alert">Tình huống này chưa có câu luyện nói. Bạn chưa thể hoàn thành tình huống hoặc đạt chủ đề. Hãy quay về lộ trình và báo cho nhóm nội dung bổ sung câu thoại.</p>'
+        + '<a class="cp-btn-ghost" href="/learning/comm/path">Về lộ trình</a></div>';
     }
     var sIdx = Math.max(0, Math.min(lLines.length - 1, state.speakIdx || 0));
     var targetLine = lLines[sIdx];
@@ -703,11 +703,8 @@
             state.activeStep = nextStepKey;
           }
           render();
-        }, function () {
-          sitData.steps = sitData.steps || {};
-          sitData.steps[stepKey.toLowerCase()] = true;
-          if (stepKey === 'SPEAK') state.showDoneScreen = true;
-          else if (nextStepKey) state.activeStep = nextStepKey;
+        }, function (error) {
+          state.missingNote = error && error.message || 'Chưa lưu được bước học. Hãy thử lại.';
           render();
         });
     }

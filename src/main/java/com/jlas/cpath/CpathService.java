@@ -583,6 +583,12 @@ public class CpathService {
     public Map<String, Object> step(Long userId, String code, String step, Map<String, Object> body) {
         String st = step == null ? "" : step.toUpperCase(Locale.ROOT);
         if (!STEPS.contains(st)) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bước không hợp lệ.");
+        if ("SPEAK".equals(st)) {
+            Integer lines = db.queryForObject("SELECT COUNT(*) FROM cpath_line WHERE situation_code = ? AND learner = 1", Integer.class, code);
+            if (lines == null || lines == 0)
+                throw new ApiException(ErrorCode.VALIDATION_FAILED,
+                        "Tình huống chưa có câu luyện nói. Hãy quay về lộ trình và báo nhóm nội dung bổ sung câu thoại.");
+        }
         Long pathId = pathIdForSituation(userId, code);
         if (pathId == null) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
         db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
