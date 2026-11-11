@@ -363,7 +363,8 @@
 
     var prevBtn = step > 1
       ? '<button type="button" class="cp-btn-ghost" data-cp-prev>‹ Quay lại</button>'
-      : '<span></span>';
+      // step 1 still goes back: a secondary goal returns to the path, otherwise to the general survey (owner 11/11)
+      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey') + '">‹ Quay lại</a>';
     var nextBtn = step < total
       ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
