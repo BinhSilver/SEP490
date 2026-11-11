@@ -334,8 +334,25 @@ html[data-theme="dark"] .lp-kanji__big path { stroke: #e7eef8; }
 }
 html[data-theme="dark"] .lp-guest { --lp-bg: var(--color-background); --lp-ink: #eef2f5; --lp-accent: #f07a6e; --lp-navy: #0f1a2b; }
 /* the scene above fades into the page instead of a hard edge */
-.lp-guest::before { content: ""; position: absolute; left: 0; right: 0; top: -180px; height: 180px; pointer-events: none;
-  background: linear-gradient(to bottom, transparent, var(--lp-bg)); }
+.lp-guest::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -260px;
+  height: 280px;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #0006 32%, #000d 68%, #000 92%);
+  mask-image: linear-gradient(to bottom, transparent, #0006 32%, #000d 68%, #000 92%);
+  background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--lp-bg) 18%, transparent) 28%,
+    color-mix(in srgb, var(--lp-bg) 52%, transparent) 58%, color-mix(in srgb, var(--lp-bg) 86%, transparent) 82%,
+    var(--lp-bg) 97%);
+}
+@media (max-width: 760px) {
+  .lp-guest::before { top: -160px; height: 180px; }
+}
 .lp-guest .lp-section--tint { background: color-mix(in srgb, var(--lp-peach) 35%, var(--lp-bg)); }
 .lp-guest h2, .lp-tile h3, .lp-foot__brand h2 { font-family: "Noto Serif", Georgia, serif; letter-spacing: -.01em; color: var(--lp-ink); }
 .lp-kicker { color: var(--lp-accent); }

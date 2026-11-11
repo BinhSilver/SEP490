@@ -8,16 +8,36 @@
   document.querySelectorAll('[data-lp-guest]').forEach(function (el) { el.hidden = false; });
   document.querySelectorAll('[data-lp-guest-only]').forEach(function (el) { el.hidden = signedIn; });
   // hero button, one label per case: guest = "Đăng ký học miễn phí" (/register, from the page);
-  // signed in without a path (404) = "Tạo lộ trình học"; with a path = "Tiếp tục học". Own data, own token.
+  // signed in without either path (404) = "Tạo lộ trình học"; with a path = "Tiếp tục học".
   var start = document.querySelector('[data-home-start]');
   var startText = document.querySelector('[data-home-start-text]');
   if (signedIn && start && startText && window.fetch && typeof auth.authHeaders === 'function') {
-    start.setAttribute('href', '/learning/path');
+    start.setAttribute('href', '/learning');
     startText.textContent = 'Vào trang học';
-    fetch('/api/learning/jlpt/path', { headers: auth.authHeaders() })
-      .then(function (r) {
-        if (r.ok) startText.textContent = 'Tiếp tục học';
-        else if (r.status === 404) startText.textContent = 'Tạo lộ trình học';
+    Promise.all([
+      fetch('/api/learning/jlpt/path', { headers: auth.authHeaders() }),
+      fetch('/api/learning/comm/path', { headers: auth.authHeaders() })
+    ]).then(function (responses) {
+        if (responses[0].ok) {
+          start.setAttribute('href', '/learning');
+          startText.textContent = 'Tiếp tục học';
+        } else if (responses[1].ok) {
+          start.setAttribute('href', '/learning/comm/path');
+          startText.textContent = 'Tiếp tục học';
+        } else if (responses[0].status === 404 && responses[1].status === 404) {
+          return fetch('/api/learning/jlpt/entry-status', { headers: auth.authHeaders() })
+            .then(function (statusResponse) { return statusResponse.ok ? statusResponse.json() : null; })
+            .then(function (payload) {
+              var status = payload && payload.data && payload.data.pathStatus;
+              if (status === 'ACTIVE' || status === 'PAUSED') {
+                start.setAttribute('href', '/learning');
+                startText.textContent = 'Tiếp tục học';
+              } else if (payload) {
+                start.setAttribute('href', '/survey');
+                startText.textContent = 'Tạo lộ trình học';
+              }
+            });
+        }
       })
       .catch(function () { /* keep "Vào trang học" */ });
   }
