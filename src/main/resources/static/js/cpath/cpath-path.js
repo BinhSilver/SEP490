@@ -476,7 +476,8 @@
         : (topicLabel(item.topicCode, item.topicNameVi) + (item.score != null ? (' · ' + item.score + 'đ') : '')));
 
     if (isLocked) {
-      var tipText = 'Mở vào tuần ' + fmtShortDate(weekObj.from) + '–' + fmtShortDate(weekObj.to);
+      var tipText = 'Mở vào tuần ' + fmtShortDate(weekObj.from) + '–' + fmtShortDate(weekObj.to)
+        + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--next jp-parts__step--upcoming-week jp-parts__step--pos-' + pos + '"'
         + weekAnchorAttr + '>'
         + '<div class="jp-parts__node-row">'
@@ -545,7 +546,7 @@
     var pct = prog.totalSituations > 0 ? Math.min(100, Math.round((prog.doneSituations / prog.totalSituations) * 100)) : 0;
     var weeks = list(m.weeks);
     var totalWeeks = Math.max(1, weeks.length);
-    var currentWeek = Number(m.currentWeek) || 1;
+    var currentWeek = (Number(m.currentWeek) || 0) + 1;
     var focusedWeek = state.focusedWeek || currentWeek;
 
     var sceneKey = p.goal === 'DAILY_LIFE' ? 'grammar' : (p.goal === 'WORK' ? 'kanji' : 'vocab');
@@ -605,8 +606,18 @@
       return mapNodeHtml(entry.item, pos, nextPos, hasNext, entry.stepInWeek, entry.weekObj, isCurrent, isPast, isUpcoming, isSel, s);
     }).join('');
 
+    var currentItems = list(weeks[currentWeek - 1] && weeks[currentWeek - 1].items)
+      .filter(function (item) { return item.type === 'SITUATION'; });
+    var weekDone = currentWeek < totalWeeks && currentItems.length > 0
+      && currentItems.every(function (item) { return item.status === 'DONE' || item.status === 'TODAY_DONE'; });
+    var aheadHtml = weekDone
+      ? '<div class="jp-card" role="note"><strong>Học trước tuần sau</strong>'
+        + '<p>Bạn đã học xong tuần này. Có thể học thêm tình huống tiếp theo; nếu cần, hãy làm kiểm tra tuần trước.</p>'
+        + '<button type="button" class="jp-btn" data-cp-add-extra>Học thêm 1 tình huống</button></div>'
+      : '';
     return '<div class="jp-parts__container" data-tab-scene="' + sceneKey + '">'
       + bannerHtml
+      + aheadHtml
       + '<div class="jp-parts__stage jp-parts__stage--' + sceneKey + '" data-tab-scene="' + sceneKey + '">'
       + sceneBackdropHtml(sceneKey)
       + '<ol class="jp-parts__list jp-parts__map" data-tour="cp-map">' + nodesHtml + '</ol>'
@@ -891,7 +902,7 @@
           });
         });
       }
-      state.focusedWeek = Number(mapData.currentWeek) || 1;
+      state.focusedWeek = (Number(mapData.currentWeek) || 0) + 1;
       renderAll();
       // owner 11/11: the communication path is Premium; a free learner sees an upgrade box above the path
       Promise.resolve(root.JpathApi.get('/api/learning/comm/premium-gate')).then(function (gate) {

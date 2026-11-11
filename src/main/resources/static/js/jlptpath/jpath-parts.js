@@ -738,7 +738,7 @@
     var weekAnchorAttr = isFirstInWeek ? ' data-parts-week-anchor="' + weekObj.weekNum + '"' : '';
 
     if (isUpcomingWeek) {
-      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--next jp-parts__step--upcoming-week jp-parts__step--pos-' + pos + '"'
         + weekAnchorAttr + ' style="--step-i:' + stepIdx + '">'
         + '<div class="jp-parts__node-row">'
@@ -807,7 +807,7 @@
     var connector = hasNext ? curveSvg(pos, nextPos, isOpenChest, false, isPastWeek) : '';
 
     if (isUpcomingWeek) {
-      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--milestone jp-parts__step--upcoming-week ' + stateCls + ' jp-parts__step--pos-' + pos + '"'
         + ' style="--step-i:' + stepIdx + '">'
         + '<div class="jp-parts__node-row">'
@@ -1090,7 +1090,15 @@
       + '<ol class="jp-parts__list jp-parts__map">' + mapItemsHtml + '</ol>'
       + '</div>';
 
-    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + stageHtml + '</div>';
+    var completedWeek = weeks.some(function (week, idx) {
+      return week.allDone && idx < weeks.length - 1 && (week.isCurrent || (weeks[idx + 1] && weeks[idx + 1].isCurrent));
+    });
+    var aheadHtml = completedWeek
+      ? '<div class="jp-card" role="note"><strong>Học trước tuần sau</strong>'
+        + '<p>Bạn đã học xong các mục của tuần này. Vào Học thêm để bắt đầu các mục tiếp theo.</p>'
+        + '<a class="jp-btn" href="/learning/jlpt/done">Học thêm</a></div>'
+      : '';
+    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + aheadHtml + stageHtml + '</div>';
   }
 
   /* Round 6 Bổ sung 1: Keep popover strictly inside viewport & below sticky banner so it is never covered */
