@@ -31,6 +31,9 @@ public class ShadowingExerciseAiClient {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1}")
     private String apiUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.shadowing.exercise.model:${openrouter.shadowing.model:${openrouter.model:openai/gpt-4o-mini}}}")
     private String model;
 
@@ -77,7 +80,7 @@ public class ShadowingExerciseAiClient {
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(apiKey.trim());
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("HTTP-Referer", "http://localhost:8080");
+            headers.set("HTTP-Referer", siteUrl);
             headers.set("X-Title", "JLAS Shadowing Exercise Builder");
             String response = restTemplate.postForObject(
                     apiUrl.replaceAll("/+$", "") + "/chat/completions",

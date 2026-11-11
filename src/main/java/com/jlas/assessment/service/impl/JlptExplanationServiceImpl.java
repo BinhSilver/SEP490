@@ -67,6 +67,9 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1}")
     private String apiBaseUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.model:openai/gpt-4o-mini}")
     private String model;
 
@@ -209,7 +212,7 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
                 .timeout(Duration.ofSeconds(35))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
-                .header("HTTP-Referer", "http://localhost:8080")
+                .header("HTTP-Referer", siteUrl)
                 .header("X-Title", "JLAS JLPT Practice")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
                 .build();
