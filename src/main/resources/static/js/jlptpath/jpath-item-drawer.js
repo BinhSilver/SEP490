@@ -328,6 +328,11 @@
         } else if (action === 'notebook-add' || action === 'notebook-remove') {
           call = apiClient.send(action === 'notebook-add' ? 'POST' : 'DELETE', url + '/notebook').then(function (res) {
             if (res && res.state) current.state = res.state;
+            // F35: a word without a dictionary link stays in the path notebook only — say so instead of silence
+            if (action === 'notebook-add' && current.itemType === 'VOCAB' && current.dictionaryEntryId == null
+                && root.JlasToast && typeof root.JlasToast.show === 'function') {
+              root.JlasToast.show('Từ này chưa nối với từ điển nên chỉ lưu trong sổ tay lộ trình, không vào sổ tay "Lộ trình cá nhân".', 'warning');
+            }
             redraw();
             return true;
           });
