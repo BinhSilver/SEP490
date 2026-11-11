@@ -173,11 +173,17 @@
     var card = deck[idx];
     var flipped = !!state.cardFlipped;
     var wordCount = list(sit.words).length;
+    var tabCount = card.kind === 'WORD' ? wordCount : deck.length - wordCount;
+    var tabIndex = card.kind === 'WORD' ? idx + 1 : idx - wordCount + 1;
+    var example = list(sit.lines).filter(function (line) {
+      return line && line.ja && card.ja && String(line.ja).indexOf(String(card.ja)) >= 0;
+    })[0];
 
     var cardBody = !flipped
-      ? '<span class="cp-flashcard__tag">' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + ' · ' + (idx + 1) + '/' + deck.length + '</span>'
+      ? '<span class="cp-flashcard__tag">' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + ' · ' + tabIndex + '/' + tabCount + '</span>'
         + '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
         + (state.display.furigana && card.reading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
         + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja) + '">'
         + svgSpeaker() + '<span>Nghe phát âm</span></button>'
         + ''
@@ -190,13 +196,13 @@
         + svgSpeaker() + '<span>Nghe lại</span></button>'
         + '';
 
-    return '<div class="cp-sit-stage">'
+    return '<div class="cp-sit-stage cp-sit-stage--words">'
       + '<div class="cp-deck-switch">'
       + '<div class="cp-deck-tabs" role="tablist">'
       + '<button type="button" class="cp-deck-tab' + (idx < wordCount ? ' is-active' : '') + '" data-cp-jump-card="0">Từ vựng (' + wordCount + ')</button>'
       + '<button type="button" class="cp-deck-tab' + (idx >= wordCount ? ' is-active' : '') + '" data-cp-jump-card="' + wordCount + '">Mẫu câu (' + Math.max(0, deck.length - wordCount) + ')</button>'
       + '</div>'
-      + '<span class="cp-survey__sub">Thẻ <strong>' + (idx + 1) + '/' + deck.length + '</strong></span>'
+      + '<span class="cp-survey__sub">Thẻ <strong>' + tabIndex + '/' + tabCount + '</strong></span>'
       + '</div>'
       + '<div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
       + cardBody

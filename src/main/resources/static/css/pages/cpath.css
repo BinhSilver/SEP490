@@ -678,6 +678,7 @@ html.dark .cp-page {
   max-height: calc(100vh - 200px);
   overflow-y: auto;
 }
+.cp-sit-stage--words { min-height: 300px; }
 
 /* Bước 1: Thẻ từ & mẫu câu lật 2 chiều */
 .cp-deck-switch {
@@ -713,7 +714,7 @@ html.dark .cp-page {
 .cp-flashcard {
   position: relative;
   flex: 1 1 auto;
-  min-height: 240px;
+  min-height: 180px;
   padding: 20px 24px;
   border-radius: 12px;
   background: linear-gradient(180deg, var(--cp-surface) 0%, color-mix(in srgb, var(--jp-c-purple-100) 42%, var(--cp-surface)) 100%);
@@ -727,6 +728,8 @@ html.dark .cp-page {
   cursor: pointer;
   user-select: none;
 }
+.cp-flashcard__example { display: grid; gap: 3px; margin: 2px 0 0; color: var(--cp-ink); font-size: .88rem; }
+.cp-flashcard__example small { color: var(--cp-muted); font-size: .75rem; }
 .cp-flashcard__tag {
   font-size: .74rem;
   font-weight: 500;
