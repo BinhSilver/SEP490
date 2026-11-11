@@ -91,6 +91,12 @@
   var IT_FIELD = 'IT_BRSE';
   var BA_TOPICS = ['PM', 'COM', 'REQ', 'DEV', 'TEST', 'BUG', 'OPS'];
   function isJob(goal) { return goal === 'BA' || goal === 'WORK' || goal === JOB; }
+  /** True when {@code goal} (a card code, JOB covers BA/WORK) is the learner's current main comm goal. */
+  function isMainGoal(state, goal) {
+    var main = state && state.secondaryPath ? state.mainGoal : null;
+    if (!main) return false;
+    return goal === JOB || isJob(goal) ? isJob(main) : goal === main;
+  }
   function isOffice(code) { return /OFFICE$/.test(String(code || '')); }
 
   /** The goal cards: Du lịch, Đời sống and one "Công việc" card standing for BA + WORK. */
@@ -248,13 +254,17 @@
     if (kind === 'goal') {
       var goalCards = displayGoals(goals).map(function (g) {
         var sel = g.goal === JOB ? isJob(state.goal) : state.goal === g.goal;
+        // secondary goal: the main goal cannot be picked again (mentor 11/11)
+        var isMain = isMainGoal(state, g.goal);
+        if (isMain) sel = false;
         var desc = g.goal === 'TRAVEL'
           ? (g.topicCount + ' chủ đề · Sân bay, tàu điện, khách sạn, ăn uống, mua sắm')
           : (g.goal === 'DAILY_LIFE'
             ? (g.topicCount + ' chủ đề · Nhà cửa, siêu thị, hành chính, bệnh viện, trường học')
             : (g.topicCount + ' chủ đề · IT / BrSE, Văn phòng, Nhà máy, Dịch vụ'));
         return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
-          + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '">'
+          + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '"'
+          + (isMain ? ' disabled title="Đây là lộ trình chính của bạn"' : '') + '>'
           + '<span class="cp-pill__icon">' + svgGoalIcon(g.goal) + '</span>'
           + '<span class="cp-pill__body">'
           + '<span class="cp-pill__label">' + esc(g.nameVi) + '</span>'
@@ -562,6 +572,8 @@
       try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
       var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
       function applyPresetGoal() {
+      // adding a secondary goal always starts on the goal step; the saved survey goal is the main one
+      if (state.secondaryPath) { render(); return; }
       if (want && isJob(want) && (has('WORK') || has('BA'))) {
         state.goal = has('WORK') ? 'WORK' : 'BA';
         state.presetGoal = true;
@@ -589,6 +601,16 @@
       if (!p || !p.goal) return;
       state.secondaryPath = true;
       state.presetGoal = false;
+      state.mainGoal = p.goal;
+      state.step = 1;
+      state.errorMsg = '';
+      if (isMainGoal(state, isJob(state.goal) ? JOB : state.goal)) {
+        var other = displayGoals(goalsData).filter(function (g) { return !isMainGoal(state, g.goal); })[0];
+        state.goal = other ? (other.goal === JOB ? 'WORK' : other.goal) : state.goal;
+        state.fields = [];
+        state.priorityTopics = [];
+      }
+      if (goalsData.length) syncDefaultTopics();
       STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
       STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
         + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.';
