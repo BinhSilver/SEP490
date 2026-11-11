@@ -52,7 +52,7 @@
             </section>
 
             <section class="jp-card" data-block="schedule" aria-labelledby="jp-settings-schedule-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-schedule-title">Lịch tuần</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-schedule-title">Nhịp học và lịch tuần</h2>
                 <div class="jp-settings-fields">
                     <label class="jp-settings-field">
                         <span class="jp-settings-field__label">Thời gian rảnh mỗi ngày</span>
@@ -65,6 +65,8 @@
                     </label>
                 </div>
                 <div class="jp-settings-days" data-role="days"></div>
+                <p class="jp-settings-muted" role="status" data-role="schedule-preview">Đổi nhịp hoặc ngày nghỉ để xem trước ngày hoàn thành.</p>
+                <ul class="jp-settings-warnings" data-role="schedule-warnings" hidden></ul>
                 <p class="jp-settings-muted" role="status" data-role="days-hint" hidden></p>
                 <label class="jp-settings-field" data-role="third-wrap" hidden>
                     <span class="jp-settings-field__label">Ngày kỹ năng thứ 3 (giai đoạn Rèn)</span>
@@ -73,6 +75,7 @@
                 <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
                 <div class="jp-settings-save">
                     <button type="button" class="jp-settings-btn jp-settings-btn--primary" data-role="save" disabled aria-disabled="true">Lưu lịch tuần</button>
+                    <button type="button" class="jp-settings-btn" data-role="undo-schedule" hidden>Hoàn tác lần đổi vừa rồi</button>
                     <span class="jp-settings-saved" role="status" data-role="saved" hidden></span>
                 </div>
             </section>

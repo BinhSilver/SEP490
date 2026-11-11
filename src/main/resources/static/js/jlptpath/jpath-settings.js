@@ -143,7 +143,7 @@
   function previewBody(view, state) {
     return {
       openLevel: view.openLevel, targetLevel: state.targetLevel, examDate: state.examDate || null,
-      dailyMinutes: view.dailyMinutes, skillDays: list(view.skillDays), restDays: list(view.restDays),
+      dailyMinutes: state.dailyMinutes, skillDays: list(state.skillDays), restDays: list(state.restDays),
       sliders: null, kanaTab: false, mode: view.studyMode || 'COMBINED'
     };
   }
@@ -204,6 +204,7 @@
     var view = null;
     var original = null;
     var current = null;
+    var scheduleUndo = null;
     var picker = null;
     var timer = null;
     var seq = 0;
@@ -299,6 +300,19 @@
         if (w && w.messageVi && w.messageVi !== pace.messageVi) warnings.appendChild(make('li', null, w.messageVi));
       });
       warnings.hidden = !warnings.firstChild;
+      var scheduleText = part('schedule-preview');
+      if (scheduleText) {
+        scheduleText.textContent = (preview ? 'Xem trước: ' : '') + (pace && pace.messageVi ? pace.messageVi : '');
+        scheduleText.dataset.tone = paceTone(pace);
+      }
+      var scheduleWarnings = part('schedule-warnings');
+      if (scheduleWarnings) {
+        scheduleWarnings.textContent = '';
+        (pace && Array.isArray(pace.warnings) ? pace.warnings : []).forEach(function (w) {
+          if (w && w.messageVi) scheduleWarnings.appendChild(make('li', null, w.messageVi));
+        });
+        scheduleWarnings.hidden = !scheduleWarnings.firstChild;
+      }
     }
 
     function drawSliders(history) {
@@ -370,14 +384,15 @@
       message(block(blockName), 'block-error', '');
       if (blockName === 'schedule') drawThirdDay();
       refreshButtons();
-      if (blockName === 'target') schedulePreview();
+      if (blockName === 'target' || blockName === 'schedule') schedulePreview();
     }
 
     function schedulePreview() {
       if (timer) cancel(timer);
       timer = null;
       var mine = ++seq;
-      if (!Object.keys(diff(pick(original, 'target'), pick(current, 'target'))).length) {
+      if (!Object.keys(diff(pick(original, 'target'), pick(current, 'target'))).length
+          && !Object.keys(diff(pick(original, 'schedule'), pick(current, 'schedule'))).length) {
         drawPace(view.pace, false);
         return;
       }
@@ -386,15 +401,16 @@
         api.send('POST', '/api/learning/jlpt/estimate', previewBody(view, current)).then(function (pace) {
           if (mine === seq) drawPace(pace, true);
         }, function (error) {
-          if (mine === seq) message(block('target'), 'block-error', errorText(error));
+          if (mine === seq) message(block('schedule'), 'block-error', errorText(error));
         });
       }, DEBOUNCE_MS);
     }
 
-    function save(blockName) {
-      var body = diff(pick(original, blockName), pick(current, blockName));
+    function save(blockName, forcedBody) {
+      var body = forcedBody || diff(pick(original, blockName), pick(current, blockName));
       if (!Object.keys(body).length || busy[blockName]) return;
       var scope = block(blockName);
+      var previousSchedule = blockName === 'schedule' ? pick(original, 'schedule') : null;
       busy[blockName] = true;
       message(scope, 'block-error', '');
       message(scope, 'saved', 'Đang lưu…');
@@ -402,6 +418,10 @@
       api.send('PUT', SETTINGS_URL, body).then(function (next) {
         busy[blockName] = false;
         applyView(next, blockName);
+        if (blockName === 'schedule') {
+          scheduleUndo = forcedBody ? null : previousSchedule;
+          part('undo-schedule').hidden = !scheduleUndo;
+        }
         var daysMoved = blockName === 'schedule' && ['skillDays', 'restDays', 'thirdSkillDay'].some(function (k) {
           return Object.prototype.hasOwnProperty.call(body, k);
         });
@@ -485,6 +505,9 @@
           changed(name);
         });
         part('save', scope).addEventListener('click', function () { save(name); });
+      });
+      part('undo-schedule').addEventListener('click', function () {
+        if (scheduleUndo) save('schedule', scheduleUndo);
       });
       part('exam-clear').addEventListener('click', function () {
         current.examDate = '';
