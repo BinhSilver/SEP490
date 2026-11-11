@@ -38,8 +38,20 @@ public class JlptStudyService {
         Map<String, Candidate> words = new LinkedHashMap<>();
         Map<String, Candidate> patterns = new LinkedHashMap<>();
         for (var part : exam.parts()) for (var mondai : part.mondai()) for (var q : mondai.questions()) {
+            String type = studyType(exam.level(), part.code(), mondai.number(), q.questionType());
             var source = new Source(q.id(), q.number(), part.code(), q.questionType(), plain(q.text()));
-            if ("vocabulary".equals(part.code())) {
+            // Some JLPT imports group grammar mondai under vocabulary.
+            if (Set.of("GRAMMAR_FORM", "TEXT_GRAMMAR").contains(type)) {
+                for (var option : q.options()) add(patterns, plain(option.text()), source, true,
+                        Objects.equals(q.correctOption(), option.number()));
+            } else if ("SENTENCE_COMPOSITION".equals(type)) {
+                if (q.correctOrder() == null || q.correctOrder().size() != 4) continue;
+                // The star answer is a fragment, not a complete grammar pattern.
+                String joined = q.correctOrder().stream().map(n -> q.options().stream()
+                        .filter(o -> o.number() == n).findFirst().map(o -> plain(o.text())).orElse(""))
+                        .reduce("", String::concat);
+                add(patterns, joined, source, true, false);
+            } else if ("vocabulary".equals(part.code())) {
                 collectWords(words, plain(nonblank(q.html(), q.text())), source, false);
                 var targets = UNDERLINE.matcher(nonblank(q.html(), ""));
                 while (targets.find()) add(words, plain(targets.group(1)), source, true, false);
@@ -48,19 +60,10 @@ public class JlptStudyService {
                     collectWords(words, text, source, false);
                     // Reading/orthography options are not separate vocabulary targets.
                     if (Objects.equals(q.correctOption(), option.number()) &&
-                            !Set.of("KANJI_READING", "ORTHOGRAPHY").contains(Objects.toString(q.questionType(), ""))) {
+                            !Set.of("KANJI_READING", "ORTHOGRAPHY").contains(type)) {
                         add(words, text, source, true, false);
                     }
                 }
-            } else if (Set.of("GRAMMAR_FORM", "TEXT_GRAMMAR").contains(Objects.toString(q.questionType(), ""))) {
-                for (var option : q.options()) add(patterns, plain(option.text()), source, true,
-                        Objects.equals(q.correctOption(), option.number()));
-            } else if ("SENTENCE_COMPOSITION".equals(q.questionType()) && q.correctOrder() != null && q.correctOrder().size() == 4) {
-                // The star answer is a fragment, not a complete grammar pattern.
-                String joined = q.correctOrder().stream().map(n -> q.options().stream()
-                        .filter(o -> o.number() == n).findFirst().map(o -> plain(o.text())).orElse(""))
-                        .reduce("", String::concat);
-                add(patterns, joined, source, true, false);
             }
         }
         var keys = new ArrayList<>(words.keySet());
@@ -112,7 +115,7 @@ public class JlptStudyService {
             List<Source> sources = new ArrayList<>();
             for (var part : exam.parts()) if ("vocabulary".equals(part.code())) {
                 for (var m : part.mondai()) for (var q : m.questions()) {
-                    if (!type.isBlank() && !type.equals(q.questionType())) continue;
+                    if (!type.isBlank() && !type.equals(normalizedType(q.questionType()))) continue;
                     String question = plain(nonblank(q.html(), q.text()));
                     boolean found = normalize(question).contains(normalize(title)) || q.options().stream()
                             .anyMatch(o -> normalize(plain(o.text())).contains(normalize(title)));
@@ -218,6 +221,18 @@ public class JlptStudyService {
                 .replace("&lt;", "<").replace("&gt;", ">").replaceAll("\\s+", " ").trim();
     }
     private static String normalize(String text) { return DictionaryUtil.normalizeReading(text); }
+    private static String normalizedType(String type) { return Objects.toString(type, "").toUpperCase(Locale.ROOT); }
+    private static String studyType(String level, String part, int mondai, String questionType) {
+        String type = normalizedType(questionType);
+        if (!"N4".equals(level) || !"grammar_reading".equals(part) || !"MULTIPLE_CHOICE".equals(type)) return type;
+        // The N4 PDF importer uses one type for grammar and reading, but keeps the original mondai numbers.
+        return switch (mondai) {
+            case 1 -> "GRAMMAR_FORM";
+            case 2 -> "SENTENCE_COMPOSITION";
+            case 3 -> "TEXT_GRAMMAR";
+            default -> type;
+        };
+    }
     private static String nonblank(String a, String b) { return a == null || a.isBlank() ? b : a; }
     private static class Candidate {
         final String title; boolean asked, correct;
