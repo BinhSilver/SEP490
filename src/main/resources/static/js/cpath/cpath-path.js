@@ -310,6 +310,7 @@
     var reviewHref = pageUrl('weekly') + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review';
     var actions = '<div class="cp-today__actions">'
       + extra
+      + '<a class="jp-btn" href="/learning/comm/settings">Đổi nhịp học</a>'
       + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
       + (weeklyOpen
         ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
@@ -647,6 +648,7 @@
           + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
       }).join('')
       + '<span>tình huống</span></div>'
+      + '<a class="cp-goal-card__link" href="/learning/comm/settings">Cài đặt nhịp học và ngày nghỉ</a>'
       + (sec
         ? '<div class="cp-goal-card__sec"><span class="cp-goal-card__tag">Lộ trình phụ · học tự do</span>'
           + '<strong class="cp-goal-card__name">' + esc(sec.nameVi) + '</strong>'

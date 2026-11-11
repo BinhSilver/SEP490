@@ -41,6 +41,11 @@ public class CpathPageController {
         return "cpath/survey";
     }
 
+    @GetMapping("/learning/comm/settings")
+    public String settings() {
+        return "cpath/settings";
+    }
+
     @GetMapping({"/learning/comm", "/learning/comm/path"})
     public String path() {
         return "cpath/path";

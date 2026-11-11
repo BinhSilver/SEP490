@@ -60,7 +60,7 @@ public class CpathController {
     private PremiumAccess premium;
 
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
-    private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily",
+    private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/notebook", "/day");
 
     private boolean locked(Long userId) {
@@ -265,6 +265,12 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", service.setDaily(user.userId(), body)));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/path/pace")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setPace(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", service.setPace(user.userId(), body)));
     }
 
     @GetMapping("/notebook")

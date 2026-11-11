@@ -320,6 +320,9 @@ public class CpathService {
         m.put("nameVi", p.get("name_vi"));
         m.put("selfLevel", level);
         m.put("dailySituations", p.get("daily_situations"));
+        m.put("restDays", p.get("rest_days") == null || String.valueOf(p.get("rest_days")).isBlank()
+                ? List.of() : List.of(String.valueOf(p.get("rest_days")).split(",")));
+        m.put("finishDate", p.get("finish_date") == null ? null : p.get("finish_date").toString());
         m.put("display", Map.of("furigana", !"INTERMEDIATE".equals(level), "romaji", "BEGINNER".equals(level),
                 "translation", !"INTERMEDIATE".equals(level)));
         m.put("progress", Map.of("doneSituations", doneCount, "totalSituations", order.size(),
@@ -1039,6 +1042,32 @@ public class CpathService {
     }
 
     /** Owner 06/11 slider: 1 or 2 situations a day, changed after the survey; today's plan keeps what it holds. */
+    @Transactional
+    public Map<String, Object> setPace(Long userId, Map<String, Object> body) {
+        Map<String, Object> path = requirePath(userId);
+        if (body == null || !(body.get("restDays") instanceof List<?> rest))
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn lịch học hợp lệ.");
+        if (num(body.get("dailySituations")) != 1 && num(body.get("dailySituations")) != 2)
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn 1 hoặc 2 tình huống mỗi ngày.");
+        List<String> days = rest.stream().map(String::valueOf).map(x -> x.toUpperCase(Locale.ROOT)).toList();
+        if (days.size() != new LinkedHashSet<>(days).size() || days.size() >= 7
+                || !Set.of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN").containsAll(days))
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cần giữ ít nhất một ngày học trong tuần.");
+        Object rawDate = body.get("finishDate");
+        LocalDate finish = null;
+        if (rawDate != null && !String.valueOf(rawDate).isBlank()) {
+            try { finish = LocalDate.parse(String.valueOf(rawDate)); }
+            catch (RuntimeException e) { throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành không hợp lệ."); }
+        }
+        if (finish != null && finish.isBefore(clock.today(userId)))
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành phải từ hôm nay trở đi.");
+        Long pathId = ((Number) path.get("id")).longValue();
+        db.update("UPDATE cpath_user_path SET rest_days = ?, finish_date = ? WHERE id = ?",
+                String.join(",", days), finish, pathId);
+        setDaily(userId, body);
+        return path(userId);
+    }
+
     @Transactional
     public Map<String, Object> setDaily(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
