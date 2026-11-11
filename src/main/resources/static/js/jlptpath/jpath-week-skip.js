@@ -1,6 +1,6 @@
 /* [JLAS-W0108] jpath-week-skip.js — "Tôi biết tuần này" (owner 06/11).
  *
- * A learner whose path came from a Smart Test at Căn bản or better can skip the coming week of a tab in the first
+ * Any learner (owner 11/11, F64) can skip the coming week of a tab; was: Smart Test Căn bản+ in the first
  * weeks of the level: GET /api/learning/jlpt/week-skip?tab=VOCAB|KANJI|GRAMMAR → {offer, tab, level, items}. One card
  * on the path page lists the tabs on offer; a button issues POST /api/learning/jlpt/week-skip/{tab}/check and opens
  * the check. Right on 90% or more = the week's items count as known (asked right → Đã biết, not asked → review).
@@ -62,8 +62,8 @@
         + esc(name) + ' · ' + o.items + ' mục</button>';
     }).join('');
     return '<div class="jp-warmup jp-week-skip" role="region" aria-label="Bỏ qua tuần đã biết">'
-      + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã biết phần đầu ' + esc(level) + '?</p>'
-      + '<p class="jp-warmup__sub">Kết quả Smart Test của bạn từ Căn bản trở lên. Làm bài kiểm tra ngắn (tối đa 20 câu) '
+      + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã biết tuần tới của ' + esc(level) + '?</p>'
+      + '<p class="jp-warmup__sub">Làm bài kiểm tra ngắn (tối đa 20 câu) '
       + 'cho tuần tới; đúng từ 90% thì tuần đó được bỏ qua trên lộ trình.</p></div>'
       + '<div class="jp-warmup__actions">' + buttons
       + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>'

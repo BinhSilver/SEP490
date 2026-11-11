@@ -102,8 +102,7 @@ public class JpathPartsService {
     }
 
     /**
-     * Owner 06/11 "Tôi biết tuần này": offered to a learner whose path came from a Smart Test at Căn bản or better,
-     * in the first {@link #WEEK_SKIP_WEEKS} weeks of the open level. {@code codes} = the next week of the tab (the
+     * Owner 06/11 "Tôi biết tuần này", opened to every learner on any week by owner 11/11 (F64). {@code codes} = the next week of the tab (the
      * coming {@link #WEEK_PARTS} parts); ≥ 90% on the check counts the week as known (topic-check rules).
      */
     public record WeekSkip(boolean offer, String tab, String level, int items, List<String> codes) {
@@ -111,9 +110,6 @@ public class JpathPartsService {
 
     /** Parts of one map week (jpath-parts.js WEEK_SPAN). */
     static final int WEEK_PARTS = 7;
-    /** Weeks of a level the skip check is offered in. */
-    static final int WEEK_SKIP_WEEKS = 4;
-    private static final List<String> SKIP_BANDS = List.of("Căn bản", "Thành thạo");
 
     @Transactional(readOnly = true)
     public WeekSkip weekSkip(Long userId, JpathTab tab) {
@@ -122,9 +118,9 @@ public class JpathPartsService {
         if (tab == JpathTab.KANA) {
             return kanaSkip(userId, path);
         }
-        String band = path == null ? null : path.getSmartAbilityBand();
-        if (path == null || band == null || SKIP_BANDS.stream().noneMatch(band::contains)) {
-            return new WeekSkip(false, tabName, path == null ? null : path.getOpenLevel(), 0, List.of());
+        // owner 11/11 (F64): every learner may prove a coming week known, whatever the Smart Test band
+        if (path == null) {
+            return new WeekSkip(false, tabName, null, 0, List.of());
         }
         Parts p = parts(userId, tab);
         int firstNext = -1;
@@ -134,7 +130,7 @@ public class JpathPartsService {
                 break;
             }
         }
-        if (firstNext < 0 || firstNext >= WEEK_PARTS * WEEK_SKIP_WEEKS) {
+        if (firstNext < 0) {
             return new WeekSkip(false, tabName, p.level(), 0, List.of());
         }
         // the rest of the map week the first coming part sits in (a whole week when the week has not started)
