@@ -1001,6 +1001,12 @@
         sitData = data;
         render();
       }).catch(function (error) {
+        if (error && error.code === 'CPATH_PREMIUM_REQUIRED') {
+          // owner 11/11: the communication path is Premium
+          el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error.message)
+            + ' <a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></p>';
+          return;
+        }
         el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Không tải được tình huống.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         el.querySelector('[data-cp-retry]').addEventListener('click', load);

@@ -2,6 +2,11 @@ package com.jlas.cpath;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.auth.service.PremiumAccess;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.security.ContentReviewAccess;
+import jakarta.servlet.http.HttpServletRequest;
 import com.jlas.jlptpath.dto.JpathSpeakResult;
 import com.jlas.jlptpath.service.impl.JpathSpeakService;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService;
@@ -16,7 +21,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +54,32 @@ public class CpathController {
         this.speak = speak;
         this.roleplay = roleplay;
         this.quota = quota;
+    }
+
+    @Autowired(required = false)
+    private PremiumAccess premium;
+
+    /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
+    private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily",
+            "/notebook", "/day");
+
+    private boolean locked(Long userId) {
+        if (premium == null || userId == null || ContentReviewAccess.allowed(userId)) return false;
+        return !premium.isActive(userId);
+    }
+
+    @ModelAttribute
+    void premiumOnly(HttpServletRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        String uri = request.getRequestURI();
+        int at = uri.indexOf("/api/learning/comm");
+        String sub = at < 0 ? uri : uri.substring(at + "/api/learning/comm".length());
+        if (FREE_PATHS.contains(sub)) return;
+        if (user != null && locked(user.userId())) throw new ApiException(ErrorCode.CPATH_PREMIUM_REQUIRED);
+    }
+
+    @GetMapping("/premium-gate")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> premiumGate(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", Map.of("locked", user != null && locked(user.userId()))));
     }
 
     @GetMapping("/goals")

@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * [JLAS-W0108] F5 (owner 10/11): N3, N2 and N1 of the JLPT path need Premium. N5/N4 stay free. A learner whose open
+ * [JLAS-W0108] F5: N4–N1 of the JLPT path need Premium (owner 11/11; was N3+ on 10/11). Only N5 stays free. A learner whose open
  * level is N3+ without an active Premium keeps the path page (with an upgrade box) but cannot start a study or
  * skill session. Content reviewers pass, like the other paywalls.
  */
 @Component
 public class JpathPremiumGate {
 
-    public static final Set<String> PREMIUM_LEVELS = Set.of("N3", "N2", "N1");
+    public static final Set<String> PREMIUM_LEVELS = Set.of("N4", "N3", "N2", "N1");
 
     private final JpathUserPathRepository paths;
     private final PremiumAccess premium;
