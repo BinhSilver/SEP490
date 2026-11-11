@@ -38,14 +38,15 @@
     try { root.localStorage.setItem(hiddenKey(), today()); } catch (e) { /* private mode */ }
   }
 
-  /** AI 1 #11 (owner 10/11): a learner reviewing kana tests out of the next rows (matching boards, ≥ 90% = known). */
+  /** F65c: check the next kana rows or all remaining rows (matching boards, ≥ 90% = known). */
   function kanaHtml(o) {
     return '<div class="jp-warmup jp-week-skip" role="region" aria-label="Kiểm tra nhanh chữ cái">'
       + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã thuộc chữ cái?</p>'
-      + '<p class="jp-warmup__sub">Bạn chọn ôn lại bảng chữ cái. Nối chữ với cách đọc cho mấy hàng tiếp theo; '
-      + 'đúng từ 90% thì các hàng đó tính là đã thuộc, khỏi học lại.</p></div>'
+      + '<p class="jp-warmup__sub">Nối chữ với cách đọc cho vài hàng tiếp theo hoặc cả bảng chữ còn lại; '
+      + 'đúng từ 90% thì phần đã kiểm tra tính là đã thuộc.</p></div>'
       + '<div class="jp-warmup__actions"><button type="button" class="jp-btn" data-week-skip-tab="KANA">Kiểm tra nhanh · '
       + esc(o.items) + ' chữ</button>'
+      + '<button type="button" class="jp-link-btn" data-week-skip-tab="KANA" data-week-skip-rows="0">Tôi biết cả bảng chữ</button>'
       + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
   }
 
@@ -92,7 +93,10 @@
         var b = t.closest && t.closest('[data-week-skip-tab]');
         if (!b) return;
         b.disabled = true;
-        Promise.resolve(client.send('POST', BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check'))
+        var rows = b.getAttribute('data-week-skip-rows');
+        var url = BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check'
+          + (rows === '0' ? '?rows=0' : '');
+        Promise.resolve(client.send('POST', url))
           .then(function (res) {
             var token = res && (res.token || res.checkToken);
             if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');

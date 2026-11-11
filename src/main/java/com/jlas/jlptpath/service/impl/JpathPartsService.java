@@ -113,10 +113,16 @@ public class JpathPartsService {
 
     @Transactional(readOnly = true)
     public WeekSkip weekSkip(Long userId, JpathTab tab) {
+        return weekSkip(userId, tab, null);
+    }
+
+    /** {@code kanaRows}: KANA only — how many rows to cover; 0 or less = the whole table left (owner 11/11, F65). */
+    @Transactional(readOnly = true)
+    public WeekSkip weekSkip(Long userId, JpathTab tab, Integer kanaRows) {
         String tabName = tab == null ? null : tab.name();
         JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
         if (tab == JpathTab.KANA) {
-            return kanaSkip(userId, path);
+            return kanaSkip(userId, path, kanaRows == null ? KANA_SKIP_ROWS : (kanaRows <= 0 ? Integer.MAX_VALUE : kanaRows));
         }
         // owner 11/11 (F64): every learner may prove a coming week known, whatever the Smart Test band
         if (path == null) {
@@ -149,11 +155,10 @@ public class JpathPartsService {
      * AI 1 #11 (owner 10/11 "thêm kiểm tra nhanh"): a learner who chose to REVIEW kana may test out of the next
      * {@link #KANA_SKIP_ROWS} rows not passed yet; ≥ 90% marks them known like the week check.
      */
-    private WeekSkip kanaSkip(Long userId, JpathUserPath path) {
+    private WeekSkip kanaSkip(Long userId, JpathUserPath path, int maxRows) {
         String level = path == null ? null : path.getOpenLevel();
-        boolean review = path != null && preferences != null && preferences.findById(userId)
-                .map(p -> p.getKanaChoice() == com.jlas.jlptpath.enums.JpathKanaChoice.REVIEW).orElse(false);
-        if (!review || lists == null) {
+        // owner 11/11 (F64): any learner on a path may test out of kana, not only those who chose REVIEW
+        if (path == null || lists == null) {
             return new WeekSkip(false, JpathTab.KANA.name(), level, 0, List.of());
         }
         List<String> codes = new ArrayList<>();
@@ -161,7 +166,7 @@ public class JpathPartsService {
         for (com.jlas.jlptpath.dto.JpathKanaRowView row : lists.kana(userId, null)) {
             if (row.passed()) continue;
             row.kanas().forEach(k -> codes.add(k.code()));
-            if (++taken >= KANA_SKIP_ROWS) break;
+            if (++taken >= maxRows) break;
         }
         return new WeekSkip(!codes.isEmpty(), JpathTab.KANA.name(), level, codes.size(), codes);
     }

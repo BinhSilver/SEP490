@@ -553,7 +553,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
             case WEEK_KNOWN -> {
                 JpathPartsService parts = partsService == null ? null : partsService.getIfAvailable();
-                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab());
+                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count());
                 if (w == null || !w.offer()) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra bỏ qua tuần chưa mở cho bạn.");
                 }
