@@ -14,13 +14,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Lượt tra từ nhanh (bôi đen để tra). Pro and content reviewers look words up freely; everyone else spends
- * lookups bought with CP, {@value #PACK_LOOKUPS} for {@value #PACK_PRICE} CP. The same word again on the same day
- * is free, so reopening a popup never costs twice. Tables come from migration 066.
+ * Lượt tra từ nhanh (bôi đen để tra). Pro and content reviewers look words up freely; regular accounts get
+ * {@value #TRIAL_LOOKUPS} one-time free trial lookup on first use and then buy lookups with CP,
+ * {@value #PACK_LOOKUPS} for {@value #PACK_PRICE} CP. The same word again on the same day is free, so reopening a
+ * popup never costs twice. Tables come from migration 066.
  */
 @Service
 @RequiredArgsConstructor
 public class QuickLookupAllowance {
+    public static final int TRIAL_LOOKUPS = 1; // owner 11/11 (F36/F37): 1 free trial lookup on first-ever use
     public static final int PACK_LOOKUPS = 1; // owner 10/11 (F30): CP buys one lookup at a time
     public static final int PACK_PRICE = 2; // Albazzz 11/11 (F30): one lookup costs 2 CP
 
@@ -51,6 +53,7 @@ public class QuickLookupAllowance {
         if (seen != null && seen > 0) {
             return;
         }
+        ensureWallet(userId);
         int used = jdbc.update("UPDATE quick_lookup_wallet SET remaining = remaining - 1, updated_at = CURRENT_TIMESTAMP(6) "
                 + "WHERE user_id = ? AND remaining > 0", userId);
         if (used == 0) {
@@ -64,12 +67,17 @@ public class QuickLookupAllowance {
     @Transactional
     public Status buyPack(Long userId) {
         requireUser(userId);
+        ensureWallet(userId);
         credits.spend(userId, PACK_PRICE, CreditReason.QUICK_LOOKUP_PACK, null, null,
                 "Mua " + PACK_LOOKUPS + " lượt tra từ nhanh");
-        jdbc.update("INSERT INTO quick_lookup_wallet (user_id, remaining, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP(6)) "
-                + "ON DUPLICATE KEY UPDATE remaining = remaining + ?, updated_at = CURRENT_TIMESTAMP(6)",
-                userId, PACK_LOOKUPS, PACK_LOOKUPS);
+        jdbc.update("UPDATE quick_lookup_wallet SET remaining = remaining + ?, updated_at = CURRENT_TIMESTAMP(6) "
+                + "WHERE user_id = ?", userId, PACK_LOOKUPS);
         return status(userId);
+    }
+
+    private void ensureWallet(Long userId) {
+        jdbc.update("INSERT IGNORE INTO quick_lookup_wallet (user_id, remaining, updated_at) "
+                + "VALUES (?, ?, CURRENT_TIMESTAMP(6))", userId, TRIAL_LOOKUPS);
     }
 
     private boolean unlimited(Long userId) {
@@ -79,7 +87,7 @@ public class QuickLookupAllowance {
     private int remaining(Long userId) {
         List<Integer> rows = jdbc.queryForList("SELECT remaining FROM quick_lookup_wallet WHERE user_id = ?",
                 Integer.class, userId);
-        return rows.isEmpty() ? 0 : rows.getFirst();
+        return rows.isEmpty() ? TRIAL_LOOKUPS : rows.getFirst();
     }
 
     private static void requireUser(Long userId) {

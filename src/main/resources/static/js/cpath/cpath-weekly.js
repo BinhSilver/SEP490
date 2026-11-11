@@ -62,11 +62,29 @@
       + (wrong ? ' <a href="/learning/comm/notebook">Mở Sổ tay</a>' : '') + '</p>';
   }
 
-  function resultHtml(r) {
+  function resultHtml(r, questions, answers) {
     var ok = r.passed === true;
+    var qMap = {};
+    (questions || []).forEach(function (q) { if (q && q.id != null) qMap[q.id] = q; });
+    var ansMap = answers || {};
     var rows = (r.review || []).map(function (x) {
-      return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '"><span lang="ja">' + esc(x.ja)
-        + '</span> · ' + esc(x.answer) + (x.correct ? '' : ' <strong>(sai)</strong>') + '</li>';
+      var q = x.id != null ? qMap[x.id] : null;
+      var opts = q && Array.isArray(q.options) ? q.options : null;
+      var pickedIdx = x.id != null ? ansMap[x.id] : null;
+      var userAns = (opts && pickedIdx != null && opts[pickedIdx] != null)
+        ? opts[pickedIdx]
+        : (x.correct ? x.answer : '(Chưa đúng)');
+      var aiSlot = (x.ja && x.answer)
+        ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
+          source: 'CPATH_WEEKLY',
+          prompt: 'Chọn nghĩa tiếng Việt đúng cho câu: ' + x.ja + (q && q.reading && q.reading !== x.ja ? ' (' + q.reading + ')' : ''),
+          options: opts,
+          userAnswer: userAns,
+          correctAnswer: x.answer
+        })) + '"></div>'
+        : '';
+      return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '"><div><span lang="ja">' + esc(x.ja)
+        + '</span> · ' + esc(x.answer) + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>' + aiSlot + '</li>';
     }).join('');
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
@@ -108,7 +126,7 @@
       el.innerHTML = '<p class="jp-status" role="status">Đang chấm…</p>';
       Promise.resolve(client.send('POST', BASE, { answers: state.answers })).then(function (r) {
         state.result = r || {};
-        el.innerHTML = resultHtml(state.result)
+        el.innerHTML = resultHtml(state.result, state.data && state.data.questions, state.answers)
           + ((state.data.speakingQuestions || []).length
             ? '<button type="button" class="jp-btn" data-weekly-speech-start>Tiếp tục phần Nói</button>' : '');
         var h = el.querySelector('#cpWeeklyResult');
@@ -133,10 +151,10 @@
       state.speechClips.forEach(function (blob) { form.append('audio', blob, 'weekly.webm'); });
       el.innerHTML = '<p class="jp-status" role="status">Đang chấm phần Nói…</p>';
       client.upload(BASE + '/speak', form).then(function (r) {
-        el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result))
+        el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result, state.data && state.data.questions, state.answers))
           + '<p>Phần Nói đã chấm ' + esc(r.updated) + ' câu. Câu dưới 70 vào Sổ tay; câu đạt từ 70 được bỏ khỏi Sổ tay.</p>';
       }).catch(function (e) {
-        el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result))
+        el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result, state.data && state.data.questions, state.answers))
           + '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Không chấm được phần Nói.') + '</p>';
       });
     }

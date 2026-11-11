@@ -482,6 +482,12 @@
       + '<span class="jp-check__flag-slot" data-report-slot></span></div>';
   }
 
+  function aiSlotHtml(token, qId) {
+    if (!token || !qId) return '';
+    return '<div class="jp-ai-slot" data-jpath-ai-explain="'
+      + esc(JSON.stringify({ source: 'JPATH_CHECK', checkToken: String(token), questionId: String(qId) })) + '"></div>';
+  }
+
   function questionHtml(q, qs, display) {
     var st = qs || {};
     if (!q) return '';
@@ -496,6 +502,7 @@
     else if (q.type === 'FILL_TEXT') html += fillHtml(q, st);
     else if (q.options && q.options.length) html += optionsHtml(q, st) + feedbackHtml(st.answer);
     else html += '<p class="jp-status">Dạng câu này chưa hiển thị được.</p>';
+    if (st.answer) html += aiSlotHtml(st.token || (qs && qs.token), q.id);
     void display;
     return html + '</section>';
   }
@@ -749,6 +756,7 @@
         }
       }
       if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
+      html += aiSlotHtml(check && check.token, q.id);
       html += '</li>';
     });
     if (!boardNotes.length && !html) return '<p class="jp-status">Không có câu sai.</p>';

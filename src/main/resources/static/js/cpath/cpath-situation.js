@@ -284,11 +284,25 @@
     }).join('');
 
     var whyText = turn.whyVi || turn.why_vi || '';
+    var pickedOptObj = isAnswered ? (list(turn.options)[answeredIdx] || {}) : {};
+    var rightOptObj = list(turn.options)[turn.answerIndex] || {};
+    var aiRoleplayHtml = isAnswered && rightOptObj.ja
+      ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
+        source: 'CPATH_ROLEPLAY',
+        contextText: ((sit && (sit.titleVi || sit.titleJa)) ? 'Tình huống: ' + (sit.titleVi || sit.titleJa) + '\n' : '')
+          + (prevLine ? (prevLine.speaker || 'Đối phương') + ': ' + (prevLine.ja || '') + (prevLine.vi ? ' (' + prevLine.vi + ')' : '') : 'Mở đầu hội thoại'),
+        prompt: 'Nhập vai リン — chọn câu đáp tiếng Nhật phù hợp nhất',
+        options: list(turn.options).map(function (o) { return (o.ja || '') + (o.vi ? ' (' + o.vi + ')' : ''); }),
+        userAnswer: pickedOptObj.ja || '—',
+        correctAnswer: rightOptObj.ja || '',
+        baseExplanation: whyText
+      })) + '"></div>'
+      : '';
     var whyHtml = isAnswered
       ? '<div class="cp-why-box" role="status">'
         + '<img src="' + esc(kitsuSmall(ansCorrect ? 'kitsu-cheer-30.webp' : 'kitsu-thinking-30.webp')) + '" width="44" height="44" alt="" />'
         + '<div><strong>' + (ansCorrect ? 'Chính xác!' : 'Chưa đúng rồi:') + '</strong> ' + esc(whyText) + '</div>'
-        + '</div>'
+        + '</div>' + aiRoleplayHtml
       : '';
 
     return '<div class="cp-sit-stage">'

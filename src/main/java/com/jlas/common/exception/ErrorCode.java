@@ -27,6 +27,8 @@ public enum ErrorCode {
     QUICK_LOOKUP_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt tra từ nhanh."),
     /** Hết lượt chấm phát âm miễn phí hôm nay: dùng CP hoặc nâng cấp Pro. */
     PRONUNCIATION_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt chấm phát âm miễn phí hôm nay."),
+    /** [JLAS-W0108] F36: Hết lượt AI giải thích câu hỏi Learning: mua thêm bằng CP hoặc nâng cấp Pro. */
+    JPATH_AI_EXPLAIN_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt AI giải thích câu hỏi."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     /** [JLAS2-XX] Ảnh tải lên sai định dạng hoặc nội dung không phải ảnh thật (magic bytes không khớp). */
     INVALID_IMAGE(HttpStatus.BAD_REQUEST, "Ảnh chỉ nhận định dạng JPG, PNG hoặc WEBP"),

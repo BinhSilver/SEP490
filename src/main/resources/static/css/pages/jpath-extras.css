@@ -370,3 +370,111 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
 .jp-premium-box > div { flex: 1 1 240px; }
 .jp-premium-box__title { margin: 0 0 4px; font-weight: 700; }
 .jp-premium-box__text { margin: 0; color: var(--jp-muted); }
+
+/* ---- [JLAS-W0108] F36 + F37: AI giải thích & hỏi đáp câu hỏi Learning ------------------------------------ */
+.jp-ai-slot { margin-top: 10px; }
+.jp-ai-slot:empty { display: none; }
+.jp-ai { display: grid; gap: 10px; }
+.jp-ai__btn {
+  justify-self: start;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 38px; padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 42%, var(--jp-line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jp-primary) 9%, var(--jp-surface));
+  color: var(--jp-primary);
+  font: inherit; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: background .15s, border-color .15s, transform .12s;
+}
+.jp-ai__btn:hover {
+  background: color-mix(in srgb, var(--jp-primary) 16%, var(--jp-surface));
+  border-color: var(--jp-primary);
+}
+.jp-ai__btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-ai__sparkle { width: 16px; height: 16px; flex: 0 0 auto; color: var(--jp-primary); }
+.jp-ai__panel[hidden], .jp-ai__confirm[hidden], .jp-ai__actions[hidden] { display: none !important; }
+.jp-ai__card {
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 28%, var(--jp-line));
+  border-radius: var(--jp-radius-panel, 14px);
+  background: var(--jp-surface);
+  color: var(--jp-ink);
+  text-align: left;
+}
+.jp-ai__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 10px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--jp-line);
+}
+.jp-ai__head strong { display: inline-flex; align-items: center; gap: 6px; font-size: .95rem; }
+.jp-ai__close, .jp-ai__inline-link {
+  padding: 2px 6px; border: 0; background: none; color: var(--jp-primary);
+  font: inherit; font-size: .82rem; font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.jp-ai__loading {
+  margin: 0; display: flex; align-items: center; gap: 8px;
+  color: var(--jp-muted); font-size: .9rem;
+}
+.jp-ai__body { display: grid; gap: 10px; font-size: .92rem; line-height: 1.55; }
+.jp-ai__summary { margin: 0; font-weight: 600; }
+.jp-ai__section p { margin: 4px 0 0; }
+.jp-ai__sub { margin: 0; font-size: .84rem; text-transform: uppercase; letter-spacing: .02em; color: var(--jp-muted); }
+.jp-ai__sub--ok { color: var(--jp-ok, #1b7f4b); }
+.jp-ai__sub--warn { color: var(--jp-warn, #b45309); }
+.jp-ai__points { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.jp-ai__point {
+  padding: 8px 10px; border-radius: 10px;
+  border: 1px solid var(--jp-line);
+  background: color-mix(in srgb, var(--jp-primary) 4%, var(--jp-surface));
+}
+.jp-ai__reading { color: var(--jp-muted); font-size: .86rem; }
+.jp-ai__point-note { margin: 2px 0 0; color: var(--jp-muted); font-size: .85rem; }
+.jp-ai__tip {
+  padding: 8px 12px; border-radius: 10px;
+  background: color-mix(in srgb, var(--jp-primary) 10%, var(--jp-surface));
+  font-size: .88rem;
+}
+.jp-ai__meta { margin: 4px 0 0; color: var(--jp-muted); font-size: .8rem; line-height: 1.45; }
+.jp-ai__error { margin: 0 0 8px; color: var(--jp-danger, #c62828); font-size: .9rem; }
+.jp-ai__paywall { display: grid; gap: 6px; }
+.jp-ai__paywall-title { font-size: .95rem; }
+.jp-ai__paywall-detail { margin: 0; font-size: .9rem; }
+.jp-ai__confirm {
+  margin-top: 6px; padding: 12px; border-radius: 10px;
+  border: 1px solid var(--jp-line);
+  background: color-mix(in srgb, var(--jp-primary) 6%, var(--jp-surface));
+  display: grid; gap: 8px;
+}
+.jp-ai__confirm p { margin: 0; font-size: .88rem; }
+.jp-ai__check { display: flex; align-items: flex-start; gap: 8px; font-size: .85rem; cursor: pointer; }
+.jp-ai__check input { margin-top: 3px; }
+.jp-ai__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.jp-ai__status { margin: 4px 0 0; color: var(--jp-muted); font-size: .83rem; }
+.jp-ai__status:empty { display: none; }
+.jp-ai__chat {
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px dashed var(--jp-line);
+  display: grid; gap: 8px;
+}
+.jp-ai__chat-log { display: grid; gap: 8px; }
+.jp-ai__msg { padding: 8px 12px; border-radius: 10px; font-size: .88rem; line-height: 1.5; }
+.jp-ai__msg--user {
+  justify-self: end; max-width: 88%;
+  background: color-mix(in srgb, var(--jp-primary) 13%, var(--jp-surface));
+}
+.jp-ai__msg--ai {
+  border: 1px solid var(--jp-line);
+  background: var(--jp-canvas, var(--jp-surface));
+}
+.jp-ai__msg-who { display: block; font-size: .74rem; font-weight: 700; color: var(--jp-muted); margin-bottom: 2px; }
+.jp-ai__msg-text { margin: 0; white-space: pre-line; }
+.jp-ai__msg-note { display: block; margin-top: 4px; font-size: .75rem; color: var(--jp-muted); }
+.jp-ai__ask-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.jp-ai__ask-input {
+  flex: 1 1 200px; min-height: 40px; padding: 6px 12px;
+  border: 1px solid var(--jp-line); border-radius: 999px;
+  background: var(--jp-canvas, var(--jp-surface)); color: var(--jp-ink);
+  font: inherit; font-size: .88rem;
+}
+.jp-ai__ask-input:focus { outline: 2px solid var(--jp-primary); outline-offset: 1px; }
+.jp-ai__ask-btn { min-height: 40px; border-radius: 999px; }

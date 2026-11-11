@@ -294,7 +294,10 @@
           + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
           + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
           + '</div>')
-        + (ctx.showExplain && a.explanation ? '<p class="jp-skill-explain__note">' + esc(a.explanation) + '</p>' : '') + '</div>';
+        + (ctx.showExplain && a.explanation ? '<p class="jp-skill-explain__note">' + esc(a.explanation) + '</p>' : '')
+        + (ctx.token && q.id ? '<div class="jp-ai-slot" data-jpath-ai-explain="'
+          + attrJson({ source: 'JPATH_SKILL', checkToken: String(ctx.token), questionId: String(q.id) }) + '"></div>' : '')
+        + '</div>';
     }
     var qv = ctx.viOn && ctx.qvi ? ctx.qvi[q.id] : null;
     if (qv && Array.isArray(qv.options_vi)) {
