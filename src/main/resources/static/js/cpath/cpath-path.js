@@ -327,7 +327,7 @@
     var kitsuSay = !situations.length
       ? (todayObj.restDay ? 'Hôm nay nghỉ ngơi nhé! Muốn thì học thêm 1 tình huống.' : 'Hôm nay chưa có tình huống mới, mình ôn lại bài cũ nhé!')
       : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
-        : 'Còn ' + left + ' tình huống hôm nay, mình cùng đóng vai リン nhé!');
+        : 'Còn ' + left + ' tình huống hôm nay, mình cùng vào vai nhé!');
     // [JLAS-W0108] C1: same head as the JLPT "Hôm nay" block - calendar stamp, title, Kitsu - then the main button
     var ctl = root && root.JpathPathControls;
     var cal = ctl && typeof ctl.calendarStampHtml === 'function' && dayIso

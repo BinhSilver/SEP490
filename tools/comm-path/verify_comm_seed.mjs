@@ -17,6 +17,9 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const GOALS = ['TRAVEL', 'DAILY_LIFE', 'BA', 'WORK'];
 const GOAL_ORDER = { TRAVEL: 1, DAILY_LIFE: 2, BA: 3, WORK: 4 };
 const LEARNER = 'リン';
+// F49 (11/11): the BrSE dialogues are written for グエン (the learner), every other goal for リン
+const LEARNER_BY_GOAL = { BA: 'グエン' };
+const learnerOf = (goal) => LEARNER_BY_GOAL[goal] || LEARNER;
 const VALID_CATEGORY_CODES = ['food-drink', 'introduction', 'daily-life', 'transport', 'shopping', 'health-service', 'work-study', 'travel'];
 const SCORING_RULE_CODES = ['grammar_accuracy', 'vocabulary_usage', 'mission_completion', 'naturalness'];
 
@@ -181,7 +184,7 @@ function buildExpected() {
         situations.set(s.id, { code: s.id, topic_code: t.code, sort_order: s.order, level: s.level, title_ja: s.title_ja, title_vi: s.title_vi, situation_vi: s.situation_vi, challenge_json: s.challenge ? JSON.stringify(s.challenge) : null, scenario_slug: slug, seed_version: sv });
         s.lines.forEach((l, i) => {
           const furi = s.furigana && s.furigana[i] ? s.furigana[i] : null;
-          lines.set(`${s.id}|${l.order}`, { situation_code: s.id, line_order: l.order, speaker: l.speaker, learner: l.speaker === LEARNER ? 1 : 0, ja: l.ja, furigana: furi, vi: l.vi, seed_version: sv });
+          lines.set(`${s.id}|${l.order}`, { situation_code: s.id, line_order: l.order, speaker: l.speaker, learner: l.speaker === learnerOf(g) ? 1 : 0, ja: l.ja, furigana: furi, vi: l.vi, seed_version: sv });
         });
       }
       t.words.forEach((w, i) => items.set(w.id, { code: w.id, kind: 'WORD', topic_code: t.code, situation_code: null, sort_order: i + 1, ja: w.word, reading: w.reading, vi: w.meaning_vi, note_vi: null, seed_version: sv }));

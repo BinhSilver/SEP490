@@ -28,6 +28,9 @@
     SPEAK: 'Luyện nói'
   };
 
+  /** F49 (11/11): the learner's role name, from the lines (BA = グエン); リン when unknown. */
+  var learnerName = 'リン';
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -266,7 +269,7 @@
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(prevLine.furigana || prevLine.ja, state.display.furigana) + '</div>'
         + (state.display.translation ? '<div class="cp-line__vi">' + esc(prevLine.vi) + '</div>' : '')
         + '</div>'
-      : '<div class="cp-roleplay-context"><span class="cp-survey__sub">Mở đầu cuộc hội thoại — Đến lượt <strong>リン</strong> nói câu đầu tiên:</span></div>';
+      : '<div class="cp-roleplay-context"><span class="cp-survey__sub">Mở đầu cuộc hội thoại — Đến lượt <strong>' + esc(learnerName) + '</strong> nói câu đầu tiên:</span></div>';
 
     var optsHtml = list(turn.options).map(function (opt, oIdx) {
       var cls = 'cp-option';
@@ -291,7 +294,7 @@
         source: 'CPATH_ROLEPLAY',
         contextText: ((sit && (sit.titleVi || sit.titleJa)) ? 'Tình huống: ' + (sit.titleVi || sit.titleJa) + '\n' : '')
           + (prevLine ? (prevLine.speaker || 'Đối phương') + ': ' + (prevLine.ja || '') + (prevLine.vi ? ' (' + prevLine.vi + ')' : '') : 'Mở đầu hội thoại'),
-        prompt: 'Nhập vai リン — chọn câu đáp tiếng Nhật phù hợp nhất',
+        prompt: 'Nhập vai ' + esc(learnerName) + ' — chọn câu đáp tiếng Nhật phù hợp nhất',
         options: list(turn.options).map(function (o) { return (o.ja || '') + (o.vi ? ' (' + o.vi + ')' : ''); }),
         userAnswer: pickedOptObj.ja || '—',
         correctAnswer: rightOptObj.ja || '',
@@ -307,7 +310,7 @@
 
     return '<div class="cp-sit-stage">'
       + '<div class="cp-deck-switch">'
-      + '<strong>Nhập vai リン · Lượt ' + (tIdx + 1) + '/' + turns.length + '</strong>'
+      + '<strong>Nhập vai ' + esc(learnerName) + ' · Lượt ' + (tIdx + 1) + '/' + turns.length + '</strong>'
       + '<span class="cp-survey__sub">Chọn 1 trong 3 câu trả lời phù hợp nhất</span>'
       + '</div>'
       + promptHtml
@@ -316,8 +319,8 @@
           + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc((list(turn.options)[answeredIdx] || {}).ja || '—') + '</span></div>'
           + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc((list(turn.options)[turn.answerIndex] || {}).ja || '') + '</span></div>'
           + '</div>'
-          + '<details class="jp-review__more"><summary class="jp-link-btn">Xem cả câu</summary><div class="cp-options" role="group" aria-label="Chọn câu trả lời của リン">' + optsHtml + '</div></details>'
-        : '<div class="cp-options" role="group" aria-label="Chọn câu trả lời của リン">' + optsHtml + '</div>')
+          + '<details class="jp-review__more"><summary class="jp-link-btn">Xem cả câu</summary><div class="cp-options" role="group" aria-label="Chọn câu trả lời của ' + esc(learnerName) + '">' + optsHtml + '</div></details>'
+        : '<div class="cp-options" role="group" aria-label="Chọn câu trả lời của ' + esc(learnerName) + '">' + optsHtml + '</div>')
       + whyHtml
       + '</div>'
       + '<footer class="cp-sit-foot">'
@@ -457,22 +460,22 @@
       ? 'Đang chấm điểm phát âm…'
       : (state.recording
         ? '■ Dừng ghi âm & Chấm điểm (tự dừng sau 10s)'
-        : (outOfAttempts ? 'Đã hết lượt ghi âm hôm nay' : '● Bấm ghi âm câu của リン'));
+        : (outOfAttempts ? 'Đã hết lượt ghi âm hôm nay' : '● Bấm ghi âm câu của ' + esc(learnerName) + ''));
 
     return '<div class="cp-sit-stage">'
       + '<div class="cp-deck-switch">'
       + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
-      + '<strong>Đóng vai リン · Câu ' + (sIdx + 1) + '/' + lLines.length + '</strong>'
+      + '<strong>Đóng vai ' + esc(learnerName) + ' · Câu ' + (sIdx + 1) + '/' + lLines.length + '</strong>'
       + attemptsInfoHtml
       + '</div>'
       + '<button type="button" class="cp-btn-ghost" data-cp-toggle-hide-text aria-pressed="' + (state.hideSpeakText ? 'true' : 'false') + '">'
-      + (state.hideSpeakText ? 'Hiện chữ câu của リン' : 'Ẩn chữ để tự nhớ')
+      + (state.hideSpeakText ? 'Hiện chữ câu của ' + esc(learnerName) + '' : 'Ẩn chữ để tự nhớ')
       + '</button>'
       + '</div>'
       + partnerHtml
       + '<div class="cp-speak-box">'
       + '<div class="cp-speak-target' + (state.hideSpeakText ? ' is-hidden-text' : '') + '">'
-      + '<span class="cp-survey__sub">Câu của <strong>リン</strong>:</span>'
+      + '<span class="cp-survey__sub">Câu của <strong>' + esc(learnerName) + '</strong>:</span>'
       + '<div class="cp-line__ja cp-speak-target__ja" lang="ja">' + toRubyHtml(targetLine.furigana || targetLine.ja, state.display.furigana) + '</div>'
       + '<div class="cp-line__vi">' + esc(targetLine.vi) + '</div>'
       + '</div>'
@@ -999,6 +1002,8 @@
       root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
         if (!data) throw new Error('Không có dữ liệu tình huống.');
         sitData = data;
+        var lnL = (data.lines || []).filter(function (ln) { return ln && ln.learner === true; })[0];
+        learnerName = lnL && lnL.speaker ? lnL.speaker : 'リン';
         render();
       }).catch(function (error) {
         if (error && error.code === 'CPATH_PREMIUM_REQUIRED') {
