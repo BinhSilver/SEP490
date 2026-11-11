@@ -58,6 +58,26 @@
     'SERVICE-BOOKING': 'Đặt bàn & đặt phòng'
   };
 
+  // First published situation of each topic in communication-compiled/*.json (owner 11/11, F55).
+  var TOPIC_EXAMPLES = {
+    AIR: 'Làm thủ tục ở sân bay', TRAIN: 'Đổi tàu', HOTEL: 'Nhận phòng khách sạn',
+    FOOD: 'Gọi món ở nhà hàng', SHOP: 'Mua sắm và miễn thuế', TROUBLE: 'Khi bị lạc đường',
+    HOME: 'Thuê phòng', MARKET: 'Đi siêu thị', PUBLIC: 'Làm thủ tục ngân hàng',
+    HEALTH: 'Khám bệnh', SCHOOL: 'Báo nghỉ học', SOCIAL: 'Chuyện hàng xóm',
+    TIME: 'Hỏi giờ mở cửa', PM: 'Báo cáo tiến độ trong họp định kỳ',
+    COM: 'Chào hỏi lần đầu gặp khách hàng', REQ: 'Xác nhận điểm chưa rõ trong đặc tả',
+    DEV: 'Tiếp nhận góp ý code review', TEST: 'Báo cáo kết quả kiểm thử',
+    BUG: 'Tiếp nhận báo lỗi từ khách hàng', OPS: 'Báo cáo sơ bộ sự cố production',
+    'OFFICE-GREETING': 'Chào buổi sáng', 'OFFICE-REPORT': 'Báo cáo tiến độ',
+    'OFFICE-LEAVE': 'Xin nghỉ phép', 'OFFICE-PHONE': 'Nhận điện thoại',
+    'OFFICE-MEETING': 'Chuẩn bị họp', 'FACTORY-SAFETY': 'Đeo đồ bảo hộ',
+    'FACTORY-SHIFT': 'Xác nhận ca làm', 'FACTORY-INSTRUCTION': 'Xác nhận quy trình',
+    'FACTORY-ERROR': 'Báo máy hỏng', 'FACTORY-5S': 'Chỉ thị sắp xếp gọn gàng',
+    'SERVICE-RECEPTION': 'Đón khách đến cửa hàng', 'SERVICE-PRODUCT': 'Giới thiệu sản phẩm mới',
+    'SERVICE-PAYMENT': 'Phương thức thanh toán', 'SERVICE-COMPLAINT': 'Phàn nàn hàng lỗi',
+    'SERVICE-BOOKING': 'Đặt phòng'
+  };
+
   var STEP_META = {
     goal: {
       kitsu: 'kitsu-cheer-30.webp',
@@ -213,7 +233,7 @@
       add(['HOME', 'MARKET', 'PUBLIC', 'HEALTH', 'SCHOOL', 'SOCIAL', 'TIME']);
     }
     return codes.map(function (c) {
-      return { code: c, labelVi: topicLabel(c) };
+      return { code: c, labelVi: topicLabel(c), exampleVi: TOPIC_EXAMPLES[c] || '' };
     });
   }
 
@@ -302,7 +322,7 @@
           + '<span class="cp-pill__icon">' + svgTopicIcon() + '</span>'
           + '<span class="cp-pill__body">'
           + '<span class="cp-pill__label">' + esc(t.labelVi) + '</span>'
-          + '<span class="cp-pill__desc">3 tình huống hội thoại</span>'
+          + '<span class="cp-pill__desc">' + esc(t.exampleVi ? 'Ví dụ: ' + t.exampleVi : 'Tình huống hội thoại') + '</span>'
           + '</span>'
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
           + '</button>';
@@ -418,6 +438,18 @@
       if (!state.priorityTopics.length && validCodes.length) {
         state.priorityTopics = validCodes.slice(0, Math.min(2, validCodes.length));
       }
+    }
+
+    function syncSecondaryGoal() {
+      if (isMainGoal(state, isJob(state.goal) ? JOB : state.goal)) {
+        var other = displayGoals(goalsData).filter(function (g) { return !isMainGoal(state, g.goal); })[0];
+        if (other) {
+          state.goal = other.goal === JOB ? 'WORK' : other.goal;
+          state.fields = [];
+          state.priorityTopics = [];
+        }
+      }
+      syncDefaultTopics();
     }
 
     function render() {
@@ -574,7 +606,7 @@
       var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
       function applyPresetGoal() {
       // adding a secondary goal always starts on the goal step; the saved survey goal is the main one
-      if (state.secondaryPath) { render(); return; }
+      if (state.secondaryPath) { syncSecondaryGoal(); render(); return; }
       if (want && isJob(want) && (has('WORK') || has('BA'))) {
         state.goal = has('WORK') ? 'WORK' : 'BA';
         state.presetGoal = true;
@@ -605,13 +637,7 @@
       state.mainGoal = p.goal;
       state.step = 1;
       state.errorMsg = '';
-      if (isMainGoal(state, isJob(state.goal) ? JOB : state.goal)) {
-        var other = displayGoals(goalsData).filter(function (g) { return !isMainGoal(state, g.goal); })[0];
-        state.goal = other ? (other.goal === JOB ? 'WORK' : other.goal) : state.goal;
-        state.fields = [];
-        state.priorityTopics = [];
-      }
-      if (goalsData.length) syncDefaultTopics();
+      if (goalsData.length) syncSecondaryGoal();
       STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
       STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
         + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.';
