@@ -66,7 +66,8 @@
     }
     var normalized = s.replace(/\{([^|{}]+)\|([^{}]+)\}/g, '$1($2)');
     if (root && root.JpathFurigana && typeof root.JpathFurigana.toRuby === 'function') {
-      return root.JpathFurigana.toRuby(normalized);
+      return root.JpathFurigana.toRuby(normalized)
+        .replace(/<\/ruby>\s+(?=<ruby>|[㐀-鿿々ヶぁ-ゖァ-ヺー])/g, '</ruby>');
     }
     var rx = /([㐀-鿿々ヶ]+)\(([ぁ-ゖァ-ヺー]+)\)/g;
     var out = '';
@@ -76,7 +77,8 @@
       out += esc(normalized.slice(last, m.index)) + '<ruby>' + esc(m[1]) + '<rt>' + esc(m[2]) + '</rt></ruby>';
       last = rx.lastIndex;
     }
-    return out + esc(normalized.slice(last));
+    return (out + esc(normalized.slice(last)))
+      .replace(/<\/ruby>\s+(?=<ruby>|[㐀-鿿々ヶぁ-ゖァ-ヺー])/g, '</ruby>');
   }
 
   function speakJapanese(text, audioUrl, onEnd) {
@@ -221,7 +223,8 @@
       var isPlaying = state.playingLineIdx === idx;
       var furiSource = ln.furigana || ln.ja;
       return '<li class="cp-line' + (isLearner ? ' is-learner' : '') + (isPlaying ? ' is-playing' : '') + '" tabindex="0">'
-        + '<span class="cp-line__speaker">' + esc(ln.speaker) + '</span>'
+        + '<span class="cp-line__avatar" aria-hidden="true">' + (isLearner ? '私' : '相') + '</span>'
+        + '<span class="cp-line__speaker">' + (isLearner ? 'Bạn · ' : 'Người đối thoại · ') + esc(ln.speaker) + '</span>'
         + '<div class="cp-line__content">'
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(furiSource, showFuri) + '</div>'
         + '<div class="cp-line__vi">' + esc(ln.vi) + '</div>'
@@ -233,9 +236,9 @@
     }).join('');
 
     return '<div class="cp-sit-stage">'
-      + '<div class="cp-listen-bar" data-tip="Rê chuột vào câu bất kỳ để xem bản dịch tiếng Việt" title="Rê chuột vào câu bất kỳ để xem bản dịch tiếng Việt">'
+      + '<div class="cp-listen-bar">'
       + '<div><strong>Bối cảnh:</strong> ' + esc(sit.situationVi || sit.titleVi)
-      + ' <span class="cp-survey__sub">(Rê chuột vào câu bất kỳ để xem bản dịch tiếng Việt)</span></div>'
+      + (showTrans ? '' : ' <span class="cp-survey__sub">(Bản dịch đang ẩn; bấm nút Bản dịch ở đầu trang để hiện.)</span>') + '</div>'
       + '<button type="button" class="cp-btn-primary" data-cp-play-all>'
       + svgSpeaker()
       + '<span>' + (state.playingAll ? 'Đang phát lần lượt…' : 'Phát lần lượt cả hội thoại') + '</span>'

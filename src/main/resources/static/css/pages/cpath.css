@@ -786,17 +786,34 @@ html.dark .cp-page {
 }
 .cp-line {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 10px;
+  width: min(84%, 700px);
+  align-self: flex-start;
   padding: 10px 14px;
   border-radius: 12px;
   background: var(--cp-surface-soft);
   border: 1px solid var(--cp-line);
 }
 .cp-line.is-learner {
+  align-self: flex-end;
   background: color-mix(in srgb, var(--jp-c-purple-100) 58%, var(--cp-surface));
   border-color: color-mix(in srgb, var(--jp-c-purple-500) 32%, var(--cp-line));
 }
+.cp-line__avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font-size: .78rem;
+  font-weight: 700;
+}
+.cp-line.is-learner .cp-line__avatar { background: var(--jp-c-purple-500); color: #fff; }
 .cp-line.is-playing {
   border-color: var(--jp-c-purple-500);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--jp-c-purple-500) 20%, transparent);
@@ -818,6 +835,7 @@ html.dark .cp-page {
 }
 .cp-line__content {
   flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
   display: grid;
   gap: 3px;
