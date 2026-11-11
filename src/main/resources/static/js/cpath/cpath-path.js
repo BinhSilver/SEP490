@@ -41,6 +41,8 @@
 
   function list(v) { return Array.isArray(v) ? v : []; }
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy
+  function kitsuSmall(file) { return kitsuSrc(String(file).replace(/\.webp$/, '-128.webp')); }
   function kitsuSrc(file) {
     return '/images/mascots/kitsu/' + file;
   }
@@ -218,7 +220,7 @@
   function weekSideKitsuHtml(weekNum, side) {
     var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
-      + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSrc(k.file)) + '" width="52" height="52" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSmall(k.file)) + '" width="52" height="52" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
       + '</span>';
   }
@@ -326,15 +328,24 @@
       ? (todayObj.restDay ? 'Hôm nay nghỉ ngơi nhé! Muốn thì học thêm 1 tình huống.' : 'Hôm nay chưa có tình huống mới, mình ôn lại bài cũ nhé!')
       : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
         : 'Còn ' + left + ' tình huống hôm nay, mình cùng đóng vai リン nhé!');
-    return '<section class="jp-today cp-today" aria-label="Hôm nay của bạn">'
-      + '<header class="cp-today__head">'
-      + '<div class="cp-today__lead"><h1 class="jp-section-title">Hôm nay của bạn</h1>'
-      + '<p class="cp-today__meta">' + esc(dateLine) + (dateLine ? ' · ' : '') + esc(d.nameVi || 'Giao tiếp')
+    // [JLAS-W0108] C1: same head as the JLPT "Hôm nay" block - calendar stamp, title, Kitsu - then the main button
+    var ctl = root && root.JpathPathControls;
+    var cal = ctl && typeof ctl.calendarStampHtml === 'function' && dayIso
+      ? ctl.calendarStampHtml(dayIso, { allDone: allDone, tabs: [{ tab: 'COMM', newTarget: situations.length, newDone: doneCount }] })
+      : '';
+    return '<section class="jp-card jp-today cp-today" data-tour="cp-today" aria-labelledby="cp-today-title">'
+      + '<div class="jp-today__top">'
+      + cal
+      + '<div class="jp-today__lead"><div class="jp-today__title-row">'
+      + '<h1 class="jp-section-title" id="cp-today-title">Hôm nay của bạn</h1>'
+      + (allDone ? '<span class="jp-today__stamp" role="img" tabindex="0" aria-label="Bạn đã hoàn thành toàn bộ bài học hôm nay!" data-tip="Bạn đã hoàn thành toàn bộ bài học hôm nay!"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="jpStampArc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"></path></defs><circle class="jp-today__stamp-o" cx="50" cy="50" r="47"></circle><circle class="jp-today__stamp-i" cx="50" cy="50" r="29"></circle><text class="jp-today__stamp-arc"><textPath href="#jpStampArc" startOffset="0">KOTSUKOTSU ・ ĐÃ HỌC HÔM NAY ・</textPath></text><text class="jp-today__stamp-jp" x="50" y="58" text-anchor="middle" lang="ja">済</text></svg></span>' : '')
+      + '</div>'
+      + '<p class="jp-today__subtitle">' + esc(cal ? '' : dateLine + (dateLine ? ' · ' : '')) + esc(d.nameVi || 'Giao tiếp')
       + (lead ? ' · ' + esc(lead) : '') + '</p></div>'
-      + '<div class="cp-today__kitsu"><img src="' + esc(kitsuSrc(kitsuFile)) + '" width="64" height="64" alt="" />'
-      + '<span class="cp-today__bubble">' + esc(kitsuSay) + '</span></div>'
-      + (firstActive ? '<a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a>' : '')
-      + '</header>'
+      + '<div class="jp-today__kitsu" aria-hidden="true"><span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
+      + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="" /></div>'
+      + '</div>'
+      + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
       + body
       + actions
       + '</section>';
@@ -394,7 +405,7 @@
     return '<div class="jp-parts__popover ' + sideCls + ' ' + toneCls + '" data-parts-popover role="dialog" aria-label="' + esc(item.titleVi) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + esc(kitsuSrc(kitsuFile)) + '" width="46" height="46" alt="" />'
+      + '<img class="jp-parts__pop-kitsu" src="' + esc(kitsuSmall(kitsuFile)) + '" width="46" height="46" alt="" />'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill ' + (isDone ? 'jp-parts__pop-pill--done' : 'jp-parts__pop-pill--today') + '">' + esc(typeBadge) + '</span>'
@@ -494,7 +505,7 @@
     var todayKitsu = (isToday || isTodayDone)
       ? '<span class="jp-parts__mascot jp-parts__mascot--today jp-parts__mascot--' + (labelSide === 'left' ? 'right' : 'left') + '" aria-hidden="true">'
         + '<span class="jp-parts__mascot-speech">' + (isTodayDone ? 'Giỏi quá!' : 'Vào tình huống này nhé!') + '</span>'
-        + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSrc(isTodayDone ? 'kitsu-celebrate-30.webp' : 'kitsu-cheer-30.webp')) + '" width="58" height="58" alt="" />'
+        + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSmall(isTodayDone ? 'kitsu-celebrate-30.webp' : 'kitsu-cheer-30.webp')) + '" width="58" height="58" alt="" />'
         + '</span>'
       : '';
     var popHtml = isSelected ? nodePopoverHtml(item, pos) : '';
@@ -561,9 +572,10 @@
       + '</div>'
       + '</div>'
       + '<div class="jp-parts__banner-sub">'
-      + '<details class="cp-goal-switch"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
+      + '<details class="cp-goal-switch" data-tour="cp-goal"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
       + '<a href="/survey?edit=goal">Đổi mục tiêu chính</a> · '
-      + '<a href="/learning/comm/survey">Thêm mục tiêu phụ</a></details>'
+      + '<a href="/learning/comm/survey">Thêm mục tiêu phụ</a> · '
+      + '<a href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></details>'
       + '<div class="jp-parts__legend" aria-label="Chú giải bản đồ">'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">' + svgMedal('jp-parts__legend-svg') + '</span>Đã học</span>'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">' + svgStar() + '</span>Hôm nay</span>'
@@ -597,7 +609,7 @@
       + bannerHtml
       + '<div class="jp-parts__stage jp-parts__stage--' + sceneKey + '" data-tab-scene="' + sceneKey + '">'
       + sceneBackdropHtml(sceneKey)
-      + '<ol class="jp-parts__list jp-parts__map">' + nodesHtml + '</ol>'
+      + '<ol class="jp-parts__list jp-parts__map" data-tour="cp-map">' + nodesHtml + '</ol>'
       + '</div>'
       + '</div>';
   }
@@ -617,7 +629,7 @@
       + '<a class="cp-goal-card__progress" href="/learning/comm/certificate" title="Xem chứng nhận">'
       + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
-      + '<div class="cp-goal-card__pace" role="group" aria-label="Số tình huống mỗi ngày">'
+      + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
       + '<span>Mỗi ngày</span>'
       + [1, 2].map(function (n) {
         return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
@@ -737,6 +749,26 @@
       slot.prepend(alert);
     }
 
+    // [JLAS-W0108] C5: first visit (or ?tour=1) gets a 4-step guide; "seen" is a per-browser convenience
+    var TOUR_KEY = 'cpath.tourDone';
+    var TOUR_STEPS = [
+      { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–2 tình huống giao tiếp. Bấm Học tiếp để vào tình huống kế tiếp.' },
+      { target: '[data-tour="cp-map"]', text: 'Bản đồ theo tuần: mỗi tình huống có 4 bước, cuối tuần có bài kiểm tra để mở tuần sau.' },
+      { target: '[data-tour="cp-pace"]', text: 'Chọn học 1 hay 2 tình huống mỗi ngày; đổi lúc nào cũng được.' },
+      { target: '[data-tour="cp-goal"]', text: 'Đổi mục tiêu chính hoặc thêm mục tiêu phụ ở đây; tiến độ đã học vẫn được giữ.' }
+    ];
+    function startTour() {
+      var tour = root.JpathTour;
+      if (!tour || !root.document) return;
+      var forced = /(^|[?&])tour=1(&|$)/.test((root.location && root.location.search) || '');
+      var seen = false;
+      try { seen = root.localStorage.getItem(TOUR_KEY) === '1'; } catch (e) { seen = false; }
+      if (seen && !forced) return;
+      tour.create({ doc: root.document, steps: TOUR_STEPS, onFinish: function () {
+        try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
+      } }).start();
+    }
+
     function renderAll() {
       rootEl.setAttribute('aria-busy', 'false');
       if (sideSlot && pathData) sideSlot.innerHTML = sideGoalHtml(pathData);
@@ -841,6 +873,7 @@
       }
       state.focusedWeek = Number(mapData.currentWeek) || 1;
       renderAll();
+      startTour();
       // a goal AI call taken since the last visit: read its score (kaiwa, read only) and redraw when it passed
       if (root.JpathApi.send) {
         Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/goal-test/check')).then(function (g) {

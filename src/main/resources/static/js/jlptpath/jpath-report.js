@@ -18,7 +18,7 @@
 
   var REPORT_URL = '/api/learning/jlpt/reports';
   var NOTE_MAX = 500;
-  var TARGETS = ['VOCAB', 'KANJI', 'GRAMMAR', 'KANA', 'EXAMPLE', 'QUESTION'];
+  var TARGETS = ['VOCAB', 'KANJI', 'GRAMMAR', 'KANA', 'EXAMPLE', 'QUESTION', 'SKILL_SET', 'SKILL_QUESTION', 'PAGE'];
   var CONTEXT_RE = /^[A-Z_]{1,40}$/;
   var ERROR_TYPES = Object.freeze([
     Object.freeze({ code: 'MEANING', label: 'Nghĩa sai' }),
@@ -95,13 +95,13 @@
     });
   }
 
-  function formHtml() {
+  function formHtml(ctx) {
     var options = ERROR_TYPES.map(function (t, i) {
       return '<label class="jp-report__option"><input type="radio" name="jp-report-type" value="' + t.code + '"'
         + (i === 0 ? ' checked' : '') + '><span>' + esc(t.label) + '</span></label>';
     }).join('');
     return '<div class="jp-report__panel">'
-      + '<h2 class="jp-report__title" id="jp-report-title">Báo sai nội dung</h2>'
+      + '<h2 class="jp-report__title" id="jp-report-title">' + (ctx && ctx.targetType === 'PAGE' ? 'Báo lỗi trang này' : 'Báo sai nội dung') + '</h2>'
       + '<form class="jp-report__form" novalidate>'
       + '<fieldset class="jp-report__types"><legend>Lỗi gì?</legend>' + options + '</fieldset>'
       + '<label class="jp-report__note-label" for="jp-report-note">Ghi chú (không bắt buộc)</label>'
@@ -130,7 +130,7 @@
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
     box.setAttribute('aria-labelledby', 'jp-report-title');
-    box.innerHTML = formHtml();
+    box.innerHTML = formHtml(ctx);
     var handle = { el: box, close: close };
     var form = box.querySelector('form');
     var status = box.querySelector('.jp-report__status');
@@ -157,6 +157,7 @@
       send.disabled = true;
       status.textContent = 'Đang gửi…';
       apiClient().send('POST', REPORT_URL, body).then(function () {
+        if (root && root.JlasToast && root.JlasToast.show(MSG_THANKS, 'success')) { close(true); return; }
         status.textContent = MSG_THANKS;
         form.querySelector('.jp-report__types').disabled = true;
         send.hidden = true;
@@ -174,25 +175,20 @@
   }
 
   /** Adds one ⚑ button to el for ctx; a second call on the same element does nothing. Returns the button. */
+  // F33 (owner 10/11): no ⚑ on every row any more; one floating report button per page. A block with
+  // data-jpath-report is only marked pickable; the button lights the blocks and the learner clicks the wrong one.
+  var PICKABLE = 'jp-report-pickable';
+  var picking = null;
+
+  /** Marks one [data-jpath-report] block as pickable (no button). Returns the block, or null. */
   function attach(el, ctx) {
     if (!el || !ctx || el.getAttribute(BOUND) === '1') return null;
-    var doc = el.ownerDocument || (root && root.document);
-    var button = doc.createElement('button');
-    button.type = 'button';
-    button.className = 'jp-report-btn';
-    button.setAttribute('aria-label', 'Báo sai');
-    button.setAttribute('title', 'Báo sai');
-    button.innerHTML = icon('flag');
-    button.addEventListener('click', function (ev) {
-      if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
-      open(ctx, button);
-    });
-    el.appendChild(button);
     el.setAttribute(BOUND, '1');
-    return button;
+    if (el.classList) el.classList.add(PICKABLE);
+    return el;
   }
 
-  /** Attaches every [data-jpath-report] block under root (root itself included). Returns the number attached. */
+  /** Marks every [data-jpath-report] block under root (root itself included); makes sure the floating button exists. */
   function bindAll(scope) {
     if (!scope) return 0;
     var nodes = [];
@@ -206,7 +202,89 @@
       var ctx = parseAttach(el.getAttribute('data-jpath-report'));
       if (ctx && attach(el, ctx)) count++;
     });
+    ensureFab();
     return count;
+  }
+
+  /** A short key for the page (a-z, 0-9, -; at most 24), e.g. /learning/jlpt/day -> "learning-jlpt-day". */
+  function pageKey(path) {
+    var key = String(path || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (key.length > 24) key = key.slice(key.length - 24).replace(/^-+/, '');
+    return key || 'home';
+  }
+
+  function pageCtx() {
+    var loc = root && root.location;
+    return { targetType: 'PAGE', targetCode: pageKey(loc && loc.pathname), pageContext: 'PAGE' };
+  }
+
+  function visibleBlocks(doc) {
+    return Array.prototype.slice.call(doc.querySelectorAll('[data-jpath-report]')).filter(function (el) {
+      return !!parseAttach(el.getAttribute('data-jpath-report'))
+        && !(typeof el.closest === 'function' && el.closest('[hidden]'))
+        && (typeof el.getClientRects !== 'function' || el.getClientRects().length > 0);
+    });
+  }
+
+  function stopPicking() {
+    if (!picking) return;
+    var p = picking; picking = null;
+    p.doc.removeEventListener('click', p.onClick, true);
+    p.doc.removeEventListener('keydown', p.onKey, true);
+    if (p.bar.parentNode) p.bar.parentNode.removeChild(p.bar);
+    if (p.doc.body.classList) p.doc.body.classList.remove('jp-report-picking');
+    p.fab.setAttribute('aria-expanded', 'false');
+  }
+
+  /** Floating button: lights the reportable blocks; a page without any opens the whole-page report. */
+  function startPicking(doc, fab) {
+    if (picking) { stopPicking(); return; }
+    var blocks = visibleBlocks(doc);
+    if (!blocks.length) { open(pageCtx(), fab); return; }
+    var bar = doc.createElement('div');
+    bar.className = 'jp-report-pickbar';
+    bar.setAttribute('role', 'status');
+    bar.innerHTML = '<span>Bấm vào mục bị sai để báo.</span>'
+      + '<button type="button" class="jp-report__action" data-report-page>Báo lỗi cả trang</button>'
+      + '<button type="button" class="jp-report__action" data-report-cancel>Hủy</button>';
+    function onClick(ev) {
+      var t = ev.target;
+      if (!t || typeof t.closest !== 'function') return;
+      if (t.closest('.jp-report-fab')) return;
+      if (t.closest('[data-report-cancel]')) { stopPicking(); return; }
+      if (t.closest('[data-report-page]')) { stopPicking(); open(pageCtx(), fab); return; }
+      if (t.closest('.jp-report-pickbar')) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var block = t.closest('[data-jpath-report]');
+      var ctx = block ? parseAttach(block.getAttribute('data-jpath-report')) : null;
+      stopPicking();
+      if (ctx) open(ctx, fab);
+    }
+    function onKey(ev) { if (ev.key === 'Escape') { ev.preventDefault(); stopPicking(); fab.focus(); } }
+    picking = { doc: doc, bar: bar, fab: fab, onClick: onClick, onKey: onKey };
+    doc.body.appendChild(bar);
+    if (doc.body.classList) doc.body.classList.add('jp-report-picking');
+    fab.setAttribute('aria-expanded', 'true');
+    doc.addEventListener('click', onClick, true);
+    doc.addEventListener('keydown', onKey, true);
+  }
+
+  function ensureFab() {
+    var doc = root && root.document;
+    if (!doc || !doc.body || typeof doc.createElement !== 'function') return null;
+    var fab = doc.querySelector ? doc.querySelector('.jp-report-fab') : null;
+    if (fab) return fab;
+    fab = doc.createElement('button');
+    fab.type = 'button';
+    fab.className = 'jp-report-fab';
+    fab.setAttribute('aria-label', 'Báo lỗi');
+    fab.setAttribute('aria-expanded', 'false');
+    fab.setAttribute('data-tip', 'Báo lỗi');
+    fab.innerHTML = icon('flag');
+    fab.addEventListener('click', function () { startPicking(doc, fab); });
+    doc.body.appendChild(fab);
+    return fab;
   }
 
   var doc = root && root.document;
@@ -222,6 +300,7 @@
     messageFor: messageFor,
     parseAttach: parseAttach,
     attach: attach,
-    bindAll: bindAll
+    bindAll: bindAll,
+    pageKey: pageKey
   };
 });

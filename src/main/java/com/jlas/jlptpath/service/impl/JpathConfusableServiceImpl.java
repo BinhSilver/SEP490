@@ -50,12 +50,18 @@ public class JpathConfusableServiceImpl implements JpathConfusableService {
     @Override
     @Transactional(readOnly = true)
     public List<JpathConfusablePairView> pairs(Long userId, String tab) {
+        return pairs(userId, tab, false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<JpathConfusablePairView> pairs(Long userId, String tab, boolean preview) {
         JpathItemType type = type(tab);
         Set<String> learned = userItems.findByUserIdAndItemType(userId, type).stream()
                 .filter(i -> i.getFirstLearnedAt() != null || i.getState() == JpathItemState.KNOWN)
                 .map(JpathUserItem::getItemCode).collect(Collectors.toSet());
         List<JpathConfusablePair> candidates = pairs.findByItemTypeOrderByCodeAAscCodeBAsc(type).stream()
-                .filter(p -> learned.contains(p.getCodeA()) && learned.contains(p.getCodeB())).toList();
+                .filter(p -> preview || learned.contains(p.getCodeA()) && learned.contains(p.getCodeB())).toList();
         if (candidates.isEmpty()) {
             return List.of();
         }
@@ -75,6 +81,14 @@ public class JpathConfusableServiceImpl implements JpathConfusableService {
                         wrong.getOrDefault(p.getCodeA(), 0) + wrong.getOrDefault(p.getCodeB(), 0),
                         p.getDiffVi(), parse(p.getExamplesJson()), parse(p.getQuestionJson())));
             }
+        }
+        if (preview) {
+            Map<String, String> levelOf = new HashMap<>();
+            candidates.forEach(p -> levelOf.put(p.getCodeA() + "|" + p.getCodeB(), p.getLevel() == null ? "" : p.getLevel()));
+            // N5 first: level strings sort N1..N5, so compare reversed
+            out.sort(Comparator.comparing((JpathConfusablePairView v) -> levelOf.getOrDefault(v.a().code() + "|" + v.b().code(), ""),
+                    Comparator.reverseOrder()).thenComparing(v -> v.a().code()));
+            return out;
         }
         out.sort(Comparator.comparingInt(JpathConfusablePairView::wrongCount).reversed()
                 .thenComparing(v -> v.a().code()));

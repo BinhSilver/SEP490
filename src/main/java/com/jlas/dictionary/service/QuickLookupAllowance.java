@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class QuickLookupAllowance {
-    public static final int PACK_LOOKUPS = 10;
+    public static final int PACK_LOOKUPS = 1; // owner 10/11 (F30): 5 CP buys one lookup
     public static final int PACK_PRICE = 5;
 
     private final JdbcTemplate jdbc;

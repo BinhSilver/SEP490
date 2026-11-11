@@ -182,7 +182,9 @@
     var mark = state === 'PASSED' ? icon('check') : (state === 'LOCKED' ? icon('lock') : '');
     var sub;
     if (state === 'PASSED') sub = '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="'
-      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>';
+      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>'
+      // AI 1 #13: a passed level also opens its level summary
+      + '<a class="jp-level-cell__summary" href="/learning/jlpt/levels/' + encodeURIComponent(c.level) + '/summary">Xem tổng kết</a>';
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
       + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
       + '%"></span></span>';
@@ -335,9 +337,22 @@
   function numbersHtml(path, tab, today) {
     if (tab === 'skills') return skillsTabHtml(path, today);
     if (root && root.JpathParts && (tab === 'vocab' || tab === 'kanji' || tab === 'grammar')) {
-      return '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
+      return lockedTabNoteHtml(path, tab)
+        + '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
     }
-    return estimateHtml(path, tab) + volumeHtml(path, tab);
+    // [JLAS-W0108] F13: the kana tab has no finish estimate; show only its volume instead of "—"
+    var est = (path && path.estimates || {})[TAB_KEY[tab]];
+    return (tab === 'kana' && !est ? '' : estimateHtml(path, tab)) + volumeHtml(path, tab);
+  }
+
+  /** [JLAS-W0108] F12: a tab that opens after kana says why its map is locked and links to the kana tab. */
+  function lockedTabNoteHtml(path, tab) {
+    var info = tabInfo(path, tab);
+    var kanaFirst = !!(path && path.kanaTab && !path.kanaCompleted);
+    if (!info || (info.open !== false && !kanaFirst)) return '';
+    var text = info.open === false ? 'Học xong <strong>Chữ cái</strong> để mở tab này.'
+      : 'Lộ trình đang học <strong>Chữ cái</strong> trước; các phần ở đây mở dần sau khi xong Chữ cái.';
+    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=kana">Về tab Chữ cái</a></p>';
   }
 
   // tab buttons are updated in place so focus stays on the activated tab
@@ -710,13 +725,33 @@
       rootEl.setAttribute('aria-busy', 'false');
       rendered(rootEl);
       startTour();
+      premiumBox(rootEl, apiClient);
     }, function () {
       setHtml(rootEl, 'hero', '<p class="jp-alert" role="alert">' + esc(MSG_LOAD_FAILED) + '</p>');
       rootEl.setAttribute('aria-busy', 'false');
     });
   }
 
+  /** F5 (owner 10/11): N3–N1 need Premium; a locked learner sees an upgrade box above the path. */
+  function premiumBoxHtml(gate) {
+    if (!gate || !gate.locked) return '';
+    return '<section class="jp-premium-box" role="note">'
+      + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+      + '<div><p class="jp-premium-box__title">' + esc(gate.level || 'N3') + ' dành cho tài khoản Premium</p>'
+      + '<p class="jp-premium-box__text">N5 và N4 học miễn phí. Từ N3 đến N1, hãy nâng cấp Premium để mở bài học hằng ngày.</p></div>'
+      + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>';
+  }
+
+  function premiumBox(rootEl, apiClient) {
+    if (!apiClient || !rootEl || typeof rootEl.insertAdjacentHTML !== 'function') return;
+    Promise.resolve(apiClient.get('/api/learning/jlpt/premium-gate')).then(function (gate) {
+      var html = premiumBoxHtml(gate);
+      if (html && !rootEl.querySelector('.jp-premium-box')) rootEl.insertAdjacentHTML('afterbegin', html);
+    }, function () { /* the server still blocks the sessions */ });
+  }
+
   var api = Object.assign({}, C, {
+    premiumBoxHtml: premiumBoxHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,

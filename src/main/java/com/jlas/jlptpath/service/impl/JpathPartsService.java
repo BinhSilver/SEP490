@@ -119,6 +119,9 @@ public class JpathPartsService {
     public WeekSkip weekSkip(Long userId, JpathTab tab) {
         String tabName = tab == null ? null : tab.name();
         JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
+        if (tab == JpathTab.KANA) {
+            return kanaSkip(userId, path);
+        }
         String band = path == null ? null : path.getSmartAbilityBand();
         if (path == null || band == null || SKIP_BANDS.stream().noneMatch(band::contains)) {
             return new WeekSkip(false, tabName, path == null ? null : path.getOpenLevel(), 0, List.of());
@@ -142,6 +145,36 @@ public class JpathPartsService {
         }
         return new WeekSkip(!codes.isEmpty(), tabName, p.level(), codes.size(), codes);
     }
+
+    /** Kana rows one quick kana check covers (AI 1 #11, owner 10/11). */
+    static final int KANA_SKIP_ROWS = 5;
+
+    /**
+     * AI 1 #11 (owner 10/11 "thêm kiểm tra nhanh"): a learner who chose to REVIEW kana may test out of the next
+     * {@link #KANA_SKIP_ROWS} rows not passed yet; ≥ 90% marks them known like the week check.
+     */
+    private WeekSkip kanaSkip(Long userId, JpathUserPath path) {
+        String level = path == null ? null : path.getOpenLevel();
+        boolean review = path != null && preferences != null && preferences.findById(userId)
+                .map(p -> p.getKanaChoice() == com.jlas.jlptpath.enums.JpathKanaChoice.REVIEW).orElse(false);
+        if (!review || lists == null) {
+            return new WeekSkip(false, JpathTab.KANA.name(), level, 0, List.of());
+        }
+        List<String> codes = new ArrayList<>();
+        int taken = 0;
+        for (com.jlas.jlptpath.dto.JpathKanaRowView row : lists.kana(userId, null)) {
+            if (row.passed()) continue;
+            row.kanas().forEach(k -> codes.add(k.code()));
+            if (++taken >= KANA_SKIP_ROWS) break;
+        }
+        return new WeekSkip(!codes.isEmpty(), JpathTab.KANA.name(), level, codes.size(), codes);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.repository.JpathEntryPreferenceRepository preferences;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    @org.springframework.context.annotation.Lazy
+    private com.jlas.jlptpath.service.JpathListService lists;
 
     private final JpathUserPathRepository paths;
     private final JpathUserLevelRepository levels;

@@ -128,6 +128,12 @@ export function verify(migration, seed, content = null) {
   return createHash('sha256').update(migration).update('\0').update(seed).digest('hex');
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  // [JLAS-W0108] the parts are working files (not tracked): split the six shipped files when they are missing
+  if (!fs.existsSync(path.join(root, 'sql/learning/parts/learning_data_common.sql'))) {
+    const { split } = await import('./bundle_learning_data.mjs');
+    split(root);
+    console.log('sql/learning/parts/ was missing: split from the shipped files');
+  }
   const content = JSON.parse(fs.readFileSync(path.join(root, 'data/learning-owned/learning-content.json'), 'utf8'));
   verifyDataFiles();
   console.log(`Verified consolidated Learning SQL SHA256 ${verify(fs.readFileSync(migrationFile, 'utf8'), readLearningSeed(), content)}`);

@@ -22,7 +22,7 @@
   var ERROR_LABELS = { MEANING: 'Nghĩa', EXAMPLE: 'Ví dụ', AUDIO: 'Audio', KANJI: 'Kanji', OTHER: 'Khác' };
   var ERROR_ORDER = ['MEANING', 'EXAMPLE', 'AUDIO', 'KANJI', 'OTHER'];
   var TYPE_LABELS = { VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', KANA: 'Kana', EXAMPLE: 'Câu ví dụ',
-    QUESTION: 'Câu hỏi ngữ pháp' };
+    QUESTION: 'Câu hỏi ngữ pháp', PAGE: 'Cả trang' };
   var STATUS_LABELS = { OPEN: 'Đang mở', RESOLVED: 'Đã xử lý', REJECTED: 'Từ chối' };
   var FIELD_LABELS = {
     meaning_vi: 'Nghĩa', meanings_vi: 'Nghĩa', word_type_label: 'Từ loại', mnemonic_vi: 'Mẹo nhớ', romaji: 'Romaji',

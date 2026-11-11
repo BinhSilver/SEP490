@@ -184,8 +184,8 @@
   }
 
   function lowerLevelText(level, openLevel) {
-    return 'Chuyển về ' + level + '. Tiến độ ' + openLevel + ' giữ nguyên để quay lại. Lên lại ' + openLevel +
-      ' phải qua Thi thử ' + level + '.';
+    return 'Chuyển về ' + level + '. Tiến độ ' + openLevel + ' giữ nguyên để quay lại. Nếu ' + level +
+      ' đã vượt qua, bạn quay lại ' + openLevel + ' ngay trong mục này; nếu chưa, lên lại qua Thi thử ' + level + '.';
   }
 
   // ---------------------------------------------------------------------------------------------- page
@@ -224,6 +224,7 @@
     }
     function message(scope, role, text) {
       var box = part(role, scope);
+      if (text && /saved$/.test(role) && root && root.JlasToast && root.JlasToast.show(text, 'success')) text = '';
       if (!box) return;
       box.textContent = text || '';
       box.hidden = !text;
@@ -324,6 +325,17 @@
       levels.forEach(function (level) { select.appendChild(option(level, level)); });
       part('lower-level-wrap').hidden = levels.length < 2;
       updateLowerText();
+      // AI 1 #13: higher levels already reached come back without a new mock test
+      var ups = list(view.returnLevels);
+      part('return').hidden = !ups.length;
+      var box = part('return-list');
+      box.textContent = '';
+      ups.forEach(function (level) {
+        var b = make('button', 'jp-settings-btn jp-settings-btn--primary', 'Quay lại ' + level);
+        b.type = 'button';
+        b.setAttribute('data-return-level', level);
+        box.appendChild(b);
+      });
     }
 
     function updateLowerText() {
@@ -496,6 +508,15 @@
         danger(lowerLevelText(level, view.openLevel),
           { confirmText: 'Chuyển về ' + level, cancelText: 'Hủy', label: 'Học cấp thấp hơn' },
           function () { return api.send('POST', '/api/learning/jlpt/path/lower-level', { level: level }); },
+          '/learning');
+      });
+      part('return-list').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-return-level]');
+        if (!b) return;
+        var level = b.getAttribute('data-return-level');
+        danger('Quay lại học ' + level + '? Tiến độ ' + level + ' vẫn như lúc bạn rời đi.',
+          { confirmText: 'Quay lại ' + level, cancelText: 'Hủy', label: 'Quay lại cấp đã lên' },
+          function () { return api.send('POST', '/api/learning/jlpt/path/return-level', { level: level }); },
           '/learning');
       });
       part('goal-go').addEventListener('click', function () {

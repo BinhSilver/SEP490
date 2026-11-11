@@ -327,3 +327,46 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
   .jp-writing .jp-writing__svg { width: 200px; height: 200px; }
   .jp-writing .jp-writing__cell { width: 140px; height: 140px; }
 }
+
+/* [JLAS-W0108] closed "Luyện thêm" link: the reason sits in the row as a small chip */
+.jp-extra__link.is-off { cursor: not-allowed; gap: 8px; }
+.jp-extra__lock { font-size: .72rem; font-weight: 600; padding: 1px 8px; border-radius: 999px;
+  background: var(--jp-surface-2, #f1edf7); color: var(--jp-muted); white-space: nowrap; }
+
+/* [JLAS-W0108] F33: one floating report button (bottom right) replaces the ⚑ on every row */
+.jp-report-btn { display: none !important; }
+.jp-report-fab {
+  position: fixed; right: 20px; bottom: calc(var(--jlab-mobile-bottom, 0px) + 20px); z-index: 60;
+  width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid var(--jp-line); background: var(--jp-surface); color: var(--jp-muted);
+  box-shadow: 0 6px 18px rgba(0,0,0,.18); cursor: pointer; transition: color .15s, background .15s, transform .15s;
+}
+.jp-report-fab svg { width: 22px; height: 22px; }
+.jp-report-fab:hover, .jp-report-fab[aria-expanded="true"] { color: var(--jp-danger); background: var(--jp-danger-soft); transform: translateY(-1px); }
+.jp-report-fab:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-report-picking .jp-report-pickable {
+  outline: 2px dashed var(--jp-danger); outline-offset: 3px; cursor: pointer; border-radius: 8px;
+}
+.jp-report-picking .jp-report-pickable:hover { background: var(--jp-danger-soft); }
+.jp-report-pickbar {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--jlab-mobile-bottom, 0px) + 80px); z-index: 61;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; max-width: calc(100vw - 32px);
+  padding: 10px 14px; border: 1px solid var(--jp-line); border-radius: 12px; background: var(--jp-surface);
+  color: var(--jp-ink); box-shadow: 0 10px 28px rgba(0,0,0,.22); font-weight: 600;
+}
+@media (max-width: 640px) { .jp-report-fab { right: 14px; bottom: calc(var(--jlab-mobile-bottom, 0px) + 14px); } }
+@media (prefers-reduced-motion: reduce) { .jp-report-fab { transition: none; } }
+
+/* [JLAS-W0108] Owner 10/11: on Learning pages the quick lookup keeps "Sổ tay" only; "Lưu từ" (dictionary favourites)
+   is hidden here, not removed — the button stays in the DOM because jpath-lookup-rich.js reads the word id from it */
+.inline-dict [data-inline-save] { display: none !important; }
+
+/* [JLAS-W0108] F5: N3–N1 Premium upgrade box on the path page */
+.jp-premium-box {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 16px; padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line)); border-radius: var(--jp-radius-panel, 14px);
+  background: color-mix(in srgb, var(--jp-primary) 8%, var(--jp-surface));
+}
+.jp-premium-box > div { flex: 1 1 240px; }
+.jp-premium-box__title { margin: 0 0 4px; font-weight: 700; }
+.jp-premium-box__text { margin: 0; color: var(--jp-muted); }

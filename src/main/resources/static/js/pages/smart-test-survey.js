@@ -13,6 +13,15 @@
   var invitation = document.getElementById('surveyInvitation');
   var startTest = document.getElementById('surveyStartTest');
   var goHome = document.getElementById('surveyGoHome');
+  // [JLAS-W0108] A8: "Để sau" returns to the page the learner came from (same site, not the survey itself).
+  var later = document.getElementById('surveyLater');
+  if (later) {
+    try {
+      var ref = document.referrer ? new URL(document.referrer) : null;
+      if (ref && ref.origin === window.location.origin && ref.pathname.indexOf('/survey') !== 0
+          && ref.pathname.indexOf('/learning') !== 0) later.href = ref.pathname + ref.search;
+    } catch (e) { /* keep the home link */ }
+  }
   var noTest = false;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/survey')) return;
 
@@ -117,7 +126,8 @@
     slides.forEach(function (slide) { slide.classList.toggle('is-active', slide === active); });
     var progress = ((currentIndex + 1) / activeSlides.length) * 100;
     document.getElementById('surveyProgress').style.width = progress + '%';
-    document.getElementById('surveyStepCounter').textContent = (currentIndex + 1) + '/' + activeSlides.length;
+    // [JLAS-W0108] F11: the total depends on the answers (branches), so only the step number is shown
+    document.getElementById('surveyStepCounter').textContent = 'Bước ' + (currentIndex + 1);
     backButton.disabled = currentIndex === 0;
     nextButton.disabled = !hasAnswer(active);
     nextButton.querySelector('span').textContent =
@@ -165,8 +175,7 @@
   async function refreshTargetOptions() {
     var request = ++targetOptionsRequest;
     var studied = document.querySelector('input[name="studied"]:checked');
-    // The JLPT path does not ask the level step, so an old hidden answer must not steer the targets.
-    var selfLevel = jpathOn && checkedValue('goal') === 'JLPT' ? null : document.querySelector('input[name="selfLevel"]:checked');
+    var selfLevel = document.querySelector('input[name="selfLevel"]:checked');
     var assessed = window.SmartTestSurveyTargets.assessedLevelFor({
       studied: studied ? studied.value : null, selfLevel: selfLevel ? selfLevel.value : null });
     try {
@@ -282,7 +291,7 @@
     };
     var jpathJlpt = Boolean(jpathOn && Flow && goal === 'JLPT');
     // [JLAS-W0108] The JLPT path has no level step: a learner who studied is UNKNOWN (Smart Test finds the level).
-    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied);
+    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied, selfLevelEl ? selfLevelEl.value : null);
 
     if (goal === 'JLPT') {
       var dateStr = examDateInput && examDateInput.value ? examDateInput.value.trim() : '';

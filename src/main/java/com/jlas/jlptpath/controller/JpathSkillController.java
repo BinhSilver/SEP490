@@ -34,6 +34,9 @@ public class JpathSkillController {
     private final JpathSkillCatalogService catalog;
     private final JpathSkillLessonService lessons;
     private final JpathSkillSessionService sessions;
+    /** F5: N3–N1 need Premium (optional so unit tests building the controller by hand still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
     private final JpathSectionPracticeService sections;
 
     public JpathSkillController(JpathSkillCatalogService catalog, JpathSkillLessonService lessons,
@@ -81,6 +84,7 @@ public class JpathSkillController {
     @PostMapping("/sessions")
     public ResponseEntity<ApiResponse<JpathSkillSessionView>> startSession(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSkillSessionStartRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId());
         return ResponseEntity.ok(ApiResponse.ok("OK", sessions.start(user.userId(), request)));
     }
 

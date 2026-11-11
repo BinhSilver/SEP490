@@ -52,6 +52,16 @@
       + '</section>';
   }
 
+  // [JLAS-W0108] C3: one next step under the weekly score (weak items → notebook)
+  function weekTipHtml(r) {
+    if (REVIEW) return '';
+    var wrong = (r.review || []).filter(function (x) { return !x.correct; }).length;
+    var tip = !wrong ? 'Tuần này bạn nắm chắc hết các mẫu câu. Giữ nhịp này nhé!'
+      : 'Mẫu còn yếu: ' + wrong + ' câu sai bên dưới. Ôn lại trong Sổ tay trước khi sang tuần mới.';
+    return '<p class="jp-result__note" data-part="week-tip">' + esc(tip)
+      + (wrong ? ' <a href="/learning/comm/notebook">Mở Sổ tay</a>' : '') + '</p>';
+  }
+
   function resultHtml(r) {
     var ok = r.passed === true;
     var rows = (r.review || []).map(function (x) {
@@ -63,6 +73,7 @@
       + '<h2 id="cpWeeklyResult" class="jp-result__title" tabindex="-1">'
       + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu. Mục sai đã vào Sổ tay.') : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
         : ('Đúng ' + r.correct + '/' + r.total + ' câu, cần từ 80% để đạt. Ôn lại các câu sai rồi làm lại nhé.')) + '</h2>'
+      + weekTipHtml(r)
       + '<ul class="jp-review">' + rows + '</ul>'
       + '<div class="jp-result__actions">'
       + (ok || REVIEW ? '' : '<button type="button" class="jp-btn" data-weekly-retry>Làm lại</button>')

@@ -124,6 +124,13 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
 
     @Override
     @Transactional
+    public JpathPathView returnLevel(Long userId, String level) {
+        JpathPathUpdater.Change c = changer.returnLevel(userId, level);
+        return views.view(c.path(), c.level(), c.pacing(), c.appliesFromTomorrow());
+    }
+
+    @Override
+    @Transactional
     public void restart(Long userId, String confirmText) {
         changer.restart(userId, confirmText);
     }
@@ -149,7 +156,7 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
                 third == null ? null : JpathDays.format(List.of(third)), thirdAuto, level.getStage(), p.mode(),
                 JpathSettingsWriter.suggestion(path), JpathDisplaySettings.from(row, open), web, email,
                 emailAvailable, time.format(HH_MM), views.sliderView(path, level, p, appliesFromTomorrow), open,
-                JpathPathRules.lowerLevels(catalog, open));
+                JpathPathRules.lowerLevels(catalog, open), changer.returnLevels(path.getId(), open));
     }
 
     private Optional<JpathUserPath> findActive(Long userId) {

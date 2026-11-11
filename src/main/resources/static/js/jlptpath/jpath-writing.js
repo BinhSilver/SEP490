@@ -826,7 +826,7 @@
       : client.get(BASE + encodeURIComponent(trigger.itemType) + '/' + encodeURIComponent(trigger.code)).then(open);
     return request.catch(function (error) {
       var message = error && error.code === 'UNAUTHORIZED' && error.message ? error.message : MSG_FAILED;
-      if (root && root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(message);
+      if (root && root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(message, 'error');
       else if (root && root.console) root.console.warn(message);
     });
   }

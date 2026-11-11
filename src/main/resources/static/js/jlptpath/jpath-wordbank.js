@@ -42,6 +42,8 @@
   /** One row; {@code page} is KNOWN or NOTEBOOK (the notebook gets the remove button). */
   function rowMarkup(r, page) {
     if (!r) return '';
+    // AI 1 #16: the Chữ cái tab returns kana cells {code, kana, romaji}; show them like a word row
+    if (r.kana && !r.expression) r = { itemType: 'KANA', code: r.code, expression: r.kana, reading: '', meaning: r.romaji };
     var type = r.itemType || 'VOCAB';
     var report = { targetType: type, targetCode: r.code, pageContext: CONTEXT[page] || 'KNOWN_LIST' };
     var writable = type === 'VOCAB' || type === 'KANJI';
@@ -118,7 +120,10 @@
       if (rm) {
         rm.disabled = true;
         api.send('DELETE', BASE + '/items/' + encodeURIComponent(rm.getAttribute('data-type')) + '/'
-          + encodeURIComponent(rm.getAttribute('data-remove')) + '/notebook').then(load, function (err) {
+          + encodeURIComponent(rm.getAttribute('data-remove')) + '/notebook').then(function () {
+          if (root.JlasToast) root.JlasToast.show('Đã bỏ khỏi Sổ tay.', 'success');
+          return load();
+        }, function (err) {
           rm.disabled = false;
           status.textContent = (err && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
         });

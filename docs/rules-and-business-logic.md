@@ -31,6 +31,8 @@ Bằng chứng chạy và tồn đọng nằm trong execution ledger, không dù
 - JLPT chạy `KANJI → VOCABULARY → GRAMMAR → READING → LISTENING`; không cho tự bỏ skill để tạo kết quả đủ điều kiện.
 - Survey giao tiếp thể hiện nhu cầu, không chứng minh competency/weakness/mastery. Quy tắc tình huống xem §2.3.
 - Owner 2026-10-21 (OD-34): `UNKNOWN` + target N2/N1 được lưu survey và làm Smart Test; path chỉ tạo khi dữ liệu cấp đó qua cổng phát hành.
+- Nhóm 2026-11-10 (F21): khảo sát lộ trình JLPT hỏi lại trình độ hiện tại khi đã học (N5…N1 hoặc "Mới bắt đầu"); Smart Test
+  phát batch đầu của mọi kỹ năng ở đúng cấp đó để làm nhanh, rồi lên/xuống theo §1.3. "Mới bắt đầu" = `UNKNOWN` → bắt đầu N5.
 - Owner 2026-10-21 (OD-38): câu thời gian 10/20/30 phút của BA/Travel/Daily Life quyết định `minutes_per_day` của path.
 
 ### 1.2 Chọn câu và tính hợp lệ ngân hàng

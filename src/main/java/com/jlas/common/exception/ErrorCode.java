@@ -58,6 +58,7 @@ public enum ErrorCode {
     JPATH_ACTIVE_PATH_EXISTS(HttpStatus.CONFLICT, "Bạn đã có một lộ trình JLPT đang học."),
     JPATH_LEVEL_NOT_RELEASED(HttpStatus.CONFLICT, "Cấp này sắp có, hiện chưa mở."),
     JPATH_LEVEL_LOCKED(HttpStatus.FORBIDDEN, "Cấp này chưa mở. Hãy hoàn thành cấp hiện tại và Thi thử JLPT."),
+    JPATH_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Cấp N3–N1 dành cho tài khoản Premium. Nâng cấp để học tiếp."),
     JPATH_TARGET_TOO_SOON(HttpStatus.BAD_REQUEST, "Ngày thi quá gần để kịp mục tiêu này."),
     JPATH_ADJUSTMENTS_EXHAUSTED(HttpStatus.CONFLICT, "Bạn đã dùng hết 2 lần chỉnh của cấp này."),
     JPATH_SLIDER_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Số mục mỗi ngày nằm ngoài giới hạn cho phép."),

@@ -61,6 +61,13 @@ public class JpathSettingsController {
         return ResponseEntity.ok(ApiResponse.ok("Đã chuyển sang học cấp " + view.openLevel() + ".", view));
     }
 
+    @PostMapping("/path/return-level")
+    public ResponseEntity<ApiResponse<JpathPathView>> returnLevel(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody JpathLowerLevelRequest request) {
+        JpathPathView view = settingsService.returnLevel(user.userId(), request.level());
+        return ResponseEntity.ok(ApiResponse.ok("Đã quay lại học cấp " + view.openLevel() + ".", view));
+    }
+
     @PostMapping("/path/restart")
     public ResponseEntity<ApiResponse<JpathRedirectView>> restart(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody JpathRestartRequest request) {

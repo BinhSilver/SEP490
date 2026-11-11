@@ -103,7 +103,7 @@
     return out;
   }
 
-  function weekStripHtml(day, today, isDone) {
+  function weekStripHtml(day, today, isDone, weekStatus) {
     var days = weekDays(day);
     if (!days.length) return '';
     var cells = days.map(function (di, idx) {
@@ -113,7 +113,9 @@
       var isCurrent = di === day;
       var isToday = di === today;
       var isFuture = today && di > today;
-      var isPastDone = (!isFuture && !isCurrent) || (isCurrent && isDone);
+      // AI 1 #15: a past day is ticked only when the history says something was studied that day
+      var known = weekStatus && Object.prototype.hasOwnProperty.call(weekStatus, di) ? !!weekStatus[di] : null;
+      var isPastDone = isCurrent ? !!isDone : (known !== null ? known : false);
       var cls = 'jp-dayd__node'
         + (isCurrent ? ' is-current' : '')
         + (isToday ? ' is-today' : '')
@@ -128,7 +130,7 @@
         + badge
         + '</span>'
         + (isToday ? '<span class="jp-dayd__today-tag">Hôm nay</span>' : '');
-      var stepCls = 'jp-dayd__step' + (isFuture ? ' is-future' : ' is-past') + (isCurrent ? ' is-current' : '');
+      var stepCls = 'jp-dayd__step' + (isFuture ? ' is-future' : ' is-past') + (isCurrent ? ' is-current' : '') + (isPastDone ? ' is-done' : '');
       var delayAttr = ' style="--jp-step-idx:' + idx + '"';
       if (isFuture) {
         return '<li class="' + stepCls + '"' + delayAttr + '><span class="' + cls + '" aria-disabled="true" title="'
@@ -196,7 +198,7 @@
     var wrongAll = list(x.wrongItems);
     wrongCodes = {};
     wrongAll.forEach(function (w) { if (w) wrongCodes[w.itemType + ':' + w.code] = true; });
-    var strip = weekStripHtml(day, today, !!x.done);
+    var strip = weekStripHtml(day, today, !!x.done, x.weekStatus);
     var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác"><a class="jp-btn" href="?d=' + esc(shift(day, -1)) + '">‹ Hôm trước</a>'
       + (day < today ? '<a class="jp-btn" href="?d=' + esc(shift(day, 1)) + '">Hôm sau ›</a>' : '') + '</nav>';
     var html = strip + '<header class="jp-dayd__head"><h1 class="jp-page-head__title">' + title(day) + ' · '
@@ -265,9 +267,23 @@
     var day = m ? m[1] : today;
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
-      root.JpathApi.get(BASE + '/history/' + day).then(function (d) {
+      var wDays = weekDays(day);
+      var histQuery = wDays.length ? '?from=' + wDays[0] + '&to=' + wDays[wDays.length - 1] : '';
+      var histPromise = root.JpathApi.get(BASE + '/history' + histQuery).then(function (h) {
+        var map = {};
+        if (h && Array.isArray(h.days)) {
+          h.days.forEach(function (hd) {
+            if (hd && hd.day) map[hd.day] = !!(hd.done || Number(hd.newLearned) > 0 || Number(hd.reviewed) > 0);
+          });
+        }
+        return map;
+      }, function () { return null; });
+      Promise.all([root.JpathApi.get(BASE + '/history/' + day), histPromise]).then(function (res) {
+        var d = res[0];
+        var weekMap = res[1];
         if (d && d.today) today = String(d.today);
         if (day > today) { day = today; load(); return; }
+        if (d && weekMap) d.weekStatus = weekMap;
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = dayHtml(d, day, today);
         if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);

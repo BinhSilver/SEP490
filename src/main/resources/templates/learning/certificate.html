@@ -6,17 +6,22 @@
 
 <main id="jlabBaseContent" class="certificate-page">
     <section class="cert-card">
-        <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
-        <h1>Chứng chỉ hoàn thành lộ trình</h1>
-        <p class="cert-level">Cấp độ đạt được: <strong th:text="${targetLevel}">N4</strong></p>
-        <p class="cert-date">
-            Ngày hoàn thành:
-            <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
-        </p>
-        <p class="cert-disclaimer">
-            Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu, không phải điểm số hay chứng chỉ
-            JLPT chính thức.
-        </p>
+        <div class="cert-frame">
+            <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
+            <p class="cert-kanji" aria-hidden="true" th:text="${targetLevel}">N4</p>
+            <h1>Chứng chỉ hoàn thành lộ trình</h1>
+            <div class="cert-ribbon" aria-hidden="true"><span>修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH ·&nbsp;</span><span>修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH ·&nbsp;</span></div>
+            <p class="cert-level">Cấp độ đạt được: <strong th:text="${targetLevel}">N4</strong></p>
+            <p class="cert-date">
+                Ngày hoàn thành:
+                <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
+            </p>
+            <span class="cert-seal" aria-hidden="true">合格</span>
+            <p class="cert-disclaimer">
+                Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu, không phải điểm số hay chứng chỉ
+                JLPT chính thức.
+            </p>
+        </div>
         <button class="cert-print-button" type="button" onclick="window.print()">In / Lưu PDF</button>
     </section>
 </main>
@@ -24,14 +29,29 @@
 <style>
     @media print {
         #jlabBaseShellMount, .certificate-page nav, .cert-print-button { display: none !important; }
+        .cert-card, .cert-ribbon span { animation: none !important; }
     }
     .certificate-page { display: flex; justify-content: center; padding: 48px 16px; }
-    .cert-card { max-width: 640px; width: 100%; text-align: center; padding: 48px 40px;
-        border: 2px solid var(--color-primary); border-radius: 12px; }
-    .cert-eyebrow { letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; color: var(--color-on-surface-variant); }
+    .cert-card { max-width: 680px; width: 100%; text-align: center; animation: certRise .7s ease-out both; }
+    .cert-frame { position: relative; padding: 44px 32px 36px; border: 2px solid var(--color-primary);
+        border-radius: 12px; outline: 1px solid var(--color-primary); outline-offset: -10px; overflow: hidden; }
+    .cert-eyebrow { letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; color: var(--color-on-surface-variant); }
+    .cert-kanji { margin: 8px 0 0; font-size: clamp(4rem, 14vw, 7rem); line-height: 1; font-weight: 800;
+        color: var(--color-primary); letter-spacing: 0.04em; }
+    .cert-frame h1 { margin: 12px 0 18px; letter-spacing: 0.06em; text-transform: uppercase; font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
+    .cert-ribbon { display: flex; width: max-content; margin: 0 -32px 20px; padding: 6px 0; white-space: nowrap;
+        background: var(--color-primary); color: var(--color-on-primary); font-size: .8rem; letter-spacing: .1em; }
+    .cert-ribbon span { animation: certMarquee 18s linear infinite; }
+    .cert-seal { position: absolute; right: 24px; bottom: 64px; width: 64px; height: 64px; display: grid; place-items: center;
+        border: 2px solid var(--color-primary); border-radius: 50%; color: var(--color-primary); font-weight: 700;
+        transform: rotate(-12deg); opacity: .85; }
     .cert-disclaimer { margin-top: 24px; font-size: 0.85rem; color: var(--color-on-surface-variant); }
     .cert-print-button { margin-top: 24px; padding: 12px 24px; border-radius: 999px; border: none;
         background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; cursor: pointer; }
+    @keyframes certMarquee { to { transform: translateX(-100%); } }
+    @keyframes certRise { from { opacity: 0; transform: translateY(16px); } }
+    @media (prefers-reduced-motion: reduce) { .cert-card, .cert-ribbon span { animation: none; } }
+    @media (max-width: 480px) { .cert-seal { position: static; margin: 12px auto 0; } }
 </style>
 </body>
 </html>

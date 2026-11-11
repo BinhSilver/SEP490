@@ -739,19 +739,26 @@
       if (controller) controller.abort();
     }, 45000);
 
-    var url = '/api/learning/paths/estimate?assessmentAttemptId=' + encodeURIComponent(attemptId) +
-      '&entryChoice=STUDY_WEAK_LEVEL' +
-      (kanaKnown !== null && kanaKnown !== undefined ? '&kanaKnown=' + encodeURIComponent(kanaKnown) : '');
-
-    var fetchOpts = controller ? { signal: controller.signal } : {};
-    notice._estimatePromise = api(url, fetchOpts)
+    // [JLAS-W0108] the estimate comes from the JLPT path (its own data source), not the retired v1 path
+    var minutes = Number(notice.minutesPerDay) || 30;
+    var fetchOpts = Object.assign({
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+      body: JSON.stringify({ openLevel: notice.weakLevel, targetLevel: notice.weakLevel, dailyMinutes: minutes,
+        kanaTab: kanaKnown === false, skillDays: ['WED', 'SAT'], restDays: ['SUN'] })
+    }, controller ? { signal: controller.signal } : {});
+    notice._estimatePromise = api('/api/learning/jlpt/estimate', fetchOpts)
       .then(function (data) {
         clearTimeout(timeoutId);
         notice.estimating = false;
         notice._estimateDone = true;
-        if (data && data.estimatedDays != null && data.minutesPerDay != null) {
-          notice.estimatedDays = data.estimatedDays;
-          notice.minutesPerDay = data.minutesPerDay;
+        var finish = data && (data.levelFinish || data.targetFinish);
+        if (finish) {
+          var days = Math.round((Date.parse(finish + 'T00:00:00Z') - Date.parse(new Date().toISOString().slice(0, 10) + 'T00:00:00Z')) / 86400000);
+          if (days > 0) {
+            notice.estimatedDays = days;
+            notice.minutesPerDay = data.dailyMinutes || minutes;
+          }
         }
         var confirmCard = document.getElementById('smartConfirm');
         if (messageEl && confirmCard && !confirmCard.hidden) {

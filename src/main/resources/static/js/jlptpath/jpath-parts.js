@@ -32,7 +32,10 @@
   if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
     var notice = function () {
       var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem ngày học hôm nay".';
-      if (root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg);
+      if (root.JlasToast && typeof root.JlasToast.show === 'function' && root.JlasToast.show(msg, 'success')) {
+        try { root.history.replaceState(null, '', root.location.pathname); } catch (e) { /* keep the url */ }
+        return;
+      }
       var div = root.document.createElement('div');
       div.className = 'jp-saved-note';
       div.setAttribute('role', 'status');
@@ -55,11 +58,14 @@
   var WAVE_POS = ['center', 'left', 'center', 'right'];
   var WAVE_X = { left: 20, center: 240, right: 460 };
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy (about a third of the bytes)
+  function small(src) { return String(src).replace(/\.webp$/, '-128.webp'); }
+
   var SIDE_KITSUS = [
-    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Bạn làm tốt lắm!' },
+    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Cố lên nhé!' },
     { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
     { src: '/images/mascots/kitsu/kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Cùng tiến lên nào!' },
-    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Sắp tới đích rồi!' },
+    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Từng bước một!' },
     { src: '/images/mascots/kitsu/kitsu-resting-30.webp', alt: 'Kitsu nghỉ ngơi', say: 'Đều đặn mỗi ngày!' },
     { src: '/images/mascots/kitsu/kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Giữ vững phong độ!' }
   ];
@@ -88,7 +94,7 @@
         + '" style="--cf-i:' + i + '" aria-hidden="true"></span>');
     }
     return '<div class="jp-saved-note__confetti-wrap" aria-hidden="true">' + pieces.join('') + '</div>'
-      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
+      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
       + '<div class="jp-saved-note__body">'
       + '<strong class="jp-saved-note__title">Hoàn thành xuất sắc!</strong>'
       + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".') + '</span>'
@@ -242,9 +248,14 @@
       + '</svg>';
   }
 
+  var SCENE_MARK = { vocab: '語', kanji: '漢', grammar: '文', kana: 'あ', skills: '読' };
+
   function sceneBackdropHtml(sceneKey) {
     return '<div class="jp-parts__backdrop jp-parts__backdrop--' + esc(sceneKey) + '" aria-hidden="true">'
       + '<div class="jp-parts__sky-pattern jp-parts__sky-pattern--' + esc(sceneKey) + '"></div>'
+      // F23: a faint treasure-map layer (grid + contour rings) and one big kanji watermark per tab
+      + '<div class="jp-parts__mapgrid"></div>'
+      + '<span class="jp-parts__watermark" lang="ja">' + (SCENE_MARK[sceneKey] || '学') + '</span>'
       + '<div class="jp-parts__clouds">'
       + smallCloudSvg('jp-parts__cloud--1')
       + smallCloudSvg('jp-parts__cloud--2')
@@ -441,10 +452,22 @@
   }
 
   /* Round 6 Item 1d: 1 side Kitsu per week, pose varies by week */
-  function weekSideKitsuHtml(weekNum, side) {
-    var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
+  // [JLAS-W0108] C2: the side Kitsu follows the week's progress - celebrates a finished week, points at the
+  // current one, wonders about the weeks ahead (the old per-week pose stays when the state is unknown)
+  var K = '/images/mascots/kitsu/';
+  var MOOD_KITSUS = {
+    past: [{ src: K + 'kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Xong tuần này rồi!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Giỏi lắm!' }],
+    current: [{ src: K + 'kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Tuần này đây!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Từng bước một!' }],
+    upcoming: [{ src: K + 'kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Sắp tới nè!' },
+      { src: K + 'kitsu-preparing.webp', alt: 'Kitsu chuẩn bị', say: 'Chờ mình nhé!' }]
+  };
+  function weekSideKitsuHtml(weekNum, side, state, second) {
+    var mood = MOOD_KITSUS[state];
+    var k = mood ? mood[second ? 1 : 0] : SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
-      + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<img class="jp-parts__mascot-img" src="' + small(k.src) + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
       + '</span>';
   }
@@ -597,7 +620,7 @@
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
@@ -637,7 +660,7 @@
       + ' data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
@@ -698,9 +721,9 @@
     }
     if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
       var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
-      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide);
+      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide, weekObj.state, false);
     } else if (stepIdx === 5 && !isToday && !isTodayDone) {
-      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide);
+      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide, weekObj.state, true);
     } else if (stepIdx === 2 || stepIdx === 4) {
       var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
       marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
