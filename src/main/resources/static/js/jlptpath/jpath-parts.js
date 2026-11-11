@@ -1096,7 +1096,8 @@
     var aheadHtml = completedWeek
       ? '<div class="jp-card" role="note"><strong>Học trước tuần sau</strong>'
         + '<p>Bạn đã học xong các mục của tuần này. Vào Học thêm để bắt đầu các mục tiếp theo.</p>'
-        + '<a class="jp-btn" href="/learning/jlpt/done">Học thêm</a></div>'
+        + '<button type="button" class="jp-btn" data-parts-extra="' + esc(TABS[sceneKey][0]) + '">Học thêm ' + esc(t[1]) + '</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-extra-error></span></div>'
       : '';
     return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + aheadHtml + stageHtml + '</div>';
   }
@@ -1325,6 +1326,34 @@
         var wk = t.closest('[data-parts-weekly]');
         if (wk) {
           triggerWeeklyCheck(wk, client);
+          return;
+        }
+
+        var extra = t.closest('[data-parts-extra]');
+        if (extra) {
+          var tab = extra.getAttribute('data-parts-extra');
+          var errorBox = extra.parentNode.querySelector('[data-parts-extra-error]');
+          extra.disabled = true;
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/sessions', { tab: tab, mode: 'EXTRA', count: 5 }))
+            .then(function (view) {
+              if (!view || view.sessionId == null) throw new Error('Chưa mở được lượt học thêm.');
+              root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
+            }).catch(function (error) {
+              extra.disabled = false;
+              if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
+              if (error && error.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
+                Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', {
+                  kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
+                  direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false
+                })).then(function (res) {
+                  var token = res && (res.token || res.checkToken);
+                  if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token)
+                    + '?return=' + encodeURIComponent('/learning?tab=' + partsEl.__tab));
+                }).catch(function (checkError) {
+                  if (errorBox) errorBox.textContent = checkError && checkError.message || 'Chưa mở được bài kiểm tra tuần.';
+                });
+              }
+            });
           return;
         }
 
