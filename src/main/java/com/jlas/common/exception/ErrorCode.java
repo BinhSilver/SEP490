@@ -29,6 +29,8 @@ public enum ErrorCode {
     PRONUNCIATION_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt chấm phát âm miễn phí hôm nay."),
     /** [JLAS-W0108] F36: Hết lượt AI giải thích câu hỏi Learning: mua thêm bằng CP hoặc nâng cấp Pro. */
     JPATH_AI_EXPLAIN_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt AI giải thích câu hỏi."),
+    CPATH_WEEK_TEST_REQUIRED(HttpStatus.CONFLICT, "Bạn đã học xong phần của tuần này. Làm kiểm tra tuần (đạt từ 80%) để học sang tuần sau."),
+    CPATH_AHEAD_LIMIT(HttpStatus.CONFLICT, "Bạn đã học trước trọn 1 tuần. Sang tuần mới học tiếp và kiểm tra phần đã học trước nhé."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     /** [JLAS2-XX] Ảnh tải lên sai định dạng hoặc nội dung không phải ảnh thật (magic bytes không khớp). */
     INVALID_IMAGE(HttpStatus.BAD_REQUEST, "Ảnh chỉ nhận định dạng JPG, PNG hoặc WEBP"),

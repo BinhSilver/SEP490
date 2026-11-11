@@ -278,6 +278,17 @@ public class CpathService {
     public Map<String, Object> learnExtra(Long userId) {
         Map<String, Object> path = requirePath(userId);
         Long pathId = ((Number) path.get("id")).longValue();
+        // owner 11/11 (F63): a learner who already did this week's share must pass the weekly test to study ahead
+        LocalDate monday = clock.today(userId).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        int started = startedSince(path, monday);
+        int share = perWeek(path, monday);
+        if (started >= share && !weeklyPassed(userId, monday)) {
+            throw new ApiException(ErrorCode.CPATH_WEEK_TEST_REQUIRED);
+        }
+        // at most one week ahead per calendar week, so the next weekly test still covers what was learned ahead
+        if (started >= 2 * share) {
+            throw new ApiException(ErrorCode.CPATH_AHEAD_LIMIT);
+        }
         Map<String, Map<String, Object>> prog = progressOf(pathId);
         for (Map<String, Object> s : orderedSituations(path)) {
             if (!prog.containsKey(s.get("code"))) {
@@ -1045,6 +1056,24 @@ public class CpathService {
         return Map.of("dailySituations", daily);
     }
 
+    /** Situations a week assigns: study days of the week x situations per day (same count as the map). */
+    private int perWeek(Map<String, Object> path, LocalDate monday) {
+        int studyDays = 0;
+        for (int i = 0; i < 7; i++) if (!isRest(path, monday.plusDays(i))) studyDays++;
+        return Math.max(1, studyDays * ((Number) path.get("daily_situations")).intValue());
+    }
+
+    /** F44/F63: the learner has started at least this week's share of situations since Monday. */
+    private boolean weekShareDone(Long userId, Map<String, Object> path, LocalDate monday) {
+        return startedSince(path, monday) >= perWeek(path, monday);
+    }
+
+    private int startedSince(Map<String, Object> path, LocalDate monday) {
+        Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day >= ?",
+                Integer.class, ((Number) path.get("id")).longValue(), monday);
+        return n == null ? 0 : n;
+    }
+
     private boolean weeklyPassed(Long userId, LocalDate monday) {
         Integer n = db.queryForObject("SELECT COUNT(*) FROM pending_credit_award WHERE user_id = ? AND reference_type = ? AND reference_id = ?",
                 Integer.class, userId, REF_WEEK, monday.toEpochDay());
@@ -1057,7 +1086,8 @@ public class CpathService {
         LocalDate today = clock.today(userId);
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         String testDay = weeklyTestDay(userId, path);
-        boolean open = testDay == null || !today.isBefore(LocalDate.parse(testDay));
+        // F44: open on the test day, or as soon as this week's share is done (learning ahead no longer waits)
+        boolean open = testDay == null || !today.isBefore(LocalDate.parse(testDay)) || weekShareDone(userId, path, monday);
         List<WeeklyQ> qs = open ? weeklyQuestions(userId, path, monday) : List.of();
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("weekStart", monday.toString());

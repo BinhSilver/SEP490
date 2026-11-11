@@ -740,11 +740,26 @@
       alert.className = 'jp-alert';
       alert.setAttribute('role', 'alert');
       alert.textContent = error && error.message || 'Không thực hiện được thao tác.';
-      var button = doc.createElement('button');
-      button.type = 'button';
-      button.className = 'jp-btn';
-      button.textContent = 'Thử lại';
-      button.addEventListener('click', function () { alert.remove(); retry(); });
+      var code = error && error.code;
+      var button;
+      if (code === 'CPATH_WEEK_TEST_REQUIRED') {
+        // F63: learning ahead needs this week's test first
+        button = doc.createElement('a');
+        button.className = 'jp-btn';
+        button.href = '/learning/comm/weekly';
+        button.textContent = 'Làm kiểm tra tuần';
+      } else if (code === 'CPATH_AHEAD_LIMIT') {
+        button = doc.createElement('a');
+        button.className = 'jp-btn';
+        button.href = '/learning/comm/notebook';
+        button.textContent = 'Ôn lại trong sổ tay';
+      } else {
+        button = doc.createElement('button');
+        button.type = 'button';
+        button.className = 'jp-btn';
+        button.textContent = 'Thử lại';
+        button.addEventListener('click', function () { alert.remove(); retry(); });
+      }
       alert.appendChild(button);
       slot.prepend(alert);
     }
