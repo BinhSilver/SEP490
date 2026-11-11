@@ -20,6 +20,7 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
+    <div class="jp-ws jp-ws--focus">
     <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở">
         <ol class="jp-crumbs__list">
             <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
@@ -27,8 +28,11 @@
             <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page">Tình huống 4 bước</span></li>
         </ol>
     </nav>
+    <div class="jp-ws__main">
     <div id="cpathSituationRoot" aria-busy="true" aria-live="polite" th:attr="data-situation-id=${situationId}">
         <p class="jp-path__loading" role="status">Đang tải tình huống hội thoại…</p>
+    </div>
+    </div>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
