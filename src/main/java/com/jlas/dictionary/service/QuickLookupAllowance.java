@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class QuickLookupAllowance {
-    public static final int PACK_LOOKUPS = 1; // owner 10/11 (F30): 5 CP buys one lookup
-    public static final int PACK_PRICE = 5;
+    public static final int PACK_LOOKUPS = 1; // owner 10/11 (F30): CP buys one lookup at a time
+    public static final int PACK_PRICE = 2; // Albazzz 11/11 (F30): one lookup costs 2 CP
 
     private final JdbcTemplate jdbc;
     private final PremiumAccess premium;
