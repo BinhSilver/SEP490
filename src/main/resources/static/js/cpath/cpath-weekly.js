@@ -58,8 +58,13 @@
     var wrong = (r.review || []).filter(function (x) { return !x.correct; }).length;
     var tip = !wrong ? 'Tuần này bạn nắm chắc hết các mẫu câu. Giữ nhịp này nhé!'
       : 'Mẫu còn yếu: ' + wrong + ' câu sai bên dưới. Ôn lại trong Sổ tay trước khi sang tuần mới.';
+    var score = Number(r.score);
+    var support = score < 70
+      ? 'Bật Furigana và Bản dịch ở đầu trang tình huống nếu câu Nhật còn khó đọc.'
+      : (score >= 90 ? 'Bạn có thể thử tắt Furigana và Bản dịch ở đầu trang tình huống để tự luyện đọc.' : '');
     return '<p class="jp-result__note" data-part="week-tip">' + esc(tip)
-      + (wrong ? ' <a href="/learning/comm/notebook">Mở Sổ tay</a>' : '') + '</p>';
+      + (wrong ? ' <a href="/learning/comm/notebook">Mở Sổ tay</a>' : '') + '</p>'
+      + (support ? '<p class="jp-result__note" data-part="week-support-tip">' + esc(support) + '</p>' : '');
   }
 
   function resultHtml(r, questions, answers) {
