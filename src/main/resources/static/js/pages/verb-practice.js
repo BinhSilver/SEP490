@@ -3,6 +3,14 @@
   if (!document.getElementById('verbApp')) return;
   if (window.JlasAuth && !window.JlasAuth.requireLogin('/practice/verbs')) return;
   var $ = function (id) { return document.getElementById(id); };
+  var verbGroups = document.querySelectorAll('.vp-rule-columns > details');
+  verbGroups.forEach(function (group) {
+    group.querySelector('summary').addEventListener('click', function (event) {
+      event.preventDefault();
+      var open = !group.open;
+      verbGroups.forEach(function (item) { item.open = open; });
+    });
+  });
   // Inline icons keep the practice interface usable without an external icon font.
   function renderIcons(root) {
     var paths = {
@@ -57,11 +65,16 @@
     return result.data;
   }
   function renderModes() {
-    $('vpModes').innerHTML = modes.map(function(m) { return '<button type="button" class="vp-mode" data-mode="' + m.id + '" aria-pressed="' + (state.mode === m.id) + '"><span class="vp-icon ' + m.color + '"><i class="fa-solid fa-' + m.icon + '" aria-hidden="true"></i></span><div><strong>' + m.name + '</strong><small>' + m.hint + '</small></div><i class="fa-solid fa-circle-check vp-mode-check" aria-hidden="true"></i></button>'; }).join('');
+    var canReview = state.data && state.data.mistakes > 0;
+    if (state.data && !canReview && state.mode === 'REVIEW') state.mode = 'INPUT';
+    $('vpModes').innerHTML = modes.map(function (item) {
+      var disabled = item.id === 'REVIEW' && !canReview;
+      return '<option value="' + item.id + '"' + (state.mode === item.id ? ' selected' : '') +
+        (disabled ? ' disabled' : '') + '>' + item.name + (disabled && state.data ? ' (chưa có lỗi sai)' : '') + '</option>';
+    }).join('');
     $('vpModeName').textContent = mode(state.mode).name;
     $('vpModeHint').textContent = state.mode === 'SPEED' ? '60 giây, không giới hạn ở số lượt đã chọn.' : state.mode === 'CHAIN' ? 'Các thể đã chọn xuất hiện lần lượt cho mỗi động từ.' : mode(state.mode).hint;
     $('vpCount').disabled = state.mode === 'SPEED';
-    renderIcons($('vpModes'));
   }
   function renderForms() {
     if (!state.data) return;
@@ -76,12 +89,6 @@
       var option=Array.from($('vpLevel').options).find(function(o){return o.value===level.id;});
       if(option)option.textContent=level.id;
     });
-    $('vpToday').textContent = d.today;
-    ring('vpTodayRing',d.today / 20 * 100);
-    $('vpTodayRing').setAttribute('aria-valuenow',Math.min(20,d.today));
-    $('vpTodayHint').textContent = d.today >= 20 ? 'Bạn đã hoàn thành nhịp luyện hôm nay. Thật đều đặn!' : 'Thêm ' + (20-d.today) + ' lượt để chạm mốc hôm nay.';
-    var weak = d.forms.filter(function(f) { return f.attempts > 0; }).sort(function(a,b) { return a.correct/a.attempts - b.correct/b.attempts; }).slice(0,3);
-    $('vpWeakForms').innerHTML = weak.length ? weak.map(function(f) { var p = Math.round(f.correct/f.attempts*100); return '<div class="vp-weak-item"><div><span>' + esc(f.label) + '</span><b>' + p + '% · ' + f.attempts + ' lượt</b></div><div class="vp-progress-track"><i style="width:' + p + '%"></i></div></div>'; }).join('') : '<p class="vp-muted">Tiến độ sẽ xuất hiện sau vòng luyện đầu tiên. Bắt đầu nhẹ nhàng với thể て nhé.</p>';
     $('vpResume').hidden = !d.active;
     renderForms(); renderModes();
   }
@@ -185,7 +192,10 @@
     $('vpResultList').innerHTML = s.results.length ? s.results.map(function(a) { return '<div class="vp-result-row ' + (a.correct ? '' : 'is-wrong') + '"><span aria-label="' + (a.correct ? 'Đúng' : 'Sai') + '">' + (a.correct ? '✓' : '↻') + '</span><div><b lang="ja">' + esc(a.verb) + '</b><small>' + esc(a.form) + '</small></div><div>' + (!a.correct ? '<del lang="ja">' + esc(a.supplied) + '</del>' : '') + '<p lang="ja">' + esc(a.expected) + '</p><small lang="ja">' + esc(a.expectedReading) + '</small></div></div>'; }).join('') : '<p class="vp-muted">Bạn chưa trả lời câu nào trong vòng này.</p>';
     $('vpResultTitle').focus({preventScroll:true});
   }
-  $('vpModes').addEventListener('click',function(e) { var button=e.target.closest('[data-mode]'); if(button){state.mode=button.dataset.mode;renderModes();} });
+  $('vpModes').addEventListener('change', function () {
+    state.mode = $('vpModes').value;
+    renderModes();
+  });
   $('vpSetupForm').addEventListener('change',function(e) { if (e.target.matches('.vp-form-chips input')) { state.forms=Array.from(document.querySelectorAll('.vp-form-chips input:checked')).map(function(i){return i.value;}); $('vpSelectAll').textContent=state.forms.length===state.data.forms.length?'Bỏ chọn tất cả':'Chọn tất cả'; } });
   $('vpSelectAll').addEventListener('click',function() { state.forms=state.forms.length===state.data.forms.length?[]:state.data.forms.map(function(f){return f.id;});renderForms(); });
   $('vpSetupForm').addEventListener('submit',function(e) { e.preventDefault();start(); });
