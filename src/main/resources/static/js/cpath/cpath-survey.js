@@ -227,7 +227,7 @@
       role: state.secondaryPath ? 'SECONDARY' : 'MAIN',
       fields: fields,
       priorityTopics: (state.priorityTopics || []).slice(),
-      selfLevel: state.selfLevel || 'ELEMENTARY',
+      selfLevel: state.selfLevel || 'BEGINNER',
       dailySituations: Number(state.dailySituations) === 1 ? 1 : 2,
       restDays: (state.restDays || []).slice()
     };
@@ -402,7 +402,7 @@
       presetGoal: false,
       fields: [],
       priorityTopics: [],
-      selfLevel: 'ELEMENTARY',
+      selfLevel: 'BEGINNER',
       dailySituations: 2,
       restDays: ['SUN'],
       finishDate: '',
@@ -492,7 +492,7 @@
 
       var lvBtn = t.closest('[data-cp-level]');
       if (lvBtn) {
-        state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'ELEMENTARY';
+        state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'BEGINNER';
         render();
         return;
       }
