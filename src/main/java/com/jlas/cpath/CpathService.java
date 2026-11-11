@@ -138,16 +138,20 @@ public class CpathService {
         int daily = num(req.get("dailySituations")) == 2 ? 2 : 1;
         List<Object> rest = req.get("restDays") instanceof List<?> l ? (List<Object>) l : List.of();
         Object finish = req.get("finishDate");
-        List<Long> resumable = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
+        Long main = mainPathId(userId);
+        String requestedRole = str(req.get("role"));
+        boolean secondary = "SECONDARY".equals(requestedRole) && main != null;
+        if (secondary && goal.equals(db.queryForObject("SELECT goal_code FROM cpath_user_path WHERE id = ?", String.class, main))) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu phụ phải khác mục tiêu chính.");
+        }
+        List<Long> resumable = secondary ? List.of() : db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
         if (!resumable.isEmpty()) {
             Long resumeId = resumable.get(0);
             db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, resumeId);
             db.update("UPDATE cpath_user_path SET status = 'ACTIVE', self_level = ?, priority_topics_json = COALESCE(?, priority_topics_json), daily_situations = COALESCE(?, daily_situations), rest_days = COALESCE(?, rest_days), finish_date = COALESCE(?, finish_date) WHERE id = ?", level, req.containsKey("priorityTopics") ? json(req.get("priorityTopics")) : null, req.containsKey("dailySituations") ? daily : null, req.containsKey("restDays") ? String.join(",", rest.stream().map(String::valueOf).toList()) : null, finish == null || finish.toString().isBlank() ? null : finish.toString(), resumeId);
             return Map.of("pathId", resumeId, "role", "MAIN");
         }
-        Long main = mainPathId(userId);
-        String requestedRole = str(req.get("role"));
-        String role = "SECONDARY".equals(requestedRole) && main != null ? "SECONDARY" : "MAIN";
+        String role = secondary ? "SECONDARY" : "MAIN";
         if ("MAIN".equals(role)) db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'", userId);
         if (main != null) {
             // a second goal replaces the earlier secondary one (owner 06/11: one main + one secondary)
