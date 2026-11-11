@@ -770,8 +770,12 @@ public class CpathService {
         Long pathId = ((Number) path.get("id")).longValue();
         LocalDate today = clock.today(userId);
         List<Map<String, Object>> studied = db.queryForList("SELECT u.situation_code, u.speak_best, s.topic_code FROM cpath_user_situation u "
-                + "JOIN cpath_situation s ON s.code = u.situation_code WHERE u.path_id = ? AND u.study_day BETWEEN ? AND ? "
-                + "AND u.steps_done <> ''", pathId, monday, today);
+                + "JOIN cpath_situation s ON s.code = u.situation_code WHERE u.path_id = ? AND u.steps_done <> '' "
+                + "AND (u.study_day BETWEEN ? AND ? "
+                // F65 (11/11): what was learned ahead last week after its test was passed is checked this week
+                + "OR (u.study_day BETWEEN ? AND ? AND COALESCE(u.done_at, CURRENT_TIMESTAMP(6)) > "
+                + "(SELECT MIN(a.created_at) FROM pending_credit_award a WHERE a.user_id = ? AND a.reference_type = ? AND a.reference_id = ?)))",
+                pathId, monday, today, monday.minusDays(7), monday.minusDays(1), userId, REF_WEEK, monday.minusDays(7).toEpochDay());
         if (studied.isEmpty()) return List.of();
         List<String> sits = studied.stream().map(r -> (String) r.get("situation_code")).toList();
         Set<String> topics = new LinkedHashSet<>(studied.stream().map(r -> (String) r.get("topic_code")).toList());

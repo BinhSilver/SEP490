@@ -252,6 +252,22 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         return save(userId, plan.getId(), st, JpathSessionMode.TODAY, q);
     }
 
+    /** F65 (owner 11/11): extra sessions a tab allows before a passed weekly check (≈ one week ahead). */
+    static final int EXTRA_BEFORE_CHECK = 7;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    /** Learning far ahead needs proof: after {@link #EXTRA_BEFORE_CHECK} extra sessions, a weekly check at 80%+. */
+    private void requireCheckBeforeMoreExtra(Long userId, JpathTab t) {
+        if (jdbc == null || t == JpathTab.KANA) return;
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM jpath_study_session s WHERE s.user_id = ? AND s.tab = ? "
+                + "AND s.mode = 'EXTRA' AND s.started_at > COALESCE((SELECT MAX(c.submitted_at) FROM jpath_check_set c "
+                + "WHERE c.user_id = ? AND c.tab = ? AND c.kind = 'FREE_QUIZ' AND c.score_pct >= 80), '1970-01-01')",
+                Integer.class, userId, t.name(), userId, t.name());
+        if (n != null && n >= EXTRA_BEFORE_CHECK) throw new ApiException(ErrorCode.JPATH_EXTRA_CHECK_REQUIRED);
+    }
+
     private JpathStudySession extra(Long userId, JpathDailyPlan plan, JpathUserLevel open,
             JpathSessionStartRequest r) {
         JpathTab t = cardTab(r.tab());
@@ -259,6 +275,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         if (row == null || row.getDoneAt() == null) {
             throw new ApiException(ErrorCode.JPATH_EXTRA_NOT_READY);
         }
+        requireCheckBeforeMoreExtra(userId, t);
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
         if (t == JpathTab.KANA) {

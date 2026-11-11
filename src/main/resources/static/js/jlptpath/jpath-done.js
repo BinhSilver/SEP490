@@ -148,6 +148,17 @@
         }).catch(function (err) {
           busy = false;
           setChips(false, n);
+          if (err && err.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
+            // F65: far ahead → the weekly check of this tab first
+            var tab = n.getAttribute('data-extra-tab');
+            status(err.message);
+            api.send('POST', '/api/learning/jlpt/checks', { kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
+              direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false }).then(function (res) {
+              var token = res && (res.token || res.checkToken);
+              if (token) navigate('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning%2Fjlpt%2Fdone');
+            }, function () { /* the message stays */ });
+            return;
+          }
           status((err && err.message) || MSG_EXTRA_FAILED);
         });
         return;
