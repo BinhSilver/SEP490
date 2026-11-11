@@ -290,7 +290,7 @@
         + '<span class="cp-step-tab__num">' + (oIdx + 1) + '</span>'
         + '<div class="cp-line__content">'
         + '<div class="cp-line__ja" lang="ja">' + esc(opt.ja) + '</div>'
-        + (isAnswered || state.display.translation ? '<div class="cp-line__vi">' + esc(opt.vi) + '</div>' : '')
+        + (isAnswered || sit.selfLevel === 'BEGINNER' ? '<div class="cp-line__vi">' + esc(opt.vi) + '</div>' : '')
         + '</div>'
         + '</button>';
     }).join('');
@@ -317,7 +317,7 @@
         + '</div>' + aiRoleplayHtml
       : '';
 
-    return '<div class="cp-sit-stage">'
+    return '<div class="cp-sit-stage cp-sit-stage--roleplay">'
       + '<div class="cp-deck-switch">'
       + '<strong>Nhập vai ' + esc(learnerName) + ' · Lượt ' + (tIdx + 1) + '/' + turns.length + '</strong>'
       + '<span class="cp-survey__sub">Chọn 1 trong 3 câu trả lời phù hợp nhất</span>'
@@ -335,8 +335,10 @@
       + '<footer class="cp-sit-foot">'
       + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="LISTEN">‹ Quay lại Nghe</button>'
       + (tIdx + 1 < turns.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next' + (!isAnswered ? ' disabled' : '') + '>Lượt tiếp theo ›</button>'
-        : '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (!isAnswered ? ' disabled' : '') + '>Hoàn thành Bước 3 · Sang Luyện nói ›</button>')
+        ? (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo ›</button>'
+          : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>')
+        : (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY">Hoàn thành Bước 3 · Sang Luyện nói ›</button>'
+          : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>'))
       + '</footer>';
   }
 

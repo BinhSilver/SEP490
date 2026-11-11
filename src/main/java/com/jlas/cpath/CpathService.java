@@ -546,6 +546,8 @@ public class CpathService {
         @SuppressWarnings("unchecked") List<Map<String, Object>> lineList = (List<Map<String, Object>>) m.get("lines");
         m.put("challenge", challengeOf((String) s.get("challenge_json"), lineList));
         Long situationPath = pathIdForSituation(userId, code);
+        if (situationPath != null)
+            m.put("selfLevel", db.queryForObject("SELECT self_level FROM cpath_user_path WHERE id = ?", String.class, situationPath));
         Map<String, Object> prog = situationPath == null ? null : progressOf(situationPath).get(code);
         Map<String, Object> steps = new LinkedHashMap<>();
         String doneSteps = prog == null ? "" : String.valueOf(prog.get("steps_done"));
