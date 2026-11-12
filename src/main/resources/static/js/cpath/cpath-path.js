@@ -265,6 +265,22 @@
     return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
   }
 
+  /**
+   * F46/F69 (owner 11/11): a learner who said "Chưa biết chữ cái" and skipped the Kana suggestion (full romaji on)
+   * is reminded to learn Hiragana/Katakana; only a suggestion, hidden for good with "Để sau".
+   */
+  function kanaTipHtml(pathData, state) {
+    var disp = (pathData && pathData.display) || {};
+    if (!disp.fullRomaji || (state && state.kanaTipHidden)) return '';
+    return '<div class="cp-kana-tip" role="note" data-cp-kana-tip>'
+      + '<p><strong>Bạn chưa học chữ cái?</strong> Học Hiragana và Katakana khoảng 1–2 tuần sẽ giúp đọc câu thoại '
+      + 'dễ hơn và bớt phụ thuộc romaji.</p>'
+      + '<div class="cp-kana-tip__actions">'
+      + '<a class="jp-btn jp-btn--sm jp-btn--primary" href="/kana-connect">Học chữ cái</a>'
+      + '<button type="button" class="jp-btn jp-btn--sm" data-cp-kana-tip-hide>Để sau</button>'
+      + '</div></div>';
+  }
+
   function todayBlockHtml(pathData, state) {
     var d = pathData || {};
     var st = state || {};
@@ -368,6 +384,7 @@
       + '</div>'
       + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="'
         + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
+      + kanaTipHtml(d, st)
       + body
       + travelExtrasHtml(st.stamps, d.goal)
       + actions
@@ -793,6 +810,8 @@
     var mapSlot = rootEl.querySelector('[data-slot="parts"]');
     var sideSlot = rootEl.querySelector('[data-region="levels"]');
     var state = { selectedId: '', focusedWeek: 1, extraExhausted: false };
+    var KANA_TIP_KEY = 'cpath.kanaTip.hidden';
+    try { state.kanaTipHidden = root.localStorage.getItem(KANA_TIP_KEY) === '1'; } catch (e) { state.kanaTipHidden = false; }
     var pathData = null;
     var mapData = null;
 
@@ -865,6 +884,13 @@
     rootEl.addEventListener('click', function (ev) {
       var t = ev.target;
       if (!t || typeof t.closest !== 'function') return;
+
+      if (t.closest('[data-cp-kana-tip-hide]')) {
+        state.kanaTipHidden = true;
+        try { root.localStorage.setItem(KANA_TIP_KEY, '1'); } catch (e) { /* hidden for this visit only */ }
+        renderAll();
+        return;
+      }
 
       var nodeBtn = t.closest('[data-cp-node]');
       if (nodeBtn) {
@@ -1003,6 +1029,7 @@
 
   return {
     todayBlockHtml: todayBlockHtml,
+    kanaTipHtml: kanaTipHtml,
     mapSectionHtml: mapSectionHtml,
     nodePopoverHtml: nodePopoverHtml,
     adjustPopoverInViewport: adjustPopoverInViewport,
