@@ -251,13 +251,29 @@
         theme: theme,
         size: 'large',
         text: text,
-        shape: 'pill',
+        shape: 'rectangular',
         width: width
       });
+      fitGoogleButton();
+    }
+    /* Google's button is invisible over our full-size face; stretch it so every pixel of the face takes the click. */
+    function fitGoogleButton() {
+      var button = container.firstElementChild;
+      if (!button) return;
+      button.style.transform = 'none';
+      var box = container.getBoundingClientRect();
+      var drawn = button.getBoundingClientRect();
+      if (!drawn.width || !drawn.height) return;
+      button.style.transformOrigin = '0 0';
+      button.style.transform = 'scale(' + (box.width / drawn.width) + ',' + (box.height / drawn.height) + ')';
     }
     renderGoogleButton();
     if (window.ResizeObserver) {
-      new window.ResizeObserver(renderGoogleButton).observe(container);
+      new window.ResizeObserver(function () { renderGoogleButton(); fitGoogleButton(); }).observe(container);
+    }
+    /* Google fills the wrapper a moment after renderButton returns. */
+    if (window.MutationObserver) {
+      new window.MutationObserver(fitGoogleButton).observe(container, { childList: true, subtree: true });
     }
   }
 
