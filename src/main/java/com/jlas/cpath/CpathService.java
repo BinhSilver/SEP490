@@ -171,10 +171,16 @@ public class CpathService {
 
     /** The active path (main or secondary) whose goal holds the situation; the main path otherwise. */
     Long pathIdForSituation(Long userId, String code) {
+        Long own = ownPathIdForSituation(userId, code);
+        return own == null ? mainPathId(userId) : own;
+    }
+
+    /** F57: the active path whose goal holds the situation, or null (another goal's or an unknown situation). */
+    Long ownPathIdForSituation(Long userId, String code) {
         List<Long> ids = db.queryForList("SELECT p.id FROM cpath_user_path p JOIN cpath_topic t ON t.goal_code = p.goal_code "
                 + "JOIN cpath_situation s ON s.topic_code = t.code WHERE p.user_id = ? AND p.status = 'ACTIVE' AND s.code = ? "
                 + "ORDER BY p.role = 'MAIN' DESC, p.id DESC LIMIT 1", Long.class, userId, code);
-        return ids.isEmpty() ? mainPathId(userId) : ids.get(0);
+        return ids.isEmpty() ? null : ids.get(0);
     }
 
     Long pathIdForTopic(Long userId, String code) {
@@ -616,8 +622,13 @@ public class CpathService {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED,
                         "Tình huống chưa có câu luyện nói. Hãy quay về lộ trình và báo nhóm nội dung bổ sung câu thoại.");
         }
-        Long pathId = pathIdForSituation(userId, code);
-        if (pathId == null) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
+        // F57 (12/11): only a situation of a goal being learned counts — no progress or CP from another goal's
+        // situation (or an unknown code) posted straight to the API
+        Long pathId = ownPathIdForSituation(userId, code);
+        if (pathId == null) {
+            throw new ApiException(ErrorCode.NOT_FOUND, mainPathId(userId) == null ? "Bạn chưa có lộ trình giao tiếp."
+                    : "Tình huống này không thuộc lộ trình Giao tiếp bạn đang học.");
+        }
         db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
         Map<String, Object> row = progressOf(pathId).get(code);
         Set<String> doneSteps = new LinkedHashSet<>();
