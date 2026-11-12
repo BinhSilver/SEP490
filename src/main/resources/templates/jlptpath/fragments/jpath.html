@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css(v=${jpathAssetVersion})}" />
     <link rel="stylesheet" th:href="@{/css/pages/jpath-base.css(v=${jpathAssetVersion})}" />
     <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v=${jpathAssetVersion})}" />
-    <!-- Workspace layout + navigation kit (breadcrumbs, stepper, progress, flow buttons, pager, accordion, toc). -->
+    <!-- Workspace layout + navigation kit (back link, stepper, progress, flow buttons, pager, accordion, toc). -->
     <link rel="stylesheet" th:href="@{/css/pages/jpath-nav.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
           th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
@@ -54,23 +54,18 @@
     </nav>
 </th:block>
 
-<!-- Breadcrumbs with a parent page: Trang chủ › Lộ trình JLPT › {parent} › {here}. -->
-<th:block th:fragment="crumbsIn(parentLabel, parentHref, here)">
-    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning">Lộ trình JLPT</a></li>
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" th:href="${parentHref}" th:text="${parentLabel}">Mục</a></li>
-        <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page" th:text="${here}">Trang</span></li>
-    </ol></nav>
+<!-- [JLAS-W0108] F86 (owner 12/11): no breadcrumb trail (home is on the nav bar); a "Quay về" link to the parent page. -->
+<th:block th:fragment="back(label, href)">
+    <a class="jp-back jp-ws__crumbs" th:href="${href}" href="/learning"><svg class="jp-back__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Quay về <span th:text="${label}">Lộ trình JLPT</span></span></a>
 </th:block>
 
-<!-- Breadcrumbs: Trang chủ › Lộ trình JLPT › {here}. -->
+<!-- Older pages: crumbsIn(parent) and crumbs(here) now render the same "Quay về" link. -->
+<th:block th:fragment="crumbsIn(parentLabel, parentHref, here)">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back(${parentLabel}, ${parentHref})}"></th:block>
+</th:block>
+
 <th:block th:fragment="crumbs(here)">
-    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning">Lộ trình JLPT</a></li>
-        <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page" th:text="${here}">Trang</span></li>
-    </ol></nav>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình JLPT', '/learning')}"></th:block>
 </th:block>
 
 </html>

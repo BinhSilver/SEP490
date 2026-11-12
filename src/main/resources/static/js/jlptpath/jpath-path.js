@@ -145,12 +145,9 @@
     return html;
   }
 
-  /** Trang chủ › Lộ trình JLPT › {level} › {tab}. */
-  function crumbsHtml(path, tab, viewLevel) {
-    var N = root.JpathNav;
-    if (!N) return '';
-    return N.crumbsHtml([{ label: 'Trang chủ', href: '/' }, { label: 'Lộ trình JLPT', href: '/learning' },
-      { label: 'Cấp ' + (viewLevel || (path && path.openLevel) || '') }, { label: TAB_LABEL[tab] || '' }]);
+  /** F86 (owner 12/11): the path page is the top of Lộ trình JLPT, so it has no trail and no "Quay về" link. */
+  function crumbsHtml() {
+    return '';
   }
 
   // page menu (top right of the hero)

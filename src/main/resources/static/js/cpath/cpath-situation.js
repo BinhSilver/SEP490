@@ -772,7 +772,6 @@
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="furigana" aria-pressed="' + (state.display.furigana ? 'true' : 'false') + '">Furigana</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="translation" aria-pressed="' + (state.display.translation ? 'true' : 'false') + '">Bản dịch</button>'
       + (isTravel(s) || state.display.fullRomaji ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
-      + '<a class="cp-btn-ghost" href="' + esc(pageUrl('path')) + '">Về lộ trình</a>'
       + '</div>'
       + '</header>'
       + (root && root.CpathAudio ? root.CpathAudio.sliderHtml({ compact: true }) : '')

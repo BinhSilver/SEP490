@@ -119,8 +119,6 @@
     var client = root && root.JpathApi;
     if (!el || !client) return null;
     if (ROLEPLAY) return mountRoleplay(el, client);
-    var crumb = root.document && root.document.querySelector('.jp-crumbs__here');
-    if (crumb && REVIEW) crumb.textContent = 'Ôn tập hôm nay';
     var state = { data: null, i: 0, answers: {}, result: null, speechOnly: false, speechIndex: 0, speechClips: [], recorder: null, stream: null, timer: null, chunks: [] };
 
     function play() {
@@ -253,9 +251,6 @@
   function mountRoleplay(el, client) {
     var query = new URLSearchParams(String(root.location.search || ''));
     var mode = query.get('mode');
-    var crumb = root.document && root.document.querySelector('.jp-crumbs__here');
-    if (crumb) crumb.textContent = mode === 'fallback' ? 'Bài nhập vai mục tiêu'
-      : mode === 'topic' ? 'Bài nhập vai chủ đề' : 'Luyện nhanh';
     var code = query.get('code') || '';
     var scope = mode === 'fallback' ? 'goal' : mode === 'topic' ? 'topic' : 'situation';
     var base = mode === 'fallback' ? '/api/learning/comm/goal-test/fallback'

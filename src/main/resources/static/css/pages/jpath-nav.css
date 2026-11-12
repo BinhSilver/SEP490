@@ -49,6 +49,16 @@
 .jp-sec + .jp-sec { padding-top: 4px; }
 
 /* ------------------------------------------------------------------ breadcrumbs */
+/* [JLAS-W0108] F86 (owner 12/11): "Quay về {trang cha}" replaces the breadcrumb trail */
+.jp-back {
+  justify-self: start; display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border: 1px solid var(--jp-line); border-radius: 999px; background: var(--jp-surface, #fff);
+  color: var(--jp-ink); font-weight: 600; font-size: .9em; line-height: 1.2; text-decoration: none;
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+}
+.jp-back:hover { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-back:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-back__icon { width: 18px; height: 18px; flex: 0 0 18px; }
 .jp-crumbs__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: .9em; }
 .jp-crumbs__item { display: inline-flex; align-items: center; color: var(--jp-muted); }
 .jp-crumbs__item + .jp-crumbs__item::before { content: ""; width: 6px; height: 6px; margin: 0 10px 0 8px; border-top: 1px solid var(--jp-muted); border-right: 1px solid var(--jp-muted); transform: rotate(45deg); }
