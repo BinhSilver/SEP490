@@ -12,10 +12,12 @@
   <link rel="stylesheet" href="/css/theme-bridge.css">
   <link rel="stylesheet" href="/css/base.css">
 <link rel="stylesheet" href="/flashcard/speed-recall.css">
-<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261015-selection-pager">
-  <link rel="stylesheet" href="/flashcard/speed-recall-arcade.css?v=20261011-mobile-hud">
-  <link rel="stylesheet" href="/css/jlab-base-shell.css">
+<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261111-mode-select">
+  <link rel="stylesheet" href="/flashcard/speed-recall-arcade.css?v=20261111-no-lip">
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
   <div id="jlabBaseShellMount"></div>
@@ -34,19 +36,20 @@
       <form id="setup-form" class="sr-setup__card">
         <div class="sr-setup__grid">
           <div class="sr-setup__field"><label id="filter-label" for="filter">Thẻ</label>
-            <div class="sr-setup__control"><select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="CUSTOM">Chọn cặp từ tùy ý</option><option value="RANDOM">Ngẫu nhiên</option></select></div>
+            <div class="sr-setup__control"><select id="filter" data-jl-select><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="CUSTOM">Chọn cặp từ tùy ý</option><option value="RANDOM">Ngẫu nhiên</option></select></div>
           </div>
           <label class="sr-setup__field"><span id="count-label">Số câu</span>
             <span class="sr-setup__control"><input id="count" type="number" min="1" step="1" inputmode="numeric" value="1" required><small id="count-suffix">/ 0 thẻ</small></span>
           </label>
-          <div class="sr-setup__field"><span>Hỏi bằng</span>
-            <div class="sr-setup__segments" style="--mode-count:4" role="group" aria-label="Nội dung câu hỏi"><button type="button" data-question="KANJI" class="is-active" aria-pressed="true">Kanji</button><button type="button" data-question="HIRAGANA" aria-pressed="false">Hiragana</button><button type="button" data-question="MEANING" aria-pressed="false">Nghĩa</button><button type="button" data-question="HAN_VIET" aria-pressed="false">Hán Việt</button></div>
-          </div>
-          <div class="sr-setup__field"><span>Đáp bằng</span>
-            <div class="sr-setup__segments" style="--mode-count:4" role="group" aria-label="Nội dung đáp án"><button type="button" data-answer="KANJI" aria-pressed="false">Kanji</button><button type="button" data-answer="HIRAGANA" class="is-active" aria-pressed="true">Hiragana</button><button type="button" data-answer="MEANING" aria-pressed="false">Nghĩa</button><button type="button" data-answer="HAN_VIET" aria-pressed="false">Hán Việt</button></div>
-          </div>
+          <!-- Row 2: time, then the question/answer pair as dropdowns (they were button strips). -->
           <div class="sr-setup__field"><label for="time-limit">Thời gian mỗi từ</label>
-            <div class="sr-setup__control"><select id="time-limit"><option value="">Tự động (6 giây, nhanh dần)</option><option value="6">6 giây</option><option value="10">10 giây</option><option value="15">15 giây</option><option value="20">20 giây</option><option value="30">30 giây</option><option value="45">45 giây</option><option value="60">60 giây</option></select></div>
+            <div class="sr-setup__control"><select id="time-limit" data-jl-select><option value="">Tự động (6 giây, nhanh dần)</option><option value="6">6 giây</option><option value="10">10 giây</option><option value="15">15 giây</option><option value="20">20 giây</option><option value="30">30 giây</option><option value="45">45 giây</option><option value="60">60 giây</option></select></div>
+          </div>
+          <div class="sr-setup__field"><label for="question-field">Hỏi bằng</label>
+            <div class="sr-setup__control"><select id="question-field" data-jl-select><option value="KANJI" selected>Kanji</option><option value="HIRAGANA">Hiragana</option><option value="MEANING">Nghĩa</option><option value="HAN_VIET">Hán Việt</option></select></div>
+          </div>
+          <div class="sr-setup__field"><label for="answer-field">Đáp bằng</label>
+            <div class="sr-setup__control"><select id="answer-field" data-jl-select><option value="KANJI">Kanji</option><option value="HIRAGANA" selected>Hiragana</option><option value="MEANING">Nghĩa</option><option value="HAN_VIET">Hán Việt</option></select></div>
           </div>
         </div>
         <div id="selection-list"></div>
@@ -148,6 +151,6 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
-  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261110-time-limit"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261111-mode-select"></script>
 </body>
 </html>

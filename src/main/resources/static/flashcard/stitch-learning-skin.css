@@ -640,6 +640,23 @@
   gap: 24px;
 }
 
+/* Row 1: cards + count (half each); row 2: time per word, question, answer (a third each). */
+@media (min-width: 641px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__grid > .sr-setup__field { grid-column: span 2; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__grid > .sr-setup__field:nth-child(-n+2) { grid-column: span 3; }
+}
+
+/* A grid item grows to its content by default; let long option text end in … instead of pushing past the column. */
+#jlabBasePage:is(.speed-recall-page, .flashcard-page--quiz) #jlabBaseContent .sr-setup__field > .sr-setup__control { min-width: 0; }
+
+/* Dropdowns in the setup cards match the 52px, 12px-corner number field beside them. */
+#jlabBasePage:is(.speed-recall-page, .flashcard-page--quiz) #jlabBaseContent .sr-setup__control .jl-select__trigger {
+  min-height: 52px;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__field {
   display: grid;
   min-width: 0;
@@ -1362,7 +1379,7 @@
 #jlabBasePage #jlabBaseContent .fc-selection__heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; color: var(--color-on-surface, #1d1d1f); font-size: 14px; }
 #jlabBasePage #jlabBaseContent .fc-selection__heading span { color: var(--color-on-surface-variant, #6e6e78); font-size: 13px; }
 #jlabBasePage #jlabBaseContent .fc-selection__shuffle { min-height: 44px; margin-left: auto; padding: 8px 12px; border: 1px solid var(--color-outline-variant, #dddbe5); border-radius: 8px; background: var(--color-surface-lowest, #fff); color: var(--color-primary, #6256b9); font: inherit; cursor: pointer; }
-#jlabBasePage #jlabBaseContent .fc-selection__table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; color: var(--color-on-surface, #1d1d1f); background: var(--color-surface-low, #f6f7fb); font-size: 13px; }
+#jlabBasePage #jlabBaseContent .fc-selection__table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; color: var(--color-on-surface, #1d1d1f); background: var(--color-surface-lowest, #fff); font-size: 13px; }
 #jlabBasePage #jlabBaseContent .fc-selection__table th,
 #jlabBasePage #jlabBaseContent .fc-selection__table td { padding: 8px; border-bottom: 1px solid var(--color-outline-variant, #dddbe5); text-align: left; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 #jlabBasePage #jlabBaseContent .fc-selection__table thead th { font-size: 12px; font-weight: 600; }
@@ -1935,8 +1952,8 @@ html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-slo
 /* Dark interaction and state pairs for this page. */
 html[data-theme="dark"]{--stitch-canvas:var(--dm-flashcard-bg);--stitch-surface:var(--dm-flashcard-surface);--stitch-recessed:var(--dm-flashcard-raised);--stitch-soft:var(--dm-flashcard-accent-soft);--stitch-line:var(--dm-flashcard-line);--stitch-ink:var(--dm-flashcard-ink);--stitch-muted:var(--dm-flashcard-muted);--stitch-primary:var(--dm-flashcard-accent);--stitch-primary-strong:var(--dm-flashcard-action);--stitch-primary-soft:var(--dm-flashcard-accent-soft);}
 html[data-theme="dark"] #jlabBasePage :is(.quiz-option.is-correct,.quiz-option.is-wrong){opacity:1!important;}
-html[data-theme="dark"] #jlabBasePage .quiz-option.is-correct{background:var(--dm-flashcard-success-bg)!important;color:var(--dm-flashcard-success)!important;border-color:var(--dm-flashcard-success-line)!important;box-shadow:0 0 0 3px #8eddb626!important;}
-html[data-theme="dark"] #jlabBasePage .quiz-option.is-wrong{background:var(--dm-flashcard-danger-bg)!important;color:var(--dm-flashcard-danger)!important;border-color:var(--dm-flashcard-danger-line)!important;box-shadow:0 0 0 3px #ffb4bd26!important;}
+html[data-theme="dark"] #jlabBasePage .quiz-option.is-correct{background:var(--dm-flashcard-success-bg)!important;color:var(--dm-flashcard-success)!important;border-color:var(--dm-flashcard-success-line)!important;box-shadow:none!important;}
+html[data-theme="dark"] #jlabBasePage .quiz-option.is-wrong{background:var(--dm-flashcard-danger-bg)!important;color:var(--dm-flashcard-danger)!important;border-color:var(--dm-flashcard-danger-line)!important;box-shadow:none!important;}
 html[data-theme="dark"] #jlabBasePage .quiz-option.is-correct .opt-label{background:var(--dm-flashcard-success)!important;color:#132d23!important;}
 html[data-theme="dark"] #jlabBasePage .quiz-option.is-wrong .opt-label{background:var(--dm-flashcard-danger)!important;color:#361b23!important;}
 

@@ -82,7 +82,7 @@
         + '<label>Tên khung<input class="input" name="name" required maxlength="100" value="' + A.esc(current.name) + '"></label>'
         + '<label>Giá CP<input class="input" name="price" type="number" min="0" max="1000000" step="1" required value="' + current.price + '"></label>'
         + '<label>Thứ tự hiển thị<input class="input" name="sortOrder" type="number" min="0" max="9999" step="1" required value="' + current.sortOrder + '"></label>'
-        + '<label>Chủ đề hiệu ứng<select class="input" name="theme">' + Object.keys(themes).map(function (code) {
+        + '<label>Chủ đề hiệu ứng<select class="input" name="theme" data-jl-select>' + Object.keys(themes).map(function (code) {
             return '<option value="' + A.esc(code) + '">' + A.esc(themes[code]) + ' (' + A.esc(code) + ')</option>'; }).join('') + '</select>'
         + '</label>'
         + '<label>Ảnh khung<input class="input" name="image" required maxlength="1024" value="' + A.esc(current.image) + '" placeholder="/uploads/avatar-frames/…"></label>'
@@ -90,7 +90,7 @@
         + '<section class="skin-editor__pack"><div class="skin-editor__art">'
         + '<label class="btn btn--primary">Tải gói khung (.zip)<input type="file" accept=".zip,application/zip" data-pack-upload></label>'
         + '<label class="btn btn--secondary">Chỉ tải ảnh<input type="file" accept="image/png,image/webp" data-upload></label></div>'
-        + '<div class="skin-editor__art"><select class="input" data-template aria-label="Chọn khung làm gói mẫu">'
+        + '<div class="skin-editor__art"><select class="input" data-template data-jl-select aria-label="Chọn khung làm gói mẫu">'
         + items.filter(function (frame) { return !frame.deleted; }).map(function (frame) {
             return '<option value="' + A.esc(frame.code) + '">Mẫu: ' + A.esc(frame.name) + '</option>'; }).join('') + '</select>'
         + '<button type="button" class="btn btn--secondary" data-template-download><i class="fa-solid fa-download" aria-hidden="true"></i> Tải gói mẫu</button></div>'

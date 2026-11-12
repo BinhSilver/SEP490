@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { PixiBattleCanvas } from './game/PixiBattleCanvas';
-import { AUGMENTS_POOL, getComboMilestoneData, setPlaneSkin, useAirDefenseStore } from './game/useAirDefenseStore';
-import { AugmentDraft } from './App';
+import { getComboMilestoneData, setPlaneSkin, useAirDefenseStore } from './game/useAirDefenseStore';
 import type { TargetWord, LootItem } from './game/types';
 import type { GameEffectsAudio } from './GameEffectsAudio';
 
@@ -10,7 +9,7 @@ function resetAir() {
   useAirDefenseStore.setState({ paused:true, screen:'endless', mode:'endless', bootStatus:'ready', match:null,
     outcome:'playing', finishingPresentation:false, finishPresentationUntil:null,
     hp:100, maxHp:100, shield:0, combo:0, hyperBeamCharge:0, hyperBeamActive:false, hyperBeamPhase:'idle',
-    targets:[], lootItems:[], floatingTexts:[], draftAugments:[], activeAugments:[], freezeTimer:0,
+    targets:[], lootItems:[], floatingTexts:[], freezeTimer:0,
     lastLaserTarget:null, typingBulletTarget:null, dangerZoneActive:false, screenShake:false,
     inboundBoss:false, activeComboMilestone:null, comboBreakActive:false, wrongInputs:0, isTransitioning:false,
     introState:{active:false,phase:'done'},
@@ -90,7 +89,6 @@ export function AirScene({skin,action,replay,audio}:{skin:PlaneSkin;action:strin
           }; animation=requestAnimationFrame(move);
         }
       }
-      if (action==='augment_draft'||action.startsWith('augment:')) patch({draftAugments:action==='augment_draft'?AUGMENTS_POOL.slice(0,3):AUGMENTS_POOL.filter(a=>a.id===action.split(':')[1]),remainingRerolls:3});
     };
     run();
     // Repeat finite combat reactions without interrupting music, draft interactions or long introductions.
@@ -102,6 +100,6 @@ export function AirScene({skin,action,replay,audio}:{skin:PlaneSkin;action:strin
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[skinKey,action,replay,audio]);
   return ready?<><PixiBattleCanvas key={`${skinKey}-${replay}`} />
-    {(action==='augment_draft'||action.startsWith('augment:'))&&<div className="ge-augment"><AugmentDraft key={`${action}-${replay}`} preview={{sound:id=>audio.playEffect('air',id),autoSelect:action.startsWith('augment:')}} /></div>}
+    
   </>:<p>Đang tải máy bay…</p>;
 }

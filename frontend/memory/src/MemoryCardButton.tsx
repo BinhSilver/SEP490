@@ -10,7 +10,8 @@ export function MemoryCardButton({
   onFlip,
   reduceMotion,
   feedback,
-  colorGroup
+  colorGroup,
+  shift = 0
 }: {
   card: MemoryCard
   disabled: boolean
@@ -18,6 +19,8 @@ export function MemoryCardButton({
   reduceMotion: boolean | null
   feedback: 'match' | 'mismatch' | null
   colorGroup?: 'question' | 'answer'
+  /** Sideways offset in px; centres the cards of a last row that is not full. */
+  shift?: number
 }) {
   const revealed = card.state !== 'HIDDEN'
   const matched = card.state === 'MATCHED'
@@ -37,7 +40,8 @@ export function MemoryCardButton({
       const height = front.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)
       if (width <= 0 || height <= 0) return
       let low = 1
-      let high = Math.min(isJapaneseField(card.face) ? 64 : 36, height / 1.25)
+      // Larger cards get larger text: the cap grows with the card instead of stopping at a fixed size.
+      let high = Math.min(isJapaneseField(card.face) ? Math.max(64, width * 0.5) : Math.max(36, width * 0.22), height / 1.25)
       for (let attempt = 0; attempt < 9; attempt += 1) {
         const size = (low + high) / 2
         content.style.fontSize = `${size}px`
@@ -59,7 +63,8 @@ export function MemoryCardButton({
       className={`memory-card ${colorGroup ? `memory-card--${colorGroup}` : ''} ${revealed ? 'is-revealed' : ''} ${matched ? 'is-matched' : ''} ${feedback ? `has-${feedback}-feedback` : ''}`}
       disabled={disabled || revealed}
       onClick={() => onFlip(card.cardInstanceId)}
-      aria-label={revealed ? `${faceLabel}: ${card.content ?? ''}` : `Thẻ ${colorGroup ? `${faceLabel} ` : ''}úp số ${card.position + 1}`}
+      style={shift ? { left: shift } : undefined}
+      aria-label={revealed ? `${faceLabel}: ${card.content ?? ''}${matched ? ', đã ghép' : ''}` : `Thẻ ${colorGroup ? `${faceLabel} ` : ''}úp số ${card.position + 1}`}
       animate={{ rotateY: revealed ? 180 : 0, scale: 1 }}
       transition={reduceMotion ? { duration: 0 } : {
         rotateY: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
@@ -73,11 +78,9 @@ export function MemoryCardButton({
         <span className="memory-card__index">{String(card.position + 1).padStart(2, '0')}</span>
       </span>
       <span className="memory-card__front" aria-hidden={!revealed}>
-        <span className="memory-card__face">{faceLabel}</span>
         <span ref={contentRef} className={`memory-card__content ${isJapaneseField(card.face) ? 'jp' : 'is-latin'}`}>
           {card.content ?? '—'}
         </span>
-        {matched && <span className="memory-card__matched">✓ Đã ghép</span>}
       </span>
     </motion.button>
   )

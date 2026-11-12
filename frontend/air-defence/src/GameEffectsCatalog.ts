@@ -1,4 +1,3 @@
-import { AUGMENTS_POOL } from './game/useAirDefenseStore';
 
 export type PreviewGame = 'air' | 'cat' | 'memory';
 export interface PreviewEffect { id:string; label:string; group:string; }
@@ -11,7 +10,6 @@ export const GAME_EFFECTS:Record<PreviewGame,PreviewEffect[]> = {
     ...group('Combo', [['combo_gain','Tăng combo'],['combo5','Combo 5'],['combo10','Combo 10'],['combo20','Combo 20'],['combo50','Combo 50'],['combo_break','Đứt combo']]),
     ...group('Xuất kích và chuyển đợt', [['intro_boot','Đếm ngược xuất kích'],['intro_warp','Cổng xuất kích'],['intro_ready','Xuất trận'],['wave_clear','Hoàn thành đợt'],['warp','Bay sang đợt mới'],['wave_incoming','Đợt địch mới'],['boss_wave','Đợt boss']]),
     ...group('Vật phẩm', [['loot_credit','Tinh thể xu rơi'],['loot_repair','Gói hồi máu rơi'],['loot_energy','Năng lượng siêu pháo rơi'],['loot_magnet','Hút vật phẩm về máy bay'],['pickup_credit','Nhặt xu'],['pickup_repair','Hồi máu'],['pickup_energy','Nhặt năng lượng']]),
-    ...group('Lõi bổ trợ', [['augment_draft','Màn chọn lõi và lướt thẻ'],...AUGMENTS_POOL.map(card=>[`augment:${card.id}`,`Kích hoạt ${card.title.toLocaleLowerCase('vi')}`] as [string,string])]),
     ...group('Nhạc nền', [['bgm_lobby','Nhạc màn chờ'],['bgm_battle','Nhạc trong trận'],['bgm_boss','Nhạc trận boss']]),
   ],
   cat: [

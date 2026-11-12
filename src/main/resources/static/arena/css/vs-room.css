@@ -1011,7 +1011,9 @@ html:not(#_):not(#_):not(#_):not(#_) .vs .vs__field select option {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    min-height: auto;
+    /* Fill down to the bottom tab bar (about 96px with the safe area); a short waiting state otherwise left a
+       light strip of page under the dark stage. */
+    min-height: calc(100dvh - var(--header-height, 64px) - 96px);
     padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
   }
 

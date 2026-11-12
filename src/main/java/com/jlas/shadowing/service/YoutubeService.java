@@ -466,7 +466,7 @@ public class YoutubeService {
         if (pythonBin != null && !pythonBin.isBlank()) {
             String python = resolvePython();
             if (python != null) return List.of(python, "-m", "yt_dlp");
-            throw new IOException("Python đã cấu hình chưa cài yt-dlp. Cài yt-dlp[default] trong môi trường đó.");
+            throw new IOException(YTDLP_PYTHON_MISSING_MESSAGE);
         }
         if (ytdlpBin != null && !ytdlpBin.isBlank()) {
             File bin = new File(ytdlpBin);
@@ -481,10 +481,23 @@ public class YoutubeService {
         if (python != null) {
             return List.of(python, "-m", "yt_dlp");
         }
-        throw new IOException(
-                "Không tìm thấy yt-dlp. Cài: pip install yt-dlp "
-                        + "và đặt yt-dlp.bin.path trong application.properties.");
+        throw new IOException(YTDLP_MISSING_MESSAGE);
     }
+
+    /** Shown in the analyze popup: yt-dlp runs on the server, so the fix is a server install. */
+    static final String YTDLP_MISSING_MESSAGE = """
+            Máy chủ chưa cài yt-dlp (công cụ tải video YouTube). Người quản trị cần cài trên máy chủ chạy J-LAS:
+            • Linux: sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux \
+            -o /usr/local/bin/yt-dlp && sudo chmod a+rx /usr/local/bin/yt-dlp
+            • Windows: winget install yt-dlp.yt-dlp
+            • Hoặc nếu máy chủ có Python: python -m pip install -U "yt-dlp[default]"
+            Nếu yt-dlp không nằm trong PATH của ứng dụng, đặt biến môi trường YT_DLP_BIN_PATH \
+            bằng đường dẫn đầy đủ tới file yt-dlp. Sau đó khởi động lại ứng dụng.""";
+
+    static final String YTDLP_PYTHON_MISSING_MESSAGE = """
+            Python khai báo trong YT_DLP_PYTHON_PATH chưa có yt-dlp. Người quản trị cần chạy trên máy chủ:
+            <python đó> -m pip install -U "yt-dlp[default]"
+            rồi khởi động lại ứng dụng.""";
 
     private String resolvePython() {
         String[] candidates = pythonBin != null && !pythonBin.isBlank()

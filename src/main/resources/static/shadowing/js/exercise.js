@@ -50,6 +50,13 @@
   const liveJapanese = document.getElementById('exercise-live-japanese');
   const liveTranslation = document.getElementById('exercise-live-translation');
   const transcript = document.getElementById('exercise-transcript');
+  const reviewCard = document.getElementById('exercise-review');
+  const reviewLabel = document.getElementById('exercise-review-label');
+  const reviewPrompt = document.getElementById('exercise-review-prompt');
+  const reviewExpected = document.getElementById('exercise-review-expected');
+  const reviewMine = document.getElementById('exercise-review-mine');
+  const reviewExplanation = document.getElementById('exercise-review-explanation');
+  const reviewBack = document.getElementById('exercise-review-back');
 
   let session = null;
   let question = null;
@@ -71,6 +78,9 @@
   let resumePlaybackAfterPause = false;
   let pausedAnswerControls = null;
   let submittingAnswer = false;
+  // A finished stop the learner reopened from the transcript or timeline; the current question stays untouched.
+  let reviewing = null;
+  let reviewRequest = 0;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -220,6 +230,13 @@
     const blank = /[＿_]{3,}/.exec(promptText);
     if (!blank) {
       prompt.textContent = promptText || expectedAnswer || '';
+      // "Write the sentence you heard": the instruction alone does not show what the sentence was.
+      if (promptText && expectedAnswer && expectedAnswer !== promptText && !isChoiceQuestion()) {
+        const answer = document.createElement('span');
+        answer.className = 'exercise-expected-answer';
+        answer.textContent = expectedAnswer;
+        prompt.appendChild(answer);
+      }
       return;
     }
 
@@ -249,7 +266,7 @@
         + ' · ' + stop.difficultyLabel;
       marker.addEventListener('click', function (event) {
         event.stopPropagation();
-        seekTo(Number(stop.startTime), true);
+        openStop(stop, Number(stop.startTime));
       });
       stopMarkers.appendChild(marker);
     });
@@ -273,12 +290,12 @@
       }
 
       row.addEventListener('click', function () {
-        seekTo(Number(subtitle.startTime), true);
+        openStop(stop, Number(subtitle.startTime));
       });
       row.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          seekTo(Number(subtitle.startTime), true);
+          openStop(stop, Number(subtitle.startTime));
         }
       });
 
@@ -300,6 +317,97 @@
       transcriptRows.set(subtitleId, row);
     });
   }
+
+  function isPastStop(stop) {
+    return Boolean(stop && session && stop.number <= session.currentPosition);
+  }
+
+  /** Plays from a line; a finished stop also shows its question and answer again instead of the current one. */
+  function openStop(stop, time) {
+    if (sessionPaused) return;
+    if (isPastStop(stop)) {
+      // Remember where the current question was before the seek moves the video.
+      if (!reviewing) reviewing = {
+        returnTime: Number(media.currentTime) || 0,
+        dockHidden: answerDock.hidden,
+        waitingHidden: waitingState.hidden
+      };
+      openReview(stop);
+    } else {
+      closeReview(false);
+    }
+    seekTo(time, true);
+  }
+
+  async function openReview(stop) {
+    const ticket = ++reviewRequest;
+    try {
+      const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId)
+        + '/stops/' + encodeURIComponent(stop.number), { headers: headers() });
+      const data = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(data.message || data.error || 'Không mở lại được câu này');
+      if (ticket === reviewRequest) showReview(data);
+    } catch (error) {
+      if (ticket !== reviewRequest) return;
+      closeReview(false);
+      setStatus(error.message || 'Không mở lại được câu này', true);
+    }
+  }
+
+  function showReview(item) {
+    if (!reviewing) {
+      reviewing = {
+        returnTime: Number(media.currentTime) || 0,
+        dockHidden: answerDock.hidden,
+        waitingHidden: waitingState.hidden
+      };
+    }
+    reviewing.item = item;
+    const answer = item.previousAnswer || {};
+    const choice = Boolean(item.kind && item.kind !== 'GAP');
+    reviewLabel.textContent = 'Xem lại câu #' + item.number + (item.difficultyLabel ? ' · ' + item.difficultyLabel : '');
+    const promptText = item.promptText || '';
+    const blank = /[＿_]{3,}/.exec(promptText);
+    reviewPrompt.textContent = blank
+      ? promptText.slice(0, blank.index) + (answer.expectedAnswer || '') + promptText.slice(blank.index + blank[0].length)
+      : promptText;
+    // A filled blank already shows the answer inside the sentence; otherwise show the Japanese answer itself.
+    reviewExpected.parentElement.hidden = Boolean(blank) || !answer.expectedAnswer;
+    reviewExpected.textContent = answer.expectedAnswer || '';
+    reviewMine.textContent = answer.result === 'REVEALED'
+      ? 'Bạn đã xem đáp án' + (answer.userAnswer ? ' · lần cuối bạn trả lời: ' + answer.userAnswer : '') + '.'
+      : 'Bạn trả lời đúng' + (answer.userAnswer ? ': ' + answer.userAnswer : '') + '.';
+    const note = choice ? answer.explanation : (answer.translation || item.translation);
+    reviewExplanation.hidden = !note;
+    reviewExplanation.textContent = note || '';
+    reviewBack.querySelector('span').textContent = question
+      ? 'Quay lại câu #' + question.number : 'Quay lại phần đang nghe';
+    answerDock.hidden = true;
+    waitingState.hidden = true;
+    reviewCard.hidden = false;
+    reviewCard.scrollTop = 0;
+  }
+
+  /** Hides the review; with returnToCurrent the video goes back to where the learner left the current question. */
+  function closeReview(returnToCurrent) {
+    reviewRequest++;
+    if (!reviewing) return;
+    const saved = reviewing;
+    reviewing = null;
+    reviewCard.hidden = true;
+    answerDock.hidden = saved.dockHidden;
+    waitingState.hidden = saved.waitingHidden;
+    if (!returnToCurrent) return;
+    media.pause();
+    const back = stoppedAtQuestion && question
+      ? Math.max(Number(question.startTime), Number(question.endTime) - 0.02) : saved.returnTime;
+    try { media.currentTime = back; } catch (_) { /* metadata is loaded */ }
+    updateVideoProgress();
+  }
+
+  reviewBack.addEventListener('click', function () {
+    closeReview(true);
+  });
 
   function subtitleAt(time) {
     return subtitles.find(function (subtitle) {
@@ -336,6 +444,7 @@
   }
 
   function updatePreparationTip(subtitle) {
+    if (reviewing) return;
     const pendingStop = stops.find(function (stop) { return !isStopDone(stop); });
     const pendingIndex = pendingStop
       ? subtitles.findIndex(function (item) { return Number(item.id) === Number(pendingStop.subtitleId); })
@@ -473,6 +582,7 @@
   }
 
   function resetQuestionUi() {
+    closeReview(false);
     stoppedAtQuestion = false;
     replayMode = false;
     finishingRemainder = false;
@@ -550,6 +660,7 @@
 
   function unlockAnswer() {
     if (!question || question.answered || finishingRemainder || submittingAnswer) return;
+    closeReview(false);
     stoppedAtQuestion = true;
     replayMode = false;
     media.pause();
@@ -588,7 +699,7 @@
       media.pause();
       return;
     }
-    if (finishingRemainder) {
+    if (finishingRemainder || reviewing) {
       const request = media.play();
       if (request?.catch) request.catch(function () { setStatus('Không thể phát video lúc này.', true); });
       return;
@@ -740,7 +851,15 @@
       if (!question.answered) unlockAnswer();
       return;
     }
-    if (!question.answered && !stoppedAtQuestion && reachedEnd) unlockAnswer();
+    if (!question.answered && reachedEnd) {
+      if (!stoppedAtQuestion) unlockAnswer();
+      else if (!media.paused) {
+        closeReview(false);
+        media.pause();
+        try { media.currentTime = Math.max(Number(question.startTime), questionEnd - 0.02); }
+        catch (_) { /* no-op */ }
+      }
+    }
   });
   media.addEventListener('ended', function () {
     updateVideoProgress();
@@ -750,6 +869,7 @@
   });
 
   function renderResult(result) {
+    closeReview(false);
     const incorrect = result.result === 'INCORRECT';
     if (question) question.answered = !incorrect;
     questionPanel.classList.remove('is-waiting');
@@ -931,6 +1051,7 @@
   });
 
   function renderRemainder(view, resumeFrom) {
+    closeReview(false);
     session = view;
     sessionActions.hidden = false;
     question = null;
@@ -964,6 +1085,7 @@
   }
 
   function renderComplete(view) {
+    closeReview(false);
     media.pause();
     sessionActions.hidden = true;
     finishingRemainder = false;

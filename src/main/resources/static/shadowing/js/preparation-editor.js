@@ -38,7 +38,7 @@
       filterTouched = true;
       reviewLevel.value = '';
       reviewKind.value = '';
-      document.querySelectorAll('.preparation-filter button').forEach(function (button) {
+      document.querySelectorAll('.preparation-filter button[data-filter]').forEach(function (button) {
         button.setAttribute('aria-pressed', String(button.dataset.filter === 'DRAFT'));
       });
       visibleCount = 8;
@@ -587,7 +587,7 @@
       return (!reviewLevel.value || question.level === reviewLevel.value)
         && (!reviewKind.value || question.kind === reviewKind.value);
     });
-    document.querySelectorAll('.preparation-filter button').forEach(function (button) {
+    document.querySelectorAll('.preparation-filter button[data-filter]').forEach(function (button) {
       const number = button.dataset.filter === 'ALL' ? scoped.length
         : scoped.filter(function (question) { return question.status === button.dataset.filter; }).length;
       button.querySelector('span').textContent = String(number);
@@ -626,7 +626,7 @@
     questions = Array.isArray(data.questions) ? data.questions : [];
     if (!filterTouched) {
       currentFilter = Number(data.draftCount) > 0 ? 'DRAFT' : 'ALL';
-      document.querySelectorAll('.preparation-filter button').forEach(function (item) {
+      document.querySelectorAll('.preparation-filter button[data-filter]').forEach(function (item) {
         item.setAttribute('aria-pressed', String(item.dataset.filter === currentFilter));
       });
     }
@@ -709,13 +709,13 @@
 
   analyze.addEventListener('click', function () { preparePage(true); });
 
-  document.querySelectorAll('.preparation-filter button').forEach(function (button) {
+  document.querySelectorAll('.preparation-filter button[data-filter]').forEach(function (button) {
     button.addEventListener('click', function () {
       selectedQuestionIds.clear();
       filterTouched = true;
       currentFilter = button.dataset.filter;
       visibleCount = 8;
-      document.querySelectorAll('.preparation-filter button').forEach(function (item) {
+      document.querySelectorAll('.preparation-filter button[data-filter]').forEach(function (item) {
         item.setAttribute('aria-pressed', String(item === button));
       });
       renderPreview();
