@@ -1899,3 +1899,6 @@ button.jp-sidenav__link {
 .cp-page .jp-result .jp-review__row .jp-ai-slot { margin-top: 0; flex: 0 0 auto; }
 .cp-page .jp-result .jp-review__row .jp-ai-slot:has(.jp-ai__panel:not([hidden])) { flex-basis: 100%; }
 
+/* [JLAS-W0108] F83: Kitsu peeks 20px past the "Hôm nay" ring; leave that room so it never covers the title */
+.cp-page .jp-path .jp-today__top, .cp-page .jp-today__top { column-gap: 34px !important; }
+@media (max-width: 560px) { .cp-page .jp-today__cal-kitsu { right: -14px; width: 48px; height: 48px; } }
