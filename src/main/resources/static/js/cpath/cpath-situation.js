@@ -727,17 +727,19 @@
       if (!blob && typeof Blob === 'function') {
         blob = new Blob([], { type: 'audio/webm' });
       }
-      var fd = new FormData();
-      fd.append('text', target.ja || '');
-      if (target.order != null) fd.append('lineId', sitData.id + '-L' + target.order);
-      if (blob) {
-        fd.append('audio', blob, 'speech.webm');
-      }
       state.recording = false;
       state.scoring = true;
       render();
 
-      root.JpathApi.upload('/api/learning/comm/speak', fd).then(function (res) {
+      // F72: send WAV 16 kHz mono so the server scores without ffmpeg
+      var toWav = root.JpathWav && blob ? root.JpathWav.toWav(blob) : Promise.resolve({ blob: blob, name: 'speech.webm' });
+      toWav.then(function (clip) {
+        var fd = new FormData();
+        fd.append('text', target.ja || '');
+        if (target.order != null) fd.append('lineId', sitData.id + '-L' + target.order);
+        if (clip.blob) fd.append('audio', clip.blob, clip.name);
+        return root.JpathApi.upload('/api/learning/comm/speak', fd);
+      }).then(function (res) {
         state.scoring = false;
         state.micError = '';
         var normalized = normalizeSpeakResponse(res, state);

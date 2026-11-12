@@ -22,6 +22,12 @@
   // ?mode=review: today's spaced review (same page, no CP); otherwise the weekly test
   var REVIEW = !!(root && root.location && /[?&]mode=review\b/.test(String(root.location.search || '')));
   var ROLEPLAY = !!(root && root.location && /[?&]mode=(fallback|topic|quick)(?:&|$)/.test(String(root.location.search || '')));
+  /** F72: recordings go up as WAV 16 kHz mono (JpathWav); without it the original blob is sent. */
+  function wavAll(blobs) {
+    return Promise.all((blobs || []).map(function (b) {
+      return root && root.JpathWav ? root.JpathWav.toWav(b) : Promise.resolve({ blob: b, name: 'speech.webm' });
+    }));
+  }
   var BASE = REVIEW ? '/api/learning/comm/review' : '/api/learning/comm/weekly';
 
   function esc(s) {
@@ -152,10 +158,12 @@
         + '<button type="button" class="jp-btn" data-weekly-speech-skip>Bỏ qua phần Nói</button></section>';
     }
     function submitSpeech() {
-      var form = new root.FormData();
-      state.speechClips.forEach(function (blob) { form.append('audio', blob, 'weekly.webm'); });
       el.innerHTML = '<p class="jp-status" role="status">Đang chấm phần Nói…</p>';
-      client.upload(BASE + '/speak', form).then(function (r) {
+      wavAll(state.speechClips).then(function (clips) {
+        var form = new root.FormData();
+        clips.forEach(function (c) { form.append('audio', c.blob, c.name); });
+        return client.upload(BASE + '/speak', form);
+      }).then(function (r) {
         el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result, state.data && state.data.questions, state.answers))
           + '<p>Phần Nói đã chấm ' + esc(r.updated) + ' câu. Câu dưới 70 vào Sổ tay; câu đạt từ 70 được bỏ khỏi Sổ tay.</p>';
       }).catch(function (e) {
@@ -276,10 +284,12 @@
       if (state.busy) return;
       state.busy = true;
       el.innerHTML = '<p class="jp-status" role="status">Đang chấm bài…</p>';
-      var form = new root.FormData();
-      form.append('answers', JSON.stringify(state.answers));
-      state.clips.forEach(function (blob) { form.append('audio', blob, 'roleplay.webm'); });
-      client.upload(base, form).then(function (result) {
+      wavAll(state.clips).then(function (clips) {
+        var form = new root.FormData();
+        form.append('answers', JSON.stringify(state.answers));
+        clips.forEach(function (c) { form.append('audio', c.blob, c.name); });
+        return client.upload(base, form);
+      }).then(function (result) {
         state.busy = false;
         el.innerHTML = '<section class="jp-result"><div class="jp-result__score">' + esc(result.score) + '%</div>'
           + '<h2 class="jp-result__title">' + (scope === 'situation' ? 'Luyện nhanh hoàn tất'

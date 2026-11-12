@@ -18,6 +18,8 @@
     <!-- fragments/head does not load confirm-dialog.js; path pages use window.JlasConfirm. -->
     <script th:src="@{/js/pages/confirm-dialog.js(v=${jpathAssetVersion})}"></script>
     <script th:src="@{/js/jlptpath/jpath-api.js(v=${jpathAssetVersion})}"></script>
+    <!-- F72: recordings become WAV 16 kHz mono in the browser before scoring (no ffmpeg needed on the server). -->
+    <script th:src="@{/js/jlptpath/jpath-wav.js(v=${jpathAssetVersion})}"></script>
     <script th:src="@{/js/jlptpath/jpath-nav.js(v=${jpathAssetVersion})}"></script>
     <!-- Extras: "Báo sai" binds every [data-jpath-report] block, also after each 'jpath:rendered'. -->
     <script th:src="@{/js/jlptpath/jpath-report.js(v=${jpathAssetVersion})}"></script>

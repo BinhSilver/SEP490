@@ -124,12 +124,27 @@ public class JpathSpeakService {
             dir = Files.createTempDirectory("jpath-speak-");
             Path src = dir.resolve(UUID.randomUUID() + (mime.contains("ogg") ? ".ogg" : mime.contains("wav") ? ".wav"
                     : mime.contains("mp4") || mime.contains("m4a") ? ".m4a" : ".webm"));
-            Path wav = dir.resolve(UUID.randomUUID() + ".wav");
             try (var in = audio.getInputStream()) {
                 Files.copy(in, src, StandardCopyOption.REPLACE_EXISTING);
             }
-            ffmpeg.convertFileToWav(src.toString(), wav.toString());
-            Double seconds = ffmpeg.getDuration(wav.toString());
+            // F72: the browser sends WAV 16 kHz mono (jpath-wav.js) → straight to Azure; other formats need ffmpeg
+            Path wav;
+            Double seconds;
+            PcmWav pcm = mime.contains("wav") ? PcmWav.read(Files.readAllBytes(src)) : null;
+            if (pcm != null && pcm.azureReady()) {
+                wav = src;
+                seconds = pcm.seconds();
+            } else {
+                wav = dir.resolve(UUID.randomUUID() + ".wav");
+                try {
+                    ffmpeg.convertFileToWav(src.toString(), wav.toString());
+                } catch (IOException e) {
+                    log.error("JLPT path speak scoring: ffmpeg not usable for {} ({})", mime, e.getMessage());
+                    throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE,
+                            "Máy chủ chưa đọc được định dạng bản thu này. Tải lại trang rồi ghi âm lại.");
+                }
+                seconds = ffmpeg.getDuration(wav.toString());
+            }
             if (seconds == null || seconds <= 0 || seconds > config.getMaxAudioSeconds()) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Bản thu phải có tiếng và không dài quá "
                         + config.getMaxAudioSeconds() + " giây.");
@@ -148,7 +163,8 @@ public class JpathSpeakService {
         }
     }
 
-    private String callAzure(Path wav, String reference) throws IOException, InterruptedException {
+    /** Package-private so a test can stand in for Azure. */
+    String callAzure(Path wav, String reference) throws IOException, InterruptedException {
         Map<String, Object> p = new LinkedHashMap<>();
         p.put("ReferenceText", reference);
         p.put("GradingSystem", "HundredMark");
@@ -196,6 +212,55 @@ public class JpathSpeakService {
         Double pron = num(a, "PronScore");
         return new JpathSpeakResult(pron, num(a, "AccuracyScore"), num(a, "FluencyScore"), num(a, "CompletenessScore"),
                 best.path("Display").asText(root.path("DisplayText").asText("")), feedback(pron), words, left);
+    }
+
+    /** F72: the header of a RIFF/WAVE file; null when it is not one. */
+    record PcmWav(int format, int channels, int sampleRate, int bits, long dataBytes) {
+        /** What Azure's short-audio endpoint takes as is (audio/wav; codecs=audio/pcm; samplerate=16000). */
+        boolean azureReady() {
+            return format == 1 && channels == 1 && sampleRate == 16000 && bits == 16 && dataBytes > 0;
+        }
+
+        double seconds() {
+            return dataBytes / (double) (sampleRate * channels * (bits / 8));
+        }
+
+        static PcmWav read(byte[] b) {
+            if (b == null || b.length < 44 || !"RIFF".equals(ascii(b, 0)) || !"WAVE".equals(ascii(b, 8))) return null;
+            int format = -1, channels = 0, rate = 0, bits = 0;
+            long data = -1;
+            int pos = 12;
+            while (pos + 8 <= b.length) {
+                String id = ascii(b, pos);
+                long size = le32(b, pos + 4);
+                int body = pos + 8;
+                if ("fmt ".equals(id) && body + 16 <= b.length) {
+                    format = le16(b, body);
+                    channels = le16(b, body + 2);
+                    rate = (int) le32(b, body + 4);
+                    bits = le16(b, body + 14);
+                } else if ("data".equals(id)) {
+                    data = Math.min(size, b.length - body);
+                    break;
+                }
+                if (size < 0 || body + size > b.length) return null;
+                pos = body + (int) size + (int) (size & 1);
+            }
+            if (format < 0 || data < 0 || rate <= 0 || channels <= 0 || bits <= 0) return null;
+            return new PcmWav(format, channels, rate, bits, data);
+        }
+
+        private static String ascii(byte[] b, int at) {
+            return new String(b, at, 4, StandardCharsets.US_ASCII);
+        }
+
+        private static int le16(byte[] b, int at) {
+            return (b[at] & 0xFF) | (b[at + 1] & 0xFF) << 8;
+        }
+
+        private static long le32(byte[] b, int at) {
+            return (b[at] & 0xFFL) | (b[at + 1] & 0xFFL) << 8 | (b[at + 2] & 0xFFL) << 16 | (b[at + 3] & 0xFFL) << 24;
+        }
     }
 
     private static Double num(JsonNode n, String f) {
