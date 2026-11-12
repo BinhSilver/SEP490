@@ -1,6 +1,8 @@
 /* Cài đặt lộ trình Giao tiếp (F61), mỗi nhóm lưu riêng:
  *   Nhịp học     PUT  /api/learning/comm/path/pace     xem trước ngày xong, cảnh báo không kịp, hoàn tác lần đổi gần nhất
  *   Hiển thị     PUT  /api/learning/comm/path/display  {furigana, translation} lưu ngay khi bấm; {reset:true} về theo trình độ
+ *   Độ sâu       PUT  /api/learning/comm/path/depth    {depth: BASIC|ELEMENTARY|ADVANCED} (F70; lùi mức hỏi xác nhận)
+ *   Tốc độ nghe  PUT  /api/learning/comm/path/display  {speed} — thanh kéo CpathAudio, mỗi mức có chú thích (F70/F79)
  *   Mục tiêu     link khảo sát đổi mục tiêu chính / thêm mục tiêu phụ
  *   Tạm dừng     POST /api/learning/comm/path/pause    giữ tiến độ, chọn lại mục tiêu này trong khảo sát để học tiếp
  *   Đặt lại      POST /api/learning/comm/path/restart  {confirmText:'BẮT ĐẦU LẠI'} xoá tiến độ, giữ Sổ tay và nhịp học
@@ -37,7 +39,8 @@
   }
   function displayOf(path) {
     var d = (path && path.display) || {};
-    return { furigana: d.furigana !== false, translation: d.translation !== false, custom: d.custom === true };
+    return { furigana: d.furigana !== false, translation: d.translation !== false, custom: d.custom === true,
+      romaji: d.romaji === true, fullRomaji: d.fullRomaji === true, speed: d.speed == null ? 1 : Number(d.speed) };
   }
   function estimate(path, draft) {
     var remaining = Math.max(0, Number(path.progress && path.progress.totalSituations || 0)
@@ -99,11 +102,56 @@
         return '<label class="cp-settings__switch"><input type="checkbox" data-cp-display="' + f[0] + '"'
           + (d[f[0]] ? ' checked' : '') + '><span><strong>' + esc(f[1]) + '</strong><small>' + esc(f[2]) + '</small></span></label>';
       }).join('')
+      + (d.fullRomaji ? '<label class="cp-settings__switch"><input type="checkbox" data-cp-display="romaji" checked>'
+        + '<span><strong>Romaji đầy đủ</strong><small>Đang bật vì bạn chưa học chữ cái. Tắt khi đã đọc được Hiragana và Katakana.</small></span></label>' : '')
       + '</div>'
       + '<p class="cp-settings__desc">' + (d.custom ? 'Bạn đang dùng cách hiển thị tự chọn.'
         : 'Đang theo mặc định của trình độ ' + esc(level) + '.') + '</p>'
       + note(notices.display, notices.displayError)
       + (d.custom ? '<div class="cp-settings__actions"><button type="button" class="cp-btn-ghost" data-cp-display-reset>Về mặc định theo trình độ</button></div>' : '')
+      + '</section>';
+  }
+
+  var DEPTH_DESC = {
+    BASIC: 'Phần thiết yếu nhất, khoảng 1/3 bộ nền và 1/3 tình huống.',
+    ELEMENTARY: 'Khoảng 2/3 bộ nền và tình huống.',
+    ADVANCED: 'Toàn bộ, thêm kính ngữ đầy đủ và các mẫu câu sắc thái.'
+  };
+
+  /** F70: depth of the base set and situations, with size and days left at the current pace. */
+  function depthSection(core, notices) {
+    if (!core || !core.enabled || !Array.isArray(core.depths)) return '';
+    return '<section class="jp-card cp-settings" id="cpSetDepth" aria-labelledby="cpDepthTitle">'
+      + '<h2 id="cpDepthTitle">Độ sâu</h2>'
+      + '<p class="cp-settings__desc">Quyết định học bao nhiêu từ, mẫu câu và tình huống. Lên mức: phần mới được thêm vào các ngày sau, '
+      + 'tiến độ giữ nguyên. Xuống mức: phần chưa học được ẩn, phần đã học vẫn được ôn.</p>'
+      + '<fieldset><legend>Chọn độ sâu</legend><div class="cp-settings__depths">'
+      + core.depths.map(function (x) {
+        var on = x.code === core.depth;
+        return '<label class="cp-settings__depth' + (on ? ' is-on' : '') + '"><input type="radio" name="cp-depth" value="' + esc(x.code) + '"'
+          + (on ? ' checked' : '') + '><span><strong>' + esc(x.labelVi) + '</strong>'
+          + '<small>' + esc(DEPTH_DESC[x.code] || '') + '</small>'
+          + '<small>' + Number(x.words || 0) + ' từ · ' + Number(x.grammar || 0) + ' mẫu ngữ pháp'
+          + (Number(x.keigo || 0) ? ' · ' + Number(x.keigo) + ' mục kính ngữ' : '')
+          + ' · còn khoảng ' + Number(x.daysLeft || 0) + ' ngày học</small></span></label>';
+      }).join('')
+      + '</div></fieldset>'
+      + (core.depthSaved ? '' : '<p class="cp-settings__desc">Đang theo trình độ bạn đã khai khi tạo lộ trình.</p>')
+      + note(notices.depth, notices.depthError)
+      + '</section>';
+  }
+
+  /** F70/F79: the listening speed slider, each stop labelled with what it is like. */
+  function listenSection(path, notices) {
+    var A = root && root.CpathAudio;
+    if (!A) return '';
+    A.fromDisplay(path.display);
+    return '<section class="jp-card cp-settings" id="cpSetListen" aria-labelledby="cpListenTitle">'
+      + '<h2 id="cpListenTitle">Nghe</h2>'
+      + '<p class="cp-settings__desc">Áp dụng cho mọi âm thanh của Giao tiếp: câu thoại, từ, mẫu câu, kiểm tra tuần và bài nền. '
+      + 'Tăng dần khi đã nghe quen để bắt kịp tốc độ người Nhật nói ngoài đời.</p>'
+      + A.sliderHtml()
+      + note(notices.listen, notices.listenError)
       + '</section>';
   }
 
@@ -137,17 +185,20 @@
       + '</section>';
   }
 
-  function view(path, draft, notice, canUndo, notices) {
+  function view(path, draft, notice, canUndo, notices, core) {
     var n = notices || {};
     if (notice && !n.pace) n = Object.assign({}, n, { pace: notice });
     return '<header class="jp-page-head cp-settings__head">'
       + '<h1 class="jp-page-head__title">Cài đặt lộ trình Giao tiếp</h1>'
       + '<p class="jp-page-head__lede">Mỗi nhóm lưu riêng. Thay đổi lớn có hộp xác nhận.</p>'
       + '<nav class="cp-settings__toc" aria-label="Mục lục cài đặt">'
-      + '<a href="#cpSetPace">Nhịp học</a><a href="#cpSetDisplay">Hiển thị chữ</a>'
+      + '<a href="#cpSetPace">Nhịp học</a>' + (core && core.enabled ? '<a href="#cpSetDepth">Độ sâu</a>' : '')
+      + '<a href="#cpSetDisplay">Hiển thị chữ</a><a href="#cpSetListen">Nghe</a>'
       + '<a href="#cpSetGoal">Mục tiêu</a><a href="#cpSetManage">Tạm dừng / đặt lại</a></nav></header>'
       + paceSection(path, draft, n, canUndo)
+      + depthSection(core, n)
       + displaySection(path, n)
+      + listenSection(path, n)
       + goalSection(path)
       + manageSection(path, n);
   }
@@ -157,11 +208,11 @@
     var d = deps || {};
     var ask = d.confirm || root.JlasConfirm || function (msg) { return Promise.resolve(root.confirm(msg)); };
     var go = d.go || function (url) { root.location.assign(url); };
-    var path = null, draft = null, undo = null, notices = {}, busy = false;
+    var path = null, draft = null, undo = null, notices = {}, busy = false, core = null;
     function render() {
       var focusId = root.document && root.document.activeElement && root.document.activeElement.getAttribute
         ? root.document.activeElement.getAttribute('data-cp-display') : null;
-      el.innerHTML = view(path, draft, '', !!undo, notices);
+      el.innerHTML = view(path, draft, '', !!undo, notices, core);
       if (focusId) {
         var again = el.querySelector('[data-cp-display="' + focusId + '"]');
         if (again) again.focus();
@@ -192,8 +243,38 @@
         }).catch(function (e) { busy = false; notices = { manage: fail(e, 'Chưa thực hiện được. Thử lại sau.') }; render(); });
       });
     }
+    function saveDepth(depth) {
+      busy = true;
+      Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/depth', { depth: depth })).then(function (c) {
+        busy = false; core = c; notices = { depth: 'Đã đổi độ sâu sang ' + (c && c.depthLabel || '') + '.' };
+        return Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) { path = p; render(); });
+      }).catch(function (e) { busy = false; notices = { depth: fail(e, 'Chưa đổi được độ sâu.'), depthError: true }; render(); });
+    }
+    if (root.CpathAudio) {
+      root.CpathAudio.bind(el, function (value) {
+        return Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/display', { speed: value })).then(function (p) {
+          if (p) path = p;
+        }).catch(function () {
+          var sec = el.querySelector('#cpSetListen');
+          if (sec && !sec.querySelector('.jp-alert')) sec.insertAdjacentHTML('beforeend', note('Chưa lưu được tốc độ; trang này vẫn dùng tốc độ vừa chọn.', true));
+        });
+      });
+    }
     el.addEventListener('change', function (ev) {
       var t = ev.target;
+      if (t.name === 'cp-depth') {
+        if (busy || !core) { render(); return; }
+        var to = t.value;
+        var order = ['BASIC', 'ELEMENTARY', 'ADVANCED'];
+        if (order.indexOf(to) < order.indexOf(core.depth)) {
+          Promise.resolve(ask('Xuống độ sâu thấp hơn? Phần chưa học sẽ được ẩn; phần đã học vẫn được ôn.',
+            { confirmText: 'Đổi độ sâu', cancelText: 'Hủy', label: 'Đổi độ sâu' })).then(function (yes) {
+            if (yes) saveDepth(to); else render();
+          });
+        } else saveDepth(to);
+        return;
+      }
+      if (t.hasAttribute('data-cp-speed')) return;
       if (t.hasAttribute('data-cp-display')) {
         if (busy) { t.checked = !t.checked; return; }
         var body = {};
@@ -241,6 +322,7 @@
     });
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
       path = p; draft = payload(p); render();
+      return Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (c) { core = c; render(); }, function () { /* no base set */ });
     }).catch(function (e) { el.innerHTML = '<p class="jp-alert" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
   }
   return { RESTART_TEXT: RESTART_TEXT, restartTextOk: restartTextOk, payload: payload, displayOf: displayOf,

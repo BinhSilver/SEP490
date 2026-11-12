@@ -290,9 +290,27 @@
         + (done ? 'Ôn lại' : 'Học') + '</a></li>';
     }).join('');
 
+    // F70 (owner 12/11): the base lesson comes first, then the situations of the day that use its items
+    var core = st.core && st.core.enabled ? st.core : null;
+    var coreToday = core && core.today ? core.today : null;
+    var coreDone = !!(coreToday && coreToday.count > 0 && coreToday.done >= coreToday.count);
+    var coreItem = coreToday && coreToday.count > 0
+      ? '<li class="cp-today__item cp-today__item--core' + (coreDone ? ' is-done' : '') + '">'
+        + '<span class="cp-today__icon" aria-hidden="true">' + (coreDone ? svgMedal() : svgStar()) + '</span>'
+        + '<span class="cp-today__text"><strong>Bài nền · ' + coreToday.count + ' từ và mẫu câu</strong>'
+        + '<span>' + (coreDone ? 'Đã thuộc ' + coreToday.done + '/' + coreToday.count : 'Học trước để dùng trong tình huống hôm nay')
+        + ' · ' + esc(core.depthLabel || '') + ' ' + Number(core.done || 0) + '/' + Number(core.total || 0) + '</span></span>'
+        + '<a class="jp-btn jp-btn--sm' + (coreDone ? '' : ' jp-btn--primary') + '" href="/learning/comm/core">' + (coreDone ? 'Xem lại' : 'Học') + '</a></li>'
+      : '';
+    if (coreItem && !coreDone) firstActive = { coreLesson: true };
+    var check = core && core.knownCheck && core.knownCheck.open > 0
+      ? '<p class="cp-today__check">Bạn đã có trình độ ' + esc(core.knownCheck.level) + ': ' + Number(core.knownCheck.open)
+        + ' mục dễ hơn được để riêng. <a class="jp-btn jp-btn--sm" href="/learning/comm/core?check=1">Làm bài Đã biết – ôn nhanh</a></p>'
+      : '';
+
     var body;
-    if (situations.length) {
-      body = '<ul class="cp-today__list">' + items + '</ul>';
+    if (situations.length || coreItem) {
+      body = '<ul class="cp-today__list">' + coreItem + items + '</ul>' + check;
     } else {
       body = '<p class="cp-today__empty">' + (todayObj.restDay
         ? 'Hôm nay là ngày nghỉ của bạn. Muốn học thêm thì bấm "Học thêm 1 tình huống".'
@@ -346,10 +364,31 @@
       + '<div class="jp-today__kitsu" aria-hidden="true"><span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
       + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="" /></div>'
       + '</div>'
-      + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="' + esc(pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
+      + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="'
+        + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
       + body
+      + travelExtrasHtml(st.stamps, d.goal)
       + actions
       + '</section>';
+  }
+
+  /** F70 Du lịch: the trip passport (one stamp per finished place) and the two fun pages. */
+  function travelExtrasHtml(stamps, goal) {
+    if (goal !== 'TRAVEL') return '';
+    var list2 = stamps && Array.isArray(stamps.stamps) ? stamps.stamps : [];
+    var earned = list2.filter(function (x) { return x.stamped; }).length;
+    return '<div class="cp-trip" aria-labelledby="cp-trip-title">'
+      + '<div class="cp-trip__head"><h2 class="cp-trip__title" id="cp-trip-title">Hộ chiếu chuyến đi</h2>'
+      + '<span class="cp-trip__count">' + earned + '/' + list2.length + ' con dấu</span></div>'
+      + '<ul class="cp-trip__stamps">' + list2.map(function (x) {
+        var tip = x.stamped ? 'Đã đóng dấu ' + fmtShortDate(x.stampedAt) : 'Xong ' + x.done + '/' + x.total + ' tình huống để nhận dấu';
+        return '<li class="cp-trip__stamp' + (x.stamped ? ' is-stamped' : '') + '" title="' + esc(tip) + '">'
+          + '<span class="cp-trip__seal" aria-hidden="true" lang="ja">' + esc(x.stamped ? (String(x.nameJa || x.nameVi).charAt(0)) : '?') + '</span>'
+          + '<span class="cp-trip__name">' + esc(x.nameVi) + '</span>'
+          + '<span class="cp-trip__state">' + esc(x.stamped ? 'Đã đóng dấu' : x.done + '/' + x.total) + '</span></li>';
+      }).join('') + '</ul>'
+      + '<div class="cp-trip__links"><a class="jp-btn jp-btn--sm" href="/learning/comm/phrasebook">Sổ câu cấp tốc</a>'
+      + '<a class="jp-btn jp-btn--sm" href="/learning/comm/game">Trò chơi nghe nhanh 60 giây</a></div></div>';
   }
 
   // F68: the goal of the map being drawn (Du lịch shows its listen-and-speak step 1 in the node bubble)
@@ -915,6 +954,12 @@
       }
       state.focusedWeek = (Number(mapData.currentWeek) || 0) + 1;
       renderAll();
+      // F70: base lesson of the day (Đời sống / Công việc / BrSE) or the trip passport (Du lịch); both optional
+      if (pathData.goal === 'TRAVEL') {
+        Promise.resolve(root.JpathApi.get('/api/learning/comm/travel/stamps')).then(function (x) { state.stamps = x; renderAll(); }, function () { /* none */ });
+      } else {
+        Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (x) { state.core = x; renderAll(); }, function () { /* none */ });
+      }
       // owner 11/11: the communication path is Premium; a free learner sees an upgrade box above the path
       Promise.resolve(root.JpathApi.get('/api/learning/comm/premium-gate')).then(function (gate) {
         if (!gate || !gate.locked || rootEl.querySelector('.jp-premium-box')) return;

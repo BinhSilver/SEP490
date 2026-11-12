@@ -164,6 +164,21 @@
     }
   ];
 
+  /** F70: "Mới bắt đầu" also says whether they can read Hiragana/Katakana; not yet = Kana suggestion + full romaji. */
+  function kanaQuestionHtml(state) {
+    if ((state.selfLevel || 'BEGINNER') !== 'BEGINNER') return '';
+    var yes = state.knowsKana === true, no = state.knowsKana === false;
+    return '<fieldset class="cp-survey__kana"><legend>Bạn đã đọc được chữ cái tiếng Nhật (Hiragana, Katakana) chưa?</legend>'
+      + '<div class="cp-survey__kana-opts">'
+      + '<button type="button" class="cp-rest-chip" data-cp-kana="yes" aria-pressed="' + (yes ? 'true' : 'false') + '"><span>Đã đọc được</span></button>'
+      + '<button type="button" class="cp-rest-chip" data-cp-kana="no" aria-pressed="' + (no ? 'true' : 'false') + '"><span>Chưa đọc được</span></button>'
+      + '</div>'
+      + (no ? '<p class="cp-survey__kana-tip">Nên học bảng chữ cái trước, khoảng 1–2 tuần. '
+        + '<a href="/kana-connect" target="_blank" rel="noopener">Mở trò chơi chữ cái</a>. '
+        + 'Nếu bỏ qua, cả lộ trình sẽ hiện <strong>romaji đầy đủ</strong> dưới mọi câu và mọi từ; tắt được trong Cài đặt khi bạn đã đọc được chữ.</p>' : '')
+      + '</fieldset>';
+  }
+
   var DAYS_OF_WEEK = [
     { code: 'MON', label: 'T2', full: 'Thứ hai' },
     { code: 'TUE', label: 'T3', full: 'Thứ ba' },
@@ -252,6 +267,8 @@
       restDays: (state.restDays || []).slice()
     };
     if (state.finishDate) payload.finishDate = state.finishDate;
+    // F70 (owner 12/11): a beginner who cannot read Kana yet gets full romaji on the whole path
+    if ((state.selfLevel || 'BEGINNER') === 'BEGINNER' && state.knowsKana === false) payload.knowsKana = false;
     return payload;
   }
 
@@ -347,7 +364,8 @@
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
           + '</button>';
       }).join('');
-      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>';
+      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>'
+        + kanaQuestionHtml(state);
     } else {
       var pace1 = Number(state.dailySituations) === 1;
       var pace2 = Number(state.dailySituations) !== 1;
@@ -518,6 +536,13 @@
         var allTopics = getAvailableTopics(goalsData, state).map(function (x) { return x.code; });
         if (state.priorityTopics.length === allTopics.length) state.priorityTopics = [];
         else state.priorityTopics = allTopics;
+        render();
+        return;
+      }
+
+      var kanaBtn = t.closest('[data-cp-kana]');
+      if (kanaBtn) {
+        state.knowsKana = kanaBtn.getAttribute('data-cp-kana') === 'yes';
         render();
         return;
       }

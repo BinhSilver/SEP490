@@ -1750,3 +1750,144 @@ button.jp-sidenav__link {
 .cp-notes__ja { font-weight: 600; }
 .cp-notes__vi { font-size: .88rem; }
 .cp-notes__note { font-size: .82rem; color: var(--cp-muted); }
+
+/* [JLAS-W0108] F70/F79 Tốc độ nghe: thanh kéo 4 mức, mỗi mức có chú thích tương đương */
+.cp-speed {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+}
+.cp-speed__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cp-speed__title { font-weight: 600; font-size: .92rem; }
+.cp-speed__value { font-weight: 700; color: var(--cp-primary); }
+.cp-speed__range { width: 100%; accent-color: var(--cp-primary); margin: 2px 0; }
+.cp-speed__ticks { display: flex; justify-content: space-between; font-size: .78rem; color: var(--cp-muted); }
+.cp-speed__tick.is-on { color: var(--cp-primary); font-weight: 700; }
+.cp-speed__hint { margin: 0; font-size: .85rem; color: var(--cp-muted); }
+.cp-speed--compact { grid-template-columns: auto minmax(140px, 260px) 1fr; align-items: center; column-gap: 12px; padding: 8px 12px; margin: 8px 0; }
+.cp-speed--compact .cp-speed__head { flex-direction: column; align-items: flex-start; gap: 0; grid-row: 1 / span 2; }
+.cp-speed--compact .cp-speed__range { grid-column: 2; grid-row: 1; }
+.cp-speed--compact .cp-speed__ticks { grid-column: 2; grid-row: 2; }
+.cp-speed--compact .cp-speed__hint { grid-column: 3; grid-row: 1 / span 2; }
+@media (max-width: 640px) {
+  .cp-speed--compact { grid-template-columns: 1fr; }
+  .cp-speed--compact .cp-speed__head,
+  .cp-speed--compact .cp-speed__ticks,
+  .cp-speed--compact .cp-speed__range,
+  .cp-speed--compact .cp-speed__hint { grid-column: 1; grid-row: auto; }
+}
+
+/* F70 Bài nền: thẻ học, kiểm tra nhanh, kết quả */
+.cp-core-cards { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.cp-core-card {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 12px 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+}
+.cp-core-card.is-done { border-color: var(--jp-c-mint-500); }
+.cp-core-card__head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cp-core-card__kind { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--cp-primary-soft); color: var(--cp-primary-ink); }
+.cp-core-card__kind--keigo { background: var(--jp-c-coral-100); color: var(--jp-c-slate-900); }
+.cp-core-card__kind--grammar { background: var(--jp-c-mint-100); color: var(--jp-c-slate-900); }
+.cp-core-card__done { font-size: .78rem; color: var(--cp-muted); }
+.cp-core-card__main { display: flex; align-items: center; gap: 10px; }
+.cp-core-card__ja { font-size: 1.35rem; font-weight: 600; line-height: 1.5; }
+.cp-core-card__rd { color: var(--cp-muted); font-size: .9rem; }
+.cp-core-card__vi { font-weight: 600; }
+.cp-core-card__note { font-size: .82rem; color: var(--cp-muted); }
+.cp-core-card__ex { margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--cp-line); display: grid; gap: 2px; }
+.cp-core-card__ex-ja { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cp-core-card__ex-vi { font-size: .88rem; color: var(--cp-muted); }
+.cp-core-quiz { display: grid; gap: 12px; }
+.cp-core-quiz__count { margin: 0; font-size: .85rem; color: var(--cp-muted); }
+.cp-core-quiz__opts { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.cp-core-opt {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: 10px;
+  background: var(--cp-surface-soft);
+  color: var(--cp-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.cp-core-opt:hover, .cp-core-opt:focus-visible { border-color: var(--cp-primary); }
+.cp-core-opt.is-picked { border-color: var(--cp-primary); background: var(--cp-primary-soft); color: var(--cp-primary-ink); font-weight: 600; }
+.cp-core-result h2 { margin-top: 0; }
+.cp-core-wrong { margin: 8px 0; padding-left: 18px; }
+.cp-today__item--core .cp-today__icon { color: var(--cp-primary); }
+.cp-today__check { margin: 8px 0 0; font-size: .9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* F70 Du lịch: sổ câu cấp tốc, trò chơi nghe nhanh, hộ chiếu con dấu */
+.cp-pb__tools { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+.cp-pb__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cp-pb__place h2 { margin-top: 0; font-size: 1.05rem; }
+.cp-pb__place h2 small { color: var(--cp-muted); font-weight: 500; margin-left: 6px; }
+.cp-pb__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cp-pb__phrase {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: 10px;
+  background: var(--cp-surface-soft);
+  color: var(--cp-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.cp-pb__phrase:hover, .cp-pb__phrase:focus-visible { border-color: var(--cp-primary); }
+.cp-pb__icon { color: var(--cp-primary); padding-top: 3px; }
+.cp-pb__body { display: grid; gap: 2px; }
+.cp-pb__ja { font-size: 1.1rem; font-weight: 600; }
+.cp-pb__vi { font-size: .92rem; }
+.cp-pb__note { font-size: .82rem; color: var(--cp-muted); }
+.cp-game { display: grid; gap: 12px; }
+.cp-game__bar { display: flex; justify-content: space-between; gap: 10px; font-size: .95rem; }
+.cp-game__time { font-weight: 700; color: var(--cp-primary); }
+.cp-game__fb { margin: 0; padding: 8px 12px; border-radius: 10px; font-size: .9rem; }
+.cp-game__fb.is-ok { background: var(--jp-c-mint-100); border: 1px solid var(--jp-c-mint-500); color: var(--jp-c-slate-900); }
+.cp-game__fb.is-wrong { background: var(--jp-c-coral-100); border: 1px solid var(--jp-c-coral-500); color: var(--jp-c-slate-900); }
+.cp-game__record { font-weight: 700; color: var(--cp-primary); }
+.cp-game__start { display: grid; gap: 10px; justify-items: start; }
+.cp-trip { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--cp-line); border-radius: 12px; display: grid; gap: 10px; }
+.cp-trip__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.cp-trip__title { margin: 0; font-size: 1rem; }
+.cp-trip__count { font-size: .85rem; color: var(--cp-muted); }
+.cp-trip__stamps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.cp-trip__stamp { display: grid; justify-items: center; gap: 2px; text-align: center; font-size: .8rem; color: var(--cp-muted); }
+.cp-trip__seal {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px dashed var(--cp-line);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.cp-trip__stamp.is-stamped { color: var(--cp-ink); }
+.cp-trip__stamp.is-stamped .cp-trip__seal { border: 3px double var(--jp-c-coral-500); color: var(--jp-c-coral-500); transform: rotate(-8deg); }
+.cp-trip__name { font-weight: 600; color: inherit; }
+.cp-trip__links { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-survey__kana { margin-top: 14px; border: 1px solid var(--cp-line); border-radius: 12px; padding: 10px 14px; }
+.cp-survey__kana legend { font-weight: 600; padding: 0 4px; }
+.cp-survey__kana-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.cp-survey__kana-tip { margin: 8px 0 0; font-size: .9rem; }
+.cp-settings__depths { display: grid; gap: 8px; }
+.cp-settings__depth { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--cp-line); border-radius: 10px; cursor: pointer; }
+.cp-settings__depth.is-on { border-color: var(--cp-primary); background: var(--cp-primary-soft); color: var(--cp-primary-ink); }
+.cp-settings__depth span { display: grid; gap: 2px; }
+.cp-settings__depth small { color: var(--cp-muted); }
+.cp-settings__depth.is-on small { color: inherit; }
