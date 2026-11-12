@@ -7,34 +7,34 @@
 <main id="jlabBaseContent" class="ar-page ar-setup">
     <div class="ar-shell">
         <nav class="ar-crumbs" aria-label="Đường dẫn">
-            <a th:href="@{/games}">Trò chơi</a><span aria-hidden="true">/</span><span aria-current="page">Thiết lập trận</span>
+            <a th:href="@{/games}">Trò chơi</a><span aria-hidden="true">/</span><span aria-current="page" data-crumb-game>Thiết lập trận</span>
         </nav>
 
         <header class="ar-setup-head">
-            <h1 data-setup-title>Ghép trận nhanh</h1>
+            <h1 data-setup-title>Thiết lập trận</h1>
         </header>
         <p class="ar-error-text" data-setup-error role="alert" hidden></p>
 
+        <!-- The game is chosen on /games; here only the mode, then the deck. -->
         <div class="ar-setup-flow">
-            <section class="ar-step ar-card" aria-labelledby="ar-step-mode" data-step-mode hidden>
-                <h2 id="ar-step-mode" tabindex="-1"><span class="ar-step__no">1</span> Chọn chế độ</h2>
-                <div data-mobile-mode></div>
-            </section>
             <div class="ar-setup-top">
-                <section class="ar-step ar-card" aria-labelledby="ar-step-game" data-step-game>
-                    <h2 id="ar-step-game" tabindex="-1"><span class="ar-step__no">1</span> Chọn game</h2>
-                    <div class="ar-seg ar-mode-seg" role="radiogroup" aria-label="Chế độ chơi" data-mode-seg>
+                <section class="ar-step ar-card ar-step--mode" aria-labelledby="ar-step-mode" data-step-mode>
+                    <h2 id="ar-step-mode" tabindex="-1"><span class="ar-step__no">1</span> Chọn chế độ</h2>
+                    <div class="ar-setup-game" data-setup-game></div>
+                    <div class="ar-mode-list" role="radiogroup" aria-labelledby="ar-step-mode" data-mode-seg>
                         <button type="button" role="radio" aria-checked="true" data-value="QUICK">
-                            <i class="fa-solid fa-bolt" aria-hidden="true"></i> Ghép trận nhanh
+                            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                            <span><strong>Ghép trận nhanh</strong><small>Đấu với người đang tìm trận cùng bộ thẻ.</small></span>
                         </button>
                         <button type="button" role="radio" aria-checked="false" data-value="VERSUS">
-                            <i class="fa-solid fa-user-group" aria-hidden="true"></i> Phòng với bạn bè
+                            <i class="fa-solid fa-user-group" aria-hidden="true"></i>
+                            <span><strong>Phòng với bạn bè</strong><small>Tạo phòng rồi gửi mã 6 số cho bạn bè.</small></span>
                         </button>
                         <button type="button" role="radio" aria-checked="false" data-value="SOLO">
-                            <i class="fa-solid fa-user" aria-hidden="true"></i> Luyện tập một mình
+                            <i class="fa-solid fa-user" aria-hidden="true"></i>
+                            <span><strong>Luyện tập một mình</strong><small>Chơi thử, tự chọn phần hỏi và phần đáp.</small></span>
                         </button>
                     </div>
-                    <div class="ar-game-picker" role="radiogroup" aria-labelledby="ar-step-game" data-game-picker></div>
                 </section>
 
                 <section class="ar-step ar-card ar-step--deck" aria-labelledby="ar-step-deck" data-step-deck>
@@ -67,9 +67,9 @@
 </main>
 
 <script th:src="@{/arena/js/arena-client.js(v='20261109-kotsu')}"></script>
-<script th:src="@{/arena/js/arena-setup-kit.js?v=20261110-word-count}"></script>
+<script th:src="@{/arena/js/arena-setup-kit.js?v=20261111-select}"></script>
 <script th:src="@{/arena/js/game-previews.js}"></script>
-<script th:src="@{/arena/js/lobby-page.js(v='20261109-coin-toss')}"></script>
+<script th:src="@{/arena/js/lobby-page.js(v='20261111-two-steps')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>
