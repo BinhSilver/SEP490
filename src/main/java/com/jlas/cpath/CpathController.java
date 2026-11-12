@@ -125,6 +125,20 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.step(user.userId(), id, step, body)));
     }
 
+    /** F64: "Tôi biết tình huống này" — questions without answers. */
+    @GetMapping("/situations/{id}/known-check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> knownCheck(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.knownCheck(user.userId(), id)));
+    }
+
+    /** F64: answers of the known-check; >= 90% counts the situation as learned. */
+    @PostMapping("/situations/{id}/known-check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitKnownCheck(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id, @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.submitKnownCheck(user.userId(), id, body)));
+    }
+
     @PostMapping(value = "/speak", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Map<String, Object>>> speak(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam("text") String text, @RequestPart("audio") MultipartFile audio,

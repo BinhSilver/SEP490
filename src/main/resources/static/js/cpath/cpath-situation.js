@@ -732,6 +732,59 @@
       + '</div>';
   }
 
+  /** F64: offered while no step of the situation is done yet. */
+  function canKnow(sit, state) {
+    var st = (sit && sit.steps) || {};
+    if (state && state.showDoneScreen) return false;
+    return !Object.keys(st).some(function (k) { return st[k]; });
+  }
+
+  /**
+   * F64/F69 (owner 11/11): "Tôi biết tình huống này" — a short meaning check (>= 90%) instead of the 4 steps.
+   * k = state.known: { open, loading, error, data: { questions, passScore }, answers: {id: index}, result }.
+   */
+  function knownPanelHtml(k) {
+    if (!k || !k.open) return '';
+    var head = '<div class="cp-known__head"><h2>Tôi biết tình huống này</h2>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-known-close>Đóng</button></div>';
+    if (k.loading) return '<section class="cp-known" aria-live="polite">' + head + '<p>Đang tải câu hỏi...</p></section>';
+    if (k.error) return '<section class="cp-known">' + head + '<p class="jp-alert" role="alert">' + esc(k.error) + '</p></section>';
+    var d = k.data || {};
+    var pass = d.passScore || 90;
+    if (k.result) {
+      var r = k.result;
+      var wrong = (r.review || []).filter(function (x) { return !x.correct; });
+      return '<section class="cp-known" aria-live="polite">' + head
+        + (r.passed
+          ? '<p class="cp-known__ok"><strong>Đạt ' + r.score + '%.</strong> Tình huống này được tính là đã học, không cần làm 4 bước.</p>'
+            + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình</a>'
+          : '<p class="cp-known__no"><strong>Đạt ' + r.score + '%</strong> (cần từ ' + pass + '%). Học tình huống như bình thường nhé.</p>'
+            + (wrong.length ? '<ul class="cp-known__wrong">' + wrong.map(function (x) {
+              return '<li><span lang="ja">' + esc(x.ja) + '</span> — ' + esc(x.answer) + '</li>';
+            }).join('') + '</ul>' : '')
+            + '<button type="button" class="cp-btn-primary" data-cp-known-close>Học tình huống</button>')
+        + '</section>';
+    }
+    var qs = d.questions || [];
+    if (!qs.length) return '<section class="cp-known">' + head + '<p>Tình huống này chưa có câu để kiểm tra.</p></section>';
+    var answers = k.answers || {};
+    var answered = qs.filter(function (q) { return answers[q.id] != null; }).length;
+    return '<section class="cp-known">' + head
+      + '<p class="cp-known__sub">' + qs.length + ' câu chọn nghĩa đúng. Đúng từ ' + pass + '% thì tình huống tính là đã học.</p>'
+      + '<ol class="cp-known__list">' + qs.map(function (q) {
+        return '<li class="cp-known__q"><p class="cp-known__ja" lang="ja">' + esc(q.ja)
+          + (q.reading ? ' <small>' + esc(q.reading) + '</small>' : '') + '</p>'
+          + '<div class="cp-known__opts" role="group">' + (q.options || []).map(function (o, i) {
+            var on = answers[q.id] === i;
+            return '<button type="button" class="cp-known__opt' + (on ? ' is-on' : '') + '" aria-pressed="' + (on ? 'true' : 'false')
+              + '" data-cp-known-pick="' + esc(q.id) + '" data-cp-known-idx="' + i + '">' + esc(o) + '</button>';
+          }).join('') + '</div></li>';
+      }).join('') + '</ol>'
+      + '<button type="button" class="cp-btn-primary" data-cp-known-submit' + (answered < qs.length ? ' disabled' : '') + '>Nộp bài ('
+      + answered + '/' + qs.length + ')</button>'
+      + '</section>';
+  }
+
   function situationHtml(sit, state) {
     var s = sit || {};
     var stepsStatus = s.steps || {};
@@ -769,14 +822,17 @@
       + '<h1 class="cp-sit-title">' + esc(s.titleVi || 'Tình huống giao tiếp') + '</h1>'
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:8px;">'
+      + (canKnow(s, state) ? '<button type="button" class="cp-btn-ghost" data-cp-known-open>Tôi biết tình huống này</button>' : '')
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="furigana" aria-pressed="' + (state.display.furigana ? 'true' : 'false') + '">Furigana</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="translation" aria-pressed="' + (state.display.translation ? 'true' : 'false') + '">Bản dịch</button>'
       + (isTravel(s) || state.display.fullRomaji ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
       + '</div>'
       + '</header>'
       + (root && root.CpathAudio ? root.CpathAudio.sliderHtml({ compact: true }) : '')
-      + '<nav class="cp-sit-steps" aria-label="4 bước học tình huống">' + stepTabsHtml + '</nav>'
-      + mainBody
+      + knownPanelHtml(state.known)
+      // F64: while the known-check is open the steps (and their sticky footer) step aside
+      + (state.known && state.known.open ? '' : '<nav class="cp-sit-steps" aria-label="4 bước học tình huống">' + stepTabsHtml + '</nav>'
+        + mainBody)
       + '</div>';
   }
 
@@ -1038,6 +1094,48 @@
       var t = ev.target;
       if (!t || typeof t.closest !== 'function' || !sitData) return;
 
+      if (t.closest('[data-cp-known-open]')) {
+        state.known = { open: true, loading: true, answers: {} };
+        render();
+        root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/known-check').then(function (d) {
+          state.known.loading = false;
+          state.known.data = d || {};
+          render();
+        }).catch(function (error) {
+          state.known.loading = false;
+          state.known.error = (error && error.message) || 'Không mở được bài kiểm tra.';
+          render();
+        });
+        return;
+      }
+      if (t.closest('[data-cp-known-close]')) {
+        state.known = null;
+        render();
+        return;
+      }
+      var knownPick = t.closest('[data-cp-known-pick]');
+      if (knownPick && state.known) {
+        state.known.answers[knownPick.getAttribute('data-cp-known-pick')] = Number(knownPick.getAttribute('data-cp-known-idx'));
+        render();
+        return;
+      }
+      var knownSubmit = t.closest('[data-cp-known-submit]');
+      if (knownSubmit && state.known && !knownSubmit.disabled) {
+        knownSubmit.disabled = true;
+        root.JpathApi.send('POST', '/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/known-check',
+          { answers: state.known.answers }).then(function (r) {
+          state.known.result = r || {};
+          if (r && r.passed) {
+            sitData.steps = { words: true, listen: true, roleplay: true, speak: true };
+          }
+          render();
+        }).catch(function (error) {
+          state.known.error = (error && error.message) || 'Chưa nộp được bài. Thử lại sau.';
+          render();
+        });
+        return;
+      }
+
       var playBtn = t.closest('[data-cp-play-text]');
       if (playBtn) {
         ev.stopPropagation();
@@ -1253,6 +1351,7 @@
 
   return {
     situationHtml: situationHtml,
+    knownPanelHtml: knownPanelHtml,
     toRubyHtml: toRubyHtml,
     buildDeck: buildDeck,
     meaningItems: meaningItems,

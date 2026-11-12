@@ -1947,3 +1947,17 @@ button.jp-sidenav__link {
 .cp-page .cp-kana-tip{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0;padding:12px 14px;border:1px dashed var(--color-primary,#7c3aed);border-radius:14px;background:color-mix(in srgb,var(--color-primary,#7c3aed) 6%,transparent)}
 .cp-page .cp-kana-tip p{flex:1 1 260px;margin:0;font-size:14px;line-height:1.5}
 .cp-page .cp-kana-tip__actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* [JLAS-W0108] F64: "Tôi biết tình huống này" check on the situation page */
+.cp-page .cp-known{margin:12px 0 16px;padding:16px;border:1px solid var(--color-outline-variant,#ddd6e8);border-radius:16px;background:var(--color-surface-lowest,#fff)}
+.cp-page .cp-known__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.cp-page .cp-known__head h2{margin:0;font-size:18px}
+.cp-page .cp-known__sub{margin:0 0 12px;color:var(--color-on-surface-variant,#5b5670);font-size:14px}
+.cp-page .cp-known__list{display:grid;gap:14px;margin:0 0 16px;padding-left:22px}
+.cp-page .cp-known__ja{margin:0 0 6px;font-size:17px;font-weight:600}
+.cp-page .cp-known__ja small{font-weight:400;color:var(--color-on-surface-variant,#5b5670)}
+.cp-page .cp-known__opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.cp-page .cp-known__opt{padding:9px 12px;border:1px solid var(--color-outline-variant,#ddd6e8);border-radius:12px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.cp-page .cp-known__opt.is-on{border-color:var(--color-primary,#7c3aed);background:color-mix(in srgb,var(--color-primary,#7c3aed) 10%,transparent);font-weight:600}
+.cp-page .cp-known__wrong{margin:8px 0 14px;padding-left:20px;font-size:14px}
+.cp-page .cp-known [data-cp-known-submit][disabled]{opacity:.55;cursor:not-allowed}

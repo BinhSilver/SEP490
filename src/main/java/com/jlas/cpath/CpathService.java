@@ -919,6 +919,144 @@ public class CpathService {
         return out;
     }
 
+    // ----------------------------------------------------------------------------- F64 "Tôi biết tình huống này"
+
+    static final int KNOWN_PASS = 90;
+
+    /**
+     * F64/F69 (owner 11/11): "Tôi biết tình huống này" — up to 10 meaning questions on the situation's learner lines,
+     * phrases and topic words; >= 90% counts the situation as learned instead of studying it (no situation CP).
+     * Same gates as starting the situation; the questions are rebuilt from a seed of user + situation + day.
+     */
+    private List<WeeklyQ> knownQuestions(Long userId, Map<String, Object> path, String code) {
+        List<Map<String, Object>> sit = db.queryForList("SELECT topic_code FROM cpath_situation WHERE code = ?", code);
+        if (sit.isEmpty()) return List.of();
+        String topic = (String) sit.get(0).get("topic_code");
+        java.util.Random rnd = new java.util.Random(userId * 31 + code.hashCode() * 17L + clock.today(userId).toEpochDay());
+        List<Map<String, Object>> lines = new ArrayList<>(db.queryForList("SELECT CONCAT(situation_code, '-L', line_order) id, ja, NULL reading, vi, audio_path "
+                + "FROM cpath_line WHERE learner = 1 AND vi IS NOT NULL AND situation_code = ?", code));
+        List<Map<String, Object>> phrases = new ArrayList<>(db.queryForList("SELECT code id, ja, reading, vi, audio_path FROM cpath_item "
+                + "WHERE vi IS NOT NULL AND situation_code = ?", code));
+        List<Map<String, Object>> words = new ArrayList<>(db.queryForList("SELECT code id, ja, reading, vi, audio_path FROM cpath_item "
+                + "WHERE vi IS NOT NULL AND kind = 'WORD' AND topic_code = ?", topic));
+        java.util.Collections.shuffle(lines, rnd);
+        java.util.Collections.shuffle(phrases, rnd);
+        java.util.Collections.shuffle(words, rnd);
+        List<Map<String, Object>> asked = new ArrayList<>(lines.subList(0, Math.min(3, lines.size())));
+        for (Map<String, Object> m : phrases) { if (asked.size() >= 6) break; asked.add(m); }
+        for (Map<String, Object> m : words) { if (asked.size() >= WEEKLY_MAX) break; asked.add(m); }
+        // distractors of the same kind, so the answer never stands out: a sentence among sentences, a word among words
+        List<String> wordVi = new ArrayList<>();
+        for (Map<String, Object> m : words) wordVi.add(String.valueOf(m.get("vi")));
+        List<String> phraseVi = db.queryForList("SELECT i.vi FROM cpath_item i WHERE i.vi IS NOT NULL AND i.kind = 'PHRASE' AND i.topic_code = ?",
+                String.class, topic);
+        Set<Object> lineIds = new java.util.HashSet<>();
+        for (Map<String, Object> m : lines) lineIds.add(m.get("id"));
+        Set<Object> phraseIds = new java.util.HashSet<>();
+        for (Map<String, Object> m : phrases) phraseIds.add(m.get("id"));
+        List<String> lineVi = lines.isEmpty() && phrases.isEmpty() ? List.of() : db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
+                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
+        List<WeeklyQ> out = new ArrayList<>();
+        for (Map<String, Object> m : asked) {
+            String right = String.valueOf(m.get("vi"));
+            List<String> opts = new ArrayList<>();
+            opts.add(right);
+            List<String> pool = new ArrayList<>();
+            if (lineIds.contains(m.get("id")) || phraseIds.contains(m.get("id"))) {
+                pool.addAll(phraseVi);
+                pool.addAll(lineVi);
+            } else {
+                pool.addAll(wordVi);
+            }
+            List<String> others = new ArrayList<>(new LinkedHashSet<>(pool));
+            java.util.Collections.shuffle(others, rnd);
+            for (String o : others) {
+                if (opts.size() >= 4) break;
+                if (!o.equalsIgnoreCase(right) && opts.stream().noneMatch(x -> x.equalsIgnoreCase(o))) opts.add(o);
+            }
+            if (opts.size() < 2) continue;
+            java.util.Collections.shuffle(opts, rnd);
+            out.add(new WeeklyQ(String.valueOf(m.get("id")), String.valueOf(m.get("ja")),
+                    m.get("reading") == null ? null : String.valueOf(m.get("reading")), url((String) m.get("audio_path")),
+                    opts, opts.indexOf(right)));
+        }
+        return out;
+    }
+
+    /** The path a known-check runs on: the learner's own goal, through the same gates as starting the situation. */
+    private Map<String, Object> knownPath(Long userId, String code) {
+        Long pathId = ownPathIdForSituation(userId, code);
+        if (pathId == null) {
+            throw new ApiException(ErrorCode.NOT_FOUND, mainPathId(userId) == null ? "Bạn chưa có lộ trình giao tiếp."
+                    : "Tình huống này không thuộc lộ trình Giao tiếp bạn đang học.");
+        }
+        Map<String, Object> owner = db.queryForMap("SELECT * FROM cpath_user_path WHERE id = ?", pathId);
+        if (!progressOf(pathId).containsKey(code) && "MAIN".equals(owner.get("role"))) requireAheadAllowed(userId, owner);
+        return owner;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> knownCheck(Long userId, String code) {
+        Map<String, Object> path = knownPath(userId, code);
+        Map<String, Object> pr = progressOf(((Number) path.get("id")).longValue()).get(code);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("situation", code);
+        m.put("passScore", KNOWN_PASS);
+        m.put("alreadyDone", done(pr));
+        m.put("display", displayOf(path));
+        m.put("questions", done(pr) ? List.of() : knownQuestions(userId, path, code).stream().map(q -> {
+            Map<String, Object> x = new LinkedHashMap<>();
+            x.put("id", q.id());
+            x.put("ja", q.ja());
+            x.put("reading", q.reading());
+            x.put("audioUrl", q.audio());
+            x.put("options", q.options());
+            return x;
+        }).toList());
+        return m;
+    }
+
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> submitKnownCheck(Long userId, String code, Map<String, Object> body) {
+        Map<String, Object> path = knownPath(userId, code);
+        Long pathId = ((Number) path.get("id")).longValue();
+        if (done(progressOf(pathId).get(code))) throw new ApiException(ErrorCode.CONFLICT, "Tình huống này đã học xong.");
+        List<WeeklyQ> qs = knownQuestions(userId, path, code);
+        if (qs.isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tình huống này chưa có câu để kiểm tra.");
+        Map<String, Object> answers = body != null && body.get("answers") instanceof Map<?, ?> a ? (Map<String, Object>) a : Map.of();
+        int correct = 0;
+        List<Map<String, Object>> review = new ArrayList<>();
+        for (WeeklyQ q : qs) {
+            Object given = answers.get(q.id());
+            boolean ok = given != null && num(given) == q.answer();
+            if (ok) correct++;
+            Map<String, Object> r = new LinkedHashMap<>();
+            r.put("id", q.id());
+            r.put("ja", q.ja());
+            r.put("correct", ok);
+            r.put("answer", q.options().get(q.answer()));
+            review.add(r);
+        }
+        int score = Math.round(100f * correct / qs.size());
+        boolean pass = score >= KNOWN_PASS;
+        if (pass) {
+            // counted as learned: every step ticked, no situation CP (the CP is for studying it)
+            db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
+            db.update("UPDATE cpath_user_situation SET steps_done = ?, done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?",
+                    String.join(",", STEPS), pathId, code);
+            updateTopic(pathId, code);
+        }
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("score", score);
+        m.put("correct", correct);
+        m.put("total", qs.size());
+        m.put("passed", pass);
+        m.put("passScore", KNOWN_PASS);
+        m.put("review", review);
+        return m;
+    }
+
     // ------------------------------------------------------------------------------------------- daily review
 
     /** Days after a situation's first completion on which its words and phrases come back (spaced review). */
