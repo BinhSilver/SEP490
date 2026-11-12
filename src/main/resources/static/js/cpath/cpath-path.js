@@ -243,7 +243,7 @@
     var offset = Math.round(c * (1 - Math.max(0, Math.min(100, pct)) / 100) * 10) / 10;
     return '<div class="jp-parts__banner-ring-wrap">'
       + '<div class="jp-parts__banner-ring" aria-hidden="true">'
-      + '<svg viewBox="0 0 52 52" width="52" height="52">'
+      + '<svg viewBox="0 0 52 52" width="46" height="46">'
       + '<circle class="jp-parts__banner-ring-bg" cx="26" cy="26" r="' + r + '" fill="none" stroke-width="5"/>'
       + '<circle class="jp-parts__banner-ring-fg" cx="26" cy="26" r="' + r + '" fill="none" stroke-width="5"'
       + ' stroke-dasharray="' + c + '" stroke-dashoffset="' + offset + '" stroke-linecap="round"/>'

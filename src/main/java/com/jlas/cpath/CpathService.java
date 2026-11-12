@@ -254,7 +254,9 @@ public class CpathService {
             if (depth < 3) {
                 Map<String, Integer> ranks = CpathCoreService.situationRanks(out);
                 Set<String> started = path.get("id") == null ? Set.of() : new java.util.HashSet<>(db.queryForList(
-                        "SELECT situation_code FROM cpath_user_situation WHERE path_id = ?", String.class, ((Number) path.get("id")).longValue()));
+                        // F84: only a situation with a step learned counts as started, not one merely put on a day
+                        "SELECT situation_code FROM cpath_user_situation WHERE path_id = ? "
+                                + "AND (done_at IS NOT NULL OR COALESCE(steps_done, '') <> '')", String.class, ((Number) path.get("id")).longValue()));
                 out.removeIf(r -> ranks.getOrDefault(String.valueOf(r.get("code")), 1) > depth && !started.contains(r.get("code")));
             }
         }
