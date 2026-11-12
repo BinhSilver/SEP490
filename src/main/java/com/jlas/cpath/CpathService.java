@@ -799,8 +799,9 @@ public class CpathService {
         long finished = rows.stream().filter(r -> r.get("done_at") != null
                 && day.equals(dateOf(r.get("done_at")))).count();
         boolean dayDone = !rows.isEmpty() && rows.stream().allMatch(r -> r.get("done_at") != null);
+        // F68: the goal tells the day page how step 1 is called (Du lịch: "Nghe & chọn nghĩa")
         return Map.of("day", day.toString(), "today", clock.today(userId).toString(), "situations", situations, "scores", scores,
-                "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0));
+                "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0), "goal", String.valueOf(p.get("goal_code")));
     }
 
     private static Map<String, Object> scoreRow(String labelVi, int score, String noteVi) {

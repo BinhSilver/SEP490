@@ -161,7 +161,7 @@
         + '<span class="jp-today__pill-count">' + esc(s.topicNameVi || s.topicCode || '') + (s.score != null ? (' · ' + s.score + ' điểm') : '') + '</span>'
         + '</div>'
         + '<div class="cp-survey__sub">'
-        + 'Từ & mẫu câu: <strong>' + (st.words ? 'Xong' : 'Chưa') + '</strong> · '
+        + (data && data.goal === 'TRAVEL' ? 'Nghe & chọn nghĩa' : 'Từ & mẫu câu') + ': <strong>' + (st.words ? 'Xong' : 'Chưa') + '</strong> · '
         + 'Nghe: <strong>' + (st.listen ? 'Xong' : 'Chưa') + '</strong> · '
         + 'Nhập vai: <strong>' + (st.roleplay ? 'Xong' : 'Chưa') + '</strong> · '
         + 'Nói: <strong>' + (st.speak ? 'Xong' : 'Chưa') + '</strong>'

@@ -352,6 +352,9 @@
       + '</section>';
   }
 
+  // F68: the goal of the map being drawn (Du lịch shows its listen-and-speak step 1 in the node bubble)
+  var mapGoal = null;
+
   /* 2. Bong bóng gắn nút (.jp-parts__popover) */
   function nodePopoverHtml(item, pos) {
     var sideCls = pos === 'right' ? 'jp-parts__popover--side-left' : 'jp-parts__popover--side-right';
@@ -369,7 +372,9 @@
 
     if (item.type === 'SITUATION') {
       stepsSummary = '<ul class="jp-parts__pills-grid">'
-        + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 1</span><strong class="jp-parts__pill-ja">Từ & mẫu câu</strong><span class="jp-parts__pill-mean">Thẻ lật + phát âm</span></li>'
+        + (mapGoal === 'TRAVEL'
+          ? '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 1</span><strong class="jp-parts__pill-ja">Nghe & chọn nghĩa</strong><span class="jp-parts__pill-mean">Nghe câu, chọn nghĩa đúng</span></li>'
+          : '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 1</span><strong class="jp-parts__pill-ja">Từ & mẫu câu</strong><span class="jp-parts__pill-mean">Thẻ lật + phát âm</span></li>')
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 2</span><strong class="jp-parts__pill-ja">Nghe hội thoại</strong><span class="jp-parts__pill-mean">Nghe từng câu thoại</span></li>'
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 3</span><strong class="jp-parts__pill-ja">Nhập vai</strong><span class="jp-parts__pill-mean">Chọn câu của リン</span></li>'
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 4</span><strong class="jp-parts__pill-ja">Luyện nói</strong><span class="jp-parts__pill-mean">Chấm phát âm từng câu</span></li>'
@@ -550,6 +555,7 @@
     var currentWeek = (Number(m.currentWeek) || 0) + 1;
     var focusedWeek = state.focusedWeek || currentWeek;
 
+    mapGoal = p.goal || null;
     var sceneKey = p.goal === 'DAILY_LIFE' ? 'grammar' : (p.goal === 'WORK' ? 'kanji' : 'vocab');
 
     var bannerHtml = '<header class="jp-parts__banner jp-parts__bar jp-parts__banner--' + sceneKey + '" aria-label="Biểu ngữ lộ trình giao tiếp">'
