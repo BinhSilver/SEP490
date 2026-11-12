@@ -399,8 +399,8 @@
       + '</div>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + '>‹ Thẻ trước</button>'
-      + '<button type="button" class="cp-btn-ghost" data-cp-flip-btn>' + (flipped ? 'Xem mặt trước (Space)' : 'Lật xem nghĩa (Space)') + '</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + ' aria-label="Thẻ trước">‹<span class="cp-wide-only"> Thẻ trước</span></button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-flip-btn>' + (flipped ? 'Xem mặt trước' : 'Lật xem nghĩa') + '<span class="cp-wide-only"> (Space)</span>' + '</button>'
       + (idx + 1 < deck.length
         ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp ›</button>'
         : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS">Hoàn thành Bước 1 · Sang Nghe hội thoại ›</button>')

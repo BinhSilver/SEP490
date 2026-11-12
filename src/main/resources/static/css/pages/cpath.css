@@ -1902,3 +1902,44 @@ button.jp-sidenav__link {
 /* [JLAS-W0108] F83: Kitsu peeks 20px past the "Hôm nay" ring; leave that room so it never covers the title */
 .cp-page .jp-path .jp-today__top, .cp-page .jp-today__top { column-gap: 34px !important; }
 @media (max-width: 560px) { .cp-page .jp-today__cal-kitsu { right: -14px; width: 48px; height: 48px; } }
+
+/* [JLAS-W0108] F85: phone and tablet. The app's bottom bar shows up to 900px, so the step footer sits on top of it;
+   on a phone the footer is one compact row, the long labels drop their keyboard hint. */
+@media (max-width: 900px) {
+  .cp-page .cp-sit-foot { bottom: var(--jlab-mobile-bottom, 0px); }
+}
+@media (max-width: 640px) {
+  .cp-wide-only { display: none; }
+  .cp-page .cp-sit-foot { flex-wrap: nowrap; gap: 8px; padding: 8px 10px; }
+  .cp-page .cp-sit-foot > * { flex: 1 1 0; min-width: 0; padding: 10px 8px; font-size: .86rem; line-height: 1.25; white-space: normal; text-align: center; }
+  .cp-page .cp-sit-foot > [data-cp-card-prev] { flex: 0 0 44px; }
+  .cp-sit-topbar .cp-btn-ghost { white-space: nowrap; padding: 8px 12px; }
+  .jp-crumbs__list { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+  .jp-crumbs__list::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 900px) {
+  /* the report button never sits on the step footer: room for it at the footer's end on a tablet */
+  .cp-page .cp-sit-foot { padding-right: 72px; }
+}
+@media (max-width: 640px) {
+  /* on a phone the footer needs its full width, so the report button moves under the header */
+  .cp-page .cp-sit-foot { padding-right: 10px; }
+  body:has(.cp-sit-foot) .jp-report-fab { top: 76px; bottom: auto; right: 10px; width: 40px; height: 40px; }
+  body:has(.cp-sit-foot) .jp-crumbs { padding-right: 48px; }
+}
+@media (max-width: 640px) {
+  /* the card is the lesson: keep what sits above it short */
+  .cp-page .cp-speed--compact { row-gap: 2px; padding: 8px 12px; }
+  .cp-page .cp-speed--compact .cp-speed__head { flex-direction: row; align-items: baseline; gap: 8px; }
+  .cp-page .cp-speed--compact .cp-speed__hint { font-size: .78rem; }
+  .cp-page .cp-sit-steps { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 6px; }
+  .cp-page .cp-sit-steps::-webkit-scrollbar { display: none; }
+  .cp-page .cp-sit-steps .cp-step-tab { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
+}
+/* F85: a title and its small note never run together; the note drops under the title when the row is narrow */
+.cp-page .jp-today__pill-head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 2px; }
+@media (max-width: 640px) {
+  .cp-page .jp-today__pill-head .jp-today__pill-count { flex-basis: 100%; }
+  .cp-page .jp-todo__item { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; }
+  .cp-page .jp-todo__item > button:last-child { grid-column: auto; justify-self: end; }
+}
