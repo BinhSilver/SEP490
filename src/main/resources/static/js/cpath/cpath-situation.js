@@ -87,6 +87,11 @@
   }
 
   function speakJapanese(text, audioUrl, onEnd) {
+    // F70/F79: every clip plays at the learner's listening speed (CpathAudio), the browser voice too
+    if (root && root.CpathAudio && typeof root.CpathAudio.play === 'function') {
+      root.CpathAudio.play(audioUrl, text, onEnd);
+      return;
+    }
     if (audioUrl && root && root.JpathDisplay && typeof root.JpathDisplay.playAudio === 'function') {
       root.JpathDisplay.playAudio(audioUrl).then(function (ok) {
         if (!ok) fallbackTts(text, onEnd);
@@ -766,10 +771,11 @@
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="furigana" aria-pressed="' + (state.display.furigana ? 'true' : 'false') + '">Furigana</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="translation" aria-pressed="' + (state.display.translation ? 'true' : 'false') + '">Bản dịch</button>'
-      + (isTravel(s) ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
+      + (isTravel(s) || state.display.fullRomaji ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
       + '<a class="cp-btn-ghost" href="' + esc(pageUrl('path')) + '">Về lộ trình</a>'
       + '</div>'
       + '</header>'
+      + (root && root.CpathAudio ? root.CpathAudio.sliderHtml({ compact: true }) : '')
       + '<nav class="cp-sit-steps" aria-label="4 bước học tình huống">' + stepTabsHtml + '</nav>'
       + mainBody
       + '</div>';
@@ -1216,6 +1222,8 @@
       });
     }
 
+    if (root.CpathAudio) root.CpathAudio.bind(el, root.CpathAudio.saveToServer);
+
     function load() {
       root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
         if (!data) throw new Error('Không có dữ liệu tình huống.');
@@ -1223,7 +1231,8 @@
         // F61: open with the display saved in Cài đặt (the buttons on the page still flip it for this visit)
         if (data.display) {
           state.display = { furigana: data.display.furigana !== false, romaji: data.display.romaji === true,
-            translation: data.display.translation !== false };
+            translation: data.display.translation !== false, fullRomaji: data.display.fullRomaji === true };
+          if (root.CpathAudio) root.CpathAudio.fromDisplay(data.display);
         }
         var lnL = (data.lines || []).filter(function (ln) { return ln && ln.learner === true; })[0];
         learnerName = lnL && lnL.speaker ? lnL.speaker : 'リン';

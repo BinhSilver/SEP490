@@ -48,7 +48,10 @@
     el.addEventListener('click', function (ev) {
       var b = ev.target && ev.target.closest && ev.target.closest('[data-note-play]');
       if (b && root.Audio) {
-        try { new root.Audio(b.getAttribute('data-note-play')).play(); } catch (e) { /* no audio */ }
+        try {
+          if (root.CpathAudio) root.CpathAudio.play(b.getAttribute('data-note-play'), '');
+          else new root.Audio(b.getAttribute('data-note-play')).play();
+        } catch (e) { /* no audio */ }
       }
       var retry = ev.target && ev.target.closest && ev.target.closest('[data-note-retry]');
       if (retry) load();
@@ -57,6 +60,7 @@
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
       return Promise.resolve(client.get('/api/learning/comm/notebook')).then(function (d) {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        if (root.CpathAudio && d) root.CpathAudio.fromDisplay(d.display); // F70: listening speed
         el.innerHTML = listHtml(d);
       }, function (e) {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');

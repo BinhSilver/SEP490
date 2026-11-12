@@ -126,7 +126,10 @@
     function play() {
       var q = state.data.questions[state.i];
       if (q && q.audioUrl && root.Audio) {
-        try { new root.Audio(q.audioUrl).play(); } catch (e) { /* no audio */ }
+        try {
+          if (root.CpathAudio) root.CpathAudio.play(q.audioUrl, q.ja || q.reading || '');
+          else new root.Audio(q.audioUrl).play();
+        } catch (e) { /* no audio */ }
       }
     }
     function show() {
@@ -174,6 +177,7 @@
     function load() {
       return Promise.resolve(client.get(BASE)).then(function (d) {
         state.data = d || {};
+        if (root.CpathAudio) root.CpathAudio.fromDisplay(state.data.display); // F70: listening speed
         state.i = 0;
         state.answers = {};
         state.speechOnly = false;
@@ -324,7 +328,8 @@
       var q = state.questions[state.index];
       if (!q) return;
       if (target.closest('[data-rp-play]')) {
-        if (q.promptAudioUrl && root.Audio) new root.Audio(q.promptAudioUrl).play();
+        if (q.promptAudioUrl && root.CpathAudio) root.CpathAudio.play(q.promptAudioUrl, q.ja || '');
+        else if (q.promptAudioUrl && root.Audio) new root.Audio(q.promptAudioUrl).play();
         return;
       }
       var pick = target.closest('[data-rp-pick]');
