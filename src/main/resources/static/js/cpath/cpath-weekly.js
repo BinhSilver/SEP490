@@ -180,7 +180,7 @@
         state.answers = {};
         state.speechOnly = false;
         if (!state.data.open) {
-          el.innerHTML = infoHtml('Kiểm tra tuần mở vào ' + ddmm(state.data.testDay) + '.');
+          el.innerHTML = infoHtml('Kiểm tra tuần mở vào ' + ddmm(state.data.testDay) + ', hoặc sớm hơn khi bạn học xong các tình huống của tuần này.');
           return;
         }
         if (!(state.data.questions || []).length) {

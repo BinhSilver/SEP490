@@ -324,7 +324,9 @@
         : '<button type="button" class="jp-btn" data-cp-add-extra>+ Học thêm 1 tình huống</button>';
     }
 
-    var weeklyOpen = !todayObj.weeklyTestDay || (dayIso && String(todayObj.weeklyTestDay).slice(0, 10) <= dayIso);
+    // F44: the server says whether the weekly test is open (test day reached, or this week's share already done)
+    var weeklyOpen = typeof todayObj.weeklyOpen === 'boolean' ? todayObj.weeklyOpen
+      : (!todayObj.weeklyTestDay || (dayIso && String(todayObj.weeklyTestDay).slice(0, 10) <= dayIso));
     var reviewHref = pageUrl('weekly') + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review';
     var actions = '<div class="cp-today__actions">'
       + extra
@@ -332,7 +334,7 @@
       + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
       + (weeklyOpen
         ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
-        : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + '</span>')
+        : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + ' hoặc khi bạn học xong phần của tuần</span>')
       + '</div>';
 
     var lead = situations.length

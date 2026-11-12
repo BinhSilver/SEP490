@@ -387,7 +387,9 @@ public class CpathService {
         todayMap.put("date", learnerToday.toString());
         todayMap.put("restDay", isRest(p, learnerToday));
         todayMap.put("situations", today(userId, p));
-        todayMap.put("weeklyTestDay", weeklyTestDay(userId, p));
+        String testDay = weeklyTestDay(userId, p);
+        todayMap.put("weeklyTestDay", testDay);
+        todayMap.put("weeklyOpen", weeklyOpen(userId, p, learnerToday, testDay)); // F44: the path page shows the same rule
         m.put("today", todayMap);
         Map<String, Object> sec = pathRow(userId, "SECONDARY");
         if (sec == null) {
@@ -1297,6 +1299,12 @@ public class CpathService {
         return Math.max(1, studyDays * ((Number) path.get("daily_situations")).intValue());
     }
 
+    /** F44: the weekly test opens on the test day, or as soon as this week's share is done (learning ahead no longer waits). */
+    private boolean weeklyOpen(Long userId, Map<String, Object> path, LocalDate today, String testDay) {
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        return testDay == null || !today.isBefore(LocalDate.parse(testDay)) || weekShareDone(userId, path, monday);
+    }
+
     /** F44/F63: the learner has started at least this week's share of situations since Monday. */
     private boolean weekShareDone(Long userId, Map<String, Object> path, LocalDate monday) {
         return startedSince(path, monday) >= perWeek(path, monday);
@@ -1320,8 +1328,7 @@ public class CpathService {
         LocalDate today = clock.today(userId);
         LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         String testDay = weeklyTestDay(userId, path);
-        // F44: open on the test day, or as soon as this week's share is done (learning ahead no longer waits)
-        boolean open = testDay == null || !today.isBefore(LocalDate.parse(testDay)) || weekShareDone(userId, path, monday);
+        boolean open = weeklyOpen(userId, path, today, testDay);
         List<WeeklyQ> qs = open ? weeklyQuestions(userId, path, monday) : List.of();
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("weekStart", monday.toString());
