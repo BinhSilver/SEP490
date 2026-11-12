@@ -303,7 +303,20 @@ public class CpathService {
     public Map<String, Object> learnExtra(Long userId) {
         Map<String, Object> path = requirePath(userId);
         Long pathId = ((Number) path.get("id")).longValue();
-        // owner 11/11 (F63): a learner who already did this week's share must pass the weekly test to study ahead
+        requireAheadAllowed(userId, path);
+        Map<String, Map<String, Object>> prog = progressOf(pathId);
+        for (Map<String, Object> s : orderedSituations(path)) {
+            if (!prog.containsKey(s.get("code"))) {
+                db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), clock.today(userId));
+                return Map.of("id", s.get("code"));
+            }
+        }
+        return Map.of();
+    }
+
+    /** Owner 11/11 (F63): the gates for starting a situation that is not planned yet on the main path. */
+    private void requireAheadAllowed(Long userId, Map<String, Object> path) {
+        // a learner who already did this week's share must pass the weekly test to study ahead
         LocalDate monday = clock.today(userId).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         int started = startedSince(path, monday);
         int share = perWeek(path, monday);
@@ -314,14 +327,6 @@ public class CpathService {
         if (started >= 2 * share) {
             throw new ApiException(ErrorCode.CPATH_AHEAD_LIMIT);
         }
-        Map<String, Map<String, Object>> prog = progressOf(pathId);
-        for (Map<String, Object> s : orderedSituations(path)) {
-            if (!prog.containsKey(s.get("code"))) {
-                db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), clock.today(userId));
-                return Map.of("id", s.get("code"));
-            }
-        }
-        return Map.of();
     }
 
     @Transactional
@@ -628,6 +633,12 @@ public class CpathService {
         if (pathId == null) {
             throw new ApiException(ErrorCode.NOT_FOUND, mainPathId(userId) == null ? "Bạn chưa có lộ trình giao tiếp."
                     : "Tình huống này không thuộc lộ trình Giao tiếp bạn đang học.");
+        }
+        if (!progressOf(pathId).containsKey(code)) {
+            // F57 (12/11): a situation not planned yet (a locked week opened by its URL) starts only through the same
+            // gates as "Học trước" on the main path; the secondary goal stays free study
+            Map<String, Object> owner = db.queryForMap("SELECT * FROM cpath_user_path WHERE id = ?", pathId);
+            if ("MAIN".equals(owner.get("role"))) requireAheadAllowed(userId, owner);
         }
         db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
         Map<String, Object> row = progressOf(pathId).get(code);
