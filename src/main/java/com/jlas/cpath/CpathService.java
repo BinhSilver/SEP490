@@ -29,6 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class CpathService {
 
     static final List<String> STEPS = List.of("WORDS", "LISTEN", "ROLEPLAY", "SPEAK");
+    /** F68: how a goal's situation page runs its four steps (TRAVEL = listen and speak only). */
+    static final String FLOW_FULL = "FULL", FLOW_LISTEN_SPEAK = "LISTEN_SPEAK";
+    /** F68: Du lịch weekly test always asks this many spoken lines (weak lines first, then this week's lines). */
+    static final int TRAVEL_WEEKLY_SPEAK = 2;
     static final int ROLEPLAY_PASS = 80;
     static final int SPEAK_PASS = 70;
     static final int GOAL_TEST_PASS = 70;
@@ -513,6 +517,9 @@ public class CpathService {
         m.put("situationVi", s.get("situation_vi"));
         m.put("level", s.get("level"));
         m.put("topic", Map.of("code", s.get("topic_code"), "nameVi", s.get("topic_name")));
+        // F68 (owner 11/11): Du lịch only listens and speaks — step 1 (WORDS) becomes "Nghe câu → chọn nghĩa",
+        // the words and grammar sit behind "Chú thích", the AI call is optional; the step keys stay the same
+        m.put("flow", "TRAVEL".equals(s.get("goal_code")) ? FLOW_LISTEN_SPEAK : FLOW_FULL);
         // F61: the situation page opens with the display the learner saved in Cài đặt (SELECT *: older DBs lack the column)
         Long displayPath = pathIdForSituation(userId, code);
         List<Map<String, Object>> pathRows = displayPath == null ? List.of()
@@ -948,9 +955,24 @@ public class CpathService {
                 + "JOIN cpath_line l ON CONCAT(l.situation_code, '-L', l.line_order) = w.line_id "
                 + "WHERE w.path_id = ? AND w.score < ? "
                 + (thisWeek ? "AND w.updated_at >= ? " : "") + "ORDER BY w.updated_at DESC LIMIT 2";
-        List<Map<String, Object>> rows = thisWeek
+        List<Map<String, Object>> rows = new ArrayList<>(thisWeek
                 ? db.queryForList(sql, path.get("id"), SPEAK_PASS, java.sql.Timestamp.valueOf(monday.atStartOfDay()))
-                : db.queryForList(sql, path.get("id"), SPEAK_PASS);
+                : db.queryForList(sql, path.get("id"), SPEAK_PASS));
+        if (thisWeek && "TRAVEL".equals(path.get("goal_code")) && rows.size() < TRAVEL_WEEKLY_SPEAK) {
+            // F68 (owner 11/11): Du lịch weekly test = listen and pick the meaning + 1–2 lines scored by pronunciation,
+            // so with no weak line yet it asks the learner's lines of the situations studied this week
+            Set<Object> have = new java.util.HashSet<>();
+            for (Map<String, Object> r : rows) have.add(r.get("id"));
+            List<Map<String, Object>> week = db.queryForList("SELECT CONCAT(l.situation_code, '-L', l.line_order) id, l.ja, l.vi, l.audio_path "
+                    + "FROM cpath_user_situation u JOIN cpath_line l ON l.situation_code = u.situation_code AND l.learner = 1 "
+                    + "WHERE u.path_id = ? AND u.steps_done <> '' AND u.study_day BETWEEN ? AND ? "
+                    + "ORDER BY u.study_day DESC, l.situation_code, l.line_order", path.get("id"), monday, clock.today(userId));
+            java.util.Collections.shuffle(week, new java.util.Random(userId * 29 + monday.toEpochDay()));
+            for (Map<String, Object> r : week) {
+                if (rows.size() >= TRAVEL_WEEKLY_SPEAK) break;
+                if (have.add(r.get("id"))) rows.add(r);
+            }
+        }
         List<Map<String, Object>> out = new ArrayList<>();
         for (Map<String, Object> row : rows) {
             Map<String, Object> q = new LinkedHashMap<>();
@@ -1113,10 +1135,12 @@ public class CpathService {
     /** Owner 12/11 (F61): the learner's saved choice wins; with none (or a DB without the column) the level decides. */
     static Map<String, Object> displayOf(Map<String, Object> path) {
         String level = path == null ? null : (String) path.get("self_level");
+        // F68 (owner 11/11): a traveller sees Japanese + translation at every level; romaji only on the button
+        boolean travel = path != null && "TRAVEL".equals(path.get("goal_code"));
         Map<String, Object> d = new LinkedHashMap<>();
-        d.put("furigana", !"INTERMEDIATE".equals(level));
-        d.put("romaji", "BEGINNER".equals(level));
-        d.put("translation", !"INTERMEDIATE".equals(level));
+        d.put("furigana", travel || !"INTERMEDIATE".equals(level));
+        d.put("romaji", !travel && "BEGINNER".equals(level));
+        d.put("translation", travel || !"INTERMEDIATE".equals(level));
         Object raw = path == null ? null : path.get("display_json");
         Map<?, ?> saved = raw == null ? Map.of() : parse(String.valueOf(raw), Map.of());
         for (String k : DISPLAY_KEYS) if (saved.get(k) instanceof Boolean b) d.put(k, b);

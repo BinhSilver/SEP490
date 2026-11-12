@@ -4,6 +4,11 @@
  *   3. ROLEPLAY — Nhập vai chọn câu của リン (1 trong 3 câu, kèm giải thích whyVi)
  *   4. SPEAK    — Luyện nói câu của リン (máy phát lời bên kia, nút ẩn chữ, chấm điểm từng câu, <70 nút Nói lại, nút Bỏ qua)
  * Xong cả 4 bước hiện nút "Nói chuyện tự do với AI" (aiCallUrl) và "Về lộ trình".
+ *
+ * [JLAS-W0108] F68 (chủ dự án 11/11) — Du lịch (sit.flow = 'LISTEN_SPEAK') chỉ nghe và nói:
+ *   bước 1 (khoá WORDS giữ nguyên) = "Nghe & chọn nghĩa": nghe câu/từ của tình huống, chọn nghĩa, chữ Nhật hiện sau khi chọn;
+ *   bước Nghe có nút "Chú thích" xổ ra từ + mẫu câu/ngữ pháp trong hội thoại; mặc định chữ Nhật + dịch, nút Romaji bật/tắt;
+ *   gọi AI theo tình huống là luyện thêm, không bắt buộc.
  */
 (function (root, factory) {
   'use strict';
@@ -155,6 +160,186 @@
     });
   }
 
+  /* ---------------------------------------------------------------- F68: Du lịch */
+  var MEANING_MAX = 8;
+  function isTravel(sit) { return !!(sit && sit.flow === 'LISTEN_SPEAK'); }
+  var TRAVEL_TITLES = { WORDS: 'Nghe & chọn nghĩa' };
+  function stepTitle(key, sit) { return (isTravel(sit) && TRAVEL_TITLES[key]) || STEP_TITLES[key]; }
+
+  // Romaji gần đúng (Hepburn) từ cách đọc: 漢字(かんじ) / {漢字|かんじ} lấy phần đọc, katakana đổi sang hiragana.
+  var KANA = {
+    'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o', 'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+    'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go', 'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+    'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo', 'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+    'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do', 'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
+    'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho', 'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+    'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po', 'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+    'や': 'ya', 'ゆ': 'yu', 'よ': 'yo', 'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro', 'わ': 'wa', 'を': ' o ',
+    'ん': 'n', 'ゔ': 'vu', 'ぁ': 'a', 'ぃ': 'i', 'ぅ': 'u', 'ぇ': 'e', 'ぉ': 'o'
+  };
+  var YOON = { 'ゃ': 'a', 'ゅ': 'u', 'ょ': 'o' };
+  var SMALL_VOWEL = { 'ぁ': 'a', 'ぃ': 'i', 'ぅ': 'u', 'ぇ': 'e', 'ぉ': 'o' };
+  var SMALL_COMBO = { 'ふ': 'f', 'ゔ': 'v', 'う': 'w', 'ち': 'ch', 'じ': 'j', 'し': 'sh', 'て': 't', 'で': 'd', 'と': 't', 'ど': 'd' };
+  var PUNCT = { '。': '. ', '、': ', ', '？': '? ', '！': '! ', '　': ' ', '「': '"', '」': '"', '・': ' ', '～': '~', '…': '...' };
+
+  function readingText(text) {
+    return String(text == null ? '' : text)
+      .replace(/\{([^|{}]+)\|([^{}]+)\}/g, '$2')
+      .replace(/([㐀-鿿々ヶ]+)\(([ぁ-ゖァ-ヺー]+)\)/g, '$2')
+      .replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+  }
+
+  function toRomaji(text) {
+    var t = readingText(text);
+    var out = '';
+    for (var i = 0; i < t.length; i++) {
+      var c = t[i], next = t[i + 1];
+      if (c === 'っ') {
+        var n = next && SMALL_VOWEL[t[i + 2]] && SMALL_COMBO[next] ? SMALL_COMBO[next] : (KANA[next] || '');
+        out += n.indexOf('ch') === 0 ? 't' : (n[0] || '');
+        continue;
+      }
+      if (c === 'ー') { var v = /[aiueo]$/.exec(out); out += v ? v[0] : ''; continue; }
+      if (next && SMALL_VOWEL[next] && SMALL_COMBO[c]) { out += SMALL_COMBO[c] + SMALL_VOWEL[next]; i++; continue; }
+      if (next && YOON[next] && KANA[c]) {
+        var base = KANA[c];
+        out += (/^(shi|chi|ji)$/.test(base) ? base.slice(0, -1) : base.slice(0, -1) + 'y') + YOON[next];
+        i++;
+        continue;
+      }
+      if (KANA[c] != null) out += KANA[c];
+      else if (PUNCT[c] != null) out += PUNCT[c];
+      else out += c;
+    }
+    return out.replace(/\s+/g, ' ').trim();
+  }
+
+  function romajiHtml(text, state) {
+    if (!state || !state.display || !state.display.romaji || !text) return '';
+    return '<div class="cp-line__romaji">' + esc(toRomaji(text)) + '</div>';
+  }
+
+  function inDialogue(sit, ja) {
+    return !!ja && list(sit && sit.lines).some(function (l) { return l && l.ja && String(l.ja).indexOf(String(ja)) >= 0; });
+  }
+
+  /** F68 step 1: the situation's phrases first, then its words heard in the dialogue (other words fill up), at most 8. */
+  function meaningItems(sit) {
+    var phrases = list(sit && sit.phrases).filter(function (p) { return p && p.ja && p.vi; }).map(function (p) {
+      return { id: p.id, kind: 'PHRASE', ja: p.ja, reading: p.reading || '', vi: p.vi, audioUrl: p.audioUrl || '' };
+    });
+    var words = list(sit && sit.words).filter(function (w) { return w && w.word && w.meaningVi; }).map(function (w) {
+      return { id: w.id, kind: 'WORD', ja: w.word, reading: w.reading || '', vi: w.meaningVi, audioUrl: w.audioUrl || '', heard: inDialogue(sit, w.word) };
+    });
+    var heard = words.filter(function (w) { return w.heard; });
+    var rest = words.filter(function (w) { return !w.heard; });
+    return phrases.concat(heard, rest).slice(0, MEANING_MAX);
+  }
+
+  /** Up to 4 meanings: the right one plus others of the same kind (sentences among sentences), in a fixed order. */
+  function meaningOptions(sit, items, idx) {
+    var item = items[idx];
+    var all = list(sit && sit.phrases).map(function (p) { return { kind: 'PHRASE', vi: p.vi }; })
+      .concat(list(sit && sit.words).map(function (w) { return { kind: 'WORD', vi: w.meaningVi }; }));
+    var seen = {};
+    seen[String(item.vi).toLowerCase()] = true;
+    function pick(sameKind) {
+      return all.filter(function (o) {
+        return !!o.vi && !seen[String(o.vi).toLowerCase()] && (!sameKind || o.kind === item.kind);
+      }).map(function (o) { return o.vi; });
+    }
+    var pool = pick(true);
+    if (pool.length < 3) pool = pool.concat(pick(false).filter(function (v) { return pool.indexOf(v) < 0; }));
+    var others = [];
+    var start = pool.length ? (idx * 7) % pool.length : 0;
+    for (var k = 0; k < pool.length && others.length < 3; k++) {
+      var v = pool[(start + k) % pool.length];
+      if (!seen[String(v).toLowerCase()]) { seen[String(v).toLowerCase()] = true; others.push(v); }
+    }
+    var answer = (idx * 3) % (others.length + 1);
+    others.splice(answer, 0, item.vi);
+    return { options: others, answer: answer };
+  }
+
+  /* F68 Bước 1 (Du lịch): nghe câu → chọn nghĩa; chữ Nhật, cách đọc và romaji hiện sau khi chọn */
+  function renderStepMeaning(sit, state) {
+    var items = meaningItems(sit);
+    var nextLabel = 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›';
+    if (!items.length) {
+      return '<div class="cp-sit-stage"><p>Tình huống chưa có câu để nghe và chọn nghĩa. Bạn sang nghe hội thoại nhé.</p></div>'
+        + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS">' + nextLabel + '</button></footer>';
+    }
+    var idx = Math.max(0, Math.min(items.length - 1, state.meaningIdx || 0));
+    var item = items[idx];
+    var q = meaningOptions(sit, items, idx);
+    var picked = state.meaningAnswers[idx];
+    var answered = picked !== undefined && picked !== null;
+    var right = answered && Number(picked) === q.answer;
+    var correct = 0;
+    items.forEach(function (it, i) {
+      var a = state.meaningAnswers[i];
+      if (a !== undefined && a !== null && Number(a) === meaningOptions(sit, items, i).answer) correct++;
+    });
+    var optsHtml = q.options.map(function (vi, k) {
+      var cls = 'cp-option';
+      if (answered) {
+        if (k === q.answer) cls += ' is-correct';
+        else if (k === Number(picked)) cls += ' is-wrong';
+      }
+      return '<button type="button" class="' + cls + '" data-cp-meaning-pick="' + k + '"' + (answered ? ' disabled' : '') + '>'
+        + '<span class="cp-step-tab__num">' + (k + 1) + '</span><div class="cp-line__content"><div class="cp-line__vi">' + esc(vi) + '</div></div></button>';
+    }).join('');
+    var reveal = answered
+      ? '<div class="cp-meaning-reveal' + (right ? ' is-right' : ' is-wrong') + '" role="status">'
+        + '<strong>' + (right ? 'Chính xác!' : 'Chưa đúng — nghĩa đúng ở ô màu xanh.') + '</strong>'
+        + '<div class="cp-line__ja" lang="ja">' + esc(item.ja) + '</div>'
+        + (state.display.furigana && item.reading && item.reading !== item.ja ? '<div class="cp-flashcard__rd" lang="ja">' + esc(item.reading) + '</div>' : '')
+        + romajiHtml(item.reading || item.ja, state)
+        + '<div class="cp-line__vi">' + esc(item.vi) + '</div>'
+        + '</div>'
+      : '<p class="cp-survey__sub">Bấm nghe rồi chọn nghĩa đúng. Chữ Nhật hiện sau khi bạn chọn.</p>';
+    var foot = '<button type="button" class="cp-btn-ghost" data-cp-meaning-prev' + (idx <= 0 ? ' disabled' : '') + '>‹ Câu trước</button>'
+      + (!answered ? '<span class="cp-survey__sub">Chọn một nghĩa để tiếp tục</span>'
+        : (idx + 1 < items.length ? '<button type="button" class="cp-btn-primary" data-cp-meaning-next>Câu tiếp ›</button>'
+          : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS">' + nextLabel + '</button>'));
+    return '<div class="cp-sit-stage cp-sit-stage--meaning">'
+      + '<div class="cp-deck-switch"><strong>' + (item.kind === 'PHRASE' ? 'Mẫu câu' : 'Từ') + ' · ' + (idx + 1) + '/' + items.length + '</strong>'
+      + '<span class="cp-survey__sub">Đúng <strong>' + correct + '</strong>/' + items.length + '</span></div>'
+      + '<button type="button" class="cp-btn-primary cp-meaning-play" data-cp-play-audio="' + esc(item.audioUrl) + '" data-cp-play-text="' + esc(item.ja) + '">'
+      + svgSpeaker() + '<span>' + (answered ? 'Nghe lại' : 'Nghe câu') + '</span></button>'
+      + '<div class="cp-options" role="group" aria-label="Chọn nghĩa của câu vừa nghe">' + optsHtml + '</div>'
+      + reveal
+      + '</div>'
+      + '<footer class="cp-sit-foot">' + foot + '</footer>';
+  }
+
+  /* F68: "Chú thích" của bước Nghe — từ có trong hội thoại + mẫu câu/ngữ pháp kèm ghi chú */
+  function notesHtml(sit, state) {
+    if (!state.notesOpen) return '';
+    var words = list(sit && sit.words).filter(function (w) { return w && inDialogue(sit, w.word); });
+    if (!words.length) words = list(sit && sit.words).slice(0, 12);
+    var phrases = list(sit && sit.phrases);
+    var wordRows = words.map(function (w) {
+      return '<li class="cp-notes__item"><span class="cp-notes__ja" lang="ja">' + esc(w.word) + '</span>'
+        + (w.reading && w.reading !== w.word ? ' <small lang="ja">' + esc(w.reading) + '</small>' : '')
+        + romajiHtml(w.reading || w.word, state)
+        + '<span class="cp-notes__vi">' + esc(w.meaningVi) + '</span>'
+        + '<button type="button" class="cp-audio-btn" data-cp-play-audio="' + esc(w.audioUrl || '') + '" data-cp-play-text="' + esc(w.word) + '" aria-label="Nghe ' + esc(w.word) + '">' + svgSpeaker() + '</button></li>';
+    }).join('');
+    var phraseRows = phrases.map(function (p) {
+      return '<li class="cp-notes__item"><span class="cp-notes__ja" lang="ja">' + esc(p.ja) + '</span>'
+        + romajiHtml(p.reading || p.ja, state)
+        + '<span class="cp-notes__vi">' + esc(p.vi) + '</span>'
+        + (p.note ? '<span class="cp-notes__note">' + esc(p.note) + '</span>' : '')
+        + '<button type="button" class="cp-audio-btn" data-cp-play-audio="' + esc(p.audioUrl || '') + '" data-cp-play-text="' + esc(p.ja) + '" aria-label="Nghe mẫu câu">' + svgSpeaker() + '</button></li>';
+    }).join('');
+    return '<section class="cp-notes" id="cpNotes" aria-label="Chú thích hội thoại">'
+      + (wordRows ? '<h3 class="cp-notes__title">Từ trong hội thoại</h3><ul class="cp-notes__list">' + wordRows + '</ul>' : '')
+      + (phraseRows ? '<h3 class="cp-notes__title">Mẫu câu &amp; ngữ pháp</h3><ul class="cp-notes__list">' + phraseRows + '</ul>' : '')
+      + (!wordRows && !phraseRows ? '<p class="cp-survey__sub">Tình huống này chưa có chú thích.</p>' : '')
+      + '</section>';
+  }
+
   function findLineByOrder(sit, orderNum) {
     var all = list(sit && sit.lines);
     for (var i = 0; i < all.length; i++) {
@@ -233,6 +418,7 @@
         + '<span class="cp-line__speaker">' + (isLearner ? 'Bạn · ' : 'Người đối thoại · ') + esc(ln.speaker) + '</span>'
         + '<div class="cp-line__content">'
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(furiSource, showFuri) + '</div>'
+        + romajiHtml(furiSource, state)
         + '<div class="cp-line__vi">' + esc(ln.vi) + '</div>'
         + '</div>'
         + '<button type="button" class="cp-audio-btn" data-cp-listen-line="' + idx + '" aria-label="Nghe câu ' + (idx + 1) + '">'
@@ -249,11 +435,14 @@
       + svgSpeaker()
       + '<span>' + (state.playingAll ? 'Đang phát lần lượt…' : 'Phát lần lượt cả hội thoại') + '</span>'
       + '</button>'
+      + (isTravel(sit) ? '<button type="button" class="cp-btn-ghost" data-cp-notes-toggle aria-expanded="' + (state.notesOpen ? 'true' : 'false')
+        + '" aria-controls="cpNotes">' + (state.notesOpen ? 'Ẩn chú thích' : 'Chú thích') + '</button>' : '')
       + '</div>'
+      + (isTravel(sit) ? notesHtml(sit, state) : '')
       + '<ol class="' + listCls + '">' + rowsHtml + '</ol>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">‹ Quay lại Từ & mẫu câu</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">‹ Quay lại ' + esc(stepTitle('WORDS', sit)) + '</button>'
       + '<button type="button" class="cp-btn-primary" data-cp-finish-step="LISTEN">Hoàn thành Bước 2 · Sang Nhập vai ›</button>'
       + '</footer>';
   }
@@ -276,6 +465,7 @@
       ? '<div class="cp-roleplay-context">'
         + '<span class="cp-survey__sub">Lời của <strong>' + esc(prevLine.speaker) + '</strong>:</span>'
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(prevLine.furigana || prevLine.ja, state.display.furigana) + '</div>'
+        + romajiHtml(prevLine.furigana || prevLine.ja, state)
         + (state.display.translation ? '<div class="cp-line__vi">' + esc(prevLine.vi) + '</div>' : '')
         + '</div>'
       : '<div class="cp-roleplay-context"><span class="cp-survey__sub">Mở đầu cuộc hội thoại — Đến lượt <strong>' + esc(learnerName) + '</strong> nói câu đầu tiên:</span></div>';
@@ -290,6 +480,7 @@
         + '<span class="cp-step-tab__num">' + (oIdx + 1) + '</span>'
         + '<div class="cp-line__content">'
         + '<div class="cp-line__ja" lang="ja">' + esc(opt.ja) + '</div>'
+        + romajiHtml(opt.ja, state)
         + (isAnswered || sit.selfLevel === 'BEGINNER' ? '<div class="cp-line__vi">' + esc(opt.vi) + '</div>' : '')
         + '</div>'
         + '</button>';
@@ -408,6 +599,7 @@
         + svgSpeaker() + '<span>Phát lời bên kia</span></button>'
         + '</div>'
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(partnerLine.furigana || partnerLine.ja, state.display.furigana) + '</div>'
+        + romajiHtml(partnerLine.furigana || partnerLine.ja, state)
         + '<div class="cp-line__vi">' + esc(partnerLine.vi) + '</div>'
         + '</div>'
       : '';
@@ -488,6 +680,7 @@
       + '<div class="cp-speak-target' + (state.hideSpeakText ? ' is-hidden-text' : '') + '">'
       + '<span class="cp-survey__sub">Câu của <strong>' + esc(learnerName) + '</strong>:</span>'
       + '<div class="cp-line__ja cp-speak-target__ja" lang="ja">' + toRubyHtml(targetLine.furigana || targetLine.ja, state.display.furigana) + '</div>'
+      + romajiHtml(targetLine.furigana || targetLine.ja, state)
       + '<div class="cp-line__vi">' + esc(targetLine.vi) + '</div>'
       + '</div>'
       + '<div class="cp-speak-controls">'
@@ -522,11 +715,12 @@
     return '<div class="cp-sit-stage" style="align-items:center;justify-content:center;text-align:center;">'
       + '<img src="' + esc(kitsuSrc('kitsu-celebrate-30.webp')) + '" width="78" height="78" alt="Kitsu chúc mừng" />'
       + '<h2 class="cp-survey__title">Hoàn thành tình huống: ' + esc(sit.titleVi) + '!</h2>'
-      + '<p class="cp-survey__sub">Bạn đã hoàn thành trọn vẹn 4 bước (Từ & mẫu câu · Nghe · Nhập vai · Nói)'
+      + '<p class="cp-survey__sub">Bạn đã hoàn thành trọn vẹn 4 bước (' + esc(stepTitle('WORDS', sit)) + ' · Nghe · Nhập vai · Nói)'
       + (state.awardedCp ? (' và nhận được <strong>+' + esc(state.awardedCp) + ' CP</strong>') : '') + '.</p>'
       + skippedNote
+      + (aiHref && isTravel(sit) ? '<p class="cp-survey__sub">Gọi AI là luyện thêm, <strong>không bắt buộc</strong>: tình huống đã tính xong.</p>' : '')
       + '<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px;">'
-      + (aiHref ? '<a class="cp-btn-primary" href="' + esc(aiHref) + '">Nói chuyện tự do với AI</a>' : '')
+      + (aiHref ? '<a class="cp-btn-primary" href="' + esc(aiHref) + '">' + (isTravel(sit) ? 'Luyện gọi AI theo tình huống' : 'Nói chuyện tự do với AI') + '</a>' : '')
       + '<a class="cp-btn-ghost" href="/learning/comm/weekly?mode=quick&amp;code=' + encodeURIComponent(sit.id) + '">Luyện nhanh</a>'
       + '<a class="cp-btn-ghost" href="' + esc(pathHref) + '">Về lộ trình</a>'
       + '</div>'
@@ -543,7 +737,7 @@
       var cls = 'cp-step-tab' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '');
       return '<button type="button" class="' + cls + '" data-cp-goto-step="' + key + '">'
         + '<span class="cp-step-tab__num">' + (isDone ? svgCheckSmall() : (idx + 1)) + '</span>'
-        + '<span>' + esc(STEP_TITLES[key]) + '</span>'
+        + '<span>' + esc(stepTitle(key, s)) + '</span>'
         + '</button>';
     }).join('');
 
@@ -551,7 +745,7 @@
     if (state.showDoneScreen) {
       mainBody = renderDoneScreen(s, state);
     } else if (state.activeStep === 'WORDS') {
-      mainBody = renderStepWords(s, state);
+      mainBody = isTravel(s) ? renderStepMeaning(s, state) : renderStepWords(s, state);
     } else if (state.activeStep === 'LISTEN') {
       mainBody = renderStepListen(s, state);
     } else if (state.activeStep === 'ROLEPLAY') {
@@ -572,6 +766,7 @@
       + '<div style="display:flex;align-items:center;gap:8px;">'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="furigana" aria-pressed="' + (state.display.furigana ? 'true' : 'false') + '">Furigana</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="translation" aria-pressed="' + (state.display.translation ? 'true' : 'false') + '">Bản dịch</button>'
+      + (isTravel(s) ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
       + '<a class="cp-btn-ghost" href="' + esc(pageUrl('path')) + '">Về lộ trình</a>'
       + '</div>'
       + '</header>'
@@ -603,6 +798,9 @@
       activeStep: 'WORDS',
       cardIdx: 0,
       cardFlipped: false,
+      meaningIdx: 0,
+      meaningAnswers: {},
+      notesOpen: false,
       playingLineIdx: -1,
       playingAll: false,
       turnIdx: 0,
@@ -886,6 +1084,16 @@
         return;
       }
 
+      var meaningPick = t.closest('[data-cp-meaning-pick]');
+      if (meaningPick && !meaningPick.disabled) {
+        state.meaningAnswers[state.meaningIdx || 0] = Number(meaningPick.getAttribute('data-cp-meaning-pick'));
+        render();
+        return;
+      }
+      if (t.closest('[data-cp-meaning-next]')) { state.meaningIdx = (state.meaningIdx || 0) + 1; render(); return; }
+      if (t.closest('[data-cp-meaning-prev]')) { state.meaningIdx = Math.max(0, (state.meaningIdx || 0) - 1); render(); return; }
+      if (t.closest('[data-cp-notes-toggle]')) { state.notesOpen = !state.notesOpen; render(); return; }
+
       var dispBtn = t.closest('[data-cp-disp-toggle]');
       if (dispBtn) {
         var dk = dispBtn.getAttribute('data-cp-disp-toggle');
@@ -1039,6 +1247,10 @@
     situationHtml: situationHtml,
     toRubyHtml: toRubyHtml,
     buildDeck: buildDeck,
+    meaningItems: meaningItems,
+    meaningOptions: meaningOptions,
+    toRomaji: toRomaji,
+    stepTitle: stepTitle,
     hasMicrophone: hasMicrophone,
     normalizeSpeakResponse: normalizeSpeakResponse,
     mount: mount
