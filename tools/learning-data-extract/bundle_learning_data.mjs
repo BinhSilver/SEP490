@@ -21,7 +21,7 @@ export const FILES = [
   ['learning_data_N3.sql', ['learning_data_N3.sql']],
   ['learning_data_N2.sql', ['learning_data_N2.sql']],
   ['learning_data_N1.sql', ['learning_data_N1.sql']],
-  ['learning_data_comm.sql', ['learning_data_comm.sql']],
+  ['learning_data_comm.sql', ['learning_data_comm.sql', 'learning_data_comm_core.sql']],
 ];
 const begin = (name) => `-- ==== PART ${name} BEGIN ====`;
 const end = (name) => `-- ==== PART ${name} END ====`;
