@@ -258,6 +258,17 @@ public class CpathService {
         }
         if (planned.isEmpty() && !isRest(path, day)) {
             int want = ((Number) path.get("daily_situations")).intValue();
+            // F74 (12/11): a situation planned on an earlier day and not finished comes back first (a missed day carries
+            // over), so the map order and "Hôm nay" stay the same instead of jumping to the next topic
+            for (Map<String, Object> s : order) {
+                if (planned.size() >= want) break;
+                Map<String, Object> p = prog.get(s.get("code"));
+                LocalDate planDay = p == null ? null : toDate(p.get("study_day"));
+                if (p != null && !done(p) && planDay != null && planDay.isBefore(day)) {
+                    db.update("UPDATE cpath_user_situation SET study_day = ? WHERE path_id = ? AND situation_code = ?", day, pathId, s.get("code"));
+                    planned.add((String) s.get("code"));
+                }
+            }
             for (Map<String, Object> s : order) {
                 if (planned.size() >= want) break;
                 if (!prog.containsKey(s.get("code"))) {

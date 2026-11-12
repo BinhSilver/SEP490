@@ -588,10 +588,13 @@
       + '</div>'
       + '</header>';
 
+    // F74: situations are numbered 1, 2, 3… on their own; the topic check and the AI test nodes carry no number
     var flat = [];
+    var sitNo = 0;
     weeks.forEach(function (w) {
       list(w.items).forEach(function (it, idx) {
-        flat.push({ item: it, weekObj: w, stepInWeek: idx });
+        if (it.type === 'SITUATION') sitNo++;
+        flat.push({ item: it, weekObj: w, stepInWeek: idx, sitNo: sitNo });
       });
     });
 
@@ -604,7 +607,7 @@
       var isCurrent = wIdx === currentWeek;
       var isUpcoming = wIdx > currentWeek;
       var isSel = state.selectedId === entry.item.id;
-      return mapNodeHtml(entry.item, pos, nextPos, hasNext, entry.stepInWeek, entry.weekObj, isCurrent, isPast, isUpcoming, isSel, s);
+      return mapNodeHtml(entry.item, pos, nextPos, hasNext, entry.stepInWeek, entry.weekObj, isCurrent, isPast, isUpcoming, isSel, entry.sitNo - 1);
     }).join('');
 
     var currentItems = list(weeks[currentWeek - 1] && weeks[currentWeek - 1].items)
