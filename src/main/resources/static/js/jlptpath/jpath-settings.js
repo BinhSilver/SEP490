@@ -4,7 +4,8 @@
  *   RESTART_TEXT                   'BẮT ĐẦU LẠI'
  *   restartTextOk(text)            same rule as the server: outer whitespace trimmed, NFC, upper-cased
  *   stateFromView(view)            flat editable state from GET /settings (auto third day = '', no exam = '')
- *   pick(state, block)             the fields of one block: 'target' | 'schedule' | 'display'
+ *   pick(state, block)             the fields of one block: 'target' | 'schedule' | 'display' | 'sound'
+ *                                  (display and sound save on every change, F61)
  *   diff(original, current)        only the changed fields; day lists compare as sets; a removed exam date
  *                                  becomes {clearExamDate:true}
  *   thirdDayOptions(skill, rest)   days left for the 3rd skill day
@@ -39,10 +40,12 @@
   var MSG_DAYS_SAVED = 'Đã lưu. Hôm nay đổi theo lịch mới nếu bạn chưa học gì hôm nay; nếu đã học, lịch mới áp dụng từ ngày mai.';
   var BLOCKS = {
     target: ['targetLevel', 'examDate'],
-    schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay', 'reminderTime'],
-    display: ['studyMode', 'furiganaHiddenAll', 'romajiMode', 'fontSize', 'soundOn', 'autoplayAudio', 'quizTimerOn',
-      'grammarTimerOn', 'reminderWeb', 'reminderEmail']
+    schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay'],
+    display: ['studyMode', 'furiganaHiddenAll', 'romajiMode', 'fontSize'],
+    sound: ['soundOn', 'autoplayAudio', 'quizTimerOn', 'grammarTimerOn', 'reminderWeb', 'reminderEmail', 'reminderTime']
   };
+  // F61: these blocks save as soon as a field changes (no Lưu button); their fields lock while the PUT runs
+  var INSTANT = { display: true, sound: true };
   var TABS = [['vocab', 'Từ vựng'], ['kanji', 'Kanji'], ['grammar', 'Ngữ pháp']];
   var KIND_LABELS = { INITIAL: 'Ban đầu', CONFIRM: 'Xác nhận', FIRST_DRAG: 'Lần kéo đầu', REBALANCE: 'Cân lại',
     TARGET_CHANGE: 'Đổi đích' };
@@ -366,6 +369,12 @@
         var changes = diff(pick(original, name), pick(current, name));
         var dirty = Object.keys(changes).length > 0;
         var daysOk = name !== 'schedule' || current.skillDays.length === 2;
+        if (INSTANT[name]) {
+          block(name).querySelectorAll('[data-field]').forEach(function (input) {
+            input.disabled = !!busy[name] || (input.dataset.field === 'reminderEmail' && !view.emailAvailable);
+          });
+          return;
+        }
         var save = part('save', block(name));
         save.disabled = !dirty || !daysOk || !!busy[name];
         save.setAttribute('aria-disabled', save.disabled ? 'true' : 'false');
@@ -503,8 +512,10 @@
           if (input.type === 'radio' && !input.checked) return;
           current[input.dataset.field] = readField(input);
           changed(name);
+          if (INSTANT[name]) save(name);
         });
-        part('save', scope).addEventListener('click', function () { save(name); });
+        var saveButton = part('save', scope);
+        if (saveButton) saveButton.addEventListener('click', function () { save(name); });
       });
       part('undo-schedule').addEventListener('click', function () {
         if (scheduleUndo) save('schedule', scheduleUndo);

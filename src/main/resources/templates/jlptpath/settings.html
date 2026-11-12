@@ -16,7 +16,7 @@
     <div class="jp-ws__main">
         <header class="jp-page-head jp-settings__header">
             <h1 class="jp-page-head__title jp-settings__title">Cài đặt lộ trình JLPT</h1>
-            <p class="jp-page-head__lede jp-settings__lead">Mỗi khối lưu riêng. Các thay đổi lớn có hộp xác nhận.</p>
+            <p class="jp-page-head__lede jp-settings__lead">Hiển thị và âm thanh lưu ngay khi bạn bấm. Đích và lịch tuần có nút Lưu riêng để bạn xem trước. Các thay đổi lớn có hộp xác nhận.</p>
         </header>
 
         <p class="jp-settings__alert" role="alert" data-role="error" hidden></p>
@@ -25,6 +25,7 @@
         <div class="jp-settings__content" data-role="content" hidden>
             <section class="jp-card" data-block="target" aria-labelledby="jp-settings-target-title">
                 <h2 class="jp-settings-card__title" id="jp-settings-target-title">Đích của bạn</h2>
+                <p class="jp-settings-muted">Cấp JLPT bạn muốn đạt và ngày thi (nếu có). Lộ trình dùng hai mốc này để chia bài mỗi ngày.</p>
                 <div class="jp-settings-fields">
                     <label class="jp-settings-field">
                         <span class="jp-settings-field__label">Cấp mục tiêu</span>
@@ -53,15 +54,12 @@
 
             <section class="jp-card" data-block="schedule" aria-labelledby="jp-settings-schedule-title">
                 <h2 class="jp-settings-card__title" id="jp-settings-schedule-title">Nhịp học và lịch tuần</h2>
+                <p class="jp-settings-muted">Số phút mỗi ngày, ngày kỹ năng và ngày nghỉ. Xem trước ngày hoàn thành trước khi lưu; lưu xong vẫn hoàn tác được.</p>
                 <div class="jp-settings-fields">
                     <label class="jp-settings-field">
                         <span class="jp-settings-field__label">Thời gian rảnh mỗi ngày</span>
                         <select class="jp-settings-input" data-field="dailyMinutes"></select>
                         <span class="jp-settings-muted">Đổi số phút sẽ đặt lại số mục mới mỗi ngày theo gợi ý cho số phút đó (từ, Kanji, ngữ pháp).</span>
-                    </label>
-                    <label class="jp-settings-field">
-                        <span class="jp-settings-field__label">Giờ nhắc học</span>
-                        <input class="jp-settings-input" type="time" step="300" data-field="reminderTime" />
                     </label>
                 </div>
                 <div class="jp-settings-days" data-role="days"></div>
@@ -82,6 +80,7 @@
 
             <section class="jp-card" data-block="sliders" aria-labelledby="jp-settings-sliders-title">
                 <h2 class="jp-settings-card__title" id="jp-settings-sliders-title">Mỗi ngày học</h2>
+                <p class="jp-settings-muted">Số mục mới mỗi ngày của từng tab. Kéo thanh ở trang lộ trình để đổi.</p>
                 <p class="jp-settings-strong" data-role="slider-values"></p>
                 <p data-role="adjustments"></p>
                 <p class="jp-settings-muted"><a class="jp-settings-link" href="/learning">Đổi tại trang lộ trình</a>.</p>
@@ -91,10 +90,9 @@
                 </details>
             </section>
 
-            <details class="jp-settings-advanced">
-                <summary>Nâng cao</summary>
             <section class="jp-card" data-block="display" aria-labelledby="jp-settings-display-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-display-title">Cách học &amp; hiển thị</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-display-title">Hiển thị và cách học</h2>
+                <p class="jp-settings-muted">Cách hiện chữ Nhật ở mọi trang JLPT. Lưu ngay khi bạn bấm.</p>
                 <fieldset class="jp-settings-group">
                     <legend class="jp-settings-field__label">Cách học mặc định</legend>
                     <div class="jp-settings-radios">
@@ -123,6 +121,21 @@
                 </div>
                 <div class="jp-settings-checks">
                     <label class="jp-settings-check"><input type="checkbox" data-field="furiganaHiddenAll" /> Ẩn furigana ở tất cả các trang</label>
+                </div>
+                <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
+                <div class="jp-settings-save">
+                    <span class="jp-settings-saved" role="status" data-role="saved" hidden></span>
+                </div>
+            </section>
+
+            <section class="jp-card" data-block="sound" aria-labelledby="jp-settings-sound-title">
+                <h2 class="jp-settings-card__title" id="jp-settings-sound-title">Âm thanh và nhắc học</h2>
+                <p class="jp-settings-muted">Âm báo đúng/sai, tự phát audio, đồng hồ trong bài và lời nhắc học hằng ngày. Lưu ngay khi bạn bấm.</p>
+                <label class="jp-settings-field">
+                    <span class="jp-settings-field__label">Giờ nhắc học</span>
+                    <input class="jp-settings-input" type="time" step="300" data-field="reminderTime" />
+                </label>
+                <div class="jp-settings-checks">
                     <label class="jp-settings-check"><input type="checkbox" data-field="soundOn" /> Âm thanh</label>
                     <label class="jp-settings-check"><input type="checkbox" data-field="autoplayAudio" /> Tự phát audio khi mở thẻ</label>
                     <label class="jp-settings-check"><input type="checkbox" data-field="quizTimerOn" /> Đồng hồ trong quiz Từ vựng / Kanji</label>
@@ -133,13 +146,13 @@
                 </div>
                 <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
                 <div class="jp-settings-save">
-                    <button type="button" class="jp-settings-btn jp-settings-btn--primary" data-role="save" disabled aria-disabled="true">Lưu cách học</button>
                     <span class="jp-settings-saved" role="status" data-role="saved" hidden></span>
                 </div>
             </section>
 
             <section class="jp-card jp-settings-change" data-block="change" aria-labelledby="jp-settings-change-title">
-                <h2 class="jp-settings-card__title" id="jp-settings-change-title">Đổi lộ trình</h2>
+                <h2 class="jp-settings-card__title" id="jp-settings-change-title">Mục tiêu và quản lý lộ trình</h2>
+                <p class="jp-settings-muted">Đổi cấp, đổi mục tiêu (tạm dừng JLPT, giữ tiến độ) hoặc bắt đầu lại từ đầu.</p>
                 <div class="jp-settings-options">
                     <div class="jp-settings-option" data-role="lower" hidden>
                         <h3 class="jp-settings-subtitle">Học cấp thấp hơn</h3>
@@ -156,8 +169,8 @@
                         <div class="jp-settings-return" data-role="return-list"></div>
                     </div>
                     <div class="jp-settings-option">
-                        <h3 class="jp-settings-subtitle">Đổi mục tiêu</h3>
-                        <p>Sang Công việc / Đời sống / Du lịch. Lộ trình JLPT được giữ, quay về được.</p>
+                        <h3 class="jp-settings-subtitle">Tạm dừng và đổi mục tiêu</h3>
+                        <p>Tạm dừng JLPT để sang Công việc / Đời sống / Du lịch. Tiến độ JLPT được giữ, quay về được bất cứ lúc nào.</p>
                         <button type="button" class="jp-settings-btn" data-role="goal-go">Đổi mục tiêu</button>
                     </div>
                     <div class="jp-settings-option jp-settings-option--danger">
@@ -172,7 +185,6 @@
                 </div>
                 <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
             </section>
-            </details>
         </div>
     </div>
 </div>

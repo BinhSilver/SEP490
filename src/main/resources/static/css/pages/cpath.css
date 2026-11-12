@@ -681,7 +681,6 @@ html.dark .cp-page {
 .cp-sit-stage--words { min-height: 300px; }
 .cp-sit-stage--roleplay { min-height: 0; }
 .cp-settings { max-width: 1040px; }
-.cp-settings h1 { margin: 0; font-size: 1.35rem; }
 .cp-settings fieldset { border: 1px solid var(--cp-line); border-radius: 12px; padding: 12px; }
 .cp-settings legend { padding: 0 6px; font-weight: 600; }
 .cp-settings__options, .cp-settings__actions { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -690,6 +689,32 @@ html.dark .cp-page {
 .cp-settings__date input { min-height: 40px; border: 1px solid var(--cp-line); border-radius: 8px; padding: 6px; }
 .cp-settings__preview { margin: 0; color: var(--cp-ink); font-weight: 600; }
 .cp-settings__notice { color: var(--jp-c-mint-900); font-weight: 600; }
+/* F61: grouped settings page */
+.cp-settings-page { display: grid; gap: 16px; }
+.cp-settings { display: grid; gap: 12px; scroll-margin-top: 80px; }
+.cp-settings h2 { margin: 0; font-size: 1.15rem; }
+.cp-settings h3 { margin: 0; font-size: 1rem; }
+.cp-settings__desc { margin: 0; color: var(--jp-muted, var(--cp-ink)); line-height: 1.5; }
+.cp-settings__head { display: grid; gap: 8px; margin-bottom: 4px; }
+.cp-settings__toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-settings__toc a { padding: 4px 12px; border: 1px solid var(--cp-line); border-radius: 999px; color: var(--cp-ink);
+  text-decoration: none; font-size: .88rem; font-weight: 600; }
+.cp-settings__toc a:hover { border-color: var(--jp-c-purple-500); color: var(--jp-c-purple-900); }
+.cp-settings__switches { display: grid; gap: 8px; }
+.cp-settings__switch { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--cp-line);
+  border-radius: 12px; cursor: pointer; }
+.cp-settings__switch input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--jp-c-purple-500); flex: none; }
+.cp-settings__switch span { display: grid; gap: 2px; }
+.cp-settings__switch small { color: var(--jp-muted, var(--cp-ink)); font-size: .86rem; line-height: 1.45; }
+.cp-settings__switch:has(input:focus-visible) { outline: 2px solid var(--jp-c-purple-500); outline-offset: 2px; }
+.cp-settings__option { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--cp-line); border-radius: 12px; }
+.cp-settings__option--danger { border-color: var(--jp-danger); }
+.cp-settings__option--danger h3 { color: var(--jp-danger); }
+.cp-settings__date input[type="text"] { font: inherit; }
+.cp-btn-danger { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 7px 16px;
+  border-radius: 12px; border: 1px solid var(--jp-danger); background: var(--jp-danger); color: #ffffff; font: inherit;
+  font-size: .9rem; font-weight: 600; cursor: pointer; }
+.cp-btn-danger:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Bước 1: Thẻ từ & mẫu câu lật 2 chiều */
 .cp-deck-switch {

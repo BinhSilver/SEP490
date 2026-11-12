@@ -1010,6 +1010,11 @@
       root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
         if (!data) throw new Error('Không có dữ liệu tình huống.');
         sitData = data;
+        // F61: open with the display saved in Cài đặt (the buttons on the page still flip it for this visit)
+        if (data.display) {
+          state.display = { furigana: data.display.furigana !== false, romaji: data.display.romaji === true,
+            translation: data.display.translation !== false };
+        }
         var lnL = (data.lines || []).filter(function (ln) { return ln && ln.learner === true; })[0];
         learnerName = lnL && lnL.speaker ? lnL.speaker : 'リン';
         render();
