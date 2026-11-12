@@ -279,8 +279,10 @@
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
       if (type === 'VOCAB' || type === 'KANJI') attrs += ' data-jpath-writing="' + attrJson({ itemType: type, code: card.code }) + '"';
     }
-    var skip = card.kind === 'NEW' && type === 'VOCAB'
-      ? '<p class="jp-study-skip">Đã biết từ này? <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
+    // F64 (owner 11/11): "Đã biết" on every new card of Từ vựng, Kanji and Ngữ pháp (one question decides)
+    var SKIP_ASK = { VOCAB: 'Đã biết từ này?', KANJI: 'Đã biết chữ này?', GRAMMAR: 'Đã biết mẫu này?' };
+    var skip = card.kind === 'NEW' && SKIP_ASK[type]
+      ? '<p class="jp-study-skip">' + SKIP_ASK[type] + ' <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
       : '';
     var kindCls = esc(String(card.kind || '').toLowerCase());
     var stateCls = flippable ? (isFlipped ? ' jp-study-card--flipped' : ' jp-study-card--front') : '';
