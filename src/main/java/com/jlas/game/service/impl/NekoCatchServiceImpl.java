@@ -65,6 +65,11 @@ public class NekoCatchServiceImpl implements NekoCatchService {
     private static final List<String> BONUSES = List.of("GOLDEN_FISH", "CLOCK", "SHIELD", "FREEZE");
     /** Client đếm 3-2-1 trước khi cá bắt đầu rơi. */
     private static final long START_DELAY_MS = 3_000;
+    /**
+     * Đối kháng: hai người còn phải chuyển từ phòng sang bàn chơi và tải game trước khi thấy đếm ngược,
+     * nên chờ thêm để ai cũng kịp thấy đủ 3 – 2 – 1 (trước đây vào tới nơi chỉ còn "1").
+     */
+    private static final long VERSUS_START_DELAY_MS = 6_000;
     /** Giới hạn cho cài đặt luyện tập tự chọn ở màn chuẩn bị. */
     private static final int MAX_LIVES = 5;
     private static final int MAX_CHOICES = 7;
@@ -104,7 +109,7 @@ public class NekoCatchServiceImpl implements NekoCatchService {
                 Math.min(choices, answerPool.size()) - 1, preset.durationSeconds());
         List<NekoRound> rounds = buildRounds(request.words(), answerPool, config, ThreadLocalRandom.current());
         Instant now = Instant.now();
-        Instant startAt = now.plusMillis(START_DELAY_MS);
+        Instant startAt = now.plusMillis(request.mode() == PlayMode.SOLO ? START_DELAY_MS : VERSUS_START_DELAY_MS);
         NekoSession session = new NekoSession(request, config, rounds, now, startAt);
         // Luyện tập chờ người chơi bấm "Bắt đầu"; đối kháng đếm ngược luôn để hai bên vào cùng lúc.
         session.setAwaitingStart(request.mode() == PlayMode.SOLO);
@@ -416,9 +421,12 @@ public class NekoCatchServiceImpl implements NekoCatchService {
                     player.advance();
                     advanced = true;
                 } else if (player.hasShield()) {
-                    // Khiên chặn lần bắt nhầm; lượt vẫn tiếp tục, cá còn lại tiếp tục rơi.
+                    // Khiên chặn lần bắt nhầm (không mất tim) nhưng lượt vẫn kết thúc như mọi lần bắt:
+                    // nếu cá còn lại vẫn rơi, người chơi bắt sai rồi chạy sang bắt con đúng được.
                     player.setShield(false);
                     shieldBlocked = true;
+                    player.advance();
+                    advanced = true;
                 } else {
                     player.recordWrong(new NekoMistakeView(current.word().prompt(), current.word().answer(),
                             chosenText));
