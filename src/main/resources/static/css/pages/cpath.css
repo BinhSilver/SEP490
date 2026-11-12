@@ -1891,3 +1891,11 @@ button.jp-sidenav__link {
 .cp-settings__depth span { display: grid; gap: 2px; }
 .cp-settings__depth small { color: var(--cp-muted); }
 .cp-settings__depth.is-on small { color: inherit; }
+
+/* [JLAS-W0108] F81: review result — the list spans the result column, "AI giải thích" sits at the end of each row */
+.cp-page .jp-result .jp-review { width: 100%; max-width: 760px; padding: 0; list-style: none; text-align: left; }
+.cp-page .jp-result .jp-review__row { justify-content: space-between; flex-wrap: wrap; padding: 10px 14px; }
+.cp-page .jp-result .jp-review__row > div:first-child { flex: 1 1 260px; min-width: 0; }
+.cp-page .jp-result .jp-review__row .jp-ai-slot { margin-top: 0; flex: 0 0 auto; }
+.cp-page .jp-result .jp-review__row .jp-ai-slot:has(.jp-ai__panel:not([hidden])) { flex-basis: 100%; }
+
