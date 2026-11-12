@@ -323,8 +323,7 @@ public class CpathService {
         m.put("restDays", p.get("rest_days") == null || String.valueOf(p.get("rest_days")).isBlank()
                 ? List.of() : List.of(String.valueOf(p.get("rest_days")).split(",")));
         m.put("finishDate", p.get("finish_date") == null ? null : p.get("finish_date").toString());
-        m.put("display", Map.of("furigana", !"INTERMEDIATE".equals(level), "romaji", "BEGINNER".equals(level),
-                "translation", !"INTERMEDIATE".equals(level)));
+        m.put("display", displayOf(p));
         m.put("progress", Map.of("doneSituations", doneCount, "totalSituations", order.size(),
                 "passedTopics", passed == null ? 0 : passed, "totalTopics", topics.size()));
         m.put("week", week(userId, p, prog));
@@ -514,6 +513,11 @@ public class CpathService {
         m.put("situationVi", s.get("situation_vi"));
         m.put("level", s.get("level"));
         m.put("topic", Map.of("code", s.get("topic_code"), "nameVi", s.get("topic_name")));
+        // F61: the situation page opens with the display the learner saved in Cài đặt (SELECT *: older DBs lack the column)
+        Long displayPath = pathIdForSituation(userId, code);
+        List<Map<String, Object>> pathRows = displayPath == null ? List.of()
+                : db.queryForList("SELECT * FROM cpath_user_path WHERE id = ?", displayPath);
+        m.put("display", displayOf(pathRows.isEmpty() ? null : pathRows.get(0)));
         String topic = (String) s.get("topic_code");
         m.put("words", db.query("SELECT * FROM cpath_item WHERE topic_code = ? AND kind = 'WORD' ORDER BY sort_order", (rs, i) -> {
             Map<String, Object> w = new LinkedHashMap<>();
@@ -1099,6 +1103,74 @@ public class CpathService {
             }
         }
         return Map.of("dailySituations", daily);
+    }
+
+    // ------------------------------------------------------------------------------------- F61 settings
+
+    static final List<String> DISPLAY_KEYS = List.of("furigana", "romaji", "translation");
+    static final String RESTART_TEXT = "BẮT ĐẦU LẠI";
+
+    /** Owner 12/11 (F61): the learner's saved choice wins; with none (or a DB without the column) the level decides. */
+    static Map<String, Object> displayOf(Map<String, Object> path) {
+        String level = path == null ? null : (String) path.get("self_level");
+        Map<String, Object> d = new LinkedHashMap<>();
+        d.put("furigana", !"INTERMEDIATE".equals(level));
+        d.put("romaji", "BEGINNER".equals(level));
+        d.put("translation", !"INTERMEDIATE".equals(level));
+        Object raw = path == null ? null : path.get("display_json");
+        Map<?, ?> saved = raw == null ? Map.of() : parse(String.valueOf(raw), Map.of());
+        for (String k : DISPLAY_KEYS) if (saved.get(k) instanceof Boolean b) d.put(k, b);
+        d.put("custom", !saved.isEmpty());
+        return d;
+    }
+
+    /** F61: saves furigana / romaji / translation of the main path; {"reset": true} goes back to the level defaults. */
+    @Transactional
+    public Map<String, Object> setDisplay(Long userId, Map<String, Object> body) {
+        Map<String, Object> path = requirePath(userId);
+        String value = null;
+        if (body == null || !Boolean.TRUE.equals(body.get("reset"))) {
+            Map<String, Object> current = displayOf(path);
+            Map<String, Object> next = new LinkedHashMap<>();
+            for (String k : DISPLAY_KEYS) {
+                Object v = body == null ? null : body.get(k);
+                next.put(k, v instanceof Boolean b ? b : current.get(k));
+            }
+            value = json(next);
+        }
+        try {
+            db.update("UPDATE cpath_user_path SET display_json = ? WHERE id = ?", value, ((Number) path.get("id")).longValue());
+        } catch (org.springframework.jdbc.BadSqlGrammarException e) {
+            // the deploy DB has not run the F61 schema step yet
+            throw new ApiException(ErrorCode.CPATH_DISPLAY_UNAVAILABLE);
+        }
+        return path(userId);
+    }
+
+    /** F61: pauses the main path; progress is kept and choosing the same goal again in the survey resumes it. */
+    @Transactional
+    public Map<String, Object> pausePath(Long userId) {
+        Map<String, Object> path = requirePath(userId);
+        db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE id = ?", ((Number) path.get("id")).longValue());
+        return Map.of("redirectUrl", "/learning");
+    }
+
+    /**
+     * F61: clears the main path's progress (situations, topics, goal tests, weak lines) and keeps the path, its pace,
+     * display and the Sổ tay; CP already earned is not paid twice (the ledger key drops a repeat).
+     */
+    @Transactional
+    public Map<String, Object> restartPath(Long userId, Map<String, Object> body) {
+        Object text = body == null ? null : body.get("confirmText");
+        if (!(text instanceof String s) || !java.text.Normalizer.normalize(s.strip(), java.text.Normalizer.Form.NFC)
+                .toUpperCase(Locale.forLanguageTag("vi")).equals(RESTART_TEXT)) {
+            throw new ApiException(ErrorCode.JPATH_RESTART_CONFIRM_MISMATCH);
+        }
+        Long pathId = ((Number) requirePath(userId).get("id")).longValue();
+        for (String table : List.of("cpath_user_situation", "cpath_user_topic", "cpath_user_goal_test", "cpath_user_weak_speech")) {
+            db.update("DELETE FROM " + table + " WHERE path_id = ?", pathId);
+        }
+        return path(userId);
     }
 
     /** Situations a week assigns: study days of the week x situations per day (same count as the map). */

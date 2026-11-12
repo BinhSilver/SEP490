@@ -61,6 +61,7 @@ public class CpathController {
 
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
     private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
+            "/path/display", "/path/pause", "/path/restart",
             "/notebook", "/day");
 
     private boolean locked(Long userId) {
@@ -271,6 +272,26 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> setPace(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", service.setPace(user.userId(), body)));
+    }
+
+    /** F61: furigana / romaji / translation saved for the main path. */
+    @org.springframework.web.bind.annotation.PutMapping("/path/display")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setDisplay(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu cách hiển thị.", service.setDisplay(user.userId(), body)));
+    }
+
+    /** F61: pause the main path, progress kept. */
+    @PostMapping("/path/pause")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> pausePath(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp.", service.pausePath(user.userId())));
+    }
+
+    /** F61: clear the main path's progress after typing BẮT ĐẦU LẠI. */
+    @PostMapping("/path/restart")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> restartPath(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã đặt lại lộ trình Giao tiếp.", service.restartPath(user.userId(), body)));
     }
 
     @GetMapping("/notebook")
