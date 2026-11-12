@@ -17,7 +17,7 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const GOALS = ['TRAVEL', 'DAILY_LIFE', 'BA', 'WORK'];
 const GOAL_ORDER = { TRAVEL: 1, DAILY_LIFE: 2, BA: 3, WORK: 4 };
 const LEARNER = 'リン';
-const VALID_CATEGORY_CODES = ['food-drink', 'introduction', 'daily-life', 'transport', 'shopping', 'health-service', 'work-study', 'travel'];
+const VALID_CATEGORY_CODES = ['food-drink', 'introduction', 'daily-life', 'transport', 'shopping', 'health-service', 'work-study', 'travel', 'it-brse'];
 const SCORING_RULE_CODES = ['grammar_accuracy', 'vocabulary_usage', 'mission_completion', 'naturalness'];
 
 const SQL_FILE = path.join(ROOT, 'sql/learning/parts', 'learning_data_comm.sql');
