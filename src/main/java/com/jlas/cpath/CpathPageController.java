@@ -78,4 +78,22 @@ public class CpathPageController {
     public String day() {
         return "cpath/day";
     }
+
+    /** F70: today's base lesson ("Bài nền"); {@code ?check=1} is the "Đã biết – ôn nhanh" check. */
+    @GetMapping("/learning/comm/core")
+    public String core() {
+        return "cpath/core";
+    }
+
+    /** F70 Du lịch: Sổ câu cấp tốc. */
+    @GetMapping("/learning/comm/phrasebook")
+    public String phrasebook() {
+        return "cpath/phrasebook";
+    }
+
+    /** F70 Du lịch: Trò chơi nghe nhanh (60 giây). */
+    @GetMapping("/learning/comm/game")
+    public String game() {
+        return "cpath/game";
+    }
 }

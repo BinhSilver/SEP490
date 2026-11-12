@@ -153,6 +153,7 @@ public class CpathService {
             Long resumeId = resumable.get(0);
             db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, resumeId);
             db.update("UPDATE cpath_user_path SET status = 'ACTIVE', self_level = ?, priority_topics_json = COALESCE(?, priority_topics_json), daily_situations = COALESCE(?, daily_situations), rest_days = COALESCE(?, rest_days), finish_date = COALESCE(?, finish_date) WHERE id = ?", level, req.containsKey("priorityTopics") ? json(req.get("priorityTopics")) : null, req.containsKey("dailySituations") ? daily : null, req.containsKey("restDays") ? String.join(",", rest.stream().map(String::valueOf).toList()) : null, finish == null || finish.toString().isBlank() ? null : finish.toString(), resumeId);
+            applyKanaChoice(resumeId, req);
             return Map.of("pathId", resumeId, "role", "MAIN");
         }
         String role = secondary ? "SECONDARY" : "MAIN";
@@ -166,7 +167,21 @@ public class CpathService {
                 json(req.get("fields")), json(req.get("priorityTopics")), daily,
                 String.join(",", rest.stream().map(String::valueOf).toList()), finish == null || finish.toString().isBlank() ? null : finish.toString());
         Long id = db.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
+        applyKanaChoice(id, req);
         return Map.of("pathId", id, "role", role);
+    }
+
+    /**
+     * F70 (owner 12/11): "Chưa biết chữ cái" + skipping the Kana suggestion turns on full romaji for the whole path
+     * (saved like the F61 display choice, so Settings can turn it off). Knowing Kana changes nothing.
+     */
+    private void applyKanaChoice(Long pathId, Map<String, Object> req) {
+        if (!Boolean.FALSE.equals(req.get("knowsKana"))) return;
+        try {
+            db.update("UPDATE cpath_user_path SET display_json = ? WHERE id = ?", json(Map.of("fullRomaji", true, "romaji", true)), pathId);
+        } catch (org.springframework.jdbc.BadSqlGrammarException e) {
+            // a DB without the F61 column: the level default (romaji for Mới bắt đầu) still applies
+        }
     }
 
     /** The active path (main or secondary) whose goal holds the situation; the main path otherwise. */
@@ -232,6 +247,17 @@ public class CpathService {
                 + "WHERE t.goal_code = ? ORDER BY t.sort_order, s.sort_order", goal);
         Set<String> keep = allowed;
         List<Map<String, Object>> out = new ArrayList<>(rows.stream().filter(r -> keep == null || keep.contains(r.get("topic_code"))).toList());
+        if (CpathCoreService.hasCore(goal)) {
+            // F70 (owner 12/11): depth also applies to situations; rank n of its topic is learnt from depth n on.
+            // A situation already started stays (a lower depth hides only what is not learned yet).
+            int depth = CpathCoreService.depthRank(CpathCoreService.depthCode(path));
+            if (depth < 3) {
+                Map<String, Integer> ranks = CpathCoreService.situationRanks(out);
+                Set<String> started = path.get("id") == null ? Set.of() : new java.util.HashSet<>(db.queryForList(
+                        "SELECT situation_code FROM cpath_user_situation WHERE path_id = ?", String.class, ((Number) path.get("id")).longValue()));
+                out.removeIf(r -> ranks.getOrDefault(String.valueOf(r.get("code")), 1) > depth && !started.contains(r.get("code")));
+            }
+        }
         out.sort((a, b) -> {
             int pa = priority.contains(a.get("topic_code")) ? 0 : 1;
             int pb = priority.contains(b.get("topic_code")) ? 0 : 1;
@@ -959,6 +985,7 @@ public class CpathService {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("open", true);
         m.put("passScore", WEEKLY_PASS);
+        m.put("display", displayOf(path)); // F70: listening speed of the clips
         m.put("speakingQuestions", reviewSpeakingQuestions(userId));
         m.put("questions", qs.stream().map(q -> {
             Map<String, Object> x = new LinkedHashMap<>();
@@ -1177,9 +1204,23 @@ public class CpathService {
         d.put("translation", travel || !"INTERMEDIATE".equals(level));
         Object raw = path == null ? null : path.get("display_json");
         Map<?, ?> saved = raw == null ? Map.of() : parse(String.valueOf(raw), Map.of());
+        // F70: a learner who skipped Kana sees romaji on every line and word until they turn it off
+        boolean fullRomaji = Boolean.TRUE.equals(saved.get("fullRomaji"));
+        if (fullRomaji) d.put("romaji", true);
         for (String k : DISPLAY_KEYS) if (saved.get(k) instanceof Boolean b) d.put(k, b);
-        d.put("custom", !saved.isEmpty());
+        d.put("fullRomaji", fullRomaji && Boolean.TRUE.equals(d.get("romaji")));
+        // F70/F79: listening speed of every communication audio (0.75 / 1 / 1.25 / 1.5), default the recording's
+        d.put("speed", speedOf(saved.get("speed")));
+        d.put("custom", DISPLAY_KEYS.stream().anyMatch(saved::containsKey));
         return d;
+    }
+
+    static final List<Double> SPEEDS = List.of(0.75, 1.0, 1.25, 1.5);
+
+    static double speedOf(Object raw) {
+        double v = raw instanceof Number n ? n.doubleValue() : 1.0;
+        for (double s : SPEEDS) if (Math.abs(s - v) < 0.001) return s;
+        return 1.0;
     }
 
     /** F61: saves furigana / romaji / translation of the main path; {"reset": true} goes back to the level defaults. */
@@ -1187,14 +1228,29 @@ public class CpathService {
     public Map<String, Object> setDisplay(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
         String value = null;
-        if (body == null || !Boolean.TRUE.equals(body.get("reset"))) {
-            Map<String, Object> current = displayOf(path);
+        Map<?, ?> saved = path.get("display_json") == null ? Map.of() : parse(String.valueOf(path.get("display_json")), Map.of());
+        Map<String, Object> current = displayOf(path);
+        boolean onlySpeed = body != null && body.containsKey("speed") && DISPLAY_KEYS.stream().noneMatch(body::containsKey);
+        if (body != null && Boolean.TRUE.equals(body.get("reset"))) {
+            // back to the level defaults; the speed is a listening choice, not a display one, so it stays
+            Map<String, Object> keep = new LinkedHashMap<>();
+            if (saved.get("speed") != null) keep.put("speed", current.get("speed"));
+            if (saved.get("gameBest") != null) keep.put("gameBest", saved.get("gameBest"));
+            if (!keep.isEmpty()) value = json(keep);
+        } else {
             Map<String, Object> next = new LinkedHashMap<>();
-            for (String k : DISPLAY_KEYS) {
-                Object v = body == null ? null : body.get(k);
-                next.put(k, v instanceof Boolean b ? b : current.get(k));
+            if (!onlySpeed || DISPLAY_KEYS.stream().anyMatch(saved::containsKey)) {
+                for (String k : DISPLAY_KEYS) {
+                    Object v = body == null ? null : body.get(k);
+                    next.put(k, v instanceof Boolean b ? b : current.get(k));
+                }
             }
-            value = json(next);
+            // F70: turning romaji off ends the full-romaji mode of a learner who skipped Kana
+            if (Boolean.TRUE.equals(saved.get("fullRomaji")) && !Boolean.FALSE.equals(next.get("romaji"))) next.put("fullRomaji", true);
+            Object speed = body != null && body.containsKey("speed") ? body.get("speed") : saved.get("speed");
+            if (speed != null) next.put("speed", speedOf(speed));
+            if (saved.get("gameBest") != null) next.put("gameBest", saved.get("gameBest")); // F70 Du lịch game best score
+            value = next.isEmpty() ? null : json(next);
         }
         try {
             db.update("UPDATE cpath_user_path SET display_json = ? WHERE id = ?", value, ((Number) path.get("id")).longValue());
@@ -1228,6 +1284,7 @@ public class CpathService {
         for (String table : List.of("cpath_user_situation", "cpath_user_topic", "cpath_user_goal_test", "cpath_user_weak_speech")) {
             db.update("DELETE FROM " + table + " WHERE path_id = ?", pathId);
         }
+        new CpathCoreService(db, clock).clear(pathId); // F70: the base-set progress too (the JLPT side is kept)
         return path(userId);
     }
 
@@ -1266,6 +1323,7 @@ public class CpathService {
         List<WeeklyQ> qs = open ? weeklyQuestions(userId, path, monday) : List.of();
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("weekStart", monday.toString());
+        m.put("display", displayOf(path)); // F70: listening speed of the clips
         m.put("testDay", testDay);
         m.put("open", open);
         m.put("passScore", WEEKLY_PASS);
@@ -1431,7 +1489,7 @@ public class CpathService {
             m.put("wrongCount", num(r.get("wrong_count")));
             out.add(m);
         }
-        return Map.of("items", out, "total", out.size());
+        return Map.of("items", out, "total", out.size(), "display", displayOf(p));
     }
 
     static final int GOAL_CP = 20;

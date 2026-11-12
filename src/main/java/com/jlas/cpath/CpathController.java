@@ -46,11 +46,15 @@ public class CpathController {
     private final JpathSpeakService speak;
     private final CpathRoleplayService roleplay;
     private final AiCallQuotaService quota;
+    private final CpathCoreService core;
+    private final CpathTravelService travel;
     private static final ObjectMapper JSON = new ObjectMapper();
 
     public CpathController(CpathService service, JpathSpeakService speak, CpathRoleplayService roleplay,
-                           AiCallQuotaService quota) {
+                           AiCallQuotaService quota, CpathCoreService core, CpathTravelService travel) {
         this.service = service;
+        this.core = core;
+        this.travel = travel;
         this.speak = speak;
         this.roleplay = roleplay;
         this.quota = quota;
@@ -61,7 +65,7 @@ public class CpathController {
 
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
     private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
-            "/path/display", "/path/pause", "/path/restart",
+            "/path/display", "/path/pause", "/path/restart", "/path/depth", "/core",
             "/notebook", "/day");
 
     private boolean locked(Long userId) {
@@ -303,5 +307,64 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> submitWeekly(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitWeekly(user.userId(), body)));
+    }
+
+    // ------------------------------------------------------------------------------------- F70 base set
+
+    /** The base-set block of the path page and Settings (enabled false when the goal or the DB has none). */
+    @GetMapping("/core")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> core(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.overview(user.userId())));
+    }
+
+    @GetMapping("/core/lesson")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> coreLesson(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.lesson(user.userId())));
+    }
+
+    @PostMapping("/core/lesson")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitCoreLesson(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.submitLesson(user.userId(), body)));
+    }
+
+    @GetMapping("/core/check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> coreCheck(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.knownCheck(user.userId())));
+    }
+
+    @PostMapping("/core/check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitCoreCheck(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.submitKnownCheck(user.userId(), body)));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/path/depth")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setDepth(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi độ sâu.", core.setDepth(user.userId(), body)));
+    }
+
+    // ------------------------------------------------------------------------------------- F70 Du lịch extras
+
+    @GetMapping("/travel/phrasebook")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> phrasebook(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.phrasebook(user.userId())));
+    }
+
+    @GetMapping("/travel/game")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> game(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.game(user.userId())));
+    }
+
+    @PostMapping("/travel/game")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitGame(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.submitGame(user.userId(), body)));
+    }
+
+    @GetMapping("/travel/stamps")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> stamps(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.stamps(user.userId())));
     }
 }
