@@ -2005,3 +2005,11 @@ button.jp-sidenav__link {
   .cp-page .cp-sit-steps .cp-step-tab { min-width: 0; width: 100%; flex-direction: column; gap: 2px; justify-content: center; text-align: center;
     white-space: normal; padding: 6px 2px; font-size: .74rem; line-height: 1.2; }
 }
+
+/* [JLAS-W0108] F98: one mascot in the "Hôm nay" card — the one with the speech bubble; the calendar copy is hidden */
+.cp-page .cp-today .jp-today__cal-kitsu { display: none; }
+/* F98: on a tablet the "today" mascot and the week sign share the narrow left margin — the sign steps aside on that row
+   (on a phone jpath-path.css already hides every week sign) */
+@media (max-width: 900px) {
+  .cp-page .jp-parts__step:has(.jp-parts__mascot--today) .jp-parts__week-sign { display: none; }
+}

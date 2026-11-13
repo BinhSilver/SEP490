@@ -490,25 +490,26 @@
   }
 
   /* 3. Vẽ từng nút trên bản đồ tuần */
-  function mapNodeHtml(item, pos, nextPos, hasNext, stepInWeek, weekObj, isCurrentWeek, isPastWeek, isUpcomingWeek, isSelected, globalIdx) {
+  function mapNodeHtml(item, pos, nextPos, hasNext, stepInWeek, weekObj, isCurrentWeek, isPastWeek, isUpcomingWeek, isSelected, globalIdx, deco) {
     var status = String(item.status || 'NEXT');
     var isDone = status === 'DONE' || status === 'TODAY_DONE';
     var isToday = status === 'TODAY';
     var isTodayDone = status === 'TODAY_DONE';
     var isLocked = isUpcomingWeek || status === 'LOCKED';
     var labelSide = pos === 'right' ? 'left' : 'right';
-    var signSide = (weekObj.index % 2 === 1) ? 'left' : 'right';
-    var sceneSide = signSide === 'left' ? 'right' : 'left';
-
+    // F98: margin art only sits in the free margin left of a centre node (its title is on the right), so it never
+    // covers a title or runs off the map edge; deco = { slot: order of centre nodes in the week, todayKitsu: bool }
+    var d = deco || {};
+    var showTodayKitsu = !!d.todayKitsu && pos === 'center';
     var marginExtras = '';
-    if (stepInWeek === 0) {
-      marginExtras += weekSignpostHtml(weekObj, signSide);
-    } else if (stepInWeek === 1) {
-      marginExtras += weekThemeSceneHtml(weekObj, sceneSide);
-    } else if (stepInWeek === 2) {
-      marginExtras += weekSideKitsuHtml(weekObj.index, signSide);
-    } else if (stepInWeek === 4) {
-      marginExtras += weekSideKitsuHtml(weekObj.index + 3, sceneSide);
+    if (pos === 'center') {
+      if (d.slot === 0) {
+        marginExtras += weekSignpostHtml(weekObj, 'left');
+      } else if (!showTodayKitsu && d.slot === 1) {
+        marginExtras += weekThemeSceneHtml(weekObj, 'left');
+      } else if (!showTodayKitsu && d.slot === 2) {
+        marginExtras += weekSideKitsuHtml(weekObj.index, 'left');
+      }
     }
 
     var connector = hasNext ? curveSvg(pos, nextPos, isDone, isToday, isPastWeek) : '';
@@ -567,8 +568,8 @@
     var bubble = isToday
       ? '<span class="jp-parts__bubble">Bắt đầu</span>'
       : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>' : '');
-    var todayKitsu = (isToday || isTodayDone)
-      ? '<span class="jp-parts__mascot jp-parts__mascot--today jp-parts__mascot--' + (labelSide === 'left' ? 'right' : 'left') + '" aria-hidden="true">'
+    var todayKitsu = (isToday || isTodayDone) && showTodayKitsu
+      ? '<span class="jp-parts__mascot jp-parts__mascot--today jp-parts__mascot--left" aria-hidden="true">'
         + '<span class="jp-parts__mascot-speech">' + (isTodayDone ? 'Giỏi quá!' : 'Vào tình huống này nhé!') + '</span>'
         + '<img class="jp-parts__mascot-img" src="' + esc(kitsuSmall(isTodayDone ? 'kitsu-celebrate-30.webp' : 'kitsu-cheer-30.webp')) + '" width="58" height="58" alt="" />'
         + '</span>'
@@ -661,6 +662,20 @@
         flat.push({ item: it, weekObj: w, stepInWeek: idx, sitNo: sitNo });
       });
     });
+    // F98: number the centre nodes of each week (margin art slots) and keep one "Vào tình huống này nhé!" mascot
+    var centreInWeek = {};
+    var kitsuPlaced = false;
+    flat.forEach(function (entry, s) {
+      entry.deco = { slot: -1, todayKitsu: false };
+      if (WAVE_POS[s % WAVE_POS.length] !== 'center') return;
+      var wk = String(entry.weekObj.index);
+      entry.deco.slot = centreInWeek[wk] = (centreInWeek[wk] == null ? 0 : centreInWeek[wk] + 1);
+      var st = String(entry.item.status || '');
+      if (!kitsuPlaced && (st === 'TODAY' || st === 'TODAY_DONE')) {
+        entry.deco.todayKitsu = true;
+        kitsuPlaced = true;
+      }
+    });
 
     var nodesHtml = flat.map(function (entry, s) {
       var pos = WAVE_POS[s % WAVE_POS.length];
@@ -671,7 +686,7 @@
       var isCurrent = wIdx === currentWeek;
       var isUpcoming = wIdx > currentWeek;
       var isSel = state.selectedId === entry.item.id;
-      return mapNodeHtml(entry.item, pos, nextPos, hasNext, entry.stepInWeek, entry.weekObj, isCurrent, isPast, isUpcoming, isSel, entry.sitNo - 1);
+      return mapNodeHtml(entry.item, pos, nextPos, hasNext, entry.stepInWeek, entry.weekObj, isCurrent, isPast, isUpcoming, isSel, entry.sitNo - 1, entry.deco);
     }).join('');
 
     var currentItems = list(weeks[currentWeek - 1] && weeks[currentWeek - 1].items)
