@@ -719,11 +719,14 @@
     if (stepIdx === 1) {
       marginExtras += weekThemeSceneHtml(weekObj, tabKey, sceneSide);
     }
+    // [JLAS-W0108] F102: the side Kitsu (104px + speech) stands in the margin away from the node: a node on the right
+    // has its margin on the left, a node on the left has it on the right, and a centre node keeps its label on the right,
+    // so its Kitsu goes left. Before, a Kitsu on the node's own side covered the orb and its number on wide screens.
+    var kitsuSide = pos === 'left' ? 'right' : 'left';
     if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
-      var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
       marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide, weekObj.state, false);
     } else if (stepIdx === 5 && !isToday && !isTodayDone) {
-      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide, weekObj.state, true);
+      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, kitsuSide, weekObj.state, true);
     } else if (stepIdx === 2 || stepIdx === 4) {
       var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
       marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
