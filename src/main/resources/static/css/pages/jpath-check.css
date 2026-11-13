@@ -1406,3 +1406,18 @@ html.dark .cp-page {
   --cp-done: #b37cf5 !important;
   --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
 }
+
+/* [JLAS-W0108] F100: JLPT path page (/learning), same rule as the comm path (F98): one mascot in the "Hôm nay" card.
+   Wider than 400px the Kitsu with the speech bubble shows, so the copy hugging the calendar ring is hidden; at 400px and
+   below jpath-path.css hides the bubble Kitsu, so the ring copy stays and the title steps right to clear its head. */
+@media (min-width: 401px) {
+  .jp-path:not(.cp-page) .jp-today .jp-today__cal-kitsu { display: none; }
+}
+@media (max-width: 400px) {
+  .jp-path:not(.cp-page) .jp-today .jp-today__top .jp-today__lead { margin-left: 18px; }
+}
+/* F100: from 641px the week sign stands in the map's top-left corner, where the first cloud also drifted over its title;
+   the cloud now starts right of the sign (signs are hidden at 640px and below) */
+@media (min-width: 641px) {
+  .jp-path:not(.cp-page) .jp-parts__backdrop .jp-parts__cloud--1 { left: 150px; }
+}
