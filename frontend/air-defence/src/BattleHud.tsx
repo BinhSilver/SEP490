@@ -81,8 +81,9 @@ export function BattleHud(p: HudProps) {
         <span className="ad-hud__fields">{p.match.questionLabel} · {p.match.answerLabel}</span>
         {(p.liveStatus === 'offline' || p.liveStatus === 'connecting') && <span role="status" className="ad-hud__connection">{p.liveStatus === 'offline' ? 'Đang kết nối lại…' : 'Đang kết nối…'}</span>}
       </div>
-      <div className="ad-hud__readouts">
-        <div className={`ad-hud__stat ad-hud__time ${p.timeLeft !== null && p.timeLeft <= 30000 ? 'is-urgent' : ''}`}><span>{p.timeLeft === null ? 'Thời gian' : 'Còn lại'}</span><strong>{p.timeLeft === null ? '∞' : clock}</strong></div>
+      {/* An untimed match has nothing to count down, so the clock is left out instead of showing ∞. */}
+      <div className={`ad-hud__readouts ${p.timeLeft === null ? 'is-untimed' : ''}`}>
+        {p.timeLeft !== null && <div className={`ad-hud__stat ad-hud__time ${p.timeLeft <= 30000 ? 'is-urgent' : ''}`}><span>Còn lại</span><strong>{clock}</strong></div>}
         <div className="ad-hud__stat ad-hud__score"><span>Điểm</span><strong>{Math.round(p.score)}</strong></div>
         <div className={`ad-hud__stat ad-hud__combo is-${tier}`}><span>Combo</span><strong key={p.combo}>×{p.combo}</strong></div>
         <div className="ad-hud__stat ad-hud__coins"><span>Xu</span><strong>+{p.credits}</strong></div>

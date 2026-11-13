@@ -6,7 +6,7 @@ import { useVisualSettings } from "./game/visualSettings";
 import { PixiBattleCanvas } from "./game/PixiBattleCanvas";
 import { GAME_CONFIG } from "./game/gameConfig";
 import { soundManager } from "./game/soundEffects";
-import type { AugmentCard, AugmentCategory, WeakWord } from "./game/types";
+import type { WeakWord } from "./game/types";
 import type { AirPlayerView, DeckField, ResultLine } from "./game/arenaTypes";
 import { errorMessage, getArena, serverNow } from "./game/arenaClient";
 import { backUrl, finishSoloMatch, leaveMatch, replaySolo, startMatchController, type HostConfig } from "./game/matchController";
@@ -405,10 +405,9 @@ function QuickGuide({ match }: { match: MatchInfo }) {
         <ul style={{ margin: 0, padding: "0 0 0 18px", fontSize: 13, color: "var(--ok-on-surface-variant)", lineHeight: "22px" }}>
           <li><strong>Siêu pháo (phím Shift)</strong> khi thanh năng lượng đầy: quét sạch địch thường, trừ {GAME_CONFIG.PLAYER.hyperBeamBossDamage} máu của trùm.</li>
           <li><strong>Vật phẩm rơi:</strong> <i className="fa-solid fa-gem" aria-hidden="true" /> pha lê cộng xu, <i className="fa-solid fa-heart" aria-hidden="true" /> hộp hồi {GAME_CONFIG.LOOT.repairValue} máu, <i className="fa-solid fa-atom" aria-hidden="true" /> cầu nạp {GAME_CONFIG.LOOT.hyperOrbCharge}% năng lượng siêu pháo.</li>
-          <li><strong>Nâng cấp:</strong> sau mỗi {GAME_CONFIG.ENEMIES.augmentDraftInterval} đợt được chọn 1 nâng cấp sức mạnh.</li>
           {match.versus ? (
             <>
-              <li><strong>Đối kháng:</strong> đạt combo {match.attackMilestones.join(", ")} sẽ gửi một con trùm sang hành tinh đối thủ. Nâng cấp được chọn tự động sau {Math.round(GAME_CONFIG.ENEMIES.versusAugmentAutoPickMs / 1000)} giây.</li>
+              <li><strong>Đối kháng:</strong> đạt combo {match.attackMilestones.join(", ")} sẽ gửi một con trùm sang hành tinh đối thủ.</li>
               <li>Trận kết thúc khi một bên hết máu hoặc hết giờ. Hết giờ thì ai còn nhiều máu hơn thắng; bằng máu thì so điểm.</li>
             </>
           ) : (
@@ -592,226 +591,6 @@ function MatchMenu() {
   );
 }
 
-const AUGMENT_CATEGORY_LABELS: Record<AugmentCategory, string> = {
-  OFFENSE: "Tấn công",
-  DEFENSE: "Phòng thủ",
-  CONTROL: "Khống chế",
-  UTILITY: "Hỗ trợ",
-  SURVIVAL: "Sinh tồn",
-  TACTICAL: "Chiến thuật",
-};
-
-// ============================================================
-// SCREEN: AugmentDraft (10_augment_modal)
-// ============================================================
-export function AugmentDraft({ preview }: { preview?: { sound: (action:string) => void; autoSelect?:boolean } } = {}) {
-  const { draftAugments, remainingRerolls, selectAugment, rerollAugments, versus } = useAirDefenseStore(
-    useShallow((s) => ({
-      draftAugments: s.draftAugments,
-      remainingRerolls: s.remainingRerolls,
-      selectAugment: s.selectAugment,
-      rerollAugments: s.rerollAugments,
-      versus: !!s.match?.versus,
-    }))
-  );
-  const [selectedCard, setSelectedCard] = useState<AugmentCard | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState(Math.round(GAME_CONFIG.ENEMIES.versusAugmentAutoPickMs / 1000));
-  const selectedRef = useRef(false);
-
-  const handleSelect = (card: AugmentCard) => {
-    if (selectedRef.current) return;
-    selectedRef.current = true;
-    setSelectedCard(card);
-    if (preview) preview.sound('augment_select');
-    else soundManager.playAugmentSelect();
-    if (!preview) setTimeout(() => { selectAugment(card); }, 700);
-  };
-
-  useEffect(() => {
-    if (!preview?.autoSelect || !draftAugments[0]) return;
-    const id = setTimeout(() => handleSelect(draftAugments[0]), 650);
-    return () => clearTimeout(id);
-  }, [preview?.autoSelect, draftAugments]);
-
-  // Đối kháng: thế giới của đối thủ vẫn chạy — sau 10 giây tự chọn ngẫu nhiên 1 lõi.
-  useEffect(() => {
-    if (!versus) return;
-    const deadline = Date.now() + GAME_CONFIG.ENEMIES.versusAugmentAutoPickMs;
-    const id = setInterval(() => {
-      const left = deadline - Date.now();
-      setSecondsLeft(Math.max(0, Math.ceil(left / 1000)));
-      if (left <= 0) {
-        clearInterval(id);
-        if (!selectedRef.current) {
-          const pool = useAirDefenseStore.getState().draftAugments;
-          if (pool.length > 0) handleSelect(pool[Math.floor(Math.random() * pool.length)]);
-        }
-      }
-    }, 200);
-    return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [versus]);
-
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="ad-augment-title"
-      style={{
-        position: preview ? "absolute" : "fixed", inset: 0, zIndex: 50,
-        background: "rgba(0,0,0,.35)",
-        backdropFilter: "blur(8px)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: preview ? 12 : 24,
-      }}
-    >
-      {selectedCard && (
-        <div style={{
-          position: preview ? "absolute" : "fixed", inset: 0, zIndex: 60,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          background: "rgba(233,221,255,.4)", backdropFilter: "blur(12px)",
-        }}>
-          <div style={{ textAlign: "center" }} aria-live="polite">
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ok-secondary)", marginBottom: 8 }}>
-              NÂNG CẤP HỆ THỐNG HOÀN TẤT
-            </div>
-            <h2 style={{ fontSize: 40, fontWeight: 800, color: "var(--ok-primary)", letterSpacing: "-0.03em" }}>
-              <i className="fa-solid fa-star" style={{ fontSize: 26 }} aria-hidden="true" /> ĐÃ KÍCH HOẠT: {selectedCard.title} <i className="fa-solid fa-star" style={{ fontSize: 26 }} aria-hidden="true" />
-            </h2>
-          </div>
-        </div>
-      )}
-
-      <div style={{
-        position: "relative",
-        width: "100%", maxWidth: 900,
-        maxHeight: "92vh", overflowY: "auto",
-        background: "#fff",
-        borderRadius: 20,
-        boxShadow: "0 20px 50px rgba(34,0,93,.14)",
-        padding: 32,
-      }}>
-        {/* Decorative glow */}
-        <div style={{
-          position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)",
-          width: 320, height: 160, borderRadius: "50%",
-          background: "var(--ok-primary-fixed)", opacity: 0.4, filter: "blur(40px)",
-          pointerEvents: "none",
-        }} />
-
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 28, position: "relative" }}>
-          <OkBadge variant="primary">
-            <i className="fa-solid fa-sliders" style={{ fontSize: 14 }} aria-hidden="true" />
-            &nbsp;HỆ THỐNG NÂNG CẤP VŨ TRỤ
-          </OkBadge>
-          <h2 id="ad-augment-title" style={{ fontSize: 32, fontWeight: 700, color: "var(--ok-primary)", margin: "12px 0 8px", letterSpacing: "-0.02em" }}>
-            Chọn 1 lõi bổ trợ
-          </h2>
-          <p style={{ fontSize: 16, color: "var(--ok-on-surface-variant)", margin: 0 }}>
-            Sau mỗi {GAME_CONFIG.ENEMIES.augmentDraftInterval} đợt, chọn 1 nâng cấp để tăng sức mạnh cho máy bay của bạn.
-          </p>
-          {versus && !selectedCard && (
-            <p style={{ fontSize: 13, fontWeight: 700, color: "var(--ok-error)", marginTop: 8 }} aria-live="polite">
-              Đối thủ vẫn đang chiến đấu — tự chọn ngẫu nhiên sau {secondsLeft} giây
-            </p>
-          )}
-        </div>
-
-        {/* Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, marginBottom: 28 }}>
-          {draftAugments.map((card, index) => {
-            const isChosen = selectedCard?.id === card.id;
-            const isOther = !!selectedCard && !isChosen;
-
-            return (
-              <div
-                key={card.id}
-                role="button"
-                tabIndex={selectedCard ? -1 : 0}
-                aria-label={`Chọn nâng cấp ${card.title}: ${card.description}`}
-                onClick={() => !selectedCard && handleSelect(card)}
-                onKeyDown={(e) => {
-                  if ((e.key === "Enter" || e.key === " ") && !selectedCard) {
-                    e.preventDefault();
-                    handleSelect(card);
-                  }
-                }}
-                onMouseEnter={() => preview ? preview.sound('augment_hover') : soundManager.playAugmentHover()}
-                style={{
-                  position: "relative",
-                  cursor: selectedCard ? "default" : "pointer",
-                  borderRadius: 16,
-                  padding: preview ? 12 : 24,
-                  background: isChosen ? "#f7f2ff" : "#fff",
-                  border: isChosen
-                    ? "2px solid var(--ok-primary-container)"
-                    : "1px solid var(--ok-outline-variant)",
-                  boxShadow: isChosen
-                    ? "0 4px 20px rgba(79,55,138,.12)"
-                    : "var(--ok-shadow-1)",
-                  opacity: isOther ? 0.3 : 1,
-                  transform: isOther ? "scale(0.96)" : "none",
-                  transition: "all 0.2s",
-                  display: "flex", flexDirection: "column", justifyContent: "space-between",
-                  minHeight: preview ? 160 : 220,
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-                    <div style={{
-                      width: 56, height: 56, borderRadius: 16,
-                      background: isChosen ? "var(--ok-secondary-fixed)" : "var(--ok-surface-low)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: isChosen ? "var(--ok-primary-container)" : "var(--ok-on-surface-variant)",
-                    }}>
-                      <i className={`fa-solid ${card.icon}`} style={{ fontSize: 26 }} aria-hidden="true" />
-                    </div>
-                    <div style={{
-                      minWidth: 24, height: 24, borderRadius: "50%",
-                      background: isChosen ? "var(--ok-primary)" : "var(--ok-surface-low)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: isChosen ? "#fff" : "var(--ok-on-surface-variant)",
-                      fontSize: 12, fontWeight: 700,
-                    }}>
-                      {isChosen ? <i className="fa-solid fa-check" style={{ fontSize: 16 }} aria-hidden="true" /> : index + 1}
-                    </div>
-                  </div>
-                  <h3 style={{ fontSize: 22, fontWeight: 700, color: isChosen ? "var(--ok-primary)" : "var(--ok-on-surface)", margin: "0 0 8px", letterSpacing: "-0.01em" }}>
-                    {card.title}
-                  </h3>
-                  <p style={{ fontSize: 14, color: "var(--ok-on-surface-variant)", lineHeight: "20px", margin: 0 }}>
-                    {card.description}
-                  </p>
-                </div>
-
-                <div style={{ marginTop: 20, paddingTop: 12, borderTop: "1px solid var(--ok-surface-container)" }}>
-                  <OkBadge variant={isChosen ? "primary" : "outline"}>
-                    <i className="fa-solid fa-bolt" style={{ fontSize: 14 }} aria-hidden="true" />
-                    &nbsp;{AUGMENT_CATEGORY_LABELS[card.category]}
-                  </OkBadge>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-          <OkBtnGhost
-            onClick={() => { if (preview) preview.sound('augment_hover'); rerollAugments(); }}
-            disabled={remainingRerolls <= 0 || !!selectedCard}
-          >
-            <i className="fa-solid fa-rotate-right" style={{ fontSize: 18 }} aria-hidden="true" />
-            Đổi lõi · Còn {remainingRerolls} lần
-          </OkBtnGhost>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ============================================================
 // Đồng hồ đối kháng: endsAt - serverNow(); tới 0 thì dừng mô phỏng
 // ============================================================
@@ -887,7 +666,7 @@ function Battle() {
     ? rawTimeLeft
     : Math.min(rawTimeLeft, match.endsAt - match.startAt);
   const beamReady = hyperBeamCharge >= GAME_CONFIG.PLAYER.hyperBeamMaxCharge;
-  const inputDisabled = outcome !== "playing" || paused || screen === "augment";
+  const inputDisabled = outcome !== "playing" || paused;
 
   // Phím tắt toàn cục: SHIFT = Hyper Beam, Esc = menu.
   useEffect(() => {
@@ -895,7 +674,6 @@ function Battle() {
       if (e.isComposing || e.keyCode === 229) return;
       const st = useAirDefenseStore.getState();
       if (e.key === "Escape") {
-        if (st.screen === "augment") return;
         e.preventDefault();
         if (st.isSettingsOpen) st.closeSettings();
         else st.openSettings();
@@ -910,9 +688,9 @@ function Battle() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Trả focus về ô nhập khi đóng menu / chọn lõi xong.
+  // Trả focus về ô nhập khi đóng menu.
   useEffect(() => {
-    if (!isSettingsOpen && screen !== "augment" && outcome === "playing") {
+    if (!isSettingsOpen && outcome === "playing") {
       inputRef.current?.focus();
     }
   }, [isSettingsOpen, screen, outcome]);
@@ -1414,7 +1192,6 @@ function AirDefenseApp({ host }: { host: HostConfig }) {
       <main style={{ flex: 1, minHeight: 0, overflow: "hidden", padding: "16px 20px", display: "flex", flexDirection: "column" }}>
         <Battle />
       </main>
-      {screen === "augment" && outcome === "playing" && <AugmentDraft />}
       {isSettingsOpen && <MatchMenu />}
     </div>
   );

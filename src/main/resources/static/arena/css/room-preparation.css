@@ -22,7 +22,12 @@
 .ar-room-skins__item:focus-visible { outline: 3px solid var(--ar-accent); outline-offset: 2px; }
 .ar-skin-confirm { max-width: 420px; }
 .ar-room-setup { padding: 8px 0; }
-.ar-room-setup__fields { display: grid; gap: 16px; }
+.ar-room-setup__fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+/* Hỏi bằng / Đáp bằng dropdowns, labelled like the time and option dropdowns right under them. */
+.ar-room-setup__pair { display: flex; flex-direction: column; gap: 6px; min-width: 0; font-weight: 700; font-size: 13px; }
+.ar-room-setup__fields + .ar-room-setup__board,
+.ar-room-setup__fields + .ar-room-setup__options { margin-top: 10px; }
+.ar-room-setup__suggestion + .ar-room-setup__cards-head { margin-top: 16px; }
 .ar-room-setup__field > span { display: block; margin-bottom: 8px; font-weight: 750; }
 .ar-room-setup__field > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .ar-room-setup__field button { min-height: 44px; flex: 1 1 72px; padding: 8px; border-radius: 10px; border: 1px solid var(--ar-line); color: var(--ar-ink); background: var(--ar-paper-2); font: inherit; cursor: pointer; }

@@ -20,7 +20,7 @@ const LEARNER = 'リン';
 // F49 (11/11): the BrSE dialogues are written for グエン (the learner), every other goal for リン
 const LEARNER_BY_GOAL = { BA: 'グエン' };
 const learnerOf = (goal) => LEARNER_BY_GOAL[goal] || LEARNER;
-const VALID_CATEGORY_CODES = ['food-drink', 'introduction', 'daily-life', 'transport', 'shopping', 'health-service', 'work-study', 'travel'];
+const VALID_CATEGORY_CODES = ['food-drink', 'introduction', 'daily-life', 'transport', 'shopping', 'health-service', 'work-study', 'travel', 'it-brse'];
 const SCORING_RULE_CODES = ['grammar_accuracy', 'vocabulary_usage', 'mission_completion', 'naturalness'];
 
 const SQL_FILE = path.join(ROOT, 'sql/learning/parts', 'learning_data_comm.sql');

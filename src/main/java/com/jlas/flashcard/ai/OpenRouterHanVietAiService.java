@@ -92,6 +92,9 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1/chat/completions}")
     private String apiUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.model:qwen/qwen-2.5-7b-instruct}")
     private String model;
 
@@ -453,7 +456,7 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.APPLICATION_JSON);
         h.setBearerAuth(apiKey);
-        h.set("HTTP-Referer", "http://localhost:8080");
+        h.set("HTTP-Referer", siteUrl);
         h.set("X-Title", "JLAS Flashcard HanViet");
 
         try {

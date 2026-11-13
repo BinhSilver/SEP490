@@ -115,7 +115,8 @@
 
   /**
    * Số câu muốn luyện của một mức trong một dạng (− / ô số / +), chỉ hiện khi mức đó được chọn.
-   * Mặc định = tối đa đang có; người học sửa thì giữ số đó (chỉ thu lại khi vượt tối đa mới).
+   * Mặc định 1 câu (0 khi mức không có câu); người học tăng tới tối đa nếu muốn. Số đã sửa được giữ (chỉ thu lại khi
+   * vượt tối đa mới).
    * Nút và ô số nằm trong <label> nhưng là phần tử tương tác nên bấm vào không bật/tắt checkbox.
    */
   function levelCountControl(pair, checkbox, small) {
@@ -171,7 +172,8 @@
         return;
       }
       control.input.max = String(limit);
-      if (!levelTouched[pair] || Number(control.input.value) > limit) control.input.value = String(limit);
+      if (!levelTouched[pair]) control.input.value = String(Math.min(1, limit));
+      else if (Number(control.input.value) > limit) control.input.value = String(limit);
       control.minus.disabled = Number(control.input.value) <= 0;
       control.plus.disabled = Number(control.input.value) >= limit;
       control.small.textContent = '/ ' + limit;

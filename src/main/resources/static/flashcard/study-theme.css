@@ -964,12 +964,13 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--study #settings-modal .stu
 #jlabBasePage.flashcard-page--study .study-rating-star:hover,
 #jlabBasePage.flashcard-page--study .study-rating-star.is-selected { color: #e8a725; background: #fff7df; border-color: #f0c45b; }
 
-/* Rating stays within one lavender paper surface; stars communicate state with color, not a second panel. */
+/* Rating uses the same white paper and plum action as the settings dialog; stars carry the state by color. */
 #jlabBasePage.flashcard-page--study #rating-modal {
-  --study-rating-paper: #f7f3fd;
-  --study-rating-ink: #241640;
-  --study-rating-primary: #5b36b8;
-  --study-rating-border: #d9ceee;
+  --study-rating-paper: var(--color-surface-lowest, #ffffff);
+  --study-rating-ink: var(--color-on-surface);
+  --study-rating-primary: var(--color-primary);
+  --study-rating-border: var(--color-outline-variant);
+  --study-rating-radius: 24px;
 }
 
 #jlabBasePage.flashcard-page--study #rating-modal .modal,
@@ -982,25 +983,36 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--study #settings-modal .stu
 }
 
 #jlabBasePage.flashcard-page--study #rating-modal .modal {
-  border: 1px solid var(--study-rating-border);
+  overflow: hidden;
+  border: 1px solid var(--study-rating-border) !important;
+  border-radius: var(--study-rating-radius) !important;
   box-shadow: 0 24px 56px rgba(39, 21, 85, .22);
 }
 
 #jlabBasePage.flashcard-page--study #rating-modal .modal-header h3 { color: var(--study-rating-ink); }
-#jlabBasePage.flashcard-page--study #rating-modal .modal-body .muted { color: #62577a; }
+#jlabBasePage.flashcard-page--study #rating-modal .modal-body .muted { color: var(--color-on-surface-variant); }
 #jlabBasePage.flashcard-page--study #rating-modal .modal-header { border-bottom: 0; }
 #jlabBasePage.flashcard-page--study #rating-modal .modal-footer { border-top: 0; }
 
-#jlabBasePage.flashcard-page--study #rating-modal .btn-icon {
-  color: var(--study-rating-primary);
-  background: transparent;
-  border-color: var(--study-rating-border);
+/* The legacy sakura close button (pink, !important) is replaced by the plum outline the settings dialog uses. */
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon,
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon i {
+  color: var(--study-rating-primary) !important;
 }
 
-#jlabBasePage.flashcard-page--study #rating-modal .btn-icon:hover {
-  color: #ffffff;
-  background: var(--study-rating-primary);
-  border-color: var(--study-rating-primary);
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon {
+  background: transparent !important;
+  border-color: var(--study-rating-border) !important;
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon:hover,
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon:hover i {
+  color: var(--color-on-primary, #ffffff) !important;
+}
+
+#jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon:hover {
+  background: var(--study-rating-primary) !important;
+  border-color: var(--study-rating-primary) !important;
 }
 
 #jlabBasePage.flashcard-page--study .study-rating-star {
@@ -1029,9 +1041,9 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--study #settings-modal .stu
 }
 
 #jlabBasePage.flashcard-page--study #rating-modal .btn--primary:disabled {
-  color: #81769b;
-  background: #e6dff2;
-  border-color: #e6dff2;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-mid, #eceaf1);
+  border-color: var(--color-surface-mid, #eceaf1);
 }
 
 /* Settings follows the shared JLAS paper surface instead of mixing legacy cyan and lavender layers. */
@@ -1659,8 +1671,9 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--study #rating-modal .modal
 html[data-theme="dark"] #jlabBasePage.flashcard-page--study #rating-modal .modal-body .muted {
     color: var(--dm-flashcard-muted)
 }
-html[data-theme="dark"] #jlabBasePage.flashcard-page--study #rating-modal .btn-icon:hover {
-    color: var(--dm-flashcard-on-accent)
+html[data-theme="dark"] #jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon:hover,
+html[data-theme="dark"] #jlabBasePage.flashcard-page--study #rating-modal .modal-header .btn-icon:hover i {
+    color: var(--dm-flashcard-on-accent) !important
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--study .study-rating-star {
     color: var(--dm-flashcard-accent)

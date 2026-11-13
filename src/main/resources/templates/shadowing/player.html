@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261109-transcript">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261105-plum"/>
-    <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
     <link rel="stylesheet" href="/shadowing/css/focus-mode.css?v=20261012-shadowing-focus">
@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="/css/components/cp-confirm.css?v=20261031-pro-cp"/>
     <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
     <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261102-wheel2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
     <div id="jlabBaseShellMount"></div>
@@ -143,7 +145,7 @@
                     </button>
                     <span th:if="${canRateAge}" class="age-rating-control">
                         <label for="age-rating-select"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Độ tuổi</label>
-                        <select id="age-rating-select" class="form-input form-select" aria-describedby="age-rating-status">
+                        <select id="age-rating-select" data-jl-select class="form-input form-select" aria-describedby="age-rating-status">
                             <option value="0">Mọi lứa tuổi</option>
                             <option value="13">13+</option>
                             <option value="16">16+</option>
