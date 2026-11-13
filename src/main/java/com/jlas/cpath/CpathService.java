@@ -670,8 +670,14 @@ public class CpathService {
             Map<String, Object> owner = db.queryForMap("SELECT * FROM cpath_user_path WHERE id = ?", pathId);
             if ("MAIN".equals(owner.get("role"))) requireAheadAllowed(userId, owner);
         }
-        db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
-        Map<String, Object> row = progressOf(pathId).get(code);
+        // F112 (13/11): two tabs posting steps of one situation at once — INSERT IGNORE on an existing row takes a shared
+        // lock in both requests, then both UPDATE it → MySQL deadlock (one request fails) and the plain read of
+        // steps_done lets one step overwrite the other. The no-op upsert takes the row's exclusive lock and the locking
+        // read sees the other request's committed steps, so the two requests run one after the other.
+        db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?) "
+                + "ON DUPLICATE KEY UPDATE path_id = path_id", pathId, code, clock.today(userId));
+        Map<String, Object> row = db.queryForMap("SELECT * FROM cpath_user_situation WHERE path_id = ? AND situation_code = ? FOR UPDATE",
+                pathId, code);
         Set<String> doneSteps = new LinkedHashSet<>();
         for (String x : String.valueOf(row.get("steps_done")).split(",")) if (!x.isBlank()) doneSteps.add(x);
         doneSteps.add(st);
