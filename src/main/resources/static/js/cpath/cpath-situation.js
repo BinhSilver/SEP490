@@ -1098,15 +1098,20 @@
       if (!t || typeof t.closest !== 'function' || !sitData) return;
 
       if (t.closest('[data-cp-known-open]')) {
-        state.known = { open: true, loading: true, answers: {} };
+        // F92: the learner may close (or close and reopen) the panel before the answer comes back;
+        // only the panel that asked may take the answer
+        var panel = { open: true, loading: true, answers: {} };
+        state.known = panel;
         render();
         root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/known-check').then(function (d) {
-          state.known.loading = false;
-          state.known.data = d || {};
+          if (state.known !== panel) return;
+          panel.loading = false;
+          panel.data = d || {};
           render();
         }).catch(function (error) {
-          state.known.loading = false;
-          state.known.error = (error && error.message) || 'Không mở được bài kiểm tra.';
+          if (state.known !== panel) return;
+          panel.loading = false;
+          panel.error = (error && error.message) || 'Không mở được bài kiểm tra.';
           render();
         });
         return;
@@ -1125,15 +1130,18 @@
       var knownSubmit = t.closest('[data-cp-known-submit]');
       if (knownSubmit && state.known && !knownSubmit.disabled) {
         knownSubmit.disabled = true;
+        var sent = state.known;
         root.JpathApi.send('POST', '/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/known-check',
-          { answers: state.known.answers }).then(function (r) {
-          state.known.result = r || {};
+          { answers: sent.answers }).then(function (r) {
+          // a pass still counts the situation as learned even if the panel was closed meanwhile
           if (r && r.passed) {
             sitData.steps = { words: true, listen: true, roleplay: true, speak: true };
           }
+          if (state.known === sent) sent.result = r || {};
           render();
         }).catch(function (error) {
-          state.known.error = (error && error.message) || 'Chưa nộp được bài. Thử lại sau.';
+          if (state.known !== sent) return;
+          sent.error = (error && error.message) || 'Chưa nộp được bài. Thử lại sau.';
           render();
         });
         return;
