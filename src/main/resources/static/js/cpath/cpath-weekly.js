@@ -29,6 +29,7 @@
     }));
   }
   var BASE = REVIEW ? '/api/learning/comm/review' : '/api/learning/comm/weekly';
+  if (REVIEW && root && root.document) root.document.title = 'Ôn tập hôm nay - KotsuKotsu'; // F99
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -255,6 +256,11 @@
     var scope = mode === 'fallback' ? 'goal' : mode === 'topic' ? 'topic' : 'situation';
     var base = mode === 'fallback' ? '/api/learning/comm/goal-test/fallback'
       : '/api/learning/comm/roleplay?scope=' + encodeURIComponent(scope) + '&code=' + encodeURIComponent(code);
+    // F99: the page title says which test this is (the template's title is the weekly test's)
+    if (root.document) {
+      root.document.title = (scope === 'goal' ? 'Bài test cuối mục tiêu' : scope === 'topic' ? 'Nhập vai cuối chủ đề' : 'Luyện nhanh tình huống')
+        + ' - KotsuKotsu';
+    }
     var state = { questions: [], goal: '', index: 0, answers: {}, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false };
     function error(message) {
       el.innerHTML = '<p class="jp-alert" role="alert">' + esc(message) + '</p><button type="button" class="jp-btn" data-rp-retry>Thử lại</button>';
