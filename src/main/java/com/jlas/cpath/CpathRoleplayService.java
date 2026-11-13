@@ -60,7 +60,14 @@ public class CpathRoleplayService {
         } else {
             paths = db.queryForList("SELECT id, goal_code FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1", userId);
         }
-        if (paths.isEmpty()) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
+        if (paths.isEmpty()) {
+            // F95 (13/11): a learner who has a path but opens an unknown / other-goal code gets the content message,
+            // not "no path"
+            Integer active = "goal".equals(scope) ? Integer.valueOf(0)
+                    : db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+            throw new ApiException(ErrorCode.NOT_FOUND, active != null && active > 0
+                    ? "Nội dung không thuộc lộ trình hiện tại." : "Bạn chưa có lộ trình giao tiếp.");
+        }
         long id = ((Number) paths.get(0).get("id")).longValue();
         String goal = String.valueOf(paths.get(0).get("goal_code"));
         if (!"goal".equals(scope)) {
