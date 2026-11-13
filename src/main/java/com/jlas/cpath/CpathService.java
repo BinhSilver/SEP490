@@ -152,15 +152,20 @@ public class CpathService {
         if (!resumable.isEmpty()) {
             Long resumeId = resumable.get(0);
             db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, resumeId);
+            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE' AND goal_code = ?", userId, goal);
             db.update("UPDATE cpath_user_path SET status = 'ACTIVE', self_level = ?, priority_topics_json = COALESCE(?, priority_topics_json), daily_situations = COALESCE(?, daily_situations), rest_days = COALESCE(?, rest_days), finish_date = COALESCE(?, finish_date) WHERE id = ?", level, req.containsKey("priorityTopics") ? json(req.get("priorityTopics")) : null, req.containsKey("dailySituations") ? daily : null, req.containsKey("restDays") ? String.join(",", rest.stream().map(String::valueOf).toList()) : null, finish == null || finish.toString().isBlank() ? null : finish.toString(), resumeId);
             applyKanaChoice(resumeId, req);
             return Map.of("pathId", resumeId, "role", "MAIN");
         }
         String role = secondary ? "SECONDARY" : "MAIN";
         if ("MAIN".equals(role)) db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'", userId);
-        if (main != null) {
+        if (secondary) {
             // a second goal replaces the earlier secondary one (owner 06/11: one main + one secondary)
             db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE'", userId);
+        } else {
+            // F113 (13/11): changing the MAIN goal no longer pauses a secondary of another goal without a word;
+            // only a secondary of the new main goal steps aside (a goal is never main and secondary at once)
+            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE' AND goal_code = ?", userId, goal);
         }
         db.update("INSERT INTO cpath_user_path (user_id, goal_code, role, status, self_level, fields_json, priority_topics_json, "
                 + "daily_situations, rest_days, finish_date) VALUES (?,?,?,?,?,?,?,?,?,?)", userId, goal, role, "ACTIVE", level,
@@ -1009,8 +1014,12 @@ public class CpathService {
         m.put("situation", code);
         m.put("passScore", KNOWN_PASS);
         m.put("alreadyDone", done(pr));
+        // F111: one try a day, so a failed try (which shows the answers) cannot be resubmitted at 100% straight away
+        boolean triedToday = knownTriedToday(((Number) path.get("id")).longValue(), code, clock.today(userId));
+        m.put("triedToday", triedToday);
+        m.put("retryOn", triedToday ? clock.today(userId).plusDays(1).toString() : null);
         m.put("display", displayOf(path));
-        m.put("questions", done(pr) ? List.of() : knownQuestions(userId, path, code).stream().map(q -> {
+        m.put("questions", done(pr) || triedToday ? List.of() : knownQuestions(userId, path, code).stream().map(q -> {
             Map<String, Object> x = new LinkedHashMap<>();
             x.put("id", q.id());
             x.put("ja", q.ja());
@@ -1030,6 +1039,11 @@ public class CpathService {
         if (done(progressOf(pathId).get(code))) throw new ApiException(ErrorCode.CONFLICT, "Tình huống này đã học xong.");
         List<WeeklyQ> qs = knownQuestions(userId, path, code);
         if (qs.isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tình huống này chưa có câu để kiểm tra.");
+        // F111: the attempt row is the lock - a second submit the same day (another tab, a double click) finds it taken
+        LocalDate today = clock.today(userId);
+        if (db.update("INSERT IGNORE INTO cpath_known_attempt (path_id, situation_code, attempt_day) VALUES (?,?,?)", pathId, code, today) == 0) {
+            throw new ApiException(ErrorCode.CONFLICT, "Hôm nay bạn đã thử bài này rồi. Ngày mai thử lại nhé, hoặc học tình huống như bình thường.");
+        }
         Map<String, Object> answers = body != null && body.get("answers") instanceof Map<?, ?> a ? (Map<String, Object>) a : Map.of();
         int correct = 0;
         List<Map<String, Object>> review = new ArrayList<>();
@@ -1046,6 +1060,7 @@ public class CpathService {
         }
         int score = Math.round(100f * correct / qs.size());
         boolean pass = score >= KNOWN_PASS;
+        db.update("UPDATE cpath_known_attempt SET score = ? WHERE path_id = ? AND situation_code = ? AND attempt_day = ?", score, pathId, code, today);
         if (pass) {
             // counted as learned: every step ticked, no situation CP (the CP is for studying it)
             db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
@@ -1060,7 +1075,14 @@ public class CpathService {
         m.put("passed", pass);
         m.put("passScore", KNOWN_PASS);
         m.put("review", review);
+        m.put("retryOn", pass ? null : today.plusDays(1).toString());
         return m;
+    }
+
+    private boolean knownTriedToday(Long pathId, String code, LocalDate today) {
+        Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_known_attempt WHERE path_id = ? AND situation_code = ? AND attempt_day = ?",
+                Integer.class, pathId, code, today);
+        return n != null && n > 0;
     }
 
     // ------------------------------------------------------------------------------------------- daily review
