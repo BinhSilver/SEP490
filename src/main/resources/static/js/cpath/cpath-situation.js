@@ -843,7 +843,10 @@
 
     var search = (root && root.location && root.location.search) ? String(root.location.search) : '';
     var mId = /[?&]id=([^&#]+)/.exec(search);
-    var sitId = mId ? decodeURIComponent(mId[1]) : el.getAttribute('data-situation-id');
+    // F93: a broken escape (?id=%E0) would throw URIError and leave the page blank
+    var sitId = null;
+    if (mId) { try { sitId = decodeURIComponent(mId[1]); } catch (e) { sitId = null; } }
+    if (!sitId) sitId = el.getAttribute('data-situation-id');
     if (!sitId) {
       el.innerHTML = '<p class="jp-alert" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
       return;
