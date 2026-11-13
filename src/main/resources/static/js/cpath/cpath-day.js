@@ -218,6 +218,12 @@
     var search = (root && root.location && root.location.search) ? String(root.location.search) : '';
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(search);
     var day = m ? m[1] : null;
+    // F94: ?d=2026-02-31 / 2026-13-01 match the pattern but are no real day; the server answers 400
+    // and "Thử lại" would ask the same bad day forever, so open today instead
+    if (day) {
+      var probe = new Date(day + 'T00:00:00Z');
+      if (isNaN(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) day = null;
+    }
 
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
