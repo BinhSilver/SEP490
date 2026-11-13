@@ -478,3 +478,11 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
 }
 .jp-ai__ask-input:focus { outline: 2px solid var(--jp-primary); outline-offset: 1px; }
 .jp-ai__ask-btn { min-height: 40px; border-radius: 999px; }
+
+/* [JLAS-W0108] F101: on a phone the tab row of the side pages (Kho đã biết: Từ vựng · Kanji · Ngữ pháp · Chữ cái) stays on
+   one line and scrolls sideways instead of dropping the last tab to a second row */
+@media (max-width: 600px) {
+  .jp-ws__main .jp-side__range { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .jp-ws__main .jp-side__range::-webkit-scrollbar { display: none; }
+  .jp-ws__main .jp-side__range .jp-side-btn { flex: 0 0 auto; padding: 8px 14px; white-space: nowrap; }
+}
