@@ -144,8 +144,11 @@
             ? '<button type="button" class="jp-btn" data-weekly-speech-start>Tiếp tục phần Nói</button>' : '');
         var h = el.querySelector('#cpWeeklyResult');
         if (h && h.focus) h.focus();
-      }, function () {
-        el.innerHTML = infoHtml('Chưa chấm được bài. Thử lại sau.');
+      }, function (e) {
+        // F110: keep the answers; show the server's reason and let the learner send the same answers again
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa chấm được bài. Thử lại sau.') + '</p>'
+          + '<p><button type="button" class="jp-btn" data-weekly-resubmit>Gửi lại bài</button> '
+          + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></p>';
       });
     }
     function showSpeech() {
@@ -194,8 +197,8 @@
           return;
         }
         show();
-      }, function () {
-        el.innerHTML = infoHtml('Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
+      }, function (e) {
+        el.innerHTML = infoHtml(e && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
       });
     }
 
@@ -204,6 +207,7 @@
       if (!t || !t.closest) return;
       if (t.closest('[data-weekly-play]')) { play(); return; }
       if (t.closest('[data-weekly-retry]')) { load(); return; }
+      if (t.closest('[data-weekly-resubmit]')) { submit(); return; }
       if (t.closest('[data-weekly-speech-start]')) { state.speechIndex = 0; state.speechClips = []; showSpeech(); return; }
       if (t.closest('[data-weekly-speech-skip]')) {
         if (state.timer) root.clearTimeout(state.timer);
