@@ -1972,3 +1972,36 @@ button.jp-sidenav__link {
 .cp-page .jp-parts__banner-ring-meta strong { font-size: .88rem; white-space: nowrap; }
 .cp-page .jp-parts__banner-ring-sub { display: none; }
 
+/* [JLAS-W0108] F91: phone layout for the comm path page */
+@media (max-width: 600px) {
+  /* today: keep the small "Học" button on the right of each situation instead of a full-width block */
+  .cp-page .cp-today__item { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; }
+  .cp-page .cp-today__item .jp-btn { grid-column: auto; justify-self: end; min-width: 0; padding: 6px 14px; }
+  .cp-page .cp-today__actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .cp-page .cp-today__actions .jp-btn { justify-content: center; text-align: center; padding: 8px 6px; font-size: .82rem; line-height: 1.25; white-space: normal; }
+  .cp-page .cp-today__cta .cp-btn-primary { width: 100%; justify-content: center; text-align: center; }
+
+  /* banner: title on its own row, progress chip and week switcher share the next row */
+  .cp-page .jp-parts__banner-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+  .cp-page .jp-parts__banner-left { grid-column: 1 / -1; }
+  .cp-page .jp-parts__title { font-size: 1rem; }
+  .cp-page .jp-parts__banner-center { justify-self: start; padding-left: 0; }
+  .cp-page .jp-parts__banner-right { justify-self: end; }
+  .cp-page .jp-parts__banner-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .cp-page .jp-parts__banner-sub .cp-goal-switch > summary,
+  .cp-page .jp-parts__banner-sub .jp-parts__all-btn { padding: 7px 12px; font-size: .84rem; }
+  .cp-page .jp-parts__legend { order: 3; flex: 1 0 100%; display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .cp-page .jp-parts__legend::-webkit-scrollbar { display: none; }
+  .cp-page .jp-parts__legend-pill { flex: 0 0 auto; font-size: .74rem; padding: 3px 8px; }
+}
+
+/* [JLAS-W0108] F91: phone layout for the situation page */
+@media (max-width: 600px) {
+  .cp-page .cp-sit-topbar > div[style] { flex-wrap: wrap; gap: 6px !important; }
+  .cp-page .cp-sit-topbar [data-cp-known-open] { flex: 1 0 100%; justify-content: center; text-align: center; }
+  .cp-page .cp-sit-topbar > div[style] > .cp-btn-ghost:not([data-cp-known-open]) { flex: 1 1 0; justify-content: center; text-align: center; }
+  /* all four steps stay visible in one row (F85 scrolled them and hid steps 3-4) */
+  .cp-page .cp-sit-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; overflow: visible; padding: 4px; }
+  .cp-page .cp-sit-steps .cp-step-tab { min-width: 0; width: 100%; flex-direction: column; gap: 2px; justify-content: center; text-align: center;
+    white-space: normal; padding: 6px 2px; font-size: .74rem; line-height: 1.2; }
+}
