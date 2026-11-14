@@ -290,8 +290,11 @@
 }
 /* 06/11 translations of questions and options (Dịch nghĩa) */
 .jp-skill-q__vi { margin: 2px 0 8px; color: var(--jp-muted); font-size: .92rem; }
-.jp-skill-q__options button { display: grid; gap: 2px; text-align: left; }
-.jp-skill-opt-vi { font-size: .85rem; color: var(--jp-muted); }
+/* [JLAS-W0108] F104: the option stays one block of running text. As a grid, every <ruby> the furigana toggle
+   wraps around a kanji became its own row, so "マイクさんと一緒に帰ります" stood on 5 lines (163px tall);
+   the Vietnamese line still goes under the Japanese because it is a block of its own. */
+.jp-skill-q__options button { display: block; text-align: left; }
+.jp-skill-opt-vi { display: block; margin-top: 2px; font-size: .85rem; color: var(--jp-muted); }
 
 /* === ROUND 7 UI POLISH === */
 .jp-howto > li::before {
