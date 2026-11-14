@@ -1437,3 +1437,43 @@ html.dark .cp-page {
 @media (max-width: 640px) {
   .jp-check-topBar__actions .jp-check-back[href="/learning"] { display: none; }
 }
+
+/* [JLAS-W0108] F120: grammar pattern page (/learning/jlpt/grammar/{code}), owner 14/11 "siêu tệ về UI".
+   1) .jp-path { max-width: none } (jpath-path.css) comes after .jp-lesson-page { max-width: 1100px }, so on a wide
+      screen the hero and the two body columns ran to the right edge → the page is held at 1180px and centred.
+   2) "Cấu trúc" floated alone at the far end of the hero → the head box steps aside (display: contents) so
+      "Nghĩa" and "Cấu trúc" share one row under the pattern; on a phone they stack.
+   3) The two body columns started at different heights (a rule above the left column only, a 44px link row on
+      the right) → same rule on both, the link keeps its tap area without pushing the label down, columns 1:1.
+   4) The report flag (fixed, bottom right) covered the last example or the practice button → room at the end. */
+.jp-path.jp-lesson-page { max-width: 1180px; width: 100%; margin-inline: auto; box-sizing: border-box; }
+.jp-lesson-page .jp-lesson__hero { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  column-gap: 56px; row-gap: 0; align-items: end; }
+.jp-lesson-page .jp-lesson__hero > .jp-lesson__head { display: contents; }
+.jp-lesson-page .jp-lesson__hero .jp-lesson__eyebrow,
+.jp-lesson-page .jp-lesson__hero .jp-unitbar,
+.jp-lesson-page .jp-lesson__hero .jp-lesson__pattern { grid-column: 1 / -1; justify-self: start; }
+.jp-lesson-page .jp-lesson__hero .jp-lesson__meaning { grid-column: 1; min-width: 0; }
+.jp-lesson-page .jp-lesson__hero .jp-lesson__formula { grid-column: 2; min-width: 0; align-self: end;
+  padding-left: 24px; border-left: 1px solid color-mix(in srgb, var(--jp-primary) 22%, transparent); }
+@media (min-width: 1100px) {
+  .jp-lesson-page .jp-lesson__hero { grid-template-columns: minmax(0, auto) minmax(0, 1fr); }
+  .jp-lesson-page .jp-lesson__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 48px; }
+  .jp-lesson-page .jp-lesson__examples { border-top: 1px solid var(--jp-line); }
+}
+.jp-lesson-page .jp-lesson__examples-head { min-height: 20px; }
+.jp-lesson-page .jp-lesson__examples-head .jp-link-btn { margin-block: -12px; }
+@media (min-width: 641px) {
+  .jp-path.jp-lesson-page { padding-bottom: 88px; }
+}
+@media (max-width: 640px) {
+  .jp-lesson-page .jp-lesson__hero { grid-template-columns: minmax(0, 1fr); row-gap: 14px; }
+  .jp-lesson-page .jp-lesson__hero .jp-lesson__formula { grid-column: 1; padding-left: 0; border-left: 0; }
+}
+/* F120 (same pass), item drawer (Kanji / Từ vựng detail, opened from the lists): on a 760–1000px screen the
+   kanji column took half the purple box while the readings got ~170px, so "Âm Kun" ran 8 lines → the kanji side
+   keeps what it needs (9em up to 0.7 share) and the labels shrink to 5.5em. */
+@media (min-width: 760px) {
+  .jp-drawer__top:has(.jp-facts) { grid-template-columns: minmax(9em, .7fr) minmax(0, 1.3fr); }
+}
+.jp-drawer__top .jp-fact { grid-template-columns: 5.5em minmax(0, 1fr); }
