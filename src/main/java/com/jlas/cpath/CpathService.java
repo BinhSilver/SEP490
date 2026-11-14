@@ -842,7 +842,8 @@ public class CpathService {
         boolean dayDone = !rows.isEmpty() && rows.stream().allMatch(r -> r.get("done_at") != null);
         // F68: the goal tells the day page how step 1 is called (Du lịch: "Nghe & chọn nghĩa")
         return Map.of("day", day.toString(), "today", clock.today(userId).toString(), "situations", situations, "scores", scores,
-                "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0), "goal", String.valueOf(p.get("goal_code")));
+                "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0), "goal", String.valueOf(p.get("goal_code")),
+                "restDay", isRest(p, day)); // F116: an empty rest day says "ngày nghỉ", not "chưa có lịch"
     }
 
     private static Map<String, Object> scoreRow(String labelVi, int score, String noteVi) {

@@ -139,7 +139,8 @@
       + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau ›</a>' : '')
       + '</nav>';
 
-    var statusText = allDone ? 'Đã xong ngày' : (situations.length ? 'Đang học trong ngày' : 'Ngày này chưa có bài');
+    var restEmpty = !situations.length && x.restDay === true; // F116
+    var statusText = allDone ? 'Đã xong ngày' : (situations.length ? 'Đang học trong ngày' : (restEmpty ? 'Ngày nghỉ' : 'Ngày này chưa có bài'));
     var statusCls = allDone ? 'jp-dayd__badge jp-dayd__badge--done' : 'jp-dayd__badge jp-dayd__badge--pending';
     var cpBadge = Number(x.cp) > 0
       ? ' <span class="jp-dayd__points-sep">·</span> <span class="jp-dayd__badge jp-dayd__badge--cp">+' + esc(x.cp) + ' CP</span>'
@@ -148,7 +149,8 @@
     var kitsuImg = allDone ? 'kitsu-celebrate-30.webp' : (situations.length ? 'kitsu-cheer-30.webp' : 'kitsu-resting-30.webp');
     var kitsuSpeech = allDone
       ? 'Bạn đã hoàn thành đầy đủ các tình huống giao tiếp của ngày này!'
-      : (situations.length ? 'Cùng hoàn thành nốt các bước hội thoại trong ngày nhé!' : 'Ngày này chưa có lịch học.');
+      : (situations.length ? 'Cùng hoàn thành nốt các bước hội thoại trong ngày nhé!'
+        : (restEmpty ? (day === today ? 'Hôm nay là ngày nghỉ của bạn. Muốn học thêm thì về lộ trình bấm "Học thêm 1 tình huống".' : 'Đây là ngày nghỉ của bạn.') : 'Ngày này chưa có lịch học.'));
 
     var sitItemsHtml = situations.map(function (s) {
       var st = s.steps || {};
