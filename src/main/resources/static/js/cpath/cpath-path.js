@@ -346,7 +346,7 @@
     var reviewHref = pageUrl('weekly') + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review';
     var actions = '<div class="cp-today__actions">'
       + extra
-      + '<a class="jp-btn" href="/learning/comm/settings">Đổi nhịp học</a>'
+      // F119: 'Đổi nhịp học' dropped here - the side card and the ⚙ tab already open the settings
       + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
       + (weeklyOpen
         ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
@@ -362,7 +362,7 @@
     var left = situations.length - doneCount;
     var kitsuFile = allDone ? 'kitsu-celebrate-30.webp' : (situations.length ? 'kitsu-cheer-30.webp' : 'kitsu-resting-30.webp');
     var kitsuSay = !situations.length
-      ? (todayObj.restDay ? 'Hôm nay nghỉ ngơi nhé! Muốn thì học thêm 1 tình huống.' : 'Hôm nay chưa có tình huống mới, mình ôn lại bài cũ nhé!')
+      ? (todayObj.restDay ? 'Nghỉ ngơi chút nhé!' : 'Ôn lại bài cũ cùng mình nhé!') // F119: the line below says what to do
       : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
         : 'Còn ' + left + ' tình huống hôm nay, mình cùng vào vai nhé!');
     // [JLAS-W0108] C1: same head as the JLPT "Hôm nay" block - calendar stamp, title, Kitsu - then the main button
@@ -377,8 +377,9 @@
       + '<h1 class="jp-section-title" id="cp-today-title">Hôm nay của bạn</h1>'
       + (allDone ? '<span class="jp-today__stamp" role="img" tabindex="0" aria-label="Bạn đã hoàn thành toàn bộ bài học hôm nay!" data-tip="Bạn đã hoàn thành toàn bộ bài học hôm nay!"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="jpStampArc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"></path></defs><circle class="jp-today__stamp-o" cx="50" cy="50" r="47"></circle><circle class="jp-today__stamp-i" cx="50" cy="50" r="29"></circle><text class="jp-today__stamp-arc"><textPath href="#jpStampArc" startOffset="0">KOTSUKOTSU ・ ĐÃ HỌC HÔM NAY ・</textPath></text><text class="jp-today__stamp-jp" x="50" y="58" text-anchor="middle" lang="ja">済</text></svg></span>' : '')
       + '</div>'
-      + '<p class="jp-today__subtitle">' + esc(cal ? '' : dateLine + (dateLine ? ' · ' : '')) + esc(d.nameVi || 'Giao tiếp')
-      + (lead ? ' · ' + esc(lead) : '') + '</p></div>'
+      // F119: the goal name is already the map banner's title; the subtitle keeps the date (no stamp) and the count
+      + ((cal ? '' : dateLine) || lead ? '<p class="jp-today__subtitle">' + esc(cal ? '' : dateLine) + (!cal && dateLine && lead ? ' · ' : '')
+        + esc(lead) + '</p>' : '') + '</div>'
       + '<div class="jp-today__kitsu" aria-hidden="true"><span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
       + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="" /></div>'
       + '</div>'
@@ -649,7 +650,7 @@
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--next"><span class="jp-parts__legend-ic">' + svgMicRoleplay() + '</span>Bài nhập vai chủ đề</span>'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--chest"><span class="jp-parts__legend-ic">' + svgLock() + '</span>Bài test với AI</span>'
       + '</div>'
-      + '<a class="jp-btn jp-parts__all-btn" href="' + esc(pageUrl('day')) + '">Xem chi tiết ngày học</a>'
+      // F119: 'Xem chi tiết ngày học' dropped - the 'Chi tiết ngày' tab is the one way in
       + '</div>'
       + '</header>';
 

@@ -2018,3 +2018,13 @@ button.jp-sidenav__link {
 .cp-page .jp-dayd__hero-row { flex-direction: column; align-items: stretch; gap: 10px; margin: 14px 0 16px; }
 .cp-page .jp-dayd__hero-info { flex: none; }
 .cp-page .jp-dayd__mascot { width: 100%; box-sizing: border-box; }
+
+/* [JLAS-W0108] F119: khi cột trái (thẻ Lộ trình chính) đứng cạnh bản đồ, dòng "Đã đạt x/y chủ đề · trình độ · n tình huống/ngày" của biểu ngữ là lặp → ẩn; dưới 900px cột trái xuống cuối trang nên vẫn giữ */
+@media (min-width: 900px) { .cp-page .jp-parts__sub { display: none; } }
+/* F119: điện thoại — "1/15 tình huống" không bị nút chọn tuần che; thiếu chỗ thì nút tuần xuống dòng */
+@media (max-width: 600px) {
+  .cp-page .jp-parts__banner-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+  .cp-page .jp-parts__banner-left { flex: 1 1 100%; }
+  .cp-page .jp-parts__banner-center { flex: 1 0 auto; min-width: 0; }
+  .cp-page .jp-parts__banner-right { flex: 0 0 auto; margin-left: auto; }
+}
