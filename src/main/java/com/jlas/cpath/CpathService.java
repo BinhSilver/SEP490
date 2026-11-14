@@ -149,10 +149,18 @@ public class CpathService {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu phụ phải khác mục tiêu chính.");
         }
         List<Long> resumable = secondary ? List.of() : db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
+        // F118 (owner 14/11): the new main goal is the learner's secondary goal → that row becomes the main path, so
+        // its situations, topics and notebook carry over instead of a fresh 0% main path
+        boolean promote = false;
+        if (resumable.isEmpty() && !secondary) {
+            resumable = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'SECONDARY' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
+            promote = !resumable.isEmpty();
+        }
         if (!resumable.isEmpty()) {
             Long resumeId = resumable.get(0);
             db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, resumeId);
-            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE' AND goal_code = ?", userId, goal);
+            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE' AND goal_code = ? AND id <> ?", userId, goal, resumeId);
+            if (promote) db.update("UPDATE cpath_user_path SET role = 'MAIN' WHERE id = ?", resumeId);
             db.update("UPDATE cpath_user_path SET status = 'ACTIVE', self_level = ?, priority_topics_json = COALESCE(?, priority_topics_json), daily_situations = COALESCE(?, daily_situations), rest_days = COALESCE(?, rest_days), finish_date = COALESCE(?, finish_date) WHERE id = ?", level, req.containsKey("priorityTopics") ? json(req.get("priorityTopics")) : null, req.containsKey("dailySituations") ? daily : null, req.containsKey("restDays") ? String.join(",", rest.stream().map(String::valueOf).toList()) : null, finish == null || finish.toString().isBlank() ? null : finish.toString(), resumeId);
             applyKanaChoice(resumeId, req);
             return Map.of("pathId", resumeId, "role", "MAIN");
