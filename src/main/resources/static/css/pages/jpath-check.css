@@ -1429,3 +1429,11 @@ html.dark .cp-page {
 .jp-path:not(.cp-page) .jp-today__pill.jp-todo__item { flex-wrap: wrap; row-gap: 8px; }
 .jp-path:not(.cp-page) .jp-today__pill-body.jp-todo__text { flex: 1 1 120px; }
 .jp-path:not(.cp-page) .jp-today__pill.jp-todo__item > :last-child { margin-left: auto; }
+
+/* [JLAS-W0108] F105: check page (/learning/jlpt/check/...) on a phone: the crumb "Quay về Lộ trình JLPT" and the
+   button "← Quay lại lộ trình" both lead to /learning, so the page head took two rows for one way back. When the
+   button goes to the path page too it is hidden up to 640px; when it goes back to a study session
+   (href /learning/jlpt/study…, "← Quay lại buổi học") it stays, since the crumb would not go there. */
+@media (max-width: 640px) {
+  .jp-check-topBar__actions .jp-check-back[href="/learning"] { display: none; }
+}
