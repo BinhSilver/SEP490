@@ -1308,8 +1308,12 @@ public class CpathService {
         if (num(body.get("dailySituations")) != 1 && num(body.get("dailySituations")) != 2)
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn 1 hoặc 2 tình huống mỗi ngày.");
         List<String> days = rest.stream().map(String::valueOf).map(x -> x.toUpperCase(Locale.ROOT)).toList();
-        if (days.size() != new LinkedHashSet<>(days).size() || days.size() >= 7
-                || !Set.of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN").containsAll(days))
+        // F118: each bad list gets its own reason (an unknown day used to say "keep one study day")
+        if (!Set.of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN").containsAll(days))
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày nghỉ không hợp lệ.");
+        if (days.size() != new LinkedHashSet<>(days).size())
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mỗi ngày nghỉ chỉ chọn một lần.");
+        if (days.size() >= 7)
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cần giữ ít nhất một ngày học trong tuần.");
         Object rawDate = body.get("finishDate");
         LocalDate finish = null;
