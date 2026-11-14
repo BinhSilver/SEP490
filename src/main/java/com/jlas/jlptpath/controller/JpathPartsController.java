@@ -65,12 +65,16 @@ public class JpathPartsController {
     @GetMapping("/skills/sets/{code}/translation")
     @SuppressWarnings("unchecked")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> setTranslation(
-            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String code) {
+            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String code,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String token,
+            @org.springframework.web.bind.annotation.RequestParam(name = "q", required = false) java.util.List<String> questionIds) {
         // a plain Map: the MVC JSON writer serialises it as the stored object
         java.util.Map<String, Object> node = skillSets.findById(code)
                 .map(com.jlas.jlptpath.entity.JpathSkillSet::getTranslationJson)
                 .map(t -> { try { return (java.util.Map<String, Object>) JSON.readValue(t, java.util.Map.class); } catch (Exception e) { return null; } })
                 .orElse(null);
+        // F106: the check shuffles the options, so the option lines follow the order this check shows
+        com.jlas.jlptpath.service.impl.JpathSkillCheckBuilder.alignTranslation(node, token, questionIds);
         return ResponseEntity.ok(ApiResponse.ok("OK", node));
     }
 

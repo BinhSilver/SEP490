@@ -222,11 +222,20 @@
    * cached per set; null while not loaded or when the set has none (the page then falls back to the old split).
    */
   var TR = {};
-  function trOf(set) { return set && TR[set.code] ? TR[set.code] : null; }
+  /** F106: the check shuffles the options, so the cache (and the request) is per set and check token. */
+  function trKey(set, token) { return set.code + '|' + (token || ''); }
+  function trUrl(set, token) {
+    var url = BASE + '/skills/sets/' + encodeURIComponent(set.code) + '/translation';
+    var ids = list(set.questionIds).map(String);
+    return token && ids.length
+      ? url + '?token=' + encodeURIComponent(String(token)) + '&q=' + ids.map(encodeURIComponent).join(',')
+      : url;
+  }
+  function trOf(set, token) { var k = set && set.code ? trKey(set, token) : null; return k && TR[k] ? TR[k] : null; }
 
   /** The source to study: the reading passage, or the Listening player + the dialogue once it is revealed. */
   function setSource(set, graded, viOn, token) {
-    var tr = trOf(set);
+    var tr = trOf(set, token);
     if (set.skill === 'LISTENING') {
       var player = set.audioSlot != null
         ? '<div data-skill-player data-src="' + esc(audioUrl(token, set.audioSlot)) + '"></div>' : '';
@@ -349,7 +358,7 @@
     var report = attrJson({ targetType: 'SKILL_SET', targetCode: set.code, pageContext: 'SKILL_SESSION' });
     var ctx = { token: view.token, questions: st.questions, answered: st.answered, picks: st.picks || {},
       graded: graded, showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
-    var trq = trOf(set);
+    var trq = trOf(set, view.token);
     if (trq && Array.isArray(trq.questions_vi)) {
       list(set.questionIds).forEach(function (qid, k) { if (trq.questions_vi[k]) ctx.qvi[qid] = trq.questions_vi[k]; });
     }
@@ -461,10 +470,11 @@
       var ps = practiceState(state.view);
       var set = ps.sets[state.current];
       if (!set) { return submitPractice(); }
-      if (set.code && !(set.code in TR)) {
-        TR[set.code] = null;
-        Promise.resolve(api.get(BASE + '/skills/sets/' + encodeURIComponent(set.code) + '/translation')).then(function (t) {
-          TR[set.code] = t || null;
+      var trk = set.code ? trKey(set, ps.token) : null;
+      if (trk && !(trk in TR)) {
+        TR[trk] = null;
+        Promise.resolve(api.get(trUrl(set, ps.token))).then(function (t) {
+          TR[trk] = t || null;
           if (t) renderPractice();
         }, function () { /* keep the old split */ });
       }
