@@ -1421,3 +1421,11 @@ html.dark .cp-page {
 @media (min-width: 641px) {
   .jp-path:not(.cp-page) .jp-parts__backdrop .jp-parts__cloud--1 { left: 150px; }
 }
+
+/* [JLAS-W0108] F103: JLPT path page (/learning), skill day: the three "Hôm nay" pills (Đọc / Nghe / Ôn) stand
+   in three ~210px columns from 641px up, and the fixed button left the text ~25px wide, so "Nghe hiểu nhiệm vụ"
+   broke one letter per line. The text now keeps at least 120px; when the button does not fit next to it, it
+   drops under the text, aligned right. */
+.jp-path:not(.cp-page) .jp-today__pill.jp-todo__item { flex-wrap: wrap; row-gap: 8px; }
+.jp-path:not(.cp-page) .jp-today__pill-body.jp-todo__text { flex: 1 1 120px; }
+.jp-path:not(.cp-page) .jp-today__pill.jp-todo__item > :last-child { margin-left: auto; }
