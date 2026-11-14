@@ -1,6 +1,7 @@
 package com.jlas.learning.service.impl.text;
 
 import com.atilika.kuromoji.ipadic.Token;
+import java.util.List;
 
 /**
  * Day 3 (24/10): JLPT dialogue lines from the N3 chapter book carry Kanji but no reviewed furigana (131/137 lines), so
@@ -20,9 +21,17 @@ public final class GeneratedFurigana {
         StringBuilder out = new StringBuilder();
         boolean any = false;
         boolean afterNumber = false;
-        for (Token token : JapaneseTokenizer.tokenize(japanese)) {
+        List<Token> tokens = JapaneseTokenizer.tokenize(japanese);
+        for (int t = 0; t < tokens.size(); t++) {
+            Token token = tokens.get(t);
             String surface = token.getSurface();
             String reading = token.getReading();
+            // F107: before a noun IPADIC reads 来る as the adnominal きたる (来る人 → きたるひと); learners mean the verb
+            // くる. Only a date keeps きたる (来る10月).
+            if ("来る".equals(surface) && "連体詞".equals(token.getPartOfSpeechLevel1())
+                    && (t + 1 >= tokens.size() || !"数".equals(tokens.get(t + 1).getPartOfSpeechLevel2()))) {
+                reading = "クル";
+            }
             // Numbers and the counter after them change reading together (二十分 = にじゅっぷん): token by token gives
             // に・じゅう・ふん, so they get no furigana rather than a wrong one.
             boolean number = "数".equals(token.getPartOfSpeechLevel2());
