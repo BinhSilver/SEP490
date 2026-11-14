@@ -2006,8 +2006,9 @@ button.jp-sidenav__link {
     white-space: normal; padding: 6px 2px; font-size: .74rem; line-height: 1.2; }
 }
 
-/* [JLAS-W0108] F98: one mascot in the "Hôm nay" card — the one with the speech bubble; the calendar copy is hidden */
-.cp-page .cp-today .jp-today__cal-kitsu { display: none; }
+/* [JLAS-W0108] F98 → F122 (chủ dự án 14/11 "mất linh vật ở ô tròn"): still one mascot in the "Hôm nay" card, now the
+   one peeking over the date ring; the corner Kitsu and its bubble go (F119 left it nothing the card does not already say) */
+.cp-page.jp-path .cp-today.jp-today .jp-today__top > .jp-today__kitsu { display: none !important; }
 /* F98: on a tablet the "today" mascot and the week sign share the narrow left margin — the sign steps aside on that row
    (on a phone jpath-path.css already hides every week sign) */
 @media (max-width: 900px) {
