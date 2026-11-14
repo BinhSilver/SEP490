@@ -1548,8 +1548,14 @@ public class CpathService {
         int score = Math.round(100f * correct / qs.size());
         boolean pass = score >= WEEKLY_PASS;
         int cp = 0;
-        if (pass && !weeklyPassed(userId, monday)) {
-            cp = award(userId, WEEK_CP, REF_WEEK, monday.toEpochDay(), "Đạt kiểm tra tuần giao tiếp " + monday);
+        if (pass) {
+            // F114 (13/11): two submits at the same moment both read "not passed yet" and both answered "+2 CP"
+            // (the credit itself was kept once by the award table's unique key). Lock the path row so the submits
+            // run one after the other, and read the award with a locking read so the second sees the first's row.
+            db.queryForList("SELECT id FROM cpath_user_path WHERE id = ? FOR UPDATE", ((Number) path.get("id")).longValue());
+            boolean already = !db.queryForList("SELECT id FROM pending_credit_award WHERE user_id = ? AND reference_type = ? "
+                    + "AND reference_id = ? FOR UPDATE", userId, REF_WEEK, monday.toEpochDay()).isEmpty();
+            if (!already) cp = award(userId, WEEK_CP, REF_WEEK, monday.toEpochDay(), "Đạt kiểm tra tuần giao tiếp " + monday);
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("score", score);
