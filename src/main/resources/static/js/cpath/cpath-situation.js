@@ -751,6 +751,11 @@
     if (k.error) return '<section class="cp-known">' + head + '<p class="jp-alert" role="alert">' + esc(k.error) + '</p></section>';
     var d = k.data || {};
     var pass = d.passScore || 90;
+    // F111: one try a day
+    function retryText(iso) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+      return m ? ('ngày ' + m[3] + '/' + m[2]) : 'ngày mai';
+    }
     if (k.result) {
       var r = k.result;
       var wrong = (r.review || []).filter(function (x) { return !x.correct; });
@@ -762,15 +767,21 @@
             + (wrong.length ? '<ul class="cp-known__wrong">' + wrong.map(function (x) {
               return '<li><span lang="ja">' + esc(x.ja) + '</span> — ' + esc(x.answer) + '</li>';
             }).join('') + '</ul>' : '')
+            + '<p class="cp-known__sub">Mỗi ngày được thử 1 lần: ' + esc(retryText(r.retryOn)) + ' bạn có thể thử lại.</p>'
             + '<button type="button" class="cp-btn-primary" data-cp-known-close>Học tình huống</button>')
         + '</section>';
+    }
+    if (d.triedToday) {
+      return '<section class="cp-known">' + head + '<p>Hôm nay bạn đã thử bài này rồi. Mỗi ngày được thử 1 lần: '
+        + esc(retryText(d.retryOn)) + ' thử lại nhé, hoặc học tình huống như bình thường.</p>'
+        + '<button type="button" class="cp-btn-primary" data-cp-known-close>Học tình huống</button></section>';
     }
     var qs = d.questions || [];
     if (!qs.length) return '<section class="cp-known">' + head + '<p>Tình huống này chưa có câu để kiểm tra.</p></section>';
     var answers = k.answers || {};
     var answered = qs.filter(function (q) { return answers[q.id] != null; }).length;
     return '<section class="cp-known">' + head
-      + '<p class="cp-known__sub">' + qs.length + ' câu chọn nghĩa đúng. Đúng từ ' + pass + '% thì tình huống tính là đã học.</p>'
+      + '<p class="cp-known__sub">' + qs.length + ' câu chọn nghĩa đúng. Đúng từ ' + pass + '% thì tình huống tính là đã học. Mỗi ngày được thử 1 lần.</p>'
       + '<ol class="cp-known__list">' + qs.map(function (q) {
         return '<li class="cp-known__q"><p class="cp-known__ja" lang="ja">' + esc(q.ja)
           + (q.reading ? ' <small>' + esc(q.reading) + '</small>' : '') + '</p>'
