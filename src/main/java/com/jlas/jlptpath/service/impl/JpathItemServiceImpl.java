@@ -74,12 +74,15 @@ public class JpathItemServiceImpl implements JpathItemService {
     // looked up when used: the check service and the grammar queue (→ study service → this) would form cycles
     private final ObjectProvider<JpathCheckService> checks;
     private final ObjectProvider<JpathGrammarQueue> grammarQueue;
+    // F121: a hand-saved word/kanji is also written to the team notebook (best effort, after commit)
+    private final ObjectProvider<JpathTeamNotebookMirror> teamNotebook;
 
     public JpathItemServiceImpl(JpathContentReader content, JpathItemStateMachine states,
                                 JpathUserItemRepository items, JpathUserPathRepository paths,
                                 JpathKanjiCompoundRepository compounds, JpathVocabTopicRepository topics,
                                 ObjectProvider<JpathCheckService> checks,
-                                ObjectProvider<JpathGrammarQueue> grammarQueue) {
+                                ObjectProvider<JpathGrammarQueue> grammarQueue,
+                                ObjectProvider<JpathTeamNotebookMirror> teamNotebook) {
         this.content = content;
         this.states = states;
         this.items = items;
@@ -88,6 +91,7 @@ public class JpathItemServiceImpl implements JpathItemService {
         this.topics = topics;
         this.checks = checks;
         this.grammarQueue = grammarQueue;
+        this.teamNotebook = teamNotebook;
     }
 
     // ---- detail --------------------------------------------------------------------------------------------
@@ -274,6 +278,9 @@ public class JpathItemServiceImpl implements JpathItemService {
         }
         // KNOWN → NOTEBOOK by hand is intended: toNotebook clears known_at / known_source.
         states.toNotebook(i, source);
+        if (source == JpathNotebookSource.MANUAL) {
+            teamNotebook.ifAvailable(m -> m.added(userId, type, code));
+        }
         return stateView(type, code, Optional.of(i));
     }
 
@@ -285,7 +292,10 @@ public class JpathItemServiceImpl implements JpathItemService {
         if (row.isEmpty() && !visible(type, code)) {
             throw notFound();
         }
-        row.filter(i -> i.getState() == JpathItemState.NOTEBOOK).ifPresent(states::leaveNotebook);
+        row.filter(i -> i.getState() == JpathItemState.NOTEBOOK).ifPresent(i -> {
+            states.leaveNotebook(i);
+            teamNotebook.ifAvailable(m -> m.removed(userId, type, code));
+        });
         return stateView(type, code, row);
     }
 
