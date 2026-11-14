@@ -355,6 +355,8 @@ a.jp-extra__link:focus-visible { border-color: var(--jp-primary); outline: none;
   color: var(--jp-ink); box-shadow: 0 10px 28px rgba(0,0,0,.22); font-weight: 600;
 }
 @media (max-width: 640px) { .jp-report-fab { right: 14px; bottom: calc(var(--jlab-mobile-bottom, 0px) + 14px); } }
+/* [JLAS-W0108] F115: chừa chỗ cuối trang để nút cờ không đè hàng tab / nút cuối cùng trên điện thoại */
+@media (max-width: 640px) { body:has(.jp-report-fab) main { padding-bottom: 76px; } }
 @media (prefers-reduced-motion: reduce) { .jp-report-fab { transition: none; } }
 
 /* [JLAS-W0108] Owner 10/11: on Learning pages the quick lookup keeps "Sổ tay" only; "Lưu từ" (dictionary favourites)
