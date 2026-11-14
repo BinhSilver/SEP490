@@ -304,6 +304,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
 
+        if (spec.kind() == JpathCheckKind.SKIP_ONE) {
+            requireOneTryToday(userId, spec.session() != null ? spec.step().itemCode() : r.itemCode());
+        }
+
         JpathUserSettings s = settings.findById(userId).orElse(null);
         boolean timerOn = switch (spec.kind()) {
             case KANA_ROW, GRAMMAR_PRACTICE -> false;
@@ -618,6 +622,24 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     private static boolean isNew(JpathQueueStep st, JpathTab tab) {
         return st.kind() == JpathStepKind.NEW && !st.repeat() && st.tab() == tab && st.itemCode() != null;
+    }
+
+    /**
+     * F117 (owner 14/11, same rule as F111): "Đã biết" / "Tôi biết mẫu này" is one try per item a learner day. A
+     * failed try already showed the answer, so a new SKIP_ONE for that item waits until tomorrow.
+     */
+    private void requireOneTryToday(Long userId, String itemCode) {
+        if (itemCode == null) {
+            return;
+        }
+        LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
+        boolean tried = checks.findByUserIdAndKindAndStatusAndPassedAndSubmittedAtGreaterThanEqual(userId,
+                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, startOfToday).stream()
+                .anyMatch(c -> readList(c.getItemCodesJson()).contains(itemCode));
+        if (tried) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Hôm nay bạn đã thử mục này rồi. Ngày mai thử lại nhé, hoặc học như bình thường.");
+        }
     }
 
     /**

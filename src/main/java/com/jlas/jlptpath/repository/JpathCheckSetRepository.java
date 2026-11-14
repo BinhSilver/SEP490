@@ -50,6 +50,10 @@ public interface JpathCheckSetRepository extends JpaRepository<JpathCheckSet, Lo
     List<JpathCheckSet> findTop20ByUserIdAndKindAndLevelAndStatusOrderBySubmittedAtDescIdDesc(Long userId,
             JpathCheckKind kind, String level, String status);
 
+    /** F117: the learner's failed checks of one kind submitted since {@code since} (one SKIP_ONE try per item a day). */
+    List<JpathCheckSet> findByUserIdAndKindAndStatusAndPassedAndSubmittedAtGreaterThanEqual(Long userId,
+            JpathCheckKind kind, String status, Boolean passed, LocalDateTime since);
+
     List<JpathCheckSet> findTop10ByUserIdAndKindAndStatusOrderBySubmittedAtDescIdDesc(Long userId, JpathCheckKind kind,
                                                                                     String status);
 
