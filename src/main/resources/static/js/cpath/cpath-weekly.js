@@ -319,6 +319,40 @@
     return load();
   }
 
+  // F195 (L11): furigana text "{漢字|かんじ}" or "漢字(かんじ)" → ruby when the learner shows furigana, plain text otherwise
+  function ruby(text, show) {
+    var src = String(text == null ? '' : text);
+    var rx = /\{([^|{}]+)\|([^{}]+)\}|([㐀-鿿々ヶ]+)\(([ぁ-ゖァ-ヺー]+)\)/g;
+    var out = '', last = 0, m;
+    while ((m = rx.exec(src)) !== null) {
+      var base = m[1] != null ? m[1] : m[3];
+      var rt = m[1] != null ? m[2] : m[4];
+      out += esc(src.slice(last, m.index)) + (show && base !== rt ? '<ruby>' + esc(base) + '<rt>' + esc(rt) + '</rt></ruby>' : esc(base));
+      last = rx.lastIndex;
+    }
+    return out + esc(src.slice(last));
+  }
+
+  // F195 (L11): the quick-practice result teaches — wrong lines first, each with what the learner picked and the right
+  // reply; same row markup as the weekly check result (jp-review__row) so both result pages look alike
+  function roleplayReviewHtml(review, questions, answers) {
+    var byId = {};
+    (questions || []).forEach(function (q) { if (q && q.id != null) byId[q.id] = q; });
+    var rows = (review || []).slice().sort(function (a, b) { return (a.correct ? 1 : 0) - (b.correct ? 1 : 0); });
+    if (!rows.length) return '';
+    return '<ul class="jp-review" aria-label="Xem lại từng câu">' + rows.map(function (x) {
+      var q = byId[x.id] || {};
+      var idx = answers ? answers[x.id] : null;
+      var picked = idx != null && q.options ? q.options[idx] : '';
+      return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '">'
+        + '<div><span lang="ja">' + esc(x.ja) + '</span>' + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>'
+        + (x.correct ? '<div class="jp-review__picked">Đáp: <span lang="ja">' + esc(x.answer) + '</span></div>'
+          : (picked ? '<div class="jp-review__picked">Bạn chọn: <span class="jp-bad" lang="ja">' + esc(picked) + '</span></div>' : '')
+            + '<div class="jp-review__picked">Đáp án: <strong lang="ja">' + esc(x.answer) + '</strong></div>')
+        + '</li>';
+    }).join('') + '</ul>';
+  }
+
   function mountRoleplay(el, client) {
     var query = new URLSearchParams(String(root.location.search || ''));
     var mode = query.get('mode');
@@ -341,7 +375,7 @@
       el.innerHTML = '<section class="jp-check" aria-labelledby="cpRoleplayQ">'
         + '<header class="jp-check__head"><span class="jp-check__count">Câu ' + (state.index + 1) + '/' + state.questions.length + '</span></header>'
         + '<p class="jp-check__dir">Người đối diện nói:</p><div class="jp-check__prompt">'
-        + '<p id="cpRoleplayQ" class="jp-check__text--mid" lang="ja">' + esc(q.promptJa) + '</p>'
+        + '<p id="cpRoleplayQ" class="jp-check__text--mid" lang="ja">' + ruby(q.promptFurigana || q.promptJa, state.furigana) + '</p>'
         + '<p>' + esc(q.promptVi) + '</p>'
         + (q.promptAudioUrl ? '<button type="button" class="jp-speak-btn" data-rp-play aria-label="Nghe câu này" title="Nghe câu này">' + SPEAKER + '</button>' : '') + '</div>'
         + (q.speaking
@@ -352,7 +386,7 @@
             + '<button type="button" class="jp-btn" data-rp-skip>Bỏ qua phần nói</button>'
           : '<p class="jp-check__dir">Chọn câu đáp phù hợp</p><div class="jp-check__opts">'
             + (q.options || []).map(function (o, i) { return '<button type="button" class="jp-check-opt" data-rp-pick="' + i + '">'
-              + '<span class="jp-check-opt__key">' + (i + 1) + '</span> ' + esc(o) + '</button>'; }).join('') + '</div>')
+              + '<span class="jp-check-opt__key">' + (i + 1) + '</span> <span lang="ja">' + ruby((q.optionsFurigana && q.optionsFurigana[i]) || o, state.furigana) + '</span></button>'; }).join('') + '</div>')
         + '</section>';
     }
     function submit() {
@@ -367,19 +401,28 @@
       }).then(function (result) {
         state.busy = false;
         refreshRewardHeader(result && result.cp);
-        el.innerHTML = '<section class="jp-result"><div class="jp-result__score">' + esc(result.score) + '%</div>'
-          + '<h2 class="jp-result__title">' + (scope === 'situation' ? 'Luyện nhanh hoàn tất'
+        var ok = scope === 'situation' ? Number(result.score) >= 70 : result.passed === true;
+        var wrong = (result.review || []).filter(function (x) { return !x.correct; }).length;
+        el.innerHTML = '<section class="jp-result" aria-labelledby="cpRoleplayResult">'
+          + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(result.score) + '%</div>'
+          + '<h2 id="cpRoleplayResult" class="jp-result__title" tabindex="-1">' + (scope === 'situation' ? 'Luyện nhanh hoàn tất'
             : result.passed ? 'Đã đạt bài nhập vai' : result.missingSpeak
               ? 'Đã đạt bài nhập vai; chủ đề còn thiếu điểm nói' : 'Chưa đạt bài nhập vai') + '</h2>'
-          + '<p>Chọn câu: ' + esc(result.choiceScore) + '%.'
+          + '<p class="jp-result__note">Chọn câu: ' + esc(result.choiceScore) + '%.'
           + (scope === 'situation' ? '' : result.speakingSkipped ? ' Chưa chấm phần nói; điểm chỉ tính phần chọn câu.'
-            : ' Nói: ' + esc(result.speakingScore) + '%.') + '</p>'
-          + '<p>' + (result.cp ? '+' + esc(result.cp) + ' CP.' : 'Bài này không cộng thêm CP.') + '</p>'
-          + (scope === 'goal' && result.passed ? '<nav aria-label="Bước học tiếp"><h3>Gợi ý bước tiếp</h3>'
+            : ' Nói: ' + esc(result.speakingScore) + '%.')
+          + ' ' + (result.cp ? '+' + esc(result.cp) + ' CP.' : 'Bài này không cộng thêm CP.') + '</p>'
+          + '<p class="jp-result__note">' + (wrong ? 'Sai ' + wrong + ' câu — xem lại bên dưới.' : 'Không sai câu nào.') + '</p>'
+          + roleplayReviewHtml(result.review, state.questions, state.answers)
+          + (scope === 'goal' && result.passed ? '<nav class="jp-result__note" aria-label="Bước học tiếp"><h3>Gợi ý bước tiếp</h3>'
             + '<p><a href="/learning/comm/survey">Chọn mục tiêu giao tiếp khác</a></p>'
             + (state.goal === 'WORK' || state.goal === 'BA' ? '<p><a href="/learning/comm/survey?goal=WORK">Chọn lĩnh vực Công việc khác</a></p>' : '')
             + '<p><a href="/learning/jlpt/start">Bắt đầu lộ trình JLPT</a></p></nav>' : '')
-          + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></section>';
+          + '<div class="jp-result__actions">'
+          + (scope === 'situation' || !result.passed ? '<button type="button" class="jp-btn" data-rp-retry>Làm lại</button>' : '')
+          + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></div></section>';
+        var head = el.querySelector('#cpRoleplayResult');
+        if (head && head.focus) head.focus();
       }).catch(function (e) { state.busy = false; error(e && e.message || 'Chưa chấm được bài.'); });
     }
     function load() {
@@ -389,6 +432,7 @@
         if (!data || !data.open) { error('Bài kiểm tra chưa đến giờ làm lại hoặc đã đạt.'); return; }
         state.questions = data.questions || [];
         state.goal = data.goal || '';
+        state.furigana = !data.display || data.display.furigana !== false;
         if (!state.questions.length) { error('Chưa có câu thoại để luyện nhập vai.'); return; }
         render();
       }).catch(function (e) { error(e && e.message || 'Chưa tải được bài nhập vai.'); });
