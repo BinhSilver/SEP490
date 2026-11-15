@@ -2115,3 +2115,19 @@ button.jp-sidenav__link {
   .cp-page .cp-sit-foot,
   .cp-sit-foot { position: static; }
 }
+
+/* [JLAS-W0108] F194: card progress bar under the Từ vựng / Mẫu câu switch */
+.cp-deck-progress {
+  height: 4px;
+  margin: 0 0 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jp-c-purple-100, #ece6ff) 80%, transparent);
+  overflow: hidden;
+}
+.cp-deck-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--jp-primary, #5b3cc4);
+  transition: width .25s ease;
+}

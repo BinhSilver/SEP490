@@ -398,16 +398,14 @@
     var saving = !!(state && state.savingStep);
     var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
     var cardBody = !flipped
-      ? '<span class="cp-flashcard__tag">' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + ' · ' + tabIndex + '/' + tabCount + '</span>'
-        + '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
+      ? '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
         + (state.display.furigana && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
         + romajiHtml(card.reading || card.ja, state)
         + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + svgSpeaker() + '</button>'
         + ''
-      : '<span class="cp-flashcard__tag">Mặt sau · ' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + '</span>'
-        + '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
+      : '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
         + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
         + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
@@ -424,6 +422,8 @@
       + '</div>'
       + '<span class="cp-survey__sub">Thẻ <strong>' + tabIndex + '/' + tabCount + '</strong></span>'
       + '</div>'
+      // F194: a thin bar that fills card by card replaces the "Từ vựng · 1/25" chip on the card
+      + '<div class="cp-deck-progress" aria-hidden="true"><span style="width:' + Math.round(100 * tabIndex / Math.max(1, tabCount)) + '%"></span></div>'
       + '<div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
       + cardBody
       + '</div>'
