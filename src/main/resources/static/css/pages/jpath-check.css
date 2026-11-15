@@ -1489,3 +1489,17 @@ html.dark .cp-page {
   top: -5px; bottom: auto; border-width: 0 5px 5px;
   border-color: transparent transparent var(--jp-r4-line);
 }
+
+/* [JLAS-W0108] F154f: chừa chỗ cho nút Báo sai nổi (.jp-report-fab) không che nút Câu tiếp trên máy tính & điện thoại */
+@media (min-width: 641px) {
+  .jp-check-page { padding-bottom: 88px; }
+  body:has(.jp-report-fab) .jp-check__next { margin-right: 64px; }
+}
+@media (max-width: 640px) {
+  body:has(.jp-check__next, .jp-result__actions, .jp-done__actions) .jp-report-fab {
+    bottom: calc(var(--jlab-mobile-bottom, 0px) + 78px);
+  }
+  .jp-check-page:has(.jp-check__next, .jp-result__actions, .jp-done__actions) {
+    padding-bottom: 76px;
+  }
+}

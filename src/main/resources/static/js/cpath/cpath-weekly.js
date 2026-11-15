@@ -41,6 +41,13 @@
     return m ? m[3] + '/' + m[2] : '';
   }
 
+  // [JLAS-W0108] F154: refresh header CP chip after earning CP on weekly/roleplay submit
+  function refreshRewardHeader(cp) {
+    if (cp && root && root.RewardFX && typeof root.RewardFX.refreshChip === 'function') {
+      root.RewardFX.refreshChip(true);
+    }
+  }
+
   function questionHtml(q, i, n) {
     var opts = (q.options || []).map(function (o, k) {
       return '<button type="button" class="jp-check-opt" data-weekly-pick="' + k + '"><span class="jp-check-opt__key">'
@@ -139,6 +146,7 @@
       el.innerHTML = '<p class="jp-status" role="status">Đang chấm…</p>';
       Promise.resolve(client.send('POST', BASE, { answers: state.answers })).then(function (r) {
         state.result = r || {};
+        refreshRewardHeader(state.result.cp);
         el.innerHTML = resultHtml(state.result, state.data && state.data.questions, state.answers)
           + ((state.data.speakingQuestions || []).length
             ? '<button type="button" class="jp-btn" data-weekly-speech-start>Tiếp tục phần Nói</button>' : '');
@@ -300,6 +308,7 @@
         return client.upload(base, form);
       }).then(function (result) {
         state.busy = false;
+        refreshRewardHeader(result && result.cp);
         el.innerHTML = '<section class="jp-result"><div class="jp-result__score">' + esc(result.score) + '%</div>'
           + '<h2 class="jp-result__title">' + (scope === 'situation' ? 'Luyện nhanh hoàn tất'
             : result.passed ? 'Đã đạt bài nhập vai' : result.missingSpeak

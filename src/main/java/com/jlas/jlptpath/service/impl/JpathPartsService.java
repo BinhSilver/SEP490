@@ -8,6 +8,7 @@ import com.jlas.jlptpath.entity.JpathUserLevel;
 import com.jlas.jlptpath.entity.JpathUserLevelId;
 import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathVocabulary;
+import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.enums.JpathTab;
@@ -17,6 +18,7 @@ import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -215,29 +217,46 @@ public class JpathPartsService {
         JpathItemType type = JpathItemType.valueOf(tab.name());
         LocalDate today = clock.today(userId);
 
-        // learned items of this level, by the day they were first learned
+        // [JLAS-W0108] F154g: learned/known items of this level (including KNOWN items without firstLearnedAt)
         Map<LocalDate, List<String>> byDay = new LinkedHashMap<>();
+        List<String> undatedKnown = new ArrayList<>();
         List<JpathUserItem> learned = new ArrayList<>(userItems.findByUserIdAndItemType(userId, type));
-        learned.removeIf(u -> u.getFirstLearnedAt() == null || (u.getLevel() != null && !level.equals(u.getLevel())));
-        learned.sort(Comparator.comparing(JpathUserItem::getFirstLearnedAt));
+        learned.removeIf(u -> (u.getLevel() != null && !level.equals(u.getLevel()))
+                || (learnedAt(u) == null && u.getState() != JpathItemState.KNOWN));
+        learned.sort(Comparator.comparing(JpathPartsService::learnedAt,
+                Comparator.nullsFirst(Comparator.naturalOrder())));
+        Set<String> placed = new LinkedHashSet<>();
         for (JpathUserItem u : learned) {
-            byDay.computeIfAbsent(u.getFirstLearnedAt().toLocalDate(), d -> new ArrayList<>()).add(u.getItemCode());
+            placed.add(u.getItemCode());
+            LocalDateTime at = learnedAt(u);
+            if (at == null) {
+                undatedKnown.add(u.getItemCode());
+            } else {
+                byDay.computeIfAbsent(at.toLocalDate(), d -> new ArrayList<>()).add(u.getItemCode());
+            }
         }
         List<String> todayCodes = new ArrayList<>(byDay.getOrDefault(today, List.of()));
         byDay.remove(today);
-        Set<String> seen = new LinkedHashSet<>(todayCodes);
         boolean todayLeft = false;
         for (JpathItemRef ref : dailyPlan.plannedNewItems(userId, tab)) {
-            if (seen.add(ref.code())) {
+            if (placed.add(ref.code())) {
                 todayCodes.add(ref.code());
                 todayLeft = true;
             }
         }
-        List<String> queue = content.nextNewCodes(userId, level, type, MAX_QUEUE, priority, c -> !seen.contains(c));
+        List<String> ordered = content.learnableOrderedCodes(level, type, priority);
+        List<String> queue = ordered.isEmpty()
+                ? content.nextNewCodes(userId, level, type, MAX_QUEUE, priority, c -> !placed.contains(c))
+                : ordered.stream().filter(c -> !placed.contains(c)).limit(MAX_QUEUE).toList();
 
-        Map<String, Item> labels = labels(type, union(byDay.values(), todayCodes, queue));
+        List<String> allCodes = new ArrayList<>(undatedKnown);
+        allCodes.addAll(union(byDay.values(), todayCodes, queue));
+        Map<String, Item> labels = labels(type, allCodes);
         List<Part> parts = new ArrayList<>();
         int index = 1;
+        if (!undatedKnown.isEmpty()) {
+            parts.add(new Part(index++, "DONE", null, items(undatedKnown, labels)));
+        }
         for (Map.Entry<LocalDate, List<String>> e : byDay.entrySet()) {
             parts.add(new Part(index++, "DONE", e.getKey(), items(e.getValue(), labels)));
         }
@@ -252,8 +271,21 @@ public class JpathPartsService {
                 + queue.size(), learnedCount, parts);
     }
 
+    private static LocalDateTime learnedAt(JpathUserItem u) {
+        if (u.getFirstLearnedAt() != null) {
+            return u.getFirstLearnedAt();
+        }
+        if (u.getCountedAt() != null) {
+            return u.getCountedAt();
+        }
+        return u.getState() == JpathItemState.KNOWN ? u.getKnownAt() : null;
+    }
+
     private static int countToday(List<JpathUserItem> learned, LocalDate today) {
-        return (int) learned.stream().filter(u -> u.getFirstLearnedAt().toLocalDate().equals(today)).count();
+        return (int) learned.stream().filter(u -> {
+            LocalDateTime at = learnedAt(u);
+            return at != null && at.toLocalDate().equals(today);
+        }).count();
     }
 
     private static List<String> union(java.util.Collection<List<String>> a, List<String> b, List<String> c) {

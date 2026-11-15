@@ -287,10 +287,11 @@
     var kindCls = esc(String(card.kind || '').toLowerCase());
     var stateCls = flippable ? (isFlipped ? ' jp-study-card--flipped' : ' jp-study-card--front') : '';
     var typeCls = has(type) ? ' jp-study-card--type-' + esc(String(type).toLowerCase()) : '';
+    var backWhat = type === 'KANA' ? 'cách đọc' : 'nghĩa';
     var faceTag = flippable
       ? (isFlipped
         ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="Mặt sau · Chạm vào thẻ hoặc nhấn phím Space để xem lại mặt trước" aria-hidden="true"></span>'
-        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Chạm vào thẻ hoặc nhấn phím Space để lật xem nghĩa" aria-hidden="true"></span>')
+        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Chạm vào thẻ hoặc nhấn phím Space để lật xem ' + backWhat + '" aria-hidden="true"></span>')
       : '';
     var flipCue = '';
     var mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp';
@@ -309,7 +310,7 @@
       if (isFlipped) {
         mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'flip';
       } else {
-        mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem nghĩa nhé!'; mMood = 'encourage';
+        mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem ' + backWhat + ' nhé!'; mMood = 'encourage';
       }
     } else if (isFlipped) {
       mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'flip';

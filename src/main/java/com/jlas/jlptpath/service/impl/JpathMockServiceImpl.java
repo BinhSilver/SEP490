@@ -54,7 +54,7 @@ import org.springframework.stereotype.Service;
 public class JpathMockServiceImpl implements JpathMockService {
 
     static final String NOTICE_UNAVAILABLE = "Thi thử JLPT chưa sẵn sàng.";
-    static final String NOTICE_NOT_CONNECTED = "Kết quả Thi thử chưa được nối — lên cấp chưa tự động";
+    static final String NOTICE_NOT_CONNECTED = "Khi sẵn sàng, bạn có thể làm bài Thi thử JLPT bất cứ lúc nào.";
     static final String NOTICE_PENDING = "Có kết quả mới — Cập nhật";
     static final String NOTICE_PASSED = "Bạn đã đậu Thi thử cấp này.";
     static final String NOTICE_FAILED = "Chưa đạt lần này — xem gợi ý theo phần và thi thử lại sau 24 giờ.";

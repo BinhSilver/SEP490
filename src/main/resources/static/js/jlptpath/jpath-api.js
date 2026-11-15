@@ -117,6 +117,7 @@
     if (envelope.success === false || status < 200 || status >= 300) {
       throw failure(envelope.code || 'HTTP_' + status, message || MSG_BUSY, status);
     }
+    hideNotice();
     return envelope.data === undefined || envelope.data === null ? null : envelope.data;
   }
 

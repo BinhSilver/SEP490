@@ -395,7 +395,8 @@
   function questionState(state, q) {
     return { token: state.token, board: isBoard(q) ? state.boards[q.board.boardId] : null,
       answer: state.answers[q.id] || null, pending: Object.prototype.hasOwnProperty.call(state.pending, q.id),
-      placed: state.placed[q.id] || [] };
+      placed: state.placed[q.id] || [],
+      hasNext: Array.isArray(state.questions) ? (state.index + 1 < state.questions.length) : true };
   }
 
   function boardHtml(q, b) {
@@ -541,7 +542,7 @@
         mood = 'ok';
       } else {
         img = '/images/mascots/kitsu/kitsu-confused-30.webp';
-        speech = 'Tiếc quá, cố lên ở câu sau nhé!';
+        speech = st && st.hasNext === false ? 'Tiếc quá, xem kỹ đáp án nhé!' : 'Tiếc quá, cố lên ở câu sau nhé!';
         mood = 'bad';
       }
     }
@@ -1194,6 +1195,9 @@
       stopKeys();
       el.setAttribute('aria-busy', 'false');
       drawResult();
+      if (Number(res && res.cpAwarded) > 0 && root && root.RewardFX && typeof root.RewardFX.refreshChip === 'function') {
+        root.RewardFX.refreshChip(true);
+      }
       if (env.onDone) env.onDone(res);
       if (env.onResult) env.onResult(res);
       resolveDone(res);

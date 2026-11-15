@@ -171,6 +171,23 @@ public class JpathContentReader {
         return learnableCandidates(level, type).size();
     }
 
+    /**
+     * All learnable item codes of {@code type} in {@code level}, ordered by (priority, sort order) in priority mode
+     * or by sort order otherwise, then by code.
+     *
+     * @throws IllegalArgumentException for KANA
+     */
+    public List<String> learnableOrderedCodes(String level, JpathItemType type, boolean priorityMode) {
+        List<Candidate> candidates = learnableCandidates(level, type);
+        if (candidates.isEmpty()) {
+            return List.of();
+        }
+        return candidates.stream()
+                .sorted(candidateOrder(priorityMode))
+                .map(Candidate::code)
+                .toList();
+    }
+
     // ---- new-item queues -----------------------------------------------------------------------------------
 
     /**
@@ -189,16 +206,20 @@ public class JpathContentReader {
             return List.of();
         }
         Set<String> started = new HashSet<>(userItems.findCodesByUserIdAndItemType(userId, type));
-        Comparator<Candidate> order = priorityMode
-                ? Comparator.comparingInt(Candidate::priority).thenComparingInt(Candidate::sortOrder)
-                : Comparator.comparingInt(Candidate::sortOrder);
         return candidates.stream()
                 .filter(c -> !started.contains(c.code()))
                 .filter(c -> extraFilter == null || extraFilter.test(c.code()))
-                .sorted(order.thenComparing(Candidate::code))
+                .sorted(candidateOrder(priorityMode))
                 .limit(limit)
                 .map(Candidate::code)
                 .toList();
+    }
+
+    private static Comparator<Candidate> candidateOrder(boolean priorityMode) {
+        Comparator<Candidate> order = priorityMode
+                ? Comparator.comparingInt(Candidate::priority).thenComparingInt(Candidate::sortOrder)
+                : Comparator.comparingInt(Candidate::sortOrder);
+        return order.thenComparing(Candidate::code);
     }
 
     /**

@@ -48,6 +48,12 @@
     return BASE + '/checks/' + encodeURIComponent(token) + '/audio/' + encodeURIComponent(slot);
   }
 
+  function stepLockTitle(code) {
+    if (code === 'PRACTICE') return 'Hoàn thành bước Lý thuyết trước để mở phần Luyện.';
+    if (code === 'DICTATION') return 'Hoàn thành phần Luyện trước để mở Chép chính tả.';
+    return 'Hoàn thành bước hiện tại trước để mở bước này.';
+  }
+
   /** The step bar; a Reading session has no dictation step. */
   function stepsHtml(s) {
     var steps = s && s.skill === 'READING' ? STEPS.slice(0, 2) : STEPS;
@@ -56,7 +62,9 @@
     return steps.map(function (st, i) {
       var done = i < at;
       var state = done ? 'done' : (i === at ? 'now' : 'todo');
+      var lockMsg = state === 'todo' ? stepLockTitle(st[0]) : '';
       return '<li class="jp-step jp-step--' + state + (done ? ' is-done' : '') + '"' + (i === at ? ' aria-current="step"' : '')
+        + (lockMsg ? ' data-step-locked="' + esc(lockMsg) + '" title="' + esc(lockMsg) + '"' : '')
         + '><span class="jp-step__mark" aria-hidden="true">' + (done ? icon('check') : (i + 1)) + '</span>'
         + '<span class="jp-sr">' + (i + 1) + '. </span><span class="jp-step__body"><span class="jp-step__label">'
         + esc(st[1]) + '</span>' + (done ? '<span class="jp-step__sub">Đã xong</span>' : '') + '</span></li>';
@@ -300,8 +308,8 @@
       verdict = '<div class="jp-skill-explain" role="status">' + (a.correct
         ? '<span class="jp-side-ok">' + icon('circle-check') + ' Đúng.</span>'
         : '<div class="jp-review__rows">'
-          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
-          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn: </span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án: </span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
           + '</div>')
         + (ctx.showExplain && a.explanation ? '<p class="jp-skill-explain__note">' + esc(a.explanation) + '</p>' : '')
         + (ctx.token && q.id ? '<div class="jp-ai-slot" data-jpath-ai-explain="'
@@ -377,9 +385,18 @@
   }
 
   function doneHtml(s) {
+    var qCount = (s && s.questionCount) || 0;
+    var prac = s && s.practiceCorrect != null
+      ? ('đúng ' + esc(s.practiceCorrect) + '/' + esc(qCount) + ' câu')
+      : (esc(qCount) + ' câu');
+    var dict = '';
+    if (s && s.dictationCount) {
+      dict = s.dictationCorrect != null
+        ? (' · chép đúng ' + esc(s.dictationCorrect) + '/' + esc(s.dictationCount) + ' câu')
+        : (' · ' + esc(s.dictationCount) + ' câu chép');
+    }
     return '<section class="jp-skill-block"><h2>Xong buổi ' + esc(s && s.skill === 'LISTENING' ? 'Nghe' : 'Đọc') + ' ' + icon('check') + '</h2>'
-      + '<p>' + esc((s && s.setCount) || 0) + ' bài · ' + esc((s && s.questionCount) || 0) + ' câu'
-      + (s && s.dictationCount ? ' · ' + esc(s.dictationCount) + ' câu chép' : '') + '</p>'
+      + '<p>' + esc((s && s.setCount) || 0) + ' bài · ' + prac + dict + '</p>'
       + doneActions(s) + '</section>';
   }
 
@@ -517,12 +534,25 @@
       }, fail);
     }
 
-    function submitPractice() {
+    function submitPractice(btn) {
+      var nextBtn = btn || (body && body.querySelector && body.querySelector('[data-skill-next]'));
+      var prevLabel = nextBtn ? nextBtn.textContent : '';
+      if (nextBtn) {
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Đang tải…';
+      }
+      if (status) status.textContent = 'Đang tải bước tiếp theo…';
       return api.send('POST', BASE + '/checks/' + encodeURIComponent(state.view.token) + '/submit', { submitKey: uuid() })
-        .then(load, fail);
+        .then(load, function (e) {
+          if (nextBtn) {
+            nextBtn.disabled = false;
+            if (prevLabel) nextBtn.textContent = prevLabel;
+          }
+          fail(e);
+        });
     }
 
-    function nextSet() {
+    function nextSet(btn) {
       var ps = practiceState(state.view);
       if (state.current < ps.sets.length - 1) {
         state.current += 1;
@@ -531,7 +561,7 @@
         state.showExplain = false;
         renderPractice();
       } else {
-        submitPractice();
+        submitPractice(btn);
       }
     }
 
@@ -607,7 +637,7 @@
       var tool = t.closest('[data-skill-tool]');
       if (tool && !tool.disabled && state.view) { handleTool(tool.getAttribute('data-skill-tool')); return; }
       var next = t.closest('[data-skill-next]');
-      if (next && state.view) { nextSet(); return; }
+      if (next && !next.disabled && state.view) { nextSet(next); return; }
       var answer = t.closest('[data-answer-option]');
       if (answer && !answer.disabled && state.view) {
         var q = answer.closest('[data-question]');
@@ -632,6 +662,16 @@
           .then(function () { save.textContent = 'Đã lưu'; }, function (e) { save.disabled = false; fail(e); });
       }
     });
+    if (steps && typeof steps.addEventListener === 'function') {
+      steps.addEventListener('click', function (ev) {
+        var t = ev.target && typeof ev.target.closest === 'function' ? ev.target.closest('[data-step-locked]') : null;
+        if (!t) return;
+        var msg = t.getAttribute('data-step-locked');
+        if (!msg) return;
+        if (status) status.textContent = msg;
+        if (root && root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg, 'info');
+      });
+    }
     load();
   }
 

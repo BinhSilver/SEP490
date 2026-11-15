@@ -324,3 +324,31 @@
   border-width: 1px !important;
   font-weight: 500 !important;
 }
+
+/* [JLAS-W0108] F154d: kiểu hàng đáp án & bước khóa trên trang Đọc · Nghe (không nạp jpath-check.css) */
+.jp-skill-session .jp-review__rows { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.jp-skill-session .jp-review__row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  border-radius: 8px; border: 1px solid var(--jp-line);
+  font-size: .88rem; line-height: 1.35;
+}
+.jp-skill-session .jp-review__row--picked,
+.jp-skill-session .jp-review__row--picked.jp-bad {
+  background: var(--jp-c-coral-100, #fef2f2);
+  border-color: color-mix(in srgb, var(--jp-c-coral-500, #dc2626) 42%, var(--jp-line));
+  color: var(--jp-ink);
+}
+.jp-skill-session .jp-review__row--answer,
+.jp-skill-session .jp-review__row--answer.jp-ok {
+  background: var(--jp-c-mint-100, #f0fdf4);
+  border-color: color-mix(in srgb, var(--jp-c-mint-500, #15803d) 42%, var(--jp-line));
+  color: var(--jp-ink);
+}
+.jp-skill-session .jp-review__tag { flex-shrink: 0; min-width: 68px; font-size: .78rem; font-weight: 600; color: var(--jp-muted); }
+.jp-skill-session .jp-review__row--picked .jp-review__tag { color: var(--jp-danger); }
+.jp-skill-session .jp-review__row--answer .jp-review__tag { color: var(--jp-ok); }
+.jp-skill-session .jp-review__val { flex: 1 1 auto; min-width: 0; color: var(--jp-ink); }
+.jp-skill-session .jp-review__row .jp-i { width: 15px; height: 15px; flex-shrink: 0; }
+.jp-skill-session .jp-review__row--picked .jp-i { color: var(--jp-danger); }
+.jp-skill-session .jp-review__row--answer .jp-i { color: var(--jp-ok); }
+.jp-skill-steps [data-step-locked] { cursor: help; }

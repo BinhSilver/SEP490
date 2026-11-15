@@ -84,6 +84,13 @@
       .replace(/<\/ruby>\s+(?=<ruby>|[㐀-鿿々ヶぁ-ゖァ-ヺー])/g, '</ruby>');
   }
 
+  // [JLAS-W0108] F154: refresh header CP chip when completing a situation awards CP
+  function refreshRewardHeader(cp) {
+    if (cp && root && root.RewardFX && typeof root.RewardFX.refreshChip === 'function') {
+      root.RewardFX.refreshChip(true);
+    }
+  }
+
   function speakJapanese(text, audioUrl, onEnd) {
     // F70/F79: every clip plays at the learner's listening speed (CpathAudio), the browser voice too
     if (root && root.CpathAudio && typeof root.CpathAudio.play === 'function') {
@@ -1019,7 +1026,10 @@
             sitData.steps[stepKey.toLowerCase()] = true;
           }
           // CP comes only from the server (2 CP the first time all 4 steps are done)
-          if (res && typeof res.cp === 'number') state.awardedCp = res.cp;
+          if (res && typeof res.cp === 'number') {
+            state.awardedCp = res.cp;
+            if (res.cp > 0) refreshRewardHeader(res.cp);
+          }
           if (stepKey === 'SPEAK' && res) state.lastSpeakBody = { skippedMic: res.speakBest == null, speakBest: res.speakBest };
           var missing = STEPS_ORDER.filter(function (k) { return !(sitData.steps || {})[k.toLowerCase()]; });
           if (missing.length === 0 && (stepKey === 'SPEAK' || (res && res.situationDone))) {

@@ -94,8 +94,9 @@
     } else {
       action = '<p class="jp-muted">Buổi chính mở vào ngày kỹ năng. Hôm nay bạn vẫn học lại được từng dạng bên dưới.</p>';
     }
+    var activeToday = Boolean((o && o.skillDay) || card.doneToday || card.openSessionId != null);
     return '<div class="jp-skill-card' + (card.doneToday ? ' is-done' : '') + '">'
-      + '<p class="jp-skill-card__kicker">Buổi hôm nay</p>'
+      + '<p class="jp-skill-card__kicker">' + (activeToday ? 'Buổi hôm nay' : 'Buổi ngày kỹ năng') + '</p>'
       + '<p class="jp-skill-card__type"><strong>' + esc(name) + '</strong>' + ja + '</p>'
       + '<p class="jp-muted">' + esc(floorText(card)) + '</p>' + action + '</div>';
   }
@@ -118,11 +119,12 @@
   function groupHtml(skill, card, o) {
     var s = SKILL[skill];
     var id = 'jp-skill-' + skill.toLowerCase();
+    var activeToday = Boolean((o && o.skillDay) || (card && (card.doneToday || card.openSessionId != null)));
     return '<section class="jp-skill-group" aria-labelledby="' + id + '"><h3 class="jp-skill-group__title" id="' + id + '">'
       + icon(s.icon) + ' ' + esc(s.name + ' ' + ((o && o.level) || '')) + '</h3>'
       + cardHtml(card, o)
       + '<h4 class="jp-skill-group__sub">' + esc('Các dạng ' + s.name) + '</h4>'
-      + typesHtml(o && o.types, skill, card && card.typeCode) + '</section>';
+      + typesHtml(o && o.types, skill, activeToday && card ? card.typeCode : null) + '</section>';
   }
 
   /** Section practice (locked before the skill stage). */

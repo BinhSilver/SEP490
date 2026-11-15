@@ -1242,6 +1242,18 @@
     try { el.scrollIntoView({ block: 'center', behavior: behavior }); } catch (e) { el.scrollIntoView(); }
   }
 
+  var LIST_QUERY_KEYS = ['topic', 'state', 'q', 'radical', 'sort', 'view', 'unit', 'open'];
+
+  function hasListQuery() {
+    var search = root && root.location && typeof root.location.search === 'string' ? root.location.search : '';
+    if (!search || typeof URLSearchParams !== 'function') return false;
+    var params = new URLSearchParams(search);
+    return LIST_QUERY_KEYS.some(function (k) {
+      var v = params.get(k);
+      return v !== null && v !== '';
+    });
+  }
+
   function mount(partsEl, listEl, tabKey, opts) {
     if (!partsEl) return null;
     bindGlobalEvents();
@@ -1254,6 +1266,7 @@
       if (listEl) listEl.hidden = false;
       return null;
     }
+    if (partsEl.__allOpen === undefined && hasListQuery()) partsEl.__allOpen = true;
     partsEl.hidden = false;
     if (listEl) listEl.hidden = !partsEl.__allOpen;
     var mine = (partsEl.__seq || 0) + 1;
@@ -1417,6 +1430,7 @@
       renderCurrent();
       if (root && typeof root.requestAnimationFrame === 'function') {
         root.requestAnimationFrame(function () {
+          if (partsEl.__allOpen && listEl) { scrollToTarget(listEl); return; }
           var todayNode = partsEl.querySelector('[data-parts-today="true"]')
             || partsEl.querySelector('[data-parts-week-anchor="' + curW + '"]');
           if (todayNode) scrollToTarget(todayNode);
@@ -1435,6 +1449,8 @@
     weeklyHtml: weeklyHtml,
     savedNoticeHtml: savedNoticeHtml,
     adjustPopoverInViewport: adjustPopoverInViewport,
+    hasListQuery: hasListQuery,
+    triggerWeeklyCheck: triggerWeeklyCheck,
     mount: mount
   };
 });
