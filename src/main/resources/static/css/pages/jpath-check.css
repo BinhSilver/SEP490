@@ -1478,3 +1478,14 @@ html.dark .cp-page {
   .jp-drawer__top:has(.jp-facts) { grid-template-columns: minmax(9em, .7fr) minmax(0, 1.3fr); }
 }
 .jp-drawer__top .jp-fact { grid-template-columns: 5.5em minmax(0, 1fr); }
+
+/* [JLAS-W0108] F150: lỗi mở khóa tuần xuống dòng gọn; tooltip chặng khóa mở xuống dưới không bị che mép trên */
+.jp-today__weekly .jp-parts__err { flex: 1 0 100%; margin: 2px 0 0; }
+.jp-parts__lock-tip {
+  top: calc(100% + 10px); bottom: auto;
+  transform: translateX(-50%) translateY(-4px);
+}
+.jp-parts__lock-tip::after {
+  top: -5px; bottom: auto; border-width: 0 5px 5px;
+  border-color: transparent transparent var(--jp-r4-line);
+}

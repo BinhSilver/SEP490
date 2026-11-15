@@ -65,6 +65,39 @@
   function list(v) { return Array.isArray(v) ? v : []; }
   function dayList(codes) { return list(codes).map(function (c) { return D().dayShort(c); }).filter(Boolean).join(', '); }
 
+  function tabLearnedCount(info, todayTab) {
+    var known = info ? Number(info.known || info.learned || info.done || 0) : 0;
+    var pct = info ? Number(info.percent || 0) : 0;
+    var td = todayTab || {};
+    var doneToday = Number(td.newDone || 0) + Number(td.reviewDone || 0) + (td.done ? 1 : 0);
+    var hasReview = Number(td.reviewDue || 0) > 0;
+    return known + pct + doneToday + (hasReview ? 1 : 0);
+  }
+
+  function filterWeeklyButtons(todayBox, path, today) {
+    if (!todayBox || typeof todayBox.querySelector !== 'function' || typeof todayBox.querySelectorAll !== 'function') return;
+    var weeklyEl = todayBox.querySelector('.jp-today__weekly');
+    if (!weeklyEl) return;
+    var btns = Array.prototype.slice.call(weeklyEl.querySelectorAll('[data-parts-weekly]') || []);
+    if (!btns.length) return;
+    var pTabs = list(path && path.tabs);
+    var tTabs = list(today && today.tabs);
+    if (!pTabs.length && !tTabs.length) return;
+    var visible = 0;
+    btns.forEach(function (btn) {
+      var code = String(btn.getAttribute('data-parts-weekly') || '').toUpperCase();
+      var info = pTabs.filter(function (x) { return x && x.tab === code; })[0] || null;
+      var tInfo = tTabs.filter(function (x) { return x && x.tab === code; })[0] || null;
+      var locked = !!(info && info.open === false);
+      var empty = info ? tabLearnedCount(info, tInfo) <= 0
+        : (tInfo ? (Number(tInfo.newDone || 0) <= 0 && Number(tInfo.reviewDone || 0) <= 0 && !tInfo.done && Number(tInfo.reviewDue || 0) <= 0) : false);
+      var hide = locked || empty;
+      btn.hidden = hide;
+      if (!hide) visible += 1;
+    });
+    weeklyEl.hidden = visible === 0;
+  }
+
   function tabKeys(path) {
     var keys = ['vocab', 'kanji', 'grammar', 'skills'];
     return path && path.kanaTab ? ['kana'].concat(keys) : keys;
@@ -431,6 +464,7 @@
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
         { skills: state.skills, why: todayReason(p, state.today),
           side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') }));
+      filterWeeklyButtons(slot(rootEl, 'today'), p, state.today);
     }
 
     // the [data-slot="list"] area belongs to jpath-lists.js (loaded before this file); it keeps its own filters
@@ -752,6 +786,7 @@
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
+    filterWeeklyButtons: filterWeeklyButtons,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });
   return api;

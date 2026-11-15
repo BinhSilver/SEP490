@@ -1168,16 +1168,28 @@
       else wk.disabled = false;
     }, function (e) {
       wk.disabled = false;
-      // one message per button (not one more line per click); "nothing learned yet" said plainly
-      var box = wk.parentNode && wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
-      if (!box) {
-        wk.insertAdjacentHTML('afterend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
-        box = wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
+      // one message per button placed at the end of the weekly row so it wraps onto its own line
+      var row = (typeof wk.closest === 'function' && (wk.closest('.jp-today__weekly') || wk.closest('.jp-parts__weekly') || wk.closest('.jp-parts__pop-actions')))
+        || wk.parentNode;
+      var box = row && typeof row.querySelector === 'function' ? row.querySelector('.jp-parts__err[data-for="' + tab + '"]') : null;
+      if (!box && row) {
+        if (typeof row.insertAdjacentHTML === 'function') {
+          row.insertAdjacentHTML('beforeend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
+          box = typeof row.querySelector === 'function' ? row.querySelector('.jp-parts__err[data-for="' + tab + '"]') : null;
+        } else if (row.ownerDocument && typeof row.ownerDocument.createElement === 'function' && typeof row.appendChild === 'function') {
+          box = row.ownerDocument.createElement('span');
+          box.className = 'jp-parts__err';
+          box.setAttribute('role', 'status');
+          box.setAttribute('data-for', tab);
+          row.appendChild(box);
+        }
       }
       var notYet = e && (e.status === 409 || e.code === 'JPATH_CONTENT_NOT_LEARNABLE');
       var name = tab === 'KANJI' ? 'Kanji' : tab === 'GRAMMAR' ? 'ngữ pháp' : 'từ vựng';
-      box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
-        : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+      if (box) {
+        box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
+          : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+      }
     });
   }
 

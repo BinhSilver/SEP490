@@ -2061,3 +2061,13 @@ button.jp-sidenav__link {
   .cp-page .cp-finished__kitsu { width: 48px; height: 48px; }
   .cp-page .cp-finished__actions > * { flex: 1 1 100%; text-align: center; }
 }
+
+/* [JLAS-W0108] F150: tooltip chặng khóa mở xuống dưới để không bị tràn mép trên */
+.cp-page .jp-parts__lock-tip {
+  top: calc(100% + 10px); bottom: auto;
+  transform: translateX(-50%) translateY(-4px);
+}
+.cp-page .jp-parts__lock-tip::after {
+  top: -5px; bottom: auto; border-width: 0 5px 5px;
+  border-color: transparent transparent var(--jp-r4-line);
+}
