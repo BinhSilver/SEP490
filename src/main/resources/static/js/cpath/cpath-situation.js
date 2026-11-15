@@ -963,9 +963,18 @@
       display: { furigana: true, romaji: false, translation: true }
     };
 
+    var shownStep = null;
     function render() {
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = situationHtml(sitData, state);
+      // F178 (AI test L6): on a phone a new step starts with the step tabs at the top, so its first card or line shows
+      // above the sticky footer instead of under it (skipped on the first render, the page opens at its top)
+      var stepNow = state.showDoneScreen ? 'DONE' : state.activeStep;
+      if (shownStep !== null && stepNow !== shownStep && root.matchMedia && root.matchMedia('(max-width: 640px)').matches) {
+        var tabs = el.querySelector('.cp-sit-steps');
+        if (tabs && typeof tabs.scrollIntoView === 'function') tabs.scrollIntoView({ block: 'start' });
+      }
+      shownStep = stepNow;
     }
 
     function clearRecordTimer() {

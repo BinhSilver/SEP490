@@ -2092,3 +2092,19 @@ button.jp-sidenav__link {
   top: -5px; bottom: auto; border-width: 0 5px 5px;
   border-color: transparent transparent var(--jp-r4-line);
 }
+
+/* [JLAS-W0108] F178 (AI test L6): on a phone the situation head (title, display toggles, speed, 4 steps) took ~480px, so
+   the study card started under the sticky footer; the head is compacted so the card shows on the first screen */
+@media (max-width: 640px) {
+  .cp-sit-shell .cp-sit-topbar { padding: 10px 12px; gap: 8px; }
+  .cp-sit-shell .cp-sit-title { font-size: 1.05rem; margin: 2px 0 0; }
+  .cp-sit-shell .cp-sit-topbar > div:last-child { flex-wrap: wrap; gap: 6px !important; }
+  .cp-sit-shell .cp-sit-topbar > div:last-child .cp-btn-ghost { min-height: 32px !important; height: auto; padding: 4px 10px; font-size: .8rem; }
+  .cp-sit-shell .cp-speed--compact { padding: 8px 12px; }
+  .cp-sit-shell .cp-speed--compact .cp-speed__ticks,
+  .cp-sit-shell .cp-speed--compact .cp-speed__hint { display: none; }
+  .cp-sit-shell .cp-sit-steps { gap: 4px; }
+  .cp-sit-shell .cp-step-tab { min-height: 0; padding: 6px 4px; font-size: .72rem; line-height: 1.2; }
+  .cp-sit-shell .cp-sit-steps { scroll-margin-top: 72px; }
+  .cp-sit-shell .cp-sit-stage { padding-bottom: 12px; }
+}
