@@ -1913,23 +1913,20 @@ button.jp-sidenav__link {
 /* [JLAS-W0108] F85: phone and tablet. The app's bottom bar shows up to 900px, so the step footer sits on top of it;
    on a phone the footer is one compact row, the long labels drop their keyboard hint. */
 @media (max-width: 900px) {
-  .cp-page .cp-sit-foot { bottom: var(--jlab-mobile-bottom, 0px); }
+  .cp-page .cp-sit-foot,
+  .cp-page .cp-survey__foot { bottom: var(--jlab-mobile-bottom, 0px); padding-right: 72px; }
+  .cp-page .cp-sit-shell { padding-bottom: calc(var(--jlab-mobile-bottom, 0px) + 76px) !important; }
+  .cp-page .cp-meaning-reveal,
+  .cp-page .cp-why-box { scroll-margin-bottom: calc(var(--jlab-mobile-bottom, 0px) + 84px); }
 }
 @media (max-width: 640px) {
   .cp-wide-only { display: none; }
-  .cp-page .cp-sit-foot { flex-wrap: nowrap; gap: 8px; padding: 8px 10px; }
+  .cp-page .cp-sit-foot { flex-wrap: nowrap; gap: 8px; padding: 8px 10px; padding-right: 10px; }
+  .cp-page .cp-survey__foot { padding-right: 0; }
   .cp-page .cp-sit-foot > * { flex: 1 1 0; min-width: 0; padding: 10px 8px; font-size: .86rem; line-height: 1.25; white-space: normal; text-align: center; }
   .cp-page .cp-sit-foot > [data-cp-card-prev] { flex: 0 0 44px; }
   .cp-sit-topbar .cp-btn-ghost { white-space: nowrap; padding: 8px 12px; }
-}
-@media (max-width: 900px) {
-  /* the report button never sits on the step footer: room for it at the footer's end on a tablet */
-  .cp-page .cp-sit-foot { padding-right: 72px; }
-}
-@media (max-width: 640px) {
-  /* on a phone the footer needs its full width, so the report button moves under the header */
-  .cp-page .cp-sit-foot { padding-right: 10px; }
-  body:has(.cp-sit-foot) .jp-report-fab { top: 76px; bottom: auto; right: 10px; width: 40px; height: 40px; }
+  body:has(.cp-sit-foot, .cp-survey__foot) .jp-report-fab { top: 76px; bottom: auto; right: 10px; width: 40px; height: 40px; }
 }
 @media (max-width: 640px) {
   /* the card is the lesson: keep what sits above it short */

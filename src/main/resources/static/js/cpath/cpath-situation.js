@@ -270,10 +270,11 @@
   /* F68 Bước 1 (Du lịch): nghe câu → chọn nghĩa; chữ Nhật, cách đọc và romaji hiện sau khi chọn */
   function renderStepMeaning(sit, state) {
     var items = meaningItems(sit);
-    var nextLabel = 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›';
+    var saving = !!(state && state.savingStep);
+    var nextLabel = saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›';
     if (!items.length) {
       return '<div class="cp-sit-stage"><p>Tình huống chưa có câu để nghe và chọn nghĩa. Bạn sang nghe hội thoại nhé.</p></div>'
-        + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS">' + nextLabel + '</button></footer>';
+        + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>' + nextLabel + '</button></footer>';
     }
     var idx = Math.max(0, Math.min(items.length - 1, state.meaningIdx || 0));
     var item = items[idx];
@@ -307,7 +308,7 @@
     var foot = '<button type="button" class="cp-btn-ghost" data-cp-meaning-prev' + (idx <= 0 ? ' disabled' : '') + '>‹ Câu trước</button>'
       + (!answered ? '<span class="cp-survey__sub">Chọn một nghĩa để tiếp tục</span>'
         : (idx + 1 < items.length ? '<button type="button" class="cp-btn-primary" data-cp-meaning-next>Câu tiếp ›</button>'
-          : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS">' + nextLabel + '</button>'));
+          : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>' + nextLabel + '</button>'));
     return '<div class="cp-sit-stage cp-sit-stage--meaning">'
       + '<div class="cp-deck-switch"><strong>' + (item.kind === 'PHRASE' ? 'Mẫu câu' : 'Từ') + ' · ' + (idx + 1) + '/' + items.length + '</strong>'
       + '<span class="cp-survey__sub">Đúng <strong>' + correct + '</strong>/' + items.length + '</span></div>'
@@ -370,6 +371,7 @@
       return line && line.ja && card.ja && String(line.ja).indexOf(String(card.ja)) >= 0;
     })[0];
 
+    var saving = !!(state && state.savingStep);
     var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
     var cardBody = !flipped
       ? '<span class="cp-flashcard__tag">' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + ' · ' + tabIndex + '/' + tabCount + '</span>'
@@ -407,7 +409,8 @@
       + '<button type="button" class="cp-btn-ghost" data-cp-flip-btn>' + (flipped ? 'Xem mặt trước' : 'Lật xem nghĩa') + '<span class="cp-wide-only"> (Space)</span>' + '</button>'
       + (idx + 1 < deck.length
         ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp ›</button>'
-        : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS">Hoàn thành Bước 1 · Sang Nghe hội thoại ›</button>')
+        : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>'
+          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›') + '</button>')
       + '</footer>';
   }
 
@@ -452,7 +455,8 @@
       + '</div>'
       + '<footer class="cp-sit-foot">'
       + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">‹ Quay lại ' + esc(stepTitle('WORDS', sit)) + '</button>'
-      + '<button type="button" class="cp-btn-primary" data-cp-finish-step="LISTEN">Hoàn thành Bước 2 · Sang Nhập vai ›</button>'
+      + '<button type="button" class="cp-btn-primary" data-cp-finish-step="LISTEN"' + (state.savingStep ? ' disabled' : '') + '>'
+      + (state.savingStep ? 'Đang lưu…' : 'Hoàn thành Bước 2 · Sang Nhập vai ›') + '</button>'
       + '</footer>';
   }
 
@@ -477,9 +481,11 @@
   /* Bước 3: Nhập vai chọn câu (đến lượt リン chọn 1 trong 3 câu, kèm giải thích whyVi) */
   function renderStepRoleplay(sit, state) {
     var turns = list(sit && sit.challenge && sit.challenge.turns);
+    var saving = !!(state && state.savingStep);
     if (!turns.length) {
       return '<div class="cp-sit-stage"><p>Không có lượt nhập vai cho tình huống này.</p></div>'
-        + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY">Sang Bước 4 ›</button></footer>';
+        + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
+        + (saving ? 'Đang lưu…' : 'Sang Bước 4 ›') + '</button></footer>';
     }
     var tIdx = Math.max(0, Math.min(turns.length - 1, state.turnIdx || 0));
     var turn = turns[tIdx];
@@ -562,7 +568,8 @@
       + (tIdx + 1 < turns.length
         ? (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo ›</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>')
-        : (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY">Hoàn thành Bước 3 · Sang Luyện nói ›</button>'
+        : (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
+          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 3 · Sang Luyện nói ›') + '</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>'))
       + '</footer>';
   }
@@ -623,7 +630,8 @@
     var noMicSupport = !hasMicrophone(root);
     var micBlocked = noMicSupport || !!state.micUnavailable;
     var outOfAttempts = state.attemptsLeft === 0;
-    var recordLocked = outOfAttempts || !!state.scoring;
+    var saving = !!(state && state.savingStep);
+    var recordLocked = outOfAttempts || !!state.scoring || saving;
 
     var partnerHtml = partnerLine
       ? '<div class="cp-roleplay-context">'
@@ -689,7 +697,6 @@
     var noticeHtml = noticeMsg
       ? '<div class="cp-mic-notice" role="alert" data-cp-mic-notice>'
         + '<span>' + esc(noticeMsg) + '</span>'
-        + '<button type="button" class="cp-btn-ghost" data-cp-speak-skip>Bỏ qua</button>'
         + '</div>'
       : '';
 
@@ -723,7 +730,7 @@
       + '</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(targetLine.audioUrl) + '" data-cp-play-text="' + esc(targetLine.ja) + '">'
       + svgSpeaker() + '<span>Nghe mẫu</span></button>'
-      + '<button type="button" class="' + ((outOfAttempts || micBlocked) ? 'cp-btn-primary' : 'cp-btn-ghost') + '" data-cp-speak-skip>Bỏ qua</button>'
+      + '<button type="button" class="' + ((outOfAttempts || micBlocked) ? 'cp-btn-primary' : 'cp-btn-ghost') + '" data-cp-speak-skip' + (saving ? ' disabled' : '') + '>Bỏ qua</button>'
       + '</div>'
       + noticeHtml
       + '</div>'
@@ -733,7 +740,8 @@
       + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="ROLEPLAY">‹ Quay lại Nhập vai</button>'
       + (sIdx + 1 < lLines.length
         ? '<button type="button" class="cp-btn-primary" data-cp-speak-next' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Câu tiếp theo ›</button>'
-        : '<button type="button" class="cp-btn-primary" data-cp-finish-step="SPEAK"' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Hoàn thành 4 bước ›</button>')
+        : '<button type="button" class="cp-btn-primary" data-cp-finish-step="SPEAK"' + ((!isPass && !state.speakSkipped[sIdx]) || saving ? ' disabled' : '') + '>'
+          + (saving ? 'Đang lưu…' : 'Hoàn thành 4 bước ›') + '</button>')
       + '</footer>';
   }
 
@@ -741,15 +749,19 @@
   function renderDoneScreen(sit, state) {
     var aiHref = sit && sit.aiCallUrl;
     var pathHref = pageUrl('path');
-    var skippedNote = (state.lastSpeakBody && state.lastSpeakBody.skippedMic)
+    var speechSkipped = !!(state.lastSpeakBody && state.lastSpeakBody.skippedMic);
+    var skippedNote = speechSkipped
       ? '<p class="cp-survey__sub">Đã bỏ qua phần nói. Tình huống vẫn tính xong, chủ đề cần điểm nói để đạt; bạn luyện nói lại lúc nào cũng được.</p>'
       : (state.lastSpeakBody && typeof state.lastSpeakBody.speakBest === 'number'
         ? '<p class="cp-survey__sub">Điểm nói trung bình các câu đã chấm: <strong>' + esc(state.lastSpeakBody.speakBest) + '/100</strong>.</p>'
         : '');
+    var stepsSummary = speechSkipped
+      ? ('Bạn đã hoàn thành 3 bước (' + esc(stepTitle('WORDS', sit)) + ' · Nghe · Nhập vai), tạm bỏ qua phần Nói')
+      : ('Bạn đã hoàn thành trọn vẹn 4 bước (' + esc(stepTitle('WORDS', sit)) + ' · Nghe · Nhập vai · Nói)');
     return '<div class="cp-sit-stage" style="align-items:center;justify-content:center;text-align:center;">'
       + '<img src="' + esc(kitsuSrc('kitsu-celebrate-30.webp')) + '" width="78" height="78" alt="Kitsu chúc mừng" />'
       + '<h2 class="cp-survey__title">Hoàn thành tình huống: ' + esc(sit.titleVi) + '!</h2>'
-      + '<p class="cp-survey__sub">Bạn đã hoàn thành trọn vẹn 4 bước (' + esc(stepTitle('WORDS', sit)) + ' · Nghe · Nhập vai · Nói)'
+      + '<p class="cp-survey__sub">' + stepsSummary
       + (state.awardedCp ? (' và nhận được <strong>+' + esc(state.awardedCp) + ' CP</strong>') : '') + '.</p>'
       + skippedNote
       + (aiHref && isTravel(sit) ? '<p class="cp-survey__sub">Gọi AI là luyện thêm, <strong>không bắt buộc</strong>: tình huống đã tính xong.</p>' : '')
@@ -919,6 +931,7 @@
       hideSpeakText: false,
       recording: false,
       scoring: false,
+      savingStep: false,
       showDoneScreen: false,
       awardedCp: 0,
       missingNote: '',
@@ -981,6 +994,7 @@
     }
 
     function submitStep(stepKey, nextStepKey) {
+      if (state.savingStep) return;
       var body = { correct: 1, total: 1 };
       if (stepKey === 'ROLEPLAY') {
         var turns = list(sitData && sitData.challenge && sitData.challenge.turns);
@@ -994,8 +1008,11 @@
         body = buildSpeakStepPayload();
         state.lastSpeakBody = body;
       }
+      state.savingStep = true;
+      render();
       root.JpathApi.send('POST', '/api/learning/comm/situations/' + encodeURIComponent(sitData.id) + '/steps/' + stepKey, body)
         .then(function (res) {
+          state.savingStep = false;
           if (res && res.steps) sitData.steps = res.steps;
           else {
             sitData.steps = sitData.steps || {};
@@ -1017,6 +1034,7 @@
           }
           render();
         }, function (error) {
+          state.savingStep = false;
           state.missingNote = error && error.message || 'Chưa lưu được bước học. Hãy thử lại.';
           render();
         });
@@ -1242,6 +1260,8 @@
       if (meaningPick && !meaningPick.disabled) {
         state.meaningAnswers[state.meaningIdx || 0] = Number(meaningPick.getAttribute('data-cp-meaning-pick'));
         render();
+        var mRev = el && typeof el.querySelector === 'function' ? el.querySelector('.cp-meaning-reveal, .cp-why-box') : null;
+        if (mRev && typeof mRev.scrollIntoView === 'function') mRev.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         return;
       }
       if (t.closest('[data-cp-meaning-next]')) { state.meaningIdx = (state.meaningIdx || 0) + 1; render(); return; }
@@ -1297,6 +1317,8 @@
       if (rpOpt) {
         state.roleplayAnswers[state.turnIdx] = Number(rpOpt.getAttribute('data-cp-roleplay-opt'));
         render();
+        var rpRev = el && typeof el.querySelector === 'function' ? el.querySelector('.cp-meaning-reveal, .cp-why-box') : null;
+        if (rpRev && typeof rpRev.scrollIntoView === 'function') rpRev.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         return;
       }
 
@@ -1313,6 +1335,7 @@
       }
 
       if (t.closest('[data-cp-record]')) {
+        if (state.savingStep) return;
         if (!state.recording) {
           startRecording();
         } else {
@@ -1329,6 +1352,7 @@
       }
 
       if (t.closest('[data-cp-speak-skip]')) {
+        if (state.savingStep) return;
         cancelRecordingSilently();
         state.speakSkipped[state.speakIdx] = true;
         state.anyMicSkipped = true;
@@ -1351,6 +1375,7 @@
 
       var finishBtn = t.closest('[data-cp-finish-step]');
       if (finishBtn) {
+        if (state.savingStep || finishBtn.disabled) return;
         var finStep = finishBtn.getAttribute('data-cp-finish-step');
         var nextIdx = STEPS_ORDER.indexOf(finStep) + 1;
         var nextKey = nextIdx < STEPS_ORDER.length ? STEPS_ORDER[nextIdx] : '';
