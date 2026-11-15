@@ -385,8 +385,8 @@
             + '<button type="button" class="jp-btn" data-rp-next disabled>Câu tiếp theo</button> '
             + '<button type="button" class="jp-btn" data-rp-skip>Bỏ qua phần nói</button>'
           : '<p class="jp-check__dir">Chọn câu đáp phù hợp</p><div class="jp-check__opts">'
-            + (q.options || []).map(function (o, i) { return '<button type="button" class="jp-check-opt" data-rp-pick="' + i + '">'
-              + '<span class="jp-check-opt__key">' + (i + 1) + '</span> <span lang="ja">' + ruby((q.optionsFurigana && q.optionsFurigana[i]) || o, state.furigana) + '</span></button>'; }).join('') + '</div>')
+            + (q.options || []).map(function (o, i) { return '<button type="button" class="jp-check-opt" lang="ja" data-rp-pick="' + i + '">'
+              + '<span class="jp-check-opt__key">' + (i + 1) + '</span> <span class="cp-rp-opt">' + ruby((q.optionsFurigana && q.optionsFurigana[i]) || o, state.furigana) + '</span></button>'; }).join('') + '</div>')
         + '</section>';
     }
     function submit() {
