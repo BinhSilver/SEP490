@@ -873,7 +873,7 @@
     var s = sit || {};
     var stepsStatus = s.steps || {};
 
-    // F197 (owner 15/11): a finished step gets Kitsu stamping a red 済 seal — played once per step and visit,
+    // F197 (owner 15/11): a finished step gets a red 済 seal stamped (owner 15/11 night: seal only, no mascot) — played once per step and visit,
     // then only the seal stays (re-renders do not replay it)
     state.stampAt = state.stampAt || {};
     function stampHtml(key) {
@@ -884,7 +884,6 @@
       // a re-render mid-animation continues it where it was (negative delay) instead of restarting or dropping it
       var delay = play ? ' style="--cp-stamp-delay:-' + elapsed + 'ms"' : '';
       return '<span class="cp-step-stamp' + (play ? ' is-playing' : '') + '"' + delay + ' aria-hidden="true">'
-        + (play ? '<img class="cp-step-stamp__fox" src="/images/mascots/kitsu/kitsu-stamping-30-128.webp" alt="" width="44" height="44">' : '')
         + '<span class="cp-step-stamp__seal" lang="ja">済</span></span>';
     }
     var stepTabsHtml = STEPS_ORDER.map(function (key, idx) {

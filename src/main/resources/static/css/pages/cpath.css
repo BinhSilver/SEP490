@@ -2132,7 +2132,7 @@ button.jp-sidenav__link {
   transition: width .25s ease;
 }
 
-/* [JLAS-W0108] F197: finished step tab — Kitsu stamps a red 済 seal at the right edge, then leaves the seal */
+/* [JLAS-W0108] F197: finished step tab — a red 済 seal stamped at the right edge (seal only, no mascot) */
 .cp-step-tab { position: relative; }
 .cp-step-tab.is-done { padding-right: 40px; }
 .cp-step-stamp {
@@ -2156,35 +2156,19 @@ button.jp-sidenav__link {
   transform: rotate(-12deg);
   opacity: .9;
 }
-.cp-step-stamp__fox {
-  position: absolute;
-  right: 10px;
-  bottom: 4px;
-  width: 58px;
-  height: auto;
-  opacity: 0;
-}
-.cp-step-stamp.is-playing .cp-step-stamp__fox { animation: cp-stamp-fox 2.4s ease var(--cp-stamp-delay, 0s) forwards; }
 .cp-step-stamp.is-playing .cp-step-stamp__seal { animation: cp-stamp-seal 2.4s ease var(--cp-stamp-delay, 0s) both; }
-@keyframes cp-stamp-fox {
-  0% { opacity: 0; transform: translateY(6px); }
-  12%, 72% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-4px); }
-}
 @keyframes cp-stamp-seal {
-  0%, 40% { opacity: 0; transform: rotate(-12deg) scale(1.6); }
-  50% { opacity: 1; transform: rotate(-12deg) scale(.92); }
-  60%, 100% { opacity: .9; transform: rotate(-12deg) scale(1); }
+  0% { opacity: 0; transform: rotate(-12deg) scale(1.6); }
+  12% { opacity: 1; transform: rotate(-12deg) scale(.92); }
+  20%, 100% { opacity: .9; transform: rotate(-12deg) scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cp-step-stamp__fox { display: none; }
   .cp-step-stamp.is-playing .cp-step-stamp__seal { animation: none; }
 }
 @media (max-width: 640px) {
   .cp-step-tab.is-done { padding-right: 10px; }
   .cp-step-stamp { width: 20px; height: 20px; top: 3px; right: 3px; transform: none; }
   .cp-step-stamp__seal { font-size: .62rem; border-width: 1.5px; }
-  .cp-step-stamp__fox { width: 46px; right: 4px; bottom: -6px; }
 }
 
 /* [JLAS-W0108] F199: listening-speed bar — fixed-width label block and hint so switching speed never shifts the row */
