@@ -2198,3 +2198,41 @@ button.jp-sidenav__link {
   .cp-speed--compact { grid-template-columns: 1fr; }
   .cp-speed--compact .cp-speed__head { width: auto; flex-direction: row; align-items: center; justify-content: space-between; }
 }
+
+/* [JLAS-W0108] F207: result of the weekly check / role-play / quick practice — score in a coloured ring (red below
+   the pass mark, green when passed) at the head of a card, notes as soft chips, same look on all three */
+.cp-page .jp-check-page .jp-result {
+  justify-items: start;
+  text-align: left;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--cp-line, #e5e1f0);
+  border-radius: 16px;
+  background: var(--cp-surface, #fff);
+}
+.cp-page .jp-check-page .jp-result__score {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 7px solid color-mix(in srgb, #d8402f 30%, transparent);
+  border-top-color: #d8402f;
+  color: #c0392b;
+  font-size: 1.55rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.cp-page .jp-check-page .jp-result__score.jp-ok {
+  border-color: color-mix(in srgb, #1f9d55 30%, transparent);
+  border-top-color: #1f9d55;
+  color: #17804a;
+}
+.cp-page .jp-check-page .jp-result__title { margin: 0; font-size: 1.15rem; }
+.cp-page .jp-check-page .jp-result__note {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cp-primary, #5b3cc4) 8%, transparent);
+  font-size: .9rem;
+}
