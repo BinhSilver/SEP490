@@ -108,7 +108,7 @@
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
       + '<h2 id="cpWeeklyResult" class="jp-result__title" tabindex="-1">'
-      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu. Mục sai đã vào Sổ tay.') : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
+      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu.' + (Number(r.correct) < Number(r.total) ? ' Mục sai đã vào Sổ tay.' : ' Không sai câu nào.')) : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
         : ('Đúng ' + r.correct + '/' + r.total + ' câu, cần từ 80% để đạt. Ôn lại các câu sai rồi làm lại nhé.')) + '</h2>'
       + weekTipHtml(r)
       + '<ul class="jp-review">' + rows + '</ul>'

@@ -199,7 +199,7 @@
     var ps = parts(check);
     var idx = Math.min(state.index, qs.length - 1);
     var q = qs[idx];
-    var bits = [kindTitle(check.kind)];
+    var bits = [check.kind === 'FREE_QUIZ' && isWeekly(check) ? 'Kiểm tra tuần' : kindTitle(check.kind)]; // F179 (AI test L17): the weekly test said "Quiz tự do"
     var pi = -1;
     ps.forEach(function (p, i) { if (p.indexes.indexOf(idx) >= 0) pi = i; });
     if (q && pi >= 0) {
