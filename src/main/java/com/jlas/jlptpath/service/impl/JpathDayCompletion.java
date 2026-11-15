@@ -107,8 +107,10 @@ public class JpathDayCompletion {
             int target = t.getTab() == JpathTab.SKILL ? t.getNewTarget() : planService.effectiveTarget(plan, t);
             if (t != touched && t.getDoneAt() == null && target == 0) {
                 t.setDoneAt(now);
-            } else if (t.getDoneAt() != null && t.getTab() != JpathTab.SKILL && target > t.getNewDone()) {
-                // [JLAS-W0108] F148: reopen tab if effective target grew above newDone (e.g. after Kana rows unlocked words)
+            } else if (t.getDoneAt() != null && t.getTab() != JpathTab.SKILL && target > t.getNewDone()
+                    && plan.getAllDoneAt() == null) {
+                // [JLAS-W0108] F148: reopen tab if effective target grew above newDone (e.g. after Kana rows unlocked words);
+                // never once the day is complete: a finished day stays finished and its tab is not paid twice
                 t.setDoneAt(null);
             }
         }
