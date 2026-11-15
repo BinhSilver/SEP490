@@ -427,6 +427,51 @@ function upsert(key, rows) {
 }
 
 /**
+ * F35: dictionary_entry_id baked at compile time only fits the DB it was compiled against (vocabulary_entry ids
+ * differ between machines), so each level's SQL re-resolves the link on the DB it is loaded into:
+ * exact (normalized_expression, normalized_reading) first — unique in vocabulary_entry —, then, for dead or
+ * plainly wrong links, by normalized_expression (preferring the same JLPT level, then entries the textbooks use),
+ * else NULL so the FE can say the word has no dictionary entry instead of saving the wrong word.
+ */
+function relinkDictionarySql(L) {
+  const wrong = (j) => `(cur.id IS NULL
+       OR (CONVERT(cur.normalized_expression USING utf8mb4) COLLATE utf8mb4_bin
+               <> CONVERT(${j}.normalized_expression USING utf8mb4) COLLATE utf8mb4_bin
+           AND CONVERT(cur.normalized_reading USING utf8mb4) COLLATE utf8mb4_bin
+               <> CONVERT(${j}.normalized_reading USING utf8mb4) COLLATE utf8mb4_bin))`;
+  return [
+    `UPDATE jpath_vocabulary j
+JOIN vocabulary_entry v
+  ON v.normalized_expression = CONVERT(j.normalized_expression USING utf8mb4) COLLATE utf8mb4_0900_as_cs
+ AND v.normalized_reading   = CONVERT(j.normalized_reading   USING utf8mb4) COLLATE utf8mb4_0900_as_cs
+SET j.dictionary_entry_id = v.id
+WHERE j.level = ${L} AND (j.dictionary_entry_id IS NULL OR j.dictionary_entry_id <> v.id);`,
+    `UPDATE jpath_vocabulary j
+JOIN (
+    SELECT code, pick FROM (
+        SELECT j2.code,
+               FIRST_VALUE(v.id) OVER (PARTITION BY j2.code
+                   ORDER BY (v.jlpt_level = j2.level) DESC, (cv.vid IS NOT NULL) DESC, v.id) AS pick,
+               ROW_NUMBER() OVER (PARTITION BY j2.code ORDER BY v.id) AS rn
+        FROM jpath_vocabulary j2
+        LEFT JOIN vocabulary_entry cur ON cur.id = j2.dictionary_entry_id
+        JOIN vocabulary_entry v
+          ON v.normalized_expression = CONVERT(j2.normalized_expression USING utf8mb4) COLLATE utf8mb4_0900_as_cs
+        LEFT JOIN (SELECT DISTINCT vocabulary_id AS vid FROM content_vocabulary) cv ON cv.vid = v.id
+        WHERE j2.level = ${L} AND j2.dictionary_entry_id IS NOT NULL
+          AND ${wrong('j2')}
+    ) t WHERE t.rn = 1
+) p ON p.code = j.code
+SET j.dictionary_entry_id = p.pick;`,
+    `UPDATE jpath_vocabulary j
+LEFT JOIN vocabulary_entry cur ON cur.id = j.dictionary_entry_id
+SET j.dictionary_entry_id = NULL
+WHERE j.level = ${L} AND j.dictionary_entry_id IS NOT NULL
+  AND ${wrong('j')};`,
+  ].join('\n');
+}
+
+/**
  * One level's content SQL in one transaction: upserts in FK order, link rows (compounds, confusable pairs) deleted and
  * re-inserted for the level, rows this seed version did not write are moved to HOLD (never deleted), then the release flag.
  */
@@ -446,6 +491,8 @@ export function levelContentSql(level, tables, { seedVersion, verdict, header } 
     upsert('topic', tables.topic),
     upsert('grammar_unit', tables.grammar_unit),
     upsert('vocabulary', tables.vocabulary),
+    `-- F35: tra lại dictionary_entry_id trên DB đang nạp (id biên dịch sẵn chỉ đúng với DB đã dùng để build)`,
+    relinkDictionarySql(L),
     upsert('kanji', tables.kanji),
     `DELETE c FROM jpath_kanji_compound c JOIN jpath_kanji k ON k.code = c.kanji_code WHERE k.level = ${L};`,
     upsert('kanji_compound', tables.kanji_compound),

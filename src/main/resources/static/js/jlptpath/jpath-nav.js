@@ -2,7 +2,8 @@
  *
  * window.JpathNav = {
  *   iconHtml(name, label?)            Shared SVG sprite icon; optional accessible label
- *   crumbsHtml(items)                 Breadcrumbs: [{label, href?}], the last one is the current page (aria-current)
+ *   backHtml(label, href)             "Quay về {label}" link to the parent page (F86: replaces breadcrumbs)
+ *   crumbsHtml(items)                 Old trail [{label, href?}] → backHtml of the nearest parent that is not home
  *   stepperHtml(steps, opts)          Stepper: [{label, sub?, state: 'done'|'now'|'todo'|'off', href?}];
  *                                     opts {vertical, label, compact}
  *   progressHtml(pct, opts)           Progress bar with role="progressbar"; opts {label, caption, tone}
@@ -55,16 +56,23 @@
 
   // ------------------------------------------------------------------------------------------- breadcrumbs
 
+  // [JLAS-W0108] F86 (owner 12/11): no "Trang chủ › … › here" trail (home is on the nav bar); one "Quay về" link instead.
+  var BACK_ICON = '<svg class="jp-back__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" '
+    + 'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function backHtml(label, href) {
+    var h = safeHref(href);
+    if (!h || !label) return '';
+    return '<a class="jp-back" href="' + esc(h) + '">' + BACK_ICON + '<span>Quay về ' + esc(label) + '</span></a>';
+  }
+
+  /** Older callers still pass the whole trail: the link goes to the nearest parent that is not the home page. */
   function crumbsHtml(items) {
     var xs = list(items).filter(function (x) { return x && x.label; });
-    if (!xs.length) return '';
-    return '<nav class="jp-crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">' + xs.map(function (x, i) {
-      var last = i === xs.length - 1;
-      var href = safeHref(x.href);
-      var inner = !last && href ? '<a class="jp-crumbs__link" href="' + esc(href) + '">' + esc(x.label) + '</a>'
-        : '<span class="jp-crumbs__here"' + (last ? ' aria-current="page"' : '') + '>' + esc(x.label) + '</span>';
-      return '<li class="jp-crumbs__item">' + inner + '</li>';
-    }).join('') + '</ol></nav>';
+    for (var i = xs.length - 2; i >= 0; i--) {
+      var h = safeHref(xs[i].href);
+      if (h && h !== '/') return backHtml(xs[i].label, h);
+    }
+    return '';
   }
 
   // ------------------------------------------------------------------------------------------- stepper
@@ -360,7 +368,7 @@
   }
 
   return {
-    esc: esc, iconHtml: iconHtml, crumbsHtml: crumbsHtml, stepperHtml: stepperHtml, progressHtml: progressHtml, flowNavHtml: flowNavHtml,
+    esc: esc, iconHtml: iconHtml, crumbsHtml: crumbsHtml, backHtml: backHtml, stepperHtml: stepperHtml, progressHtml: progressHtml, flowNavHtml: flowNavHtml,
     pagerHtml: pagerHtml, pageWindow: pageWindow, moreHtml: moreHtml, accordionHtml: accordionHtml, tocHtml: tocHtml,
     carouselHtml: carouselHtml, mount: mount
   };

@@ -7,11 +7,13 @@ import com.jlas.jlptpath.service.JpathBadgeService;
 import com.jlas.jlptpath.service.JpathRewardService;
 import com.jlas.jlptpath.util.JpathRewardPolicy;
 import com.jlas.mission.service.CreditAwardService;
+import com.jlas.mission.service.DailyGoalService;
 import com.jlas.mission.service.StreakService;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +37,9 @@ public class JpathRewardServiceImpl implements JpathRewardService {
 
     /** Transaction resource marking that the after-commit apply is already registered. */
     private static final Object APPLY_KEY = JpathRewardServiceImpl.class;
+
+    /** Transaction resource marking that the after-commit daily-goal check is already registered (F128). */
+    static final Object DAILY_GOAL_KEY = DailyGoalService.class.getName() + "#jpath";
 
     private final CreditAwardService awards;
     private final StreakService streaks;
@@ -87,10 +92,50 @@ public class JpathRewardServiceImpl implements JpathRewardService {
                 skill == JpathSkill.LISTENING ? "Xong buổi Nghe" : "Xong buổi Đọc");
     }
 
+    /** Optional: without the mission daily goal the path pays as before. */
+    private DailyGoalService dailyGoal;
+
+    @Autowired(required = false)
+    void setDailyGoal(DailyGoalService dailyGoal) {
+        this.dailyGoal = dailyGoal;
+    }
+
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onProgressChanged(Long userId) {
         evaluateBadges(userId);
+        refreshDailyGoalAfterCommit(userId);
+    }
+
+    /**
+     * [JLAS-W0108] F128: the learner's own daily goal counts the path study (new items, checks, minutes) read from the
+     * committed rows, so it is checked after commit, once per transaction, in its own transaction. A goal met there
+     * queues its reward, which is applied right away; a failure is logged and the path step stays saved.
+     */
+    private void refreshDailyGoalAfterCommit(Long userId) {
+        DailyGoalService goal = dailyGoal;
+        if (goal == null || !TransactionSynchronizationManager.isSynchronizationActive()
+                || TransactionSynchronizationManager.getResource(DAILY_GOAL_KEY) != null) {
+            return;
+        }
+        TransactionSynchronizationManager.bindResource(DAILY_GOAL_KEY, userId);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    if (goal.refreshToday(userId)) {
+                        awards.applyOpenAwards(userId);
+                    }
+                } catch (RuntimeException ex) {
+                    log.error("Could not re-check the daily goal for user {}", userId, ex);
+                }
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                TransactionSynchronizationManager.unbindResourceIfPossible(DAILY_GOAL_KEY);
+            }
+        });
     }
 
     private void evaluateBadges(Long userId) {

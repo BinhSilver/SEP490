@@ -1,6 +1,6 @@
 /* [JLAS-W0108] jpath-week-skip.js — "Tôi biết tuần này" (owner 06/11).
  *
- * A learner whose path came from a Smart Test at Căn bản or better can skip the coming week of a tab in the first
+ * Any learner (owner 11/11, F64) can skip the coming week of a tab; was: Smart Test Căn bản+ in the first
  * weeks of the level: GET /api/learning/jlpt/week-skip?tab=VOCAB|KANJI|GRAMMAR → {offer, tab, level, items}. One card
  * on the path page lists the tabs on offer; a button issues POST /api/learning/jlpt/week-skip/{tab}/check and opens
  * the check. Right on 90% or more = the week's items count as known (asked right → Đã biết, not asked → review).
@@ -38,14 +38,15 @@
     try { root.localStorage.setItem(hiddenKey(), today()); } catch (e) { /* private mode */ }
   }
 
-  /** AI 1 #11 (owner 10/11): a learner reviewing kana tests out of the next rows (matching boards, ≥ 90% = known). */
+  /** F65c: check the next kana rows or all remaining rows (matching boards, ≥ 90% = known). */
   function kanaHtml(o) {
     return '<div class="jp-warmup jp-week-skip" role="region" aria-label="Kiểm tra nhanh chữ cái">'
       + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã thuộc chữ cái?</p>'
-      + '<p class="jp-warmup__sub">Bạn chọn ôn lại bảng chữ cái. Nối chữ với cách đọc cho mấy hàng tiếp theo; '
-      + 'đúng từ 90% thì các hàng đó tính là đã thuộc, khỏi học lại.</p></div>'
+      + '<p class="jp-warmup__sub">Nối chữ với cách đọc cho vài hàng tiếp theo hoặc cả bảng chữ còn lại; '
+      + 'đúng từ 90% thì phần đã kiểm tra tính là đã thuộc.</p></div>'
       + '<div class="jp-warmup__actions"><button type="button" class="jp-btn" data-week-skip-tab="KANA">Kiểm tra nhanh · '
       + esc(o.items) + ' chữ</button>'
+      + '<button type="button" class="jp-link-btn" data-week-skip-tab="KANA" data-week-skip-rows="0">Tôi biết cả bảng chữ</button>'
       + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
   }
 
@@ -62,8 +63,8 @@
         + esc(name) + ' · ' + o.items + ' mục</button>';
     }).join('');
     return '<div class="jp-warmup jp-week-skip" role="region" aria-label="Bỏ qua tuần đã biết">'
-      + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã biết phần đầu ' + esc(level) + '?</p>'
-      + '<p class="jp-warmup__sub">Kết quả Smart Test của bạn từ Căn bản trở lên. Làm bài kiểm tra ngắn (tối đa 20 câu) '
+      + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã biết tuần tới của ' + esc(level) + '?</p>'
+      + '<p class="jp-warmup__sub">Làm bài kiểm tra ngắn (tối đa 20 câu) '
       + 'cho tuần tới; đúng từ 90% thì tuần đó được bỏ qua trên lộ trình.</p></div>'
       + '<div class="jp-warmup__actions">' + buttons
       + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>'
@@ -92,7 +93,10 @@
         var b = t.closest && t.closest('[data-week-skip-tab]');
         if (!b) return;
         b.disabled = true;
-        Promise.resolve(client.send('POST', BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check'))
+        var rows = b.getAttribute('data-week-skip-rows');
+        var url = BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check'
+          + (rows === '0' ? '?rows=0' : '');
+        Promise.resolve(client.send('POST', url))
           .then(function (res) {
             var token = res && (res.token || res.checkToken);
             if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');

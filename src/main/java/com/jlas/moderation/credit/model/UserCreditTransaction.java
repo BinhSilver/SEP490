@@ -27,6 +27,8 @@ public final class UserCreditTransaction {
         /** Gói lượt tra từ nhanh (bôi đen để tra) cho tài khoản không có Pro. */
         QUICK_LOOKUP_PACK,
         /** Một lần chấm phát âm sau khi hết lượt miễn phí trong ngày; lỗi chấm thì hoàn bằng REFUND. */
-        PRONUNCIATION_CHECK
+        PRONUNCIATION_CHECK,
+        /** [JLAS-W0108] F36: Mua lượt AI giải thích / hỏi đáp câu hỏi trong Lộ trình học. */
+        LEARNING_AI_EXPLAIN
     }
 }

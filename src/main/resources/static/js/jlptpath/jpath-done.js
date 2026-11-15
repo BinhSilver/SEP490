@@ -68,7 +68,7 @@
       + '<div class="jp-done__bar" aria-hidden="true"><span style="width:' + Math.max(1, Math.min(100, after)) + '%"></span></div></div>';
     var wrong = (s.wrongItems || []).filter(function (w) { return w && (w.expression || w.code); });
     if (wrong.length) {
-      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay điểm yếu</p>'
+      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay</p>'
         + '<ul class="jp-done__wrong">' + wrong.map(function (w) {
           return '<li lang="ja">' + esc(w.expression || w.code) + '</li>';
         }).join('') + '</ul></div>';
@@ -148,6 +148,17 @@
         }).catch(function (err) {
           busy = false;
           setChips(false, n);
+          if (err && err.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
+            // F65: far ahead → the weekly check of this tab first
+            var tab = n.getAttribute('data-extra-tab');
+            status(err.message);
+            api.send('POST', '/api/learning/jlpt/checks', { kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
+              direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false }).then(function (res) {
+              var token = res && (res.token || res.checkToken);
+              if (token) navigate('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning%2Fjlpt%2Fdone');
+            }, function () { /* the message stays */ });
+            return;
+          }
           status((err && err.message) || MSG_EXTRA_FAILED);
         });
         return;

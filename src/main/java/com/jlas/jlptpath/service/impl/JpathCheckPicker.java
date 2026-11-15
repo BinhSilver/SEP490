@@ -230,8 +230,9 @@ public class JpathCheckPicker {
             };
         } else {
             JpathItemState only = src == JpathCheckSource.NOTEBOOK ? JpathItemState.NOTEBOOK : null;
-            // Owner 05/11 weekly test: the items first learned in the last 7 days
-            java.time.LocalDateTime weekStart = java.time.LocalDateTime.now().minusDays(7);
+            // Owner 05/11 weekly test: the items first learned in the last 7 days. F143: first_learned_at holds the
+            // learner's local time, so the window is measured on the learner's clock, not the JVM's.
+            java.time.LocalDateTime weekStart = clock.localNow(userId).minusDays(7);
             codes = userItems.findByUserIdAndItemType(userId, type).stream()
                     .filter(i -> src != JpathCheckSource.WEEK
                             || (i.getFirstLearnedAt() != null && i.getFirstLearnedAt().isAfter(weekStart)))

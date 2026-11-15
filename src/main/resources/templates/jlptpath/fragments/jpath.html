@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/learning-v2-tokens.css(v=${jpathAssetVersion})}" />
     <link rel="stylesheet" th:href="@{/css/pages/jpath-base.css(v=${jpathAssetVersion})}" />
     <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v=${jpathAssetVersion})}" />
-    <!-- Workspace layout + navigation kit (breadcrumbs, stepper, progress, flow buttons, pager, accordion, toc). -->
+    <!-- Workspace layout + navigation kit (back link, stepper, progress, flow buttons, pager, accordion, toc). -->
     <link rel="stylesheet" th:href="@{/css/pages/jpath-nav.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
           th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
@@ -18,6 +18,8 @@
     <!-- fragments/head does not load confirm-dialog.js; path pages use window.JlasConfirm. -->
     <script th:src="@{/js/pages/confirm-dialog.js(v=${jpathAssetVersion})}"></script>
     <script th:src="@{/js/jlptpath/jpath-api.js(v=${jpathAssetVersion})}"></script>
+    <!-- F72: recordings become WAV 16 kHz mono in the browser before scoring (no ffmpeg needed on the server). -->
+    <script th:src="@{/js/jlptpath/jpath-wav.js(v=${jpathAssetVersion})}"></script>
     <script th:src="@{/js/jlptpath/jpath-nav.js(v=${jpathAssetVersion})}"></script>
     <!-- Extras: "Báo sai" binds every [data-jpath-report] block, also after each 'jpath:rendered'. -->
     <script th:src="@{/js/jlptpath/jpath-report.js(v=${jpathAssetVersion})}"></script>
@@ -33,6 +35,8 @@
     <script th:src="@{/js/jlptpath/jpath-lookup-rich.js(v=${jpathAssetVersion})}"></script>
     <!-- "Luyện thêm": fills every [data-jpath-extra-links] (path page, done screen) from GET /extra-links. -->
     <script th:src="@{/js/jlptpath/jpath-extra-links.js(v=${jpathAssetVersion})}"></script>
+    <!-- [JLAS-W0108] F36/F37: AI giải thích & hỏi đáp câu hỏi đã trả lời trong Lộ trình JLPT + Giao tiếp. -->
+    <script th:src="@{/js/jlptpath/jpath-ai-explain.js(v=${jpathAssetVersion})}"></script>
 </th:block>
 
 
@@ -40,6 +44,9 @@
 <th:block th:fragment="sidenav(current)">
     <nav class="jp-sidenav" aria-label="Trang của lộ trình">
         <p class="jp-sidenav__title">Lộ trình JLPT</p>
+        <!-- F174 (owner 15/11): on a phone the links fold behind one button instead of a sideways-scrolling row -->
+        <details class="jp-sidenav__fold" open>
+        <summary class="jp-sidenav__toggle"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg><span class="jp-sidenav__toggle-text">Trang của lộ trình</span><span class="jp-sidenav__chev" aria-hidden="true">▾</span></summary>
         <a class="jp-sidenav__link" href="/learning" th:attr="aria-current=${current == '/learning'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg>Lộ trình</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/history" th:attr="aria-current=${current == '/learning/jlpt/history'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg>Lịch sử học</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/stats" th:attr="aria-current=${current == '/learning/jlpt/stats'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-chart-no-axes-combined"/></svg>Thống kê</a>
@@ -47,26 +54,35 @@
         <a class="jp-sidenav__link" href="/learning/jlpt/notebook" th:attr="aria-current=${current == '/learning/jlpt/notebook'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg>Sổ tay</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/confusables" th:attr="aria-current=${current == '/learning/jlpt/confusables'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-git-compare-arrows"/></svg>Phân biệt dễ nhầm</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/settings" th:attr="aria-current=${current == '/learning/jlpt/settings'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg>Cài đặt lộ trình</a>
+        </details>
+        <script>
+            (function () {
+                var fold = document.currentScript && document.currentScript.previousElementSibling;
+                if (!fold || !window.matchMedia) return;
+                var cur = fold.querySelector('[aria-current="page"]');
+                var text = fold.querySelector('.jp-sidenav__toggle-text');
+                if (cur && text) text.textContent = cur.textContent.trim();
+                var phone = window.matchMedia('(max-width: 899px)');
+                function sync() { fold.open = !phone.matches; }
+                sync();
+                if (phone.addEventListener) phone.addEventListener('change', sync);
+            })();
+        </script>
     </nav>
 </th:block>
 
-<!-- Breadcrumbs with a parent page: Trang chủ › Lộ trình JLPT › {parent} › {here}. -->
-<th:block th:fragment="crumbsIn(parentLabel, parentHref, here)">
-    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning">Lộ trình JLPT</a></li>
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" th:href="${parentHref}" th:text="${parentLabel}">Mục</a></li>
-        <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page" th:text="${here}">Trang</span></li>
-    </ol></nav>
+<!-- [JLAS-W0108] F86 (owner 12/11): no breadcrumb trail (home is on the nav bar); a "Quay về" link to the parent page. -->
+<th:block th:fragment="back(label, href)">
+    <a class="jp-back jp-ws__crumbs" th:href="${href}" href="/learning"><svg class="jp-back__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Quay về <span th:text="${label}">Lộ trình JLPT</span></span></a>
 </th:block>
 
-<!-- Breadcrumbs: Trang chủ › Lộ trình JLPT › {here}. -->
+<!-- Older pages: crumbsIn(parent) and crumbs(here) now render the same "Quay về" link. -->
+<th:block th:fragment="crumbsIn(parentLabel, parentHref, here)">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back(${parentLabel}, ${parentHref})}"></th:block>
+</th:block>
+
 <th:block th:fragment="crumbs(here)">
-    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở"><ol class="jp-crumbs__list">
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
-        <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning">Lộ trình JLPT</a></li>
-        <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page" th:text="${here}">Trang</span></li>
-    </ol></nav>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình JLPT', '/learning')}"></th:block>
 </th:block>
 
 </html>

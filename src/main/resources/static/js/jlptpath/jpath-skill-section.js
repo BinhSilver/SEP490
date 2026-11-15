@@ -177,14 +177,22 @@
       var opt = t.closest('[data-section-option]');
       if (opt && !opt.disabled) {
         var q = opt.closest('[data-question]');
-        q.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+        var buttons = [];
+        q.querySelectorAll('button').forEach(function (b) { buttons.push([b, b.disabled]); b.disabled = true; });
         opt.classList.add('is-picked');
+        status.textContent = '';
         api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/answers', { questionId: q.getAttribute('data-question'),
           value: opt.getAttribute('data-section-option'), elapsedMs: now() - state.shownAt }).then(function () {
           state.shownAt = now();
           state.view.answered = list(state.view.answered).concat([{ questionId: q.getAttribute('data-question'),
             value: opt.getAttribute('data-section-option') }]);
-        }, function (e) { status.textContent = (e && e.message) || ''; });
+        }, function (e) {
+          // F140: the answer did not reach the server — give the question back (buttons as they were) to pick again
+          buttons.forEach(function (x) { x[0].disabled = x[1]; });
+          opt.classList.remove('is-picked');
+          var m = e && e.code !== 'NETWORK' && e.message ? String(e.message).trim() : '';
+          status.textContent = m || 'Chưa gửi được câu trả lời. Hãy chọn lại.';
+        });
         return;
       }
       if (t.closest('[data-section-submit]')) submit();

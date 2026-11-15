@@ -679,7 +679,9 @@ const minPosition = l => Math.min(...l.jlas.map(m => m.position ?? 1), 1);
 // kanji all carry `queue` STUDY or EXTRA (HOLD: kept in the source, no packets, not served by the path).
 export const KANJI_STUDY_CAP = Object.freeze({ N5: 100, N4: 200, N3: 350, N1: 600 });
 // Owner 05/11: main grammar patterns studied per level (in lesson order); secondaries follow their main.
-export const GRAMMAR_STUDY_CAP = Object.freeze({ N5: 80, N4: 100, N3: 120, N2: 200, N1: 200 });
+// [JLAS-W0108] F71 (owner 11/11): cumulative JLPT standard N5 ~70, N4 ~120, N3 180–200, N2 ~400, N1 ~500 main
+// patterns, so each level adds 70 / 50 / 70 / 200 / 100 (N2 stays 200: the 10 more mains have no audio yet). The rest stays in the source as Mở rộng (HOLD), never deleted.
+export const GRAMMAR_STUDY_CAP = Object.freeze({ N5: 70, N4: 50, N3: 70, N2: 200, N1: 100 });
 // Patterns that moved to a level on 05/11 without content yet (〜すると came down from N2): out of the cap until
 // their GRAMMAR_CORE / examples / bank are written.
 const GRAMMAR_CAP_WAIT = new Set(['JG-34d7003451']);
