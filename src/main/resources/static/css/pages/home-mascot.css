@@ -40,8 +40,33 @@ html.home-html[data-theme="dark"] .hm-mascot,
   filter: drop-shadow(0 0 10px rgb(255 214 170 / .28)) drop-shadow(0 6px 10px rgb(0 0 0 / .4));
 }
 
-@media (max-width: 560px) {
-  .hwd { --hm-size: 64px; --hm-inside: 16px; }
+/* [JLAS-W0108] F162: màn nhỏ như điện thoại lược khung kính (.hwd-photo), chỉ giữ ô lướt từ theo % màn hình */
+@media (max-width: 640px) {
+  .hwd {
+    --hm-size: clamp(3.4rem, 15vw, 4.1rem);
+    --hm-inside: clamp(0.75rem, 2dvh, 1rem);
+    width: min(82vw, 22rem);
+    margin: clamp(2.75rem, 7dvh, 4rem) auto clamp(1.5rem, 4dvh, 2.5rem);
+    padding-left: 0;
+  }
+  .hwd .hwd-photo { display: none; }
+  .hwd .hwd-stage { aspect-ratio: auto; width: 100%; }
+  .hwd .hwd-deck {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    aspect-ratio: 3 / 3.7;
+    margin: 0 auto;
+  }
+  .hwd .hwd-bar { right: 2%; }
+  .hwd .hwd-menu { max-width: 84vw; }
+  .hwd .hwd-card { padding: 5% 6% 4.5%; transform: rotate(-1deg); }
+  .hwd .hwd-card .hwd-card__eyebrow { font-size: clamp(0.64rem, 2.8vw, 0.74rem); padding-right: 18%; }
+  .hwd .hwd-card .hwd-card__word { font-size: clamp(1.75rem, 7.5vw, 2.35rem); }
+  .hwd .hwd-card .hwd-card__reading { font-size: clamp(0.88rem, 3.6vw, 1.02rem); }
+  .hwd .hwd-card .hwd-card__meaning { font-size: clamp(0.95rem, 4vw, 1.12rem); }
+  .hwd .hwd-card .hwd-card__hint { font-size: clamp(0.68rem, 2.9vw, 0.78rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
