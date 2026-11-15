@@ -37,6 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class KanaChallengeService {
     public static final String MIX = "MIX";
+    /** Shown in place of each kana until the learner starts the board. */
+    static final String HIDDEN_KANA = "?";
     static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1", MIX);
     static final int LEADERBOARD_SIZE = 5;
     static final Duration HINT_COOLDOWN = Duration.ofSeconds(30);
@@ -97,22 +99,38 @@ public class KanaChallengeService {
                     first.level()), write(new Progress(List.of())), clock.now());
             challenge = repository.find(userId, board.id()).orElseThrow();
         }
-        // Only the board on screen keeps time: pause the learner's other boards of the day, run this one.
-        Instant now = clock.now();
+        // Opening a board no longer starts its clock: the learner presses Bắt đầu (start). Until then the
+        // board's kana are withheld, so nobody can read the board before the time runs.
+        pauseOthers(userId, day, challenge.id(), clock.now());
+        return view(challenge, defaultLevel);
+    }
+
+    /** Starts (or resumes) this board's clock and pauses the learner's other boards of the day. */
+    @Transactional
+    public Today start(Long userId, Long challengeId) {
+        repository.lockUser(userId);
+        Challenge challenge = current(userId, challengeId);
+        String defaultLevel = defaultLevel(userId);
+        if (challenge.completedAt() == null) {
+            Instant now = clock.now();
+            pauseOthers(userId, challenge.board().date(), challenge.id(), now);
+            Progress progress = read(challenge.solutionJson(), Progress.class);
+            if (!progress.running()) {
+                repository.saveProgress(challenge.id(), write(progress.resumed(now)));
+                challenge = repository.findById(userId, challenge.id()).orElseThrow();
+            }
+        }
+        return view(challenge, defaultLevel);
+    }
+
+    /** Only the board on screen keeps time. */
+    private void pauseOthers(Long userId, LocalDate day, long keepId, Instant now) {
         for (Challenge other : repository.findForDay(userId, day)) {
-            if (other.id() != challenge.id() && other.completedAt() == null) {
+            if (other.id() != keepId && other.completedAt() == null) {
                 Progress progress = read(other.solutionJson(), Progress.class);
                 if (progress.running()) repository.saveProgress(other.id(), write(progress.paused(now)));
             }
         }
-        if (challenge.completedAt() == null) {
-            Progress progress = read(challenge.solutionJson(), Progress.class);
-            if (!progress.running()) {
-                repository.saveProgress(challenge.id(), write(progress.resumed(now)));
-                challenge = repository.find(userId, board.id()).orElseThrow();
-            }
-        }
-        return view(challenge, defaultLevel);
     }
 
     /** Stops this board's clock while the learner is away (tab hidden, page left). */
@@ -290,10 +308,18 @@ public class KanaChallengeService {
         return new Today(c.id(), puzzle.version(), c.board().date(),
                 clock.toWallClock(c.board().date().plusDays(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant()),
                 c.startedAt(),
-                level, defaultLevel, MIX.equals(level), puzzle.gridSize(), puzzle.cells(),
+                level, defaultLevel, MIX.equals(level), puzzle.gridSize(), visibleCells(puzzle, progress, c),
                 puzzle.cells().stream().filter(cell -> cell.kana() == null).map(KanaPuzzle.Cell::id).toList(),
                 slots, progress.solvedWordIds(), solvedPaths, c.completedAt() != null, c.elapsedSeconds(),
                 hints, nextHint, playedMs, progress.running() && c.completedAt() == null);
+    }
+
+    /** A board that is not running (not started yet, or paused) hides its kana; walls stay walls. */
+    private static List<KanaPuzzle.Cell> visibleCells(Puzzle puzzle, Progress progress, Challenge c) {
+        if (c.completedAt() != null || progress.running()) return puzzle.cells();
+        return puzzle.cells().stream()
+                .map(cell -> cell.kana() == null ? cell : new KanaPuzzle.Cell(cell.id(), cell.row(), cell.col(), HIDDEN_KANA))
+                .toList();
     }
 
     private String write(Object value) {
