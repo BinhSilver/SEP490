@@ -12,6 +12,11 @@ import java.util.List;
 @Repository
 public interface GrammarPointRepository extends JpaRepository<GrammarPoint, Long> {
 
+    @Query("select g from GrammarPoint g join fetch g.lesson l join fetch l.unit u join fetch u.textbook t "
+            + "where length(g.pattern) <= 40 and g.pattern like :subsequence "
+            + "and l.status = 'PUBLISHED' and t.status = 'PUBLISHED'")
+    List<GrammarPoint> findPatternCandidates(@Param("subsequence") String subsequence);
+
     List<GrammarPoint> findByLesson_StatusOrderByIdAsc(String status);
 
     List<GrammarPoint> findByLessonIdOrderByOrderIndexAsc(Long lessonId);

@@ -6,7 +6,6 @@
   /** @typedef {{character: string, strokeCount: number, hanViet: string, meaningVi: string, jlptLevel: string, readings: Array, components?: Array, examples?: Array}} Kanji */
   /** @typedef {{tokens: Token[], vi: string}} Example */
   /** @typedef {{id: string, pattern: string, shortMeaning: string, jlptLevel: string, functions: string, structures: string[], explanation: string, examples: Example[]}} Grammar */
-  /** @typedef {{word: string, reading: string, definition: string, phrases: string[], related: Array}} JaJaEntry */
 
   var words = {
     '募集': {
@@ -62,29 +61,5 @@
     ]
   };
 
-  var grammars = [
-    { id: 'tame-ni', pattern: 'ために', shortMeaning: 'để; vì', jlptLevel: 'N4',
-      functions: 'Chỉ mục đích hoặc nguyên nhân', structures: ['V (thể từ điển) + ために、', 'Nの + ために、'],
-      explanation: 'Diễn tả mục đích của hành động hoặc lý do dẫn đến sự việc.',
-      examples: [
-        { tokens: [{ text: '日本語', reading: 'にほんご' }, { text: 'を勉強するために、' }, { text: '日本', reading: 'にほん' }, { text: 'へ来ました。' }], vi: 'Tôi đã đến Nhật để học tiếng Nhật.' },
-        { tokens: [{ text: '家族', reading: 'かぞく' }, { text: 'のために、' }, { text: '毎日', reading: 'まいにち' }, { text: '働いています。' }], vi: 'Tôi làm việc mỗi ngày vì gia đình.' },
-        { tokens: [{ text: '健康', reading: 'けんこう' }, { text: 'のために、' }, { text: '毎朝', reading: 'まいあさ' }, { text: '走っています。' }], vi: 'Tôi chạy bộ mỗi sáng vì sức khỏe.' }
-      ] },
-    { id: 'tame-ka', pattern: 'ためか', shortMeaning: 'có lẽ vì', jlptLevel: 'N3', functions: 'Suy đoán nguyên nhân', structures: ['V / A / N + ためか'], explanation: 'Nêu nguyên nhân chưa chắc chắn.', examples: [] },
-    { id: 'tame-ni-naranai', pattern: 'ためにならない', shortMeaning: 'không có ích', jlptLevel: 'N3', functions: 'Đánh giá lợi ích', structures: ['Nの + ためにならない'], explanation: 'Nói điều gì đó không đem lại lợi ích.', examples: [] },
-    { id: 'sono-tame', pattern: 'そのため', shortMeaning: 'vì vậy', jlptLevel: 'N3', functions: 'Nối kết quả', structures: ['Câu 1。そのため、Câu 2。'], explanation: 'Nối nguyên nhân với kết quả.', examples: [] }
-  ];
-
-  var jaja = {
-    '募集': { word: '募集', reading: 'ぼしゅう', definition: '希望する人を、つのって集めること。',
-      phrases: ['生徒を～する', '～に応ずる'], related: [
-        { word: '募る', reading: 'つのる', definition: '広く呼びかけて集める。' },
-        { word: '応募', reading: 'おうぼ', definition: '募集に応じて申し込むこと。' },
-        { word: '公募', reading: 'こうぼ', definition: '広く一般から募集すること。' },
-        { word: '急募', reading: 'きゅうぼ', definition: '急いで募集すること。' }
-      ] }
-  };
-
-  global.DictMock = { words: words, kanji: kanji, examples: examples, grammars: grammars, jaja: jaja };
+  global.DictMock = { words: words, kanji: kanji, examples: examples };
 })(window);

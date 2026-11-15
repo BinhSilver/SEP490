@@ -413,7 +413,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
         Map<String, List<VocabularyEntry>> byExpression = new HashMap<>();
         for (VocabularyEntry entry : vocabularyEntryRepository
-                .findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(substrings, PUBLISHED)) {
+                .findLookupByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(substrings, PUBLISHED)) {
             byExpression.computeIfAbsent(entry.getNormalizedExpression(), key -> new ArrayList<>()).add(entry);
         }
 
