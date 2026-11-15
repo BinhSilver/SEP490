@@ -1020,7 +1020,7 @@ public class CpathService {
         Map<String, Object> p = requirePath(userId);
         Long pathId = ((Number) p.get("id")).longValue();
         List<Map<String, Object>> rows = db.queryForList("SELECT u.*, s.title_vi, s.title_ja, s.topic_code FROM cpath_user_situation u "
-                + "JOIN cpath_situation s ON s.code = u.situation_code WHERE u.path_id = ? AND u.study_day = ? ORDER BY s.sort_order", pathId, day);
+                + "JOIN cpath_situation s ON s.code = u.situation_code JOIN cpath_topic t ON t.code = s.topic_code WHERE u.path_id = ? AND u.study_day = ? ORDER BY t.sort_order, s.sort_order, u.situation_code", pathId, day);
         // Shape read by cpath-day.js: status DONE|TODAY, steps {words, listen, roleplay, speak}, topicNameVi, score;
         // scores = one row per scored part of a situation {labelVi, score, noteVi}.
         Map<String, String> topicNames = new LinkedHashMap<>();
@@ -1594,8 +1594,9 @@ public class CpathService {
         db.update("UPDATE cpath_user_path SET daily_situations = ? WHERE id = ?", daily, pathId);
         // today's plan follows the new pace: fewer drops only situations not started yet, more adds the next ones
         LocalDate day = clock.today(userId);
-        List<Map<String, Object>> planned = db.queryForList("SELECT situation_code, steps_done, done_at FROM cpath_user_situation "
-                + "WHERE path_id = ? AND study_day = ? ORDER BY situation_code", pathId, day);
+        List<Map<String, Object>> planned = db.queryForList("SELECT u.situation_code, u.steps_done, u.done_at FROM cpath_user_situation u "
+                + "JOIN cpath_situation s ON s.code = u.situation_code JOIN cpath_topic t ON t.code = s.topic_code "
+                + "WHERE u.path_id = ? AND u.study_day = ? ORDER BY t.sort_order, s.sort_order, u.situation_code", pathId, day);
         int keep = planned.size();
         for (int i = planned.size() - 1; i >= 0 && keep > daily; i--) {
             Map<String, Object> r = planned.get(i);
