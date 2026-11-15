@@ -256,7 +256,7 @@
         + reviewed.map(itemHtml).join('') + '</ul></section>';
     }
     html += '<div class="jp-dayd__actions">'
-      + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">' + SVG_REFRESH + '<span>Ôn lại ' + wrongAll.length + ' mục sai</span></a>' : '')
+      + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">' + SVG_REFRESH + '<span>Ôn mục sai trong Sổ tay</span></a>' : '')
       // F171: a kana-only day has no kanji to write or print
       + (day === today && hasType('KANJI') ? '<button type="button" class="jp-btn" data-jpath-writing="' + esc(JSON.stringify({ today: 'KANJI' }))
         + '">' + SVG_PEN + '<span>Luyện viết kanji hôm nay</span></button>' : '')
