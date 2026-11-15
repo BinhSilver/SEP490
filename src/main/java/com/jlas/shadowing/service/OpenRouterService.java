@@ -118,6 +118,9 @@ public class OpenRouterService {
     @Value("${openrouter.api.key}")
     private String apiKey;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     /** Shadowing furigana/translate only — other modules keep openrouter.model */
     @Value("${openrouter.shadowing.model:${openrouter.model:openai/gpt-4o-mini-2024-07-18}}")
     private String model;
@@ -576,7 +579,7 @@ public class OpenRouterService {
         String url = "https://openrouter.ai/api/v1/chat/completions";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
-        headers.set("HTTP-Referer", "http://localhost:8080");
+        headers.set("HTTP-Referer", siteUrl);
         headers.set("X-Title", "JLAS Japanese Shadowing");
         headers.setContentType(MediaType.APPLICATION_JSON);
 

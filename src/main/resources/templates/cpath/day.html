@@ -21,13 +21,7 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-side cp-page" data-inline-dictionary>
     <div class="jp-ws jp-ws--norail">
-        <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở">
-            <ol class="jp-crumbs__list">
-                <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
-                <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning/comm/path" th:href="@{/learning/comm/path}">Lộ trình giao tiếp</a></li>
-                <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page">Chi tiết ngày</span></li>
-            </ol>
-        </nav>
+        <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
         <aside class="jp-ws__side" aria-label="Điều hướng lộ trình giao tiếp">
             <nav class="jp-sidenav" aria-label="Trang của lộ trình">
                 <p class="jp-sidenav__title">Lộ trình Giao tiếp</p>

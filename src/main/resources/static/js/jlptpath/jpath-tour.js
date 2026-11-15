@@ -99,6 +99,28 @@
       hole.style.left = (r.left - PAD) + 'px';
       hole.style.width = (r.width + 2 * PAD) + 'px';
       hole.style.height = (r.height + 2 * PAD) + 'px';
+      anchorBox(r);
+    }
+
+    // AI 1 #10: on a wide screen the step box sits right next to the lit target (below it, or above when there
+    // is no room), so a new learner sees what the dimmed page is waiting for; phones keep the bottom sheet
+    function anchorBox(r) {
+      var box = layer && layer.querySelector ? layer.querySelector('.jp-tour__box') : null;
+      var vw = win.innerWidth || 0, vh = win.innerHeight || 0;
+      if (!box || !box.style || !win) return;
+      if (!r || vw <= 720) {
+        if (layer.classList) layer.classList.remove('jp-tour--anchored');
+        box.style.top = ''; box.style.left = '';
+        return;
+      }
+      if (layer.classList) layer.classList.add('jp-tour--anchored');
+      var bw = box.offsetWidth || 380, bh = box.offsetHeight || 160, gap = PAD + 12;
+      var top = r.bottom + gap;
+      if (top + bh > vh - 8) top = r.top - gap - bh;
+      if (top < 8) top = Math.max(8, Math.min(vh - bh - 8, r.top + 8));
+      var left = Math.max(8, Math.min(vw - bw - 8, r.left));
+      box.style.top = top + 'px';
+      box.style.left = left + 'px';
     }
 
     /** Re-finds the current target (the page may have repainted it) and re-measures the cut-out. */

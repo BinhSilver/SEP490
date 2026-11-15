@@ -1,11 +1,11 @@
 /* [JLAS-W0108] JLPT path page overview (/learning). Colours only via --jp-*; touch targets via min-height/padding
    (jp-page * resets min-width). Desktop: left 2/3 levels + numbers, right 1/3 slider + today; < 900 px one column. */
-.jp-path { max-width: 1120px; font-size: calc(16px * var(--jp-font-scale)); }
+.jp-path {  font-size: calc(16px * var(--jp-font-scale)); }
 .jp-path [hidden] { display: none !important; }
 /* layout: jpath-nav.css .jp-ws (side | main | rail); the regions below only space their own content */
-.jp-path__stage { display: grid; gap: 14px; }
-.jp-path__tabpart { display: grid; gap: 18px; }
-.jp-path__numbers { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.jp-path__tabpart { display: grid;  }
+.jp-path__numbers {   grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .jp-path__slider:empty, .jp-path__today:empty, .jp-path__list:empty, .jp-path__extra:empty { display: none; }
 .jp-path__loading, .jp-muted { color: var(--jp-muted); margin: 0; }
 .jp-path .jp-alert {
@@ -20,17 +20,17 @@
 .jp-section-title { margin: 0; font-size: 1.05em; }
 
 /* hero */
-.jp-path__hero { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
-.jp-hero__text { display: grid; gap: 4px; }
-.jp-hero__title { margin: 0; font-size: 1.6em; line-height: 1.25; }
+.jp-path__hero { display: flex; flex-wrap: wrap; gap: 16px;  justify-content: space-between; }
+.jp-hero__text { display: grid;  }
+.jp-hero__title { margin: 0;  line-height: 1.25; }
 .jp-hero__greet, .jp-hero__target, .jp-hero__resume { margin: 0; line-height: 1.5; }
-.jp-hero__target { font-weight: 600; }
+
 .jp-hero__target--ok { color: var(--jp-ok); }
 .jp-hero__target--late { color: var(--jp-warn); }
-.jp-hero__resume { color: var(--jp-primary); font-weight: 600; }
-.jp-hero__stack { display: grid; gap: 8px; justify-items: center; }
+
+.jp-hero__stack { display: grid; gap: 8px;  }
 .jp-hero__motto { margin: 0; color: var(--jp-muted); font-size: .9em; }
-.jp-hero-cards { list-style: none; margin: 0; padding: 0; position: relative; width: 180px; height: 120px; }
+.jp-hero-cards { list-style: none; margin: 0; padding: 0; position: relative;   }
 .jp-hero-card { position: absolute; inset: 0; }
 .jp-hero-card--1 { transform: translate(8px, 6px) rotate(3deg); }
 .jp-hero-card--2 { transform: translate(16px, 12px) rotate(6deg); }
@@ -43,7 +43,7 @@
 }
 .jp-hero-card--1 .jp-hero-card__face, .jp-hero-card--2 .jp-hero-card__face { pointer-events: none; }
 .jp-hero-card__face:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
-.jp-hero-card__word { font-family: "Klee One", serif; font-size: 1.8em; }
+.jp-hero-card__word { font-family: "Klee One", serif;  }
 .jp-hero-card__reading { color: var(--jp-muted); font-size: .9em; }
 .jp-hero-card__meaning { display: none; font-weight: 600; }
 .jp-hero-card__face[aria-pressed="true"] .jp-hero-card__word,
@@ -70,9 +70,8 @@
 }
 
 /* stage + week */
-.jp-stage { margin: 0; line-height: 1.6; }
-.jp-stage__step--now { font-weight: 500; color: var(--jp-primary); }
-.jp-stage__days { color: var(--jp-muted); }
+.jp-stage {  line-height: 1.6; }
+
 .jp-week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .jp-day {
   padding: 6px 2px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-chip); text-align: center;
@@ -137,7 +136,6 @@
 .jp-dialog { width: min(440px, 100%); max-height: calc(100vh - 32px); overflow: auto; }
 .jp-dialog:focus { outline: none; }
 .jp-preview-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-
 
 @media (max-width: 480px) {
   .jp-path__numbers { grid-template-columns: minmax(0, 1fr); }
@@ -230,8 +228,8 @@
 .jp-dialog-backdrop [hidden] { display: none !important; }
 .jp-dialog-backdrop .jp-dialog > .jp-btn[data-dialog-close] { justify-self: start; }
 .jp-list-head, .jp-list-results { display: grid; gap: 12px; }
-.jp-dialog--drawer { width: min(520px, 100%); }
-.jp-drawer { display: grid; gap: 10px; }
+
+.jp-drawer { display: grid;  }
 .jp-drawer p { margin: 0; line-height: 1.5; }
 .jp-drawer__head { display: flex; gap: 8px; align-items: center; }
 .jp-drawer__x {
@@ -239,19 +237,17 @@
   background: transparent; color: var(--jp-ink); font-size: 1.5em; line-height: 1; cursor: pointer;
 }
 .jp-drawer__x:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
-.jp-drawer__title { margin: 0; font-size: 2em; line-height: 1.2; }
-.jp-drawer__reading { font-size: 1.1em; }
-.jp-drawer__meaning { font-weight: 600; }
+
 .jp-drawer__label { margin: 0 0 4px; color: var(--jp-muted); font-size: .8em; letter-spacing: .04em; text-transform: uppercase; }
 .jp-drawer__char { font-size: 1.4em; }
-.jp-drawer__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
 .jp-facts { margin: 0; display: grid; gap: 4px; }
 .jp-fact { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 8px; }
 .jp-fact dt { color: var(--jp-muted); }
 .jp-fact dd { margin: 0; }
 .jp-okuri { color: var(--jp-muted); }
 .jp-word-list, .jp-examples { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.jp-example { display: flex; gap: 6px; align-items: flex-start; }
+.jp-example { display: flex;  align-items: flex-start; }
 .jp-ex-vi { color: var(--jp-muted); font-size: .92em; }
 .jp-icon-btn {
   flex: 0 0 auto; min-width: 44px; min-height: 44px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
@@ -343,21 +339,20 @@
   background: var(--jp-surface); overflow-wrap: anywhere;
 }
 .jp-lesson p, .jp-lesson-practice p { margin: 0; line-height: 1.55; }
-.jp-lesson__eyebrow { color: var(--jp-muted); font-size: .78em; letter-spacing: .04em; }
-.jp-lesson__pattern { margin: 0; font-size: 1.6em; line-height: 1.25; }
-.jp-lesson__part { display: grid; gap: 4px; }
-.jp-lesson__label { color: var(--jp-muted); font-size: .75em; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+
+.jp-lesson__part { display: grid;  }
+.jp-lesson__label { color: var(--jp-muted);  font-weight: 600;   }
 .jp-struct { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .jp-struct__chip { padding: 2px 8px; border-radius: var(--jp-radius-chip); background: var(--jp-primary-soft); color: var(--jp-ink); }
 .jp-struct__plus { color: var(--jp-muted); }
-.jp-lesson__compare { padding: 8px 10px; border-radius: var(--jp-radius-interactive); background: var(--jp-canvas); font-size: .92em; }
-.jp-lesson-practice__title { margin: 0; font-size: 1.05em; }
-.jp-lesson__foot { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
-.jp-lesson__nav { display: flex; gap: 16px; margin-left: auto; }
+.jp-lesson__compare {    font-size: .92em; }
+.jp-lesson-practice__title { margin: 0;  }
+.jp-lesson__foot { display: flex; flex-wrap: wrap;  align-items: center; }
+.jp-lesson__nav { display: flex;  margin-left: auto; }
 .jp-status { margin: 0; color: var(--jp-ok); font-weight: 600; }
 .jp-status:empty { display: none; }
-.jp-lesson-page { display: grid; gap: 12px; max-width: 760px; }
-.jp-lesson-root { display: grid; gap: 12px; }
+.jp-lesson-page { display: grid; gap: 12px;  }
+.jp-lesson-root { display: grid;  }
 @media (max-width: 899px) {
   .jp-grammar-split { grid-template-columns: minmax(0, 1fr); }
   .jp-grammar-pane { position: static; }
@@ -365,7 +360,7 @@
 
 @media (max-width: 640px) {
   .jp-dialog-backdrop:has(.jp-dialog--drawer) { padding: 0; }
-  .jp-dialog--drawer { width: 100%; height: 100%; max-height: none; border-radius: 0; }
+  .jp-dialog--drawer {  height: 100%;  border-radius: 0; }
   .jp-col-type { display: none; }
   .jp-print-menu__items { right: auto; left: 0; }
 }
@@ -418,25 +413,24 @@
 /* ======================================================================== 04/11 workspace redesign (team UI direction)
    Side: the level road (vertical stepper) + page links. Main: hero, stage stepper + week, today's action, tabs.
    Rail: daily pace and "Luyện thêm". Sections sit on the canvas; a panel is kept only for today's action. */
-.jp-path { max-width: 1440px; }
 
 /* hero: title block on the left, the word stack on the right, no frame */
-.jp-path__hero { padding: 4px 52px 0 0; align-items: flex-end; }
-.jp-hero__title { font-size: 2.1em; letter-spacing: -.01em; }
+.jp-path__hero { padding: 4px 52px 0 0;  }
+.jp-hero__title {  letter-spacing: -.01em; }
 .jp-hero__greet { color: var(--jp-muted); }
-.jp-hero-cards { width: 220px; height: 140px; }
+
 .jp-hero-card__word { font-size: 2.2em; }
 
 /* level road in the side column */
 .jp-levels { display: grid; gap: 10px; }
 .jp-path .jp-level-bar { display: flex; grid-template-columns: none; gap: 0; }
 .jp-path .jp-level-cell {
-  padding: 0 0 16px; border: 0; border-radius: 0; background: none; text-align: left; font-size: 1em; line-height: 1.35;
+  padding: 0 0 16px; border: 0;  background: none; text-align: left; font-size: 1em;
 }
 .jp-path .jp-level-cell:last-child { padding-bottom: 0; }
 .jp-path .jp-level-cell--open { border: 0; background: none; }
-.jp-path .jp-level-cell .jp-step__body { display: grid; gap: 4px; padding-top: 3px; }
-.jp-path .jp-level-cell__name { font-family: "Klee One", serif; font-size: 1.25em; font-weight: 600; line-height: 1.1; }
+.jp-path .jp-level-cell .jp-step__body { display: grid;   }
+.jp-path .jp-level-cell__name { font-family: "Klee One", serif;  font-weight: 600; line-height: 1.1; }
 .jp-path .jp-level-cell--open .jp-level-cell__name { color: var(--jp-primary); }
 .jp-level-cell__state { font-size: .88em; font-weight: 600; }
 .jp-level-cell__bar { display: block; width: 100%; height: 5px; border-radius: 999px; background: var(--jp-primary-soft); overflow: hidden; }
@@ -475,10 +469,7 @@
 .jp-path .jp-day--today { border: 1px solid var(--jp-primary); color: var(--jp-ink); background: var(--jp-surface); }
 
 /* today: the one panel of the page, it carries the main action */
-.jp-path .jp-today {
-  gap: 12px; padding: 22px 24px; border: 0; background: var(--jp-primary-soft); border-radius: var(--jp-radius-panel);
-}
-.jp-path .jp-today .jp-section-title { font-size: 1.3em; }
+
 .jp-path .jp-today__summary { font-size: 1.05em; }
 .jp-path .jp-today .jp-btn--primary { min-height: 52px; padding: 12px 28px; font-size: 1.05em; justify-self: start; }
 .jp-path .jp-today .jp-modes { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -496,7 +487,7 @@
 
 /* rail: pace + practice links, flat */
 .jp-path__side .jp-card { padding: 0; border: 0; background: none; }
-.jp-path__side .jp-extra { display: grid; gap: 10px; }
+.jp-path__side .jp-extra { display: grid;  }
 .jp-path .jp-extra__list--pages { display: none; } /* the side navigation already lists these pages */
 
 @media (max-width: 899px) {
@@ -505,15 +496,14 @@
   .jp-path .jp-today { padding: 18px; }
 }
 .jp-path__side .jp-extra { margin-top: 0; }
-.jp-path__side .jp-extra__title { margin: 0; font-size: 1.05em; }
+
 .jp-path__side .jp-extra__list:not(.jp-extra__list--pages) { display: grid; gap: 2px; }
 .jp-path__side .jp-extra__list li { justify-content: space-between; }
-.jp-path__side .jp-extra__link { flex: 1 1 auto; border: 0; border-radius: var(--jp-radius-interactive); padding: 8px 10px; }
+.jp-path__side .jp-extra__link { flex: 1 1 auto; border: 0; border-radius: var(--jp-radius-interactive);  }
 .jp-path__side a.jp-extra__link:hover, .jp-path__side a.jp-extra__link:focus-visible { background: var(--jp-primary-soft); }
 .jp-path__side .jp-extra__link.is-off { border: 0; }
 .jp-path__side .jp-extra__link { background: transparent; }
 
-.jp-lesson-page { max-width: 1000px; }
 .jp-lesson-page > .jp-crumbs { margin-bottom: 4px; }
 
 /* phones: each table row becomes a two-line entry (word + reading | meaning, state on the right) */
@@ -534,10 +524,10 @@
 }
 
 /* secondary patterns attached to the main pattern of a grammar lesson */
-.jp-attached-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
-.jp-attached { display: grid; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--jp-line); }
+.jp-attached-list { list-style: none; margin: 0; padding: 0; display: grid;  }
+.jp-attached { display: grid;   border-bottom: 1px solid var(--jp-line); }
 .jp-attached:first-child { padding-top: 4px; }
-.jp-attached__pattern { margin: 0; font-family: "Klee One", serif; font-size: 1.15em; font-weight: 600; color: var(--jp-primary); }
+.jp-attached__pattern { margin: 0; font-family: "Klee One", serif;  font-weight: 600; color: var(--jp-primary); }
 .jp-attached__meaning { margin: 0; }
 .jp-attached__example { color: var(--jp-muted); }
 /* the path page has the Đọc · Nghe tab itself: its shortcut in "Luyện thêm" would only point at this page */
@@ -593,18 +583,16 @@
 @media (min-width: 1240px) {
   .jp-path .jp-ws--norail { grid-template-columns: 248px minmax(0, 1fr); }
 }
-.jp-path__main { gap: 22px; max-width: 1040px; }
+.jp-path__main { gap: 22px;  }
 .jp-path__side { gap: 22px; }
 
 /* hero: one quiet line under the title; the card stack stays beside it when there is one */
-.jp-path__hero { padding-top: 0; align-items: center; }
+.jp-path__hero { padding-top: 0;  }
 .jp-hero__title { font-size: 1.9em; }
 .jp-hero__text { gap: 2px; }
 .jp-hero__greet { font-size: .95em; }
 
 /* today is the action of the page */
-.jp-path .jp-today { padding: 26px 28px; }
-.jp-path .jp-today .jp-section-title { font-size: 1.45em; }
 
 /* progress band: stage stepper and the week side by side, no heading */
 .jp-path__stage { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 32px; }
@@ -638,7 +626,7 @@
 .jp-path__numbers .jp-skills { flex-basis: 100%; }
 
 /* level road: smaller, "Sắp có" is a quiet note */
-.jp-path .jp-level-cell { padding-bottom: 12px; }
+
 .jp-path .jp-level-cell--coming_soon .jp-level-cell__preview,
 .jp-path .jp-level-cell--locked .jp-level-cell__preview { text-decoration: none; font-weight: 500; font-size: .8em; }
 
@@ -650,13 +638,13 @@
 .jp-path .jp-sidenav { padding-top: 14px; border-top: 1px solid var(--jp-line); }
 @media (max-width: 899px) {
   .jp-path__side .jp-extra__list:not(.jp-extra__list--pages) { display: flex; overflow-x: auto; gap: 6px; }
-  .jp-path__side .jp-extra__link { white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 8px; }
+  .jp-path__side .jp-extra__link { white-space: nowrap; border: 1px solid var(--jp-line);  }
 }
 
 /* Compact overview: one visible action, short list previews and an optional detail layer. */
 .jp-path { max-width: none; }
 .jp-path__main { max-width: none; min-width: 0; }
-.jp-path__hero { align-items: start; }
+
 .jp-hero__target { color: var(--jp-muted); font-weight: 400; }
 .jp-hero__resume { color: var(--jp-muted); font-weight: 400; }
 .jp-hero__more { flex: 0 0 100%; border-top: 1px solid var(--jp-line); }
@@ -751,7 +739,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-drawer__reading { font-size: 1.35em; }
 .jp-drawer__meaning { font-size: 1.25em; font-weight: 500; }
 .jp-drawer__id .jp-btn { justify-self: start; }
-.jp-drawer__top .jp-facts { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 18px; align-content: start; }
+.jp-drawer__top .jp-facts { margin: 0; display: grid;   align-content: start; }
 .jp-drawer__top .jp-facts dd { margin: 0; font-size: 1.08em; }
 .jp-drawer__body { display: grid; gap: 4px 36px; }
 .jp-drawer__body > * { min-width: 0; }
@@ -788,7 +776,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 /* 04/11 "Hôm nay của bạn": the day's kind as a tag, the reason under it, a skill day as a task list */
 .jp-today__kind { display: inline-block; margin-left: 8px; padding: 2px 10px; border-radius: 6px; background: var(--jp-surface);
   color: var(--jp-primary); font-size: .62em; font-weight: 500; vertical-align: middle; }
-.jp-today__why { margin: 2px 0 6px; color: var(--jp-muted); font-size: .92em; }
+
 .jp-todo { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 .jp-todo__item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 14px;
   border-radius: 10px; background: var(--jp-surface); }
@@ -807,7 +795,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 /* 04/11 side column on one screen: less space under the site nav, a tighter level road and menu, sticky on wide screens */
 .jp-path.jp-page { padding-top: 10px; }
 .jp-path .jp-path__side { gap: 12px; }
-.jp-path .jp-level-cell { padding-bottom: 8px; line-height: 1.25; }
+.jp-path .jp-level-cell {  line-height: 1.25; }
 .jp-path .jp-level-cell .jp-step__body { gap: 1px; padding-top: 0; }
 .jp-path .jp-level-cell .jp-step__mark { width: 26px; height: 26px; font-size: .8em; }
 .jp-path .jp-level-cell__name { font-size: 1.1em; }
@@ -815,26 +803,26 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-levels { gap: 4px; }
 .jp-path .jp-path__side .jp-sidenav { gap: 0; }
 .jp-path .jp-path__side .jp-sidenav__title { margin: 0 0 4px; }
-.jp-path .jp-path__side .jp-sidenav__link { min-height: 36px; padding: 6px 10px; font-size: .95em; }
+.jp-path .jp-path__side .jp-sidenav__link {  padding: 6px 10px; font-size: .95em; }
 @media (min-width: 900px) {
   .jp-path .jp-path__side { position: sticky; top: 72px; align-self: start; max-height: calc(100vh - 84px); overflow-y: auto;
     scrollbar-width: thin; }
 }
 
 /* 04/11 one today panel: title + reason left, the weekday in Japanese top right, short task rows, stage + week footer */
-.jp-today__head { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: flex-start; justify-content: space-between; }
-.jp-today__lead { min-width: 0; flex: 1 1 280px; }
+.jp-today__head { display: flex; flex-wrap: wrap; gap: 8px 20px;  justify-content: space-between; }
+
 .jp-today__lead .jp-section-title { margin: 0; }
-.jp-today__why { margin: 4px 0 0; }
+
 .jp-today__day { display: grid; justify-items: end; gap: 2px; text-align: right; }
 .jp-today__day b { font-family: "Klee One", serif; font-size: 2.1em; font-weight: 600; line-height: 1; color: var(--jp-primary); }
 .jp-today__day span { color: var(--jp-muted); font-size: .85em; }
-.jp-path .jp-todo { gap: 6px; margin-top: 12px; }
-.jp-path .jp-todo__item { gap: 10px; padding: 7px 10px; }
-.jp-path .jp-todo__icon { width: 30px; height: 30px; font-size: .95em; }
+.jp-path .jp-todo {  margin-top: 12px; }
+.jp-path .jp-todo__item { gap: 10px;  }
+.jp-path .jp-todo__icon {   font-size: .95em; }
 .jp-path .jp-todo__text { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
 .jp-path .jp-todo__sub { font-size: .82em; }
-.jp-path .jp-todo__item .jp-btn { min-height: 38px; padding: 6px 16px; }
+
 .jp-today__foot { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between;
   margin-top: 14px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--jp-primary) 18%, transparent); }
 .jp-today__foot .jp-stage { flex: 1 1 360px; min-width: 0; }
@@ -847,7 +835,7 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-extra__fold > summary:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 @media (max-width: 640px) {
   .jp-today__day { justify-items: start; text-align: left; }
-  .jp-path .jp-todo__item { grid-template-columns: auto minmax(0, 1fr); }
+
 }
 .jp-today__foot .jp-day { background: var(--jp-surface); }
 .jp-today__foot .jp-day--rest { background: transparent; }
@@ -855,22 +843,22 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-path__side .jp-sidenav__link { min-height: 34px; padding-top: 5px; padding-bottom: 5px; }
 
 /* 04/11 today panel: the work (short rows) on the left, the stage stepper on its right; no week strip */
-.jp-today__body { display: grid; gap: 14px 28px; margin-top: 12px; }
+.jp-today__body { display: grid;   }
 .jp-today__main { min-width: 0; }
 .jp-today__main .jp-todo { margin-top: 0; }
-.jp-today__side { padding: 12px 16px; border-radius: 10px; background: var(--jp-surface); }
+
 .jp-today__side .jp-stage { display: block; }
 .jp-today__side .jp-stepper { margin: 0; }
-.jp-today__side .jp-step__sub { font-size: .8em; }
+
 @media (min-width: 980px) {
   .jp-today__body:has(.jp-today__side) { grid-template-columns: minmax(0, 1fr) minmax(220px, 280px); align-items: start; }
 }
 
 /* 04/11 alignment pass: one rhythm (8/12/16/24), equal rows, the action column lined up, the stage card titled */
-.jp-path .jp-today { padding: 20px 24px 22px; }
+
 .jp-today__head { align-items: center; }
 .jp-today__lead .jp-section-title { font-size: 1.3em; line-height: 1.3; }
-.jp-today__why { max-width: 62ch; font-size: .86em; line-height: 1.5; }
+.jp-today__why { max-width: 62ch;  line-height: 1.5; }
 .jp-today__day { align-self: start; }
 .jp-today__body { margin-top: 16px; gap: 16px 20px; }
 .jp-path .jp-todo { gap: 8px; }
@@ -880,10 +868,10 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-todo__item > :last-child { justify-self: end; }
 .jp-path .jp-todo__item .jp-btn { width: 150px; justify-content: center; min-height: 40px; padding: 6px 12px; }
 .jp-path .jp-todo__done { width: 150px; justify-content: center; }
-.jp-today__side { display: grid; gap: 10px; padding: 14px 16px; }
-.jp-today__side::before { content: "Tiến trình"; color: var(--jp-muted); font-size: .78em; font-weight: 500; letter-spacing: .05em;
+
+.jp-today__side::before {     letter-spacing: .05em;
   text-transform: uppercase; }
-.jp-today__side .jp-stepper--vertical .jp-step { padding-bottom: 12px; gap: 10px; grid-template-columns: 28px minmax(0, 1fr); }
+.jp-today__side .jp-stepper--vertical .jp-step {  gap: 10px; grid-template-columns: 28px minmax(0, 1fr); }
 .jp-today__side .jp-stepper--vertical .jp-step__mark { width: 28px; height: 28px; font-size: .82em; }
 .jp-today__side .jp-stepper--vertical .jp-step::before { top: 30px; left: 13px; }
 .jp-today__side .jp-stepper--vertical .jp-step__body { padding-top: 3px; }
@@ -893,14 +881,13 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 .jp-path .jp-path__pace > summary, .jp-path .jp-weekguide > summary { min-height: 44px; }
 .jp-path__hero { align-items: center; }
 @media (max-width: 640px) {
-  .jp-path .jp-today { padding: 16px; }
+
   .jp-path .jp-todo__item { grid-template-columns: 32px minmax(0, 1fr); }
   .jp-path .jp-todo__item > :last-child { grid-column: 1 / -1; justify-self: stretch; width: auto; }
   .jp-path .jp-todo__item .jp-btn, .jp-path .jp-todo__done { width: 100%; }
 }
-.jp-today__side { gap: 6px; padding: 12px 14px; }
+
 .jp-today__side .jp-stepper--vertical .jp-step { padding-bottom: 6px; }
-.jp-today__side .jp-step__label { font-size: .95em; }
 
 /* 04/11 study day: one main button for the whole day, then short rows (same as a skill day) */
 .jp-today__go { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 10px; }
@@ -1283,16 +1270,11 @@ html.dark .jp-path {
   line-height: 1.3;
 }
 .jp-today__cal-day {
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.1;
-  color: var(--jp-c-purple-500);
+
   margin: 2px 0 1px;
 }
 .jp-today__cal-dow {
-  font-size: .74rem;
-  font-weight: 600;
-  color: var(--jp-r4-muted);
+
   line-height: 1.1;
 }
 
@@ -1510,10 +1492,7 @@ html.dark .jp-path {
 
 /* Compact horizontal 3-step "Tiến trình" */
 .jp-today__side {
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: var(--jp-r4-surface);
-  border: 1px solid var(--jp-r4-line);
+
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1563,23 +1542,21 @@ html.dark .jp-path {
   display: inline-flex;
   align-items: center;
   justify-self: end;
-  gap: 8px;
+
 }
 .jp-today__kitsu-bubble {
-  padding: 4px 10px;
-  border-radius: 12px;
+
   background: var(--jp-r4-surface);
   border: 1px solid var(--jp-r4-today-border);
-  font-size: .76rem;
+
   font-weight: 600;
   color: var(--jp-r4-ink);
-  max-width: 170px;
+
   line-height: 1.3;
   box-shadow: 0 1px 2px rgb(0 0 0 / 6%);
 }
 .jp-today__kitsu-img {
-  width: 56px;
-  height: 56px;
+
   object-fit: contain;
   display: block;
 }
@@ -1594,7 +1571,7 @@ html.dark .jp-path {
 .jp-parts__banner {
   position: sticky;
   top: 64px;
-  z-index: 25;
+
   display: grid;
   gap: 10px;
   padding: 14px 18px;
@@ -2116,8 +2093,7 @@ html.dark .jp-path {
 .jp-parts__mascot--side.jp-parts__mascot--left { left: 32px; }
 .jp-parts__mascot--side.jp-parts__mascot--right { right: 32px; }
 .jp-parts__mascot--side .jp-parts__mascot-img {
-  width: 48px;
-  height: 48px;
+
   animation: jp-parts-kitsu-bob 3.4s ease-in-out infinite;
 }
 
@@ -2139,10 +2115,7 @@ html.dark .jp-path {
   width: 68px;
   height: 68px;
 }
-.jp-parts__step--past-week .jp-parts__orb--milestone {
-  width: 74px;
-  height: 74px;
-}
+
 .jp-parts__step--past-week .jp-parts__icon {
   width: 28px;
   height: 28px;
@@ -2327,24 +2300,18 @@ html.dark .jp-path {
   z-index: 2;
 }
 
-.jp-parts__orb--done {
-  background: var(--jp-coin-done-bg);
-  color: var(--jp-white);
-  border: 1px solid var(--jp-coin-done-border);
-}
 .jp-parts__orb--done .jp-parts__orb-num {
   border-color: var(--jp-c-peach-500);
-  color: var(--jp-c-peach-900);
-  background: var(--jp-c-peach-100);
+
 }
 
 .jp-parts__orb--today,
 .jp-parts__orb--today-done {
   width: 100px;
   height: 100px;
-  background: var(--jp-coin-today-bg);
+
   color: var(--jp-white);
-  border: 1px solid var(--jp-coin-today-border);
+
   box-shadow: 0 0 0 6px var(--jp-coin-today-halo), 0 4px 14px rgb(0 0 0 / 12%);
   animation: jp-parts-today-pulse 2.4s ease-in-out infinite;
 }
@@ -2416,7 +2383,7 @@ html.dark .jp-path {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  white-space: nowrap;
+
   pointer-events: none;
 }
 .jp-parts__label--right { left: calc(100% + 14px); align-items: flex-start; text-align: left; }
@@ -2424,7 +2391,7 @@ html.dark .jp-path {
 .jp-parts__no { font-weight: 500; font-size: 15px; color: var(--jp-r4-ink); line-height: 1.25; }
 .jp-parts__head.is-selected .jp-parts__no { color: var(--jp-c-purple-500); }
 .jp-parts__when { font-size: 13px; font-weight: 600; color: var(--jp-r4-muted); line-height: 1.25; }
-.jp-parts__step--done .jp-parts__when { color: var(--jp-c-peach-900); }
+
 .jp-parts__step--today .jp-parts__when,
 .jp-parts__step--today-done .jp-parts__when { color: var(--jp-c-purple-500); }
 
@@ -2437,20 +2404,17 @@ html.dark .jp-path {
   pointer-events: none;
   z-index: 3;
 }
-.jp-parts__mascot--today.jp-parts__mascot--left { right: calc(100% + 14px); bottom: -4px; }
-.jp-parts__mascot--today.jp-parts__mascot--right { left: calc(100% + 14px); bottom: -4px; }
+
 .jp-parts__mascot--today .jp-parts__mascot-img {
   display: block;
   object-fit: contain;
   animation: jp-parts-kitsu-bob 2.6s ease-in-out infinite;
 }
 .jp-parts__mascot-speech {
-  margin-bottom: 3px;
-  padding: 3px 10px;
-  border-radius: 12px;
+
   background: var(--jp-r4-surface);
   color: var(--jp-r4-ink);
-  font-size: .74rem;
+
   font-weight: 500;
   white-space: nowrap;
   border: 1px solid var(--jp-coin-today-pill-border);
@@ -2467,7 +2431,6 @@ html.dark .jp-path {
   pointer-events: none;
 }
 .jp-parts__curve--done { color: color-mix(in srgb, var(--jp-tab-500) 58%, var(--jp-c-purple-100)); }
-.jp-parts__curve--run { color: color-mix(in srgb, var(--jp-tab-500) 64%, var(--jp-c-purple-100)); }
 
 /* --- Morphicons-style Thin Rounded SVG Micro-interactions (150-300ms, 1 play) --- */
 .jp-morph-medal__shackle,
@@ -2586,9 +2549,7 @@ html.dark .jp-path {
 .jp-morph-icon--chevron .jp-chevron__head {
   transition: transform .18s ease;
 }
-.jp-parts__week-btn[data-parts-week-nav="prev"]:hover:not([disabled]) .jp-chevron__head {
-  transform: translateX(-1.5px);
-}
+
 .jp-parts__week-btn[data-parts-week-nav="next"]:hover:not([disabled]) .jp-chevron__head {
   transform: translateX(1.5px);
 }
@@ -2681,16 +2642,15 @@ html.dark .jp-path {
 .jp-parts__pop-head {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) auto;
+
   align-items: center;
-  gap: 10px;
+
 }
 .jp-parts__pop-kitsu {
-  width: 46px;
-  height: 46px;
+
   object-fit: contain;
   display: block;
-  border-radius: 10px;
+
   background: var(--jp-r4-surface-soft);
   padding: 2px;
   box-sizing: border-box;
@@ -2942,8 +2902,7 @@ html.dark .jp-path {
 .jp-saved-note__confetti--c4 { background: var(--jp-c-sky-500); }
 .jp-saved-note__kitsu {
   flex-shrink: 0;
-  width: 54px;
-  height: 54px;
+
   object-fit: contain;
   animation: jp-parts-kitsu-bob 1.2s ease-in-out 1;
 }
@@ -3100,11 +3059,9 @@ html.dark .jp-path {
 /* Item 4: Circular "Hôm nay" stamp with % progress ring, rising water, Japanese date */
 .jp-today .jp-today__cal {
   position: relative;
-  width: 78px !important;
-  height: 78px !important;
-  min-width: 78px !important;
+
   padding: 0 !important;
-  border-radius: 50% !important;
+
   border: 0 !important;
   background: var(--jp-surface) !important;
   overflow: hidden;
@@ -3169,8 +3126,7 @@ html.dark .jp-path {
 
 .jp-today__cal-ring-fg {
   fill: none;
-  stroke: var(--jp-c-purple-500, var(--jp-primary));
-  stroke-width: 2;
+
   stroke-linecap: round;
   transition: stroke-dashoffset .4s ease;
 }
@@ -3188,34 +3144,25 @@ html.dark .jp-path {
 }
 
 .jp-today__cal-day {
-  font-size: 1.3rem !important;
-  font-weight: 500 !important;
+
   color: var(--jp-ink) !important;
-  line-height: 1.05;
+
   letter-spacing: -0.02em;
 }
 
 .jp-today__cal-jp {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  margin-top: 2px;
-  font-size: .68rem;
+
   font-weight: 400;
-  color: var(--jp-muted);
+
 }
 
 .jp-today__cal-kanji {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 3px;
-  border: 1px solid var(--jp-line);
-  border-radius: 4px;
-  font-size: .64rem;
-  font-weight: 500;
-  color: var(--jp-primary);
-  background: color-mix(in srgb, var(--jp-surface) 80%, transparent);
+
 }
 
 .jp-today__cal-dow {
@@ -3308,9 +3255,7 @@ html.dark .jp-path {
 }
 
 .jp-parts__orb--done {
-  background: var(--jp-coin-done-bg) !important;
-  color: #ffffff !important;
-  border: 1px solid var(--jp-coin-done-border) !important;
+
   box-shadow: 0 2px 8px color-mix(in srgb, var(--jp-c-purple-500) 26%, transparent) !important;
 }
 .jp-parts__orb--done .jp-parts__orb-num {
@@ -3327,8 +3272,7 @@ html.dark .jp-path {
 .jp-today__badge--done,
 .jp-parts__pop-pill--done,
 .jp-parts__legend-pill--done {
-  background: var(--jp-coin-done-pill-bg) !important;
-  color: var(--jp-coin-done-pill-ink) !important;
+
   border: 1px solid var(--jp-coin-done-pill-border) !important;
 }
 .jp-parts__step--done .jp-parts__when {
@@ -3363,14 +3307,7 @@ html.dark .jp-path {
   left: calc(100% + 18px) !important;
   bottom: 4px !important;
 }
-.jp-parts__mascot--today .jp-parts__mascot-img {
-  width: 84px !important;
-  height: 84px !important;
-}
-.jp-parts__mascot--side .jp-parts__mascot-img {
-  width: 72px !important;
-  height: 72px !important;
-}
+
 .jp-parts__mascot-speech {
   margin-bottom: 0 !important;
   border-radius: 8px !important;
@@ -3634,7 +3571,7 @@ html.dark .cp-page {
 .jp-parts__label {
   /* an absolutely placed label shrinks to its narrowest word without a width: keep the line, wrap only past 195px */
   width: max-content;
-  max-width: 195px;
+
   white-space: normal;
 }
 .jp-parts__curve {
@@ -3686,10 +3623,7 @@ html.dark .cp-page {
   .jp-parts__label--right {
     max-width: 144px !important;
   }
-  .jp-parts__mascot--today .jp-parts__mascot-img {
-    width: 44px !important;
-    height: 44px !important;
-  }
+
   .jp-parts__mascot--today .jp-parts__mascot-speech {
     display: none !important;
   }
@@ -3836,3 +3770,199 @@ html.dark .cp-page {
 @media (max-width: 480px) {
   .jp-parts__mascot--today .jp-parts__mascot-img { width: 52px !important; height: 52px !important; }
 }
+/* [JLAS-W0108] 09/11 A1: today Kitsu was squeezed to 54x84 on phones (its box could shrink) */
+.jp-path .jp-today .jp-today__top .jp-today__kitsu { flex: 0 0 auto !important; }
+.jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img { flex: 0 0 auto !important; }
+@media (max-width: 480px) {
+  .jp-path .jp-today .jp-today__top .jp-today__kitsu .jp-today__kitsu-img { width: 64px !important; height: 64px !important; }
+}
+/* [JLAS-W0108] 09/11 A1: side Kitsu were hidden below 820px, so phones and tablets saw no map Kitsu at all */
+@media (max-width: 820px) {
+  .jp-parts__map .jp-parts__mascot--side { display: block !important; }
+  .jp-parts__map .jp-parts__mascot--side.jp-parts__mascot--left { left: 6px !important; }
+  .jp-parts__map .jp-parts__mascot--side.jp-parts__mascot--right { right: 6px !important; }
+  .jp-parts__mascot--side .jp-parts__mascot-img { width: 44px !important; height: 44px !important; }
+  .jp-parts__map .jp-parts__mascot--side .jp-parts__mascot-speech { display: none !important; }
+}
+/* [JLAS-W0108] F12: why a tab after kana is locked */
+.jp-path .jp-locked-note { grid-column: 1 / -1; margin: 0; font-weight: 600; }
+.jp-path .jp-locked-note a { margin-left: 6px; color: var(--jp-primary); }
+
+/* [JLAS-W0108] F22: compact 50-sound kana table, one group at a time */
+.jp-kana-groups { margin: 4px 0 12px; }
+.jp-kana-groups small { margin-left: 4px; font-weight: 500; opacity: .75; }
+.jp-kana-panel .jp-table-wrap { border: 1px solid var(--jp-line); border-radius: 16px; background: var(--jp-surface);
+  padding: 8px; overflow-x: auto; }
+.jp-kana-table { width: 100%; border-collapse: separate; border-spacing: 6px; table-layout: fixed; }
+.jp-kana-table thead th { font-size: .78rem; font-weight: 600; color: var(--jp-muted); text-transform: uppercase;
+  letter-spacing: .06em; padding: 0 0 2px; text-align: center; }
+.jp-kana-table thead th:first-child { width: 92px; }
+.jp-kana-table td { padding: 0; }
+.jp-kana-table .jp-kana-cell { width: 100%; min-height: 0; padding: 6px 2px; border-radius: 12px;
+  background: var(--jp-surface-2, #f7f5fb); border-color: transparent; transition: transform .12s, border-color .12s; }
+.jp-kana-table .jp-kana-cell:hover { border-color: var(--jp-primary); transform: translateY(-1px); }
+.jp-kana-table .jp-kana-cell__kana { font-size: 1.35em; }
+.jp-kana-table .jp-kana-cell .jp-romaji { font-size: .72rem; color: var(--jp-muted); }
+.jp-kana-table .jp-kana-cell--known { background: color-mix(in srgb, var(--jp-ok) 14%, var(--jp-surface)); }
+.jp-kana-table .jp-kana-cell--learning { border-color: var(--jp-primary); }
+.jp-kana-table__head { position: relative; text-align: center; white-space: nowrap; padding: 6px 4px; vertical-align: middle;
+  border-radius: 12px; background: color-mix(in srgb, var(--jp-primary) 7%, var(--jp-surface)); }
+.jp-kana-table tr.is-passed .jp-kana-table__head { background: color-mix(in srgb, var(--jp-ok) 12%, var(--jp-surface)); }
+.jp-kana-table__title { display: block; font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+.jp-kana-table__ok { position: absolute; top: 4px; right: 4px; color: var(--jp-ok); display: inline-flex; margin: 0; }
+.jp-kana-table__ok .jp-i { width: 12px; height: 12px; }
+.jp-kana-table__learn { display: inline-block; margin-top: 4px; padding: 1px 10px; border: 1px solid var(--jp-primary); border-radius: 999px;
+  background: var(--jp-surface); font: inherit; font-size: .72rem; font-weight: 600; color: var(--jp-primary); cursor: pointer; }
+.jp-kana-table__learn:hover { background: var(--jp-primary); color: var(--jp-on-primary, #fff); }
+.jp-kana-table--yoon thead th:first-child { width: 110px; }
+@media (max-width: 560px) {
+  .jp-kana-table { border-spacing: 4px; }
+  .jp-kana-table thead th:first-child { width: 58px; }
+  .jp-kana-table__title { font-size: .92rem; }
+  .jp-kana-table .jp-kana-cell__kana { font-size: 1.15em; }
+}
+
+/* [JLAS-W0108] narrow screens (≤400px): the calendar and Kitsu no longer squeeze the title to one letter per line */
+@media (max-width: 400px) {
+  .jp-path .jp-today__top { flex-wrap: wrap !important; }
+  .jp-path .jp-today__lead { flex: 1 1 140px !important; }
+  .jp-path .jp-today__top .jp-today__kitsu { display: none !important; }
+}
+
+/* [JLAS-W0108] F27 Phân biệt dễ nhầm: Của bạn / Xem trước */
+.jp-confusables-mode { margin: 4px 0 8px; }
+.jp-side-btn[hidden] { display: none; }
+
+/* [JLAS-W0108] F29 owner 10/11: Kitsu pictures carry different empty margins (encouraging ~60/128px, preparing ~71px tall,
+   the others ~100px), so these two are scaled up to look the same size as the rest on the path map */
+.jp-parts__mascot-img[src*="kitsu-encouraging"] { transform: scale(1.6); transform-origin: 50% 70%; }
+.jp-parts__mascot-img[src*="kitsu-preparing"] { transform: scale(1.3); transform-origin: 50% 70%; }
+
+
+/* [JLAS-W0108] owner 10/11: map Kitsu were small and faded; full colour, larger */
+.jp-parts__map .jp-parts__mascot--side { opacity: 1 !important; }
+.jp-parts__mascot--side .jp-parts__mascot-img { width: 104px !important; height: 104px !important; filter: saturate(1.15) drop-shadow(0 6px 10px rgb(0 0 0 / .14)); }
+.jp-parts__mascot--today .jp-parts__mascot-img { width: 104px !important; height: 104px !important; filter: saturate(1.15) drop-shadow(0 6px 10px rgb(0 0 0 / .14)); }
+@media (max-width: 820px) { .jp-parts__mascot--side .jp-parts__mascot-img { width: 60px !important; height: 60px !important; } }
+@media (max-width: 480px) { .jp-parts__mascot--today .jp-parts__mascot-img { width: 64px !important; height: 64px !important; } }
+/* owner 10/11: the preparing (megaphone) picture has wide empty margins, so its figure looked small and pale next to the others */
+.jp-parts__mascot-img[src*="kitsu-preparing"] { transform: scale(1.7) !important; transform-origin: 50% 60%; filter: saturate(1.25) contrast(1.05) drop-shadow(0 4px 6px rgb(0 0 0 / .14)) !important; }
+
+/* [JLAS-W0108] F31 owner 10/11: the real Kitsu hugs the "Hôm nay" ring from behind: it sits behind the ring at the
+   upper right, so its head and raised paws show over the edge while the ring hides its body. */
+.jp-today .jp-today__cal { overflow: visible; isolation: isolate; }
+.jp-today__cal-water { clip-path: circle(50% at 50% 50%); }
+.jp-today__cal-water, .jp-today__cal-ring, .jp-today__cal-inner { z-index: 1; }
+.jp-today__cal-kitsu {
+  position: absolute; z-index: 0; right: -20px; top: -24px; width: 60px; height: 60px;
+  pointer-events: none; transform: rotate(14deg); transform-origin: 50% 100%;
+  animation: jpCalPeek 3s ease-in-out infinite;
+}
+@keyframes jpCalPeek { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(8deg) translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .jp-today__cal-kitsu { animation: none; } }
+/* the water is see-through, so an opaque disc under it hides Kitsu's body behind the ring */
+.jp-today .jp-today__cal::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 50%; background: inherit; }
+/* [JLAS-W0108] owner 10/11: "Theo dõi việc học" box had no side padding, so the title and the bold active row
+   touched the border; level cells were 84px wide, so "Đang học · 0%" ran past its bar */
+.jp-path__side .jp-sidenav { padding: 14px 8px 8px !important; overflow: hidden; }
+.jp-path__side .jp-sidenav__title { padding-left: 8px !important; padding-right: 8px !important; }
+.jp-path__side .jp-level-cell .jp-step__body { width: auto !important; min-width: 0; }
+.jp-path__side .jp-level-cell__state { white-space: normal; }
+/* owner 10/11: the ring's hover note opened above the ring and the card clipped it to "100%"; show it below instead */
+.jp-page .jp-today .jp-today__cal[data-tip]::after {
+  top: calc(100% + 10px); bottom: auto; left: 0; transform: translateY(-3px);
+  white-space: nowrap; max-width: none; z-index: 5;
+}
+.jp-page .jp-today .jp-today__cal[data-tip]:hover::after,
+.jp-page .jp-today .jp-today__cal[data-tip]:focus-visible::after { transform: none; }
+/* [JLAS-W0108] owner 10/11: "Đã học hôm nay" is a red hanko stamp (済) pressed on the card instead of a text pill */
+.jp-today__stamp {
+  display: inline-grid; place-items: center; align-content: center; gap: 0;
+  width: 54px; height: 54px; margin-left: 10px; vertical-align: middle; flex: 0 0 auto;
+  border: 2.5px solid #d6453d; border-radius: 50%;
+  box-shadow: inset 0 0 0 2px #fff0, inset 0 0 0 3.5px rgb(214 69 61 / .35);
+  color: #d6453d; background: rgb(214 69 61 / .06);
+  transform: rotate(-14deg); opacity: .92;
+  animation: jpStampIn .45s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.jp-today__stamp-jp { font-size: 1.35rem; font-weight: 800; line-height: 1; font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif; }
+.jp-today__stamp-vi { font-size: .56rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1.1; }
+@keyframes jpStampIn { from { opacity: 0; transform: scale(1.8) rotate(-4deg); } to { opacity: .92; transform: rotate(-14deg); } }
+@media (prefers-reduced-motion: reduce) { .jp-today__stamp { animation: none; } }
+/* owner 10/11: side Kitsu stands to the LEFT of its speech bubble (was above it); the bob animation owns
+   `transform`, so the per-picture size fix uses the separate `scale` property to actually apply */
+.jp-parts__map .jp-parts__mascot--side { flex-direction: row !important; align-items: center !important; gap: 10px !important; }
+.jp-parts__mascot-img[src*="kitsu-preparing"] { scale: 1.7; }
+.jp-parts__mascot-img[src*="kitsu-encouraging"] { scale: 1.6; }
+/* owner 10/11: the stamp is the site's own seal: brand purple, KOTSUKOTSU written round the rim, larger and softer */
+.jp-today__stamp {
+  width: 78px; height: 78px; border: 0; background: none; box-shadow: none; display: inline-block;
+  color: var(--jp-primary, #6d4bd8); opacity: .62; transform: rotate(-12deg);
+  animation: jpStampIn2 .45s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.jp-today__stamp svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.jp-today__stamp-o { fill: color-mix(in srgb, currentColor 6%, transparent); stroke: currentColor; stroke-width: 3.5; }
+.jp-today__stamp-i { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-dasharray: 3 2.4; }
+.jp-today__stamp-arc { fill: currentColor; font-size: 9.6px; font-weight: 800; letter-spacing: .9px; }
+.jp-today__stamp-jp { fill: currentColor; font-size: 30px; font-weight: 800; font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", serif; }
+@keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .62; transform: rotate(-12deg); } }
+@media (max-width: 480px) { .jp-today__stamp { width: 62px; height: 62px; } }
+/* owner 10/11: purple rim + red heart, bigger, pressed slightly over the end of "Hôm nay của bạn" */
+.jp-today__stamp { width: 104px; height: 104px; margin: -18px 0 -18px -30px; position: relative; z-index: 2; opacity: .72; mix-blend-mode: multiply; }
+.jp-today__stamp-i { stroke: #d6453d; }
+.jp-today__stamp-jp { fill: #d6453d; }
+@keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .72; transform: rotate(-12deg); } }
+@media (prefers-color-scheme: dark) { .jp-today__stamp { mix-blend-mode: normal; } }
+@media (max-width: 480px) { .jp-today__stamp { width: 76px; height: 76px; margin: -12px 0 -12px -20px; } }
+/* owner 10/11: the seal was clipped by the card top and still too strong; drop it a little and fade it */
+.jp-today__stamp { top: 14px; opacity: .45; }
+@keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .45; transform: rotate(-12deg); } }
+/* AI 1 #13: link to a passed level's summary under its cell */
+.jp-level-cell__summary { display: inline-block; margin-top: 2px; font-size: .72rem; font-weight: 700; color: var(--jp-primary); text-decoration: underline; text-underline-offset: 2px; }
+/* owner 10/11: the seal sits beside the title without covering anything; the "Xem ngày học hôm nay" button
+   (shown once the day is done) is a soft secondary action */
+.jp-today__stamp { top: 0; width: 84px; height: 84px; margin: -8px 0 -8px 18px; mix-blend-mode: normal; }
+.jp-path .jp-today .jp-today__review-btn {
+  background: color-mix(in srgb, var(--jp-primary) 12%, transparent) !important;
+  color: var(--jp-primary) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-primary) 30%, transparent) !important;
+  box-shadow: none !important;
+}
+.jp-path .jp-today .jp-today__review-btn:hover { background: color-mix(in srgb, var(--jp-primary) 20%, transparent) !important; }
+@media (max-width: 480px) { .jp-today__stamp { width: 66px; height: 66px; margin: -6px 0 -6px 10px; } }
+.jp-today__stamp { margin: -6px 0 6px 18px; }
+/* owner 10/11: the "done" sentence now lives in the seal's hover note; the bar keeps only the review button */
+.jp-path .jp-today .jp-today__done-bar { justify-content: flex-end; }
+.jp-page .jp-today .jp-today__stamp[data-tip]::after { white-space: nowrap; max-width: none; font-size: 12px; transform: translateX(-50%) rotate(12deg) translateY(3px); }
+.jp-page .jp-today .jp-today__stamp[data-tip]:hover::after,
+.jp-page .jp-today .jp-today__stamp[data-tip]:focus-visible::after { transform: translateX(-50%) rotate(12deg); }
+.jp-today__stamp:focus-visible { outline: 2px solid var(--jp-primary); outline-offset: 4px; border-radius: 50%; }
+.jp-page .jp-today .jp-today__stamp[data-tip]::after { top: calc(100% + 8px); bottom: auto; z-index: 6; }
+
+/* [JLAS-W0108] AI 1 #10: wide screens anchor the tour box beside the lit target; a ring makes the target obvious */
+.jp-tour.jp-tour--anchored { inset: 0; padding: 0; display: block; }
+.jp-tour.jp-tour--anchored .jp-tour__box { position: fixed; box-shadow: 0 12px 32px rgba(0,0,0,.28); transition: top .2s ease, left .2s ease; }
+.jp-tour-scrim__hole { outline: 3px solid var(--jp-accent, #8b5cf6); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .jp-tour.jp-tour--anchored .jp-tour__box { transition: none; } }
+
+/* [JLAS-W0108] F23: path map backdrop — faint map grid with contour rings and a big kanji watermark (team colours) */
+.jp-parts__mapgrid {
+  position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image:
+    radial-gradient(circle at 78% 30%, transparent 0 46px, color-mix(in srgb, var(--jp-c-indigo-500) 14%, transparent) 47px 48px, transparent 49px 70px, color-mix(in srgb, var(--jp-c-indigo-500) 10%, transparent) 71px 72px, transparent 73px),
+    radial-gradient(circle at 14% 72%, transparent 0 34px, color-mix(in srgb, var(--jp-c-purple-500) 12%, transparent) 35px 36px, transparent 37px 56px, color-mix(in srgb, var(--jp-c-purple-500) 9%, transparent) 57px 58px, transparent 59px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--jp-c-slate-500) 8%, transparent) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--jp-c-slate-500) 8%, transparent) 0 1px, transparent 1px 48px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 100%);
+  animation: jpMapDrift 40s linear infinite;
+}
+.jp-parts__watermark {
+  position: absolute; right: 4%; top: 6%; pointer-events: none; user-select: none;
+  font-size: clamp(110px, 16vw, 200px); line-height: 1; font-weight: 800;
+  color: color-mix(in srgb, var(--jp-c-indigo-500) 7%, transparent);
+  font-family: "Noto Serif JP", "Noto Sans JP", serif;
+}
+@keyframes jpMapDrift { to { background-position: 0 0, 0 0, 0 48px, 48px 0; } }
+@media (max-width: 640px) { .jp-parts__watermark { font-size: 96px; top: 4%; } }
+@media (prefers-reduced-motion: reduce) { .jp-parts__mapgrid { animation: none; } }

@@ -4,5 +4,7 @@ package com.jlas.jlptpath.enums;
 public enum JpathReportTarget {
     VOCAB, KANJI, GRAMMAR, KANA, EXAMPLE, QUESTION,
     /** Plan 3: a reading/listening practice set and one of its questions. */
-    SKILL_SET, SKILL_QUESTION
+    SKILL_SET, SKILL_QUESTION,
+    /** F33: a whole page (floating report button on a page with no reportable item); code = page key. */
+    PAGE
 }

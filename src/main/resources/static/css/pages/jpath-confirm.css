@@ -322,3 +322,21 @@
   background: color-mix(in srgb, var(--jp-surface) 92%, transparent);
   backdrop-filter: blur(6px);
 }
+
+/* [JLAS-W0108] 09/11 confirm-page fixes: no rounded bottom line, padded pace box, tidy "Đổi" row */
+.jp-confirm .jp-confirm-card { border-radius: 0; }
+.jp-confirm .jp-confirm-card.jp-confirm-pace {
+  padding: 16px 18px; border: 1px solid var(--jp-c-purple-500); border-radius: 12px; background: var(--jp-c-purple-100);
+}
+.jp-confirm .jp-confirm-pace[data-tone="ok"] { border-color: var(--jp-ok); }
+.jp-confirm .jp-confirm-pace[data-tone="warn"] { border-color: var(--jp-warn); }
+.jp-confirm .jp-confirm-pace[data-tone="block"] { border-color: var(--jp-danger); background: var(--jp-danger-soft); }
+.jp-confirm .jp-confirm-pace[data-tone="block"] .jp-confirm-pace__text { font-size: 1.15em; font-weight: 600; }
+.jp-confirm .jp-confirm-field__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.jp-confirm .jp-confirm-field__row .jp-confirm-plan__summary { flex: 1 1 240px; }
+.jp-confirm .jp-confirm-field__row .jp-confirm-btn--small { flex: 0 0 auto; min-height: 36px; padding: 6px 16px; }
+
+/* [JLAS-W0108] AI 1 #9: the confirm page is one screen; the three former wizard steps stack as groups */
+.jp-confirm__group { display: grid; gap: 28px; width: 100%; min-width: 0; }
+.jp-confirm__group + .jp-confirm__group { margin-top: 28px; }
+@media (max-width: 720px) { .jp-confirm__group { gap: 22px; } .jp-confirm__group + .jp-confirm__group { margin-top: 22px; } }

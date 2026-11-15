@@ -27,6 +27,10 @@ public enum ErrorCode {
     QUICK_LOOKUP_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt tra từ nhanh."),
     /** Hết lượt chấm phát âm miễn phí hôm nay: dùng CP hoặc nâng cấp Pro. */
     PRONUNCIATION_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt chấm phát âm miễn phí hôm nay."),
+    /** [JLAS-W0108] F36: Hết lượt AI giải thích câu hỏi Learning: mua thêm bằng CP hoặc nâng cấp Pro. */
+    JPATH_AI_EXPLAIN_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt AI giải thích câu hỏi."),
+    CPATH_WEEK_TEST_REQUIRED(HttpStatus.CONFLICT, "Bạn đã học xong phần của tuần này. Làm kiểm tra tuần (đạt từ 80%) để học sang tuần sau."),
+    CPATH_AHEAD_LIMIT(HttpStatus.CONFLICT, "Bạn đã học trước trọn 1 tuần. Sang tuần mới học tiếp và kiểm tra phần đã học trước nhé."),
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Payload quá lớn"),
     /** [JLAS2-XX] Ảnh tải lên sai định dạng hoặc nội dung không phải ảnh thật (magic bytes không khớp). */
     INVALID_IMAGE(HttpStatus.BAD_REQUEST, "Ảnh chỉ nhận định dạng JPG, PNG hoặc WEBP"),
@@ -58,6 +62,10 @@ public enum ErrorCode {
     JPATH_ACTIVE_PATH_EXISTS(HttpStatus.CONFLICT, "Bạn đã có một lộ trình JLPT đang học."),
     JPATH_LEVEL_NOT_RELEASED(HttpStatus.CONFLICT, "Cấp này sắp có, hiện chưa mở."),
     JPATH_LEVEL_LOCKED(HttpStatus.FORBIDDEN, "Cấp này chưa mở. Hãy hoàn thành cấp hiện tại và Thi thử JLPT."),
+    JPATH_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Cấp N4–N1 dành cho tài khoản Premium. Nâng cấp để học tiếp."),
+    CPATH_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Lộ trình Giao tiếp dành cho tài khoản Premium. Nâng cấp để học."),
+    CPATH_CORE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Máy chủ chưa có bài nền Giao tiếp. Bạn vẫn học tình huống như thường."),
+    CPATH_DISPLAY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Máy chủ chưa sẵn sàng lưu cách hiển thị. Bạn vẫn bật/tắt furigana và bản dịch ngay trong bài học."),
     JPATH_TARGET_TOO_SOON(HttpStatus.BAD_REQUEST, "Ngày thi quá gần để kịp mục tiêu này."),
     JPATH_ADJUSTMENTS_EXHAUSTED(HttpStatus.CONFLICT, "Bạn đã dùng hết 2 lần chỉnh của cấp này."),
     JPATH_SLIDER_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Số mục mỗi ngày nằm ngoài giới hạn cho phép."),
@@ -75,6 +83,7 @@ public enum ErrorCode {
     JPATH_REVIEW_DAY_NOT_ALLOWED(HttpStatus.CONFLICT,
             "Hôm nay bạn đã bắt đầu học mới, chỉ đổi sang ngày ôn được khi chưa học mục mới nào."),
     JPATH_EXTRA_NOT_READY(HttpStatus.CONFLICT, "Xong phần hôm nay của tab này trước khi học thêm."),
+    JPATH_EXTRA_CHECK_REQUIRED(HttpStatus.CONFLICT, "Bạn đã học vượt khá nhiều. Làm bài kiểm tra tuần (đạt từ 80%) để học thêm tiếp."),
     JPATH_CONTENT_NOT_LEARNABLE(HttpStatus.CONFLICT, "Mục này chưa sẵn sàng để học."),
     // [JLAS-W0108] Kế hoạch 3: Đọc · Nghe, Thi thử.
     JPATH_SKILL_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy dạng câu này."),

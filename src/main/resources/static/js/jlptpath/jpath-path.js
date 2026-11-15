@@ -65,6 +65,42 @@
   function list(v) { return Array.isArray(v) ? v : []; }
   function dayList(codes) { return list(codes).map(function (c) { return D().dayShort(c); }).filter(Boolean).join(', '); }
 
+  function tabLearnedCount(info, todayTab) {
+    // F150 review: the path tab (JpathTabProgressView) says counted/learning/known; "learned" does not exist and a
+    // rounded percent is 0 for 4 of 800 words, which hid a weekly check that was valid
+    var known = info ? Number(info.counted || 0) + Number(info.learning || 0) + Number(info.known || 0)
+      + Number(info.learned || 0) : 0;
+    var pct = info ? Number(info.percent || 0) : 0;
+    var td = todayTab || {};
+    var doneToday = Number(td.newDone || 0) + Number(td.reviewDone || 0) + (td.done ? 1 : 0);
+    var hasReview = Number(td.reviewDue || 0) > 0;
+    return known + pct + doneToday + (hasReview ? 1 : 0);
+  }
+
+  function filterWeeklyButtons(todayBox, path, today) {
+    if (!todayBox || typeof todayBox.querySelector !== 'function' || typeof todayBox.querySelectorAll !== 'function') return;
+    var weeklyEl = todayBox.querySelector('.jp-today__weekly');
+    if (!weeklyEl) return;
+    var btns = Array.prototype.slice.call(weeklyEl.querySelectorAll('[data-parts-weekly]') || []);
+    if (!btns.length) return;
+    var pTabs = list(path && path.tabs);
+    var tTabs = list(today && today.tabs);
+    if (!pTabs.length && !tTabs.length) return;
+    var visible = 0;
+    btns.forEach(function (btn) {
+      var code = String(btn.getAttribute('data-parts-weekly') || '').toUpperCase();
+      var info = pTabs.filter(function (x) { return x && x.tab === code; })[0] || null;
+      var tInfo = tTabs.filter(function (x) { return x && x.tab === code; })[0] || null;
+      var locked = !!(info && info.open === false);
+      var empty = info ? tabLearnedCount(info, tInfo) <= 0
+        : (tInfo ? (Number(tInfo.newDone || 0) <= 0 && Number(tInfo.reviewDone || 0) <= 0 && !tInfo.done && Number(tInfo.reviewDue || 0) <= 0) : false);
+      var hide = locked || empty;
+      btn.hidden = hide;
+      if (!hide) visible += 1;
+    });
+    weeklyEl.hidden = visible === 0;
+  }
+
   function tabKeys(path) {
     var keys = ['vocab', 'kanji', 'grammar', 'skills'];
     return path && path.kanaTab ? ['kana'].concat(keys) : keys;
@@ -145,12 +181,9 @@
     return html;
   }
 
-  /** Trang chủ › Lộ trình JLPT › {level} › {tab}. */
-  function crumbsHtml(path, tab, viewLevel) {
-    var N = root.JpathNav;
-    if (!N) return '';
-    return N.crumbsHtml([{ label: 'Trang chủ', href: '/' }, { label: 'Lộ trình JLPT', href: '/learning' },
-      { label: 'Cấp ' + (viewLevel || (path && path.openLevel) || '') }, { label: TAB_LABEL[tab] || '' }]);
+  /** F86 (owner 12/11): the path page is the top of Lộ trình JLPT, so it has no trail and no "Quay về" link. */
+  function crumbsHtml() {
+    return '';
   }
 
   // page menu (top right of the hero)
@@ -182,7 +215,9 @@
     var mark = state === 'PASSED' ? icon('check') : (state === 'LOCKED' ? icon('lock') : '');
     var sub;
     if (state === 'PASSED') sub = '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="'
-      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>';
+      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>'
+      // AI 1 #13: a passed level also opens its level summary
+      + '<a class="jp-level-cell__summary" href="/learning/jlpt/levels/' + encodeURIComponent(c.level) + '/summary">Xem tổng kết</a>';
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
       + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
       + '%"></span></span>';
@@ -335,9 +370,22 @@
   function numbersHtml(path, tab, today) {
     if (tab === 'skills') return skillsTabHtml(path, today);
     if (root && root.JpathParts && (tab === 'vocab' || tab === 'kanji' || tab === 'grammar')) {
-      return '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
+      return lockedTabNoteHtml(path, tab)
+        + '<div class="jp-sr" aria-hidden="true">' + estimateHtml(path, tab) + volumeHtml(path, tab) + '</div>';
     }
-    return estimateHtml(path, tab) + volumeHtml(path, tab);
+    // [JLAS-W0108] F13: the kana tab has no finish estimate; show only its volume instead of "—"
+    var est = (path && path.estimates || {})[TAB_KEY[tab]];
+    return (tab === 'kana' && !est ? '' : estimateHtml(path, tab)) + volumeHtml(path, tab);
+  }
+
+  /** [JLAS-W0108] F12: a tab that opens after kana says why its map is locked and links to the kana tab. */
+  function lockedTabNoteHtml(path, tab) {
+    var info = tabInfo(path, tab);
+    var kanaFirst = !!(path && path.kanaTab && !path.kanaCompleted);
+    if (!info || (info.open !== false && !kanaFirst)) return '';
+    var text = info.open === false ? 'Học xong <strong>Chữ cái</strong> để mở tab này.'
+      : 'Lộ trình đang học <strong>Chữ cái</strong> trước; các phần ở đây mở dần sau khi xong Chữ cái.';
+    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=kana">Về tab Chữ cái</a></p>';
   }
 
   // tab buttons are updated in place so focus stays on the activated tab
@@ -419,6 +467,7 @@
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
         { skills: state.skills, why: todayReason(p, state.today),
           side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') }));
+      filterWeeklyButtons(slot(rootEl, 'today'), p, state.today);
     }
 
     // the [data-slot="list"] area belongs to jpath-lists.js (loaded before this file); it keeps its own filters
@@ -710,16 +759,37 @@
       rootEl.setAttribute('aria-busy', 'false');
       rendered(rootEl);
       startTour();
+      premiumBox(rootEl, apiClient);
     }, function () {
       setHtml(rootEl, 'hero', '<p class="jp-alert" role="alert">' + esc(MSG_LOAD_FAILED) + '</p>');
       rootEl.setAttribute('aria-busy', 'false');
     });
   }
 
+  /** F5 (owner 11/11): N4–N1 need Premium; a locked learner sees an upgrade box above the path. */
+  function premiumBoxHtml(gate) {
+    if (!gate || !gate.locked) return '';
+    return '<section class="jp-premium-box" role="note">'
+      + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+      + '<div><p class="jp-premium-box__title">' + esc(gate.level || 'N4') + ' dành cho tài khoản Premium</p>'
+      + '<p class="jp-premium-box__text">N5 học miễn phí. Từ N4 đến N1, hãy nâng cấp Premium để mở bài học hằng ngày.</p></div>'
+      + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>';
+  }
+
+  function premiumBox(rootEl, apiClient) {
+    if (!apiClient || !rootEl || typeof rootEl.insertAdjacentHTML !== 'function') return;
+    Promise.resolve(apiClient.get('/api/learning/jlpt/premium-gate')).then(function (gate) {
+      var html = premiumBoxHtml(gate);
+      if (html && !rootEl.querySelector('.jp-premium-box')) rootEl.insertAdjacentHTML('afterbegin', html);
+    }, function () { /* the server still blocks the sessions */ });
+  }
+
   var api = Object.assign({}, C, {
+    premiumBoxHtml: premiumBoxHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
+    filterWeeklyButtons: filterWeeklyButtons,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });
   return api;

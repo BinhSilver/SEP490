@@ -41,18 +41,20 @@ public class JpathPartsController {
 
     @GetMapping("/week-skip")
     public ResponseEntity<ApiResponse<WeekSkipView>> weekSkip(@AuthenticationPrincipal UserPrincipal user,
-            @RequestParam String tab) {
-        JpathPartsService.WeekSkip w = partsService.weekSkip(user.userId(), JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)));
+            @RequestParam String tab, @RequestParam(required = false) Integer rows) {
+        JpathPartsService.WeekSkip w = partsService.weekSkip(user.userId(), JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)), rows);
         return ResponseEntity.ok(ApiResponse.ok("OK", new WeekSkipView(w.offer(), w.tab(), w.level(), w.items())));
     }
 
     /** Issues the week check (WEEK_KNOWN); the page opens it like any other check. */
     @org.springframework.web.bind.annotation.PostMapping("/week-skip/{tab}/check")
     public ResponseEntity<ApiResponse<com.jlas.jlptpath.dto.JpathCheckView>> weekSkipCheck(
-            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String tab) {
+            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String tab,
+            @RequestParam(required = false) Integer rows) {
+        // rows (KANA): how many kana rows; 0 = the whole table left (F65 "Tôi biết cả bảng chữ")
         com.jlas.jlptpath.dto.JpathCheckIssueRequest request = new com.jlas.jlptpath.dto.JpathCheckIssueRequest(
                 com.jlas.jlptpath.enums.JpathCheckKind.WEEK_KNOWN, JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)),
-                null, null, null, null, null, null, null, null, null, null);
+                null, null, null, null, null, rows, null, null, null, null);
         return ResponseEntity.ok(ApiResponse.ok("OK", checkService.issue(user.userId(), request)));
     }
 
@@ -63,12 +65,16 @@ public class JpathPartsController {
     @GetMapping("/skills/sets/{code}/translation")
     @SuppressWarnings("unchecked")
     public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> setTranslation(
-            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String code) {
+            @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String code,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String token,
+            @org.springframework.web.bind.annotation.RequestParam(name = "q", required = false) java.util.List<String> questionIds) {
         // a plain Map: the MVC JSON writer serialises it as the stored object
         java.util.Map<String, Object> node = skillSets.findById(code)
                 .map(com.jlas.jlptpath.entity.JpathSkillSet::getTranslationJson)
                 .map(t -> { try { return (java.util.Map<String, Object>) JSON.readValue(t, java.util.Map.class); } catch (Exception e) { return null; } })
                 .orElse(null);
+        // F106: the check shuffles the options, so the option lines follow the order this check shows
+        com.jlas.jlptpath.service.impl.JpathSkillCheckBuilder.alignTranslation(node, token, questionIds);
         return ResponseEntity.ok(ApiResponse.ok("OK", node));
     }
 

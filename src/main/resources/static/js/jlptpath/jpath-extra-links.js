@@ -38,7 +38,9 @@
     if (href) {
       return '<li><a class="jp-extra__link" href="' + esc(href) + '">' + esc(l.label) + '</a>' + note + '</li>';
     }
-    return '<li><span class="jp-extra__link is-off" aria-disabled="true">' + esc(l.label) + '</span>' + note + '</li>';
+    // a closed link says why inside its own row (the side column hid the trailing note: looked like a broken item)
+    return '<li><span class="jp-extra__link is-off" aria-disabled="true"' + (l.note ? ' title="' + esc(l.note) + '"' : '') + '>'
+      + esc(l.label) + (l.note ? ' <span class="jp-extra__lock">' + esc(l.note) + '</span>' : '') + '</span></li>';
   }
 
   /** The strip: practice tools, then the path's own pages. */

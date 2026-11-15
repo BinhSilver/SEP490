@@ -31,6 +31,8 @@ Bằng chứng chạy và tồn đọng nằm trong execution ledger, không dù
 - JLPT chạy `KANJI → VOCABULARY → GRAMMAR → READING → LISTENING`; không cho tự bỏ skill để tạo kết quả đủ điều kiện.
 - Survey giao tiếp thể hiện nhu cầu, không chứng minh competency/weakness/mastery. Quy tắc tình huống xem §2.3.
 - Owner 2026-10-21 (OD-34): `UNKNOWN` + target N2/N1 được lưu survey và làm Smart Test; path chỉ tạo khi dữ liệu cấp đó qua cổng phát hành.
+- Nhóm 2026-11-10 (F21): khảo sát lộ trình JLPT hỏi lại trình độ hiện tại khi đã học (N5…N1 hoặc "Mới bắt đầu"); Smart Test
+  phát batch đầu của mọi kỹ năng ở đúng cấp đó để làm nhanh, rồi lên/xuống theo §1.3. "Mới bắt đầu" = `UNKNOWN` → bắt đầu N5.
 - Owner 2026-10-21 (OD-38): câu thời gian 10/20/30 phút của BA/Travel/Daily Life quyết định `minutes_per_day` của path.
 
 ### 1.2 Chọn câu và tính hợp lệ ngân hàng
@@ -117,6 +119,13 @@ về `/learning`. Bảng DB cũ giữ nguyên để không mất dữ liệu ng�
 - Event receipts xác định và transaction giữ progress/reward idempotent; review/practice không sinh completion event.
 - Learner-day từ event instant và IANA ZoneId user, không timezone JVM; kiểm day-boundary/DST/retry/concurrency.
 - Freeze/outbox/credit dùng ledger và locking hiện có.
+- F128 (owner 2026-11-15): "Mục tiêu mỗi ngày" là mục tiêu người học tự đặt để lấy thưởng (+5 CP, giữ chuỗi); lộ trình
+  không thay chỉ tiêu. Việc học trên lộ trình JLPT và Giao tiếp được cộng vào 3 chỉ tiêu, đọc thẳng từ dữ liệu lộ trình
+  của ngày (không ghi vào `user_daily_progress`): từ/chữ mới = mục học mới của JLPT (quy tắc "đã học mới" của lộ trình) +
+  mẫu câu của tình huống xong, từ của chủ đề vào ngày xong tình huống đầu tiên, mục bài nền học trong bài; bài trắc nghiệm =
+  bài kiểm tra JLPT đã nộp + tình huống xong + bài kiểm tra mục tiêu; phút = thời gian thẻ/câu trả lời JLPT (mỗi thẻ tối đa
+  3 phút) + 15 phút mỗi tình huống. Xét đạt sau mỗi lượt học JLPT (sau commit) và khi mở trang mục tiêu/khung tóm tắt
+  (xét hôm qua rồi hôm nay). Thưởng mục tiêu ngày cộng thêm, không thay CP riêng của lộ trình.
 
 ### 2.5 Inline Dictionary / Favorites
 

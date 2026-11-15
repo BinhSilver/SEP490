@@ -305,7 +305,7 @@
   cursor: not-allowed;
 }
 
-#practice-kind-options .practice-level-list label:focus-within {
+#practice-kind-options .practice-level-list label:has(input[type="checkbox"]:focus-visible) {
   outline: 2px solid #5b3f99;
   outline-offset: 2px;
 }
@@ -553,26 +553,24 @@
 .exercise-stop-marker {
   position: absolute;
   top: 50%;
-  width: 14px;
-  height: 14px;
-  border: 2px solid #fff;
+  width: 10px;
+  height: 10px;
+  border: 0;
   border-radius: 50%;
   background: #e18421;
-  box-shadow: 0 1px 5px rgba(50, 35, 78, .35);
   cursor: pointer;
   transform: translate(-50%, -50%);
 }
 
 .exercise-stop-marker.is-current {
-  width: 18px;
-  height: 18px;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
   background: #5b3f99;
-  box-shadow: 0 0 0 3px rgba(91, 63, 153, .18), 0 1px 5px rgba(50, 35, 78, .35);
 }
 
 .exercise-stop-marker.is-question {
   background: #e18421;
-  box-shadow: 0 0 0 3px rgba(225, 132, 33, .2), 0 1px 5px rgba(50, 35, 78, .35);
 }
 
 .exercise-stop-marker.is-done {
@@ -837,11 +835,10 @@
   gap: 9px;
   align-items: start;
   padding: 9px 8px;
-  border-left: 3px solid transparent;
   border-radius: 9px;
   color: #514a56;
   cursor: pointer;
-  transition: background .15s ease, border-color .15s ease;
+  transition: background .15s ease;
 }
 
 .exercise-transcript-row:hover,
@@ -858,13 +855,6 @@
   background: #fff0da;
 }
 
-.exercise-transcript-row.is-stop {
-  border-left-color: #e18421;
-}
-
-.exercise-transcript-row.is-stop.is-done {
-  border-left-color: #16805d;
-}
 
 .exercise-transcript-time,
 .exercise-transcript-badge {
@@ -889,6 +879,11 @@
   background: #fff0da;
   color: #8a5a17;
   white-space: nowrap;
+}
+
+.exercise-transcript-row.is-done .exercise-transcript-badge {
+  background: #edf9f2;
+  color: #087443;
 }
 
 #exercise-question-panel {
@@ -1041,6 +1036,109 @@
   font-weight: 500;
   text-decoration: underline 2px currentColor;
   text-underline-offset: .12em;
+}
+
+#exercise-prompt .exercise-expected-answer {
+  display: block;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #edf9f2;
+  color: #087443;
+  font-size: clamp(16px, 1.9vw, 21px);
+}
+
+#exercise-prompt .exercise-expected-answer::before {
+  display: block;
+  color: #4d6b5c;
+  content: "Đáp án";
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#exercise-review {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+#exercise-review[hidden],
+#exercise-review-explanation[hidden] {
+  display: none !important;
+}
+
+#exercise-review-label {
+  margin: 0;
+  color: #5b3f99;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+#exercise-review-prompt {
+  margin: 0;
+  color: #18171b;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: clamp(16px, 1.9vw, 20px);
+  font-weight: 700;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+#exercise-review-prompt:empty {
+  display: none;
+}
+
+#exercise-review-answer {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #edf9f2;
+  color: #087443;
+}
+
+#exercise-review-answer span {
+  color: #4d6b5c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#exercise-review-expected {
+  margin: 2px 0 0;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: clamp(16px, 1.9vw, 21px);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+#exercise-review-mine,
+#exercise-review-explanation {
+  margin: 0;
+  color: #554d60;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#exercise-review-back {
+  display: inline-flex;
+  align-self: flex-end;
+  align-items: center;
+  gap: 8px;
+  min-height: 45px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 13px;
+  background: #5b3f99;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#exercise-review-back:focus-visible {
+  outline: 3px solid #b99ce5;
+  outline-offset: 2px;
 }
 
 #exercise-prompt:empty::before {
@@ -1469,7 +1567,7 @@ html[data-theme="dark"] #practice-kind-options .practice-level-list label:has(in
     color: var(--dm-shadowing-muted);
     background: var(--dark-input)
 }
-html[data-theme="dark"] #practice-kind-options .practice-level-list label:focus-within {
+html[data-theme="dark"] #practice-kind-options .practice-level-list label:has(input[type="checkbox"]:focus-visible) {
     outline: 2px solid var(--dm-shadowing-line)
 }
 html[data-theme="dark"] #practice-kind-options .practice-level-list small {
@@ -1523,20 +1621,16 @@ html[data-theme="dark"] #exercise-video-progress {
     background: var(--dm-shadowing-action)
 }
 html[data-theme="dark"] .exercise-stop-marker {
-    border: 2px solid var(--dm-shadowing-line);
-    background: var(--dm-shadowing-warning-bg);
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.47)
+    background: var(--dm-shadowing-warning)
 }
 html[data-theme="dark"] .exercise-stop-marker.is-current {
-    background: var(--dm-shadowing-action);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.30), 0 1px 5px rgba(0, 0, 0, 0.47)
+    background: var(--dm-shadowing-accent)
 }
 html[data-theme="dark"] .exercise-stop-marker.is-question {
-    background: var(--dm-shadowing-warning-bg);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.32), 0 1px 5px rgba(0, 0, 0, 0.47)
+    background: var(--dm-shadowing-warning)
 }
 html[data-theme="dark"] .exercise-stop-marker.is-done {
-    background: var(--dm-shadowing-success-bg)
+    background: var(--dm-shadowing-success)
 }
 html[data-theme="dark"] #exercise-media-panel.is-audio #exercise-media {
     background: radial-gradient(circle, var(--dm-shadowing-raised), #151421 72%)
@@ -1612,12 +1706,6 @@ html[data-theme="dark"] .exercise-transcript-row.is-active {
 html[data-theme="dark"] .exercise-transcript-row.is-active.is-question {
     background: var(--dm-shadowing-warning-bg)
 }
-html[data-theme="dark"] .exercise-transcript-row.is-stop {
-    border-left-color: var(--dm-shadowing-warning-line)
-}
-html[data-theme="dark"] .exercise-transcript-row.is-stop.is-done {
-    border-left-color: var(--dm-shadowing-success-line)
-}
 html[data-theme="dark"] .exercise-transcript-time,
 html[data-theme="dark"] .exercise-transcript-badge {
     color: var(--dm-shadowing-muted)
@@ -1625,6 +1713,10 @@ html[data-theme="dark"] .exercise-transcript-badge {
 html[data-theme="dark"] .exercise-transcript-badge {
     background: var(--dm-shadowing-warning-bg);
     color: var(--dm-shadowing-warning)
+}
+html[data-theme="dark"] .exercise-transcript-row.is-done .exercise-transcript-badge {
+    background: var(--dm-shadowing-success-bg);
+    color: var(--dm-shadowing-success)
 }
 html[data-theme="dark"] #exercise-question-panel.is-waiting {
     border-color: var(--dm-shadowing-line);
@@ -1661,6 +1753,27 @@ html[data-theme="dark"] #exercise-prompt .exercise-answer-slot {
 html[data-theme="dark"] #exercise-prompt .exercise-answer-slot.is-revealed {
     border-color: var(--dm-shadowing-success-line);
     color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #exercise-prompt .exercise-expected-answer,
+html[data-theme="dark"] #exercise-review-answer {
+    background: var(--dm-shadowing-success-bg);
+    color: var(--dm-shadowing-success)
+}
+html[data-theme="dark"] #exercise-prompt .exercise-expected-answer::before,
+html[data-theme="dark"] #exercise-review-answer span,
+html[data-theme="dark"] #exercise-review-mine,
+html[data-theme="dark"] #exercise-review-explanation {
+    color: var(--dm-shadowing-muted)
+}
+html[data-theme="dark"] #exercise-review-label {
+    color: var(--dm-shadowing-accent)
+}
+html[data-theme="dark"] #exercise-review-prompt {
+    color: var(--dm-shadowing-ink)
+}
+html[data-theme="dark"] #exercise-review-back {
+    background: var(--dm-shadowing-action);
+    color: var(--dm-shadowing-on-accent)
 }
 html[data-theme="dark"] #exercise-prompt:empty::before {
     color: var(--dm-shadowing-muted)

@@ -370,9 +370,8 @@
 .memory-board-wrap { background: #f3f8fc; box-shadow: 0 10px 30px rgba(49,94,120,.12); backdrop-filter: none; }
 
 /* The component fits wrapped text into the measured content area. */
-/* Padding % tính theo bề ngang nên dùng px cho trên/dưới: chừa chỗ nhãn góc trên (KANJI, NGHĨA…). */
-.memory-card__front { container-type: size; padding: 22px 6% 8px; }
-.memory-card.is-matched .memory-card__front { padding-bottom: 30px; }
+/* Padding % tính theo bề ngang nên dùng px cho trên/dưới. Không còn nhãn góc trên (KANJI, NGHĨA…), nên trên dưới bằng nhau. */
+.memory-card__front { container-type: size; padding: 10px 6%; }
 .memory-card__content,
 .memory-card__content.jp,
 .memory-card__content.is-latin {
@@ -501,28 +500,30 @@
 /* Page-owned dark mode: frontend/memory/src/styles.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states. */
 html[data-theme="dark"] {
-  --dm-memory-bg: #0b0d13;
-  --dm-memory-surface: #171b26;
-  --dm-memory-raised: #252d3a;
-  --dm-memory-ink: #f8fafc;
-  --dm-memory-muted: #b2bfd2;
-  --dm-memory-line: #40485d;
-  --dm-memory-accent: #c084fc;
-  --dm-memory-action: #7335a6;
-  --dm-memory-accent-soft: #28203a;
-  --dm-memory-on-accent: #211b34;
-  --dm-memory-success: #8eddb6;
-  --dm-memory-success-bg: #1b3d32;
-  --dm-memory-success-line: #43816b;
-  --dm-memory-danger: #ffb4bd;
-  --dm-memory-danger-bg: #452832;
-  --dm-memory-danger-line: #96616d;
-  --dm-memory-warning: #f3d28a;
-  --dm-memory-warning-bg: #403522;
-  --dm-memory-warning-line: #947a46;
-  --dm-memory-pink: #f4aed2;
-  --dm-memory-pink-bg: #432d40;
-  --dm-memory-pink-line: #88637b;
+  /* Read from css/dark-palette.css (the plum palette shared by every page). "action" sits under light text
+     in about twenty rules here, so it takes the mid plum --dark-selection rather than the light button colour. */
+  --dm-memory-bg: var(--dark-bg);
+  --dm-memory-surface: var(--dark-surface);
+  --dm-memory-raised: var(--dark-raised);
+  --dm-memory-ink: var(--dark-ink);
+  --dm-memory-muted: var(--dark-muted);
+  --dm-memory-line: var(--dark-line);
+  --dm-memory-accent: var(--dark-accent);
+  --dm-memory-action: var(--dark-selection);
+  --dm-memory-accent-soft: var(--dark-soft);
+  --dm-memory-on-accent: var(--dark-on-button);
+  --dm-memory-success: var(--dark-success);
+  --dm-memory-success-bg: var(--dark-success-bg);
+  --dm-memory-success-line: var(--dark-success-line);
+  --dm-memory-danger: var(--dark-danger);
+  --dm-memory-danger-bg: var(--dark-danger-bg);
+  --dm-memory-danger-line: var(--dark-danger-line);
+  --dm-memory-warning: var(--dark-warning);
+  --dm-memory-warning-bg: var(--dark-warning-bg);
+  --dm-memory-warning-line: var(--dark-warning-line);
+  --dm-memory-pink: var(--dark-pink);
+  --dm-memory-pink-bg: var(--dark-pink-bg);
+  --dm-memory-pink-line: var(--dark-pink-line);
 }
 html[data-theme="dark"] #memory-root {
     --memory-primary: var(--dm-memory-accent);
@@ -533,7 +534,7 @@ html[data-theme="dark"] #memory-root {
     color: var(--dm-memory-ink);
     background: radial-gradient(circle at 12% 18%, var(--dm-memory-action), transparent 28rem),
     radial-gradient(circle at 92% 82%, var(--dm-memory-warning-bg), transparent 30rem),
-    linear-gradient(135deg, var(--memory-navy), var(--memory-navy-mid) 48%, #0f2a52)
+    linear-gradient(135deg, var(--dark-bg), var(--dark-surface) 48%, var(--dark-bg))
 }
 html[data-theme="dark"] .memory-page .arena-nav {
     border-bottom: 2px solid var(--dm-memory-line);
@@ -545,7 +546,7 @@ html[data-theme="dark"] .memory-page .arena-nav__brand {
 }
 html[data-theme="dark"] .memory-page .arena-nav__mark {
     border: 2px solid var(--dm-memory-line);
-    background: linear-gradient(145deg, var(--dm-memory-action), #004883);
+    background: linear-gradient(145deg, var(--dm-memory-action), var(--dark-raised));
     color: var(--dm-memory-ink);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32)
 }
@@ -702,7 +703,7 @@ html[data-theme="dark"] .memory-card__front {
     border: 2px solid var(--dm-memory-line)
 }
 html[data-theme="dark"] .memory-card__back {
-    background: radial-gradient(circle at 50% 42%, var(--dm-memory-action), transparent 42%), linear-gradient(145deg, #001c39, #003c70);
+    background: radial-gradient(circle at 50% 42%, var(--dm-memory-action), transparent 42%), linear-gradient(145deg, var(--dark-raised), var(--dark-surface));
     box-shadow: inset 0 0 0 5px rgba(0, 0, 0, 0.35), 0 8px 18px rgba(0, 0, 0, 0.40)
 }
 html[data-theme="dark"] .memory-card__back::before {
@@ -837,8 +838,9 @@ html[data-theme="dark"] .memory-head-metrics strong.is-combo {
     color: var(--dm-memory-warning);
     text-shadow: 0 0 13px rgba(0, 0, 0, 0.50)
 }
+/* No frame around Mute / Pause / Leave: the light theme has none either. */
 html[data-theme="dark"] .memory-sidebar-controls {
-    border: 2px solid var(--dm-memory-line)
+    border: 0
 }
 html[data-theme="dark"] .memory-btn {
     border: 2px solid var(--dm-memory-line);
@@ -881,7 +883,7 @@ html[data-theme="dark"] .memory-overlay p {
 }
 html[data-theme="dark"] .memory-loading {
     color: var(--dm-memory-ink);
-    background: radial-gradient(circle at 50% 40%, var(--dm-memory-action), transparent 28rem), linear-gradient(135deg, #0b1d3a, #0f2a52)
+    background: radial-gradient(circle at 50% 40%, var(--dm-memory-action), transparent 28rem), linear-gradient(135deg, var(--dark-bg), var(--dark-surface))
 }
 html[data-theme="dark"] .memory-loading p {
     color: var(--dm-memory-ink)
@@ -1007,7 +1009,9 @@ html[data-theme="dark"] .memory-card__back::before {
     background: radial-gradient(circle at center, transparent 0 22px, var(--dm-memory-action) 23px 25px, transparent 26px)
 }
 html[data-theme="dark"] .memory-card__crest {
-    color: var(--dm-memory-accent)
+    color: var(--dm-memory-accent);
+    /* ❄ renders as a blue colour emoji on Windows, so color alone cannot reach it: shift its hue to the lilac accent. */
+    filter: hue-rotate(80deg) saturate(.75) brightness(1.15)
 }
 html[data-theme="dark"] .memory-card__front {
     background: linear-gradient(145deg,var(--dm-memory-action),var(--dm-memory-action));
@@ -1233,15 +1237,17 @@ html[data-theme="dark"] .memory-setup__count small {
 }
 
 /* Preserve the Snowball Cats scene behind a readable night overlay. */
-html[data-theme="dark"] #memory-root {background:linear-gradient(#0b0d13e8,#0b0d13ed),url('/arena/images/games/snowball-cats-hero.png') center/cover fixed;color:#f8fafc;}
-html[data-theme="dark"] .memory-page {background:#0b0d13;}
-html[data-theme="dark"] :is(.memory-card__content,.memory-btn--primary) {color:#f8fafc;}
-html[data-theme="dark"] .memory-card__front {background:linear-gradient(145deg,#386886,#24485f);}
-html[data-theme="dark"] .memory-card.is-matched .memory-card__front {background:linear-gradient(145deg,#28624f,#204539);}
-html[data-theme="dark"] .memory-btn--primary {background:#7335a6;color:#f8fafc;}
-html[data-theme="dark"] .memory-btn--primary:hover:not(:disabled) {background:#8445b8;color:#f8fafc;}
-html[data-theme="dark"] .memory-setup__options button.is-active {background:#7335a6;color:#f8fafc;}
-html[data-theme="dark"] .memory-dd__list li.is-selected {background:#7335a6;color:#f8fafc;}
+html[data-theme="dark"] #memory-root {background:linear-gradient(color-mix(in srgb, var(--dark-bg) 91%, transparent),color-mix(in srgb, var(--dark-bg) 93%, transparent)),url('/arena/images/games/snowball-cats-hero.png') center/cover fixed;color:var(--dark-ink);}
+html[data-theme="dark"] .memory-page {background:var(--dark-bg);}
+html[data-theme="dark"] .memory-card__content {color:var(--dark-ink);}
+/* Revealed card, plum like the rest of the page; a matched pair turns to the palette's success green. */
+html[data-theme="dark"] .memory-card__front {background:linear-gradient(145deg,var(--dark-soft),var(--dark-raised));}
+html[data-theme="dark"] .memory-card.is-matched .memory-card__front {border-color:var(--dark-success-line);background:linear-gradient(145deg,color-mix(in srgb, var(--dark-success-line) 55%, var(--dark-success-bg)),var(--dark-success-bg));}
+html[data-theme="dark"] .memory-card.is-matched .memory-card__matched {border-color:var(--dark-success-line);background:var(--dark-success-bg);color:var(--dark-success);}
+html[data-theme="dark"] .memory-btn--primary {background:var(--dark-button);color:var(--dark-on-button);}
+html[data-theme="dark"] .memory-btn--primary:hover:not(:disabled) {background:var(--dark-button-hover);color:var(--dark-on-button);}
+html[data-theme="dark"] .memory-setup__options button.is-active {background:var(--dark-button);color:var(--dark-on-button);}
+html[data-theme="dark"] .memory-dd__list li.is-selected {background:var(--dark-button);color:var(--dark-on-button);}
 
 /* Compact mode selection, shared by desktop and phones. */
 .memory-color-choice { min-width: 0; margin: 0; }
@@ -1263,9 +1269,9 @@ html[data-theme="dark"] .memory-dd__list li.is-selected {background:#7335a6;colo
 html[data-theme="dark"] .memory-color-choice select { border-color: var(--dm-memory-line); background: var(--dm-memory-accent-soft); color: var(--dm-memory-accent); color-scheme: dark; }
 html[data-theme="dark"] .memory-color-choice__help { color: var(--dm-memory-muted); }
 html[data-theme="dark"] .memory-setup__card-number { color: var(--dm-memory-muted); }
-html[data-theme="dark"] .memory-setup__cards .memory-setup__card-missing { color: #ffc78c; }
-html[data-theme="dark"] :is(.memory-color-key--question, .memory-card--question) { --card-type-back: #234a68; --card-type-front: #294f6b; --card-type-ink: #e3f3ff; }
-html[data-theme="dark"] :is(.memory-color-key--answer, .memory-card--answer) { --card-type-back: #704321; --card-type-front: #714927; --card-type-ink: #fff0dc; }
+html[data-theme="dark"] .memory-setup__cards .memory-setup__card-missing { color: var(--dark-warning); }
+html[data-theme="dark"] :is(.memory-color-key--question, .memory-card--question) { --card-type-back: var(--dark-selection); --card-type-front: var(--dark-soft); --card-type-ink: var(--dark-ink); }
+html[data-theme="dark"] :is(.memory-color-key--answer, .memory-card--answer) { --card-type-back: color-mix(in srgb, var(--dark-pink-line) 85%, var(--dark-pink-bg)); --card-type-front: var(--dark-pink-bg); --card-type-ink: var(--dark-ink); }
 html[data-theme="dark"] .memory-color-key { background: var(--card-type-back); color: var(--card-type-ink); }
 
 /* Keep the existing desktop controls; disclose them only on phones. */
@@ -1510,3 +1516,10 @@ html:not([data-theme="dark"]) .is-winner .memory-final__pairs strong { color: #b
 }
 html[data-theme="dark"] .memory-final .memory-btn--primary,
 html[data-theme="dark"] .memory-final .memory-btn--primary:hover:not(:disabled) { border-color: var(--mf-gold); background: var(--mf-gold); color: #2b1a00; }
+
+/* Dropdown options that cannot be used: muted, not clickable, with the reason on a second line. */
+.memory-dd__list li.is-disabled { flex-wrap: wrap; align-content: center; padding-block: 6px; color: #8a97a3; cursor: not-allowed; }
+.memory-dd__list li.is-disabled.is-active { background: transparent; }
+.memory-dd__hint { flex-basis: 100%; color: #7a8792; font-size: 11px; font-weight: 500; line-height: 1.3; }
+html[data-theme="dark"] .memory-dd__list li.is-disabled { color: var(--dark-faint); }
+html[data-theme="dark"] .memory-dd__hint { color: var(--dark-faint); }

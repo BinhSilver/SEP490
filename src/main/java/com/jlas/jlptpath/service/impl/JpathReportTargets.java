@@ -80,6 +80,8 @@ public class JpathReportTargets {
     }
 
     /** The target {@code (type, code)}; empty when either is missing or no such row exists. */
+    private static final java.util.regex.Pattern PAGE_KEY = java.util.regex.Pattern.compile("^[a-z0-9-]{1,24}$");
+
     public Optional<JpathReportTargetRef> resolve(JpathReportTarget type, String code) {
         if (type == null || code == null || code.isBlank()) {
             return Optional.empty();
@@ -105,6 +107,10 @@ public class JpathReportTargets {
                     .map(q -> new JpathReportTargetRef(type, code, null, q.getSetCode(),
                             skillSets.findById(q.getSetCode()).map(JpathSkillSet::getLevel).orElse(null),
                             q.isAuthored(), q.isReportHidden()));
+            // F33: a whole page, reported from the floating button; the code is a short page key (a-z, 0-9, -)
+            case PAGE -> PAGE_KEY.matcher(code).matches()
+                    ? Optional.of(new JpathReportTargetRef(type, code, null, null, null, false, false))
+                    : Optional.empty();
         };
     }
 
@@ -157,6 +163,7 @@ public class JpathReportTargets {
             case SKILL_SET -> skillSets.findById(ref.code())
                     .map(s -> s.getPassageJa() != null ? s.getPassageJa() : s.getCode()).orElse("");
             case SKILL_QUESTION -> skillQuestions.findById(ref.code()).map(JpathSkillQuestion::getQuestionJa).orElse("");
+            case PAGE -> "Trang " + ref.code();
         };
         return shorten(text == null ? "" : text);
     }

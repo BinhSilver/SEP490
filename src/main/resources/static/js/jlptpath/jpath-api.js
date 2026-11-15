@@ -14,6 +14,18 @@
   var api = factory(root);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathApi = api;
+  // F34 (owner 10/11): one toast for short Learning messages, drawn by the team's JlasUI.toast (components.js);
+  // returns false when no toast is available so the caller can keep its inline text
+  if (root && !root.JlasToast) {
+    root.JlasToast = {
+      show: function (message, type) {
+        var ui = root.JlasUI;
+        if (!message || !ui || typeof ui.toast !== 'function') return false;
+        ui.toast(message, type || 'success');
+        return true;
+      }
+    };
+  }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
@@ -21,7 +33,42 @@
   var MSG_NETWORK = 'Không kết nối được máy chủ. Thử lại sau.';
   var MSG_UNAUTHORIZED = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
 
+  // [JLAS-W0108] A5: one shared notice when the server cannot be reached or fails (5xx), so no page is left blank.
+  var NOTICE_ID = 'jp-net-notice';
+  function showNotice(text) {
+    var doc = root && root.document;
+    if (!doc || !doc.body) return;
+    var el = doc.getElementById(NOTICE_ID);
+    if (!el) {
+      el = doc.createElement('div');
+      el.id = NOTICE_ID;
+      el.className = 'jp-net-notice';
+      el.setAttribute('role', 'alert');
+      el.innerHTML = '<span class="jp-net-notice__text"></span>'
+        + '<button type="button" class="jp-net-notice__retry">Thử lại</button>'
+        + '<button type="button" class="jp-net-notice__close" aria-label="Đóng">×</button>';
+      el.querySelector('.jp-net-notice__retry').addEventListener('click', function () { root.location.reload(); });
+      el.querySelector('.jp-net-notice__close').addEventListener('click', function () { el.hidden = true; });
+      doc.body.appendChild(el);
+    }
+    el.querySelector('.jp-net-notice__text').textContent = text;
+    el.hidden = false;
+  }
+  function hideNotice() {
+    var el = root && root.document && root.document.getElementById(NOTICE_ID);
+    if (el) el.hidden = true;
+  }
+  if (root && root.addEventListener) {
+    root.addEventListener('offline', function () { showNotice('Mất kết nối mạng. Tiến độ sẽ lưu khi có mạng lại.'); });
+    root.addEventListener('online', hideNotice);
+  }
+
+  // [JLAS-W0108] F82: an outside service that is down (AI key, base set not installed) is explained where it is used.
+  var QUIET_CODES = ['EXTERNAL_SERVICE_ERROR', 'SERVICE_UNAVAILABLE', 'CPATH_CORE_UNAVAILABLE'];
+
   function failure(code, message, status) {
+    if (code === 'NETWORK') showNotice(MSG_NETWORK);
+    else if (status >= 500 && QUIET_CODES.indexOf(code) < 0) showNotice(MSG_BUSY);
     var error = new Error(message);
     error.code = code;
     error.status = status;
@@ -70,6 +117,7 @@
     if (envelope.success === false || status < 200 || status >= 300) {
       throw failure(envelope.code || 'HTTP_' + status, message || MSG_BUSY, status);
     }
+    hideNotice();
     return envelope.data === undefined || envelope.data === null ? null : envelope.data;
   }
 

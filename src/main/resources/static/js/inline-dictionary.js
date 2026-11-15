@@ -13,6 +13,36 @@
   var requestNumber = 0;
   // "Không hỏi lại hôm nay" (js/components/cp-auto-pay.js).
   var AUTO_PAY = 'quickLookup';
+  var skipConfirmMemory = {};
+
+  function skipConfirmKey() {
+    var auth = typeof window !== 'undefined' ? window.JlasAuth : null;
+    var user = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+    var uid = user ? (user.id || user.userId || 'me') : 'me';
+    return 'jlas_buy_confirm_skip_' + uid + '_quickLookup';
+  }
+
+  function isSkipConfirm() {
+    var k = skipConfirmKey();
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return window.localStorage.getItem(k) === '1';
+      }
+    } catch (ignored) { /* memory fallback */ }
+    return skipConfirmMemory[k] === '1';
+  }
+
+  function setSkipConfirm(skip) {
+    var k = skipConfirmKey();
+    var val = skip ? '1' : '0';
+    skipConfirmMemory[k] = val;
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        if (skip) window.localStorage.setItem(k, '1');
+        else window.localStorage.removeItem(k);
+      }
+    } catch (ignored) { /* memory fallback */ }
+  }
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -91,22 +121,38 @@
     var price = allowance.packPrice;
     var balance = allowance.creditBalance;
     var enough = balance >= price;
+    var skip = isSkipConfirm();
     var detail = enough
       ? 'Mua ' + allowance.packLookups + ' lượt tra: <strong>' + price + ' CP</strong>. Số dư: ' + balance + ' CP → ' + (balance - price) + ' CP.'
       : 'Mua ' + allowance.packLookups + ' lượt tra cần ' + price + ' CP. Bạn có ' + balance + ' CP, còn thiếu <strong>' + (price - balance) + ' CP</strong>.';
     var buy = enough
-      ? '<button type="button" data-inline-buy>Mua ' + allowance.packLookups + ' lượt (' + price + ' CP)</button>'
+      ? '<button type="button" data-inline-buy data-price="' + escapeHtml(price) + '" data-balance="' + escapeHtml(balance)
+        + '" data-lookups="' + escapeHtml(allowance.packLookups) + '">Mua ' + allowance.packLookups + ' lượt (' + price + ' CP)</button>'
       : '<a href="/credits">Nạp CP</a>';
     var auto = typeof window !== 'undefined' ? window.JlasCpAutoPay : null;
     var capNote = auto && auto.capReached(AUTO_PAY)
       ? '<p class="inline-dict__hint">Đã tự dùng đủ ' + auto.DAILY_CAP + ' CP hôm nay nên cần xác nhận lại.</p>' : '';
+    var skipHint = enough && skip
+      ? '<p class="inline-dict__hint" data-inline-skip-note>Mua 1 chạm đang bật · <button type="button" class="inline-dict__link-btn" data-inline-reset-confirm>Hỏi lại khi mua</button></p>'
+      : '';
+    var confirmBox = enough
+      ? '<div class="inline-dict__confirm" data-inline-confirm-box hidden>'
+        + '<p>Xác nhận dùng <strong>' + price + ' CP</strong> mua ' + allowance.packLookups + ' lượt tra từ? (Còn lại: ' + (balance - price) + ' CP)</p>'
+        + '<label class="inline-dict__auto"><input type="checkbox" data-inline-skip-confirm> Không hỏi lại lần sau (chỉ cần bấm Mua là xong)</label>'
+        + '<div class="inline-dict__actions">'
+        + '<button type="button" data-inline-confirm-yes>Xác nhận mua</button>'
+        + '<button type="button" class="inline-dict__notebook-btn" data-inline-confirm-no>Hủy</button>'
+        + '</div></div>'
+      : '';
     var autoOption = auto && enough
       ? '<label class="inline-dict__auto"><input type="checkbox" data-inline-auto> Không hỏi lại hôm nay (tự mua khi hết lượt, tối đa '
         + auto.DAILY_CAP + ' CP/ngày)</label>' : '';
     return '<div class="inline-dict__paywall"><strong>Bạn đã hết lượt tra từ nhanh</strong><p>' + detail + '</p>' + capNote +
-      '<p class="inline-dict__hint">Tài khoản Pro tra từ không giới hạn. Tra lại một từ trong cùng ngày không tốn lượt.</p></div>' +
+      '<p class="inline-dict__hint">Tài khoản thường có 1 lượt dùng thử đầu tiên; tài khoản Pro tra từ không giới hạn. Tra lại cùng từ trong ngày không tốn lượt.</p>' +
+      skipHint + '</div>' +
+      confirmBox +
       autoOption +
-      '<div class="inline-dict__actions">' + buy + '<a href="/premium">Nâng cấp Pro</a></div>' +
+      '<div class="inline-dict__actions" data-inline-main-actions>' + buy + '<a href="/premium">Nâng cấp Pro</a></div>' +
       '<p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 
@@ -122,6 +168,30 @@
     popup.tabIndex = -1;
     document.body.appendChild(popup);
     popup.addEventListener('click', function (event) {
+      var resetConfirmBtn = event.target.closest('[data-inline-reset-confirm]');
+      if (resetConfirmBtn) {
+        setSkipConfirm(false);
+        var note = popup.querySelector('[data-inline-skip-note]');
+        if (note) note.remove();
+        var st = popup.querySelector('.inline-dict__status');
+        if (st) st.textContent = 'Đã bật lại bước xác nhận trước khi mua.';
+        return;
+      }
+      var confirmYes = event.target.closest('[data-inline-confirm-yes]');
+      if (confirmYes) {
+        var skipBox = popup.querySelector('[data-inline-skip-confirm]');
+        if (skipBox && skipBox.checked) setSkipConfirm(true);
+        executeBuyPack(confirmYes);
+        return;
+      }
+      var confirmNo = event.target.closest('[data-inline-confirm-no]');
+      if (confirmNo) {
+        var cBox = popup.querySelector('[data-inline-confirm-box]');
+        var mAct = popup.querySelector('[data-inline-main-actions]');
+        if (cBox) cBox.hidden = true;
+        if (mAct) mAct.hidden = false;
+        return;
+      }
       var buyButton = event.target.closest('[data-inline-buy]');
       if (buyButton) { buyPack(buyButton); return; }
       var notebookButton = event.target.closest('[data-inline-notebook-open]');
@@ -348,7 +418,20 @@
     }
   }
 
-  async function buyPack(button) {
+  function buyPack(button) {
+    if (!isSkipConfirm()) {
+      var confirmBox = popup && popup.querySelector('[data-inline-confirm-box]');
+      var mainActions = popup && popup.querySelector('[data-inline-main-actions]');
+      if (confirmBox) {
+        confirmBox.hidden = false;
+        if (mainActions) mainActions.hidden = true;
+        return;
+      }
+    }
+    executeBuyPack(button);
+  }
+
+  async function executeBuyPack(button) {
     var status = popup.querySelector('.inline-dict__status');
     var autoBox = popup.querySelector('[data-inline-auto]');
     var auto = window.JlasCpAutoPay;
@@ -401,5 +484,6 @@
   }
 
   return { escapeHtml: escapeHtml, normalizeSelection: normalizeSelection, rangeText: rangeText, isEligibleNode: isEligibleNode,
-    popupMarkup: popupMarkup, paywallMarkup: paywallMarkup, saveButtonMarkup: saveButtonMarkup, syncSaved: syncSaved, setSaved: setSaved, mount: mount };
+    popupMarkup: popupMarkup, paywallMarkup: paywallMarkup, saveButtonMarkup: saveButtonMarkup, syncSaved: syncSaved,
+    setSaved: setSaved, isSkipConfirm: isSkipConfirm, setSkipConfirm: setSkipConfirm, mount: mount };
 });

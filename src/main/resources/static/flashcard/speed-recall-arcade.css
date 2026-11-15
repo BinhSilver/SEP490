@@ -593,3 +593,18 @@ html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-fil
   #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__help { padding-top: 12px; }
   #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__segments button { min-width: 0; overflow-wrap: anywhere; }
 }
+
+/* Dark: no light "clay lip" under the boxes. Those 2–5px bands are lilac on white, but on the plum page they read
+   as white underlines (play card, timer, letter slots, answer box, result stats, review rows). Soft shadows stay. */
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing { box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22); }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-correct,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li { box-shadow: none; }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-active { box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+/* The answer box is an input: palette input fill and border (it was the old navy flashcard surface). */
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer { background: var(--dark-input); border-color: var(--dark-input-line); }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slots.is-free.is-mistake .sr-free-answer { border-color: var(--dark-danger-line); }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer { background: var(--dark-surface); border-color: var(--dark-line); }

@@ -12,8 +12,8 @@
     <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
     <link rel="stylesheet" th:href="@{/css/components/reward-fx.css?v=20260926y}" />
-    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261105-plum}" />
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261114-bonus-cards}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -22,13 +22,14 @@
     <main id="jlabBaseContent">
         <div id="goalsApp" class="gp">
             <h1 class="sr-only">Mục tiêu &amp; Chuỗi ngày</h1>
-            <div id="retentionLoading" class="gp-loading" hidden>
+            <!-- Only the loader shows until the dashboard and the credit history are both in; then the page appears at once. -->
+            <div id="retentionLoading" class="gp-loading" role="status">
                 <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
                 <span>Đang tải mục tiêu của bạn...</span>
             </div>
             <div id="retentionError" class="alert alert--danger" hidden></div>
 
-            <div id="retentionContent" class="gp-grid">
+            <div id="retentionContent" class="gp-grid" hidden>
                 <article id="dailyProgressCard" class="gp-card gp-today">
                     <div class="gp-card__head">
                         <div class="gp-card__title">
@@ -115,14 +116,84 @@
                         <b class="gp-chip" id="missionSummary">0/4</b>
                     </div>
                     <div id="dailyMissionList" class="gp-mission-list" aria-live="polite"></div>
-                    <a class="gp-kana-entry" th:href="@{/kana-connect}">
-                        <span class="gp-kana-entry__icon" aria-hidden="true">かな</span>
-                        <span class="gp-kana-entry__text">
-                            <b>Thử thách hằng ngày · Kana Connect</b>
-                            <small>Nối kana tìm 8+ từ, đua top cùng mọi người</small>
-                        </span>
-                        <span class="gp-kana-entry__cta">Chơi</span>
-                    </a>
+                    <!-- Bonus CP lives in a dialog so this card keeps the height of the column beside it. -->
+                    <button type="button" id="openBonusBtn" class="gp-bonus-open" aria-haspopup="dialog" aria-controls="bonusDialog">
+                        <span class="gp-bonus-open__icon"><i class="fa-solid fa-star" aria-hidden="true"></i></span>
+                        <span class="gp-bonus-open__text"><b>Thưởng thêm</b><small id="bonusSummary">Nhiệm vụ Shadowing và các nguồn CP khác</small></span>
+                        <span id="bonusReady" class="gp-bonus-open__ready" hidden>Có thưởng chờ nhận</span>
+                        <i class="fa-solid fa-chevron-right gp-bonus-open__go" aria-hidden="true"></i>
+                    </button>
+                    <dialog id="bonusDialog" class="gp-dialog" aria-labelledby="bonusDialogTitle">
+                        <div class="gp-bonus">
+                            <header class="gp-dialog__head">
+                                <div>
+                                    <h2 id="bonusDialogTitle">Thưởng thêm</h2>
+                                    <p>Cách nhận thêm CP ngoài 3 nhiệm vụ hằng ngày.</p>
+                                </div>
+                                <button type="button" class="gp-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                            </header>
+                            <section class="gp-bonus__group" aria-labelledby="bonusMissionTitle">
+                                <h3 id="bonusMissionTitle">Nhiệm vụ thưởng</h3>
+                                <div id="bonusMissionList" class="gp-mission-list gp-mission-list--bonus" aria-live="polite"></div>
+                            </section>
+                            <section class="gp-bonus__group" aria-labelledby="bonusSourcesTitle">
+                                <h3 id="bonusSourcesTitle">Nguồn CP khác trong ngày</h3>
+                                <div class="gp-mission-list gp-bonus__sources">
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-violet); --m-soft: var(--gp-violet-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-bullseye" aria-hidden="true"></i></div>
+                                        <div><h3>Đạt mục tiêu ngày</h3><p>Đủ từ mới, trắc nghiệm và thời lượng học</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+<span id="bonusGoalReward">5</span> CP</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-blue); --m-soft: var(--gp-blue-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-book-open-reader" aria-hidden="true"></i></div>
+                                        <div><h3>Hoàn thành bài trong lộ trình học</h3><p>Mỗi bài học xong trọn vẹn</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+10 CP / bài</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-violet); --m-soft: var(--gp-violet-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-route" aria-hidden="true"></i></div>
+                                        <div><h3>Lộ trình JLPT</h3><p>Ngày học, kỹ năng, ôn tập</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+1 → +2 CP</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-orange); --m-soft: var(--gp-orange-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-medal" aria-hidden="true"></i></div>
+                                        <div><h3>Huy hiệu lộ trình JLPT</h3><p>Mỗi huy hiệu mới đạt được</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+5 CP</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-green); --m-soft: var(--gp-green-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i></div>
+                                        <div><h3>Đỗ bài thi thử JLPT</h3><p>Đạt bài thi thử của một cấp độ</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+20 CP</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-pink); --m-soft: var(--gp-pink-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
+                                        <div><h3>Lộ trình Giao tiếp</h3><p>Mỗi tình huống, ngày học, tuần học</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+2 CP</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-pink); --m-soft: var(--gp-pink-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-flag-checkered" aria-hidden="true"></i></div>
+                                        <div><h3>Xong một chủ đề Giao tiếp</h3><p>Hoàn thành mọi tình huống của chủ đề</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+5 CP</span></div>
+                                    </article>
+                                </div>
+                                <p id="bonusCap" class="gp-bonus__cap" hidden></p>
+                            </section>
+                            <section class="gp-bonus__group" aria-labelledby="bonusFreeTitle">
+                                <h3 id="bonusFreeTitle">Không tính vào giới hạn ngày</h3>
+                                <div class="gp-mission-list gp-bonus__sources">
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-orange); --m-soft: var(--gp-orange-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-fire" aria-hidden="true"></i></div>
+                                        <div><h3>Mốc chuỗi 3 / 7 / 15 / 30 ngày</h3><p>Mỗi mốc nhận một lần</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+20 → +100 CP</span></div>
+                                    </article>
+                                    <article class="retention-mission gp-bonus-source" style="--m-color: var(--gp-blue); --m-soft: var(--gp-blue-soft);">
+                                        <div class="retention-mission__icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+                                        <div><h3>Thẻ bảo vệ chuỗi</h3><p>Tặng từ mốc 7 ngày, giữ tối đa 2 thẻ</p></div>
+                                        <div class="retention-mission__action"><span class="gp-bonus-source__reward">+1 thẻ</span></div>
+                                    </article>
+                                </div>
+                            </section>
+                        </div>
+                    </dialog>
                     <p class="gp-card__foot"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Nhiệm vụ mới mỗi ngày lúc 00:00</p>
                 </article>
 
@@ -136,15 +207,6 @@
                     <div class="gp-history__scroll">
                         <ol id="creditHistoryList" class="goals-credit-history" aria-live="polite"></ol>
                     </div>
-                    <div class="gp-earn" aria-labelledby="earnTitle">
-                        <h3 id="earnTitle"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Cách nhận thêm CP</h3>
-                        <ul class="gp-earn__list">
-                            <li><i class="fa-solid fa-bullseye" aria-hidden="true"></i><span>Mục tiêu ngày <b>+10 CP</b></span></li>
-                            <li><i class="fa-solid fa-gift" aria-hidden="true"></i><span>Nhiệm vụ <b>tới +45 CP</b></span></li>
-                            <li><i class="fa-solid fa-fire" aria-hidden="true"></i><span>Mốc chuỗi <b>+20 → +100 CP</b></span></li>
-                            <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Thẻ bảo vệ <b>50 CP / thẻ</b></span></li>
-                        </ul>
-                    </div>
                 </section>
             </div>
         </div>
@@ -155,6 +217,7 @@
                     <div>
                         <h2 id="targetDialogTitle">Mục tiêu mỗi ngày</h2>
                         <p>Đạt đủ cả 3 chỉ tiêu để nhận thưởng CP và giữ chuỗi.</p>
+                        <p>Học trên lộ trình JLPT và lộ trình Giao tiếp đều được tính: từ/chữ mới, bài kiểm tra và thời gian học.</p>
                     </div>
                     <button type="button" class="gp-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </header>
@@ -201,7 +264,7 @@
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/jlab-base-shell.js}"></script>
     <script th:src="@{/js/components/reward-fx.js?v=20260927c}"></script>
-    <script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
+    <script th:src="@{/js/pages/profile-retention.js?v=20261114-load-once}"></script>
     <script th:src="@{/js/pages/mission-demo-panel.js?v=20260926k}"></script>
     <script>
         (function () {

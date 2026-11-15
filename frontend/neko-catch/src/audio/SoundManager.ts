@@ -125,10 +125,10 @@ export class SoundManager {
     return this.audioCtx;
   }
 
-  private playClone(baseAudio: HTMLAudioElement, factor: number) {
+  private playClone(baseAudio: HTMLAudioElement, factor: number, offsetSeconds = 0) {
     const clone = baseAudio.cloneNode() as HTMLAudioElement;
     clone.volume = this.config.sfxVolume * factor;
-    if (factor === 1) clone.currentTime = 0;
+    if (factor === 1) clone.currentTime = offsetSeconds;
     this.activeClones.add(clone);
     const release = () => this.activeClones.delete(clone);
     clone.addEventListener('ended', release, { once: true });
@@ -394,6 +394,15 @@ export class SoundManager {
         // Metadata not loaded yet; nothing to rewind.
       }
     }
+  }
+
+  /** The 3-2-1 countdown sound, started `offsetSeconds` in so it stays in step with the number shown. */
+  public playCountdown(offsetSeconds = 0) {
+    if (this.config.muted || this.disposed) return;
+    const baseAudio = this.sounds.get('countdown');
+    if (!baseAudio) return;
+    if (Number.isFinite(baseAudio.duration) && offsetSeconds >= baseAudio.duration) return;
+    this.playClone(baseAudio, 1, offsetSeconds);
   }
 
   public playSFX(key: string) {

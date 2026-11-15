@@ -25,6 +25,9 @@ public class AiLookupService {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1/chat/completions}")
     private String apiUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.model:google/gemma-3-27b-it:free}")
     private String model;
 
@@ -182,7 +185,7 @@ public class AiLookupService {
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.APPLICATION_JSON);
         h.setBearerAuth(apiKey.trim());
-        h.set("HTTP-Referer", "http://localhost:8080");
+        h.set("HTTP-Referer", siteUrl);
         h.set("X-Title", "Japanese Flashcard");
 
         try {

@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, exception) ->
                                 handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/dev/**").hasRole("ADMIN")
                         // Arena SSE completes through an async dispatch of an authenticated request.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/kanji-map", "/api/admin/kanji-map/**").hasRole("CONTENT_CREATOR")

@@ -23,7 +23,7 @@
   var TAB = { KANA: 'Chữ cái', VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', SKILL: 'Đọc · Nghe' };
   var CHECK = {
     MICRO_CHECK: 'Micro-check', GROUP_EXERCISE: 'Bài tập nhóm', SKIP_ONE: 'Kiểm 1 câu', TOPIC_KNOWN: 'Kiểm chủ đề',
-    FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt chữ dễ nhầm', KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay',
+    FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt dễ nhầm', KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay',
     GRAMMAR_EXTRA: 'Luyện thêm', GRAMMAR_REVIEW: 'Ôn ngữ pháp', SKILL_LESSON: 'Bài chiến thuật',
     SKILL_PRACTICE: 'Luyện kỹ năng', SKILL_DICTATION: 'Chép chính tả', SKILL_SECTION: 'Luyện phần thi',
     WEEK_KNOWN: 'Kiểm bỏ qua tuần'

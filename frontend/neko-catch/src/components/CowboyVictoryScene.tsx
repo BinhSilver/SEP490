@@ -17,7 +17,8 @@ export function CowboyVictoryScene({ forceMotion = false }: { forceMotion?: bool
     if (!video) return;
     let disposed = false;
     let started = false;
-    const reduced = !forceMotion && take === 0 && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Animations always play, whatever the device's reduced-motion setting (project rule).
+    const reduced = false;
     setMotionSuppressed(reduced);
     setStatus('loading');
     resumeRef.current = false;

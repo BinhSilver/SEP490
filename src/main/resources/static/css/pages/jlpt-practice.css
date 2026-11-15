@@ -335,3 +335,57 @@ html[data-theme="dark"] .jlpt-practice-page .jlpt-practice-choice:has(input:focu
   outline-color: var(--practice);
 }
 html[data-theme="dark"] .jlpt-practice-page ::selection { background: var(--dark-selection); color: var(--color-on-surface); }
+
+.jlpt-practice-setup > footer { flex-wrap: wrap; }
+.jp-question-count {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.jp-question-count legend {
+    margin-bottom: 8px;
+    padding: 0;
+    color: var(--color-on-surface-variant);
+    font-size: 12px;
+    font-weight: 600;
+}
+.jp-question-count__options {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--color-surface);
+}
+.jlpt-practice-setup > footer .jp-question-count label {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+.jp-question-count input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+}
+.jp-question-count span {
+    display: grid;
+    place-items: center;
+    min-width: 42px;
+    min-height: 36px;
+    border-radius: 9px;
+    color: var(--color-on-surface);
+    font-size: 13px;
+    font-weight: 600;
+}
+.jp-question-count label:hover span { background: var(--color-surface-container); }
+.jp-question-count input:checked + span { background: var(--practice); color: #fff; }
+.jp-question-count input:focus-visible + span { outline: 2px solid var(--practice); outline-offset: 2px; }
+@media (max-width: 600px) {
+    .jp-question-count { width: 100%; }
+    .jp-question-count__options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .jlpt-practice-setup > footer > button { width: 100%; justify-content: center; }
+}

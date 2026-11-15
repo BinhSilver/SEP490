@@ -55,9 +55,8 @@
     homeLink: 'jlabBaseHomeLink',
     homeIcon: 'jlabBaseHomeIcon',
     homeLabel: 'jlabBaseHomeLabel',
-    learningPathLink: 'jlabBaseLearningPathLink',
-    learningPathIcon: 'jlabBaseLearningPathIcon',
-    learningPathLabel: 'jlabBaseLearningPathLabel',
+    onyomiItem: 'jlabBaseOnyomiItem',
+    onyomiIcon: 'jlabBaseOnyomiIcon',
     textbooksLink: 'jlabBaseTextbooksLink',
     textbooksIcon: 'jlabBaseTextbooksIcon',
     textbooksLabel: 'jlabBaseTextbooksLabel',
@@ -251,7 +250,7 @@
 
   function replaceShellIcons() {
     replaceIcon(ids.homeIcon, 'home');
-    replaceIcon(ids.learningPathIcon, 'route');
+    replaceIcon(ids.onyomiIcon, 'route');
     replaceIcon(ids.textbooksIcon, 'book');
     replaceIcon(ids.lookupIcon, 'search');
     replaceIcon(ids.gameIcon, 'game');
@@ -297,9 +296,6 @@
             '<a id="' + ids.homeLink + '" href="/" title="Trang chủ KotsuKotsu">' +
               '<i id="' + ids.homeIcon + '" aria-hidden="true"></i><span id="' + ids.homeLabel + '">Trang ch\u1ee7</span>' +
             '</a>' +
-            '<a id="' + ids.learningPathLink + '" href="/learning/onyomi" title="Lộ trình Hán Việt → On">' +
-              '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
-            '</a>' +
             '<a id="' + ids.textbooksLink + '" href="/textbooks" title="Giáo trình số hoá theo cấp độ">' +
               '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
             '</a>' +
@@ -311,6 +307,7 @@
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
+                '<a id="' + ids.onyomiItem + '" class="dropdown__item" href="/learning/onyomi" role="menuitem"><i id="' + ids.onyomiIcon + '" aria-hidden="true"></i><span>Onyomi</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
                 '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
                 '<a id="jlabBaseVerbPracticeLink" class="dropdown__item" href="/practice/verbs" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
@@ -325,7 +322,7 @@
               '<div id="' + ids.testBuilderMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
-                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
+                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span>Soạn đề Smart Test</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
@@ -488,7 +485,7 @@
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.textbooksLink, isTextbooks);
-    markCurrent(ids.learningPathLink, isOnyomi);
+    markCurrent(ids.onyomiItem, isOnyomi);
     markCurrent(ids.lookupLink, isDictionary);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.communityLink, isCommunity);
@@ -517,7 +514,7 @@
     }
     markCurrent('jlabBaseVerbPracticeLink', path === '/practice/verbs');
     markCurrent('jlabBaseKanjiMapLink', isKanjiMap);
-    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice || path === "/practice/verbs" || isKanjiMap);
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isOnyomi || isJlpt || isJlptPractice || path === "/practice/verbs" || isKanjiMap);
   }
 
   function fallbackUser() {
@@ -1057,7 +1054,7 @@
         bottomNav.insertBefore(byId(ids.gameLink), byId(ids.bottomAccountButton));
         bottomNav.insertBefore(byId(ids.textbooksLink), byId(ids.bottomAccountButton));
       } else {
-        nav.insertBefore(byId(ids.homeLink), byId(ids.learningPathLink));
+        nav.insertBefore(byId(ids.homeLink), byId(ids.examsWrapper));
         nav.insertBefore(byId(ids.textbooksLink), byId(ids.examsWrapper));
         nav.insertBefore(byId(ids.gameLink), byId(ids.toolsWrapper));
       }
@@ -1078,7 +1075,7 @@
       var willOpen = !state.mobileNavOpen;
       closeAllMenus();
       setMobileNavigation(willOpen);
-      if (state.mobileNavOpen) byId(ids.learningPathLink).focus();
+      if (state.mobileNavOpen) byId(ids.examsButton).focus();
     });
     nav.addEventListener('click', function (event) {
       var link = event.target.closest('a[href]');
