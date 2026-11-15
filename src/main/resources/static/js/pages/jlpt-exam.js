@@ -112,20 +112,18 @@
     return wrapper.innerHTML;
   }
 
+  function transcriptWithoutSpeaker(value) {
+    return String(value || '').replace(/^\s*(?:narrator|man|woman|người dẫn|nam|nữ|ナレーター|男|女)\s*\d*\s*[:：]\s*/i, '');
+  }
+
   function transcriptTextHtml(value) {
     return String(value || '').split(/\r?\n/).map(function (line) {
-      var match = line.match(/^\s*(narrator|man|woman|người dẫn|nam|nữ|ナレーター|男|女)(\d*)\s*[:：]\s*/i);
-      if (!match) return safeHtml(line);
-      var role = match[1].toLowerCase();
-      var label = role === 'narrator' || role === 'người dẫn' || role === 'ナレーター' ? 'ナレーター'
-        : role === 'man' || role === 'nam' || role === '男' ? '男' : '女';
-      return '<span class="jlpt-exam-speaker">' + label + (match[2] ? ' ' + match[2] : '') + ':</span> ' +
-        safeHtml(line.slice(match[0].length));
+      return safeHtml(transcriptWithoutSpeaker(line));
     }).join('<br>');
   }
 
   function transcriptTurns(value) {
-    var speaker = /^\s*(?:narrator|man|woman|người dẫn|nam|nữ|ナレーター|男|女)\d*\s*[:：]/i;
+    var speaker = /^\s*(?:narrator|man|woman|người dẫn|nam|nữ|ナレーター|男|女)\s*\d*\s*[:：]/i;
     return String(value || '').split(/\r?\n/).reduce(function (turns, line) {
       var clean = line.trim();
       if (!clean) return turns;
@@ -146,7 +144,7 @@
       var vietnameseLine = vietnameseLines[index] || '';
       rows.push('<span class="jlpt-exam-transcript-line">' +
         (japaneseLine ? transcriptTextHtml(japaneseLine) : '') +
-        (vietnameseLine ? '<small lang="vi">' + esc(vietnameseLine) + '</small>' : '') + '</span>');
+        (vietnameseLine ? '<small lang="vi">' + esc(transcriptWithoutSpeaker(vietnameseLine)) + '</small>' : '') + '</span>');
     }
     return rows.join('');
   }
