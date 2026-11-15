@@ -76,11 +76,13 @@
     return Math.floor((now || Date.now()) / 86400000);
   }
 
-  /** Up to {@code max} words starting at the day's offset; empty or bad input gives the fixed words. */
+  /**
+   * The words starting at the day's offset (all of them, or up to {@code max}); empty or bad input gives the fixed words.
+   */
   function pickWords(items, now, max) {
     var list = (Array.isArray(items) ? items : []).filter(function (x) { return x && x.expression; });
     if (!list.length) return FALLBACK.slice();
-    var n = Math.min(max || 5, list.length);
+    var n = max ? Math.min(max, list.length) : list.length;
     var start = dayIndex(now) % list.length;
     var out = [];
     for (var i = 0; i < n; i++) out.push(list[(start + i) % list.length]);
@@ -94,12 +96,18 @@
     return source === 'NEW' && level ? 'Từ mới cấp ' + level : t;
   }
 
-  function cardHtml(word, title, kind) {
+  /** F166: "Học từ này" opens the vocabulary tab of the path filtered to this word (or the dictionary without a path). */
+  function learnHref(word, kind) {
     var w = word || {};
-    var link = kind === 'QUICK'
-      ? '<a class="hwd-card__learn" href="/search/word/' + encodeURIComponent(w.expression || '') + '">Tra từ này ↗</a>'
-      : '<a class="hwd-card__learn" href="/learning">Học từ này ↗</a>';
-    return '<div class="hwd-card__eyebrow">' + esc(title) + '</div>'
+    if (kind === 'QUICK' || !w.expression) return '/search/word/' + encodeURIComponent(w.expression || '');
+    return '/learning?tab=vocab&q=' + encodeURIComponent(w.expression);
+  }
+
+  function cardHtml(word, title, kind, count) {
+    var w = word || {};
+    var link = '<a class="hwd-card__learn" href="' + esc(learnHref(w, kind)) + '">'
+      + (kind === 'QUICK' ? 'Tra từ này ↗' : 'Học từ này ↗') + '</a>';
+    return '<div class="hwd-card__eyebrow">' + esc(title) + (count ? ' <span class="hwd-card__count">· ' + esc(count) + '</span>' : '') + '</div>'
       + '<span class="hwd-card__spark" aria-hidden="true">✦</span>'
       + '<div class="hwd-card__face">'
       + '<div class="hwd-card__word" lang="ja">' + esc(w.expression) + '</div>'
@@ -168,36 +176,72 @@
   }
 
   function itemsOf(page) { return (page && page.items) || []; }
+  var state0 = { level: null, path: null, day: null };
+
+  /** The path call is made once per page view (F166: changing the source used to wait for it again). */
+  function loadPath() {
+    if (!state0.path) {
+      state0.path = getJson(BASE + '/path').catch(function (e) { state0.path = null; throw e; });
+    }
+    return state0.path;
+  }
+
+  var DAY_DEFAULT = 5;
+  /**
+   * F166 (owner 15/11): the card shows as many words as today's study day asks for (the VOCAB new-word target of
+   * {@code GET /today}), not the whole list; 5 when the day has no target or the call fails.
+   */
+  function dayCount(today) {
+    var tabs = (today && today.tabs) || [];
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i] && tabs[i].tab === 'VOCAB') {
+        var n = Number(tabs[i].newTarget) || 0;
+        return n > 0 ? n : DAY_DEFAULT;
+      }
+    }
+    return DAY_DEFAULT;
+  }
+
+  function loadDayCount() {
+    if (!state0.day) {
+      state0.day = getJson(BASE + '/today').then(dayCount, function () { return DAY_DEFAULT; });
+    }
+    return state0.day;
+  }
 
   /**
-   * Resolves to {words, kind} for {@code source}: REVIEW = words being learned at the open level, NOTEBOOK = the
-   * learner's starred words, NEW = not-yet-learned words of the open level, AUTO = REVIEW else NEW. An empty choice
-   * falls back to the level's list; a guest or a failed call gets the fixed starter words (kind START).
+   * Resolves to {words, kind, total, more} for {@code source}: REVIEW = words being learned at the open level,
+   * NOTEBOOK = the learner's starred words, NEW = not-yet-learned words of the open level, AUTO = REVIEW else NEW.
+   * An empty choice falls back to the level's list; a guest or a failed call gets the fixed starter words (QUICK).
+   * The number of words is today's study count ({@link dayCount}); {@code more} stays for a later paged source.
    */
-  var state0 = { level: null };
-
   function loadWords(source) {
-    return getJson(BASE + '/path').then(function (path) {
+    return loadPath().then(function (path) {
       var level = (path && path.openLevel) || 'N5';
       state0.level = level;
       var url = BASE + '/lists/vocabulary?level=' + encodeURIComponent(level);
-      function pick(kind, req) {
-        return req.then(function (page) {
-          var items = itemsOf(page);
-          return items.length ? { words: pickWords(items, null, 5), kind: kind } : null;
+      function pick(kind, listUrl) {
+        return Promise.all([getJson(listUrl), loadDayCount()]).then(function (res) {
+          var items = itemsOf(res[0]);
+          if (!items.length) return null;
+          var words = pickWords(items, null, res[1]);
+          return { words: words, kind: kind, total: words.length, more: null };
         });
       }
-      function review() { return pick('REVIEW', getJson(url + '&state=LEARNING')); }
-      function fresh() { return pick('NEW', getJson(url + '&state=NEW')); }
+      function review() { return pick('REVIEW', url + '&state=LEARNING'); }
+      function fresh() { return pick('NEW', url + '&state=NEW'); }
       var chain;
       if (source === 'REVIEW') chain = review();
-      else if (source === 'NOTEBOOK') chain = pick('NOTEBOOK', getJson(BASE + '/notebook?tab=VOCAB'));
+      else if (source === 'NOTEBOOK') chain = pick('NOTEBOOK', BASE + '/notebook?tab=VOCAB');
       else if (source === 'NEW') chain = fresh();
       else chain = review().then(function (r) { return r || fresh(); });
       return chain.then(function (r) {
-        return r || getJson(url).then(function (all) { return { words: pickWords(itemsOf(all), null, 5), kind: source && source !== 'AUTO' ? 'EMPTY_' + source : 'START' }; });
+        if (r) return r;
+        return pick(source && source !== 'AUTO' ? 'EMPTY_' + source : 'START', url).then(function (all) {
+          return all || { words: FALLBACK.slice(), kind: 'QUICK', total: FALLBACK.length, more: null };
+        });
       });
-    }).catch(function () { return { words: pickWords(FALLBACK, null, FALLBACK.length), kind: 'QUICK' }; });
+    }).catch(function () { return { words: pickWords(FALLBACK, null), kind: 'QUICK', total: FALLBACK.length, more: null }; });
   }
 
   var mounted = false;
@@ -219,7 +263,7 @@
     var toggle = box.querySelector('[data-hwd="toggle"]');
     var menu = box.querySelector('.hwd-menu');
     var more = box.querySelector('[data-hwd="menu"]');
-    var state = { words: FALLBACK.slice(), kind: 'START', i: 0, source: readSource() };
+    var state = { words: FALLBACK.slice(), kind: 'START', i: 0, total: 0, more: null, source: readSource() };
     var auth = root.JlasAuth;
     if (!(auth && auth.isLoggedIn && auth.isLoggedIn())) { // a guest has no path: only hide/show is offered
       box.querySelectorAll('[data-hwd-source], .hwd-menu__title, .hwd-menu__sep').forEach(function (el) { el.hidden = true; });
@@ -236,12 +280,42 @@
       more.setAttribute('aria-expanded', String(v));
     }
 
+    var seq = 0;
     function reload() {
-      loadWords(state.source).then(function (r) { state.words = r.words; state.kind = r.kind; state.i = 0; draw(); });
+      var mine = ++seq;
+      // F166: say at once that the new source is loading (the calls can take a few seconds)
+      card.classList.add('is-loading');
+      card.setAttribute('aria-busy', 'true');
+      var brow = card.querySelector('.hwd-card__eyebrow');
+      if (brow) brow.textContent = 'Đang tải ' + (SOURCE_TITLES[state.source] || '').toLowerCase() + '…';
+      loadWords(state.source).then(function (r) {
+        if (mine !== seq) return; // a newer choice won
+        state.words = r.words; state.kind = r.kind; state.total = r.total; state.more = r.more; state.i = 0;
+        card.classList.remove('is-loading');
+        card.removeAttribute('aria-busy');
+        draw();
+      });
+    }
+
+    function countText() {
+      if (state.kind === 'QUICK' || !state.words.length) return '';
+      return (state.i + 1) + '/' + Math.max(state.total || 0, state.words.length);
+    }
+
+    /** Next word; at the end of the loaded words it fetches the next page, after the last page it starts over. */
+    function next() {
+      if (state.i + 1 < state.words.length) { state.i += 1; return Promise.resolve(); }
+      if (!state.more) { state.i = 0; return Promise.resolve(); }
+      var mine = seq;
+      return state.more().then(function (items) {
+        if (mine !== seq) return;
+        if (items && items.length) { state.words = state.words.concat(items); state.i += 1; }
+        else { state.more = null; state.i = 0; }
+      }, function () { state.i = 0; });
     }
 
     function draw() {
-      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind, state.source, state0.level), state.kind);
+      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind, state.source, state0.level), state.kind, countText());
       // without a path there is nothing being reviewed or saved yet: only "Tự động" and "Từ mới" stay in the menu
       box.querySelectorAll('[data-hwd-source="REVIEW"], [data-hwd-source="NOTEBOOK"]').forEach(function (el) {
         el.hidden = state.kind === 'QUICK';
@@ -288,9 +362,10 @@
         return;
       }
       if (e.target.closest('[data-hwd="next"]')) {
-        state.i = (state.i + 1) % state.words.length;
+        if (card.classList.contains('is-loading')) return;
         card.classList.add('is-leaving');
-        root.setTimeout(function () { card.classList.remove('is-leaving'); draw(); }, 220);
+        var wait = new Promise(function (ok) { root.setTimeout(ok, 220); });
+        Promise.all([next(), wait]).then(function () { card.classList.remove('is-leaving'); draw(); });
         return;
       }
       if (e.target.closest('[data-hwd="flip"]')) flip();
@@ -309,5 +384,5 @@
     reload();
   }
 
-  return { pickWords: pickWords, cardHtml: cardHtml, label: label, loadWords: loadWords, SOURCES: SOURCES, FALLBACK: FALLBACK, mount: mount };
+  return { pickWords: pickWords, cardHtml: cardHtml, learnHref: learnHref, dayCount: dayCount, label: label, loadWords: loadWords, SOURCES: SOURCES, FALLBACK: FALLBACK, mount: mount };
 });
