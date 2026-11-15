@@ -40,7 +40,8 @@ public class JpathEntryPageController {
                 if ("vocab".equals(tabOrNull(tab)) && !word.isEmpty() && word.length() <= 60) {
                     return "redirect:/search/word/" + UriUtils.encodePathSegment(word, StandardCharsets.UTF_8);
                 }
-                return "redirect:/learning/comm";
+                // L19: kept (a communication learner has no JLPT path page), but the page now says why it opened
+                return "redirect:/learning/comm?from=jlpt";
             case JPATH_PAGE:
                 model.addAttribute("layoutMode", "app");
                 model.addAttribute("jpathTab", tabOrNull(tab));
