@@ -14,4 +14,14 @@ public interface DailyGoalService {
 
     /** Saves new targets and re-checks today, since lower targets can complete the goal. */
     DailyGoalProgress updateTargets(Long userId, LearningTargetsRequest request);
+
+    /**
+     * [JLAS-W0108] F128: re-checks {@code day} with the learner's path activity in its own transaction; completing the
+     * goal queues the reward and records the streak once. True only when this call completed the goal. Writes
+     * nothing while the targets are not met.
+     */
+    boolean refresh(Long userId, LocalDate day);
+
+    /** {@link #refresh} for the learner's today. */
+    boolean refreshToday(Long userId);
 }
