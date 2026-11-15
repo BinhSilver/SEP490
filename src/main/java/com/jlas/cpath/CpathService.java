@@ -303,7 +303,8 @@ public class CpathService {
             Map<String, Object> p = prog.get(s.get("code"));
             if (p != null && day.equals(toDate(p.get("study_day")))) planned.add((String) s.get("code"));
         }
-        if (planned.isEmpty() && !isRest(path, day)) {
+        // F125: a finished path (final AI test passed) plans no new day; the map stays open for review
+        if (planned.isEmpty() && !isRest(path, day) && !isFinished(pathId)) {
             int want = ((Number) path.get("daily_situations")).intValue();
             // F74 (12/11): a situation planned on an earlier day and not finished comes back first (a missed day carries
             // over), so the map order and "Hôm nay" stay the same instead of jumping to the next topic
@@ -418,9 +419,150 @@ public class CpathService {
             sm.put("doneSituations", secOrder.stream().filter(x -> done(secProg.get(x.get("code")))).count());
             sm.put("totalSituations", secOrder.size());
             sm.put("next", next == null ? null : Map.of("id", next.get("code"), "titleVi", String.valueOf(next.get("title_vi"))));
+            // F125: a secondary takes no final test while it is secondary; "all learned" invites the promotion
+            sm.put("allDone", !secOrder.isEmpty() && next == null);
+            sm.put("finished", isFinished(((Number) sec.get("id")).longValue()));
             m.put("secondary", sm);
         }
+        // F125 (owner 14/11): the final AI test passed → summary card, "Đã hoàn thành" label, no new daily plan
+        m.put("finished", finishedSummary(userId, p, order, prog, passed == null ? 0 : passed, topics.size()));
+        m.put("finishedPaths", otherFinishedPaths(userId, pathId));
         return m;
+    }
+
+    // ----------------------------------------------------------------------------------------- F125 finished
+
+    /** The first passed final test of a path, or null (also null on a DB without the goal test table). */
+    private Map<String, Object> passedGoalTest(Long pathId) {
+        try {
+            List<Map<String, Object>> r = db.queryForList("SELECT score, taken_at FROM cpath_user_goal_test WHERE path_id = ? "
+                    + "AND passed = TRUE ORDER BY taken_at, id LIMIT 1", pathId);
+            return r.isEmpty() ? null : r.get(0);
+        } catch (org.springframework.dao.DataAccessException e) {
+            return null;
+        }
+    }
+
+    /** F125: a path is finished once its final AI test is passed (derived, no status column change). */
+    boolean isFinished(Long pathId) {
+        return passedGoalTest(pathId) != null;
+    }
+
+    static String certificateUrl(Object goal) {
+        return "/learning/comm/certificate?goal=" + goal;
+    }
+
+    /**
+     * F125: the summary of a finished path: final test score, situations / topics, start and finish day, CP the path
+     * earned (from the award ledger: its situations, topics, study days and weeks, and the goal), certificate link.
+     */
+    private Map<String, Object> finishedSummary(Long userId, Map<String, Object> p, List<Map<String, Object>> order,
+                                                Map<String, Map<String, Object>> prog, int passedTopics, int totalTopics) {
+        Long pathId = ((Number) p.get("id")).longValue();
+        Map<String, Object> test = passedGoalTest(pathId);
+        if (test == null) return null;
+        List<Map<String, Object>> doneRows = prog.values().stream().filter(CpathService::done).toList();
+        Set<String> topicCodes = new LinkedHashSet<>();
+        order.forEach(s -> topicCodes.add((String) s.get("topic_code")));
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("goal", p.get("goal_code"));
+        m.put("nameVi", p.get("name_vi"));
+        m.put("score", test.get("score") == null ? null : num(test.get("score")));
+        LocalDate started = dateOf(p.get("created_at"));
+        if (started == null) {
+            started = prog.values().stream().map(r -> toDate(r.get("study_day"))).filter(java.util.Objects::nonNull)
+                    .min(LocalDate::compareTo).orElse(null);
+        }
+        m.put("startedAt", started == null ? null : started.toString());
+        LocalDate finishedAt = dateOf(test.get("taken_at"));
+        m.put("finishedAt", finishedAt == null ? null : finishedAt.toString());
+        m.put("doneSituations", order.stream().filter(s -> done(prog.get(s.get("code")))).count());
+        m.put("totalSituations", order.size());
+        m.put("passedTopics", passedTopics);
+        m.put("totalTopics", totalTopics);
+        m.put("cp", pathCp(userId, pathId, doneRows, topicCodes));
+        m.put("certificateUrl", certificateUrl(p.get("goal_code")));
+        return m;
+    }
+
+    /** CP the learner got from this path, read from the award ledger (each award is kept once there). */
+    private int pathCp(Long userId, Long pathId, List<Map<String, Object>> doneRows, Set<String> topicCodes) {
+        Set<Long> situations = new LinkedHashSet<>();
+        Set<Long> days = new LinkedHashSet<>();
+        Set<Long> weeks = new LinkedHashSet<>();
+        for (Map<String, Object> r : doneRows) {
+            situations.add(situationRef(String.valueOf(r.get("situation_code"))));
+            LocalDate d = toDate(r.get("study_day"));
+            if (d != null) {
+                days.add(d.toEpochDay());
+                weeks.add(d.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toEpochDay());
+            }
+        }
+        Set<Long> topics = new LinkedHashSet<>();
+        for (String t : topicCodes) topics.add(situationRef(t));
+        StringBuilder sql = new StringBuilder("SELECT COALESCE(SUM(amount), 0) FROM pending_credit_award WHERE user_id = ? AND (")
+                .append("(reference_type = ? AND reference_id = ?)");
+        List<Object> args = new ArrayList<>(List.of(userId, REF_GOAL, pathId));
+        appendRefs(sql, args, REF_SITUATION, situations);
+        appendRefs(sql, args, REF_TOPIC, topics);
+        appendRefs(sql, args, REF_DAY, days);
+        appendRefs(sql, args, REF_WEEK, weeks);
+        sql.append(')');
+        try {
+            Integer n = db.queryForObject(sql.toString(), Integer.class, args.toArray());
+            return n == null ? 0 : n;
+        } catch (org.springframework.dao.DataAccessException e) {
+            return 0;
+        }
+    }
+
+    private static void appendRefs(StringBuilder sql, List<Object> args, String type, Set<Long> ids) {
+        if (ids.isEmpty()) return;
+        sql.append(" OR (reference_type = ? AND reference_id IN (").append(String.join(",", java.util.Collections.nCopies(ids.size(), "?"))).append("))");
+        args.add(type);
+        args.addAll(ids);
+    }
+
+    /** F125: the learner's other finished paths (paused after a promotion or a goal change), newest first. */
+    private List<Map<String, Object>> otherFinishedPaths(Long userId, Long exceptId) {
+        List<Map<String, Object>> out = new ArrayList<>();
+        List<Map<String, Object>> rows;
+        try {
+            rows = db.queryForList("SELECT p.id, p.goal_code, g.name_vi FROM cpath_user_path p JOIN cpath_goal g ON g.code = p.goal_code "
+                    + "WHERE p.user_id = ? AND p.id <> ? AND EXISTS (SELECT 1 FROM cpath_user_goal_test t WHERE t.path_id = p.id AND t.passed = TRUE) "
+                    + "ORDER BY p.id DESC", userId, exceptId);
+        } catch (org.springframework.dao.DataAccessException e) {
+            return out;
+        }
+        Set<Object> seen = new LinkedHashSet<>();
+        for (Map<String, Object> r : rows) {
+            if (!seen.add(r.get("goal_code"))) continue;
+            Map<String, Object> test = passedGoalTest(((Number) r.get("id")).longValue());
+            LocalDate at = test == null ? null : dateOf(test.get("taken_at"));
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("goal", r.get("goal_code"));
+            m.put("nameVi", r.get("name_vi"));
+            m.put("score", test == null || test.get("score") == null ? null : num(test.get("score")));
+            m.put("finishedAt", at == null ? null : at.toString());
+            m.put("certificateUrl", certificateUrl(r.get("goal_code")));
+            out.add(m);
+        }
+        return out;
+    }
+
+    /**
+     * F125 "Nâng mục tiêu phụ lên làm chính": the F118 switch (MAIN requested for the secondary's goal promotes that
+     * row) with the secondary's own level, so its situations, topics, notebook and level carry over.
+     */
+    @Transactional
+    public Map<String, Object> promoteSecondary(Long userId) {
+        Map<String, Object> sec = pathRow(userId, "SECONDARY");
+        if (sec == null) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có mục tiêu phụ để nâng lên làm chính.");
+        Map<String, Object> req = new LinkedHashMap<>();
+        req.put("goal", sec.get("goal_code"));
+        req.put("role", "MAIN");
+        req.put("selfLevel", sec.get("self_level"));
+        return createPath(userId, req);
     }
 
     private boolean isRest(Map<String, Object> path, LocalDate day) {
@@ -511,8 +653,10 @@ public class CpathService {
             }
         }
         if (!bucket.isEmpty()) weeks.add(week(weeks.size(), bucket));
-        if (current < 0) current = 0;
-        for (int w = current + 1; w < weeks.size(); w++) {
+        // F125: a finished path opens on its last week (the passed AI test) and locks no week (review only)
+        boolean finished = goalTest != null && (num(goalTest.get("passed")) != 0 || Boolean.TRUE.equals(goalTest.get("passed")));
+        if (current < 0) current = finished ? Math.max(0, weeks.size() - 1) : 0;
+        for (int w = finished ? weeks.size() : current + 1; w < weeks.size(); w++) {
             for (Object o : (List<?>) weeks.get(w).get("items")) {
                 @SuppressWarnings("unchecked") Map<String, Object> it = (Map<String, Object>) o;
                 if ("NEXT".equals(it.get("status"))) it.put("status", "LOCKED");
@@ -523,7 +667,11 @@ public class CpathService {
             weeks.get(w).put("from", start.plusWeeks(w).toString());
             weeks.get(w).put("to", start.plusWeeks(w).plusDays(6).toString());
         }
-        return Map.of("weeks", weeks, "currentWeek", current);
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("weeks", weeks);
+        out.put("currentWeek", current);
+        out.put("finished", finished);
+        return out;
     }
 
     /**
@@ -1622,7 +1770,7 @@ public class CpathService {
         m.put("retryAt", last != null && num(last.get("passed")) == 0 && !Boolean.TRUE.equals(last.get("passed")) && last.get("taken_at") != null
                 ? dateTimeOf(last.get("taken_at")).plusHours(24).toString() : null);
         boolean passed = last != null && (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed")));
-        m.put("certificateUrl", passed ? "/learning/comm/certificate" : null);
+        m.put("certificateUrl", passed ? certificateUrl(p.get("goal_code")) : null);
         // not passed yet: the topics to work on (not passed, weakest speaking first), at most 3
         m.put("weakTopics", passed ? List.of() : db.queryForList("SELECT t.name_vi FROM cpath_topic t LEFT JOIN cpath_user_topic u "
                 + "ON u.topic_code = t.code AND u.path_id = ? WHERE t.goal_code = ? AND u.passed_at IS NULL "
@@ -1692,9 +1840,17 @@ public class CpathService {
     /** The newest passed goal test of the learner (any of their paths): goal name and when, for the certificate. */
     @Transactional(readOnly = true)
     public java.util.Optional<Map<String, Object>> certificate(Long userId) {
+        return certificate(userId, null);
+    }
+
+    /** F125: the certificate of one goal (a finished path listed on the path page); the newest one when goal is null. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<Map<String, Object>> certificate(Long userId, String goal) {
+        String g = str(goal);
         List<Map<String, Object>> rows = db.queryForList("SELECT g.code, g.name_vi, t.taken_at FROM cpath_user_goal_test t "
                 + "JOIN cpath_user_path p ON p.id = t.path_id JOIN cpath_goal g ON g.code = p.goal_code "
-                + "WHERE p.user_id = ? AND t.passed = 1 ORDER BY t.taken_at DESC LIMIT 1", userId);
+                + "WHERE p.user_id = ? AND t.passed = 1" + (g == null || g.isBlank() ? "" : " AND p.goal_code = ?")
+                + " ORDER BY t.taken_at DESC LIMIT 1", g == null || g.isBlank() ? new Object[] {userId} : new Object[] {userId, g});
         if (rows.isEmpty()) return java.util.Optional.empty();
         return java.util.Optional.of(Map.of("goal", String.valueOf(rows.get(0).get("code")),
                 "nameVi", String.valueOf(rows.get(0).get("name_vi")),

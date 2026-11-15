@@ -65,7 +65,7 @@ public class CpathController {
 
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
     private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
-            "/path/display", "/path/pause", "/path/restart", "/path/depth", "/core",
+            "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
             "/notebook", "/day");
 
     private boolean locked(Long userId) {
@@ -303,6 +303,12 @@ public class CpathController {
     @PostMapping("/path/pause")
     public ResponseEntity<ApiResponse<Map<String, Object>>> pausePath(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp.", service.pausePath(user.userId())));
+    }
+
+    /** F125: "Nâng mục tiêu phụ lên làm chính" from the finished-path card (keeps the secondary's progress). */
+    @PostMapping("/path/promote-secondary")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> promoteSecondary(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã nâng mục tiêu phụ lên làm lộ trình chính.", service.promoteSecondary(user.userId())));
     }
 
     /** F61: clear the main path's progress after typing BẮT ĐẦU LẠI. */

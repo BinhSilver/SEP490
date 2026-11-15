@@ -21,16 +21,26 @@ public class CpathPageController {
     /** Owner 06/11: certificate of a passed goal AI call, on the project's shared certificate page. */
     @GetMapping("/learning/comm/certificate")
     public String certificate(@org.springframework.security.core.annotation.AuthenticationPrincipal
-                              com.jlas.auth.security.UserPrincipal user, Model model) {
+                              com.jlas.auth.security.UserPrincipal user, Model model,
+                              @RequestParam(name = "goal", required = false) String goal) {
         if (user == null) return "redirect:/login";
-        java.util.Optional<java.util.Map<String, Object>> c = service.certificate(user.userId());
+        // F125: ?goal= picks one finished path (a paused one after a promotion or a goal change); else the newest
+        java.util.Optional<java.util.Map<String, Object>> c = service.certificate(user.userId(), goal);
+        if (c.isPresent()) {
+            String earnedGoal = String.valueOf(c.get().get("goal"));
+            model.addAttribute("earned", true);
+            model.addAttribute("targetLevel", "Giao tiếp · " + c.get().get("nameVi"));
+            model.addAttribute("completedAt", c.get().get("takenAt"));
+            model.addAttribute("workGoal", "WORK".equals(earnedGoal) || "BA".equals(earnedGoal));
+            return "cpath/certificate";
+        }
         java.util.Map<String, Object> path = service.path(user.userId());
         @SuppressWarnings("unchecked") java.util.Map<String, Object> progress = (java.util.Map<String, Object>) path.get("progress");
-        model.addAttribute("earned", c.isPresent());
-        model.addAttribute("targetLevel", c.isPresent() ? "Giao tiếp · " + c.get().get("nameVi") : "Giao tiếp · " + path.get("nameVi"));
-        model.addAttribute("completedAt", c.isPresent() ? c.get().get("takenAt") : null);
-        String goal = c.isPresent() ? String.valueOf(c.get().get("goal")) : String.valueOf(path.get("goal"));
-        model.addAttribute("workGoal", "WORK".equals(goal) || "BA".equals(goal));
+        model.addAttribute("earned", false);
+        model.addAttribute("targetLevel", "Giao tiếp · " + path.get("nameVi"));
+        model.addAttribute("completedAt", null);
+        String pathGoal = String.valueOf(path.get("goal"));
+        model.addAttribute("workGoal", "WORK".equals(pathGoal) || "BA".equals(pathGoal));
         model.addAttribute("passedTopics", progress.get("passedTopics"));
         model.addAttribute("totalTopics", progress.get("totalTopics"));
         return "cpath/certificate";
