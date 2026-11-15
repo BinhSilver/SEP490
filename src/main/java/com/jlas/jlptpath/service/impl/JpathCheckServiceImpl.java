@@ -524,7 +524,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
             default -> { }
         }
-        if (level != null && r.kind() != JpathCheckKind.FREE_QUIZ && r.kind() != JpathCheckKind.CONFUSABLE
+        // F134: a free quiz of every item (source ALL) keeps to the opened levels too; one of the learner's own rows
+        // (LEARNED, NOTEBOOK, WEEK) may sit on any level
+        boolean levelBound = r.kind() != JpathCheckKind.CONFUSABLE
+                && (r.kind() != JpathCheckKind.FREE_QUIZ || source == JpathCheckSource.ALL);
+        if (level != null && levelBound
                 && JpathPathRules.LEVELS.indexOf(level) > JpathPathRules.LEVELS.indexOf(open)) {
             throw new ApiException(ErrorCode.JPATH_LEVEL_LOCKED);
         }

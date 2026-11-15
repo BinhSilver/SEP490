@@ -25,6 +25,7 @@ import com.jlas.jlptpath.entity.JpathKana;
 import com.jlas.jlptpath.entity.JpathKanji;
 import com.jlas.jlptpath.entity.JpathKanjiCompound;
 import com.jlas.jlptpath.entity.JpathUserItem;
+import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathVocabTopic;
 import com.jlas.jlptpath.entity.JpathVocabTopicId;
 import com.jlas.jlptpath.entity.JpathVocabulary;
@@ -274,11 +275,16 @@ public class JpathItemServiceImpl implements JpathItemService {
     @Transactional
     public JpathItemStateView addToNotebook(Long userId, JpathItemType type, String code,
                                             JpathNotebookSource source) {
-        lockActivePath(userId);
+        String open = paths.findActiveForUpdate(userId).map(JpathUserPath::getOpenLevel)
+                .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         if (type != JpathItemType.VOCAB && type != JpathItemType.KANJI) {
             throw new ApiException(ErrorCode.JPATH_GRAMMAR_NO_NOTEBOOK);
         }
         String level = learnableLevel(type, code);
+        // F134: the notebook keeps to the levels the learner has opened
+        if (JpathPathRules.LEVELS.indexOf(level) > JpathPathRules.LEVELS.indexOf(open)) {
+            throw new ApiException(ErrorCode.JPATH_LEVEL_LOCKED);
+        }
         JpathUserItem i = states.ensureRow(userId, type, code, level);
         if (i.getState() == JpathItemState.NOTEBOOK) {
             return stateView(type, code, Optional.of(i)); // already there: keep source, since and hits
