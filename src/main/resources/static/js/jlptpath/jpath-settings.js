@@ -36,8 +36,9 @@
   var DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy',
     SUN: 'Chủ nhật' };
-  // the server re-plans today only when nothing was learned on it yet (JpathTodayTargetsPort.replanUntouchedToday)
-  var MSG_DAYS_SAVED = 'Đã lưu. Hôm nay đổi theo lịch mới nếu bạn chưa học gì hôm nay; nếu đã học, lịch mới áp dụng từ ngày mai.';
+  // the server re-plans today only when nothing was learned on it yet and today becomes a study day; a rest or
+  // skill day moved onto today waits for tomorrow (JpathTodayTargetsPort.replanUntouchedToday, F130)
+  var MSG_DAYS_SAVED = 'Đã lưu. Ngày nghỉ và ngày kỹ năng mới áp dụng từ ngày mai. Nếu hôm nay bạn bỏ ngày nghỉ và chưa học gì, hôm nay thành ngày học ngay.';
   var BLOCKS = {
     target: ['targetLevel', 'examDate'],
     schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay'],

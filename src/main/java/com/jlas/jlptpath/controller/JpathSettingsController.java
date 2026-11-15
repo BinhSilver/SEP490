@@ -2,6 +2,7 @@ package com.jlas.jlptpath.controller;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.common.exception.ApiException;
 import com.jlas.jlptpath.dto.JpathLowerLevelRequest;
 import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.dto.JpathRedirectView;
@@ -9,6 +10,7 @@ import com.jlas.jlptpath.dto.JpathRestartRequest;
 import com.jlas.jlptpath.dto.JpathSettingsUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSettingsView;
 import com.jlas.jlptpath.dto.JpathSliderAdjustmentView;
+import com.jlas.jlptpath.service.JpathDailyPlanService;
 import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathSettingsService;
 import java.util.List;
@@ -36,6 +38,7 @@ public class JpathSettingsController {
 
     private final JpathSettingsService settingsService;
     private final JpathPathService pathService;
+    private final JpathDailyPlanService dailyPlans;
 
     @GetMapping("/settings")
     public ResponseEntity<ApiResponse<JpathSettingsView>> get(@AuthenticationPrincipal UserPrincipal user) {
@@ -45,6 +48,16 @@ public class JpathSettingsController {
     @PutMapping("/settings")
     public ResponseEntity<ApiResponse<JpathSettingsView>> update(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody JpathSettingsUpdateRequest request) {
+        if (request != null && (request.skillDays() != null || request.restDays() != null
+                || request.thirdSkillDay() != null)) {
+            // F130: today's plan is made from the week as it was before this change (outside the settings
+            // transaction, as the plan contract asks), so a rest or skill day moved onto today waits for tomorrow.
+            try {
+                dailyPlans.ensurePlanExists(user.userId());
+            } catch (ApiException e) {
+                // no active path: the update below answers for it
+            }
+        }
         return ResponseEntity.ok(ApiResponse.ok("Đã lưu cài đặt.", settingsService.update(user.userId(), request)));
     }
 
