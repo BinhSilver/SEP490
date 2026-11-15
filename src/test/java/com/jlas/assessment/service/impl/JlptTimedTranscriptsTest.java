@@ -72,7 +72,7 @@ class JlptTimedTranscriptsTest {
             assertNotNull(input);
             var source = mapper.readTree(input);
             var previous = clip(source.get("ja").asText(), source.get("vi").asText(),
-                    "/audio/JLPT/N3/N3_MOCK_001/Mondai3/3.mp3");
+                    "/audio/JLPT/mock-adult-v2-20261115/N3/N3_MOCK_001/Mondai3/3.mp3");
             var actual = new JlptLocalAudio().resolve("N3_MOCK_001", 3, 3, 123, previous);
             assertTrue(actual.transcriptAligned());
             assertEquals(13, actual.transcript().size());
