@@ -64,6 +64,7 @@
   var MSG_TIMEOUT_FAILED = 'Hết giờ nhưng chưa gửi được. Kiểm tra kết nối rồi bấm Thử lại.';
   var CLOSED_HTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
     + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+  var MSG_LOCKED_ELSEWHERE = 'Câu này đã được trả lời ở cửa sổ khác — đáp án hiển thị là đáp án đã khóa.';
   var BOARD_HINT = 'Chọn 1 ô trái rồi 1 ô phải. Sai thì nháy đỏ, tính 1 lỗi, chọn lại.';
 
   function D() { return root && root.JpathDisplay; }
@@ -362,7 +363,11 @@
     if (e.type === 'RESULT') {
       var r = e.result || {};
       s.answers = copy(state.answers);
-      s.answers[qid] = { value: state.pending[qid] === undefined ? null : state.pending[qid], correct: !!r.correct,
+      // probe L2: a question already locked (another tab) comes back with lockedValue — draw that answer, not the local pick
+      var mine = state.pending[qid] === undefined ? null : state.pending[qid];
+      var locked = r.lockedValue !== undefined && r.lockedValue !== null
+        && String(r.lockedValue) !== String(mine == null ? '' : mine);
+      s.answers[qid] = { value: locked ? r.lockedValue : mine, correct: !!r.correct, lockedElsewhere: locked,
         correctValue: r.correctValue, explanation: r.explanation, compare: r.compare || null, report: r.report || null };
       delete s.pending[qid];
       if (state.stalled && state.stalled[qid]) { s.stalled = copy(state.stalled); delete s.stalled[qid]; }
@@ -655,6 +660,14 @@
     return '/learning/jlpt/check/' + encodeURIComponent(String(token || '')) + (q.length ? '?' + q.join('&') : '');
   }
 
+  /** probe L4: a Reading/Listening practice or dictation check belongs to its skill session page. */
+  function skillSessionHref(check) {
+    var k = check && check.kind;
+    var id = check && check.skill && check.skill.skillSessionId;
+    if ((k !== 'SKILL_PRACTICE' && k !== 'SKILL_DICTATION') || id == null) return null;
+    return '/learning/jlpt/skills/session/' + encodeURIComponent(String(id));
+  }
+
   function retryRequest(check) { return copy((check && check.issue) || {}); }
 
   function wrongLine(result, check) {
@@ -670,7 +683,8 @@
       if (vk) suffix = ' → đã vào Ôn lại và Sổ tay';
       else if (review) suffix = ' → đã vào Ôn lại';
     }
-    return '<p class="jp-result__wrong">Sai ' + items.length + ': <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
+    // probe L9: misses are items (a word missed both ways counts once), not questions
+    return '<p class="jp-result__wrong">' + items.length + ' mục sai: <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
   }
 
   function celebrateArtHtml(passed) {
@@ -920,6 +934,9 @@
       if (!d || typeof d.createElement !== 'function' || !el.parentNode || !el.parentNode.insertBefore) return null;
       var p = d.createElement('p');
       p.className = 'jp-sr-only';
+      // probe L3: hidden even where the page's sr-only rule is missing or overridden
+      p.setAttribute('style', 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;'
+        + 'clip:rect(0 0 0 0);white-space:nowrap;border:0');
       p.setAttribute('aria-live', 'polite');
       p.setAttribute('data-jpath-check-live', '');
       el.parentNode.insertBefore(p, el.nextSibling || null);
@@ -1004,10 +1021,18 @@
       draw();
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/answers', r.request).then(function (res) {
         if (!alive) return;
-        announce(res && res.correct ? 'Đúng rồi!' : (r.request.value === null ? 'Hết giờ.' : 'Chưa đúng.'));
         state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res }).state;
-        env.tone(res && res.correct ? 'correct' : 'wrong', display);
+        var lockedElsewhere = !!(state.answers[r.request.questionId] || {}).lockedElsewhere;
+        var said = lockedElsewhere ? MSG_LOCKED_ELSEWHERE
+          : (res && res.correct ? 'Đúng rồi!' : (r.request.value === null ? 'Hết giờ.' : 'Chưa đúng.'));
+        announce(said);
+        if (!lockedElsewhere) env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
+        if (lockedElsewhere) {
+          status(MSG_LOCKED_ELSEWHERE);
+          // the other tab may have submitted already — then the result is shown here too
+          if (res && res.checkClosed) { showClosed(); }
+        }
       }, function (err) {
         if (!alive) return;
         state = answerReduce(state, { type: 'FAIL', questionId: r.request.questionId }).state;
@@ -1129,14 +1154,22 @@
 
     function load() {
       el.setAttribute('aria-busy', 'true');
+      // probe L8: the check is drawn as soon as it arrives; the display settings are applied when they come
       var settings = env.api.get(BASE + '/settings').then(null, function () { return null; });
-      return Promise.all([env.api.get(BASE + '/checks/' + encodeURIComponent(token)), settings]).then(function (res) {
+      return env.api.get(BASE + '/checks/' + encodeURIComponent(token)).then(function (got) {
         if (!alive) return;
-        check = res[0] || {};
-        display = (res[1] && res[1].display) || {};
-        if (D()) D().applyDisplay(el, display);
+        check = got || {};
+        var back = skillSessionHref(check);
+        if (back && !env.embedded && !env.inline) { env.navigate(back); return; }
+        display = {};
         state = initState(check, env.now());
         draw();
+        return Promise.resolve(settings).then(function (st) {
+          if (!alive || !st || !st.display) return;
+          display = st.display;
+          if (D()) D().applyDisplay(el, display);
+          if (!result && !submitting) draw();
+        });
       }, function (err) {
         if (!alive) return;
         el.setAttribute('aria-busy', 'false');
@@ -1185,6 +1218,7 @@
     }
 
     function drawResult() {
+      announce('');
       var html = resultHtml(result, check, { inline: env.inline, embedded: env.embedded, reviewOpen: reviewOpen });
       if (reviewOpen) html += reviewWrongHtml(check, state);
       el.innerHTML = '<div class="jp-check jp-check--result">' + html + '</div>';
@@ -1289,5 +1323,5 @@
     timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
     timerOffPatch: timerOffPatch, audioUrl: audioUrl, questionStart: questionStart, submitKey: submitKey, resultHtml: resultHtml,
     reviewWrongHtml: reviewWrongHtml, retryRequest: retryRequest, nextHref: nextHref, checkPageUrl: checkPageUrl,
-    safeReturn: safeReturn, mount: mount, mountPage: mountPage, mountInline: mountInline };
+    safeReturn: safeReturn, skillSessionHref: skillSessionHref, wrongLine: wrongLine, mount: mount, mountPage: mountPage, mountInline: mountInline };
 });

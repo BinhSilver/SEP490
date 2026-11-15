@@ -514,8 +514,12 @@
     }
 
     function lockSet(values, showExplain) {
+      // probe L1: one lock run at a time — repeated "Kết quả" taps while it is sending are ignored
+      if (state.locking) return state.locking;
       var ps = practiceState(state.view);
       var set = ps.sets[state.current];
+      var lockBtn = body && body.querySelector && body.querySelector('[data-skill-tool="result"]');
+      if (lockBtn) lockBtn.disabled = true;
       var seq = Promise.resolve();
       list(set.questionIds).forEach(function (qid) {
         seq = seq.then(function () {
@@ -523,15 +527,23 @@
             { questionId: qid, value: values[qid] || '', elapsedMs: Date.now() - state.shownAt });
         });
       });
-      return seq.then(function () {
+      state.locking = seq.then(function () {
         state.showExplain = showExplain;
         state.shownAt = Date.now();
         return api.get(BASE + '/checks/' + encodeURIComponent(ps.token)).then(function (v) {
           state.view = v;
           renderPractice();
+          // probe L2: a question locked from another window keeps that answer — say so instead of a silent "wrong"
+          var got = answeredMap(v);
+          var elsewhere = list(set.questionIds).some(function (qid) {
+            return got[qid] && values[qid] && got[qid].value != null && String(got[qid].value) !== String(values[qid]);
+          });
+          if (elsewhere && status) status.textContent = 'Có câu đã được trả lời ở cửa sổ khác — kết quả theo đáp án đã khóa.';
           return v;
         });
-      }, fail);
+      }, fail).then(function (v) { state.locking = null; refreshToolbar(); return v; },
+        function (e) { state.locking = null; refreshToolbar(); fail(e); });
+      return state.locking;
     }
 
     function submitPractice(btn) {

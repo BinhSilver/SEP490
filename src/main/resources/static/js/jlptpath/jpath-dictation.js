@@ -41,7 +41,7 @@
     parts.forEach(function (p, i) {
       out += '<span lang="ja">' + esc(p) + '</span>';
       if (i < parts.length - 1) {
-        out += '<input type="text" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false" size="6"'
+        out += '<input type="text" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false" size="6" maxlength="40"'
           + ' data-blank="' + i + '" aria-label="Ô trống ' + (i + 1) + '" data-line="' + esc(qid) + '">';
       }
     });
@@ -58,7 +58,8 @@
         var v = VERDICT[list(line.verdicts)[i]] || VERDICT.WRONG;
         var typed = list(line.typed)[i];
         var expected = list(line.expected)[i];
-        out += '<strong class="' + v[0] + '" lang="ja" title="' + esc(v[1]) + '">' + esc(typed || '—') + '</strong>'
+        var shown = typed && String(typed).length > 40 ? String(typed).slice(0, 40) + '…' : typed;
+        out += '<strong class="' + v[0] + '" lang="ja" title="' + esc(v[1]) + '">' + esc(shown || '—') + '</strong>'
           + (list(line.verdicts)[i] === 'EXACT' ? '' : ' <span class="' + v[0] + '">(' + esc(v[1]) + ': ' + esc(expected) + ')</span>');
       }
     });
@@ -123,7 +124,7 @@
     function check(qid) {
       var inputs = el.querySelectorAll('input[data-line="' + qid + '"]');
       var values = [];
-      inputs.forEach(function (i) { values.push(i.value); });
+      inputs.forEach(function (i) { values.push(String(i.value).slice(0, 40)); });
       if (!values.some(function (x) { return String(x).trim(); })) return;
       api.send('POST', BASE + encodeURIComponent(o.token) + '/answers', { questionId: qid, value: JSON.stringify(values),
         elapsedMs: Date.now() - shownAt }).then(function () { shownAt = Date.now(); return draw(); })

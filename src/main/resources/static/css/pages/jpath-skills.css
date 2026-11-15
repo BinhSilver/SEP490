@@ -352,3 +352,16 @@
 .jp-skill-session .jp-review__row--picked .jp-i { color: var(--jp-danger); }
 .jp-skill-session .jp-review__row--answer .jp-i { color: var(--jp-ok); }
 .jp-skill-steps [data-step-locked] { cursor: help; }
+
+/* [JLAS-W0108] probe L6 (15/11): on a phone the sticky submit bar has a solid background even while disabled, and the
+   floating report button sits above it instead of on top of it */
+@media (max-width: 640px) {
+  .jp-skill-session [data-submit-practice]:disabled, .jp-skill-session [data-dict-submit]:disabled,
+  .jp-skill-section [data-section-submit]:disabled {
+    opacity: 1; background: var(--jp-line, #d9d4cc); color: var(--jp-muted, #5f5a52);
+  }
+  body:has(.jp-skill-session [data-submit-practice], .jp-skill-session [data-dict-submit],
+    .jp-skill-section [data-section-submit]) .jp-report-fab {
+    bottom: calc(var(--jlab-mobile-bottom, 0px) + 78px);
+  }
+}

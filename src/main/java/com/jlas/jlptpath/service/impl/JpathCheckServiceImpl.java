@@ -854,7 +854,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         Progress p = readProgress(set);
         Answer done = p.answers().get(qv.id());
         if (done != null) {
-            return result(set, qv, key, questionCode, done);
+            // probe L2: a replay (e.g. from another tab) says which answer is kept and whether the check is closed
+            JpathAnswerResult kept = result(set, qv, key, questionCode, done);
+            return new JpathAnswerResult(kept.correct(), kept.correctValue(), kept.explanation(), kept.compare(),
+                    kept.report(), done.value() == null ? "" : done.value(), !ISSUED.equals(set.getStatus()));
+        }
+        if (r.value() != null && r.value().length() > 1000) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời quá dài.");
         }
         requireOpen(set);
         LocalDateTime now = clock.now();
