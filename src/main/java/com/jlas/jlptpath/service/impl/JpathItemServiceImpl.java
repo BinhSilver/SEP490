@@ -243,7 +243,8 @@ public class JpathItemServiceImpl implements JpathItemService {
         if (!visible(type, code)) {
             throw notFound();
         }
-        if (row.isEmpty()) {
+        // F132: a row never learned (put in the notebook, or a wrong quiz answer) is still a NEW item
+        if (row.isEmpty() || (row.get().getState() != JpathItemState.KNOWN && row.get().getFirstLearnedAt() == null)) {
             // NEW: confirmed by one question first (the check counts it on a correct answer)
             JpathCheckView check = checks.getObject().issue(userId, new JpathCheckIssueRequest(JpathCheckKind.SKIP_ONE,
                     JpathTab.valueOf(type.name()), null, null, null, null, null, null, null, null, code, null));
