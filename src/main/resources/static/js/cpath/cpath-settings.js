@@ -83,7 +83,7 @@
         + (draft.restDays.indexOf(d[0]) >= 0 ? ' checked' : '') + '> ' + d[1] + '</label>'; }).join('')
       + '</div></fieldset>'
       + '<label class="cp-settings__date">Muốn hoàn thành trước ngày <input type="date" data-cp-finish value="' + esc(draft.finishDate) + '"></label>'
-      + '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến xong '
+      + '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến học xong các tình huống '
       + shortDate(calc.date) + ' (' + draft.dailySituations + ' tình huống/ngày học).</p>'
       + (calc.late ? '<p class="jp-alert" role="alert">Nhịp hiện chọn có thể không kịp ngày hoàn thành. Hãy tăng số tình huống hoặc giảm ngày nghỉ.</p>' : '')
       + note(notices.pace, notices.paceError)
@@ -122,6 +122,8 @@
   };
 
   /** F70: depth of the base set and situations, with size and days left at the current pace. */
+  var DEPTH_FITS = { BASIC: 'Mới bắt đầu', ELEMENTARY: 'Sơ cấp', ADVANCED: 'Trung cấp' };
+
   function depthSection(core, notices) {
     if (!core || !core.enabled || !Array.isArray(core.depths)) return '';
     return '<section class="jp-card cp-settings" id="cpSetDepth" aria-labelledby="cpDepthTitle">'
@@ -133,10 +135,12 @@
         var on = x.code === core.depth;
         return '<label class="cp-settings__depth' + (on ? ' is-on' : '') + '"><input type="radio" name="cp-depth" value="' + esc(x.code) + '"'
           + (on ? ' checked' : '') + '><span><strong>' + esc(x.labelVi) + '</strong>'
+          // F181 (AI test L8): the depth names differ from the survey levels; say which level each one fits
+          + (DEPTH_FITS[x.code] ? '<small class="cp-settings__fits">Hợp với trình độ: ' + esc(DEPTH_FITS[x.code]) + '</small>' : '')
           + '<small>' + esc(DEPTH_DESC[x.code] || '') + '</small>'
           + '<small>' + Number(x.words || 0) + ' từ · ' + Number(x.grammar || 0) + ' mẫu ngữ pháp'
           + (Number(x.keigo || 0) ? ' · ' + Number(x.keigo) + ' mục kính ngữ' : '')
-          + ' · còn khoảng ' + Number(x.daysLeft || 0) + ' ngày học</small></span></label>';
+          + ' · bộ từ và mẫu câu còn khoảng ' + Number(x.daysLeft || 0) + ' ngày học</small></span></label>';
       }).join('')
       + '</div></fieldset>'
       + (core.depthSaved ? '' : '<p class="cp-settings__desc">Đang theo trình độ bạn đã khai khi tạo lộ trình.</p>')
