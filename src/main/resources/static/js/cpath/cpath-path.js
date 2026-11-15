@@ -702,7 +702,7 @@
       + '<div class="jp-parts__banner-sub">'
       + '<details class="cp-goal-switch" data-tour="cp-goal"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
       + '<a href="/survey?edit=goal">Đổi mục tiêu chính</a> · '
-      + '<a href="/learning/comm/survey">Thêm mục tiêu phụ</a> · '
+      + '<a href="/learning/comm/survey?secondary=1">Thêm mục tiêu phụ</a> · '
       + '<a href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></details>'
       + '<div class="jp-parts__legend" aria-label="Chú giải bản đồ">'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">' + svgMedal('jp-parts__legend-svg') + '</span>Đã học</span>'

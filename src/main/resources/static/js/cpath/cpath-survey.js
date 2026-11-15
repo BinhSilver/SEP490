@@ -278,6 +278,14 @@
     var kind = list[step - 1];
     var total = list.length;
     var meta = STEP_META[kind];
+    if (kind === 'goal' && state.secondaryPath) {
+      meta = {
+        kitsu: STEP_META.goal.kitsu,
+        title: 'Thêm mục tiêu phụ để học tự do',
+        sub: 'Lộ trình chính (' + (state.mainNameVi || state.mainGoal || 'Giao tiếp') + ') vẫn giữ nguyên lịch học hằng ngày. '
+          + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.'
+      };
+    }
     var pct = Math.round((step / total) * 100);
 
     var dotsHtml = list.map(function (k, i) {
@@ -299,6 +307,7 @@
           : (g.goal === 'DAILY_LIFE'
             ? (g.topicCount + ' chủ đề · Nhà cửa, siêu thị, hành chính, bệnh viện, trường học')
             : (g.topicCount + ' chủ đề · IT / BrSE, Văn phòng, Nhà máy, Dịch vụ'));
+        if (isMain) desc = 'Đang là lộ trình chính · ' + desc;
         return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
           + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '"'
           + (isMain ? ' disabled title="Đây là lộ trình chính của bạn"' : '') + '>'
@@ -406,7 +415,8 @@
     var nextBtn = step < total
       ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
-        + (state.submitting ? 'Đang tạo lộ trình…' : 'Bắt đầu lộ trình giao tiếp') + '</button>';
+        + (state.submitting ? (state.secondaryPath ? 'Đang thêm mục tiêu phụ…' : 'Đang tạo lộ trình…')
+          : (state.secondaryPath ? 'Thêm mục tiêu phụ' : 'Bắt đầu lộ trình giao tiếp')) + '</button>';
 
     return '<section class="cp-survey__card" aria-labelledby="cpSurveyTitle">'
       + '<div class="cp-survey__top">'
