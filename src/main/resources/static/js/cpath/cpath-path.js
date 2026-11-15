@@ -536,7 +536,7 @@
           ? '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 1</span><strong class="jp-parts__pill-ja">Nghe & chọn nghĩa</strong><span class="jp-parts__pill-mean">Nghe câu, chọn nghĩa đúng</span></li>'
           : '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 1</span><strong class="jp-parts__pill-ja">Từ & mẫu câu</strong><span class="jp-parts__pill-mean">Thẻ lật + phát âm</span></li>')
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 2</span><strong class="jp-parts__pill-ja">Nghe hội thoại</strong><span class="jp-parts__pill-mean">Nghe từng câu thoại</span></li>'
-        + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 3</span><strong class="jp-parts__pill-ja">Nhập vai</strong><span class="jp-parts__pill-mean">Chọn câu của リン</span></li>'
+        + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 3</span><strong class="jp-parts__pill-ja">Nhập vai</strong><span class="jp-parts__pill-mean">Chọn câu đáp hợp tình huống</span></li>'
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 4</span><strong class="jp-parts__pill-ja">Luyện nói</strong><span class="jp-parts__pill-mean">Chấm phát âm từng câu</span></li>'
         + '</ul>';
     } else if (item.type === 'TOPIC_TEST') {
