@@ -28,8 +28,10 @@
   ];
   var SOURCE_TITLES = { AUTO: 'Gợi ý cho bạn', REVIEW: 'Từ đang ôn', NOTEBOOK: 'Sổ tay của tôi', NEW: 'Từ mới cấp hiện tại' };
   var TITLES = { QUICK: 'Một từ mới mỗi ngày', REVIEW: 'Từ đang ôn hôm nay', NOTEBOOK: 'Từ trong sổ tay', NEW: 'Từ mới hôm nay', START: 'Một từ, một khởi đầu',
-    EMPTY_REVIEW: 'Chưa có từ đang ôn · gợi ý từ của cấp', EMPTY_NOTEBOOK: 'Sổ tay trống · gợi ý từ của cấp',
-    EMPTY_NEW: 'Đã học hết từ mới · gợi ý từ của cấp' };
+    EMPTY: 'Gợi ý từ của cấp' };
+  // F168 (owner 15/11): why the cards fell back to the level's words is a small note on the first card, not the title
+  var EMPTY_NOTES = { EMPTY_REVIEW: 'Bạn chưa có từ đang ôn, thẻ gợi ý từ của cấp.',
+    EMPTY_NOTEBOOK: 'Sổ tay còn trống, thẻ gợi ý từ của cấp.', EMPTY_NEW: 'Bạn đã học hết từ mới, thẻ gợi ý từ của cấp.' };
   var BASE = '/api/learning/jlpt';
   // owner 11/11: at least 30 fixed N5 words, shown to a learner without a path (and if a call fails)
   var FALLBACK = [
@@ -91,7 +93,8 @@
 
   /** Card eyebrow for the kind of list actually shown (REVIEW / NOTEBOOK / NEW / START). */
   function label(kind, source, level) {
-    if (kind === 'QUICK' || /^EMPTY_/.test(kind || '') || !source) return TITLES[kind] || TITLES.START;
+    if (/^EMPTY_/.test(kind || '')) return level ? 'Từ cấp ' + level : TITLES.EMPTY;
+    if (kind === 'QUICK' || !source) return TITLES[kind] || TITLES.START;
     var t = SOURCE_TITLES[source] || SOURCE_TITLES.AUTO;
     return source === 'NEW' && level ? 'Từ mới cấp ' + level : t;
   }
@@ -103,7 +106,7 @@
     return '/learning?tab=vocab&q=' + encodeURIComponent(w.expression);
   }
 
-  function cardHtml(word, title, kind, count) {
+  function cardHtml(word, title, kind, count, note) {
     var w = word || {};
     var link = '<a class="hwd-card__learn" href="' + esc(learnHref(w, kind)) + '">'
       + (kind === 'QUICK' ? 'Tra từ này ↗' : 'Học từ này ↗') + '</a>';
@@ -114,6 +117,7 @@
       + (w.reading && w.reading !== w.expression ? '<div class="hwd-card__reading" lang="ja">' + esc(w.reading) + '</div>' : '')
       + '<div class="hwd-card__meaning" hidden>' + esc(w.meaning) + '</div>'
       + '</div>'
+      + (note ? '<div class="hwd-card__note">' + esc(note) + '</div>' : '')
       + '<div class="hwd-card__hint">↻ Chạm để xem nghĩa</div>'
       + '<div class="hwd-card__foot">' + link
       + '<button type="button" class="hwd-card__next" data-hwd="next" aria-label="Từ tiếp theo">→</button></div>';
@@ -315,7 +319,8 @@
     }
 
     function draw() {
-      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind, state.source, state0.level), state.kind, countText());
+      card.innerHTML = cardHtml(state.words[state.i % state.words.length], label(state.kind, state.source, state0.level), state.kind, countText(),
+        state.i === 0 ? EMPTY_NOTES[state.kind] : '');
       // without a path there is nothing being reviewed or saved yet: only "Tự động" and "Từ mới" stay in the menu
       box.querySelectorAll('[data-hwd-source="REVIEW"], [data-hwd-source="NOTEBOOK"]').forEach(function (el) {
         el.hidden = state.kind === 'QUICK';
@@ -384,5 +389,5 @@
     reload();
   }
 
-  return { pickWords: pickWords, cardHtml: cardHtml, learnHref: learnHref, dayCount: dayCount, label: label, loadWords: loadWords, SOURCES: SOURCES, FALLBACK: FALLBACK, mount: mount };
+  return { EMPTY_NOTES: EMPTY_NOTES, pickWords: pickWords, cardHtml: cardHtml, learnHref: learnHref, dayCount: dayCount, label: label, loadWords: loadWords, SOURCES: SOURCES, FALLBACK: FALLBACK, mount: mount };
 });
