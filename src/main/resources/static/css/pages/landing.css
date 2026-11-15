@@ -346,11 +346,11 @@ html[data-theme="dark"] .lp-guest { --lp-bg: var(--color-background); --lp-ink: 
   position: absolute;
   left: 0;
   right: 0;
-  top: -260px;
-  height: 280px;
+  top: -96px; /* F167: was -260px/280px + blur 18px, it veiled the lower hero and the word card */
+  height: 110px;
   pointer-events: none;
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   -webkit-mask-image: linear-gradient(to bottom, transparent, #0006 32%, #000d 68%, #000 92%);
   mask-image: linear-gradient(to bottom, transparent, #0006 32%, #000d 68%, #000 92%);
   background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--lp-bg) 18%, transparent) 28%,
@@ -358,7 +358,7 @@ html[data-theme="dark"] .lp-guest { --lp-bg: var(--color-background); --lp-ink: 
     var(--lp-bg) 97%);
 }
 @media (max-width: 760px) {
-  .lp-guest::before { top: -160px; height: 180px; }
+  .lp-guest::before { top: -56px; height: 66px; }
 }
 .lp-guest .lp-section--tint { background: color-mix(in srgb, var(--lp-peach) 35%, var(--lp-bg)); }
 .lp-guest h2, .lp-tile h3, .lp-foot__brand h2 { font-family: "Noto Serif", Georgia, serif; letter-spacing: -.01em; color: var(--lp-ink); }
