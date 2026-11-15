@@ -171,9 +171,10 @@ html.dark .cp-page {
    1. TRANG KHẢO SÁT GIAO TIẾP (survey.html — 5 bước, vừa 1 màn hình)
    ========================================================================== */
 .cp-survey-wrap {
-  max-width: 780px;
+  max-width: min(780px, 94vw);
+  width: 100%;
   margin: 0 auto;
-  padding: 12px 16px 24px;
+  padding: 1.5dvh 4vw 3dvh;
   box-sizing: border-box;
 }
 
@@ -316,7 +317,7 @@ html.dark .cp-page {
 
 .cp-survey__grid--topics {
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-  max-height: min(44vh, 310px);
+  max-height: min(44dvh, 310px);
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -461,7 +462,8 @@ html.dark .cp-page {
   color: var(--cp-ink);
 }
 .cp-survey__date-input {
-  max-width: 240px;
+  max-width: min(240px, 100%);
+  width: 100%;
   min-height: 40px;
   padding: 6px 12px;
   border-radius: 10px;
@@ -568,7 +570,8 @@ html.dark .cp-page {
    3. TRANG TÌNH HUỐNG 4 BƯỚC (situation.html — vừa 1 màn hình)
    ========================================================================== */
 .cp-sit-shell {
-  max-width: 1040px;
+  max-width: min(1040px, 95vw);
+  width: 100%;
   margin: 0 auto;
   padding: 0 0 20px;
   display: flex;
@@ -681,18 +684,18 @@ html.dark .cp-page {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 410px;
-  max-height: calc(100vh - 200px);
+  min-height: clamp(300px, 46dvh, 410px);
+  max-height: calc(100dvh - 200px);
   overflow-y: auto;
 }
-.cp-sit-stage--words { min-height: 300px; }
+.cp-sit-stage--words { min-height: clamp(220px, 34dvh, 300px); }
 .cp-sit-stage--roleplay { min-height: 0; }
-.cp-settings { max-width: 1040px; }
+.cp-settings { max-width: min(1040px, 95vw); width: 100%; }
 .cp-settings fieldset { border: 1px solid var(--cp-line); border-radius: 12px; padding: 12px; }
 .cp-settings legend { padding: 0 6px; font-weight: 600; }
 .cp-settings__options, .cp-settings__actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .cp-settings__options label { display: inline-flex; align-items: center; gap: 5px; }
-.cp-settings__date { display: grid; gap: 6px; max-width: 280px; }
+.cp-settings__date { display: grid; gap: 6px; max-width: min(280px, 100%); }
 .cp-settings__date input { min-height: 40px; border: 1px solid var(--cp-line); border-radius: 8px; padding: 6px; }
 .cp-settings__preview { margin: 0; color: var(--cp-ink); font-weight: 600; }
 .cp-settings__notice { color: var(--jp-c-mint-900); font-weight: 600; }
@@ -1205,7 +1208,7 @@ html.dark .cp-page {
 
 /* === ROUND 8 CPATH POLISH === */
 .cp-sit-shell {
-  max-width: 1040px !important;
+  max-width: min(1040px, 95vw) !important;
   width: 100% !important;
 }
 .cp-survey__kitsu {
@@ -1923,7 +1926,7 @@ button.jp-sidenav__link {
 }
 @media (max-width: 640px) {
   .cp-wide-only { display: none; }
-  .cp-page .cp-sit-foot { flex-wrap: nowrap; gap: 8px; padding: 8px 10px; padding-right: 10px; }
+  .cp-page .cp-sit-foot { flex-wrap: nowrap; gap: 2vw; padding: 1.2dvh 2.8vw; }
   .cp-page .cp-survey__foot { padding-right: 0; }
   .cp-page .cp-sit-foot > * { flex: 1 1 0; min-width: 0; padding: 10px 8px; font-size: .86rem; line-height: 1.25; white-space: normal; text-align: center; }
   .cp-page .cp-sit-foot > [data-cp-card-prev] { flex: 0 0 44px; }
@@ -2063,7 +2066,7 @@ button.jp-sidenav__link {
 .cp-goal-card__done-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .cp-goal-card__done-list li { display: grid; gap: 2px; }
 @media (max-width: 600px) {
-  .cp-page .cp-finished { padding: 14px; }
+  .cp-page .cp-finished { padding: 3.8vw; }
   .cp-page .cp-finished__kitsu { width: 48px; height: 48px; }
   .cp-page .cp-finished__actions > * { flex: 1 1 100%; text-align: center; }
 }

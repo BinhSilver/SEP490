@@ -34,9 +34,9 @@
 .jp-page {
   box-sizing: border-box;
   width: 100%;
-  max-width: 1200px;
+  max-width: min(1200px, 96vw);
   margin: 0 auto;
-  padding: 16px;
+  padding: clamp(12px, 2.5vw, 16px);
   color: var(--jp-ink);
 }
 
@@ -44,7 +44,7 @@
 .jp-page * { min-width: 0; }
 
 @media (max-width: 480px) {
-  .jp-page { padding: 12px; }
+  .jp-page { padding: 3vw; }
 }
 
 /* [JLAS-W0108] Shared furigana visibility & toggle pill across all path pages */
@@ -480,8 +480,8 @@ html.dark .cp-page {
 @media (max-width: 768px) {
   .jp-page,
   .cp-page {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 3.2vw;
+    padding-right: 3.2vw;
   }
 }
 
@@ -507,8 +507,8 @@ html.dark .cp-page {
 }
 /* [JLAS-W0108] A5: shared notice when the server cannot be reached */
 .jp-net-notice {
-  position: fixed; left: 16px; right: 16px; margin: 0 auto; width: fit-content; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 1000;
-  display: flex; align-items: center; gap: 10px; max-width: calc(100vw - 32px); padding: 10px 12px 10px 16px;
+  position: fixed; left: 4vw; right: 4vw; margin: 0 auto; width: fit-content; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 1000;
+  display: flex; align-items: center; gap: 10px; max-width: 92vw; padding: 10px 12px 10px 16px;
   border-radius: 12px; background: var(--jp-ink, #1f1a33); color: var(--jp-surface, #fff); box-shadow: 0 6px 24px rgba(0,0,0,.25);
   font-size: .92rem;
 }
