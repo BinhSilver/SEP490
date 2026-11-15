@@ -159,8 +159,9 @@ public class DictionaryController {
     @PostMapping("/handwriting/recognize")
     public ApiResponse<List<KanjiResponse>> recognizeHandwriting(
             @Valid @RequestBody HandwritingRequest request,
-            @AuthenticationPrincipal UserPrincipal user) {
-        handwritingRateLimiter.check(id(user));
+            @AuthenticationPrincipal UserPrincipal user, HttpServletRequest servletRequest) {
+        String clientKey = user == null ? "ip:" + servletRequest.getRemoteAddr() : "user:" + user.userId();
+        handwritingRateLimiter.check(clientKey);
         return ApiResponse.ok("OK", dictionaryService.recognizeHandwriting(request));
     }
 
