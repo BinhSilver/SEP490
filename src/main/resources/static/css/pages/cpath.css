@@ -1727,6 +1727,8 @@ button.jp-sidenav__link {
 
 /* [JLAS-W0108] F68 Du lịch: romaji gần đúng, bước "Nghe & chọn nghĩa", khung "Chú thích" của bước Nghe */
 .cp-line__romaji {
+  overflow-wrap: anywhere; /* F173: a long romaji line wrapped out of the speech bubble on a phone */
+  min-width: 0;
   font-size: .82rem;
   color: var(--cp-muted);
   letter-spacing: .01em;

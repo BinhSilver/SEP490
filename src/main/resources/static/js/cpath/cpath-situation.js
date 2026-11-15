@@ -199,11 +199,28 @@
       .replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
   }
 
+  // F173 (AI-test L4): the topic particle は reads "wa" and へ reads "e"; marked where the text shows a word ends
+  // (after a kanji with its reading, after katakana, or after a common pronoun or greeting), with spaces around
+  var PARTICLE = { 'は': '', 'へ': '', 'が': '', 'を': '', 'に': '', 'で': '',
+    'と': '', 'も': '' };
+  var PARTICLE_ROMAJI = { '': ' wa ', '': ' e ', '': 'wa', '': ' ga ', '': ' o ',
+    '': ' ni ', '': ' de ', '': ' to ', '': ' mo ' };
+  function markParticles(text) {
+    return String(text == null ? '' : text)
+      .replace(/(こんにち|こんばん)は/g, '$1')
+      .replace(/(\)|\}|[ァ-ヺー])([はへがをにでとも])/g, function (m, end, p) { return end + PARTICLE[p]; })
+      .replace(/(^|[\s、。「])(わたし|あなた|これ|それ|あれ|ここ|そこ|あそこ|きょう|こんにち|こんばん|かれ|かのじょ)は/g,
+        function (m, lead, w) { return lead + w + PARTICLE['は']; })
+      // です / でした / でしょう after a word is the copula, not the particle で
+      .replace(/(?=[すし])/g, 'で');
+  }
+
   function toRomaji(text) {
-    var t = readingText(text);
+    var t = readingText(markParticles(text));
     var out = '';
     for (var i = 0; i < t.length; i++) {
       var c = t[i], next = t[i + 1];
+      if (PARTICLE_ROMAJI[c]) { out += PARTICLE_ROMAJI[c]; continue; }
       if (c === 'っ') {
         var n = next && SMALL_VOWEL[t[i + 2]] && SMALL_COMBO[next] ? SMALL_COMBO[next] : (KANA[next] || '');
         out += n.indexOf('ch') === 0 ? 't' : (n[0] || '');
