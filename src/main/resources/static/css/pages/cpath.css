@@ -2108,3 +2108,10 @@ button.jp-sidenav__link {
   .cp-sit-shell .cp-sit-steps { scroll-margin-top: 72px; }
   .cp-sit-shell .cp-sit-stage { padding-bottom: 12px; }
 }
+
+/* [JLAS-W0108] F192 (probe P2-2): on a short landscape phone (812x375) the sticky step footer, the fixed header and the
+   bottom bar left ~170px for the word card; let the footer scroll with the page there */
+@media (max-height: 500px) and (orientation: landscape) {
+  .cp-page .cp-sit-foot,
+  .cp-sit-foot { position: static; }
+}
