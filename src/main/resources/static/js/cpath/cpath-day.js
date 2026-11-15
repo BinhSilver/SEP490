@@ -222,11 +222,16 @@
     var search = (root && root.location && root.location.search) ? String(root.location.search) : '';
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(search);
     var day = m ? m[1] : null;
+    // F185: a wrong or future ?d= opened today silently; say so and fix the address bar
+    var notice = (!m && /[?&]d=/.test(search)) ? 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.' : '';
     // F94: ?d=2026-02-31 / 2026-13-01 match the pattern but are no real day; the server answers 400
     // and "Thử lại" would ask the same bad day forever, so open today instead
     if (day) {
       var probe = new Date(day + 'T00:00:00Z');
-      if (isNaN(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) day = null;
+      if (isNaN(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) {
+        day = null;
+        notice = 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.';
+      }
     }
 
     function load() {
@@ -236,11 +241,14 @@
         var today = String(data.today || data.day || '').slice(0, 10);
         if (!day || day > today) {
           // no day asked, or a day after today: show today
-          if (day && day > today) { day = today; load(); return; }
+          if (day && day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
           day = String(data.day || today).slice(0, 10);
         }
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = dayHtml(data, day, today);
+        el.innerHTML = (notice ? '<p class="jp-alert" role="status">' + esc(notice) + '</p>' : '') + dayHtml(data, day, today);
+        if (notice && root.history && root.history.replaceState) {
+          try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
+        }
       }).catch(function (error) {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Chưa tải được chi tiết ngày.')

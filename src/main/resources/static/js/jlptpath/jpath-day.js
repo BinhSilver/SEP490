@@ -278,6 +278,14 @@
     var today = iso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(String(root.location && root.location.search || ''));
     var day = m ? m[1] : today;
+    // F185: a wrong (2026-02-31) or future ?d= errored forever or jumped silently; open today, say so, fix the URL
+    var notice = '';
+    if (m) {
+      var probe = new Date(day + 'T00:00:00Z');
+      if (isNaN(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) { day = today; notice = 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.'; }
+    } else if (/[?&]d=/.test(String(root.location && root.location.search || ''))) {
+      notice = 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.';
+    }
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
       var wDays = weekDays(day);
@@ -295,10 +303,13 @@
         var d = res[0];
         var weekMap = res[1];
         if (d && d.today) today = String(d.today);
-        if (day > today) { day = today; load(); return; }
+        if (day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
         if (d && weekMap) d.weekStatus = weekMap;
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = dayHtml(d, day, today);
+        el.innerHTML = (notice ? '<p class="jp-alert" role="status">' + esc(notice) + '</p>' : '') + dayHtml(d, day, today);
+        if (notice && root.history && root.history.replaceState) {
+          try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
+        }
         if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);
         if (root.JpathWriting && root.JpathWriting.bind) root.JpathWriting.bind(el);
       }, function () {
