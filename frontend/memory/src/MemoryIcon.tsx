@@ -1,4 +1,4 @@
-type IconName = 'sound' | 'muted' | 'pause' | 'play' | 'exit' | 'volume'
+type IconName = 'sound' | 'muted' | 'pause' | 'play' | 'exit' | 'volume' | 'flag'
 
 export function MemoryIcon({ name }: { name: IconName }) {
   return (
@@ -13,6 +13,7 @@ export function MemoryIcon({ name }: { name: IconName }) {
       {name === 'pause' && <><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></>}
       {name === 'play' && <path d="m8 4 12 8-12 8V4Z" />}
       {name === 'exit' && <><path d="M10 7V4H4v16h6v-3" /><path d="M9 12h12m-4-4 4 4-4 4" /></>}
+      {name === 'flag' && <><path d="M5 21V4" /><path d="M5 4h11l-2 4 2 4H5" /></>}
       {name === 'volume' && <><path d="M4 7h8m6 0h2M4 17h2m6 0h8" /><circle cx="15" cy="7" r="3" /><circle cx="9" cy="17" r="3" /></>}
     </svg>
   )

@@ -868,8 +868,12 @@
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-score-ring strong {
   position: absolute;
+  max-width: 84px;
   color: var(--color-primary);
-  font-size: var(--text-2xl);
+  /* Two decimals ("33.33%") still fit inside the 88px hole. */
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-score-copy {
@@ -2046,14 +2050,16 @@
   color: var(--color-success);
   background: var(--color-success-bg);
   border-color: var(--color-success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 18%, transparent);
+  /* One colored border only: the old 3px halo spilled past the card edge. */
+  box-shadow: none;
 }
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-option.is-wrong:disabled {
   color: var(--color-error);
   background: var(--color-error-container);
   border-color: var(--color-error);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 16%, transparent);
+  /* One colored border only: the old 3px halo spilled past the card edge. */
+  box-shadow: none;
 }
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-option.is-correct.is-answer-bounce {

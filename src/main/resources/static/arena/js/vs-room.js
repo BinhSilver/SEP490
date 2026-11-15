@@ -391,9 +391,9 @@
       return '<option value="' + esc(pair.question) + '">' + esc(fieldName(pair.question)) + '</option>';
     }).join('');
     return '<div class="vs__pair" role="group" aria-label="' + esc(step.title) + '">'
-      + '<label class="vs__field"><span>Hỏi bằng</span><select data-vs-pair="question">' + questions + '</select></label>'
+      + '<label class="vs__field"><span>Hỏi bằng</span><select data-jl-select data-vs-pair="question">' + questions + '</select></label>'
       + '<span class="vs__pair-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>'
-      + '<label class="vs__field"><span>Trả lời bằng</span><select data-vs-pair="answer"></select></label>'
+      + '<label class="vs__field"><span>Trả lời bằng</span><select data-jl-select data-vs-pair="answer"></select></label>'
       + '</div>'
       + '<p class="vs__pair-meta" data-vs-pair-meta aria-live="polite"></p>';
   }

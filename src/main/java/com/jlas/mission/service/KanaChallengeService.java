@@ -285,10 +285,11 @@ public class KanaChallengeService {
         Instant now = clock.now();
         long playedMs = c.completedAt() != null && c.elapsedSeconds() != null ? c.elapsedSeconds() * 1000L : progress.playedMs(now);
         Instant nextHint = c.completedAt() != null || !anyHidden(puzzle, progress) ? null
-                : now.plusMillis(progress.hintWaitMs(now));
+                : clock.toWallClock(now.plusMillis(progress.hintWaitMs(now)));
         String level = c.board().level();
         return new Today(c.id(), puzzle.version(), c.board().date(),
-                c.board().date().plusDays(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant(), c.startedAt(),
+                clock.toWallClock(c.board().date().plusDays(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant()),
+                c.startedAt(),
                 level, defaultLevel, MIX.equals(level), puzzle.gridSize(), puzzle.cells(),
                 puzzle.cells().stream().filter(cell -> cell.kana() == null).map(KanaPuzzle.Cell::id).toList(),
                 slots, progress.solvedWordIds(), solvedPaths, c.completedAt() != null, c.elapsedSeconds(),

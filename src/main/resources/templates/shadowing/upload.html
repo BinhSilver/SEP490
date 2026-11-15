@@ -13,8 +13,10 @@
     <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261109-transcript">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
     <link rel="stylesheet" href="/css/pages/shadowing.css"/>
-    <link rel="stylesheet" href="/css/jlab-base-shell.css"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-create">
     <div id="jlabBaseShellMount"></div>
@@ -65,7 +67,7 @@
                 <div class="create-shared-options">
                     <div class="form-group">
                         <label class="form-label" for="file-category-select">Hình thức</label>
-                        <select id="file-category-select" class="form-input form-select">
+                        <select id="file-category-select" data-jl-select class="form-input form-select">
                             <option value="Podcast">Podcast</option>
                             <option value="Anime">Anime</option>
                             <option value="Drama">Phim kịch</option>
@@ -79,14 +81,14 @@
                     <div class="form-group create-genres" th:replace="~{shadowing/genre-picker :: picker('file-genres')}"></div>
                     <div class="form-group">
                         <label class="form-label" for="file-lang-select">Dịch sang</label>
-                        <select id="file-lang-select" class="form-input form-select">
+                        <select id="file-lang-select" data-jl-select class="form-input form-select">
                             <option value="vi">Tiếng Việt</option>
                             <option value="en">Tiếng Anh</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="file-min-age-select">Độ tuổi</label>
-                        <select id="file-min-age-select" class="form-input form-select">
+                        <select id="file-min-age-select" data-jl-select class="form-input form-select">
                             <option value="0" selected>Mọi lứa tuổi</option>
                             <option value="13">13+</option>
                             <option value="16">16+</option>
@@ -141,7 +143,7 @@
                     <div class="create-shared-options">
                         <div class="form-group">
                             <label class="form-label" for="yt-category-select">Hình thức</label>
-                            <select id="yt-category-select" class="form-input form-select">
+                            <select id="yt-category-select" data-jl-select class="form-input form-select">
                                 <option value="Podcast">Podcast</option>
                                 <option value="Anime">Anime</option>
                                 <option value="Drama">Phim kịch</option>
@@ -155,14 +157,14 @@
                         <div class="form-group create-genres" th:replace="~{shadowing/genre-picker :: picker('yt-genres')}"></div>
                         <div class="form-group">
                             <label class="form-label" for="yt-lang-select">Dịch sang</label>
-                            <select id="yt-lang-select" class="form-input form-select">
+                            <select id="yt-lang-select" data-jl-select class="form-input form-select">
                                 <option value="vi">Tiếng Việt</option>
                                 <option value="en">Tiếng Anh</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="yt-min-age-select">Độ tuổi</label>
-                            <select id="yt-min-age-select" class="form-input form-select" aria-describedby="yt-min-age-hint">
+                            <select id="yt-min-age-select" data-jl-select class="form-input form-select" aria-describedby="yt-min-age-hint">
                                 <option value="0" selected>Mọi lứa tuổi</option>
                                 <option value="13">13+</option>
                                 <option value="16">16+</option>

@@ -1,5 +1,6 @@
 import { PlayerPanel, ResultPanel } from './MemoryEffects';
 import { CoinTossOverlay } from './CoinTossOverlay'
+import { fitBoard, lastRowShift } from './boardFit'
 import { MemoryCardButton } from './MemoryCardButton'
 import { MemoryIcon } from './MemoryIcon'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
@@ -257,24 +258,18 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   const me = state?.players.find((player) => player.userId === userId)
   const myTurn = state?.playMode === 'SOLO' || state?.currentTurnUserId === userId
   const boardRef = useRef<HTMLDivElement>(null)
-  const [boardFit, setBoardFit] = useState({ columns: 4, size: 0 })
+  const [boardFit, setBoardFit] = useState({ columns: 4, rows: 5, size: 0, gap: 0 })
   const boardColumns = boardFit.columns
-  const boardRows = Math.max(1, Math.ceil((state?.cards.length ?? 20) / boardColumns))
+  const boardRows = boardFit.rows
   useLayoutEffect(() => {
     const board = boardRef.current
     if (!board) return
     const fit = () => {
       const count = state?.cards.length ?? 20
       const gap = parseFloat(getComputedStyle(board).columnGap) || 0
-      // Prefer four cards across and require complete rows (20 cards → 4 × 5).
-      const columns = [4, 3, 2, 1].find(value => count % value === 0) ?? 1
-      const rows = count / columns
-      const size = Math.max(0, Math.floor(Math.min(
-        (board.clientWidth - (columns - 1) * gap) / columns,
-        (board.clientHeight - (rows - 1) * gap) / rows
-      )))
-      const best = { columns, size }
-      setBoardFit(current => current.columns === best.columns && current.size === best.size ? current : best)
+      // Use the room the board really has: the column count that gives the largest cards (see boardFit.ts).
+      const best = { ...fitBoard(count, board.clientWidth, board.clientHeight, gap), gap }
+      setBoardFit(current => current.columns === best.columns && current.size === best.size && current.gap === best.gap ? current : best)
     }
     fit()
     const observer = new ResizeObserver(fit)
@@ -372,6 +367,21 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
     window.location.href = backUrl
   }
 
+  /** Đối kháng: đầu hàng là xử thua ngay nhưng vẫn ở lại bàn; màn tổng kết hiện khi server báo hết ván. */
+  const [surrendering, setSurrendering] = useState(false)
+  const surrender = async () => {
+    if (!state || state.playMode !== 'MULTIPLAYER' || state.status === 'FINISHED' || state.status === 'ABORTED') return
+    if (!window.confirm('Đầu hàng sẽ xử thua ván này. Bạn vẫn ở lại bàn để xem kết quả.')) return
+    setSurrendering(true)
+    try {
+      await window.JlasArena.api.leaveSession(sessionId)
+    } catch {
+      // Ván có thể vừa kết thúc; trạng thái mới vẫn đến qua kênh trực tiếp.
+    } finally {
+      setSurrendering(false)
+    }
+  }
+
   /** Đối kháng: rời bàn giữa ván là xử thua, nên hỏi lại trước khi rời. */
   const leaveBoard = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!state || state.playMode !== 'MULTIPLAYER' || state.status === 'FINISHED' || state.status === 'ABORTED') return
@@ -444,10 +454,11 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
               <small>{state.deckTitle} · {FIELD_LABELS[state.config.questionField]} ↔ {FIELD_LABELS[state.config.answerField]}</small>
             </div>
             <div ref={boardRef} className="memory-board" style={{ '--board-cols': boardColumns, '--board-rows': boardRows, '--card-size': `${boardFit.size}px` } as React.CSSProperties}>
-              {state.cards.slice().sort((a, b) => a.position - b.position).map((card) => (
+              {state.cards.slice().sort((a, b) => a.position - b.position).map((card, index, all) => (
                 <MemoryCardButton
                   key={card.cardInstanceId}
                   card={card}
+                  shift={lastRowShift(index, all.length, boardColumns, boardFit.size, boardFit.gap)}
                   colorGroup={state.config.distinguishCardTypes && card.face
                     ? card.face === state.config.questionField ? 'question' : 'answer'
                     : undefined}
@@ -474,8 +485,14 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
             </>}
             <span><small>Lượt</small><strong>{state.movesUsed}</strong></span>
             <i />
-            <span><small>Thời gian</small><strong className={turnLeft != null && turnLeft <= 5 ? 'is-urgent' : ''}>{totalLeft != null ? formatDuration(totalLeft * 1000) : formatDuration((turnLeft ?? 0) * 1000)}</strong></span>
-            <i />
+            {/* Untimed: no match clock. A turn limit still counts down, labelled as the turn's time, not the match's. */}
+            {totalLeft != null ? <>
+              <span><small>Thời gian</small><strong className={turnLeft != null && turnLeft <= 5 ? 'is-urgent' : ''}>{formatDuration(totalLeft * 1000)}</strong></span>
+              <i />
+            </> : turnLeft != null ? <>
+              <span><small>Lượt còn</small><strong className={turnLeft <= 5 ? 'is-urgent' : ''}>{formatDuration(turnLeft * 1000)}</strong></span>
+              <i />
+            </> : null}
             <span><small>Combo</small><strong className={(me?.streak ?? 0) >= 2 ? 'is-combo' : ''}>x{me?.streak ?? 0}</strong></span>
           </div>
           <div className="memory-sidebar-controls" ref={settingsRef}>
@@ -566,6 +583,22 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
             >
               <MemoryIcon name={state.status === 'PAUSED' ? 'play' : 'pause'} />
               <span className="memory-icon-btn__label">{state.status === 'PAUSED' ? 'Tiếp tục' : 'Tạm dừng'}</span>
+            </button>
+          )}
+          {state.playMode === 'MULTIPLAYER' && (
+            <button
+              type="button"
+              className="memory-icon-btn memory-icon-btn--surrender"
+              onClick={() => {
+                if (soundEnabled) playClickSfx()
+                void surrender()
+              }}
+              disabled={surrendering}
+              aria-label="Đầu hàng"
+              title="Đầu hàng"
+            >
+              <MemoryIcon name="flag" />
+              <span className="memory-icon-btn__label">Đầu hàng</span>
             </button>
           )}
           <a className="memory-icon-btn memory-icon-btn--exit" href={backUrl} onClick={leaveBoard} aria-label="Rời bàn" title="Rời bàn"><MemoryIcon name="exit" /><span className="memory-icon-btn__label">Rời bàn</span></a>

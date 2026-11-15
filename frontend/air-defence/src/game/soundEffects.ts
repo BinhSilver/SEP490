@@ -433,58 +433,6 @@ export class SoundManager {
   // ==========================================================================
   // 4. ACTION & COMBAT SFX
   // ==========================================================================
-  playAugmentHover() {
-    const vol = this.getCalculatedSfxVolume(0.5);
-    if (vol <= 0) return;
-    try {
-      this.initContext();
-      if (!this.ctx) return;
-
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.05);
-
-      gain.gain.setValueAtTime(vol * 0.35, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.05);
-    } catch (e) {}
-  }
-
-  playAugmentSelect() {
-    const vol = this.getCalculatedSfxVolume(1.0);
-    if (vol <= 0) return;
-    try {
-      this.initContext();
-      if (!this.ctx) return;
-
-      const chord = [440, 554.37, 659.25, 880, 1108.73];
-      chord.forEach((freq, idx) => {
-        const osc = this.ctx!.createOscillator();
-        const gain = this.ctx!.createGain();
-
-        osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(freq, this.ctx!.currentTime + idx * 0.04);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, this.ctx!.currentTime + idx * 0.04 + 0.4);
-
-        gain.gain.setValueAtTime(0.001, this.ctx!.currentTime + idx * 0.04);
-        gain.gain.linearRampToValueAtTime(vol * 0.4, this.ctx!.currentTime + idx * 0.04 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx!.currentTime + idx * 0.04 + 0.5);
-
-        osc.connect(gain);
-        gain.connect(this.ctx!.destination);
-        osc.start(this.ctx!.currentTime + idx * 0.04);
-        osc.stop(this.ctx!.currentTime + idx * 0.04 + 0.5);
-      });
-    } catch (e) {}
-  }
-
   playKeyStroke() {
     if (!this.settings.keystrokeEnabled) return;
     const vol = this.getCalculatedSfxVolume(0.45);

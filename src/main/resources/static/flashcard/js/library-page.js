@@ -477,7 +477,7 @@
             '<h3 class="lib-card__title"><a href="' + setHref + '">' +
               FlashShell.esc(setTitle) + '</a></h3>' +
             '<div class="lib-card__count">' + totalCards + ' từ</div>' +
-            (s.ownedByMe && state.tab === 'my' ? '<label class="lib-folder-select"><span>Thư mục</span><select data-move-set="' + s.id + '">' + folderOptions(s.folderId) + '</select></label>' : '') +
+            (s.ownedByMe && state.tab === 'my' ? '<label class="lib-folder-select"><span>Thư mục</span><select data-jl-select data-move-set="' + s.id + '">' + folderOptions(s.folderId) + '</select></label>' : '') +
             '<div class="lib-card__actions">' +
               (s.draft
                 ? '<a class="btn btn--primary btn-primary btn-sm lib-icon-action" href="/flashcard/editor.html?id=' + s.id + '" title="Tiếp tục soạn" aria-label="Tiếp tục soạn"><i class="fa-solid fa-pen" aria-hidden="true"></i></a>'

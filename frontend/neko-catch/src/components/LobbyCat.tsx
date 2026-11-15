@@ -110,25 +110,23 @@ const CharacterLobby: React.FC<{ skinId: CatSkinId; className?: string; forceMot
   const name = CAT_SKINS.find(skin => skin.id === skinId)?.name ?? 'Nhân vật';
   useEffect(() => {
     setReady(false);
-    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let raf = 0, painted = false;
     const started = performance.now();
     const draw = () => {
       if (document.hidden) return;
       const ctx = canvas.current?.getContext('2d');
-      const reduced = !forceMotion && motion.matches;
+      // Animations always play, whatever the device's reduced-motion setting (project rule).
+      const reduced = false;
       const drawn = !!ctx && drawCharacterLobby(ctx, 300, 260, skinId, performance.now() - started, reduced);
       if (drawn && !painted) { painted = true; setReady(true); }
       if (!reduced || !drawn) raf = requestAnimationFrame(draw);
     };
     const resume = () => { cancelAnimationFrame(raf); draw(); };
     document.addEventListener('visibilitychange', resume);
-    motion.addEventListener('change', resume);
     draw();
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener('visibilitychange', resume);
-      motion.removeEventListener('change', resume);
     };
   }, [skinId, forceMotion]);
   return <div className={`relative ${className}`} role="img" aria-label={`${name} đang nghỉ trước trận`}

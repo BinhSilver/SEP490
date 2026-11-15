@@ -830,15 +830,6 @@ body.page-login::before {
   justify-content: center;
 }
 
-/* GIS injects fixed inline widths. Constrain its outer wrapper to the form. */
-.page-login #googleBtnContainer > div,
-.page-login #googleBtnContainer [role="button"],
-.page-login #googleBtnContainer iframe {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box;
-}
 
 .page-login .form-footer {
   margin: 20px 0 0;
@@ -995,4 +986,56 @@ html[data-theme="dark"] .page-login .login-background {
 
   .page-login .login-forgot-desktop,
   .page-login .login-divider-desktop { display: none; }
+}
+
+/* Google sign-in: a face sized like the form's buttons, with Google's real (invisible) button stretched over it.
+   Google caps its own button at 400 x 40px, which never matched the full-width 44px buttons above. */
+.page-login .google-login {
+  position: relative;
+  width: 100%;
+  min-height: 44px;
+}
+.page-login .google-login__face {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 24px;
+  border: 1px solid var(--login-border);
+  border-radius: 10px;
+  background: var(--login-surface);
+  color: var(--login-ink);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.page-login .google-login:hover .google-login__face {
+  border-color: var(--login-muted);
+  background: color-mix(in srgb, var(--login-surface) 92%, var(--login-ink));
+}
+.page-login .google-login:focus-within .google-login__face {
+  border-color: var(--login-focus, #2563eb);
+  box-shadow: 0 0 0 3px var(--login-focus-ring, rgb(37 99 235 / 18%));
+}
+.page-login .google-login #googleBtnContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0.01;
+}
+/* Shrink-wrap Google's button so login.js can measure it and scale it to the face. */
+.page-login .google-login #googleBtnContainer > div {
+  display: inline-block !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  vertical-align: top;
+  filter: none !important;
 }

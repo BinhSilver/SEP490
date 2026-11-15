@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261105-plum">
-    <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261110-review">
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap">
     <link rel="icon" href="/images/jlab.png" type="image/png">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
@@ -75,6 +75,17 @@
                 </section>
 
                 <section id="exercise-answer-box" aria-live="polite">
+                    <div id="exercise-review" hidden>
+                        <p id="exercise-review-label"></p>
+                        <p id="exercise-review-prompt" lang="ja"></p>
+                        <div id="exercise-review-answer">
+                            <span>Đáp án</span>
+                            <p id="exercise-review-expected" lang="ja"></p>
+                        </div>
+                        <p id="exercise-review-mine"></p>
+                        <p id="exercise-review-explanation" hidden></p>
+                        <button id="exercise-review-back" type="button"><i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> <span>Quay lại câu đang làm</span></button>
+                    </div>
                     <div id="exercise-waiting-state">
                         <i class="fa-solid fa-headphones-simple" aria-hidden="true"></i>
                         <div>
@@ -126,6 +137,6 @@
 <script src="/shadowing/js/subtitle-display.js?v=20261012-7"></script>
 <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
 <script src="/shadowing/js/youtube-media.js?v=20261109-file-first"></script>
-<script src="/shadowing/js/exercise.js?v=20261021-yt"></script>
+<script src="/shadowing/js/exercise.js?v=20261110-review"></script>
 </body>
 </html>
