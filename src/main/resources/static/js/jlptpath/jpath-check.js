@@ -61,6 +61,9 @@
   var MSG_NOT_FOUND = 'Không tìm thấy bài kiểm tra này.';
   var MSG_LOAD_FAILED = 'Chưa tải được bài kiểm tra. Thử lại sau.';
   var MSG_SEND_FAILED = 'Chưa gửi được câu trả lời. Hãy thử lại.';
+  var MSG_TIMEOUT_FAILED = 'Hết giờ nhưng chưa gửi được. Kiểm tra kết nối rồi bấm Thử lại.';
+  var CLOSED_HTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
+    + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
   var BOARD_HINT = 'Chọn 1 ô trái rồi 1 ô phải. Sai thì nháy đỏ, tính 1 lỗi, chọn lại.';
 
   function D() { return root && root.JpathDisplay; }
@@ -108,6 +111,7 @@
     var byId = {};
     var state = { token: check && check.token, kind: check && check.kind, tab: check && check.tab,
       timerOn: !!(check && check.timerOn), questions: qs, types: {}, boards: {}, answers: {}, pending: {}, placed: {},
+      stalled: {},
       qStartedMs: now || 0, index: 0 };
     qs.forEach(function (q) {
       byId[q.id] = q;
@@ -162,7 +166,9 @@
 
   function timerActive(check, state) {
     var q = current(state);
-    return !!(state.timerOn && q && !isBoard(q) && q.timerSec && !state.answers[q.id]);
+    // F138: a question whose TIMEOUT could not be sent is not timed any more — the learner retries by hand.
+    return !!(state.timerOn && q && !isBoard(q) && q.timerSec && !state.answers[q.id]
+      && !(state.stalled && state.stalled[q.id]));
   }
 
   var START_PREFIX = 'jpath.qstart.';
@@ -304,9 +310,15 @@
       s.answers[qid] = { value: state.pending[qid] === undefined ? null : state.pending[qid], correct: !!r.correct,
         correctValue: r.correctValue, explanation: r.explanation, compare: r.compare || null, report: r.report || null };
       delete s.pending[qid];
+      if (state.stalled && state.stalled[qid]) { s.stalled = copy(state.stalled); delete s.stalled[qid]; }
       return { state: s };
     }
-    if (e.type === 'FAIL') { delete s.pending[qid]; return { state: s }; }
+    if (e.type === 'FAIL') {
+      // F138: a failed TIMEOUT (value null) stalls the question so the ticker does not send it again and again.
+      if (state.pending[qid] === null) { s.stalled = copy(state.stalled || {}); s.stalled[qid] = true; }
+      delete s.pending[qid];
+      return { state: s };
+    }
     return { state: state };
   }
 
@@ -897,8 +909,13 @@
       if (state.index >= state.questions.length) { stopTicker(); submit(); return; }
       var q = current(state);
       if (q && !finished(state, q)) state.qStartedMs = questionStart(env.storage, token, q.id, state.qStartedMs);
+      var stalledHtml = q && state.stalled && state.stalled[q.id] && !state.answers[q.id]
+        && !Object.prototype.hasOwnProperty.call(state.pending, q.id)
+        ? '<div class="jp-check__error" role="alert" data-part="timeout-failed"><p>' + esc(MSG_TIMEOUT_FAILED) + '</p>'
+          + '<button type="button" class="jp-btn jp-btn--primary" data-action="timeout-retry">Thử lại</button></div>'
+        : '';
       el.innerHTML = '<div class="jp-check">' + headerHtml(check, state) + questionHtml(q, questionState(state, q), display)
-        + '<p class="jp-status" role="status" data-part="status"></p></div>';
+        + stalledHtml + '<p class="jp-status" role="status" data-part="status"></p></div>';
       el.setAttribute('aria-busy', 'false');
       if (D()) D().rendered(el, env.doc);
       restoreFocus();
@@ -931,12 +948,21 @@
         state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res }).state;
         env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
-      }, function () {
+      }, function (err) {
         if (!alive) return;
         state = answerReduce(state, { type: 'FAIL', questionId: r.request.questionId }).state;
+        if (err && err.code === 'JPATH_CHECK_CLOSED') { showClosed(); return; }
         draw();
-        status(MSG_SEND_FAILED);
+        if (r.request.value !== null) status(MSG_SEND_FAILED);
       });
+    }
+
+    /** F138: the check was submitted elsewhere (another tab) or its time is over — stop and say so once. */
+    function showClosed() {
+      stopTicker();
+      stopKeys();
+      el.setAttribute('aria-busy', 'false');
+      el.innerHTML = CLOSED_HTML;
     }
 
     function pick(ev) {
@@ -989,6 +1015,7 @@
       if (!(n = closestAttr(target, 'data-action', el))) return;
       var action = n.getAttribute('data-action');
       if (action === 'next') return next();
+      if (action === 'timeout-retry') return sendAnswer({ type: 'TIMEOUT', questionId: q.id, nowMs: env.now() });
       if (action === 'play-audio') return env.playAudio(n.getAttribute('data-audio'));
       if (action === 'submit-order') return sendAnswer({ type: 'CHOOSE', questionId: q.id, value: (state.placed[q.id] || []).join(','), nowMs: env.now() });
       if (action === 'submit-fill') {
@@ -1078,8 +1105,7 @@
         } else if (err && err.code === 'JPATH_CHECK_INCOMPLETE') {
           load();
         } else if (err && err.code === 'JPATH_CHECK_CLOSED') {
-          el.innerHTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
-            + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+          el.innerHTML = CLOSED_HTML;
         } else {
           el.innerHTML = errorHtml(err);
         }
