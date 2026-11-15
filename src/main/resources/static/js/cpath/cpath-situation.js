@@ -867,11 +867,16 @@
 
     var stepTabsHtml = STEPS_ORDER.map(function (key, idx) {
       var isDone = !!stepsStatus[key.toLowerCase()];
+      // L10: a SPEAK step finished by "Bỏ qua" (no graded line) is not shown as done
+      var isSkipped = isDone && key === 'SPEAK'
+        && (!!state.anyMicSkipped || !!(state.lastSpeakBody && state.lastSpeakBody.skippedMic)
+          || (Object.prototype.hasOwnProperty.call(s, 'speakBest') && s.speakBest == null));
+      if (isSkipped) isDone = false;
       var isActive = !state.showDoneScreen && state.activeStep === key;
-      var cls = 'cp-step-tab' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '');
+      var cls = 'cp-step-tab' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '') + (isSkipped ? ' is-skipped' : '');
       return '<button type="button" class="' + cls + '" data-cp-goto-step="' + key + '">'
         + '<span class="cp-step-tab__num">' + (isDone ? svgCheckSmall() : (idx + 1)) + '</span>'
-        + '<span>' + esc(stepTitle(key, s)) + '</span>'
+        + '<span>' + esc(stepTitle(key, s)) + (isSkipped ? ' <small>(Đã bỏ qua)</small>' : '') + '</span>'
         + '</button>';
     }).join('');
 
