@@ -42,6 +42,7 @@ public class CpathService {
 
     private final JdbcTemplate db;
     private final com.jlas.jlptpath.service.JpathClock clock;
+    @org.springframework.beans.factory.annotation.Autowired(required = false) private CpathTeamNotebookMirror teamNotebook; // F126
 
     public CpathService(JdbcTemplate db, com.jlas.jlptpath.service.JpathClock clock) {
         this.db = db;
@@ -1437,6 +1438,7 @@ public class CpathService {
                 db.update("INSERT INTO cpath_user_note (path_id, item_code, kind) VALUES (?,?,?) ON DUPLICATE KEY UPDATE wrong_count = wrong_count + 1",
                         pid, q.id(), q.id().matches(".*-L\\d+$") ? "LINE" : "ITEM");
             }
+            if (teamNotebook != null) teamNotebook.answered(userId, q.id(), ok); // F126: chép sang sổ "Lộ trình học"
             Map<String, Object> r = new LinkedHashMap<>();
             r.put("id", q.id());
             r.put("ja", q.ja());
@@ -1699,6 +1701,7 @@ public class CpathService {
                 db.update("INSERT INTO cpath_user_note (path_id, item_code, kind) VALUES (?,?,?) "
                         + "ON DUPLICATE KEY UPDATE wrong_count = wrong_count + 1", pid, q.id(), q.id().matches(".*-L\\d+$") ? "LINE" : "ITEM");
             }
+            if (teamNotebook != null) teamNotebook.answered(userId, q.id(), ok); // F126: chép sang sổ "Lộ trình học"
             Map<String, Object> r = new LinkedHashMap<>();
             r.put("id", q.id());
             r.put("ja", q.ja());
@@ -1809,6 +1812,7 @@ public class CpathService {
     /** Sổ tay of the main path: missed words, phrases and learner lines, most missed first. */
     @Transactional(readOnly = true)
     public Map<String, Object> notebook(Long userId) {
+        if (teamNotebook != null) teamNotebook.ensure(userId); // F126: sổ "Lộ trình học" hiện ngay ở Sổ tay của tôi
         Map<String, Object> p = requirePath(userId);
         Long pathId = ((Number) p.get("id")).longValue();
         List<Map<String, Object>> rows = new ArrayList<>(db.queryForList("SELECT n.item_code id, n.kind, n.wrong_count, i.ja, i.reading, i.vi, i.audio_path, "
