@@ -59,6 +59,33 @@ public class CpathService {
         this.awards = awards;
     }
 
+    private org.springframework.beans.factory.ObjectProvider<com.jlas.mission.service.DailyGoalService> dailyGoals;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setDailyGoals(org.springframework.beans.factory.ObjectProvider<com.jlas.mission.service.DailyGoalService> dailyGoals) {
+        this.dailyGoals = dailyGoals;
+    }
+
+    /** [JLAS-W0108] F128: re-checks the learner's own daily goal after commit (situation study counts toward it). */
+    private void refreshDailyGoalAfterCommit(Long userId) {
+        com.jlas.mission.service.DailyGoalService goal = dailyGoals == null ? null : dailyGoals.getIfAvailable();
+        if (goal == null || !org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) return;
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            if (goal.refreshToday(userId)) {
+                                com.jlas.mission.service.CreditAwardService credit = awards == null ? null : awards.getIfAvailable();
+                                if (credit != null) credit.applyOpenAwards(userId);
+                            }
+                        } catch (RuntimeException ignored) {
+                            // the goals page re-checks today and yesterday
+                        }
+                    }
+                });
+    }
+
     /** The date of a DATETIME column value (the driver gives LocalDateTime or Timestamp). */
     static LocalDate dateOf(Object v) {
         if (v instanceof java.time.LocalDateTime t) return t.toLocalDate();
@@ -870,6 +897,7 @@ public class CpathService {
             if (passedTopic != null)
                 cp += award(userId, TOPIC_CP, REF_TOPIC, situationRef(passedTopic), "Đạt chủ đề giao tiếp " + passedTopic);
             if (first) {
+                refreshDailyGoalAfterCommit(userId); // F128
                 // the whole day: every situation planned for today is done
                 LocalDate today = clock.today(userId);
                 Integer open = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day = ? AND done_at IS NULL",
@@ -1225,6 +1253,7 @@ public class CpathService {
             db.update("UPDATE cpath_user_situation SET steps_done = ?, done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?",
                     String.join(",", STEPS), pathId, code);
             updateTopic(pathId, code);
+            refreshDailyGoalAfterCommit(userId); // F128
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("score", score);
