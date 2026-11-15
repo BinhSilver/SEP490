@@ -66,7 +66,10 @@
   function dayList(codes) { return list(codes).map(function (c) { return D().dayShort(c); }).filter(Boolean).join(', '); }
 
   function tabLearnedCount(info, todayTab) {
-    var known = info ? Number(info.known || info.learned || info.done || 0) : 0;
+    // F150 review: the path tab (JpathTabProgressView) says counted/learning/known; "learned" does not exist and a
+    // rounded percent is 0 for 4 of 800 words, which hid a weekly check that was valid
+    var known = info ? Number(info.counted || 0) + Number(info.learning || 0) + Number(info.known || 0)
+      + Number(info.learned || 0) : 0;
     var pct = info ? Number(info.percent || 0) : 0;
     var td = todayTab || {};
     var doneToday = Number(td.newDone || 0) + Number(td.reviewDone || 0) + (td.done ? 1 : 0);
