@@ -282,15 +282,35 @@
         return date.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit' });
     }
 
+    // Bonus missions only add CP; the daily set (check-in, lesson, quiz) is listed and counted on its own.
+    var BONUS_MISSIONS = ['PUBLISH_SHADOWING'];
+
     function renderMissions(missions) {
         var list = byId('dailyMissionList');
         if (!list) return;
+        var daily = missions.filter(function (mission) { return BONUS_MISSIONS.indexOf(mission.code) < 0; });
+        var bonus = missions.filter(function (mission) { return BONUS_MISSIONS.indexOf(mission.code) >= 0; });
         var summary = byId('missionSummary');
         if (summary) {
-            var claimedCount = missions.filter(function (mission) { return mission.claimed; }).length;
-            summary.textContent = 'Đã nhận ' + claimedCount + '/' + missions.length;
-            summary.classList.toggle('is-complete', missions.length > 0 && claimedCount === missions.length);
+            var claimedCount = daily.filter(function (mission) { return mission.claimed; }).length;
+            summary.textContent = 'Đã nhận ' + claimedCount + '/' + daily.length;
+            summary.classList.toggle('is-complete', daily.length > 0 && claimedCount === daily.length);
         }
+        fillMissionList(list, daily);
+        var bonusList = byId('bonusMissionList');
+        if (bonusList) fillMissionList(bonusList, bonus);
+        // The bonus dialog stays closed; its button says when a bonus reward is ready to claim.
+        var ready = bonus.filter(function (mission) { return mission.completed && !mission.claimed; });
+        var readyBadge = byId('bonusReady');
+        if (readyBadge) readyBadge.hidden = ready.length === 0;
+        var bonusSummary = byId('bonusSummary');
+        if (bonusSummary) {
+            var bonusClaimed = bonus.filter(function (mission) { return mission.claimed; }).length;
+            bonusSummary.textContent = 'Nhiệm vụ Shadowing (' + bonusClaimed + '/' + bonus.length + ') và các nguồn CP khác';
+        }
+    }
+
+    function fillMissionList(list, missions) {
         list.replaceChildren();
         missions.forEach(function (mission) {
             var row = document.createElement('article');
@@ -422,6 +442,15 @@
         label.textContent = 'CP từ học tập hôm nay: ' + earned + '/' + data.dailyEarnCap;
         label.classList.toggle('is-full', earned >= data.dailyEarnCap);
         label.hidden = false;
+        var cap = byId('bonusCap');
+        if (cap) {
+            var left = data.dailyEarnCap - earned;
+            cap.textContent = 'Nhiệm vụ và các nguồn trên tính chung giới hạn ' + data.dailyEarnCap + ' CP mỗi ngày. '
+                + (left > 0 ? 'Hôm nay bạn còn nhận được ' + left + ' CP.' : 'Hôm nay bạn đã nhận đủ; phần vượt không được cộng.');
+            cap.hidden = false;
+        }
+        var goalReward = byId('bonusGoalReward');
+        if (goalReward && data.dailyGoal && data.dailyGoal.reward) goalReward.textContent = data.dailyGoal.reward;
     }
 
     /** Kitsu's line on the goals page: the most useful next step for today. */
@@ -450,13 +479,13 @@
         if (!quiet && loading) loading.hidden = false;
         if (errorBox) errorBox.hidden = true;
         try {
-            var data = await api('/api/mission/dashboard');
+            // Dashboard and credit history load together; the page is filled first and shown in one go.
+            var results = await Promise.all([api('/api/mission/dashboard'), loadCreditHistory()]);
+            var data = results[0];
             render(data);
             dashboardLoaded = true;
-            if (content) content.hidden = false;
-            // F145: the data is shown, so the loading line goes now, not after the reward pop-ups are closed
             if (loading) loading.hidden = true;
-            loadCreditHistory();
+            if (content) content.hidden = false;
             if (window.RewardFX) {
                 // The chip is set after the celebrations: they count it up from the old balance.
                 await RewardFX.checkPending({ week: data.streak.week });
@@ -537,12 +566,16 @@
     }
 
     // ---------- events ----------
-    var missionList = byId('dailyMissionList');
+    // Both the daily and the bonus list sit inside this card, so one listener serves the claim buttons of each.
+    var missionList = byId('dailyMissionsCard');
     if (missionList) {
         missionList.addEventListener('click', async function (event) {
             var button = event.target.closest('[data-mission-code]');
             if (!button) return;
             button.disabled = true;
+            // The reward animation draws under a modal dialog, so a claim from the bonus dialog closes it first.
+            var openDialog = button.closest('dialog[open]');
+            if (openDialog) openDialog.close();
             try {
                 var result = await api('/api/mission/missions/' + encodeURIComponent(button.dataset.missionCode) + '/claim',
                     { method: 'POST' });
@@ -563,6 +596,15 @@
                 notify(error.message, 'error');
                 button.disabled = false;
             }
+        });
+    }
+
+    var bonusDialog = byId('bonusDialog');
+    var openBonus = byId('openBonusBtn');
+    if (bonusDialog && openBonus) {
+        openBonus.addEventListener('click', function () { bonusDialog.showModal(); });
+        bonusDialog.addEventListener('click', function (event) {
+            if (event.target === bonusDialog || event.target.closest('[data-close-dialog]')) bonusDialog.close();
         });
     }
 
