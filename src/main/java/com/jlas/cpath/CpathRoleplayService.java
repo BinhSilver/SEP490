@@ -101,6 +101,9 @@ public class CpathRoleplayService {
                 + "FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
                 + "JOIN cpath_topic t ON t.code = s.topic_code WHERE t.goal_code = ? "
                 + "ORDER BY s.sort_order, l.situation_code, l.line_order", ctx.goal());
+        // F204: a WORK learner gets lines (and wrong answers) only from the fields they chose, like the situation list
+        Set<String> allowed = path.allowedTopics(db.queryForMap("SELECT * FROM cpath_user_path WHERE id = ?", ctx.pathId()));
+        if (allowed != null) rows = rows.stream().filter(r -> allowed.contains(String.valueOf(r.get("topic_code")))).toList();
         Set<String> replies = new LinkedHashSet<>();
         Map<String, String> furiByJa = new LinkedHashMap<>();
         for (Map<String, Object> row : rows) if (learner(row)) {

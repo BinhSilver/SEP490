@@ -270,11 +270,13 @@ public class CpathService {
         return p;
     }
 
-    /** The path's situations in study order: priority topics first, then by level and topic order; WORK keeps its fields. */
+    /**
+     * Topics the learner's path covers: for WORK only the chosen fields (office always in); {@code null} = every
+     * topic of the goal. F204: the tests and their wrong answers use the same set as the situation list.
+     */
     @SuppressWarnings("unchecked")
-    List<Map<String, Object>> orderedSituations(Map<String, Object> path) {
+    Set<String> allowedTopics(Map<String, Object> path) {
         String goal = (String) path.get("goal_code");
-        List<Object> priority = parse((String) path.get("priority_topics_json"), List.of());
         Set<String> allowed = null;
         if ("WORK".equals(goal)) {
             List<Object> fields = parse((String) path.get("fields_json"), List.of());
@@ -289,6 +291,29 @@ public class CpathService {
             }
             if (allowed.isEmpty()) allowed = null;
         }
+        return allowed;
+    }
+
+    /** F204: {@code " AND t.code IN (?,…)"} for the path's topics (adds the codes to {@code args}), or "". */
+    String topicFilter(Map<String, Object> path, List<Object> args) {
+        Set<String> allowed = allowedTopics(path);
+        if (allowed == null) return "";
+        args.addAll(allowed);
+        return " AND t.code IN (" + String.join(",", java.util.Collections.nCopies(allowed.size(), "?")) + ")";
+    }
+
+    private static List<Object> goalArgs(Map<String, Object> path) {
+        List<Object> args = new ArrayList<>();
+        args.add(path.get("goal_code"));
+        return args;
+    }
+
+    /** The path's situations in study order: priority topics first, then by level and topic order; WORK keeps its fields. */
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> orderedSituations(Map<String, Object> path) {
+        String goal = (String) path.get("goal_code");
+        List<Object> priority = parse((String) path.get("priority_topics_json"), List.of());
+        Set<String> allowed = allowedTopics(path);
         List<Map<String, Object>> rows = db.queryForList("SELECT s.code, s.title_ja, s.title_vi, s.level, s.topic_code, t.name_vi topic_name, "
                 + "t.sort_order t_order, s.sort_order s_order FROM cpath_situation s JOIN cpath_topic t ON t.code = s.topic_code "
                 + "WHERE t.goal_code = ? ORDER BY t.sort_order, s.sort_order", goal);
@@ -1162,8 +1187,10 @@ public class CpathService {
         }
         List<String> allItemVi = new ArrayList<>();
         for (Map<String, Object> m : pool) allItemVi.add(String.valueOf(m.get("vi")));
+        List<Object> lineArgs = goalArgs(path);
         List<String> lineVi = lines.isEmpty() ? List.of() : db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
-                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
+                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?"
+                + topicFilter(path, lineArgs), String.class, lineArgs.toArray());
         Set<Object> lineIds = new java.util.HashSet<>();
         for (Map<String, Object> m : lines) lineIds.add(m.get("id"));
         List<WeeklyQ> out = new ArrayList<>();
@@ -1223,8 +1250,10 @@ public class CpathService {
         for (Map<String, Object> m : lines) lineIds.add(m.get("id"));
         Set<Object> phraseIds = new java.util.HashSet<>();
         for (Map<String, Object> m : phrases) phraseIds.add(m.get("id"));
+        List<Object> lineArgs = goalArgs(path);
         List<String> lineVi = lines.isEmpty() && phrases.isEmpty() ? List.of() : db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
-                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
+                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?"
+                + topicFilter(path, lineArgs), String.class, lineArgs.toArray());
         List<WeeklyQ> out = new ArrayList<>();
         for (Map<String, Object> m : asked) {
             String right = String.valueOf(m.get("vi"));
@@ -1382,10 +1411,13 @@ public class CpathService {
         }
         if (asked.size() > REVIEW_MAX) asked = new ArrayList<>(asked.subList(0, REVIEW_MAX));
         if (asked.isEmpty()) return List.of();
-        List<String> itemVi = db.queryForList("SELECT i.vi FROM cpath_item i JOIN cpath_topic t ON t.code = i.topic_code WHERE t.goal_code = ? AND i.vi IS NOT NULL",
-                String.class, path.get("goal_code"));
+        List<Object> itemArgs = goalArgs(path);
+        List<String> itemVi = db.queryForList("SELECT i.vi FROM cpath_item i JOIN cpath_topic t ON t.code = i.topic_code WHERE t.goal_code = ? AND i.vi IS NOT NULL"
+                + topicFilter(path, itemArgs), String.class, itemArgs.toArray());
+        List<Object> lineArgs = goalArgs(path);
         List<String> lineVi = db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
-                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
+                + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?"
+                + topicFilter(path, lineArgs), String.class, lineArgs.toArray());
         java.util.Random rnd = new java.util.Random(userId * 13 + today.toEpochDay());
         List<WeeklyQ> out = new ArrayList<>();
         for (Map<String, Object> m : asked) {
