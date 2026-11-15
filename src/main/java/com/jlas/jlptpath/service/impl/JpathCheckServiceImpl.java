@@ -117,6 +117,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final String ISSUED = "ISSUED";
     static final String SUBMITTED = "SUBMITTED";
     static final String EXPIRED = "EXPIRED";
+    /** Zone of the server timestamp columns (issued_at, submitted_at), as {@link JpathClock#now()} writes them. */
+    private static final java.time.ZoneId SERVER_ZONE = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
     static final String CHECK_ANSWER = "CHECK_ANSWER";
     static final String SKILL_REVIEW = "skillReview";
     static final String SKILL_DAY = "skillDay";
@@ -632,14 +634,21 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         if (itemCode == null) {
             return;
         }
-        LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
         boolean tried = checks.findByUserIdAndKindAndStatusAndPassedAndSubmittedAtGreaterThanEqual(userId,
-                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, startOfToday).stream()
+                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, serverStartOfToday(userId)).stream()
                 .anyMatch(c -> readList(c.getItemCodesJson()).contains(itemCode));
         if (tried) {
             throw new ApiException(ErrorCode.CONFLICT,
                     "Hôm nay bạn đã thử mục này rồi. Ngày mai thử lại nhé, hoặc học như bình thường.");
         }
+    }
+
+    /**
+     * F143: the start of the learner's today as server time (Asia/Ho_Chi_Minh, like {@code issued_at} and
+     * {@code submitted_at}), so a learner outside the server's zone gets their own day, as the history page does.
+     */
+    private LocalDateTime serverStartOfToday(Long userId) {
+        return clock.today(userId).atStartOfDay(clock.zone(userId)).withZoneSameInstant(SERVER_ZONE).toLocalDateTime();
     }
 
     /**
