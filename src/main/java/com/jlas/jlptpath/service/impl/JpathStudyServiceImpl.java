@@ -258,14 +258,51 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     @org.springframework.beans.factory.annotation.Autowired(required = false)
     private org.springframework.jdbc.core.JdbcTemplate jdbc;
 
-    /** Learning far ahead needs proof: after {@link #EXTRA_BEFORE_CHECK} extra sessions, a weekly check at 80%+. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.repository.JpathCheckSetRepository checkSets;
+
+    /** F135: questions a weekly check asks (jpath-parts.js / jpath-done.js send count 10). */
+    static final int WEEKLY_CHECK_COUNT = 10;
+    private static final com.fasterxml.jackson.databind.ObjectMapper ISSUE_JSON =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /**
+     * Learning far ahead needs proof: after {@link #EXTRA_BEFORE_CHECK} extra sessions, a weekly check at 80%+.
+     * F135: only the weekly check counts (a free quiz of source WEEK asking {@link #WEEKLY_CHECK_COUNT}+ questions),
+     * not a short quiz, a notebook quiz, a redo or a quiz of an easier level.
+     */
     private void requireCheckBeforeMoreExtra(Long userId, JpathTab t) {
         if (jdbc == null || t == JpathTab.KANA) return;
+        java.time.LocalDateTime since = lastWeeklyCheckPassed(userId, t);
         Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM jpath_study_session s WHERE s.user_id = ? AND s.tab = ? "
-                + "AND s.mode = 'EXTRA' AND s.started_at > COALESCE((SELECT MAX(c.submitted_at) FROM jpath_check_set c "
-                + "WHERE c.user_id = ? AND c.tab = ? AND c.kind = 'FREE_QUIZ' AND c.score_pct >= 80), '1970-01-01')",
-                Integer.class, userId, t.name(), userId, t.name());
+                + "AND s.mode = 'EXTRA' AND s.started_at > ?", Integer.class, userId, t.name(),
+                since == null ? java.time.LocalDateTime.of(1970, 1, 1, 0, 0) : since);
         if (n != null && n >= EXTRA_BEFORE_CHECK) throw new ApiException(ErrorCode.JPATH_EXTRA_CHECK_REQUIRED);
+    }
+
+    /** Submit time of the latest weekly check of {@code t} passed at 80%+; null when none. */
+    private java.time.LocalDateTime lastWeeklyCheckPassed(Long userId, JpathTab t) {
+        if (checkSets == null) return null;
+        for (com.jlas.jlptpath.entity.JpathCheckSet c : checkSets
+                .findTop50ByUserIdAndTabAndKindAndStatusAndScorePctGreaterThanEqualOrderBySubmittedAtDescIdDesc(userId,
+                        t, com.jlas.jlptpath.enums.JpathCheckKind.FREE_QUIZ, "SUBMITTED",
+                        java.math.BigDecimal.valueOf(80))) {
+            if (c.getSubmittedAt() != null && weekly(c.getIssueJson())) {
+                return c.getSubmittedAt();
+            }
+        }
+        return null;
+    }
+
+    static boolean weekly(String issueJson) {
+        if (issueJson == null) return false;
+        try {
+            com.fasterxml.jackson.databind.JsonNode issue = ISSUE_JSON.readTree(issueJson);
+            return "WEEK".equals(issue.path("source").asText(null)) && !issue.hasNonNull("redoOf")
+                    && issue.path("count").asInt(0) >= WEEKLY_CHECK_COUNT;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            return false;
+        }
     }
 
     private JpathStudySession extra(Long userId, JpathDailyPlan plan, JpathUserLevel open,
