@@ -122,8 +122,15 @@ public class JpathTodayViewAssembler {
 
     @Transactional(readOnly = true)
     public int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab) {
-        int kanaRemaining = plan.isKanaPhase() && tab.getTab() == JpathTab.VOCAB ? plannedKanaRows(plan, null) : 0;
+        // F148 review: only COMBINED study puts today's kana rows before the words in one session; SPLIT vocabulary
+        // draws on kana already learned, so counting those words gave a target the session could not reach
+        int kanaRemaining = plan.isKanaPhase() && tab.getTab() == JpathTab.VOCAB && combined(plan.getPathId())
+                ? plannedKanaRows(plan, null) : 0;
         return effectiveTarget(plan, tab, priorityMode(plan.getPathId(), plan.getLevel()), kanaRemaining);
+    }
+
+    private boolean combined(Long pathId) {
+        return pathId != null && paths.findById(pathId).map(p -> p.getStudyMode() == JpathStudyMode.COMBINED).orElse(false);
     }
 
     static Set<JpathTab> requiredTabs(JpathDailyPlan plan) {
@@ -185,7 +192,7 @@ public class JpathTodayViewAssembler {
         boolean priority = plan.getLevel().equals(level.getLevel()) ? level.isPriorityMode()
                 : priorityMode(plan.getPathId(), plan.getLevel());
         Set<JpathTab> required = requiredTabs(plan);
-        int kanaRemaining = plannedKanaRows(plan, rows);
+        int kanaRemaining = path.getStudyMode() == JpathStudyMode.COMBINED ? plannedKanaRows(plan, rows) : 0;
         Map<JpathTab, JpathTodayTab> tabs = new EnumMap<>(JpathTab.class);
         for (JpathDailyTab t : rows) {
             int due = t.getTab() == JpathTab.SKILL ? 0
