@@ -421,6 +421,8 @@
       var base = previewBody(view, current);
       base.pace = current.dailyMinutes;
       base.thirdSkillDay = current.thirdSkillDay || '';
+      // F151 review: the server reads examDate null as "keep the saved date"; a cleared date must say so, as save does
+      if (!current.examDate && original && original.examDate) base.clearExamDate = true;
       return base;
     }
 
