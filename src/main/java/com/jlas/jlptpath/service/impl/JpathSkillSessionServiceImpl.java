@@ -112,8 +112,13 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         JpathDailyPlan plan = dailyPlans.lockToday(path);
-        Optional<JpathSkillSession> open = sessions
-                .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(userId, plan.getId(),
+        // F177 (AI test L7): a free session resumes only when it is the type the learner picked; "Học" on 情報検索 used to
+        // reopen an unfinished 短文 session of the same skill
+        boolean byType = r.kind() != JpathSkillSessionKind.DAY && r.typeCode() != null;
+        Optional<JpathSkillSession> open = byType
+                ? sessions.findFirstByUserIdAndPlanIdAndSkillAndKindAndTypeCodeAndCompletedAtIsNullOrderByIdDesc(userId,
+                        plan.getId(), r.skill(), r.kind(), r.typeCode())
+                : sessions.findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(userId, plan.getId(),
                         r.skill(), r.kind());
         if (open.isPresent()) {
             return open.get().getId();
