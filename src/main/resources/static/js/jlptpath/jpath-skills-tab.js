@@ -189,11 +189,17 @@
       if (m) { m.textContent = text || ''; m.hidden = !text; }
     }
 
-    function go(promise, toUrl) {
+    /** F144: a request that fails (or gives no id/token) hands the button back with a message. */
+    function go(button, promise, toUrl) {
+      message('');
       promise.then(function (res) {
         var target = toUrl(res);
-        if (target) loc.assign(target);
-      }, function (e) { message((e && e.message) || 'Chưa mở được buổi luyện.'); });
+        if (!target) throw new Error('');
+        loc.assign(target);
+      }).then(null, function (e) {
+        button.disabled = false;
+        message((e && e.message) || 'Chưa mở được buổi luyện. Hãy thử lại.');
+      });
     }
 
     if (!el.getAttribute('data-skills-bound')) {
@@ -202,15 +208,17 @@
         var t = ev.target;
         var start = t.closest('[data-skill-start]');
         if (start) {
+          if (start.disabled) return;
           start.disabled = true;
-          go(apiClient.send('POST', BASE + '/sessions', { skill: start.getAttribute('data-skill-start'), kind: 'DAY' }),
+          go(start, apiClient.send('POST', BASE + '/sessions', { skill: start.getAttribute('data-skill-start'), kind: 'DAY' }),
             function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
           return;
         }
         var free = t.closest('[data-skill-free]');
         if (free) {
+          if (free.disabled) return;
           free.disabled = true;
-          go(apiClient.send('POST', BASE + '/sessions', { skill: free.getAttribute('data-skill-free'), kind: 'FREE',
+          go(free, apiClient.send('POST', BASE + '/sessions', { skill: free.getAttribute('data-skill-free'), kind: 'FREE',
             typeCode: free.getAttribute('data-skill-type') }),
             function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
           return;
@@ -218,7 +226,7 @@
         var sec = t.closest('[data-skill-section]');
         if (sec && !sec.disabled) {
           sec.disabled = true;
-          go(apiClient.send('POST', BASE + '/sections', { skill: sec.getAttribute('data-skill-section') }),
+          go(sec, apiClient.send('POST', BASE + '/sections', { skill: sec.getAttribute('data-skill-section') }),
             function (c) { return c && c.token ? SECTION_PAGE + encodeURIComponent(c.token) : null; });
         }
       });
