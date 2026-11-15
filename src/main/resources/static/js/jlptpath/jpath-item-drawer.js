@@ -331,7 +331,7 @@
             // F35: a word without a dictionary link stays in the path notebook only — say so instead of silence
             if (action === 'notebook-add' && current.itemType === 'VOCAB' && current.dictionaryEntryId == null
                 && root.JlasToast && typeof root.JlasToast.show === 'function') {
-              root.JlasToast.show('Từ này chưa nối với từ điển nên chỉ lưu trong sổ tay lộ trình, không vào sổ tay "Lộ trình cá nhân".', 'warning');
+              root.JlasToast.show('Từ này chưa nối với từ điển nên chỉ lưu trong sổ tay lộ trình, không vào sổ "Lộ trình học" trong Sổ tay của tôi.', 'warning');
             }
             redraw();
             return true;
