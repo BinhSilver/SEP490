@@ -635,13 +635,15 @@
   }
 
   /** next.url → ?return= (only /learning…) → the study round of ?session= → /learning. */
-  function nextHref(result, search) {
+  function nextHref(result, search, tab) {
     var n = result && result.next;
     if (n && typeof n.url === 'string' && safeReturn(n.url) === n.url) return n.url;
     var p = searchParams(search);
     if (has(p['return'])) return safeReturn(p['return']);
     if (/^\d+$/.test(p.session || '')) return '/learning/jlpt/study?session=' + p.session;
-    return '/learning';
+    // F180 (AI test L20): back on the tab the check was about; plain /learning opened the Chữ cái tab during the kana phase
+    var key = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana' }[String(tab || '').toUpperCase()];
+    return key ? '/learning?tab=' + key : '/learning';
   }
 
   /** The check page of a new token, keeping ?session= and ?return= of the current page. */
@@ -1225,7 +1227,10 @@
 
     function resultAction(n) {
       var action = n.getAttribute('data-action');
-      if (action === 'continue') env.navigate(nextHref(result, env.location && env.location.search));
+      if (action === 'continue') {
+        env.navigate(nextHref(result, env.location && env.location.search,
+          check && (check.tab || (check.issue && check.issue.tab))));
+      }
       else if (action === 'review-wrong') { reviewOpen = !reviewOpen; drawResult(); }
       else if (action === 'review-cards') {
         var dlg = root && root.JpathDialog;

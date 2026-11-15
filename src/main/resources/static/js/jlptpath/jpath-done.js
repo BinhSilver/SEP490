@@ -68,7 +68,7 @@
       + '<div class="jp-done__bar" aria-hidden="true"><span style="width:' + Math.max(1, Math.min(100, after)) + '%"></span></div></div>';
     var wrong = (s.wrongItems || []).filter(function (w) { return w && (w.expression || w.code); });
     if (wrong.length) {
-      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay điểm yếu</p>'
+      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay</p>'
         + '<ul class="jp-done__wrong">' + wrong.map(function (w) {
           return '<li lang="ja">' + esc(w.expression || w.code) + '</li>';
         }).join('') + '</ul></div>';
