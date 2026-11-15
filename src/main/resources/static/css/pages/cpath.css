@@ -757,7 +757,7 @@ html.dark .cp-page {
 .cp-flashcard {
   position: relative;
   flex: 1 1 auto;
-  min-height: 180px;
+  min-height: 276px;
   padding: 20px 24px;
   border-radius: 12px;
   background: linear-gradient(180deg, var(--cp-surface) 0%, color-mix(in srgb, var(--jp-c-purple-100) 42%, var(--cp-surface)) 100%);
@@ -1122,11 +1122,14 @@ html.dark .cp-page {
   .cp-survey__head { padding: 8px 12px; }
   .cp-pill { padding: 9px 12px; }
   .cp-sit-stage { min-height: 340px; padding: 12px 16px; }
-  .cp-flashcard { min-height: 195px; padding: 14px 18px; }
+}
+@media (max-height: 800px) and (min-width: 769px) {
+  .cp-flashcard { min-height: 240px; padding: 14px 18px; }
 }
 
 /* Điện thoại (375×812) */
 @media (max-width: 640px) {
+  .cp-flashcard { min-height: 296px; }
   .cp-sit-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cp-pace-grid { grid-template-columns: minmax(0, 1fr); }
   .cp-survey__foot,
@@ -1910,8 +1913,7 @@ button.jp-sidenav__link {
 .cp-page .jp-path .jp-today__top, .cp-page .jp-today__top { column-gap: 34px !important; }
 @media (max-width: 560px) { .cp-page .jp-today__cal-kitsu { right: -14px; width: 48px; height: 48px; } }
 
-/* [JLAS-W0108] F85: phone and tablet. The app's bottom bar shows up to 900px, so the step footer sits on top of it;
-   on a phone the footer is one compact row, the long labels drop their keyboard hint. */
+/* [JLAS-W0108] F85/F157/F154: phone and tablet sticky footer clearance, scroll margin for reveal boxes, and report FAB */
 @media (max-width: 900px) {
   .cp-page .cp-sit-foot,
   .cp-page .cp-survey__foot { bottom: var(--jlab-mobile-bottom, 0px); padding-right: 72px; }
@@ -2065,6 +2067,16 @@ button.jp-sidenav__link {
   .cp-page .cp-finished__kitsu { width: 48px; height: 48px; }
   .cp-page .cp-finished__actions > * { flex: 1 1 100%; text-align: center; }
 }
+
+/* [JLAS-W0108] ghi-chu #74: thẻ nhanh Lộ trình phụ ngay dưới Hôm nay trên màn nhỏ (dưới 900px cột trái xuống cuối trang) */
+.cp-page .cp-mobile-sec {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 10px 14px; margin-top: 12px; padding: 12px 14px;
+}
+.cp-page .cp-mobile-sec__body { display: grid; gap: 2px; min-width: 0; }
+.cp-page .cp-mobile-sec__meta { color: var(--cp-muted); font-size: .85rem; }
+.cp-page .cp-mobile-sec__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (min-width: 900px) { .cp-page .cp-mobile-sec { display: none; } }
 
 /* [JLAS-W0108] F150: tooltip chặng khóa mở xuống dưới để không bị tràn mép trên */
 .cp-page .jp-parts__lock-tip {

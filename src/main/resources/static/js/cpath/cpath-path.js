@@ -816,6 +816,29 @@
       + '</div>';
   }
 
+  /* [JLAS-W0108] ghi-chu #74: thẻ nhanh Lộ trình phụ ngay dưới Hôm nay trên màn nhỏ (dưới 900px cột trái nằm cuối trang) */
+  function mobileSecondaryHtml(pathData) {
+    var p = pathData || {};
+    var sec = p.secondary;
+    if (!sec) return '';
+    var progress = sec.totalSituations
+      ? '<span class="cp-mobile-sec__meta">' + esc(sec.doneSituations || 0) + '/' + esc(sec.totalSituations) + ' tình huống</span>'
+      : '';
+    var next = sec.next
+      ? '<a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('situation', { id: sec.next.id })) + '">Học tiếp: ' + esc(sec.next.titleVi) + '</a>'
+      : '';
+    var promote = sec.allDone && !p.finished
+      ? '<button type="button" class="jp-btn jp-btn--sm" data-cp-promote>Nâng lên làm chính</button>'
+      : '';
+    return '<aside class="jp-card cp-mobile-sec" data-cp-mobile-sec aria-label="Lộ trình phụ">'
+      + '<div class="cp-mobile-sec__body">'
+      + '<span class="cp-goal-card__tag">Lộ trình phụ · ' + esc(sec.nameVi || '') + '</span>'
+      + progress
+      + '</div>'
+      + (next || promote ? '<div class="cp-mobile-sec__actions">' + next + promote + '</div>' : '')
+      + '</aside>';
+  }
+
   /** The last /path response, for the "Lộ trình JLPT" notice in the side nav. */
   var lastPathData = null;
 
@@ -972,7 +995,7 @@
       if (todaySlot && pathData) {
         // F125: "Tiếp tục ôn lộ trình này" is remembered per finished goal in this browser (a convenience only)
         state.finishedChoiceHidden = !!(pathData.finished && readFlag(FINISHED_KEY + pathData.goal));
-        todaySlot.innerHTML = finishedCardHtml(pathData, state) + todayBlockHtml(pathData, state);
+        todaySlot.innerHTML = finishedCardHtml(pathData, state) + todayBlockHtml(pathData, state) + mobileSecondaryHtml(pathData);
       }
       if (mapSlot && pathData && mapData) {
         mapSlot.innerHTML = mapSectionHtml(pathData, mapData, state);
@@ -1155,6 +1178,7 @@
     todayBlockHtml: todayBlockHtml,
     finishedCardHtml: finishedCardHtml,
     sideGoalHtml: sideGoalHtml,
+    mobileSecondaryHtml: mobileSecondaryHtml,
     kanaTipHtml: kanaTipHtml,
     mapSectionHtml: mapSectionHtml,
     nodePopoverHtml: nodePopoverHtml,
