@@ -761,11 +761,29 @@ public class CpathService {
         // F68 (owner 11/11): Du lịch only listens and speaks — step 1 (WORDS) becomes "Nghe câu → chọn nghĩa",
         // the words and grammar sit behind "Chú thích", the AI call is optional; the step keys stay the same
         m.put("flow", "TRAVEL".equals(s.get("goal_code")) ? FLOW_LISTEN_SPEAK : FLOW_FULL);
-        // F61: the situation page opens with the display the learner saved in Cài đặt (SELECT *: older DBs lack the column)
+        // F61/F156: the situation page opens with the display saved in Cài đặt; secondary goals inherit main custom display
         Long displayPath = pathIdForSituation(userId, code);
         List<Map<String, Object>> pathRows = displayPath == null ? List.of()
                 : db.queryForList("SELECT * FROM cpath_user_path WHERE id = ?", displayPath);
-        m.put("display", displayOf(pathRows.isEmpty() ? null : pathRows.get(0)));
+        Map<String, Object> disp = displayOf(pathRows.isEmpty() ? null : pathRows.get(0));
+        if (!Boolean.TRUE.equals(disp.get("custom"))) {
+            Long mainId = mainPathId(userId);
+            if (mainId != null && !mainId.equals(displayPath)) {
+                List<Map<String, Object>> mainRows = db.queryForList("SELECT * FROM cpath_user_path WHERE id = ?", mainId);
+                if (!mainRows.isEmpty()) {
+                    Map<String, Object> mainDisp = displayOf(mainRows.get(0));
+                    if (Boolean.TRUE.equals(mainDisp.get("custom"))) {
+                        Map<String, Object> merged = new LinkedHashMap<>(disp);
+                        for (String k : DISPLAY_KEYS) merged.put(k, mainDisp.get(k));
+                        merged.put("speed", mainDisp.get("speed"));
+                        merged.put("custom", true);
+                        merged.put("fullRomaji", Boolean.TRUE.equals(disp.get("fullRomaji")) && Boolean.TRUE.equals(merged.get("romaji")));
+                        disp = merged;
+                    }
+                }
+            }
+        }
+        m.put("display", disp);
         String topic = (String) s.get("topic_code");
         m.put("words", db.query("SELECT * FROM cpath_item WHERE topic_code = ? AND kind = 'WORD' ORDER BY sort_order", (rs, i) -> {
             Map<String, Object> w = new LinkedHashMap<>();
@@ -823,10 +841,19 @@ public class CpathService {
             Map<String, Object> right = lines.stream().filter(l -> ((Number) l.get("order")).intValue() == line).findFirst().orElse(null);
             if (right == null) continue;
             List<Map<String, Object>> options = new ArrayList<>();
-            options.add(Map.of("ja", right.get("ja"), "vi", right.get("vi") == null ? "" : right.get("vi")));
+            Map<String, Object> rightOpt = new LinkedHashMap<>();
+            rightOpt.put("ja", right.get("ja"));
+            rightOpt.put("vi", right.get("vi") == null ? "" : right.get("vi"));
+            rightOpt.put("furigana", right.get("furigana") == null ? "" : right.get("furigana"));
+            options.add(rightOpt);
             for (Object d : (List<Object>) t.getOrDefault("distractors", List.of())) {
                 Map<String, Object> dm = (Map<String, Object>) d;
-                options.add(Map.of("ja", String.valueOf(dm.get("ja")), "vi", String.valueOf(dm.getOrDefault("vi", ""))));
+                Map<String, Object> distOpt = new LinkedHashMap<>();
+                distOpt.put("ja", String.valueOf(dm.get("ja")));
+                distOpt.put("vi", String.valueOf(dm.getOrDefault("vi", "")));
+                if (dm.get("furigana") != null) distOpt.put("furigana", String.valueOf(dm.get("furigana")));
+                if (dm.get("reading") != null) distOpt.put("reading", String.valueOf(dm.get("reading")));
+                options.add(distOpt);
             }
             int answer = Math.floorMod(line * 7, options.size());
             Map<String, Object> first = options.remove(0);
@@ -1585,22 +1612,24 @@ public class CpathService {
         return 1.0;
     }
 
-    /** F61: saves furigana / romaji / translation of the main path; {"reset": true} goes back to the level defaults. */
+    /** F61/F156: saves furigana / romaji / translation of the main path and syncs other active paths; {"reset": true} restores level defaults. */
     @Transactional
     public Map<String, Object> setDisplay(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
+        Long mainId = ((Number) path.get("id")).longValue();
         String value = null;
         Map<?, ?> saved = path.get("display_json") == null ? Map.of() : parse(String.valueOf(path.get("display_json")), Map.of());
         Map<String, Object> current = displayOf(path);
+        boolean reset = body != null && Boolean.TRUE.equals(body.get("reset"));
         boolean onlySpeed = body != null && body.containsKey("speed") && DISPLAY_KEYS.stream().noneMatch(body::containsKey);
-        if (body != null && Boolean.TRUE.equals(body.get("reset"))) {
+        Map<String, Object> next = new LinkedHashMap<>();
+        if (reset) {
             // back to the level defaults; the speed is a listening choice, not a display one, so it stays
             Map<String, Object> keep = new LinkedHashMap<>();
             if (saved.get("speed") != null) keep.put("speed", current.get("speed"));
             if (saved.get("gameBest") != null) keep.put("gameBest", saved.get("gameBest"));
             if (!keep.isEmpty()) value = json(keep);
         } else {
-            Map<String, Object> next = new LinkedHashMap<>();
             if (!onlySpeed || DISPLAY_KEYS.stream().anyMatch(saved::containsKey)) {
                 for (String k : DISPLAY_KEYS) {
                     Object v = body == null ? null : body.get(k);
@@ -1615,7 +1644,41 @@ public class CpathService {
             value = next.isEmpty() ? null : json(next);
         }
         try {
-            db.update("UPDATE cpath_user_path SET display_json = ? WHERE id = ?", value, ((Number) path.get("id")).longValue());
+            db.update("UPDATE cpath_user_path SET display_json = ? WHERE id = ?", value, mainId);
+            List<Map<String, Object>> others = db.queryForList(
+                    "SELECT * FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE' AND id <> ?", userId, mainId);
+            for (Map<String, Object> other : others) {
+                Long otherId = ((Number) other.get("id")).longValue();
+                Map<?, ?> otherSaved = other.get("display_json") == null ? Map.of() : parse(String.valueOf(other.get("display_json")), Map.of());
+                Map<String, Object> otherCurrent = displayOf(other);
+                String otherVal = null;
+                if (reset) {
+                    Map<String, Object> otherKeep = new LinkedHashMap<>();
+                    if (otherSaved.get("speed") != null) otherKeep.put("speed", otherCurrent.get("speed"));
+                    if (otherSaved.get("gameBest") != null) otherKeep.put("gameBest", otherSaved.get("gameBest"));
+                    if (!otherKeep.isEmpty()) otherVal = json(otherKeep);
+                } else {
+                    Map<String, Object> otherNext = new LinkedHashMap<>();
+                    if (!onlySpeed) {
+                        for (String k : DISPLAY_KEYS) {
+                            if (next.get(k) instanceof Boolean b) otherNext.put(k, b);
+                        }
+                    } else {
+                        for (String k : DISPLAY_KEYS) {
+                            if (otherSaved.get(k) instanceof Boolean b) otherNext.put(k, b);
+                        }
+                    }
+                    if (Boolean.TRUE.equals(otherSaved.get("fullRomaji")) && !Boolean.FALSE.equals(otherNext.get("romaji"))) {
+                        otherNext.put("fullRomaji", true);
+                    }
+                    Object otherSpeed = body != null && body.containsKey("speed")
+                            ? body.get("speed") : (next.get("speed") != null ? next.get("speed") : otherSaved.get("speed"));
+                    if (otherSpeed != null) otherNext.put("speed", speedOf(otherSpeed));
+                    if (otherSaved.get("gameBest") != null) otherNext.put("gameBest", otherSaved.get("gameBest"));
+                    if (!otherNext.isEmpty()) otherVal = json(otherNext);
+                }
+                db.update("UPDATE cpath_user_path SET display_json = ? WHERE id = ?", otherVal, otherId);
+            }
         } catch (org.springframework.jdbc.BadSqlGrammarException e) {
             // the deploy DB has not run the F61 schema step yet
             throw new ApiException(ErrorCode.CPATH_DISPLAY_UNAVAILABLE);

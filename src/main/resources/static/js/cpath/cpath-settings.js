@@ -24,6 +24,7 @@
   var LEVEL_NAMES = { BEGINNER: 'Mới bắt đầu', ELEMENTARY: 'Sơ cấp', INTERMEDIATE: 'Trung cấp' };
   var DISPLAY_FIELDS = [
     ['furigana', 'Furigana', 'Hiện cách đọc hiragana nhỏ phía trên chữ Hán trong hội thoại, thẻ từ và câu luyện nói.'],
+    ['romaji', 'Romaji', 'Hiện phiên âm chữ Latinh gần đúng dưới từ vựng và câu thoại đã có cách đọc.'],
     ['translation', 'Bản dịch tiếng Việt', 'Hiện nghĩa tiếng Việt dưới mỗi câu. Ở bước nhập vai, bản dịch đáp án vẫn ẩn tới khi bạn chọn.']
   ];
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -99,11 +100,13 @@
       + '<p class="cp-settings__desc">Lưu ngay khi bạn bấm và áp dụng cho mọi tình huống. Trong bài học vẫn có nút bật/tắt nhanh cho riêng lần học đó.</p>'
       + '<div class="cp-settings__switches">'
       + DISPLAY_FIELDS.map(function (f) {
-        return '<label class="cp-settings__switch"><input type="checkbox" data-cp-display="' + f[0] + '"'
-          + (d[f[0]] ? ' checked' : '') + '><span><strong>' + esc(f[1]) + '</strong><small>' + esc(f[2]) + '</small></span></label>';
+        var key = f[0];
+        var full = key === 'romaji' && d.fullRomaji;
+        var label = full ? 'Romaji đầy đủ' : f[1];
+        var desc = full ? 'Đang bật vì bạn chưa học chữ cái. Tắt khi đã đọc được Hiragana và Katakana.' : f[2];
+        return '<label class="cp-settings__switch"><input type="checkbox" data-cp-display="' + key + '"'
+          + (d[key] ? ' checked' : '') + '><span><strong>' + esc(label) + '</strong><small>' + esc(desc) + '</small></span></label>';
       }).join('')
-      + (d.fullRomaji ? '<label class="cp-settings__switch"><input type="checkbox" data-cp-display="romaji" checked>'
-        + '<span><strong>Romaji đầy đủ</strong><small>Đang bật vì bạn chưa học chữ cái. Tắt khi đã đọc được Hiragana và Katakana.</small></span></label>' : '')
       + '</div>'
       + '<p class="cp-settings__desc">' + (d.custom ? 'Bạn đang dùng cách hiển thị tự chọn.'
         : 'Đang theo mặc định của trình độ ' + esc(level) + '.') + '</p>'

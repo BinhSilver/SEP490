@@ -69,20 +69,18 @@
       var stripped = s.replace(/\{([^|{}]+)\|([^{}]+)\}/g, '$1').replace(/([㐀-鿿々ヶ]+)\(([ぁ-ゖァ-ヺー]+)\)/g, '$1');
       return esc(stripped);
     }
-    var normalized = s.replace(/\{([^|{}]+)\|([^{}]+)\}/g, '$1($2)');
-    if (root && root.JpathFurigana && typeof root.JpathFurigana.toRuby === 'function') {
-      return root.JpathFurigana.toRuby(normalized)
-        .replace(/<\/ruby>\s+(?=<ruby>|[㐀-鿿々ヶぁ-ゖァ-ヺー])/g, '</ruby>');
-    }
-    var rx = /([㐀-鿿々ヶ]+)\(([ぁ-ゖァ-ヺー]+)\)/g;
+    var rx = /\{([^|{}]+)\|([^{}]+)\}|([㐀-鿿々ヶ]+)\(([ぁ-ゖァ-ヺー]+)\)/g;
     var out = '';
     var last = 0;
     var m;
-    while ((m = rx.exec(normalized)) !== null) {
-      out += esc(normalized.slice(last, m.index)) + '<ruby>' + esc(m[1]) + '<rt>' + esc(m[2]) + '</rt></ruby>';
+    while ((m = rx.exec(s)) !== null) {
+      var base = m[1] != null ? m[1] : m[3];
+      var rt = m[1] != null ? m[2] : m[4];
+      out += esc(s.slice(last, m.index))
+        + (base === rt ? esc(base) : '<ruby>' + esc(base) + '<rt>' + esc(rt) + '</rt></ruby>');
       last = rx.lastIndex;
     }
-    return (out + esc(normalized.slice(last)))
+    return (out + esc(s.slice(last)))
       .replace(/<\/ruby>\s+(?=<ruby>|[㐀-鿿々ヶぁ-ゖァ-ヺー])/g, '</ruby>');
   }
 
@@ -221,7 +219,10 @@
 
   function romajiHtml(text, state) {
     if (!state || !state.display || !state.display.romaji || !text) return '';
-    return '<div class="cp-line__romaji">' + esc(toRomaji(text)) + '</div>';
+    var r = toRomaji(text);
+    // F156: a line with kanji and no reading (role-play options) gave "初期費用hamou…"; show nothing instead
+    if (/[㐀-鿿々]/.test(r)) return '';
+    return '<div class="cp-line__romaji">' + esc(r) + '</div>';
   }
 
   function inDialogue(sit, ja) {
@@ -369,17 +370,20 @@
       return line && line.ja && card.ja && String(line.ja).indexOf(String(card.ja)) >= 0;
     })[0];
 
+    var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
     var cardBody = !flipped
       ? '<span class="cp-flashcard__tag">' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + ' · ' + tabIndex + '/' + tabCount + '</span>'
         + '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (state.display.furigana && card.reading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+        + (state.display.furigana && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+        + romajiHtml(card.reading || card.ja, state)
         + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
         + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja) + '">'
         + svgSpeaker() + '<span>Nghe phát âm</span></button>'
         + ''
       : '<span class="cp-flashcard__tag">Mặt sau · ' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + '</span>'
         + '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (card.reading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+        + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+        + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
         + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja) + '">'
@@ -452,6 +456,24 @@
       + '</footer>';
   }
 
+  // [JLAS-W0108] F156: resolve reading/furigana for a role-play option so furigana and romaji work on choices
+  function optionFuriSource(sit, opt) {
+    if (!opt || !opt.ja) return '';
+    if (opt.furigana) return String(opt.furigana);
+    if (opt.reading) return '{' + opt.ja + '|' + opt.reading + '}';
+    var lines = list(sit && sit.lines);
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i] && lines[i].ja === opt.ja && lines[i].furigana) return String(lines[i].furigana);
+    }
+    var phrases = list(sit && sit.phrases);
+    for (var j = 0; j < phrases.length; j++) {
+      if (phrases[j] && phrases[j].ja === opt.ja && phrases[j].reading) {
+        return '{' + opt.ja + '|' + phrases[j].reading + '}';
+      }
+    }
+    return String(opt.ja);
+  }
+
   /* Bước 3: Nhập vai chọn câu (đến lượt リン chọn 1 trong 3 câu, kèm giải thích whyVi) */
   function renderStepRoleplay(sit, state) {
     var turns = list(sit && sit.challenge && sit.challenge.turns);
@@ -481,11 +503,12 @@
         if (oIdx === Number(turn.answerIndex)) cls += ' is-correct';
         else if (oIdx === Number(answeredIdx)) cls += ' is-wrong';
       }
+      var optSrc = optionFuriSource(sit, opt);
       return '<button type="button" class="' + cls + '" data-cp-roleplay-opt="' + oIdx + '"' + (isAnswered ? ' disabled' : '') + '>'
         + '<span class="cp-step-tab__num">' + (oIdx + 1) + '</span>'
         + '<div class="cp-line__content">'
-        + '<div class="cp-line__ja" lang="ja">' + esc(opt.ja) + '</div>'
-        + romajiHtml(opt.ja, state)
+        + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(optSrc, state.display.furigana) + '</div>'
+        + romajiHtml(optSrc, state)
         + (isAnswered || sit.selfLevel === 'BEGINNER' ? '<div class="cp-line__vi">' + esc(opt.vi) + '</div>' : '')
         + '</div>'
         + '</button>';
@@ -494,6 +517,12 @@
     var whyText = turn.whyVi || turn.why_vi || '';
     var pickedOptObj = isAnswered ? (list(turn.options)[answeredIdx] || {}) : {};
     var rightOptObj = list(turn.options)[turn.answerIndex] || {};
+    var pickedReviewHtml = pickedOptObj && pickedOptObj.ja
+      ? toRubyHtml(optionFuriSource(sit, pickedOptObj), state.display.furigana)
+      : '—';
+    var rightReviewHtml = rightOptObj && rightOptObj.ja
+      ? toRubyHtml(optionFuriSource(sit, rightOptObj), state.display.furigana)
+      : '';
     var aiRoleplayHtml = isAnswered && rightOptObj.ja
       ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
         source: 'CPATH_ROLEPLAY',
@@ -521,8 +550,8 @@
       + promptHtml
       + (isAnswered && !ansCorrect
         ? '<div class="jp-review__rows cp-roleplay-review">'
-          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc((list(turn.options)[answeredIdx] || {}).ja || '—') + '</span></div>'
-          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc((list(turn.options)[turn.answerIndex] || {}).ja || '') + '</span></div>'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + pickedReviewHtml + '</span></div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + rightReviewHtml + '</span></div>'
           + '</div>'
           + '<details class="jp-review__more"><summary class="jp-link-btn">Xem cả câu</summary><div class="cp-options" role="group" aria-label="Chọn câu trả lời của ' + esc(learnerName) + '">' + optsHtml + '</div></details>'
         : '<div class="cp-options" role="group" aria-label="Chọn câu trả lời của ' + esc(learnerName) + '">' + optsHtml + '</div>')
@@ -836,7 +865,7 @@
       + (canKnow(s, state) ? '<button type="button" class="cp-btn-ghost" data-cp-known-open>Tôi biết tình huống này</button>' : '')
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="furigana" aria-pressed="' + (state.display.furigana ? 'true' : 'false') + '">Furigana</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="translation" aria-pressed="' + (state.display.translation ? 'true' : 'false') + '">Bản dịch</button>'
-      + (isTravel(s) || state.display.fullRomaji ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
+      + (isTravel(s) || state.display.fullRomaji || state.display.romaji || state.romajiOffered ? '<button type="button" class="cp-btn-ghost" data-cp-disp-toggle="romaji" title="Romaji gần đúng theo cách đọc của câu" aria-pressed="' + (state.display.romaji ? 'true' : 'false') + '">Romaji</button>' : '')
       + '</div>'
       + '</header>'
       + (root && root.CpathAudio ? root.CpathAudio.sliderHtml({ compact: true }) : '')
@@ -1222,6 +1251,7 @@
       var dispBtn = t.closest('[data-cp-disp-toggle]');
       if (dispBtn) {
         var dk = dispBtn.getAttribute('data-cp-disp-toggle');
+        if (dk === 'romaji') state.romajiOffered = true;
         state.display[dk] = !state.display[dk];
         render();
         return;
@@ -1351,6 +1381,8 @@
         if (data.display) {
           state.display = { furigana: data.display.furigana !== false, romaji: data.display.romaji === true,
             translation: data.display.translation !== false, fullRomaji: data.display.fullRomaji === true };
+          // F156: romaji on by the level default needs its button, or there is no way to turn it off
+          state.romajiOffered = state.display.romaji;
           if (root.CpathAudio) root.CpathAudio.fromDisplay(data.display);
         }
         var lnL = (data.lines || []).filter(function (ln) { return ln && ln.learner === true; })[0];
@@ -1375,6 +1407,7 @@
     situationHtml: situationHtml,
     knownPanelHtml: knownPanelHtml,
     toRubyHtml: toRubyHtml,
+    optionFuriSource: optionFuriSource,
     buildDeck: buildDeck,
     meaningItems: meaningItems,
     meaningOptions: meaningOptions,
