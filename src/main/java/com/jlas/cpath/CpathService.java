@@ -123,6 +123,12 @@ public class CpathService {
     private int award(Long userId, int amount, String refType, long refId, String note) {
         com.jlas.mission.service.CreditAwardService credit = awards == null ? null : awards.getIfAvailable();
         if (credit == null) return 0;
+        // F172: the ledger drops a repeat of the same reference (INSERT IGNORE), so a repeat earns nothing — the
+        // screen said "+4 CP" for an extra situation while the wallet got +2 (the day bonus was counted again)
+        Integer queued = db.queryForObject("SELECT COUNT(*) FROM pending_credit_award WHERE user_id = ? AND reason = ? "
+                + "AND reference_type = ? AND reference_id = ?", Integer.class, userId,
+                com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason.STUDY_REWARD.name(), refType, refId);
+        if (queued != null && queued > 0) return 0;
         credit.enqueue(userId, amount,
                 com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason.STUDY_REWARD, refType,
                 refId, note, null, null, null);
