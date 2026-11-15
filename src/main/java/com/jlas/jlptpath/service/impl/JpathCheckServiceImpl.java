@@ -307,7 +307,14 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
 
         if (spec.kind() == JpathCheckKind.SKIP_ONE) {
-            requireOneTryToday(userId, spec.session() != null ? spec.step().itemCode() : r.itemCode());
+            JpathCheckSet open = requireOneTryToday(userId,
+                    spec.session() != null ? spec.step().itemCode() : r.itemCode());
+            if (open != null && spec.session() == null) {
+                // F131: a second click or tab gets the open check of the item, so one wrong answer is the day's try;
+                // nothing was answered on it yet, so its question time starts again now
+                open.setIssuedAt(clock.now());
+                return view(open);
+            }
         }
 
         JpathUserSettings s = settings.findById(userId).orElse(null);
@@ -628,19 +635,37 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     /**
      * F117 (owner 14/11, same rule as F111): "Đã biết" / "Tôi biết mẫu này" is one try per item a learner day. A
-     * failed try already showed the answer, so a new SKIP_ONE for that item waits until tomorrow.
+     * failed try already showed the answer, so a new SKIP_ONE for that item waits until tomorrow. F131: a try is a
+     * SKIP_ONE of the item submitted and failed today, or one still open with a wrong answer (the answer was shown
+     * even if it was never submitted). Returns the open free check of the item with no answer yet (null when none),
+     * for the caller to hand back instead of a new one.
      */
-    private void requireOneTryToday(Long userId, String itemCode) {
+    private JpathCheckSet requireOneTryToday(Long userId, String itemCode) {
         if (itemCode == null) {
-            return;
+            return null;
         }
+        LocalDateTime since = serverStartOfToday(userId);
         boolean tried = checks.findByUserIdAndKindAndStatusAndPassedAndSubmittedAtGreaterThanEqual(userId,
-                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, serverStartOfToday(userId)).stream()
+                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, since).stream()
                 .anyMatch(c -> readList(c.getItemCodesJson()).contains(itemCode));
+        JpathCheckSet open = null;
+        for (JpathCheckSet c : checks.findByUserIdAndKindAndStatusAndIssuedAtGreaterThanEqualOrderByIdAsc(userId,
+                JpathCheckKind.SKIP_ONE, ISSUED, since)) {
+            if (!readList(c.getItemCodesJson()).contains(itemCode)) {
+                continue;
+            }
+            Map<String, Answer> answers = readProgress(c).answers();
+            if (answers.values().stream().anyMatch(a -> !a.correct())) {
+                tried = true;
+            } else if (answers.isEmpty() && c.getSessionId() == null) {
+                open = c;
+            }
+        }
         if (tried) {
             throw new ApiException(ErrorCode.CONFLICT,
                     "Hôm nay bạn đã thử mục này rồi. Ngày mai thử lại nhé, hoặc học như bình thường.");
         }
+        return open;
     }
 
     /**
