@@ -49,7 +49,7 @@
   'use strict';
 
   var BASE = '/api/learning/jlpt';
-  var FLASH_MS = 600;
+  var FLASH_MS = 900;
   var BOARD_DONE_MS = 450;
   var KIND_TITLE = Object.freeze({
     MICRO_CHECK: 'Micro-check', GROUP_EXERCISE: 'Bài tập nhóm', SKIP_ONE: 'Kiểm 1 câu',
@@ -90,7 +90,7 @@
 
   // ---- state ------------------------------------------------------------------------------------------------
 
-  function emptyBoard() { return { matched: {}, errors: 0, selLeft: null, selRight: null, flash: null, pending: false }; }
+  function emptyBoard() { return { matched: {}, rightMatched: {}, errors: 0, selLeft: null, selRight: null, inFlight: null, queue: [], flash: null }; }
 
   function boardComplete(q, b) {
     return !!(b && q.board && Object.keys(b.matched).length >= (q.board.left || []).length);
@@ -123,7 +123,9 @@
       if (!q) return;
       if (isBoard(q)) {
         var b = state.boards[q.board.boardId];
-        (a.matchedPairs || []).forEach(function (p) { if (p && p.length === 2) b.matched[p[0]] = p[1]; });
+        (a.matchedPairs || []).forEach(function (p) {
+          if (p && p.length === 2) { b.matched[p[0]] = p[1]; b.rightMatched[p[1]] = p[0]; }
+        });
         b.errors = a.errors || 0;
       } else {
         state.answers[q.id] = { value: a.value, correct: !!a.correct, correctValue: a.correctValue,
@@ -225,6 +227,8 @@
     s.boards = copy(state.boards);
     var b = copy(state.boards[boardId] || emptyBoard());
     b.matched = copy(b.matched);
+    b.rightMatched = copy(b.rightMatched);
+    b.queue = Array.isArray(b.queue) ? b.queue.slice() : [];
     s.boards[boardId] = b;
     var out = fn(b, s) || {};
     out.state = s;
@@ -232,41 +236,92 @@
   }
 
   function rightTaken(b, rightId) {
-    return Object.keys(b.matched).some(function (l) { return b.matched[l] === rightId; });
+    return !!(b && b.rightMatched && b.rightMatched[rightId])
+      || Object.keys((b && b.matched) || {}).some(function (l) { return b.matched[l] === rightId; });
+  }
+
+  function inPair(pair, isLeft, id) {
+    return !!(pair && (isLeft ? pair.leftId === id : pair.rightId === id));
+  }
+
+  function boardCellQueued(b, isLeft, id) {
+    return inPair(b && b.inFlight, isLeft, id)
+      || (Array.isArray(b && b.queue) && b.queue.some(function (p) { return inPair(p, isLeft, id); }));
+  }
+
+  function findBoardQuestion(state, boardId) {
+    var qs = (state && state.questions) || [];
+    for (var i = 0; i < qs.length; i++) {
+      if (isBoard(qs[i]) && qs[i].board.boardId === boardId) return qs[i];
+    }
+    return null;
   }
 
   function boardReduce(state, ev) {
     var e = ev || {};
     if (!state.boards[e.boardId]) return { state: state };
-    return withBoard(state, e.boardId, function (b) {
+    return withBoard(state, e.boardId, function (b, s) {
       if (e.type === 'PICK_LEFT' || e.type === 'PICK_RIGHT') {
-        if (b.pending) return null;
         if (e.type === 'PICK_LEFT') {
-          if (b.matched[e.leftId]) { b.selLeft = null; return null; }
+          if (!e.leftId || b.matched[e.leftId] || boardCellQueued(b, true, e.leftId)) {
+            if (b.selLeft === e.leftId) b.selLeft = null;
+            return null;
+          }
           b.selLeft = b.selLeft === e.leftId ? null : e.leftId;
         } else {
-          if (rightTaken(b, e.rightId)) { b.selRight = null; return null; }
+          if (!e.rightId || rightTaken(b, e.rightId) || boardCellQueued(b, false, e.rightId)) {
+            if (b.selRight === e.rightId) b.selRight = null;
+            return null;
+          }
           b.selRight = b.selRight === e.rightId ? null : e.rightId;
         }
         b.flash = null;
         if (b.selLeft && b.selRight) {
-          b.pending = true;
-          return { request: { boardId: e.boardId, leftId: b.selLeft, rightId: b.selRight } };
+          var pair = { boardId: e.boardId, leftId: b.selLeft, rightId: b.selRight };
+          b.selLeft = null;
+          b.selRight = null;
+          if (!b.inFlight) {
+            b.inFlight = pair;
+            return { request: pair };
+          }
+          b.queue.push(pair);
         }
         return null;
       }
       if (e.type === 'PICK_RESULT') {
         var r = e.result || {};
-        b.pending = false;
-        b.selLeft = null;
-        b.selRight = null;
+        b.inFlight = null;
         if (typeof r.errors === 'number') b.errors = r.errors;
-        if (r.correct) b.matched[e.leftId] = e.rightId;
-        else b.flash = { leftId: e.leftId, rightId: e.rightId };
+        if (r.correct) {
+          b.matched[e.leftId] = e.rightId;
+          b.rightMatched[e.rightId] = e.leftId;
+          if (b.selLeft && b.matched[b.selLeft]) b.selLeft = null;
+          if (b.selRight && rightTaken(b, b.selRight)) b.selRight = null;
+        } else {
+          b.flash = { leftId: e.leftId, rightId: e.rightId };
+        }
+        var q = findBoardQuestion(s, e.boardId);
+        if (b.queue.length > 0 && (!q || !boardComplete(q, b))) {
+          b.inFlight = b.queue.shift();
+          return { request: b.inFlight };
+        }
+        b.queue = [];
         return null;
       }
-      if (e.type === 'PICK_FAIL') { b.pending = false; b.selLeft = null; b.selRight = null; return null; }
-      if (e.type === 'FLASH_END') { b.flash = null; return null; }
+      if (e.type === 'PICK_FAIL') {
+        b.inFlight = null;
+        var qFail = findBoardQuestion(s, e.boardId);
+        if (b.queue.length > 0 && (!qFail || !boardComplete(qFail, b))) {
+          b.inFlight = b.queue.shift();
+          return { request: b.inFlight };
+        }
+        b.queue = [];
+        return null;
+      }
+      if (e.type === 'FLASH_END') {
+        if (!e.leftId || (b.flash && b.flash.leftId === e.leftId && b.flash.rightId === e.rightId)) b.flash = null;
+        return null;
+      }
       return null;
     });
   }
@@ -349,11 +404,13 @@
     function cell(side, o) {
       var isLeft = side === 'left';
       var matched = isLeft ? !!st.matched[o.id] : rightTaken(st, o.id);
+      var pending = boardCellQueued(st, isLeft, o.id);
       var flash = st.flash && (isLeft ? st.flash.leftId === o.id : st.flash.rightId === o.id);
       var sel = isLeft ? st.selLeft === o.id : st.selRight === o.id;
-      var cls = 'jp-pair' + (matched ? ' jp-ok' : '') + (flash ? ' jp-bad' : '') + (sel ? ' jp-sel' : '');
+      var disabled = matched || pending;
+      var cls = 'jp-pair' + (matched ? ' jp-ok' : '') + (pending ? ' jp-pending' : '') + (flash ? ' jp-bad' : '') + (sel ? ' jp-sel' : '');
       return '<button type="button" class="' + cls + '" data-board="' + esc(bid) + '" data-' + side + '="' + esc(o.id) + '"'
-        + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (matched ? ' disabled' : '')
+        + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (pending ? ' aria-busy="true"' : '') + (disabled ? ' disabled' : '')
         + '>' + (isLeft ? '<span lang="ja">' + esc(o.label) + '</span>' : esc(o.label)) + (matched ? ' ' + icon('circle-check') : '') + (flash ? ' ' + icon('circle-x') : '') + '</button>';
     }
     return '<div class="jp-board" data-board-id="' + esc(bid) + '" title="' + esc(BOARD_HINT) + '">'
@@ -965,30 +1022,42 @@
       el.innerHTML = CLOSED_HTML;
     }
 
+    function sendPick(req) {
+      env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/pick', req).then(function (res) {
+        if (!alive) return;
+        announce(res && res.correct ? 'Đúng một cặp.' : 'Sai cặp, chọn lại.');
+        var out = boardReduce(state, { type: 'PICK_RESULT', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId,
+          result: res });
+        state = out.state;
+        env.tone(res && res.correct ? 'correct' : 'wrong', display);
+        draw();
+        if (res && !res.correct) {
+          env.setTimeout(function () {
+            if (!alive) return;
+            state = boardReduce(state, { type: 'FLASH_END', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId }).state;
+            draw();
+          }, FLASH_MS);
+        }
+        if (finished(state, current(state))) {
+          env.setTimeout(function () { if (alive) next(); }, BOARD_DONE_MS);
+        } else if (out.request) {
+          sendPick(out.request);
+        }
+      }, function () {
+        if (!alive) return;
+        var out = boardReduce(state, { type: 'PICK_FAIL', boardId: req.boardId });
+        state = out.state;
+        draw();
+        status(MSG_SEND_FAILED);
+        if (out.request) sendPick(out.request);
+      });
+    }
+
     function pick(ev) {
       var r = boardReduce(state, ev);
       state = r.state;
       draw();
-      if (!r.request) return;
-      var req = r.request;
-      env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/pick', req).then(function (res) {
-        if (!alive) return;
-        announce(res && res.correct ? 'Đúng một cặp.' : 'Sai cặp, chọn lại.');
-        state = boardReduce(state, { type: 'PICK_RESULT', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId,
-          result: res }).state;
-        env.tone(res && res.correct ? 'correct' : 'wrong', display);
-        draw();
-        if (res && !res.correct) {
-          env.setTimeout(function () { if (!alive) return; state = boardReduce(state, { type: 'FLASH_END', boardId: req.boardId }).state; draw(); }, FLASH_MS);
-        } else if (finished(state, current(state))) {
-          env.setTimeout(function () { if (alive) next(); }, BOARD_DONE_MS);
-        }
-      }, function () {
-        if (!alive) return;
-        state = boardReduce(state, { type: 'PICK_FAIL', boardId: req.boardId }).state;
-        draw();
-        status(MSG_SEND_FAILED);
-      });
+      if (r.request) sendPick(r.request);
     }
 
     function next() {

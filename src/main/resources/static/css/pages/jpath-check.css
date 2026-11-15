@@ -47,15 +47,16 @@
 .jp-pair {
   min-height: 48px; padding: 8px 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; text-align: center; cursor: pointer;
-  overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease;
+  overflow-wrap: anywhere; transition: background-color .1s ease, border-color .1s ease, opacity .1s ease;
 }
 .jp-pair[lang="ja"] { font-size: 1.15em; }
 .jp-pair.jp-sel { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-pair.jp-pending { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); opacity: .75; cursor: progress; }
 .jp-pair.jp-ok {
   border: 1px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); color: var(--jp-ink);
   cursor: default;
 }
-.jp-pair.jp-bad { border: 1px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .6s ease; }
+.jp-pair.jp-bad { border: 1px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .22s ease; }
 @keyframes jp-check-flash { 0%, 100% { transform: none; } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
 /* quiz */
