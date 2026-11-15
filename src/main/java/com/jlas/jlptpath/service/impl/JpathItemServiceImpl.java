@@ -76,6 +76,9 @@ public class JpathItemServiceImpl implements JpathItemService {
     private final ObjectProvider<JpathGrammarQueue> grammarQueue;
     // F121: a hand-saved word/kanji is also written to the team notebook (best effort, after commit)
     private final ObjectProvider<JpathTeamNotebookMirror> teamNotebook;
+    /** F133: Premium for "Đã biết" on N4+ items (optional so tests building the service without it still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
 
     public JpathItemServiceImpl(JpathContentReader content, JpathItemStateMachine states,
                                 JpathUserItemRepository items, JpathUserPathRepository paths,
@@ -243,6 +246,9 @@ public class JpathItemServiceImpl implements JpathItemService {
         if (!visible(type, code)) {
             throw notFound();
         }
+        if (premiumGate != null) {
+            premiumGate.requireLevel(userId, contentLevel(type, code)); // F133: N4+ needs Premium
+        }
         // F132: a row never learned (put in the notebook, or a wrong quiz answer) is still a NEW item
         if (row.isEmpty() || (row.get().getState() != JpathItemState.KNOWN && row.get().getFirstLearnedAt() == null)) {
             // NEW: confirmed by one question first (the check counts it on a correct answer)
@@ -320,6 +326,16 @@ public class JpathItemServiceImpl implements JpathItemService {
             throw new ApiException(ErrorCode.JPATH_CONTENT_NOT_LEARNABLE);
         }
         return k.getLevel();
+    }
+
+    /** Level of a visible item (kana: null). */
+    private String contentLevel(JpathItemType type, String code) {
+        return switch (type) {
+            case VOCAB -> content.vocab(code).map(JpathVocabulary::getLevel).orElse(null);
+            case KANJI -> content.kanji(code).map(JpathKanji::getLevel).orElse(null);
+            case GRAMMAR -> content.grammar(code).map(com.jlas.jlptpath.entity.JpathGrammar::getLevel).orElse(null);
+            default -> null;
+        };
     }
 
     /** Same visibility rule as {@link #detail}: the item reads through {@link JpathContentReader}. */

@@ -231,6 +231,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         this.partsService = partsService;
     }
 
+    /** F133: Premium for the free checks of N4+ (optional so tests building the service without it still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
+
     public JpathCheckServiceImpl(JpathCheckSetRepository checks, JpathUserPathRepository paths,
                                  JpathUserLevelRepository levels, JpathStudySessionRepository sessions,
                                  JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs,
@@ -282,6 +286,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         levels.findForUpdate(path.getId(), path.getOpenLevel());
         Spec spec = free ? freeSpec(userId, path, r, old) : sessionSpec(userId, path, session, r);
+        if (free && old == null && premiumGate != null) {
+            // F133: a free check moves the progress of its level (the open one when it names none): Premium for N4+
+            premiumGate.requireLevel(userId, spec.level() != null ? spec.level() : path.getOpenLevel());
+        }
         if (spec.skip()) {
             return skipStep(userId, spec);
         }
