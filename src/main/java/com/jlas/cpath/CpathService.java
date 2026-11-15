@@ -1131,7 +1131,7 @@ public class CpathService {
         String tin = String.join(",", java.util.Collections.nCopies(topics.size(), "?"));
         List<Object> args = new ArrayList<>(sits);
         args.addAll(topics);
-        List<Map<String, Object>> pool = new ArrayList<>(db.queryForList("SELECT code id, ja, reading, vi, audio_path FROM cpath_item "
+        List<Map<String, Object>> pool = new ArrayList<>(db.queryForList("SELECT code id, ja, reading, vi, audio_path, kind FROM cpath_item "
                 + "WHERE vi IS NOT NULL AND (situation_code IN (" + in + ") OR (kind = 'WORD' AND topic_code IN (" + tin + ")))", args.toArray()));
         // learner lines of situations spoken under 70 (or not scored) come first
         List<String> weak = studied.stream().filter(r -> r.get("speak_best") == null || num(r.get("speak_best")) < SPEAK_PASS)
@@ -1151,8 +1151,14 @@ public class CpathService {
             asked.add(m);
         }
         // distractors of the same kind: a sentence among sentences (other learner lines of the goal), a word among words
-        List<String> itemVi = new ArrayList<>();
-        for (Map<String, Object> m : pool) itemVi.add(String.valueOf(m.get("vi")));
+        // F183 (AI test L13): a word is asked among words and a phrase among phrases (a word had whole sentences as
+        // wrong answers, so the right one stood out)
+        Map<String, List<String>> itemVi = new LinkedHashMap<>();
+        for (Map<String, Object> m : pool) {
+            itemVi.computeIfAbsent(String.valueOf(m.get("kind")), k -> new ArrayList<>()).add(String.valueOf(m.get("vi")));
+        }
+        List<String> allItemVi = new ArrayList<>();
+        for (Map<String, Object> m : pool) allItemVi.add(String.valueOf(m.get("vi")));
         List<String> lineVi = lines.isEmpty() ? List.of() : db.queryForList("SELECT l.vi FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
                 + "JOIN cpath_topic t ON t.code = s.topic_code WHERE l.learner = 1 AND l.vi IS NOT NULL AND t.goal_code = ?", String.class, path.get("goal_code"));
         Set<Object> lineIds = new java.util.HashSet<>();
@@ -1162,7 +1168,9 @@ public class CpathService {
             String right = String.valueOf(m.get("vi"));
             List<String> opts = new ArrayList<>();
             opts.add(right);
-            List<String> others = new ArrayList<>(new LinkedHashSet<>(lineIds.contains(m.get("id")) ? lineVi : itemVi));
+            List<String> sameKind = itemVi.getOrDefault(String.valueOf(m.get("kind")), List.of());
+            List<String> others = new ArrayList<>(new LinkedHashSet<>(lineIds.contains(m.get("id")) ? lineVi
+                    : sameKind.size() >= 4 ? sameKind : allItemVi));
             java.util.Collections.shuffle(others, rnd);
             for (String o : others) {
                 if (opts.size() >= 4) break;

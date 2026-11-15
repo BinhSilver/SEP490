@@ -86,7 +86,9 @@
     var qMap = {};
     (questions || []).forEach(function (q) { if (q && q.id != null) qMap[q.id] = q; });
     var ansMap = answers || {};
-    var rows = (r.review || []).map(function (x) {
+    // F183 (AI test L13): wrong answers first, each with what the learner picked next to the right meaning
+    var review = (r.review || []).slice().sort(function (a, b) { return (a.correct ? 1 : 0) - (b.correct ? 1 : 0); });
+    var rows = review.map(function (x) {
       var q = x.id != null ? qMap[x.id] : null;
       var opts = q && Array.isArray(q.options) ? q.options : null;
       var pickedIdx = x.id != null ? ansMap[x.id] : null;
@@ -102,8 +104,10 @@
           correctAnswer: x.answer
         })) + '"></div>'
         : '';
+      var picked = !x.correct && opts && pickedIdx != null && opts[pickedIdx] != null
+        ? '<div class="jp-review__picked">Bạn chọn: <span class="jp-bad">' + esc(opts[pickedIdx]) + '</span></div>' : '';
       return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '"><div><span lang="ja">' + esc(x.ja)
-        + '</span> · ' + esc(x.answer) + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>' + aiSlot + '</li>';
+        + '</span> · ' + esc(x.answer) + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>' + picked + aiSlot + '</li>';
     }).join('');
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
