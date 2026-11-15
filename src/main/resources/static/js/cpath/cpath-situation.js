@@ -873,6 +873,20 @@
     var s = sit || {};
     var stepsStatus = s.steps || {};
 
+    // F197 (owner 15/11): a finished step gets Kitsu stamping a red 済 seal — played once per step and visit,
+    // then only the seal stays (re-renders do not replay it)
+    state.stampAt = state.stampAt || {};
+    function stampHtml(key) {
+      var now = Date.now();
+      if (state.stampAt[key] == null) state.stampAt[key] = now;
+      var elapsed = now - state.stampAt[key];
+      var play = elapsed < 2400;
+      // a re-render mid-animation continues it where it was (negative delay) instead of restarting or dropping it
+      var delay = play ? ' style="--cp-stamp-delay:-' + elapsed + 'ms"' : '';
+      return '<span class="cp-step-stamp' + (play ? ' is-playing' : '') + '"' + delay + ' aria-hidden="true">'
+        + (play ? '<img class="cp-step-stamp__fox" src="/images/mascots/kitsu/kitsu-stamping-30-128.webp" alt="" width="44" height="44">' : '')
+        + '<span class="cp-step-stamp__seal" lang="ja">済</span></span>';
+    }
     var stepTabsHtml = STEPS_ORDER.map(function (key, idx) {
       var isDone = !!stepsStatus[key.toLowerCase()];
       // L10: a SPEAK step finished by "Bỏ qua" (no graded line) is not shown as done
@@ -883,8 +897,9 @@
       var isActive = !state.showDoneScreen && state.activeStep === key;
       var cls = 'cp-step-tab' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '') + (isSkipped ? ' is-skipped' : '');
       return '<button type="button" class="' + cls + '" data-cp-goto-step="' + key + '">'
-        + '<span class="cp-step-tab__num">' + (isDone ? svgCheckSmall() : (idx + 1)) + '</span>'
+        + (isDone ? '' : '<span class="cp-step-tab__num">' + (idx + 1) + '</span>') // F197: the 済 stamp replaces the green tick
         + '<span>' + esc(stepTitle(key, s)) + (isSkipped ? ' <small>(Đã bỏ qua)</small>' : '') + '</span>'
+        + (isDone ? stampHtml(key) : '')
         + '</button>';
     }).join('');
 
