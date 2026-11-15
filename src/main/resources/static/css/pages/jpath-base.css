@@ -513,5 +513,7 @@ html.dark .cp-page {
   font-size: .92rem;
 }
 .jp-net-notice[hidden] { display: none; }
+/* [JLAS-W0108] F158: Stats cards set display:grid, which beat the hidden attribute (empty "Đầu vào" card) */
+.jp-side-card[hidden] { display: none !important; }
 .jp-net-notice__retry { min-height: 36px; padding: 6px 12px; border: 0; border-radius: 8px; background: var(--jp-primary, #6b4bd6); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
 .jp-net-notice__close { min-width: 36px; min-height: 36px; border: 0; background: transparent; color: inherit; font-size: 1.2rem; cursor: pointer; }
