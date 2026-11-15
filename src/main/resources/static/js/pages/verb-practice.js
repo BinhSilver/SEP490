@@ -149,6 +149,7 @@
     $('vpAnswerActions').hidden = false; $('vpFeedback').hidden = true; $('vpNext').hidden = true;
     setTimer();
     if (choice) $('vpWord').focus({preventScroll:true}); else $('vpAnswer').focus({preventScroll:true});
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }
   async function submit(skip) {
     if (state.sending || state.feedback || state.view !== 'play') return;
