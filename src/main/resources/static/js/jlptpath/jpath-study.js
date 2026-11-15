@@ -547,7 +547,23 @@
     var repeats = Object.assign({}, flow.repeats);
     repeats[key] = count + 1;
     var cards = flow.cards.slice();
-    if (flow.position + cards.length >= flow.total) cards.push(Object.assign({}, c, { repeat: true }));
+    var rep = Object.assign({}, c, { repeat: true });
+    // F149: same place as the server (JpathQueueBuilder.insertRepeatBeforeCheck) — before the next mini-check of
+    // this tab, else at the end; a different place made the next event fail the server's position check
+    // a check card carries no tab: it closes the run of cards before it, so its tab is that run's item type
+    var checkAt = -1;
+    var runType = c.itemType;
+    for (var i = 1; i < cards.length; i++) {
+      var k = cards[i];
+      if (!k) continue;
+      if (k.kind === 'MICRO_CHECK') {
+        if ((k.itemType || runType) === c.itemType) { checkAt = i; break; }
+      } else if (k.itemType) {
+        runType = k.itemType;
+      }
+    }
+    if (checkAt > 0) cards.splice(checkAt, 0, rep);
+    else if (flow.position + cards.length >= flow.total) cards.push(rep);
     var session = bumpSteps(flow.session, cardStepKey(c), 0, 1);
     return withFlow(flow, { session: session, cards: cards, total: flow.total + 1, repeats: repeats });
   }
