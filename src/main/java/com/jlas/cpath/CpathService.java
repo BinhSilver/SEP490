@@ -906,8 +906,11 @@ public class CpathService {
         db.update("UPDATE cpath_user_situation SET steps_done = ? WHERE path_id = ? AND situation_code = ?",
                 String.join(",", STEPS.stream().filter(doneSteps::contains).toList()), pathId, code);
         if ("ROLEPLAY".equals(st) && body != null) {
+            // F188 (probe P3-1): the client reports the role-play count; keep it in 0 <= correct <= total <= 50
+            long rpTotal = Math.max(0, Math.min(50, num(body.get("total"))));
+            long rpCorrect = Math.max(0, Math.min(rpTotal, num(body.get("correct"))));
             db.update("UPDATE cpath_user_situation SET roleplay_correct = ?, roleplay_total = ? WHERE path_id = ? AND situation_code = ?",
-                    num(body.get("correct")), num(body.get("total")), pathId, code);
+                    rpCorrect, rpTotal, pathId, code);
         }
         if ("SPEAK".equals(st)) {
             Integer verified = verifiedSituationSpeak(pathId, code);
