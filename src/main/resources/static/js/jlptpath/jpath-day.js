@@ -306,7 +306,7 @@
         if (day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
         if (d && weekMap) d.weekStatus = weekMap;
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = (notice ? '<p class="jp-alert" role="status">' + esc(notice) + '</p>' : '') + dayHtml(d, day, today);
+        el.innerHTML = (notice ? '<p class="jp-day-notice" role="status">' + esc(notice) + '</p>' : '') + dayHtml(d, day, today);
         if (notice && root.history && root.history.replaceState) {
           try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
         }

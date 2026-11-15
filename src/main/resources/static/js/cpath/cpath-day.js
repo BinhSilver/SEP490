@@ -245,7 +245,7 @@
           day = String(data.day || today).slice(0, 10);
         }
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = (notice ? '<p class="jp-alert" role="status">' + esc(notice) + '</p>' : '') + dayHtml(data, day, today);
+        el.innerHTML = (notice ? '<p class="jp-day-notice" role="status">' + esc(notice) + '</p>' : '') + dayHtml(data, day, today);
         if (notice && root.history && root.history.replaceState) {
           try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
         }
