@@ -119,6 +119,13 @@ về `/learning`. Bảng DB cũ giữ nguyên để không mất dữ liệu ng�
 - Event receipts xác định và transaction giữ progress/reward idempotent; review/practice không sinh completion event.
 - Learner-day từ event instant và IANA ZoneId user, không timezone JVM; kiểm day-boundary/DST/retry/concurrency.
 - Freeze/outbox/credit dùng ledger và locking hiện có.
+- F128 (owner 2026-11-15): "Mục tiêu mỗi ngày" là mục tiêu người học tự đặt để lấy thưởng (+5 CP, giữ chuỗi); lộ trình
+  không thay chỉ tiêu. Việc học trên lộ trình JLPT và Giao tiếp được cộng vào 3 chỉ tiêu, đọc thẳng từ dữ liệu lộ trình
+  của ngày (không ghi vào `user_daily_progress`): từ/chữ mới = mục học mới của JLPT (quy tắc "đã học mới" của lộ trình) +
+  mẫu câu của tình huống xong, từ của chủ đề vào ngày xong tình huống đầu tiên, mục bài nền học trong bài; bài trắc nghiệm =
+  bài kiểm tra JLPT đã nộp + tình huống xong + bài kiểm tra mục tiêu; phút = thời gian thẻ/câu trả lời JLPT (mỗi thẻ tối đa
+  3 phút) + 15 phút mỗi tình huống. Xét đạt sau mỗi lượt học JLPT (sau commit) và khi mở trang mục tiêu/khung tóm tắt
+  (xét hôm qua rồi hôm nay). Thưởng mục tiêu ngày cộng thêm, không thay CP riêng của lộ trình.
 
 ### 2.5 Inline Dictionary / Favorites
 
