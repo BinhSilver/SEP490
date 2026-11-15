@@ -1,0 +1,55 @@
+/* [JLAS-W0108] F129 the fox on the word-card menu button (home-mascot.js). Loaded after home-word-deck.css and
+   only overrides the menu button's size; the sprite sheets are 3x3, so background-size 300% steps cell by cell. */
+.hwd {
+  --hm-size: 88px;
+  --hm-inside: 20px; /* how far the fox sits down into the frame, as the old Kitsu did */
+}
+
+.hwd .hwd-bar:has(.hm-mascot-btn) { top: calc(var(--hm-inside) - var(--hm-size)); }
+
+.hwd .hwd-more.hm-mascot-btn {
+  width: var(--hm-size);
+  height: var(--hm-size);
+  /* the head turns in place, so no tilt on hover: only a small lift */
+  transition: transform .2s ease;
+}
+.hwd .hwd-more.hm-mascot-btn:hover,
+.hwd .hwd-more.hm-mascot-btn[aria-expanded="true"] { transform: translateY(-2px); }
+.hwd .hwd-more.hm-mascot-btn:focus-visible { border-radius: 24px; }
+
+.hm-mascot,
+.hm-mascot__squash { position: relative; display: block; width: 100%; height: 100%; }
+.hm-mascot__squash { transform-origin: 50% 78%; }
+.hm-mascot {
+  /* the fox is drawn on a transparent sheet: a soft shadow keeps it readable on the photo, day or night */
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / .22));
+}
+
+.hm-mascot__layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: 300% 300%;
+}
+.hm-mascot__react { opacity: 0; }
+.hm-mascot-btn.is-reacting .hm-mascot__dir { opacity: 0; }
+.hm-mascot-btn.is-reacting .hm-mascot__react { opacity: 1; }
+
+html.home-html[data-theme="dark"] .hm-mascot,
+.home-hero:has([data-home-lighting="night"]) .hm-mascot {
+  filter: drop-shadow(0 0 10px rgb(255 214 170 / .28)) drop-shadow(0 6px 10px rgb(0 0 0 / .4));
+}
+
+@media (max-width: 560px) {
+  .hwd { --hm-size: 64px; --hm-inside: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hwd .hwd-more.hm-mascot-btn,
+  .hwd .hwd-more.hm-mascot-btn.is-waking { transition: none; animation: none; }
+  .hwd .hwd-more.hm-mascot-btn:hover,
+  .hwd .hwd-more.hm-mascot-btn[aria-expanded="true"] { transform: none; }
+}
+
+/* home-word-deck.css pins the button to 56px with !important inside the site shell; the fox needs its own size */
+#jlabBaseContent .hwd .hwd-more.hm-mascot-btn { height: var(--hm-size) !important; }

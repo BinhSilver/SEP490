@@ -297,6 +297,8 @@
     });
     doc.addEventListener('click', function (e) { if (!box.contains(e.target)) openMenu(false); });
     doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { openMenu(false); more.focus(); } });
+    // F129: the fox from home-mascot.js replaces the Kitsu image on the menu button (the image stays if it is missing)
+    if (root.HomeMascot && typeof root.HomeMascot.attach === 'function') root.HomeMascot.attach(more);
     markSource();
     card.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); flip(); }
