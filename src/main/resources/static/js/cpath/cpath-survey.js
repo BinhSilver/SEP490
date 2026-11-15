@@ -480,7 +480,13 @@
       syncDefaultTopics();
     }
 
+    // [JLAS-W0108] F155: wait for both /comm/goals and /comm/path so neither main-goal flash nor empty goal grid renders
+    var goalsLoaded = false;
+    var pathChecked = false;
+    var loadFailed = false;
+    var redirected = false;
     function render() {
+      if (!goalsLoaded || !pathChecked || loadFailed || redirected) return;
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = surveyHtml(goalsData, state);
     }
@@ -498,7 +504,7 @@
       }
 
       var goalBtn = t.closest('[data-cp-goal]');
-      if (goalBtn) {
+      if (goalBtn && !goalBtn.disabled && !(goalBtn.hasAttribute && goalBtn.hasAttribute('disabled'))) {
         var picked = goalBtn.getAttribute('data-cp-goal') || 'TRAVEL';
         // "Công việc" starts on WORK (office only); the field step picks IT / BrSE or the industries
         if (picked === JOB) { if (!isJob(state.goal)) { state.goal = 'WORK'; state.fields = []; } }
@@ -624,6 +630,7 @@
     });
 
     function failLoad() {
+      loadFailed = true;
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = '<section class="cp-survey__card"><p class="jp-alert" role="alert">Chưa tải được danh sách mục tiêu.</p>'
         + '<p><button type="button" class="cp-btn-primary" data-cp-reload>Thử lại</button></p></section>';
@@ -632,28 +639,39 @@
       if (ev.target && ev.target.closest && ev.target.closest('[data-cp-reload]') && root.location) root.location.reload();
     });
 
+    var urlGoal = null;
+    var forceSecondary = false;
+    try {
+      var params = new (root.URLSearchParams || URLSearchParams)(String((root.location && root.location.search) || ''));
+      urlGoal = params.get('goal');
+      forceSecondary = params.get('secondary') === '1';
+    } catch (e) {
+      urlGoal = null;
+      forceSecondary = false;
+    }
+
     root.JpathApi.get('/api/learning/comm/goals').then(function (data) {
       goalsData = Array.isArray(data) ? data : [];
       if (!goalsData.length) { failLoad(); return; }
+      goalsLoaded = true;
       // ?goal= from the general survey (BA = "Công việc", TRAVEL, DAILY_LIFE): that goal is not asked again
-      var want = null;
-      try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
+      var want = urlGoal;
       var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
       function applyPresetGoal() {
-      // adding a secondary goal always starts on the goal step; the saved survey goal is the main one
-      if (state.secondaryPath) { syncSecondaryGoal(); render(); return; }
-      if (want && isJob(want) && (has('WORK') || has('BA'))) {
-        state.goal = has('WORK') ? 'WORK' : 'BA';
-        state.presetGoal = true;
-      } else if (want && has(want)) {
-        state.goal = want;
-        state.presetGoal = true;
-      }
-      syncDefaultTopics();
-      render();
+        // adding a secondary goal always starts on the goal step; the saved survey goal is the main one
+        if (state.secondaryPath) { syncSecondaryGoal(); render(); return; }
+        if (want && isJob(want) && (has('WORK') || has('BA'))) {
+          state.goal = has('WORK') ? 'WORK' : 'BA';
+          state.presetGoal = true;
+        } else if (want && has(want)) {
+          state.goal = want;
+          state.presetGoal = true;
+        }
+        syncDefaultTopics();
+        render();
       }
       applyPresetGoal();
-      if (!want) {
+      if (!want && !forceSecondary) {
         Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
           var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
           var saved = savedSurvey && savedSurvey.goal;
@@ -664,20 +682,47 @@
       }
     }, failLoad);
 
-    // a learner who already has a main goal adds a secondary one here (free study, no daily plan)
+    // [JLAS-W0108] F152/F155: distinguish secondary-goal add (?secondary=1 or plain /survey with existing path)
+    // from main-goal edit (/survey?edit=goal -> /learning/comm/survey?goal=...)
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
-      if (!p || !p.goal) return;
+      if (!p || !p.goal) {
+        pathChecked = true;
+        render();
+        return;
+      }
+      if (!forceSecondary && urlGoal) {
+        if (urlGoal === p.goal || (urlGoal === 'BA' && isJob(p.goal))) {
+          redirected = true;
+          if (root.location) {
+            if (typeof root.location.replace === 'function') root.location.replace('/learning/comm/path');
+            else root.location.href = '/learning/comm/path';
+          }
+          return;
+        }
+        pathChecked = true;
+        render();
+        return;
+      }
       state.secondaryPath = true;
       state.presetGoal = false;
       state.mainGoal = p.goal;
+      state.mainNameVi = p.nameVi || p.goal;
+      if (p.selfLevel === 'BEGINNER' || p.selfLevel === 'ELEMENTARY' || p.selfLevel === 'INTERMEDIATE') {
+        state.selfLevel = p.selfLevel;
+      }
+      if (p.display && typeof p.display.fullRomaji === 'boolean') {
+        state.knowsKana = !p.display.fullRomaji;
+      }
       state.step = 1;
       state.errorMsg = '';
       if (goalsData.length) syncSecondaryGoal();
-      STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
-      STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
-        + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.';
+      pathChecked = true;
       render();
-    }, function () { /* no main goal yet: this survey makes it */ });
+    }).catch(function () { /* no main goal yet: this survey makes it */ }).then(function () {
+      if (pathChecked || redirected) return;
+      pathChecked = true;
+      render();
+    });
   }
 
   return {
