@@ -12,10 +12,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Read side of the mission module: dashboard, summary widget and pending celebrations. */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MissionService {
@@ -32,10 +34,11 @@ public class MissionService {
     private final MissionClock clock;
 
     public MissionDashboardResponse dashboard(Long userId) {
-        // Apply anything still queued first, so the balance shown already includes it.
-        awards.applyOpenAwards(userId);
         ZoneId zone = zones.zoneOf(userId);
         LocalDate today = clock.today(zone);
+        refreshDailyGoal(userId, today);
+        // Apply anything still queued first, so the balance shown already includes it.
+        awards.applyOpenAwards(userId);
         StreakResponse streak = streaks.refresh(userId);
         UserCreditService.EarnCapStatus cap = credits.earnCapStatus(userId);
         return new MissionDashboardResponse(today, zone.getId(), credits.balance(userId),
@@ -45,10 +48,30 @@ public class MissionService {
 
     public MissionSummaryResponse summary(Long userId) {
         LocalDate today = clock.today(zones.zoneOf(userId));
+        if (refreshDailyGoal(userId, today)) {
+            awards.applyOpenAwards(userId);
+        }
         StreakResponse streak = streaks.refresh(userId);
         DailyGoalProgress goal = dailyGoal.progress(userId, today);
         return new MissionSummaryResponse(credits.balance(userId), streak.currentStreak(), streak.longestStreak(), goal,
                 streak.week());
+    }
+
+    /**
+     * [JLAS-W0108] F128: study on a path counts toward the daily goal without a learning event, so the goal is checked
+     * again here: yesterday first (a goal met just before midnight still keeps the streak), then today. A failed
+     * check is logged and never breaks the page. True when a goal was just completed.
+     */
+    private boolean refreshDailyGoal(Long userId, LocalDate today) {
+        boolean completed = false;
+        for (LocalDate day : List.of(today.minusDays(1), today)) {
+            try {
+                completed |= dailyGoal.refresh(userId, day);
+            } catch (RuntimeException ex) {
+                log.warn("Could not re-check the daily goal of user {} for {}", userId, day, ex);
+            }
+        }
+        return completed;
     }
 
     @Transactional(readOnly = true)

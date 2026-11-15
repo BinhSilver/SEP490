@@ -33,6 +33,9 @@
     PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
   };
   var state = { attemptId: null, currentQuestion: null, goal: null, result: null };
+  var existingPathUrl = null;
+  var pathLookupState = 'unknown';
+  var pathLookupVersion = 0;
   var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
@@ -325,6 +328,55 @@
     renderFeedback(result);
     renderReview(result.review);
     show(resultView);
+    refreshPathActions();
+  }
+
+  function smartTestConfirmUrl() {
+    var handoff = window.JpathSurveyFlow && window.JpathSurveyFlow.smartTestHandoffUrl(jpathConfig, state.goal, state.attemptId);
+    return handoff || (state.attemptId
+      ? '/learning/path?assessmentAttemptId=' + encodeURIComponent(state.attemptId)
+      : '/learning');
+  }
+
+  function updatePathActions() {
+    var createButton = document.getElementById('createPathButton');
+    var updateButton = document.getElementById('updatePathButton');
+    if (!createButton) return;
+    createButton.querySelector('span').textContent = existingPathUrl ? 'Vào lộ trình học'
+      : pathLookupState === 'none' ? 'Tạo lộ trình học' : 'Vào trang học';
+    createButton.href = existingPathUrl || (pathLookupState === 'none' ? smartTestConfirmUrl() : '/learning');
+    createButton.hidden = pathLookupState === 'none' && Boolean(window.SmartTestResultRoute && window.SmartTestResultRoute.notice(state.result).blockCreate);
+    if (updateButton) {
+      updateButton.hidden = !existingPathUrl || !state.attemptId;
+      if (!updateButton.hidden) updateButton.href = smartTestConfirmUrl();
+    }
+  }
+
+  function refreshPathActions() {
+    var version = ++pathLookupVersion;
+    existingPathUrl = null;
+    pathLookupState = 'unknown';
+    updatePathActions();
+    Promise.all([
+      fetch('/api/learning/jlpt/path', { headers: window.JlasAuth.authHeaders() }),
+      fetch('/api/learning/comm/path', { headers: window.JlasAuth.authHeaders() })
+    ]).then(function (responses) {
+      if (version !== pathLookupVersion) return;
+      if (responses[0].ok) existingPathUrl = '/learning';
+      else if (responses[1].ok) existingPathUrl = '/learning/comm/path';
+      else if (responses[0].status === 404 && responses[1].status === 404) {
+        return fetch('/api/learning/jlpt/entry-status', { headers: window.JlasAuth.authHeaders() })
+          .then(function (statusResponse) { return statusResponse.ok ? statusResponse.json() : null; })
+          .then(function (payload) {
+            if (version !== pathLookupVersion) return;
+            var status = payload && payload.data && payload.data.pathStatus;
+            if (status === 'ACTIVE' || status === 'PAUSED') existingPathUrl = '/learning';
+            else if (payload) pathLookupState = 'none';
+            updatePathActions();
+          });
+      }
+      updatePathActions();
+    }).catch(function () { /* Keep the current action until path state can be checked. */ });
   }
 
   function renderFeedback(result) {
@@ -863,6 +915,7 @@
   var createPathButton = document.getElementById('createPathButton');
   if (createPathButton) {
     createPathButton.addEventListener('click', async function (event) {
+      if (pathLookupState !== 'none') return;
       event.preventDefault();
       // [JLAS-W0108] Decision 34: a JLPT learner with the path on goes straight to the confirmation page, never
       // through the old entry questions below.
@@ -881,7 +934,10 @@
   // [JLAS-W0108] JLPT path flag for the "Tạo lộ trình" hand-off; any failure keeps the old flow.
   var jpathConfig = { enabled: false };
   if (window.JpathSurveyFlow) {
-    api('/api/learning/jlpt/config').then(function (c) { if (c) jpathConfig = c; }).catch(function () {});
+    api('/api/learning/jlpt/config').then(function (c) {
+      if (c) jpathConfig = c;
+      if (state.result) updatePathActions();
+    }).catch(function () {});
   }
 
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);

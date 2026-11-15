@@ -89,6 +89,46 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
     }
 
     /** Question id of the {@code n}-th question (1-based) of the {@code set}-th set (1-based). */
+    /**
+     * F106: the shown order of a question's options — position i shows stored option {@code order.get(i)}. Seeded by
+     * the token and the question id, so the check and its translation always agree.
+     */
+    public static List<Integer> optionOrder(String token, String qid, int size) {
+        List<Integer> order = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            order.add(i);
+        }
+        Collections.shuffle(order, new Random((token + ":" + qid).hashCode()));
+        return order;
+    }
+
+    /**
+     * F106: reorders each {@code questions_vi[k].options_vi} of a set translation into the order check {@code token}
+     * shows for question {@code qids[k]}. Without a token, or with an id that is not {@code s<n>q<n>}, the entry is
+     * left in the stored order. Only the order of lines the learner already sees changes; no answer is revealed.
+     */
+    @SuppressWarnings("unchecked")
+    public static void alignTranslation(java.util.Map<String, Object> node, String token, List<String> qids) {
+        if (node == null || token == null || token.isBlank() || qids == null
+                || !(node.get("questions_vi") instanceof List<?> questions)) {
+            return;
+        }
+        for (int k = 0; k < questions.size() && k < qids.size(); k++) {
+            String qid = qids.get(k);
+            if (qid == null || !qid.matches("s\\d+q\\d+")
+                    || !(questions.get(k) instanceof java.util.Map<?, ?> q)
+                    || !(q.get("options_vi") instanceof List<?> vi)) {
+                continue;
+            }
+            List<Integer> order = optionOrder(token, qid, vi.size());
+            List<Object> shown = new ArrayList<>();
+            for (Integer from : order) {
+                shown.add(vi.get(from));
+            }
+            ((java.util.Map<String, Object>) q).put("options_vi", shown);
+        }
+    }
+
     static String questionId(int set, int n) {
         return "s" + set + "q" + n;
     }
@@ -155,11 +195,7 @@ public class JpathSkillCheckBuilder implements JpathSkillCheckIssuer {
             for (JpathSkillQuestion q : qs) {
                 String qid = questionId(index, ++n);
                 List<String> labels = readList(q.getOptionsJson());
-                List<Integer> order = new ArrayList<>();
-                for (int i = 0; i < labels.size(); i++) {
-                    order.add(i);
-                }
-                Collections.shuffle(order, new Random((token + ":" + qid).hashCode()));
+                List<Integer> order = optionOrder(token, qid, labels.size());
                 List<JpathOptionView> options = new ArrayList<>();
                 String correct = null;
                 for (int i = 0; i < order.size(); i++) {

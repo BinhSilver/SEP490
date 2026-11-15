@@ -56,14 +56,15 @@
       return { kind: 'FREE_QUIZ', tab: tab, level: w.lowerLevel, source: source, count: count,
         direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false };
     };
-    var go = function (res) {
+    var tokenOf = function (res) {
       var token = res && (res.token || res.checkToken);
-      if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');
+      if (!token) throw new Error('no token');
+      return token;
     };
     // notebook first (words and kanji only); a notebook too small falls back to every item of the level
     var first = tab === 'GRAMMAR' ? 'ALL' : 'NOTEBOOK';
-    return Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', body(first))).then(go, function () {
-      return Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', body('ALL'))).then(go);
+    return Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', body(first))).then(tokenOf).then(null, function () {
+      return Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', body('ALL'))).then(tokenOf);
     });
   }
 
@@ -88,13 +89,21 @@
         }
         var b = t.closest && t.closest('[data-warmup-tab]');
         if (!b) return;
+        if (b.disabled) return;
         var tab = b.getAttribute('data-warmup-tab');
-        state[tab] = true;
-        write(w, state);
         b.disabled = true;
-        start(w, tab, Number(b.getAttribute('data-warmup-count'))).catch(function () {
+        var err = el.querySelector && el.querySelector('[data-warmup-err]');
+        if (err) err.hidden = true;
+        // F144: ✓ only once the quiz exists; a failure gives the button back and shows one error line
+        start(w, tab, Number(b.getAttribute('data-warmup-count'))).then(function (token) {
+          state[tab] = true;
+          write(w, state);
+          root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');
+        }).catch(function () {
           b.disabled = false;
-          b.insertAdjacentHTML('afterend', '<span class="jp-warmup__err">Chưa mở được bài ôn. Thử lại sau.</span>');
+          var e = el.querySelector && el.querySelector('[data-warmup-err]');
+          if (e) { e.hidden = false; return; }
+          b.insertAdjacentHTML('afterend', '<span class="jp-warmup__err" role="alert" data-warmup-err>Chưa mở được bài ôn. Thử lại sau.</span>');
         });
       };
     }, function () { el.hidden = true; });

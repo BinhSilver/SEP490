@@ -12,6 +12,7 @@ import com.jlas.jlptpath.dto.JpathTodayTab;
 import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
+import com.jlas.jlptpath.entity.JpathDailyTabId;
 import com.jlas.jlptpath.entity.JpathStudySession;
 import com.jlas.jlptpath.entity.JpathUserItem;
 import com.jlas.jlptpath.entity.JpathUserLevel;
@@ -121,7 +122,15 @@ public class JpathTodayViewAssembler {
 
     @Transactional(readOnly = true)
     public int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab) {
-        return effectiveTarget(plan, tab, priorityMode(plan.getPathId(), plan.getLevel()));
+        // F148 review: only COMBINED study puts today's kana rows before the words in one session; SPLIT vocabulary
+        // draws on kana already learned, so counting those words gave a target the session could not reach
+        int kanaRemaining = plan.isKanaPhase() && tab.getTab() == JpathTab.VOCAB && combined(plan.getPathId())
+                ? plannedKanaRows(plan, null) : 0;
+        return effectiveTarget(plan, tab, priorityMode(plan.getPathId(), plan.getLevel()), kanaRemaining);
+    }
+
+    private boolean combined(Long pathId) {
+        return pathId != null && paths.findById(pathId).map(p -> p.getStudyMode() == JpathStudyMode.COMBINED).orElse(false);
     }
 
     static Set<JpathTab> requiredTabs(JpathDailyPlan plan) {
@@ -149,10 +158,15 @@ public class JpathTodayViewAssembler {
         }
         JpathUserLevel open = openLevel(path);
         JpathDayRules.DayPlan day = JpathDayRules.dayPlan(content, calendar, plans, path, open, today);
-        int remaining = JpathDayRules.tabRows(day.kind(), day.kanaPhase(), path.isKanaTab(), path.getStudyMode(),
-                        open, path.getDailyMinutes()).stream()
+        List<JpathDailyTab> tabRows = JpathDayRules.tabRows(day.kind(), day.kanaPhase(), path.isKanaTab(),
+                path.getStudyMode(), open, path.getDailyMinutes());
+        int remaining = tabRows.stream()
                 .filter(t -> t.getTab() == tab).findFirst().map(JpathDailyTab::getNewTarget).orElse(0);
-        return newRefs(userId, open.getLevel(), tab, day.kanaPhase(), open.isPriorityMode(), remaining);
+        int kanaRemaining = day.kanaPhase() && tab == JpathTab.VOCAB
+                ? tabRows.stream().filter(t -> t.getTab() == JpathTab.KANA).findFirst()
+                        .map(JpathDailyTab::getNewTarget).orElse(0)
+                : 0;
+        return newRefs(userId, open.getLevel(), tab, day.kanaPhase(), open.isPriorityMode(), remaining, kanaRemaining);
     }
 
     @Transactional(readOnly = true)
@@ -178,13 +192,14 @@ public class JpathTodayViewAssembler {
         boolean priority = plan.getLevel().equals(level.getLevel()) ? level.isPriorityMode()
                 : priorityMode(plan.getPathId(), plan.getLevel());
         Set<JpathTab> required = requiredTabs(plan);
+        int kanaRemaining = path.getStudyMode() == JpathStudyMode.COMBINED ? plannedKanaRows(plan, rows) : 0;
         Map<JpathTab, JpathTodayTab> tabs = new EnumMap<>(JpathTab.class);
         for (JpathDailyTab t : rows) {
             int due = t.getTab() == JpathTab.SKILL ? 0
                     : (int) userItems.countDue(userId, JpathItemType.valueOf(t.getTab().name()), localNow);
-            tabs.put(t.getTab(), new JpathTodayTab(t.getTab(), effectiveTarget(plan, t, priority), t.getNewDone(),
-                    due, t.getReviewCap(), t.getReviewDone(), t.getCheckPassedAt() != null, t.getDoneAt() != null,
-                    required.contains(t.getTab())));
+            tabs.put(t.getTab(), new JpathTodayTab(t.getTab(), effectiveTarget(plan, t, priority, kanaRemaining),
+                    t.getNewDone(), due, t.getReviewCap(), t.getReviewDone(), t.getCheckPassedAt() != null,
+                    t.getDoneAt() != null, required.contains(t.getTab())));
         }
         boolean study = plan.getDayKind() == JpathDayKind.STUDY;
         JpathSliderValues targets = new JpathSliderValues(target(tabs, JpathTab.VOCAB), target(tabs, JpathTab.KANJI),
@@ -281,7 +296,7 @@ public class JpathTodayViewAssembler {
     // ---- shared overloads --------------------------------------------------------------------------------------
 
     /** min(new target, new done + learnable items not started); kana-phase vocabulary counts kana-only words. */
-    private int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab, boolean priority) {
+    private int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab, boolean priority, int plannedKanaRows) {
         int target = tab.getNewTarget();
         if (target <= 0 || tab.getTab() == JpathTab.SKILL) {
             return 0;
@@ -292,8 +307,8 @@ public class JpathTodayViewAssembler {
         }
         int available = tab.getTab() == JpathTab.KANA
                 ? Math.max(0, JpathTabCountsReader.KANA_ROWS - (int) kanaRows.countCompletedRows(plan.getUserId()))
-                : newCodes(plan.getUserId(), plan.getLevel(), tab.getTab(), plan.isKanaPhase(), priority, remaining)
-                        .size();
+                : newCodes(plan.getUserId(), plan.getLevel(), tab.getTab(), plan.isKanaPhase(), priority, remaining,
+                        plannedKanaRows).size();
         return tab.getNewDone() + Math.min(remaining, available);
     }
 
@@ -306,7 +321,23 @@ public class JpathTodayViewAssembler {
         }
         int remaining = rows.stream().filter(t -> t.getTab() == tab).findFirst()
                 .map(t -> t.getNewTarget() - t.getNewDone()).orElse(0);
-        return newRefs(userId, plan.getLevel(), tab, plan.isKanaPhase(), priority, remaining);
+        int kanaRemaining = plan.isKanaPhase() && tab == JpathTab.VOCAB ? plannedKanaRows(plan, rows) : 0;
+        return newRefs(userId, plan.getLevel(), tab, plan.isKanaPhase(), priority, remaining, kanaRemaining);
+    }
+
+    /** [JLAS-W0108] F148: remaining Kana rows on today's Kana-phase plan so VOCAB counts words unlocked today. */
+    private int plannedKanaRows(JpathDailyPlan plan, List<JpathDailyTab> rows) {
+        if (!plan.isKanaPhase()) {
+            return 0;
+        }
+        Optional<JpathDailyTab> kana = rows != null
+                ? rows.stream().filter(t -> t.getTab() == JpathTab.KANA).findFirst()
+                : dailyTabs.findById(new JpathDailyTabId(plan.getId(), JpathTab.KANA));
+        if (kana.isEmpty() && rows == null) {
+            kana = dailyTabs.findByPlanIdOrderByTab(plan.getId()).stream()
+                    .filter(t -> t.getTab() == JpathTab.KANA).findFirst();
+        }
+        return kana.map(t -> Math.max(0, t.getNewTarget() - t.getNewDone())).orElse(0);
     }
 
     /**
@@ -390,20 +421,26 @@ public class JpathTodayViewAssembler {
     }
 
     private List<JpathItemRef> newRefs(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priority,
-            int remaining) {
+            int remaining, int plannedKanaRows) {
         if (remaining <= 0 || tab == JpathTab.KANA || tab == JpathTab.SKILL) {
             return List.of();
         }
         JpathItemType type = JpathItemType.valueOf(tab.name());
-        return newCodes(userId, level, tab, kanaPhase, priority, remaining).stream()
+        return newCodes(userId, level, tab, kanaPhase, priority, remaining, plannedKanaRows).stream()
                 .map(code -> new JpathItemRef(type, code)).toList();
     }
 
-    /** Next new codes of a V/K/G tab; kana-phase vocabulary uses only kana-only words of learned kana. */
+    /**
+     * [JLAS-W0108] F148: Next new codes of a V/K/G tab; kana-phase vocabulary includes words covered by learned kana
+     * plus today's remaining planned kana rows.
+     */
     private List<String> newCodes(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priority,
-            int limit) {
+            int limit, int plannedKanaRows) {
         if (tab == JpathTab.VOCAB && kanaPhase) {
-            return content.nextKanaOnlyVocab(userId, level, limit, content.learnedKana(userId));
+            Set<String> kana = plannedKanaRows > 0
+                    ? content.learnedOrPlannedKana(userId, plannedKanaRows)
+                    : content.learnedKana(userId);
+            return content.nextKanaOnlyVocab(userId, level, limit, kana);
         }
         return content.nextNewCodes(userId, level, JpathItemType.valueOf(tab.name()), limit, priority, null);
     }

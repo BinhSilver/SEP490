@@ -206,12 +206,18 @@ public class JpathDailyPlanInserter {
 
     /**
      * Today's plan, untouched (the caller checked it and holds path → level → plan → tabs locks), for the current
-     * week schedule: when the schedule now gives another kind (or make-up) the tabs are rebuilt as a fresh insert
-     * would. True when the plan changed.
+     * week schedule: when the schedule now makes today a study day of another kind (or make-up) the tabs are rebuilt as
+     * a fresh insert would; a new rest or skill day on today waits for tomorrow (F130). True when the plan changed.
      */
     boolean rebuildForSchedule(JpathUserPath path, JpathUserLevel level, JpathDailyPlan plan, List<JpathDailyTab> tabs) {
         JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, plan.getStudyDay());
         if (dayPlan.kind() == plan.getDayKind() && dayPlan.skillMakeup() == plan.isSkillMakeup()) {
+            return false;
+        }
+        // F130: a rest or skill day moved onto today applies from tomorrow (as JpathRestDayStreakJob expects), so
+        // the learner cannot turn an untouched study day into a rest day that keeps the streak without studying.
+        // Giving up a rest or skill day (today becomes a study day) still applies at once.
+        if (dayPlan.kind() == JpathDayKind.REST || dayPlan.kind() == JpathDayKind.SKILL) {
             return false;
         }
         dailyTabs.deleteAll(tabs);

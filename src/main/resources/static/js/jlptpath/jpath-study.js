@@ -120,6 +120,15 @@
       html += '<button type="button" class="jp-study-icon" data-jp-audio="' + esc(card.audioUrl)
         + '" aria-label="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
+    // F196 (owner 15/11): save / unsave the card in the notebook from the card corner
+    if (has(card.code) && (card.itemType === 'VOCAB' || card.itemType === 'KANJI' || card.itemType === 'GRAMMAR') && !isCheck(card)) {
+      var saved = !!card.notebook;
+      html += '<button type="button" class="jp-study-icon jp-save-btn--inline' + (saved ? ' is-saved' : '') + '" data-jp-save'
+        + ' aria-pressed="' + (saved ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu"'
+        + ' title="' + (saved ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">'
+        + '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5.5 3.5h9v13l-4.5-3.2-4.5 3.2z" '
+        + 'stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="' + (saved ? 'currentColor' : 'none') + '"/></svg></button>';
+    }
     if (card.itemType === 'VOCAB' || card.itemType === 'KANJI') html += D().controlsHtml(display);
     return '<div class="jp-study-tools">' + html + '</div>';
   }
@@ -174,7 +183,7 @@
 
   function headChips(card, flippedOrNew) {
     var html = '';
-    if (card.notebook && card.kind !== 'NEW') html += '<span class="jp-study-flag jp-study-flag--notebook">Sổ tay điểm yếu</span>';
+    if (card.notebook && card.kind !== 'NEW') html += '<span class="jp-study-flag jp-study-flag--notebook">Sổ tay Lộ trình học</span>';
     if (card.hard && flippedOrNew) html += '<span class="jp-study-flag jp-study-flag--hard">Khó nhớ</span>';
     return html ? '<div class="jp-study-flags">' + html + '</div>' : '';
   }
@@ -279,16 +288,19 @@
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
       if (type === 'VOCAB' || type === 'KANJI') attrs += ' data-jpath-writing="' + attrJson({ itemType: type, code: card.code }) + '"';
     }
-    var skip = card.kind === 'NEW' && type === 'VOCAB'
-      ? '<p class="jp-study-skip">Đã biết từ này? <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
+    // F64 (owner 11/11): "Đã biết" on every new card of Từ vựng, Kanji and Ngữ pháp (one question decides)
+    var SKIP_ASK = { VOCAB: 'Đã biết từ này?', KANJI: 'Đã biết chữ này?', GRAMMAR: 'Đã biết mẫu này?' };
+    var skip = card.kind === 'NEW' && SKIP_ASK[type]
+      ? '<p class="jp-study-skip">' + SKIP_ASK[type] + ' <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
       : '';
     var kindCls = esc(String(card.kind || '').toLowerCase());
     var stateCls = flippable ? (isFlipped ? ' jp-study-card--flipped' : ' jp-study-card--front') : '';
     var typeCls = has(type) ? ' jp-study-card--type-' + esc(String(type).toLowerCase()) : '';
+    var backWhat = type === 'KANA' ? 'cách đọc' : 'nghĩa';
     var faceTag = flippable
       ? (isFlipped
         ? '<span class="jp-study-face-tag jp-study-face-tag--back" data-label="Mặt sau · Chạm vào thẻ hoặc nhấn phím Space để xem lại mặt trước" aria-hidden="true"></span>'
-        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Chạm vào thẻ hoặc nhấn phím Space để lật xem nghĩa" aria-hidden="true"></span>')
+        : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Chạm vào thẻ hoặc nhấn phím Space để lật xem ' + backWhat + '" aria-hidden="true"></span>')
       : '';
     var flipCue = '';
     var mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp';
@@ -307,7 +319,7 @@
       if (isFlipped) {
         mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'flip';
       } else {
-        mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem nghĩa nhé!'; mMood = 'encourage';
+        mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem ' + backWhat + ' nhé!'; mMood = 'encourage';
       }
     } else if (isFlipped) {
       mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'flip';
@@ -376,7 +388,7 @@
       var t = Number(s.total) || 0;
       done += Math.min(d, t);
       total += t;
-      var countStr = s.complete ? String(t) : (d + '/' + t);
+      var countStr = s.complete ? (t + '/' + t) : (d + '/' + t); // L18b: always "done/total"
       var dotIcon = s.complete
         ? '<svg class="jp-step__check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         : '';
@@ -469,6 +481,36 @@
   var CHECK_NEEDS_NETWORK_TEXT = 'Cần có mạng để làm micro-check.';
   var SWIPE_HINT_TEXT = 'Vuốt phải = Nhớ rồi · Vuốt trái = Chưa nhớ';
 
+  // L20: back to the tab just studied (the path page otherwise opens Chữ cái while kana is unfinished)
+  var DONE_TAB = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana', SKILL: 'skills' };
+  function doneUrl(flow) {
+    var t = flow && DONE_TAB[flow.tab];
+    return t ? '/learning?tab=' + t + '&saved=1' : DONE_URL;
+  }
+
+  // L18b: the session view is fetched once; cards answered since then move the step counts and the minutes left
+  function liveSteps(session, position, total) {
+    var s = session || {};
+    var start = Number(s.position) || 0;
+    var delta = Math.max(0, (Number(position) || 0) - start);
+    var steps = list(s.steps).map(function (st) { return Object.assign({}, st); });
+    var rest = delta;
+    var activeGiven = false;
+    steps.forEach(function (st) {
+      var t = Number(st.total) || 0;
+      var d = Math.min(t, (Number(st.done) || 0) + rest);
+      rest -= d - Math.min(t, Number(st.done) || 0);
+      st.done = d;
+      st.complete = d >= t;
+      st.active = !st.complete && !activeGiven;
+      if (st.active) activeGiven = true;
+    });
+    var all = Number(total) - start;
+    var minutes = Number(s.minutesLeft) || 0;
+    if (delta > 0 && all > 0) minutes = Math.ceil(minutes * Math.max(0, all - delta) / all);
+    return { steps: steps, minutesLeft: minutes };
+  }
+
   function repeatKey(c) { return c.kind + '|' + c.itemType + '|' + c.code; }
 
   function initFlow(session) {
@@ -496,12 +538,43 @@
 
   function stepEffect(flow) {
     var c = flow.cards[0];
-    if (!c) return flow.position < flow.total && flow.status !== 'COMPLETED' ? { reload: true } : { navigate: DONE_URL };
+    if (!c) return flow.position < flow.total && flow.status !== 'COMPLETED' ? { reload: true } : { navigate: doneUrl(flow) };
     if (!isCheck(c)) return null;
     if (has(c.checkToken)) {
       return { navigate: '/learning/jlpt/check/' + encodeURIComponent(c.checkToken) + '?session=' + flow.sessionId };
     }
     return { issueCheck: { kind: c.checkKind || c.kind, tab: checkTab(flow), sessionId: flow.sessionId } };
+  }
+
+  function cardStepKey(c) {
+    if (!c) return null;
+    if (c.kind === 'SKILL_QUIZ' || c.checkKind === 'SKILL_QUIZ') return 'SKILL_QUIZ';
+    if (c.kind === 'REVIEW' || c.kind === 'RETYPE' || c.checkKind === 'GRAMMAR_REVIEW') return 'REVIEW';
+    return c.itemType || null;
+  }
+
+  function bumpSteps(session, key, dDone, dTotal, nextActiveKey) {
+    if (!session || !Array.isArray(session.steps) || !key) return session;
+    var changed = false;
+    var steps = session.steps.map(function (st) {
+      if (!st || st.key !== key) return st;
+      changed = true;
+      var total = Math.max(0, (Number(st.total) || 0) + (dTotal || 0));
+      var done = Math.min(total, Math.max(0, (Number(st.done) || 0) + (dDone || 0)));
+      var complete = total > 0 && done >= total;
+      var active = complete ? false : st.active;
+      return Object.assign({}, st, { done: done, total: total, complete: complete, active: !!active });
+    });
+    if (!changed) return session;
+    if (nextActiveKey && nextActiveKey !== key) {
+      var prevDone = steps.some(function (st) { return st && st.key === key && st.complete; });
+      if (prevDone) {
+        steps = steps.map(function (st) {
+          return st ? Object.assign({}, st, { active: st.key === nextActiveKey && !st.complete }) : st;
+        });
+      }
+    }
+    return Object.assign({}, session, { steps: steps });
   }
 
   /** Queues a repeat of {@code c} like the server (at most two per item): shown locally only when the window
@@ -513,13 +586,32 @@
     var repeats = Object.assign({}, flow.repeats);
     repeats[key] = count + 1;
     var cards = flow.cards.slice();
-    if (flow.position + cards.length >= flow.total) cards.push(Object.assign({}, c, { repeat: true }));
-    return withFlow(flow, { cards: cards, total: flow.total + 1, repeats: repeats });
+    var rep = Object.assign({}, c, { repeat: true });
+    // F149: same place as the server (JpathQueueBuilder.insertRepeatBeforeCheck) — before the next mini-check of
+    // this tab, else at the end; a different place made the next event fail the server's position check
+    // a check card carries no tab: it closes the run of cards before it, so its tab is that run's item type
+    var checkAt = -1;
+    var runType = c.itemType;
+    for (var i = 1; i < cards.length; i++) {
+      var k = cards[i];
+      if (!k) continue;
+      if (k.kind === 'MICRO_CHECK') {
+        if ((k.itemType || runType) === c.itemType) { checkAt = i; break; }
+      } else if (k.itemType) {
+        runType = k.itemType;
+      }
+    }
+    if (checkAt > 0) cards.splice(checkAt, 0, rep);
+    else if (flow.position + cards.length >= flow.total) cards.push(rep);
+    var session = bumpSteps(flow.session, cardStepKey(c), 0, 1);
+    return withFlow(flow, { session: session, cards: cards, total: flow.total + 1, repeats: repeats });
   }
 
   function advance(flow) {
     var c = flow.cards[0];
-    var next = withFlow(flow, { cards: flow.cards.slice(1), position: flow.position + 1, flipped: false,
+    var cards = flow.cards.slice(1);
+    var session = bumpSteps(flow.session, cardStepKey(c), 1, 0, cardStepKey(cards[0]));
+    var next = withFlow(flow, { session: session, cards: cards, position: flow.position + 1, flipped: false,
       flippedOnce: false, flipCount: 0, retype: null, lastType: c && c.itemType ? c.itemType : flow.lastType });
     var effect = stepEffect(next);
     return effect ? { flow: next, effect: effect } : { flow: next };
@@ -594,7 +686,7 @@
           nf.flipCount = flow.flipCount;
         }
         nf.lastType = flow.lastType;
-        if (nf.status === 'COMPLETED' || !cur) return { flow: nf, effect: stepEffect(nf) || { navigate: DONE_URL } };
+        if (nf.status === 'COMPLETED' || !cur) return { flow: nf, effect: stepEffect(nf) || { navigate: doneUrl(nf) } };
         var se = nf.position !== flow.position ? stepEffect(nf) : null;
         return se ? { flow: nf, effect: se } : { flow: nf };
       }
@@ -894,7 +986,8 @@
     }
     var hint = c.kind === 'NEW' && swipeRating(c, 'RIGHT') && shouldShowSwipeHint(page.display, coarsePointer())
       ? swipeHintHtml() : '';
-    el.innerHTML = banner + stepsHtml(s.steps, s.minutesLeft, s.tab)
+    var live = liveSteps(s, f.position, f.total);
+    el.innerHTML = banner + stepsHtml(live.steps, live.minutesLeft, s.tab)
       + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check"'
       + ' data-jp-inline-check hidden></div></div>' + hint
       + ratingButtonsHtml(c, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount })
@@ -947,6 +1040,20 @@
     if (c && c.audioUrl) D().playAudio(c.audioUrl);
   }
 
+  // F196: the card's notebook flag flips after the server answers; the toast says what happened
+  function toggleSaved(page) {
+    var c = current(page);
+    if (!c || !c.code || page.savingNote) return;
+    var willSave = !c.notebook;
+    page.savingNote = true;
+    var url = BASE + '/items/' + encodeURIComponent(String(c.itemType).toLowerCase()) + '/' + encodeURIComponent(c.code) + '/notebook';
+    var toast = function (m) { if (root.JlasToast && root.JlasToast.show) root.JlasToast.show(m); };
+    Promise.resolve(root.JpathApi.send(willSave ? 'POST' : 'DELETE', url)).then(function () {
+      c.notebook = willSave;
+      toast(willSave ? 'Đã lưu vào sổ tay điểm yếu.' : 'Đã bỏ khỏi sổ tay.');
+    }, function () { toast('Chưa lưu được. Thử lại sau.'); }).then(function () { page.savingNote = false; draw(page); });
+  }
+
   function toggleFurigana(page) {
     var r = controlPatch(page.display, 'furigana');
     page.display = r.display;
@@ -962,6 +1069,7 @@
     var t = ev.target;
     if (!t || typeof t.closest !== 'function') return;
     if (t.closest('[data-jp-audio]')) { playCurrent(page); return; }
+    if (t.closest('[data-jp-save]')) { ev.stopPropagation(); toggleSaved(page); return; }
     if (t.closest('[data-jp-flip]')) { flip(page); return; }
     var btn = t.closest('[data-jp-rate]');
     if (btn) { rate(page, btn.getAttribute('data-jp-rate')); return; }
@@ -1034,8 +1142,8 @@
   }
 
   return { afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
-    cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, keyAction: keyAction,
-    controlPatch: controlPatch, bindControls: bindControls, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
+    cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, keyAction: keyAction,
+    controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,
     retypeMessage: retypeMessage, skipMessage: skipMessage, shouldShowSwipeHint: shouldShowSwipeHint,
     swipeHintHtml: swipeHintHtml, OFFLINE_TEXT: OFFLINE_TEXT, NEED_NETWORK_TEXT: NEED_NETWORK_TEXT,

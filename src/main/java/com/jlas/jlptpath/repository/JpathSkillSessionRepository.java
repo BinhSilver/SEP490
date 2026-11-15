@@ -17,6 +17,10 @@ public interface JpathSkillSessionRepository extends JpaRepository<JpathSkillSes
     Optional<JpathSkillSession> findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(
             Long userId, Long planId, JpathSkill skill, JpathSkillSessionKind kind);
 
+    /** F177: the open free session of one type (a learner may leave several types half done). */
+    Optional<JpathSkillSession> findFirstByUserIdAndPlanIdAndSkillAndKindAndTypeCodeAndCompletedAtIsNullOrderByIdDesc(
+            Long userId, Long planId, JpathSkill skill, JpathSkillSessionKind kind, String typeCode);
+
     /** The latest completed session of (plan, skill, kind), if any. */
     Optional<JpathSkillSession> findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(
             Long userId, Long planId, JpathSkill skill, JpathSkillSessionKind kind);

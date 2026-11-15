@@ -24,6 +24,9 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const GOALS = ['TRAVEL', 'DAILY_LIFE', 'BA', 'WORK'];
 const GOAL_ORDER = { TRAVEL: 1, DAILY_LIFE: 2, BA: 3, WORK: 4 };
 const LEARNER = 'リン';
+// F49 (11/11): the BrSE dialogues are written for グエン (the learner), every other goal for リン
+const LEARNER_BY_GOAL = { BA: 'グエン' };
+const learnerOf = (goal) => LEARNER_BY_GOAL[goal] || LEARNER;
 const PROMPT_TEMPLATE_CODE = 'scenario_practical_v2';
 // The four scoring rules the existing scenarios are linked to (see sql/seeds/ai_call_scoring_rules.sql).
 const SCORING_RULE_CODES = ['grammar_accuracy', 'vocabulary_usage', 'mission_completion', 'naturalness'];
@@ -181,7 +184,7 @@ function main() {
       const manifest = loadAudioManifest(g.goal);
       for (const t of g.compiled.topics) for (const s of t.situations) {
         s.lines.forEach((l, i) => {
-          const learner = l.speaker === LEARNER ? 1 : 0;
+          const learner = l.speaker === learnerOf(g.goal) ? 1 : 0;
           const furi = s.furigana && s.furigana[i] ? s.furigana[i] : null;
           const ap = audioPath(manifest, `${s.id}-L${l.order}`);
           rows.push(`  (${esc(s.id)}, ${l.order}, ${esc(l.speaker)}, ${learner}, ${esc(l.ja)}, ${esc(furi)}, ${esc(l.vi)}, ${esc(ap)}, ${esc(g.seedVersion)})`);

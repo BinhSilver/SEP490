@@ -63,9 +63,12 @@
     root.addEventListener('online', hideNotice);
   }
 
+  // [JLAS-W0108] F82: an outside service that is down (AI key, base set not installed) is explained where it is used.
+  var QUIET_CODES = ['EXTERNAL_SERVICE_ERROR', 'SERVICE_UNAVAILABLE', 'CPATH_CORE_UNAVAILABLE'];
+
   function failure(code, message, status) {
     if (code === 'NETWORK') showNotice(MSG_NETWORK);
-    else if (status >= 500) showNotice(MSG_BUSY);
+    else if (status >= 500 && QUIET_CODES.indexOf(code) < 0) showNotice(MSG_BUSY);
     var error = new Error(message);
     error.code = code;
     error.status = status;
@@ -114,6 +117,7 @@
     if (envelope.success === false || status < 200 || status >= 300) {
       throw failure(envelope.code || 'HTTP_' + status, message || MSG_BUSY, status);
     }
+    hideNotice();
     return envelope.data === undefined || envelope.data === null ? null : envelope.data;
   }
 

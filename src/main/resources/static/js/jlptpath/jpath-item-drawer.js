@@ -150,8 +150,8 @@
     var meta = [d.wordType, d.topic].filter(has).join(' · ');
     if (meta) html += '<p class="jp-muted">' + esc(meta) + '</p>';
     if (has(d.audioUrl)) {
-      html += '<button type="button" class="jp-btn" data-action="play" data-audio="' + esc(d.audioUrl)
-        + '" aria-label="Nghe phát âm">' + icon('volume-2') + ' Nghe</button>';
+      html += '<button type="button" class="jp-speak-btn" data-action="play" data-audio="' + esc(d.audioUrl)
+        + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
     html += '</div>';
     var factsHtml = '';
@@ -328,6 +328,11 @@
         } else if (action === 'notebook-add' || action === 'notebook-remove') {
           call = apiClient.send(action === 'notebook-add' ? 'POST' : 'DELETE', url + '/notebook').then(function (res) {
             if (res && res.state) current.state = res.state;
+            // F35: a word without a dictionary link stays in the path notebook only — say so instead of silence
+            if (action === 'notebook-add' && current.itemType === 'VOCAB' && current.dictionaryEntryId == null
+                && root.JlasToast && typeof root.JlasToast.show === 'function') {
+              root.JlasToast.show('Từ này chưa nối với từ điển nên chỉ lưu trong sổ tay lộ trình, không vào sổ "Lộ trình học" trong Sổ tay của tôi.', 'warning');
+            }
             redraw();
             return true;
           });
