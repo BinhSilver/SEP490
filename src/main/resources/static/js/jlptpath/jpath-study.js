@@ -120,6 +120,15 @@
       html += '<button type="button" class="jp-study-icon" data-jp-audio="' + esc(card.audioUrl)
         + '" aria-label="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
+    // F196 (owner 15/11): save / unsave the card in the notebook from the card corner
+    if (has(card.code) && (card.itemType === 'VOCAB' || card.itemType === 'KANJI' || card.itemType === 'GRAMMAR') && !isCheck(card)) {
+      var saved = !!card.notebook;
+      html += '<button type="button" class="jp-study-icon jp-save-btn--inline' + (saved ? ' is-saved' : '') + '" data-jp-save'
+        + ' aria-pressed="' + (saved ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu"'
+        + ' title="' + (saved ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">'
+        + '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5.5 3.5h9v13l-4.5-3.2-4.5 3.2z" '
+        + 'stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="' + (saved ? 'currentColor' : 'none') + '"/></svg></button>';
+    }
     if (card.itemType === 'VOCAB' || card.itemType === 'KANJI') html += D().controlsHtml(display);
     return '<div class="jp-study-tools">' + html + '</div>';
   }
@@ -1031,6 +1040,20 @@
     if (c && c.audioUrl) D().playAudio(c.audioUrl);
   }
 
+  // F196: the card's notebook flag flips after the server answers; the toast says what happened
+  function toggleSaved(page) {
+    var c = current(page);
+    if (!c || !c.code || page.savingNote) return;
+    var willSave = !c.notebook;
+    page.savingNote = true;
+    var url = BASE + '/items/' + encodeURIComponent(String(c.itemType).toLowerCase()) + '/' + encodeURIComponent(c.code) + '/notebook';
+    var toast = function (m) { if (root.JlasToast && root.JlasToast.show) root.JlasToast.show(m); };
+    Promise.resolve(root.JpathApi.send(willSave ? 'POST' : 'DELETE', url)).then(function () {
+      c.notebook = willSave;
+      toast(willSave ? 'Đã lưu vào sổ tay điểm yếu.' : 'Đã bỏ khỏi sổ tay.');
+    }, function () { toast('Chưa lưu được. Thử lại sau.'); }).then(function () { page.savingNote = false; draw(page); });
+  }
+
   function toggleFurigana(page) {
     var r = controlPatch(page.display, 'furigana');
     page.display = r.display;
@@ -1046,6 +1069,7 @@
     var t = ev.target;
     if (!t || typeof t.closest !== 'function') return;
     if (t.closest('[data-jp-audio]')) { playCurrent(page); return; }
+    if (t.closest('[data-jp-save]')) { ev.stopPropagation(); toggleSaved(page); return; }
     if (t.closest('[data-jp-flip]')) { flip(page); return; }
     var btn = t.closest('[data-jp-rate]');
     if (btn) { rate(page, btn.getAttribute('data-jp-rate')); return; }
