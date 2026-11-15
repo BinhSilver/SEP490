@@ -94,4 +94,16 @@ public interface VocabularyKanjiRepository
             nativeQuery = true)
     Page<VocabularyEntry> findVocabularyByKanjiCharacter(
             @Param("kanjiChar") String character, Pageable pageable);
+
+    /** Short, lookup-visible words with Vietnamese meanings for the dictionary writing sheet. */
+    @Query(value = "select ve.* from vocabulary_kanji vk "
+            + "join kanji k on k.id = vk.kanji_id "
+            + "join vocabulary_entry ve on ve.id = vk.vocabulary_id "
+            + "where k.`character` = :kanjiChar "
+            + "and ve.dictionary_status = 'PUBLISHED' and ve.usage_scope <> 'TEXTBOOK' "
+            + "and ve.meaning is not null and regexp_like(ve.meaning collate utf8mb4_0900_as_ci, '["
+            + VocabularyEntryRepository.VIETNAMESE_MEANING_LETTERS + "]', 'i') "
+            + "order by char_length(ve.expression) asc, ve.id asc", nativeQuery = true)
+    List<VocabularyEntry> findPrintableVocabularyByKanjiCharacter(
+            @Param("kanjiChar") String character, Pageable pageable);
 }

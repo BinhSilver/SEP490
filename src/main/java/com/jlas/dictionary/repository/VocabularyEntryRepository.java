@@ -27,6 +27,19 @@ import java.util.Optional;
  */
 @Repository
 public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry, Long> {
+    String VIETNAMESE_MEANING_LETTERS = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ";
+
+    @Query(value = "select * from vocabulary_entry where jlpt_level = :level "
+            + "and dictionary_status = 'PUBLISHED' and usage_scope <> 'TEXTBOOK' "
+            + "and meaning is not null and regexp_like(meaning collate utf8mb4_0900_as_ci, '["
+            + VIETNAMESE_MEANING_LETTERS + "]', 'i') "
+            + "order by rand(:seed) limit 5", nativeQuery = true)
+    List<VocabularyEntry> findDailyWordsForLevel(@Param("level") String level, @Param("seed") long seed);
+
+    @Query(value = "select * from vocabulary_entry where normalized_reading in (:readings) "
+            + "and dictionary_status = 'PUBLISHED' and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findLookupByNormalizedReadingInAndDictionaryStatusOrderByIdAsc(
+            @Param("readings") Collection<String> readings);
 
     List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatus(Collection<String> expressions, String status);
 
