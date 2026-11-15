@@ -150,8 +150,8 @@
     var meta = [d.wordType, d.topic].filter(has).join(' · ');
     if (meta) html += '<p class="jp-muted">' + esc(meta) + '</p>';
     if (has(d.audioUrl)) {
-      html += '<button type="button" class="jp-btn" data-action="play" data-audio="' + esc(d.audioUrl)
-        + '" aria-label="Nghe phát âm">' + icon('volume-2') + ' Nghe</button>';
+      html += '<button type="button" class="jp-speak-btn" data-action="play" data-audio="' + esc(d.audioUrl)
+        + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
     html += '</div>';
     var factsHtml = '';

@@ -403,8 +403,8 @@
         + (state.display.furigana && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
         + romajiHtml(card.reading || card.ja, state)
         + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
-        + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja) + '">'
-        + svgSpeaker() + '<span>Nghe phát âm</span></button>'
+        + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
+        + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + svgSpeaker() + '</button>'
         + ''
       : '<span class="cp-flashcard__tag">Mặt sau · ' + (card.kind === 'WORD' ? 'Từ vựng' : 'Mẫu câu') + '</span>'
         + '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
@@ -412,8 +412,8 @@
         + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
-        + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja) + '">'
-        + svgSpeaker() + '<span>Nghe lại</span></button>'
+        + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
+        + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
         + '';
 
     return '<div class="cp-sit-stage cp-sit-stage--words">'

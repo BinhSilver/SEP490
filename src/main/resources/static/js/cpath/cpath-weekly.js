@@ -28,6 +28,8 @@
       return root && root.JpathWav ? root.JpathWav.toWav(b) : Promise.resolve({ blob: b, name: 'speech.webm' });
     }));
   }
+  // F193: one compact round speaker button instead of a wide "Nghe" text button
+  var SPEAKER = '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true"><path d="M9.5 4.5L5.8 7.5H3.2v5h2.6l3.7 3v-11z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12.8 7.2a4 4 0 0 1 0 5.6M15 5.2a7 7 0 0 1 0 9.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   var BASE = REVIEW ? '/api/learning/comm/review' : '/api/learning/comm/weekly';
   if (REVIEW && root && root.document) root.document.title = 'Ôn tập hôm nay - KotsuKotsu'; // F99
 
@@ -72,7 +74,7 @@
       + '<p class="jp-check__dir">Chọn nghĩa đúng</p>'
       + '<div class="jp-check__prompt"><p id="cpWeeklyQ" class="jp-check__text--mid" lang="ja">' + esc(q.ja) + '</p>'
       + (q.reading && q.reading !== q.ja ? '<p class="jp-check__furi" lang="ja">' + esc(q.reading) + '</p>' : '')
-      + (q.audioUrl ? '<button type="button" class="jp-btn" data-weekly-play>Nghe</button>' : '')
+      + (q.audioUrl ? '<button type="button" class="jp-speak-btn" data-weekly-play aria-label="Nghe phát âm" title="Nghe phát âm">' + SPEAKER + '</button>' : '')
       + '</div>'
       + '<div class="jp-check__opts">' + opts + '</div>'
       + (i > 0 ? '<p><button type="button" class="jp-btn" data-weekly-prev>‹ Câu trước</button></p>' : '')
@@ -341,7 +343,7 @@
         + '<p class="jp-check__dir">Người đối diện nói:</p><div class="jp-check__prompt">'
         + '<p id="cpRoleplayQ" class="jp-check__text--mid" lang="ja">' + esc(q.promptJa) + '</p>'
         + '<p>' + esc(q.promptVi) + '</p>'
-        + (q.promptAudioUrl ? '<button type="button" class="jp-btn" data-rp-play>Nghe</button>' : '') + '</div>'
+        + (q.promptAudioUrl ? '<button type="button" class="jp-speak-btn" data-rp-play aria-label="Nghe câu này" title="Nghe câu này">' + SPEAKER + '</button>' : '') + '</div>'
         + (q.speaking
           ? '<p class="jp-check__dir">Đọc to câu đáp:</p><p lang="ja">' + esc(q.replyJa) + '</p>'
             + '<button type="button" class="jp-btn" data-rp-record>Ghi âm</button> '
