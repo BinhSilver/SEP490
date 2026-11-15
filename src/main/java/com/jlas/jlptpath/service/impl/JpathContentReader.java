@@ -7,6 +7,7 @@ import com.jlas.jlptpath.entity.JpathExample;
 import com.jlas.jlptpath.entity.JpathGrammar;
 import com.jlas.jlptpath.entity.JpathGrammarQuestion;
 import com.jlas.jlptpath.entity.JpathKana;
+import com.jlas.jlptpath.entity.JpathKanaRow;
 import com.jlas.jlptpath.entity.JpathKanji;
 import com.jlas.jlptpath.entity.JpathUserItem;
 import com.jlas.jlptpath.entity.JpathVocabulary;
@@ -17,6 +18,7 @@ import com.jlas.jlptpath.repository.JpathExampleRepository;
 import com.jlas.jlptpath.repository.JpathGrammarQuestionRepository;
 import com.jlas.jlptpath.repository.JpathGrammarRepository;
 import com.jlas.jlptpath.repository.JpathKanaRepository;
+import com.jlas.jlptpath.repository.JpathKanaRowRepository;
 import com.jlas.jlptpath.repository.JpathKanjiRepository;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
 import com.jlas.jlptpath.repository.JpathVocabularyRepository;
@@ -27,6 +29,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +39,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +72,8 @@ public class JpathContentReader {
     private final JpathKanaRepository kanas;
     private final JpathUserItemRepository userItems;
     private final JpathConfusablePairRepository confusables;
+    @Autowired(required = false)
+    private JpathKanaRowRepository kanaRows;
 
     public JpathContentReader(JpathCatalogService catalog, JpathVocabularyRepository vocabularies,
                               JpathKanjiRepository kanjis, JpathGrammarRepository grammars,
@@ -81,6 +89,10 @@ public class JpathContentReader {
         this.kanas = kanas;
         this.userItems = userItems;
         this.confusables = confusables;
+    }
+
+    void setKanaRows(JpathKanaRowRepository kanaRows) {
+        this.kanaRows = kanaRows;
     }
 
     // ---- visible lists -------------------------------------------------------------------------------------
@@ -225,6 +237,59 @@ public class JpathContentReader {
         }
         List<String> learned = kanas.findAllById(codes).stream().map(JpathKana::getKana).toList();
         return JpathKanaText.expandLearned(learned);
+    }
+
+    /**
+     * [JLAS-W0108] F148: Kana the learner has counted plus the kana of the next {@code plannedKanaRows} unpassed
+     * rows in teaching order, expanded with {@link JpathKanaText#expandLearned}.
+     */
+    public Set<String> learnedOrPlannedKana(Long userId, int plannedKanaRows) {
+        if (plannedKanaRows <= 0) {
+            return learnedKana(userId);
+        }
+        List<JpathKana> allKana = kana(null);
+        if (allKana.isEmpty()) {
+            return learnedKana(userId);
+        }
+        Set<String> countedCodes = userItems.findByUserIdAndItemType(userId, JpathItemType.KANA).stream()
+                .filter(i -> i.getCountedAt() != null)
+                .map(JpathUserItem::getItemCode)
+                .collect(Collectors.toSet());
+        Set<String> chars = new HashSet<>();
+        Map<String, List<JpathKana>> byRow = new LinkedHashMap<>();
+        for (JpathKana k : allKana) {
+            byRow.computeIfAbsent(k.getRowCode(), x -> new ArrayList<>()).add(k);
+            if (countedCodes.contains(k.getCode())) {
+                chars.add(k.getKana());
+            }
+        }
+        if (!countedCodes.isEmpty() && chars.size() < countedCodes.size()) {
+            kanas.findAllById(countedCodes).stream().map(JpathKana::getKana).forEach(chars::add);
+        }
+        int addedRows = 0;
+        for (String rowCode : orderedRowCodes(byRow)) {
+            List<JpathKana> rowKana = byRow.getOrDefault(rowCode, List.of());
+            boolean passed = !rowKana.isEmpty()
+                    && rowKana.stream().allMatch(k -> countedCodes.contains(k.getCode()));
+            if (rowKana.isEmpty() || passed) {
+                continue;
+            }
+            rowKana.stream().map(JpathKana::getKana).forEach(chars::add);
+            if (++addedRows == plannedKanaRows) {
+                break;
+            }
+        }
+        return JpathKanaText.expandLearned(chars);
+    }
+
+    private Iterable<String> orderedRowCodes(Map<String, List<JpathKana>> byRow) {
+        if (kanaRows != null) {
+            List<JpathKanaRow> rows = kanaRows.findAll(Sort.by("sortOrder"));
+            if (!rows.isEmpty()) {
+                return rows.stream().map(JpathKanaRow::getCode).toList();
+            }
+        }
+        return byRow.keySet();
     }
 
     // ---- single items --------------------------------------------------------------------------------------

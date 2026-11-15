@@ -506,6 +506,37 @@
     return { issueCheck: { kind: c.checkKind || c.kind, tab: checkTab(flow), sessionId: flow.sessionId } };
   }
 
+  function cardStepKey(c) {
+    if (!c) return null;
+    if (c.kind === 'SKILL_QUIZ' || c.checkKind === 'SKILL_QUIZ') return 'SKILL_QUIZ';
+    if (c.kind === 'REVIEW' || c.kind === 'RETYPE' || c.checkKind === 'GRAMMAR_REVIEW') return 'REVIEW';
+    return c.itemType || null;
+  }
+
+  function bumpSteps(session, key, dDone, dTotal, nextActiveKey) {
+    if (!session || !Array.isArray(session.steps) || !key) return session;
+    var changed = false;
+    var steps = session.steps.map(function (st) {
+      if (!st || st.key !== key) return st;
+      changed = true;
+      var total = Math.max(0, (Number(st.total) || 0) + (dTotal || 0));
+      var done = Math.min(total, Math.max(0, (Number(st.done) || 0) + (dDone || 0)));
+      var complete = total > 0 && done >= total;
+      var active = complete ? false : st.active;
+      return Object.assign({}, st, { done: done, total: total, complete: complete, active: !!active });
+    });
+    if (!changed) return session;
+    if (nextActiveKey && nextActiveKey !== key) {
+      var prevDone = steps.some(function (st) { return st && st.key === key && st.complete; });
+      if (prevDone) {
+        steps = steps.map(function (st) {
+          return st ? Object.assign({}, st, { active: st.key === nextActiveKey && !st.complete }) : st;
+        });
+      }
+    }
+    return Object.assign({}, session, { steps: steps });
+  }
+
   /** Queues a repeat of {@code c} like the server (at most two per item): shown locally only when the window
    *  already reaches the end of the queue, otherwise the next server sync brings it. */
   function withRepeat(flow, c) {
@@ -516,12 +547,15 @@
     repeats[key] = count + 1;
     var cards = flow.cards.slice();
     if (flow.position + cards.length >= flow.total) cards.push(Object.assign({}, c, { repeat: true }));
-    return withFlow(flow, { cards: cards, total: flow.total + 1, repeats: repeats });
+    var session = bumpSteps(flow.session, cardStepKey(c), 0, 1);
+    return withFlow(flow, { session: session, cards: cards, total: flow.total + 1, repeats: repeats });
   }
 
   function advance(flow) {
     var c = flow.cards[0];
-    var next = withFlow(flow, { cards: flow.cards.slice(1), position: flow.position + 1, flipped: false,
+    var cards = flow.cards.slice(1);
+    var session = bumpSteps(flow.session, cardStepKey(c), 1, 0, cardStepKey(cards[0]));
+    var next = withFlow(flow, { session: session, cards: cards, position: flow.position + 1, flipped: false,
       flippedOnce: false, flipCount: 0, retype: null, lastType: c && c.itemType ? c.itemType : flow.lastType });
     var effect = stepEffect(next);
     return effect ? { flow: next, effect: effect } : { flow: next };
@@ -1037,7 +1071,7 @@
 
   return { afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
     cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, keyAction: keyAction,
-    controlPatch: controlPatch, bindControls: bindControls, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
+    controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,
     retypeMessage: retypeMessage, skipMessage: skipMessage, shouldShowSwipeHint: shouldShowSwipeHint,
     swipeHintHtml: swipeHintHtml, OFFLINE_TEXT: OFFLINE_TEXT, NEED_NETWORK_TEXT: NEED_NETWORK_TEXT,

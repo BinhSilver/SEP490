@@ -221,6 +221,10 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         boolean skillDay = plan.getDayKind() == JpathDayKind.SKILL;
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
+        JpathDailyTab kanaTab = tabs.get(JpathTab.KANA);
+        int kanaRemaining = st == JpathSessionTab.COMBINED && plan.isKanaPhase() && kanaTab != null
+                ? Math.max(0, dailyPlans.effectiveTarget(plan, kanaTab) - kanaTab.getNewDone())
+                : 0;
         for (JpathTab t : newTabs(st, plan.isKanaPhase())) {
             JpathDailyTab row = tabs.get(t);
             int remaining = row == null ? 0 : Math.max(0, dailyPlans.effectiveTarget(plan, row) - row.getNewDone());
@@ -228,7 +232,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
                 rows = nextKanaRows(userId, remaining);
             } else {
                 newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                        remaining, rows));
+                        remaining, kanaRemaining));
             }
         }
         // Plan 3 Task 16: the skill-day quiz (#25) is gone; skill days are done by skill sessions
@@ -319,7 +323,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             rows = nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count());
         } else {
             newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                    r.count() == null ? EXTRA_COUNT : r.count(), List.of()));
+                    r.count() == null ? EXTRA_COUNT : r.count(), 0));
         }
         return save(userId, plan.getId(), r.tab(), JpathSessionMode.EXTRA, newsQueue(r, newCodes, rows));
     }
@@ -478,34 +482,22 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     }
 
     /**
-     * Next new codes of a V/K/G tab (codes with a learner row are never picked). Kana-phase vocabulary: kana-only
-     * words written with the kana learned so far plus those of the rows queued in this session.
+     * [JLAS-W0108] F148: Next new codes of a V/K/G tab (codes with a learner row are never picked). Kana-phase
+     * vocabulary in COMBINED mode includes words written with today's remaining planned kana rows (studied first in the
+     * queue), whereas SPLIT VOCAB-only uses {@link JpathContentReader#learnedKana} until those rows are completed.
      */
     private List<String> newCodes(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priorityMode,
-            int limit, List<KanaRowPlan> queuedRows) {
+            int limit, int plannedKanaRows) {
         if (limit <= 0) {
             return List.of();
         }
         if (tab == JpathTab.VOCAB && kanaPhase) {
-            return content.nextKanaOnlyVocab(userId, level, limit, learnedKana(userId, queuedRows));
+            Set<String> kana = plannedKanaRows > 0
+                    ? content.learnedOrPlannedKana(userId, plannedKanaRows)
+                    : content.learnedKana(userId);
+            return content.nextKanaOnlyVocab(userId, level, limit, kana);
         }
         return content.nextNewCodes(userId, level, JpathItemType.valueOf(tab.name()), limit, priorityMode, null);
-    }
-
-    private Set<String> learnedKana(Long userId, List<KanaRowPlan> queuedRows) {
-        if (queuedRows.isEmpty()) {
-            return content.learnedKana(userId);
-        }
-        Map<String, String> chars = content.kana(null).stream()
-                .collect(Collectors.toMap(JpathKana::getCode, JpathKana::getKana, (a, b) -> a));
-        Set<String> learned = new HashSet<>();
-        userItems.findByUserIdAndItemType(userId, JpathItemType.KANA).stream()
-                .filter(i -> i.getCountedAt() != null)
-                .map(i -> chars.get(i.getItemCode())).filter(Objects::nonNull).forEach(learned::add);
-        Set<String> rowCodes = queuedRows.stream().map(KanaRowPlan::rowCode).collect(Collectors.toSet());
-        content.kana(null).stream().filter(k -> rowCodes.contains(k.getRowCode()))
-                .map(JpathKana::getKana).forEach(learned::add);
-        return JpathKanaText.expandLearned(learned);
     }
 
     /** Patterns with a visible ORDER and a visible FILL exercise get the GRAMMAR_PRACTICE step. */
