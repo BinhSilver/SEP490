@@ -1947,6 +1947,26 @@ public class CpathService {
         return goalTest(userId);
     }
 
+    /**
+     * F196 (owner 15/11): the save button on a word / phrase card puts it in the Comm notebook (and the shared
+     * "Lộ trình học" notebook) or takes it out; saving again does not raise the wrong count.
+     */
+    @Transactional
+    public Map<String, Object> saveNote(Long userId, String code, boolean save) {
+        Map<String, Object> p = requirePath(userId);
+        Long pathId = ((Number) p.get("id")).longValue();
+        Integer known = db.queryForObject("SELECT COUNT(*) FROM cpath_item WHERE code = ?", Integer.class, code);
+        if (known == null || known == 0) throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy mục này.");
+        if (save) {
+            db.update("INSERT INTO cpath_user_note (path_id, item_code, kind) VALUES (?,?,'ITEM') "
+                    + "ON DUPLICATE KEY UPDATE wrong_count = wrong_count", pathId, code);
+        } else {
+            db.update("DELETE FROM cpath_user_note WHERE path_id = ? AND item_code = ?", pathId, code);
+        }
+        if (teamNotebook != null) teamNotebook.answered(userId, code, !save);
+        return Map.of("code", code, "saved", save);
+    }
+
     /** Sổ tay of the main path: missed words, phrases and learner lines, most missed first. */
     @Transactional(readOnly = true)
     public Map<String, Object> notebook(Long userId) {

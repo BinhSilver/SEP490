@@ -380,6 +380,12 @@
   }
 
   /* Bước 1: Từ và mẫu câu (thẻ lật qua lại + nút nghe) */
+  // F196: bookmark icon of the card's "save to notebook" button
+  function svgBookmark() {
+    return '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5.5 3.5h9v13l-4.5-3.2-4.5 3.2z" '
+      + 'stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="var(--jp-save-fill, none)"/></svg>';
+  }
+
   function renderStepWords(sit, state) {
     var deck = buildDeck(sit);
     if (!deck.length) {
@@ -404,6 +410,7 @@
         + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + svgSpeaker() + '</button>'
+        + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn' + (state.saved && state.saved[card.id] ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + (state.saved && state.saved[card.id] ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (state.saved && state.saved[card.id] ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
         + ''
       : '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
         + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
@@ -412,6 +419,7 @@
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
+        + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn' + (state.saved && state.saved[card.id] ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + (state.saved && state.saved[card.id] ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (state.saved && state.saved[card.id] ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
         + '';
 
     return '<div class="cp-sit-stage cp-sit-stage--words">'
@@ -940,6 +948,7 @@
     var recordTimer = null;
 
     var state = {
+      saved: {},
       activeStep: 'WORDS',
       cardIdx: 0,
       cardFlipped: false,
@@ -1246,6 +1255,25 @@
         return;
       }
 
+      // F196: save / unsave the card in the notebook without flipping it
+      var saveBtn = t.closest('[data-cp-save]');
+      if (saveBtn) {
+        ev.stopPropagation();
+        var saveCode = saveBtn.getAttribute('data-cp-save');
+        if (state.savingNote) return;
+        var willSave = !state.saved[saveCode];
+        state.savingNote = true;
+        saveBtn.disabled = true;
+        Promise.resolve(root.JpathApi.send(willSave ? 'POST' : 'DELETE', '/api/learning/comm/notebook/' + encodeURIComponent(saveCode)))
+          .then(function () {
+            if (willSave) state.saved[saveCode] = true; else delete state.saved[saveCode];
+            if (root.JlasToast && root.JlasToast.show) root.JlasToast.show(willSave ? 'Đã lưu vào sổ tay điểm yếu.' : 'Đã bỏ khỏi sổ tay.');
+          }, function () {
+            if (root.JlasToast && root.JlasToast.show) root.JlasToast.show('Chưa lưu được. Thử lại sau.');
+          }).then(function () { state.savingNote = false; render(); });
+        return;
+      }
+
       var playBtn = t.closest('[data-cp-play-text]');
       if (playBtn) {
         ev.stopPropagation();
@@ -1443,6 +1471,11 @@
       root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
         if (!data) throw new Error('Không có dữ liệu tình huống.');
         sitData = data;
+        // F196: which cards are already in the notebook (the save button shows filled)
+        Promise.resolve(root.JpathApi.get('/api/learning/comm/notebook')).then(function (nb) {
+          ((nb && nb.items) || []).forEach(function (x) { if (x && x.id) state.saved[x.id] = true; });
+          render();
+        }, function () { /* the button still works without the list */ });
         // F61: open with the display saved in Cài đặt (the buttons on the page still flip it for this visit)
         if (data.display) {
           state.display = { furigana: data.display.furigana !== false, romaji: data.display.romaji === true,

@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -321,6 +322,19 @@ public class CpathController {
     @GetMapping("/notebook")
     public ResponseEntity<ApiResponse<Map<String, Object>>> notebook(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.notebook(user.userId())));
+    }
+
+    /** F196: save / unsave a word or phrase card in the notebook. */
+    @PostMapping("/notebook/{code}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> saveNote(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String code) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu vào sổ tay.", service.saveNote(user.userId(), code, true)));
+    }
+
+    @DeleteMapping("/notebook/{code}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> unsaveNote(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String code) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã bỏ khỏi sổ tay.", service.saveNote(user.userId(), code, false)));
     }
 
     @PostMapping("/weekly")
