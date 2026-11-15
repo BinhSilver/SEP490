@@ -102,6 +102,35 @@
   }
 
   /* Mốc cuối chủ đề: Biểu tượng Micro cho Bài nhập vai (TOPIC_TEST) */
+  // Banner icon per comm goal: BrSE = laptop + speech bubble, Công việc = briefcase + bubble, Du lịch = suitcase,
+  // Đời sống = house; anything else keeps the plain dialogue bubble
+  function svgGoalIcon(goal) {
+    var open = '<svg class="jp-parts__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">';
+    var st = ' stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+    var tint = ' fill="currentColor" fill-opacity="0.14"';
+    if (goal === 'BA') return open
+      + '<rect x="2.5" y="8" width="11.5" height="8.5" rx="1.6"' + tint + st + '/>'
+      + '<path d="M1.5 19.5h13.5"' + st + '/>'
+      + '<path d="M6.8 10.8l-1.5 1.4 1.5 1.4M9.7 10.8l1.5 1.4-1.5 1.4"' + st + '/>'
+      + '<path d="M16.4 2h4.1A1.5 1.5 0 0 1 22 3.5v3.4a1.5 1.5 0 0 1-1.5 1.5h-1.4L17.4 10.4V8.4h-1A1.5 1.5 0 0 1 14.9 6.9V3.5A1.5 1.5 0 0 1 16.4 2z"' + tint + st + '/>'
+      + '</svg>';
+    if (goal === 'WORK') return open
+      + '<rect x="2.5" y="9" width="15" height="10.5" rx="2"' + tint + st + '/>'
+      + '<path d="M7 9V7.3A1.3 1.3 0 0 1 8.3 6h3.4A1.3 1.3 0 0 1 13 7.3V9M2.5 13.5h15"' + st + '/>'
+      + '<path d="M15.5 2.5h5a1.5 1.5 0 0 1 1.5 1.5v2.8a1.5 1.5 0 0 1-1.5 1.5H19L17.4 9.8V8.3h-1.9A1.5 1.5 0 0 1 14 6.8V4a1.5 1.5 0 0 1 1.5-1.5z"' + tint + st + '/>'
+      + '</svg>';
+    if (goal === 'TRAVEL') return open
+      + '<rect x="5" y="7" width="14" height="12.5" rx="2.2"' + tint + st + '/>'
+      + '<path d="M9 7V4.8A1.3 1.3 0 0 1 10.3 3.5h3.4A1.3 1.3 0 0 1 15 4.8V7M9.5 10.5v6M14.5 10.5v6M8 19.5v1.2M16 19.5v1.2"' + st + '/>'
+      + '</svg>';
+    if (goal === 'DAILY_LIFE') return open
+      + '<path d="M3.5 11L12 4l8.5 7"' + st + '/>'
+      + '<path d="M5.5 9.5V19a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"' + tint + st + '/>'
+      + '<path d="M10 20v-5h4v5"' + st + '/>'
+      + '</svg>';
+    return svgDialogueBubble();
+  }
+
   function svgMicRoleplay(extraCls) {
     var cls = 'jp-parts__icon' + (extraCls ? ' ' + extraCls : '');
     return '<svg class="' + cls + '" viewBox="0 0 28 28" fill="none" aria-hidden="true">'
@@ -693,7 +722,7 @@
     var bannerHtml = '<header class="jp-parts__banner jp-parts__bar jp-parts__banner--' + sceneKey + '" aria-label="Biểu ngữ lộ trình giao tiếp">'
       + '<div class="jp-parts__banner-top">'
       + '<div class="jp-parts__banner-left">'
-      + '<span class="jp-parts__banner-icon" aria-hidden="true">' + svgDialogueBubble() + '</span>'
+      + '<span class="jp-parts__banner-icon" aria-hidden="true">' + svgGoalIcon(p.goal) + '</span>'
       + '<div class="jp-parts__banner-titles">'
       + '<h2 class="jp-parts__title">Giao tiếp: ' + esc(p.nameVi || 'Du lịch')
       + (p.finished || m.finished ? ' ' + doneChipHtml() : '') + '</h2>'
