@@ -443,6 +443,19 @@ public class JpathCheckEffects {
         write(session, JpathQueueBuilder.insertAfter(q, at, repeats));
     }
 
+    /** L20: back to the tab just studied; a combined session keeps the plain path page. */
+    static String doneUrl(String tab) {
+        String t = tab == null ? null : switch (tab) {
+            case "VOCAB" -> "vocab";
+            case "KANJI" -> "kanji";
+            case "GRAMMAR" -> "grammar";
+            case "KANA" -> "kana";
+            case "SKILL" -> "skills";
+            default -> null;
+        };
+        return t == null ? DONE_URL : "/learning?tab=" + t + "&saved=1";
+    }
+
     /** Moves the session past the check step (when it is the current one) and describes what comes next. */
     private JpathCheckNext advance(JpathStudySession session, String token) {
         List<JpathQueueStep> q = parse(session.getQueueJson());
@@ -462,7 +475,7 @@ public class JpathCheckEffects {
                 session.setStatus("COMPLETED");
                 session.setCompletedAt(clock.now());
             }
-            return new JpathCheckNext("DONE", "Xong lượt học", DONE_URL, null, null, session.getId());
+            return new JpathCheckNext("DONE", "Xong lượt học", doneUrl(session.getTab()), null, null, session.getId());
         }
         JpathQueueStep next = q.get(session.getPosition());
         String url = STUDY_URL + session.getId();

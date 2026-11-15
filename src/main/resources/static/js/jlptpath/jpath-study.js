@@ -174,7 +174,7 @@
 
   function headChips(card, flippedOrNew) {
     var html = '';
-    if (card.notebook && card.kind !== 'NEW') html += '<span class="jp-study-flag jp-study-flag--notebook">Sổ tay điểm yếu</span>';
+    if (card.notebook && card.kind !== 'NEW') html += '<span class="jp-study-flag jp-study-flag--notebook">Sổ tay Lộ trình học</span>';
     if (card.hard && flippedOrNew) html += '<span class="jp-study-flag jp-study-flag--hard">Khó nhớ</span>';
     return html ? '<div class="jp-study-flags">' + html + '</div>' : '';
   }
@@ -379,7 +379,7 @@
       var t = Number(s.total) || 0;
       done += Math.min(d, t);
       total += t;
-      var countStr = s.complete ? String(t) : (d + '/' + t);
+      var countStr = s.complete ? (t + '/' + t) : (d + '/' + t); // L18b: always "done/total"
       var dotIcon = s.complete
         ? '<svg class="jp-step__check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         : '';
@@ -472,6 +472,36 @@
   var CHECK_NEEDS_NETWORK_TEXT = 'Cần có mạng để làm micro-check.';
   var SWIPE_HINT_TEXT = 'Vuốt phải = Nhớ rồi · Vuốt trái = Chưa nhớ';
 
+  // L20: back to the tab just studied (the path page otherwise opens Chữ cái while kana is unfinished)
+  var DONE_TAB = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana', SKILL: 'skills' };
+  function doneUrl(flow) {
+    var t = flow && DONE_TAB[flow.tab];
+    return t ? '/learning?tab=' + t + '&saved=1' : DONE_URL;
+  }
+
+  // L18b: the session view is fetched once; cards answered since then move the step counts and the minutes left
+  function liveSteps(session, position, total) {
+    var s = session || {};
+    var start = Number(s.position) || 0;
+    var delta = Math.max(0, (Number(position) || 0) - start);
+    var steps = list(s.steps).map(function (st) { return Object.assign({}, st); });
+    var rest = delta;
+    var activeGiven = false;
+    steps.forEach(function (st) {
+      var t = Number(st.total) || 0;
+      var d = Math.min(t, (Number(st.done) || 0) + rest);
+      rest -= d - Math.min(t, Number(st.done) || 0);
+      st.done = d;
+      st.complete = d >= t;
+      st.active = !st.complete && !activeGiven;
+      if (st.active) activeGiven = true;
+    });
+    var all = Number(total) - start;
+    var minutes = Number(s.minutesLeft) || 0;
+    if (delta > 0 && all > 0) minutes = Math.ceil(minutes * Math.max(0, all - delta) / all);
+    return { steps: steps, minutesLeft: minutes };
+  }
+
   function repeatKey(c) { return c.kind + '|' + c.itemType + '|' + c.code; }
 
   function initFlow(session) {
@@ -499,7 +529,7 @@
 
   function stepEffect(flow) {
     var c = flow.cards[0];
-    if (!c) return flow.position < flow.total && flow.status !== 'COMPLETED' ? { reload: true } : { navigate: DONE_URL };
+    if (!c) return flow.position < flow.total && flow.status !== 'COMPLETED' ? { reload: true } : { navigate: doneUrl(flow) };
     if (!isCheck(c)) return null;
     if (has(c.checkToken)) {
       return { navigate: '/learning/jlpt/check/' + encodeURIComponent(c.checkToken) + '?session=' + flow.sessionId };
@@ -647,7 +677,7 @@
           nf.flipCount = flow.flipCount;
         }
         nf.lastType = flow.lastType;
-        if (nf.status === 'COMPLETED' || !cur) return { flow: nf, effect: stepEffect(nf) || { navigate: DONE_URL } };
+        if (nf.status === 'COMPLETED' || !cur) return { flow: nf, effect: stepEffect(nf) || { navigate: doneUrl(nf) } };
         var se = nf.position !== flow.position ? stepEffect(nf) : null;
         return se ? { flow: nf, effect: se } : { flow: nf };
       }
@@ -947,7 +977,8 @@
     }
     var hint = c.kind === 'NEW' && swipeRating(c, 'RIGHT') && shouldShowSwipeHint(page.display, coarsePointer())
       ? swipeHintHtml() : '';
-    el.innerHTML = banner + stepsHtml(s.steps, s.minutesLeft, s.tab)
+    var live = liveSteps(s, f.position, f.total);
+    el.innerHTML = banner + stepsHtml(live.steps, live.minutesLeft, s.tab)
       + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check"'
       + ' data-jp-inline-check hidden></div></div>' + hint
       + ratingButtonsHtml(c, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount })
@@ -1087,7 +1118,7 @@
   }
 
   return { afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
-    cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, keyAction: keyAction,
+    cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, keyAction: keyAction,
     controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,
     retypeMessage: retypeMessage, skipMessage: skipMessage, shouldShowSwipeHint: shouldShowSwipeHint,
