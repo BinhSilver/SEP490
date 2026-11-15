@@ -54,7 +54,7 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression = :expression "
-            + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByNormalizedExpressionAndDictionaryStatus(
             @Param("expression") String normalizedExpression, @Param("status") String dictionaryStatus);
 
@@ -62,6 +62,13 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             + "where normalized_expression in (:expressions) "
             + "and dictionary_status = :status order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(
+            @Param("expressions") Collection<String> normalizedExpressions, @Param("status") String dictionaryStatus);
+
+    /** Segmented public lookup; the unfiltered variant above also resolves word-detail antonyms. */
+    @Query(value = "select * from vocabulary_entry "
+            + "where normalized_expression in (:expressions) "
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
+    List<VocabularyEntry> findLookupByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(
             @Param("expressions") Collection<String> normalizedExpressions, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
@@ -72,27 +79,27 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression like concat(:prefix, '%') "
-            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionStartingWithAndDictionaryStatusOrderByIdAsc(
             @Param("prefix") String normalizedExpressionPrefix, @Param("status") String dictionaryStatus,
             Pageable pageable);
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_expression like concat('%', :infix, '%') "
-            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionContainingAndDictionaryStatusOrderByIdAsc(
             @Param("infix") String normalizedExpressionInfix, @Param("status") String dictionaryStatus,
             Pageable pageable);
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_reading = :reading "
-            + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByNormalizedReadingAndDictionaryStatus(
             @Param("reading") String normalizedReading, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry "
             + "where normalized_reading like concat(:prefix, '%') "
-            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedReadingStartingWithAndDictionaryStatusOrderByIdAsc(
             @Param("prefix") String normalizedReadingPrefix, @Param("status") String dictionaryStatus,
             Pageable pageable);
@@ -101,12 +108,12 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
     // tiếp để MySQL dùng index idx_vocabulary_romaji; derived query "IgnoreCase" sinh upper(...)
     // làm mất index và quét toàn bảng.
     @Query(value = "select * from vocabulary_entry where reading_romaji = :romaji "
-            + "and dictionary_status = :status order by id asc limit 1", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc limit 1", nativeQuery = true)
     Optional<VocabularyEntry> findFirstByReadingRomajiIgnoreCaseAndDictionaryStatus(
             @Param("romaji") String readingRomaji, @Param("status") String dictionaryStatus);
 
     @Query(value = "select * from vocabulary_entry where reading_romaji like concat(:prefix, '%') "
-            + "and dictionary_status = :status order by id asc", nativeQuery = true)
+            + "and dictionary_status = :status and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByReadingRomajiStartingWithIgnoreCaseAndDictionaryStatusOrderByIdAsc(
             @Param("prefix") String readingRomajiPrefix, @Param("status") String dictionaryStatus,
             Pageable pageable);
@@ -118,7 +125,7 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
      */
     @Query(value = "select * from vocabulary_entry "
             + "where han_viet = :value and han_viet collate utf8mb4_0900_as_ci = :value "
-            + "and dictionary_status = 'PUBLISHED' order by id asc", nativeQuery = true)
+            + "and dictionary_status = 'PUBLISHED' and usage_scope <> 'TEXTBOOK' order by id asc", nativeQuery = true)
     List<VocabularyEntry> findByHanViet(@Param("value") String hanViet, Pageable pageable);
 
     /** Từ loại của các mục có normalized_expression nằm trong {@code terms} (kiểm tra thể từ điển). */
@@ -127,6 +134,7 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             + "join sense_part_of_speech sp on sp.sense_id = s.id "
             + "join dictionary_part_of_speech p on p.id = sp.part_of_speech_id "
             + "where e.normalized_expression in (:terms) and e.dictionary_status = 'PUBLISHED' "
+            + "and e.usage_scope <> 'TEXTBOOK' "
             + "order by e.id asc", nativeQuery = true)
     List<PartOfSpeechRow> findPartsOfSpeechByExpressionIn(@Param("terms") Collection<String> terms);
 
@@ -136,6 +144,7 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
             + "join sense_part_of_speech sp on sp.sense_id = s.id "
             + "join dictionary_part_of_speech p on p.id = sp.part_of_speech_id "
             + "where e.normalized_reading in (:terms) and e.dictionary_status = 'PUBLISHED' "
+            + "and e.usage_scope <> 'TEXTBOOK' "
             + "order by e.id asc", nativeQuery = true)
     List<PartOfSpeechRow> findPartsOfSpeechByReadingIn(@Param("terms") Collection<String> terms);
 
