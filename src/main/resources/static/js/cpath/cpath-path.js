@@ -281,9 +281,64 @@
       + '</div></div>';
   }
 
+  function fmtFullDate(isoStr) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(isoStr || ''));
+    return m ? m[3] + '/' + m[2] + '/' + m[1] : '';
+  }
+
+  /** F125: the small "Đã hoàn thành" label of a finished path (map banner, side card). */
+  function doneChipHtml() {
+    return '<span class="cp-done-chip">Đã hoàn thành</span>';
+  }
+
+  /**
+   * F125 (owner 14/11): the main path's final AI test is passed. A summary card (score, situations, topics, dates, CP,
+   * certificate) and the next step chosen by the learner, never automatic: promote the secondary goal (keeps its
+   * progress), choose a new goal, or keep reviewing this path ("Tiếp tục ôn" hides the choices, the summary stays).
+   */
+  function finishedCardHtml(pathData, state) {
+    var d = pathData || {};
+    var f = d.finished;
+    if (!f) return '';
+    var st = state || {};
+    var sec = d.secondary;
+    var dates = f.startedAt && f.finishedAt ? fmtFullDate(f.startedAt) + ' – ' + fmtFullDate(f.finishedAt) : fmtFullDate(f.finishedAt);
+    var stat = function (label, value) {
+      return '<div class="cp-finished__stat"><dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd></div>';
+    };
+    var choices = st.finishedChoiceHidden ? '' : '<div class="cp-finished__next" role="group" aria-labelledby="cp-finished-next">'
+      + '<p class="cp-finished__next-title" id="cp-finished-next">Bạn muốn học tiếp thế nào?</p>'
+      + '<div class="cp-finished__actions">'
+      + (sec ? '<button type="button" class="cp-btn-primary" data-cp-promote>Nâng ' + esc(sec.nameVi) + ' lên làm chính</button>' : '')
+      + '<a class="jp-btn" href="/survey?edit=goal">Chọn mục tiêu mới</a>'
+      + '<button type="button" class="jp-btn" data-cp-finished-stay>Tiếp tục ôn lộ trình này</button>'
+      + '</div>'
+      + (sec ? '<p class="cp-finished__hint">Nâng mục tiêu phụ giữ nguyên ' + esc(sec.doneSituations || 0) + '/' + esc(sec.totalSituations || 0)
+        + ' tình huống đã học; lộ trình ' + esc(f.nameVi || d.nameVi) + ' tạm dừng, chứng nhận vẫn còn.</p>' : '')
+      + '</div>';
+    return '<section class="jp-card cp-finished" data-cp-finished aria-labelledby="cp-finished-title">'
+      + '<div class="cp-finished__head">'
+      + '<img class="cp-finished__kitsu" src="' + esc(kitsuSmall('kitsu-celebrate-30.webp')) + '" width="64" height="64" alt="" />'
+      + '<div><span class="cp-done-chip">Đã hoàn thành</span>'
+      + '<h2 class="cp-finished__title" id="cp-finished-title">Chúc mừng! Bạn đã hoàn thành lộ trình ' + esc(f.nameVi || d.nameVi) + '</h2>'
+      + (f.score != null ? '<p class="cp-finished__lead">Bài test cuối đạt <strong>' + esc(f.score) + '</strong> điểm.</p>' : '')
+      + '</div></div>'
+      + '<dl class="cp-finished__stats">'
+      + stat('Tình huống đã học', (f.doneSituations || 0) + '/' + (f.totalSituations || 0))
+      + stat('Chủ đề đã đạt', (f.passedTopics || 0) + '/' + (f.totalTopics || 0))
+      + (dates ? stat('Thời gian học', dates) : '')
+      + stat('CP từ lộ trình', '+' + (Number(f.cp) || 0) + ' CP')
+      + '</dl>'
+      + '<p class="cp-finished__cert"><a class="cp-btn-primary" href="' + esc(f.certificateUrl || '/learning/comm/certificate') + '">Xem chứng nhận</a>'
+      + '<span>Bản đồ vẫn mở để ôn lại; lộ trình đã hoàn thành không giao bài mới mỗi ngày.</span></p>'
+      + choices
+      + '</section>';
+  }
+
   function todayBlockHtml(pathData, state) {
     var d = pathData || {};
     var st = state || {};
+    var finished = !!d.finished;
     var todayObj = d.today || {};
     var situations = list(todayObj.situations);
     var dayIso = String(todayObj.date || '').slice(0, 10);
@@ -327,6 +382,10 @@
     var body;
     if (situations.length || coreItem) {
       body = '<ul class="cp-today__list">' + coreItem + items + '</ul>' + check;
+    } else if (finished) {
+      // F125: a finished path gets no new day; any situation stays open on the map for review
+      body = '<p class="cp-today__empty">Lộ trình đã hoàn thành nên không giao bài mới mỗi ngày. '
+        + 'Bấm vào tình huống trên bản đồ để ôn lại, hoặc ôn từ và mẫu câu đến lượt.</p>';
     } else {
       body = '<p class="cp-today__empty">' + (todayObj.restDay
         ? 'Hôm nay là ngày nghỉ của bạn. Muốn học thêm thì bấm "Học thêm 1 tình huống".'
@@ -334,7 +393,7 @@
     }
 
     var extra = '';
-    if (!situations.length || allDone) {
+    if (!finished && (!situations.length || allDone)) {
       extra = st.extraExhausted
         ? '<p class="cp-today__empty" role="status" data-cp-extra-exhausted>Bạn đã học hết các tình huống của mục tiêu này.</p>'
         : '<button type="button" class="jp-btn" data-cp-add-extra>+ Học thêm 1 tình huống</button>';
@@ -348,7 +407,7 @@
       + extra
       // F119: 'Đổi nhịp học' dropped here - the side card and the ⚙ tab already open the settings
       + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
-      + (weeklyOpen
+      + (finished ? '' : weeklyOpen
         ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
         : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + ' hoặc khi bạn học xong phần của tuần</span>')
       + '</div>';
@@ -360,9 +419,9 @@
 
     // Kitsu stays (owner 08/11); its line always matches the day: rest day, nothing planned, done, or what is left
     var left = situations.length - doneCount;
-    var kitsuFile = allDone ? 'kitsu-celebrate-30.webp' : (situations.length ? 'kitsu-cheer-30.webp' : 'kitsu-resting-30.webp');
+    var kitsuFile = allDone || (finished && !situations.length) ? 'kitsu-celebrate-30.webp' : (situations.length ? 'kitsu-cheer-30.webp' : 'kitsu-resting-30.webp');
     var kitsuSay = !situations.length
-      ? (todayObj.restDay ? 'Nghỉ ngơi chút nhé!' : 'Ôn lại bài cũ cùng mình nhé!') // F119: the line below says what to do
+      ? (finished ? 'Bạn đã hoàn thành lộ trình rồi!' : todayObj.restDay ? 'Nghỉ ngơi chút nhé!' : 'Ôn lại bài cũ cùng mình nhé!') // F119: the line below says what to do
       : (allDone ? 'Tuyệt vời! Bạn đã xong bài giao tiếp hôm nay rồi!'
         : 'Còn ' + left + ' tình huống hôm nay, mình cùng vào vai nhé!');
     // [JLAS-W0108] C1: same head as the JLPT "Hôm nay" block - calendar stamp, title, Kitsu - then the main button
@@ -623,7 +682,8 @@
       + '<div class="jp-parts__banner-left">'
       + '<span class="jp-parts__banner-icon" aria-hidden="true">' + svgDialogueBubble() + '</span>'
       + '<div class="jp-parts__banner-titles">'
-      + '<h2 class="jp-parts__title">Giao tiếp: ' + esc(p.nameVi || 'Du lịch') + '</h2>'
+      + '<h2 class="jp-parts__title">Giao tiếp: ' + esc(p.nameVi || 'Du lịch')
+      + (p.finished || m.finished ? ' ' + doneChipHtml() : '') + '</h2>'
       + '<p class="jp-parts__sub">Đã đạt <strong>' + esc(prog.passedTopics) + '/' + esc(prog.totalTopics) + '</strong> chủ đề · '
       + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp') + ' · ' + esc(p.dailySituations || 2) + ' tình huống/ngày</p>'
       + '</div>'
@@ -717,11 +777,14 @@
     var passed = Number(progress.passedTopics || 0);
     var total = Number(progress.totalTopics || 0);
     var pct = total ? Math.round(100 * passed / total) : 0;
+    var fin = p.finished;
+    var others = list(p.finishedPaths);
     return '<div class="cp-goal-card">'
-      + '<span class="cp-goal-card__tag">Lộ trình chính</span>'
+      + '<span class="cp-goal-card__tag">Lộ trình chính</span>' + (fin ? ' ' + doneChipHtml() : '')
       + '<strong class="cp-goal-card__name">' + esc(p.nameVi || 'Lộ trình giao tiếp') + '</strong>'
-      + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp') + '</span>'
-      + '<a class="cp-goal-card__progress" href="/learning/comm/certificate" title="Xem chứng nhận">'
+      + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp')
+      + (fin && fin.finishedAt ? ' · xong ' + esc(fmtFullDate(fin.finishedAt)) : '') + '</span>'
+      + '<a class="cp-goal-card__progress" href="' + esc(fin && fin.certificateUrl || '/learning/comm/certificate') + '" title="Xem chứng nhận">'
       + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
       + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
@@ -737,8 +800,19 @@
           + '<strong class="cp-goal-card__name">' + esc(sec.nameVi) + '</strong>'
           + (sec.totalSituations ? '<span class="cp-goal-card__meta">' + esc(sec.doneSituations || 0) + '/' + esc(sec.totalSituations) + ' tình huống</span>' : '')
           + (sec.next ? '<a class="cp-goal-card__link" href="' + esc(pageUrl('situation', { id: sec.next.id })) + '">Học tiếp: ' + esc(sec.next.titleVi) + '</a>' : '')
+          // F125: a secondary takes no final test; every situation learned → offer to make it the main path
+          + (sec.allDone && !fin ? '<span class="cp-goal-card__meta">Đã học hết tình huống. Bài test cuối và chứng nhận làm khi đây là lộ trình chính.</span>'
+            + '<button type="button" class="cp-goal-card__link cp-goal-card__promote" data-cp-promote>Nâng lên làm chính để làm bài test cuối</button>' : '')
           + '</div>'
         : '')
+      // F125: paths finished earlier (paused after a promotion or a goal change) keep their certificate
+      + (others.length ? '<div class="cp-goal-card__sec cp-goal-card__done"><span class="cp-goal-card__tag">Lộ trình đã hoàn thành</span>'
+        + '<ul class="cp-goal-card__done-list">' + others.map(function (o) {
+          return '<li><strong>' + esc(o.nameVi || o.goal) + '</strong>'
+            + '<span class="cp-goal-card__meta">' + (o.finishedAt ? 'Xong ' + esc(fmtFullDate(o.finishedAt)) : '')
+            + (o.score != null ? ' · ' + esc(o.score) + ' điểm' : '') + '</span>'
+            + '<a class="cp-goal-card__link" href="' + esc(o.certificateUrl || '/learning/comm/certificate') + '">Chứng nhận</a></li>';
+        }).join('') + '</ul></div>' : '')
       + '</div>';
   }
 
@@ -830,6 +904,11 @@
     try { state.kanaTipHidden = root.localStorage.getItem(KANA_TIP_KEY) === '1'; } catch (e) { state.kanaTipHidden = false; }
     var pathData = null;
     var mapData = null;
+    var FINISHED_KEY = 'cpath.finished.stay.';
+    function readFlag(key) {
+      try { return root.localStorage.getItem(key) === '1'; } catch (e) { return false; }
+    }
+    var ask = root.JlasConfirm || function (msg) { return Promise.resolve(root.confirm ? root.confirm(msg) : true); };
 
     function showActionError(error, retry) {
       var slot = todaySlot || mapSlot;
@@ -890,7 +969,11 @@
     function renderAll() {
       rootEl.setAttribute('aria-busy', 'false');
       if (sideSlot && pathData) sideSlot.innerHTML = sideGoalHtml(pathData);
-      if (todaySlot && pathData) todaySlot.innerHTML = todayBlockHtml(pathData, state);
+      if (todaySlot && pathData) {
+        // F125: "Tiếp tục ôn lộ trình này" is remembered per finished goal in this browser (a convenience only)
+        state.finishedChoiceHidden = !!(pathData.finished && readFlag(FINISHED_KEY + pathData.goal));
+        todaySlot.innerHTML = finishedCardHtml(pathData, state) + todayBlockHtml(pathData, state);
+      }
       if (mapSlot && pathData && mapData) {
         mapSlot.innerHTML = mapSectionHtml(pathData, mapData, state);
         if (state.selectedId) adjustPopoverInViewport(mapSlot);
@@ -905,6 +988,31 @@
         state.kanaTipHidden = true;
         try { root.localStorage.setItem(KANA_TIP_KEY, '1'); } catch (e) { /* hidden for this visit only */ }
         renderAll();
+        return;
+      }
+
+      if (t.closest('[data-cp-finished-stay]') && pathData) {
+        try { root.localStorage.setItem(FINISHED_KEY + pathData.goal, '1'); } catch (e) { /* hidden for this visit only */ }
+        state.finishedChoiceHidden = true;
+        renderAll();
+        return;
+      }
+
+      var promoteBtn = t.closest('[data-cp-promote]');
+      if (promoteBtn && pathData && pathData.secondary && root.JpathApi.send) {
+        // F125: never automatic; the learner confirms, the secondary row becomes the main path with its progress
+        var secName = pathData.secondary.nameVi || 'mục tiêu phụ';
+        Promise.resolve(ask('Nâng ' + secName + ' lên làm lộ trình chính? Tình huống đã học của ' + secName
+          + ' được giữ nguyên; lộ trình ' + (pathData.nameVi || 'hiện tại') + ' tạm dừng và vẫn giữ tiến độ, chứng nhận.')).then(function (yes) {
+          if (!yes) return null;
+          promoteBtn.disabled = true;
+          return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/path/promote-secondary', {})).then(function () {
+            if (root.location) root.location.href = pageUrl('path');
+          });
+        }).catch(function (error) {
+          promoteBtn.disabled = false;
+          showActionError(error, function () { promoteBtn.click(); });
+        });
         return;
       }
 
@@ -1045,6 +1153,8 @@
 
   return {
     todayBlockHtml: todayBlockHtml,
+    finishedCardHtml: finishedCardHtml,
+    sideGoalHtml: sideGoalHtml,
     kanaTipHtml: kanaTipHtml,
     mapSectionHtml: mapSectionHtml,
     nodePopoverHtml: nodePopoverHtml,

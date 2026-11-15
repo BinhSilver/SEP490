@@ -2029,3 +2029,35 @@ button.jp-sidenav__link {
   .cp-page .jp-parts__banner-center { flex: 1 0 auto; min-width: 0; }
   .cp-page .jp-parts__banner-right { flex: 0 0 auto; margin-left: auto; }
 }
+
+/* [JLAS-W0108] F125: lộ trình đã hoàn thành (đạt bài test cuối) — nhãn "Đã hoàn thành", thẻ tóm tắt và bước tiếp theo */
+.cp-done-chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+  background: var(--jp-c-mint-100); color: var(--jp-c-mint-900); border: 1px solid var(--jp-c-mint-500);
+  font-size: .74rem; font-weight: 600; letter-spacing: .02em; text-transform: none; vertical-align: middle; white-space: nowrap;
+}
+.cp-done-chip::before { content: "✓"; font-weight: 700; }
+.cp-page .cp-finished { display: grid; gap: 14px; margin-bottom: 16px; padding: 18px 20px; border: 1px solid var(--jp-c-mint-500);
+  border-radius: 16px; background: color-mix(in srgb, var(--jp-c-mint-100) 55%, var(--cp-surface)); }
+.cp-page .cp-finished__head { display: flex; align-items: center; gap: 14px; }
+.cp-page .cp-finished__kitsu { flex: 0 0 auto; width: 64px; height: 64px; }
+.cp-page .cp-finished__title { margin: 6px 0 2px; color: var(--cp-ink); font-size: 1.15rem; line-height: 1.35; }
+.cp-page .cp-finished__lead { margin: 0; color: var(--cp-muted); }
+.cp-page .cp-finished__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 0; }
+.cp-page .cp-finished__stat { padding: 10px 12px; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); }
+.cp-page .cp-finished__stat dt { color: var(--cp-muted); font-size: .8rem; }
+.cp-page .cp-finished__stat dd { margin: 2px 0 0; color: var(--cp-ink); font-weight: 700; font-size: 1rem; }
+.cp-page .cp-finished__cert { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0; }
+.cp-page .cp-finished__cert span { color: var(--cp-muted); font-size: .88rem; }
+.cp-page .cp-finished__next { display: grid; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--cp-line); }
+.cp-page .cp-finished__next-title { margin: 0; color: var(--cp-ink); font-weight: 600; }
+.cp-page .cp-finished__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-page .cp-finished__hint { margin: 0; color: var(--cp-muted); font-size: .86rem; }
+.cp-goal-card__promote { padding: 0; border: 0; background: none; text-align: left; cursor: pointer; font-family: inherit; }
+.cp-goal-card__done-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cp-goal-card__done-list li { display: grid; gap: 2px; }
+@media (max-width: 600px) {
+  .cp-page .cp-finished { padding: 14px; }
+  .cp-page .cp-finished__kitsu { width: 48px; height: 48px; }
+  .cp-page .cp-finished__actions > * { flex: 1 1 100%; text-align: center; }
+}
