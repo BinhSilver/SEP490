@@ -454,6 +454,8 @@
             render(data);
             dashboardLoaded = true;
             if (content) content.hidden = false;
+            // F145: the data is shown, so the loading line goes now, not after the reward pop-ups are closed
+            if (loading) loading.hidden = true;
             loadCreditHistory();
             if (window.RewardFX) {
                 // The chip is set after the celebrations: they count it up from the old balance.
