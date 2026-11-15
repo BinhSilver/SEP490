@@ -21,6 +21,7 @@ public final class GeneratedFurigana {
         StringBuilder out = new StringBuilder();
         boolean any = false;
         boolean afterNumber = false;
+        boolean afterDirectNumber = false;
         List<Token> tokens = JapaneseTokenizer.tokenize(japanese);
         for (int t = 0; t < tokens.size(); t++) {
             Token token = tokens.get(t);
@@ -34,8 +35,13 @@ public final class GeneratedFurigana {
             }
             // Numbers and the counter after them change reading together (二十分 = にじゅっぷん): token by token gives
             // に・じゅう・ふん, so they get no furigana rather than a wrong one.
+            // F124: IPADIC does not tag every counter as a suffix (the 月 of 10月 is a plain noun read つき), so a
+            // one-Kanji noun straight after a number counts as its counter too.
             boolean number = "数".equals(token.getPartOfSpeechLevel2());
-            boolean counter = afterNumber && "接尾".equals(token.getPartOfSpeechLevel2());
+            boolean counter = afterNumber && ("接尾".equals(token.getPartOfSpeechLevel2())
+                    || (afterDirectNumber && "名詞".equals(token.getPartOfSpeechLevel1())
+                        && surface.length() == 1 && surface.matches(KANJI)));
+            afterDirectNumber = number;
             afterNumber = number || (afterNumber && counter);
             // A one-Kanji prefix reads by what follows (今お時間 is いま, tagged as the prefix こん): no guess either.
             boolean prefix = "接頭詞".equals(token.getPartOfSpeechLevel1());
