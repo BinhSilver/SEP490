@@ -2236,3 +2236,11 @@ button.jp-sidenav__link {
   background: color-mix(in srgb, var(--cp-primary, #5b3cc4) 8%, transparent);
   font-size: .9rem;
 }
+
+/* [JLAS-W0108] F209: on a phone the step tabs are narrow — the 済 seal sits on the tab's top-right corner, off the text */
+@media (max-width: 640px) {
+  .cp-page .cp-step-tab.is-done { padding-right: 6px; overflow: visible; }
+  .cp-page .cp-step-tab .cp-step-stamp { top: -7px; right: -5px; width: 20px; height: 20px; transform: none; z-index: 1; }
+  .cp-page .cp-step-tab .cp-step-stamp__seal { background: var(--cp-surface, #fff); font-size: .62rem; border-width: 1.5px; }
+  .cp-page .cp-sit-steps { overflow: visible; padding-top: 10px; }
+}
