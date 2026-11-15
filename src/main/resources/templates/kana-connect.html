@@ -13,7 +13,7 @@
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
     <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261105-plum}" />
     <link rel="stylesheet" th:href="@{/css/components/avatar-frame.css?v=20261021-catalog}" />
-    <link rel="stylesheet" th:href="@{/css/pages/kana-connect.css?v=20261105-plum}" />
+    <link rel="stylesheet" th:href="@{/css/pages/kana-connect.css?v=20261114-chain-lock}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -61,6 +61,13 @@
                     </div>
                     <div class="kc-frame">
                         <div id="kanaBoard" class="kc-board" role="group" aria-label="Nối các ô kana liền kề để tìm từ. Kéo hoặc chạm để chọn; dùng phím Tab, mũi tên và Enter với bàn phím." hidden></div>
+                        <!-- Locked until the learner starts: the server sends no kana and the clock does not run before. -->
+                        <div id="kanaGate" class="kc-gate" hidden>
+                            <span class="kc-chain kc-chain--a" aria-hidden="true"></span>
+                            <span class="kc-chain kc-chain--b" aria-hidden="true"></span>
+                            <span class="kc-lock" aria-hidden="true"><i class="fa-solid fa-lock"></i></span>
+                            <button type="button" id="kanaStart" class="kc-gate__btn"><i class="fa-solid fa-play" aria-hidden="true"></i> <span id="kanaStartLabel">Bắt đầu</span></button>
+                        </div>
                     </div>
                     <p id="kanaSelected" class="kc-selection" lang="ja" aria-live="polite"></p>
                     <ul id="kanaWords" class="kc-words" aria-label="Các từ cần tìm" aria-live="polite"></ul>
@@ -92,7 +99,7 @@
     <script th:src="@{/js/auth-session.js}"></script>
     <script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
     <script th:src="@{/js/pages/kana-connect-engine.js?v=20261013-hint1}"></script>
-    <script th:src="@{/js/pages/kana-connect.js?v=20261028-hint-pick}"></script>
+    <script th:src="@{/js/pages/kana-connect.js?v=20261114-chain-lock}"></script>
     <script th:src="@{/js/pages/kana-tutorial.js?v=20261028-hint-pick}"></script>
     <script th:src="@{/js/pages/kana-demo-panel.js?v=20261028-hint30}"></script>
 </body>

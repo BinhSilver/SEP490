@@ -31,7 +31,14 @@ public class KanaChallengeController {
                 request.wordId(), request.index())));
     }
 
-    /** Stops this board's clock while the learner is away; opening the board again resumes it. */
+    /** Bắt đầu / Tiếp tục: starts this board's clock and returns it with its kana. */
+    @PostMapping("/start")
+    public ResponseEntity<ApiResponse<Today>> start(@AuthenticationPrincipal UserPrincipal user,
+                                                    @Valid @RequestBody HintRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Bắt đầu tính giờ", service.start(user.userId(), request.challengeId())));
+    }
+
+    /** Stops this board's clock while the learner is away; pressing Tiếp tục starts it again. */
     @PostMapping("/pause")
     public ResponseEntity<ApiResponse<Void>> pause(@AuthenticationPrincipal UserPrincipal user,
                                                    @Valid @RequestBody HintRequest request) {
