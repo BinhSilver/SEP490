@@ -6,6 +6,10 @@
 }
 
 .hwd .hwd-bar:has(.hm-mascot-btn) { top: calc(var(--hm-inside) - var(--hm-size)); }
+/* F169 (chủ dự án 15/11): on a wide screen the frame sits ~48px under the sticky header, so a fox poking up 68px lost its ears behind it */
+@media (min-width: 641px) {
+  .hwd .hwd-bar:has(.hm-mascot-btn) { top: max(calc(var(--hm-inside) - var(--hm-size)), -42px); }
+}
 
 .hwd .hwd-more.hm-mascot-btn {
   width: var(--hm-size);
