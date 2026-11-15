@@ -48,10 +48,22 @@
     }
   }
 
-  function questionHtml(q, i, n) {
-    var opts = (q.options || []).map(function (o, k) {
-      return '<button type="button" class="jp-check-opt" data-weekly-pick="' + k + '"><span class="jp-check-opt__key">'
-        + (k + 1) + '</span> ' + esc(o) + '</button>';
+  // F187 (probe P2-1): every attempt shows the questions and their options in a new order, so a retry cannot be
+  // passed by copying the previous result page; data-weekly-pick keeps the server's option index
+  function shuffled(n, rnd) {
+    var a = [];
+    for (var i = 0; i < n; i++) a.push(i);
+    for (var j = n - 1; j > 0; j--) { var k = Math.floor((rnd || Math.random)() * (j + 1)); var t = a[j]; a[j] = a[k]; a[k] = t; }
+    return a;
+  }
+
+  function questionHtml(q, i, n, picked) {
+    var order = q._order || shuffled((q.options || []).length);
+    q._order = order;
+    var opts = order.map(function (k, pos) {
+      return '<button type="button" class="jp-check-opt' + (picked === k ? ' is-picked' : '') + '" data-weekly-pick="' + k + '"'
+        + (picked === k ? ' aria-pressed="true"' : '') + '><span class="jp-check-opt__key">'
+        + (pos + 1) + '</span> ' + esc(q.options[k]) + '</button>';
     }).join('');
     return '<section class="jp-check" aria-labelledby="cpWeeklyQ">'
       + '<header class="jp-check__head"><span class="jp-check__count">Câu ' + (i + 1) + '/' + n + '</span>'
@@ -63,6 +75,7 @@
       + (q.audioUrl ? '<button type="button" class="jp-btn" data-weekly-play>Nghe</button>' : '')
       + '</div>'
       + '<div class="jp-check__opts">' + opts + '</div>'
+      + (i > 0 ? '<p><button type="button" class="jp-btn" data-weekly-prev>‹ Câu trước</button></p>' : '')
       + '</section>';
   }
 
@@ -142,13 +155,38 @@
         } catch (e) { /* no audio */ }
       }
     }
+    // F187 (probe P2-3): F5 mid-test lost every answer; keep a draft for this week in sessionStorage and warn on leave
+    function draftKey() { return 'cpWeeklyDraft:' + (REVIEW ? 'review:' : '') + String(state.data && (state.data.weekStart || state.data.testDay) || ''); }
+    function saveDraft() {
+      try { root.sessionStorage.setItem(draftKey(), JSON.stringify({ i: state.i, answers: state.answers, ids: state.data.questions.map(function (q) { return q.id; }) })); } catch (e) { /* ignore */ }
+    }
+    function clearDraft() { try { root.sessionStorage.removeItem(draftKey()); } catch (e) { /* ignore */ } }
+    function readDraft() {
+      try {
+        var d = JSON.parse(root.sessionStorage.getItem(draftKey()) || 'null');
+        var ids = state.data.questions.map(function (q) { return q.id; });
+        if (d && d.answers && Array.isArray(d.ids) && d.ids.slice().sort().join() === ids.slice().sort().join()) return d;
+      } catch (e) { /* ignore */ }
+      return null;
+    }
+    state.dirty = false;
+    if (root.addEventListener) {
+      root.addEventListener('beforeunload', function (ev) {
+        if (!state.dirty) return;
+        ev.preventDefault();
+        ev.returnValue = '';
+      });
+    }
     function show() {
       var qs = state.data.questions;
-      el.innerHTML = questionHtml(qs[state.i], state.i, qs.length);
+      var q = qs[state.i];
+      el.innerHTML = questionHtml(q, state.i, qs.length, state.answers[q.id]);
     }
     function submit() {
       el.innerHTML = '<p class="jp-status" role="status">Đang chấm…</p>';
       Promise.resolve(client.send('POST', BASE, { answers: state.answers })).then(function (r) {
+        state.dirty = false;
+        clearDraft();
         state.result = r || {};
         refreshRewardHeader(state.result.cp);
         el.innerHTML = resultHtml(state.result, state.data && state.data.questions, state.answers)
@@ -208,6 +246,18 @@
           el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.');
           return;
         }
+        var qs = state.data.questions;
+        var draft = readDraft();
+        if (draft) {
+          var byId = {};
+          qs.forEach(function (q) { byId[q.id] = q; });
+          state.data.questions = draft.ids.map(function (id) { return byId[id]; });
+          state.answers = draft.answers;
+          state.i = Math.min(Math.max(0, Number(draft.i) || 0), qs.length - 1);
+          state.dirty = Object.keys(state.answers).length > 0;
+        } else {
+          state.data.questions = shuffled(qs.length).map(function (k) { return qs[k]; });
+        }
         show();
       }, function (e) {
         el.innerHTML = infoHtml(e && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
@@ -254,13 +304,15 @@
       if (t.closest('[data-weekly-stop]') && state.recorder) {
         state.recorder.stop(); t.closest('[data-weekly-stop]').hidden = true; return;
       }
+      if (t.closest('[data-weekly-prev]')) { if (state.i > 0) { state.i--; saveDraft(); show(); } return; }
       var b = t.closest('[data-weekly-pick]');
       if (!b || !state.data) return;
       var q = state.data.questions[state.i];
       state.answers[q.id] = Number(b.getAttribute('data-weekly-pick'));
+      state.dirty = true;
       state.i++;
       if (state.i >= state.data.questions.length) submit();
-      else show();
+      else { saveDraft(); show(); }
     });
     return load();
   }
