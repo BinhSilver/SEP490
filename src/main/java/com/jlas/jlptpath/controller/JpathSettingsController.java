@@ -4,6 +4,7 @@ import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.common.exception.ApiException;
 import com.jlas.jlptpath.dto.JpathLowerLevelRequest;
+import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.dto.JpathRedirectView;
 import com.jlas.jlptpath.dto.JpathRestartRequest;
@@ -43,6 +44,13 @@ public class JpathSettingsController {
     @GetMapping("/settings")
     public ResponseEntity<ApiResponse<JpathSettingsView>> get(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", settingsService.get(user.userId())));
+    }
+
+    /** [JLAS-W0108] F151: Read-only pace preview matching {@code PUT /settings} without writing or throwing on blocked. */
+    @PostMapping({"/preview", "/settings/preview"})
+    public ResponseEntity<ApiResponse<JpathPaceView>> preview(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) JpathSettingsUpdateRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", settingsService.preview(user.userId(), request)));
     }
 
     @PutMapping("/settings")

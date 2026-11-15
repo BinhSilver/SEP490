@@ -416,6 +416,19 @@
       ? (allDone ? 'Đã xong ' + doneCount + '/' + situations.length + ' tình huống hôm nay.'
         : doneCount + '/' + situations.length + ' tình huống đã xong.')
       : '';
+    // [JLAS-W0108] F151: explain when today's planned count differs from the newly saved daily pace
+    if (!finished && situations.length > 0) {
+      var dailyTarget = Number(d.dailySituations) || 0;
+      if (dailyTarget > 0 && situations.length !== dailyTarget) {
+        var progToday = d.progress || {};
+        var totalSit = Number(progToday.totalSituations) || 0;
+        var doneSit = Number(progToday.doneSituations) || 0;
+        var remainingAfterToday = totalSit - doneSit - Math.max(0, situations.length - doneCount);
+        if (dailyTarget < situations.length || remainingAfterToday > 0) {
+          lead += (lead ? ' ' : '') + 'Nhịp ' + dailyTarget + ' tình huống/ngày áp dụng từ ngày mai.';
+        }
+      }
+    }
 
     // Kitsu stays (owner 08/11); its line always matches the day: rest day, nothing planned, done, or what is left
     var left = situations.length - doneCount;

@@ -4,6 +4,7 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.config.JpathProperties;
 import com.jlas.jlptpath.dto.JpathDisplaySettings;
+import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.dto.JpathSettingsUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSettingsView;
@@ -79,6 +80,15 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
         }
         JpathUserLevel level = openLevel(path.get());
         return view(path.get(), level, views.pacing(path.get(), level), null, row);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public JpathPaceView preview(Long userId, JpathSettingsUpdateRequest request) {
+        JpathUserPath path = findActive(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
+        JpathUserLevel level = openLevel(path);
+        return writer.preview(userId, path, level, request);
     }
 
     @Override

@@ -54,7 +54,7 @@
   var SPACE_CLASS = "[\t\n\u000B\f\r\u001C-\u001F \u1680\u2000-\u2006\u2008-\u200A\u2028\u2029\u205F\u3000]";
   var OUTER_SPACE = new RegExp("^" + SPACE_CLASS + "+|" + SPACE_CLASS + "+$", "g");
   var SETTINGS_URL = '/api/learning/jlpt/settings';
-  var DEBOUNCE_MS = 300;
+  var DEBOUNCE_MS = 120;
   var MSG_LOAD_FAILED = 'Không tải được cài đặt. Thử tải lại trang.';
   var MSG_FAILED = 'Không lưu được. Thử lại sau.';
 
@@ -227,9 +227,10 @@
       node.value = value;
       return node;
     }
-    function message(scope, role, text) {
+    function message(scope, role, text, toastFlag) {
       var box = part(role, scope);
-      if (text && /saved$/.test(role) && root && root.JlasToast && root.JlasToast.show(text, 'success')) text = '';
+      var toast = d.toast || (root && root.JlasToast) || (typeof globalThis !== 'undefined' && globalThis.JlasToast);
+      if (toastFlag !== false && text && /saved$/.test(role) && toast && toast.show(text, 'success')) text = '';
       if (!box) return;
       box.textContent = text || '';
       box.hidden = !text;
@@ -381,6 +382,18 @@
         save.setAttribute('aria-disabled', save.disabled ? 'true' : 'false');
         if (name === 'schedule') message(block(name), 'days-hint', daysOk ? '' : 'Chọn đủ 2 ngày kỹ năng để lưu.');
       });
+      var undoBtn = part('undo-schedule');
+      if (undoBtn) undoBtn.disabled = !!busy.schedule;
+      var daysBox = part('days');
+      if (daysBox && typeof daysBox.querySelectorAll === 'function') {
+        daysBox.querySelectorAll('button').forEach(function (b) { b.disabled = !!busy.schedule; });
+      }
+      var scheduleScope = block('schedule');
+      if (scheduleScope && typeof scheduleScope.querySelectorAll === 'function') {
+        scheduleScope.querySelectorAll('[data-field]').forEach(function (input) {
+          input.disabled = !!busy.schedule;
+        });
+      }
       part('exam-clear').hidden = !current.examDate;
       var restart = part('restart');
       restart.disabled = !restartTextOk(part('restart-text').value) || !!busy.change;
@@ -397,6 +410,31 @@
       if (blockName === 'target' || blockName === 'schedule') schedulePreview();
     }
 
+    function showPreviewLoading() {
+      var previewBox = part('preview') || part('schedule-preview');
+      if (previewBox) previewBox.textContent = 'Đang tính ngày hoàn thành…';
+      var paceBox = part('pace-text');
+      if (paceBox) paceBox.textContent = 'Đang tính ngày hoàn thành…';
+    }
+
+    function previewPayload() {
+      var base = previewBody(view, current);
+      base.pace = current.dailyMinutes;
+      base.thirdSkillDay = current.thirdSkillDay || '';
+      return base;
+    }
+
+    function requestPreview() {
+      return api.send('POST', SETTINGS_URL + '/preview', previewPayload()).then(function (res) {
+        return res && res.pace && typeof res.pace === 'object' ? res.pace : res;
+      }, function (err) {
+        if (err && (err.status === 404 || err.status === 405 || err.code === 'HTTP_404' || err.code === 'HTTP_405')) {
+          return api.send('POST', '/api/learning/jlpt/estimate', previewBody(view, current));
+        }
+        throw err;
+      });
+    }
+
     function schedulePreview() {
       if (timer) cancel(timer);
       timer = null;
@@ -406,12 +444,16 @@
         drawPace(view.pace, false);
         return;
       }
+      showPreviewLoading();
       timer = later(function () {
         timer = null;
-        api.send('POST', '/api/learning/jlpt/estimate', previewBody(view, current)).then(function (pace) {
+        requestPreview().then(function (pace) {
           if (mine === seq) drawPace(pace, true);
         }, function (error) {
-          if (mine === seq) message(block('schedule'), 'block-error', errorText(error));
+          if (mine === seq) {
+            drawPace(view.pace, false);
+            message(block('schedule'), 'block-error', errorText(error));
+          }
         });
       }, DEBOUNCE_MS);
     }
@@ -419,11 +461,17 @@
     function save(blockName, forcedBody) {
       var body = forcedBody || diff(pick(original, blockName), pick(current, blockName));
       if (!Object.keys(body).length || busy[blockName]) return;
+      var isUndo = blockName === 'schedule' && !!forcedBody;
+      if (blockName === 'target' || blockName === 'schedule') {
+        if (timer) cancel(timer);
+        timer = null;
+        seq++;
+      }
       var scope = block(blockName);
       var previousSchedule = blockName === 'schedule' ? pick(original, 'schedule') : null;
       busy[blockName] = true;
       message(scope, 'block-error', '');
-      message(scope, 'saved', 'Đang lưu…');
+      message(scope, 'saved', isUndo ? 'Đang hoàn tác…' : 'Đang lưu…', false);
       refreshButtons();
       api.send('PUT', SETTINGS_URL, body).then(function (next) {
         busy[blockName] = false;
@@ -435,7 +483,7 @@
         var daysMoved = blockName === 'schedule' && ['skillDays', 'restDays', 'thirdSkillDay'].some(function (k) {
           return Object.prototype.hasOwnProperty.call(body, k);
         });
-        message(scope, 'saved', daysMoved ? MSG_DAYS_SAVED : 'Đã lưu.');
+        message(scope, 'saved', isUndo ? 'Đã hoàn tác lịch tuần.' : (daysMoved ? MSG_DAYS_SAVED : 'Đã lưu.'));
         loadHistory();
       }, function (error) {
         busy[blockName] = false;
