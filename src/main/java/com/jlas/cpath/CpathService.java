@@ -1059,9 +1059,37 @@ public class CpathService {
                 && day.equals(dateOf(r.get("done_at")))).count();
         boolean dayDone = !rows.isEmpty() && rows.stream().allMatch(r -> r.get("done_at") != null);
         // F68: the goal tells the day page how step 1 is called (Du lịch: "Nghe & chọn nghĩa")
-        return Map.of("day", day.toString(), "today", clock.today(userId).toString(), "situations", situations, "scores", scores,
-                "cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0), "goal", String.valueOf(p.get("goal_code")),
-                "restDay", isRest(p, day)); // F116: an empty rest day says "ngày nghỉ", not "chưa có lịch"
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("day", day.toString());
+        out.put("today", clock.today(userId).toString());
+        out.put("situations", situations);
+        out.put("scores", scores);
+        out.put("cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0));
+        out.put("goal", String.valueOf(p.get("goal_code")));
+        out.put("restDay", isRest(p, day)); // F116: an empty rest day says "ngày nghỉ", not "chưa có lịch"
+        out.put("weekStatus", weekStatus(pathId, day));
+        return out;
+    }
+
+    /**
+     * F176 (AI test L3): DONE / PARTIAL / EMPTY for each day of the week holding {@code day}, so the strip ticks only the
+     * days whose planned situations were all finished (it ticked every past day, empty ones too).
+     */
+    private Map<String, String> weekStatus(Long pathId, LocalDate day) {
+        LocalDate monday = day.minusDays(day.getDayOfWeek().getValue() - 1L);
+        Map<String, String> out = new LinkedHashMap<>();
+        for (int i = 0; i < 7; i++) out.put(monday.plusDays(i).toString(), "EMPTY");
+        for (Map<String, Object> r : db.queryForList("SELECT study_day, COUNT(*) n, SUM(CASE WHEN done_at IS NULL THEN 0 ELSE 1 END) d "
+                + "FROM cpath_user_situation WHERE path_id = ? AND study_day BETWEEN ? AND ? GROUP BY study_day",
+                pathId, monday, monday.plusDays(6))) {
+            Object raw = r.get("study_day");
+            LocalDate sd = raw instanceof LocalDate ld ? ld : raw instanceof java.sql.Date sq ? sq.toLocalDate() : dateOf(raw);
+            if (sd == null) continue;
+            long n = ((Number) r.get("n")).longValue();
+            long d = r.get("d") == null ? 0 : ((Number) r.get("d")).longValue();
+            out.put(sd.toString(), n > 0 && d >= n ? "DONE" : (d > 0 ? "PARTIAL" : "EMPTY"));
+        }
+        return out;
     }
 
     private static Map<String, Object> scoreRow(String labelVi, int score, String noteVi) {

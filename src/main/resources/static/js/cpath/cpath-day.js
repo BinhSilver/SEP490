@@ -88,7 +88,7 @@
     return out;
   }
 
-  function weekStripHtml(day, today, isDone) {
+  function weekStripHtml(day, today, isDone, weekStatus) {
     var days = weekDays(day);
     if (!days.length) return '';
     var cells = days.map(function (di, idx) {
@@ -98,7 +98,9 @@
       var isCurrent = di === day;
       var isToday = di === today;
       var isFuture = today && di > today;
-      var isPastDone = (!isFuture && !isCurrent) || (isCurrent && isDone);
+      // F176: a past day is ticked only when the server says all its situations were finished (empty days too before)
+      var st = weekStatus && weekStatus[di];
+      var isPastDone = st ? (!isFuture && st === 'DONE') : ((!isFuture && !isCurrent) || (isCurrent && isDone));
       var cls = 'jp-dayd__node'
         + (isCurrent ? ' is-current' : '')
         + (isToday ? ' is-today' : '')
@@ -133,7 +135,7 @@
     var scores = list(x.scores);
     var allDone = situations.length > 0 && situations.every(function (s) { return s.status === 'DONE' || s.status === 'TODAY_DONE'; });
 
-    var strip = weekStripHtml(day, today, allDone);
+    var strip = weekStripHtml(day, today, allDone, x.weekStatus);
     var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác">'
       + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">‹ Hôm trước</a>'
       + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau ›</a>' : '')
