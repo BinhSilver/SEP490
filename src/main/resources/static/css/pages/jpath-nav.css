@@ -180,6 +180,7 @@
 .jp-toc__link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
 @media (max-width: 899px) {
   .jp-toc__list { display: flex; overflow-x: auto; border-left: 0; border-bottom: 1px solid var(--jp-line); gap: 0; }
+  .jp-toc__list > li, .jp-toc__list > .jp-toc__link { flex: 0 0 auto; } /* F184: items kept their text width at 320px (they shrank to 35–55px and overlapped) */
   .jp-toc__link { white-space: nowrap; margin: 0 0 -2px; border-left: 0; border-bottom: 1px solid transparent; }
   .jp-toc__link[aria-current="true"] { border-bottom-color: var(--jp-primary); }
 }
