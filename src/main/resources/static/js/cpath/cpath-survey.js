@@ -469,6 +469,13 @@
     }
 
     function syncSecondaryGoal() {
+      // F170: changing the secondary goal starts on the one the learner has now (it used to preselect the first other goal)
+      var cur = state.currentSecondary;
+      if (cur && !state.secondaryPicked && !isMainGoal(state, cur)
+          && goalsData.some(function (g) { return g.goal === cur || (isJob(cur) && g.goal === JOB); })) {
+        state.secondaryPicked = true;
+        if (state.goal !== cur) { state.goal = cur; state.fields = []; state.priorityTopics = []; }
+      }
       if (isMainGoal(state, isJob(state.goal) ? JOB : state.goal)) {
         var other = displayGoals(goalsData).filter(function (g) { return !isMainGoal(state, g.goal); })[0];
         if (other) {
@@ -707,6 +714,7 @@
       state.presetGoal = false;
       state.mainGoal = p.goal;
       state.mainNameVi = p.nameVi || p.goal;
+      state.currentSecondary = p.secondary && p.secondary.goal ? p.secondary.goal : null;
       if (p.selfLevel === 'BEGINNER' || p.selfLevel === 'ELEMENTARY' || p.selfLevel === 'INTERMEDIATE') {
         state.selfLevel = p.selfLevel;
       }
