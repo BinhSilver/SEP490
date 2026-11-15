@@ -88,9 +88,9 @@
         setText('dailyMinutesProgress', goal.minutesDone + '/' + goal.minutesTarget);
         var source = byId('dailyGoalSource');
         if (source) {
-            source.textContent = goal.source === 'ACTIVE_PATH' ? 'Theo bài học tiếp theo trong lộ trình'
-                : goal.source === 'USER_TARGETS' ? 'Theo mục tiêu bạn đã đặt'
-                    : 'Mục tiêu mặc định';
+            // F128: the targets are the learner's own; study on the JLPT / Comm path counts toward them
+            source.textContent = (goal.source === 'USER_TARGETS' ? 'Theo mục tiêu bạn đã đặt' : 'Mục tiêu mặc định')
+                + ' · tính cả việc học trên lộ trình';
             source.title = goal.fallbackReason || '';
         }
         var ring = byId('dailyGoalRing');
