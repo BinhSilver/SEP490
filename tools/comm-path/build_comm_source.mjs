@@ -48,11 +48,13 @@ export function compileGoal(goal) {
       challenge: d.dialogue_aids?.challenge ?? null,
       phrase_ids: m.phrases.filter(p => p.dialogue_id === d.id).map(p => p.id),
     }));
+    const situationLevels = new Set(situations.map(s => s.level).filter(Boolean));
+    const level = t.level ?? (situationLevels.size === 1 ? [...situationLevels][0] : null);
     const words = m.vocabulary.filter(v => v.topic === t.code);
     const phrases = m.phrases.filter(p => situations.some(s => s.id === p.dialogue_id));
     for (const [what, n, min] of [['words', words.length, MIN.words], ['phrases', phrases.length, MIN.phrases],
       ['situations', situations.length, MIN.situations]]) if (n < min) problems.push({ goal, topic: t.code, what, n, min });
-    return { code: t.code, order: i + 1, level: t.level ?? null, name_ja: t.name_ja ?? null, name_vi: t.name_vi ?? null,
+    return { code: t.code, order: i + 1, level, name_ja: t.name_ja ?? null, name_vi: t.name_vi ?? null,
       situations, words: words.map(v => ({ id: v.id, word: v.word, reading: v.reading, meaning_vi: v.meaning_vi })),
       phrases: phrases.map(p => ({ id: p.id, ja: p.ja, reading: p.reading, vi: p.vi, note: p.note ?? null, dialogue_id: p.dialogue_id })) };
   });
