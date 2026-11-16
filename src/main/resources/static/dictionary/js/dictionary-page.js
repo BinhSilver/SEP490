@@ -215,7 +215,6 @@
           data.pitchAccentSource === 'KANJIUM' ? 'Trọng âm: Kanjium – Uros O. (CC BY-SA 4.0)' : '') + '</div>') +
       '<div class="dict-actions">' + '<button type="button" class="dict-action dict-action--ai" data-tutor-ask="' +
       esc('Giải thích từ 「' + data.expression + '」: nghĩa, cách đọc và ví dụ.') + '"><i class="fa-solid fa-sparkles"></i> Giải nghĩa AI</button>' +
-      actionButton('Kết hợp từ', 'link') +
       actionButton('Luyện phát âm', 'microphone') + '</div>' + ui.jlptBadgeHtml(data.jlptLevel) +
       sensesHtml(data.senses);
     if (data.exampleJa) html += '<div class="dict-word-section dict-example">' +
