@@ -365,7 +365,7 @@
       root.document.title = (scope === 'goal' ? 'Bài test cuối mục tiêu' : scope === 'topic' ? 'Nhập vai cuối chủ đề' : 'Luyện nhanh tình huống')
         + ' - KotsuKotsu';
     }
-    var state = { questions: [], goal: '', index: 0, answers: {}, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false };
+    var state = { questions: [], goal: '', index: 0, answers: {}, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false, picking: false };
     function error(message) {
       el.innerHTML = '<p class="jp-alert" role="alert">' + esc(message) + '</p><button type="button" class="jp-btn" data-rp-retry>Thử lại</button>';
     }
@@ -449,7 +449,30 @@
         return;
       }
       var pick = target.closest('[data-rp-pick]');
-      if (pick) { state.answers[q.id] = Number(pick.getAttribute('data-rp-pick')); state.index++; render(); return; }
+      if (pick) {
+        if (state.picking) return;
+        var optionIndex = Number(pick.getAttribute('data-rp-pick'));
+        if (scope !== 'situation') {
+          state.answers[q.id] = optionIndex; state.index++; render(); return;
+        }
+        state.picking = true;
+        el.querySelectorAll('[data-rp-pick]').forEach(function (button) { button.disabled = true; });
+        client.send('POST', '/api/learning/comm/roleplay/pick?code=' + encodeURIComponent(code)
+          + '&questionId=' + encodeURIComponent(q.id) + '&optionIndex=' + optionIndex).then(function (verdict) {
+          state.picking = false;
+          if (verdict && verdict.correct) {
+            state.answers[q.id] = optionIndex; state.index++; render();
+          } else {
+            render();
+            el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
+          }
+        }, function (err) {
+          state.picking = false;
+          render();
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+        });
+        return;
+      }
       if (target.closest('[data-rp-skip]')) {
         if (state.timer) root.clearTimeout(state.timer);
         if (state.recorder && state.recorder.state !== 'inactive') { state.recorder.onstop = null; state.recorder.stop(); }

@@ -57,6 +57,9 @@
     KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay', GRAMMAR_EXTRA: 'Luyện thêm', GRAMMAR_REVIEW: 'Ôn ngữ pháp',
     WEEK_KNOWN: 'Tôi biết tuần này'
   });
+  var RETRY_PRACTICE_KINDS = Object.freeze({ MICRO_CHECK: true, GROUP_EXERCISE: true, CONFUSABLE: true,
+    GRAMMAR_PRACTICE: true, GRAMMAR_EXTRA: true, GRAMMAR_REVIEW: true, SKILL_LESSON: true,
+    SKILL_PRACTICE: true, SKILL_DICTATION: true });
   var DIRECTION_LABEL = { JA_VI: 'NHẬT → VIỆT · CHỌN NGHĨA ĐÚNG', VI_JA: 'VIỆT → NHẬT · CHỌN TỪ ĐÚNG' };
   var MSG_NOT_FOUND = 'Không tìm thấy bài kiểm tra này.';
   var MSG_LOAD_FAILED = 'Chưa tải được bài kiểm tra. Thử lại sau.';
@@ -189,6 +192,12 @@
     try { if (usable) storage.setItem(key, String(now)); } catch (e) { usable = false; }
     if (!usable) startMemory[key] = now;
     return now;
+  }
+
+  function restartQuestionTimer(storage, token, questionId, now) {
+    var key = START_PREFIX + token + '.' + questionId;
+    try { if (storage) storage.setItem(key, String(now)); else startMemory[key] = now; }
+    catch (e) { startMemory[key] = now; }
   }
 
   function timerRemaining(timerSec, startedMs, nowMs) {
@@ -363,6 +372,14 @@
     if (e.type === 'RESULT') {
       var r = e.result || {};
       s.answers = copy(state.answers);
+      if (!r.correct && r.correctValue == null && RETRY_PRACTICE_KINDS[state.kind]
+          && !r.checkClosed && r.lockedValue == null) {
+        delete s.pending[qid];
+        s.placed = copy(state.placed);
+        delete s.placed[qid];
+        s.qStartedMs = e.nowMs || state.qStartedMs;
+        return { state: s };
+      }
       // probe L2: a question already locked (another tab) comes back with lockedValue — draw that answer, not the local pick
       var mine = state.pending[qid] === undefined ? null : state.pending[qid];
       var locked = r.lockedValue !== undefined && r.lockedValue !== null
@@ -1022,13 +1039,18 @@
       draw();
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/answers', r.request).then(function (res) {
         if (!alive) return;
-        state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res }).state;
+        var retryPractice = res && !res.correct && res.correctValue == null && RETRY_PRACTICE_KINDS[state.kind]
+          && !res.checkClosed && res.lockedValue == null;
+        if (retryPractice) restartQuestionTimer(env.storage, token, r.request.questionId, env.now());
+        state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res,
+          nowMs: env.now() }).state;
         var lockedElsewhere = !!(state.answers[r.request.questionId] || {}).lockedElsewhere;
         var said = lockedElsewhere ? MSG_LOCKED_ELSEWHERE
           : (res && res.correct ? 'Đúng rồi!' : (r.request.value === null ? 'Hết giờ.' : 'Chưa đúng.'));
         announce(said);
         if (!lockedElsewhere) env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
+        if (retryPractice) status('Chưa đúng. Hãy chọn lại để tiếp tục.');
         if (lockedElsewhere) {
           status(MSG_LOCKED_ELSEWHERE);
           // the other tab may have submitted already — then the result is shown here too

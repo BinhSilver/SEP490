@@ -140,6 +140,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private static final Set<JpathCheckKind> FREE_KINDS = EnumSet.of(JpathCheckKind.SKIP_ONE,
             JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.WEEK_KNOWN);
+    private static final Set<JpathCheckKind> RETRY_PRACTICE_KINDS = EnumSet.of(JpathCheckKind.MICRO_CHECK,
+            JpathCheckKind.GROUP_EXERCISE, JpathCheckKind.CONFUSABLE, JpathCheckKind.GRAMMAR_PRACTICE,
+            JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.GRAMMAR_REVIEW, JpathCheckKind.SKILL_LESSON,
+            JpathCheckKind.SKILL_PRACTICE, JpathCheckKind.SKILL_DICTATION);
     /** Plan 3 skill checks: no item rows, no plan, their own session page. */
     static final Set<JpathCheckKind> SKILL_KINDS = EnumSet.of(JpathCheckKind.SKILL_PRACTICE,
             JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
@@ -890,6 +894,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 || (qv.timerSec() != null && elapsed > qv.timerSec() * 1000L + TIMER_GRACE_MS);
         boolean correct = !timedOut && correct(qv, key, r.value());
         Answer a = new Answer(r.value(), correct, elapsed);
+        if (!correct && RETRY_PRACTICE_KINDS.contains(set.getKind())) {
+            set.setLastAnswerAt(now);
+            return new JpathAnswerResult(false, null, null, null, report(key, questionCode));
+        }
         p.answers().put(qv.id(), a);
         set.setProgressJson(json(p));
         set.setLastAnswerAt(now);
