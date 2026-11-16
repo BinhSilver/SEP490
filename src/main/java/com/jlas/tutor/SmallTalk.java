@@ -27,7 +27,7 @@ final class SmallTalk {
             + " Bạn muốn biết từ hay mẫu câu này trong tiếng Nhật thì hỏi mình nhé.";
     static final String GREETING_REPLY = "Chào bạn! Mình là gia sư AI của J-LAS. Bạn muốn hỏi từ vựng, kanji hay mẫu ngữ pháp nào trong giáo trình?";
     static final String THANKS_REPLY = "Không có gì! Bạn cứ hỏi tiếp nhé.";
-    static final String IDENTITY_REPLY = "Mình là gia sư AI của J-LAS, chạy trên máy chủ của J-LAS. Mình chỉ trả lời dựa trên giáo trình"
+    static final String IDENTITY_REPLY = "Mình là gia sư AI của J-LAS. Mình chỉ trả lời dựa trên giáo trình"
             + " và từ điển J-LAS, không tra Internet. Bạn muốn hỏi từ vựng, kanji hay mẫu ngữ pháp nào?";
 
     private SmallTalk() { }

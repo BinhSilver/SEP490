@@ -104,6 +104,35 @@ public class OpenRouterConfig {
     /** Model embedding cục bộ; chỉ dùng khi {@link #isLocal()}. */
     public String getLocalEmbeddingModel() { return ollamaEmbeddingModel; }
 
+    /** Model của gia sư AI: {@code ollama} (cục bộ, mặc định) | {@code api} (API kiểu OpenAI: DeepSeek, OpenRouter...). */
+    @Value("${tutor.llm.provider:ollama}")
+    private String tutorProvider;
+
+    @Value("${tutor.llm.base-url:https://api.deepseek.com}")
+    private String tutorBaseUrl;
+
+    @Value("${tutor.llm.api-key:}")
+    private String tutorApiKey;
+
+    @Value("${tutor.llm.model:deepseek-chat}")
+    private String tutorModel;
+
+    /** {@code reasoning_effort} gửi kèm (none, low, high...); trống thì không gửi. Model suy luận mặc định suy nghĩ rất lâu. */
+    @Value("${tutor.llm.reasoning-effort:none}")
+    private String tutorReasoningEffort;
+
+    public String getTutorReasoningEffort() { return tutorReasoningEffort == null ? "" : tutorReasoningEffort.trim(); }
+
+    /** Gia sư gọi API ngoài thay vì Ollama; cần có key, thiếu key thì vẫn dùng Ollama. */
+    public boolean isTutorApi() {
+        return tutorProvider != null && "api".equalsIgnoreCase(tutorProvider.trim()) && tutorApiKey != null && !tutorApiKey.isBlank();
+    }
+
+    /** Địa chỉ {@code /chat/completions} của API gia sư, ví dụ {@code https://api.deepseek.com/chat/completions}. */
+    public String getTutorChatUrl() { return tutorBaseUrl.trim().replaceAll("/+$", "") + "/chat/completions"; }
+    public String getTutorApiKey() { return tutorApiKey == null ? "" : tutorApiKey.trim(); }
+    public String getTutorModel() { return isTutorApi() ? tutorModel : ollamaModel; }
+
     public int getConnectTimeoutMs() { return Math.max(1_000, connectTimeoutMs); }
     public int getReadTimeoutMs() { return Math.max(1_000, readTimeoutMs); }
 }

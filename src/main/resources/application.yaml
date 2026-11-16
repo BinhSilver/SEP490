@@ -247,6 +247,15 @@ tutor:
   questions-per-hour: ${TUTOR_QUESTIONS_PER_HOUR:60}
   max-question-chars: 500
   history-messages: 6
+  # Model trả lời của gia sư: ollama (cục bộ, kaiwa.llm.ollama.*) | api (API kiểu OpenAI, cần api-key).
+  # Embedding (bge-m3) và Qdrant vẫn chạy cục bộ trong cả hai trường hợp.
+  llm:
+    provider: ${TUTOR_LLM_PROVIDER:ollama}
+    base-url: ${TUTOR_LLM_BASE_URL:https://api.deepseek.com}
+    api-key: ${TUTOR_LLM_API_KEY:}
+    model: ${TUTOR_LLM_MODEL:deepseek-chat}
+    # none = tắt phần suy nghĩ của model suy luận (DeepSeek V4, GLM...) để trả lời nhanh; trống = không gửi tham số.
+    reasoning-effort: ${TUTOR_LLM_REASONING_EFFORT:none}
 
 azure:
   storage:

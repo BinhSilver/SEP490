@@ -332,4 +332,68 @@ class LocalLlmProviderTest {
                 });
         assertThat(requests).isEmpty();
     }
+
+    private OpenRouterConfig tutorApi(String key) {
+        OpenRouterConfig config = config("openrouter", 5_000);
+        ReflectionTestUtils.setField(config, "tutorProvider", "api");
+        ReflectionTestUtils.setField(config, "tutorBaseUrl", baseUrl());
+        ReflectionTestUtils.setField(config, "tutorApiKey", key);
+        ReflectionTestUtils.setField(config, "tutorModel", "deepseek-chat");
+        ReflectionTestUtils.setField(config, "tutorReasoningEffort", "none");
+        return config;
+    }
+
+    @Test
+    void tutorApiModeCallsOpenAiCompatibleEndpointWithItsOwnKey() {
+        LocalLlmClient tutor = new LocalLlmClient(tutorApi("sk-deepseek-secret"), JSON);
+
+        assertThat(tutor.chat("system", List.of(), "勉強", 700)).isEqualTo("はい、わかりました。");
+        assertThat(tutor.model()).isEqualTo("deepseek-chat");
+        Recorded request = requests.getFirst();
+        assertThat(request.path()).isEqualTo("/v1/chat/completions");
+        assertThat(request.authorization()).isEqualTo("Bearer sk-deepseek-secret");
+        assertThat(request.body().path("model").asText()).isEqualTo("deepseek-chat");
+        assertThat(request.body().path("max_tokens").asInt()).isEqualTo(700);
+        assertThat(request.body().path("stream").asBoolean(true)).isFalse();
+        assertThat(request.body().has("think")).isFalse();
+        assertThat(request.body().path("reasoning_effort").asText()).isEqualTo("none");
+    }
+
+    @Test
+    void tutorApiModeStreamsServerSentEvents() {
+        responseBody = "data: {\"choices\":[{\"delta\":{\"role\":\"assistant\",\"content\":\"\"}}]}\n\n"
+                + ": keep-alive\n\n"
+                + "data: {\"choices\":[{\"delta\":{\"content\":\"はい、\"}}]}\n\n"
+                + "data: {\"choices\":[{\"delta\":{\"content\":\"そうです。\"}}]}\n\n"
+                + "data: [DONE]\n\n";
+        List<String> deltas = new CopyOnWriteArrayList<>();
+
+        String answer = new LocalLlmClient(tutorApi("sk-deepseek-secret"), JSON).chatStream("s", List.of(), "u", 50, deltas::add);
+
+        assertThat(answer).isEqualTo("はい、そうです。");
+        assertThat(deltas).containsExactly("はい、", "そうです。");
+        assertThat(requests.getFirst().body().path("stream").asBoolean()).isTrue();
+    }
+
+    @Test
+    void tutorApiErrorIsReportedWithoutLeakingTheKeyAndWithoutFallingBackToOllama() {
+        status = 401;
+        responseBody = "{\"error\":{\"message\":\"Authentication Fails, Your api key: ****cret is invalid\"}}";
+
+        assertThatThrownBy(() -> new LocalLlmClient(tutorApi("sk-deepseek-secret"), JSON).chat("s", List.of(), "u", 50))
+                .isInstanceOfSatisfying(ApiException.class, e -> {
+                    assertThat(e.getErrorCode()).isEqualTo(ErrorCode.EXTERNAL_SERVICE_ERROR);
+                    assertThat(e.getMessage()).doesNotContain("cret");
+                });
+        assertThat(requests).extracting(Recorded::path).containsExactly("/v1/chat/completions");
+    }
+
+    @Test
+    void tutorApiWithoutKeyStaysOnOllama() {
+        LocalLlmClient tutor = new LocalLlmClient(tutorApi(""), JSON);
+
+        tutor.chat("s", List.of(), "u", 50);
+        assertThat(requests.getFirst().path()).isEqualTo("/api/chat");
+        assertThat(tutor.model()).isEqualTo("qwen3.5:4b");
+    }
 }
