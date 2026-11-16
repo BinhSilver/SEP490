@@ -566,7 +566,8 @@
   function questionHtml(q, qs, display) {
     var st = qs || {};
     if (!q) return '';
-    var html = '<section class="jp-check__q" data-qid="' + esc(q.id) + '" data-type="' + esc(q.type) + '">'
+    var html = '<section class="jp-check__q" data-qid="' + esc(q.id) + '" data-type="' + esc(q.type)
+      + '" data-furi-answer-state="' + (st.answer ? 'answered' : 'pending') + '">'
       + checkMascotHtml(q, st);
     if (isBoard(q)) return html + boardHtml(q, st.board) + '</section>';
     html += promptHtml(q);
