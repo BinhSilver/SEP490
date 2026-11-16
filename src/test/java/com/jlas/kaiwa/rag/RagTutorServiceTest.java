@@ -140,4 +140,12 @@ class RagTutorServiceTest {
         assertThat(RagTutorService.stripRomaji("駅(えき)まで (N + まで) [S1]")).isEqualTo("駅(えき)まで (N + まで) [S1]");
         assertThat(RagTutorService.stripRomaji("Dòng không có chữ Nhật (hello world)")).isEqualTo("Dòng không có chữ Nhật (hello world)");
     }
+
+    @Test
+    void patternKeyKeepsOnlyTheJapaneseOfAPatternName() {
+        assertThat(RagChunk.patternKey("N + にとって")).isEqualTo("にとって");
+        assertThat(RagChunk.patternKey("～にとって")).isEqualTo("にとって");
+        assertThat(RagChunk.patternKey("が早(はや)いか")).isEqualTo("が早いか");
+        assertThat(RagChunk.patternKey(null)).isEmpty();
+    }
 }

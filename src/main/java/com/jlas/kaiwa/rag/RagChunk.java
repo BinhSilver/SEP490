@@ -16,7 +16,16 @@ public record RagChunk(String key, String sourceType, long sourceId, long lesson
                        String jlptLevel, String title, String text, Map<String, Object> citation) {
 
     /** Đổi khi cách dựng đoạn thay đổi, để mọi điểm cũ được embed lại. */
-    public static final String INDEX_VERSION = "rag-v1";
+    public static final String INDEX_VERSION = "rag-v2";
+
+    /**
+     * Tên mẫu chỉ còn chữ Nhật, bỏ furigana trong ngoặc: "N + にとって" → "にとって", "が早(はや)いか" → "が早いか".
+     * Dùng để tìm đúng mẫu theo chữ; tìm vector trượt các mẫu ngắn toàn hư từ (đo được: "にとって" chỉ đạt 0,43).
+     */
+    public static String patternKey(String title) {
+        if (title == null) return "";
+        return title.replaceAll("[(（][\\p{IsHiragana}ー]+[)）]", "").replaceAll("[^\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}ー々]", "");
+    }
 
     public String pointId() {
         return UUID.nameUUIDFromBytes(("jlas-rag:" + key).getBytes(StandardCharsets.UTF_8)).toString();

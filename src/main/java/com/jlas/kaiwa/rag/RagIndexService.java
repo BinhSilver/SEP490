@@ -133,6 +133,7 @@ public class RagIndexService {
         payload.put("textbook_id", chunk.textbookId());
         payload.put("jlpt_level", chunk.jlptLevel());
         payload.put("title", chunk.title());
+        payload.put("pattern_key", RagChunk.patternKey(chunk.title()));
         payload.put("text", chunk.text());
         payload.put("citation", chunk.citation());
         payload.put("content_hash", hash);

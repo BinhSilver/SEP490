@@ -40,9 +40,31 @@ public class RagRetriever {
         int k = limit == null ? properties.topK() : Math.clamp(limit, 1, 12);
         float[] vector = embedder.embed(List.of(question)).getFirst();
         String collection = properties.collection(embedder.model());
-        List<Passage> passages = store.dimension(collection).isEmpty() ? List.of()
-                : store.search(collection, vector, k, threshold).stream().map(RagRetriever::passage).toList();
-        return new Context(passages, lexicon.lookup(question));
+        if (store.dimension(collection).isEmpty()) return new Context(List.of(), lexicon.lookup(question));
+        // Mẫu ngữ pháp khớp đúng chữ đứng trước, rồi tới các đoạn gần nghĩa.
+        Map<String, Passage> passages = new java.util.LinkedHashMap<>();
+        exactPatterns(collection, question).forEach(hit -> passages.putIfAbsent(hit.id(), passage(hit)));
+        store.search(collection, vector, k, threshold).forEach(hit -> passages.putIfAbsent(hit.id(), passage(hit)));
+        return new Context(List.copyOf(passages.values()), lexicon.lookup(question));
+    }
+
+    static final int MAX_EXACT = 3;
+    private static final java.util.regex.Pattern JAPANESE_RUN =
+            java.util.regex.Pattern.compile("[\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}ー々]{2,}");
+
+    /**
+     * Mỗi cụm chữ Nhật trong câu hỏi được tìm trong tên mẫu; ưu tiên tên ngắn nhất (sát cụm hỏi nhất).
+     * ponytail: chỉ xét 64 đoạn đầu cho mỗi cụm; cụm quá phổ biến (ない) có thể sót mẫu, khi cần thì thêm full-text index.
+     */
+    private List<RagVectorStore.Hit> exactPatterns(String collection, String question) {
+        List<RagVectorStore.Hit> hits = new java.util.ArrayList<>();
+        java.util.regex.Matcher run = JAPANESE_RUN.matcher(question);
+        for (int runs = 0; run.find() && runs < 4; runs++) {
+            hits.addAll(store.byPattern(collection, run.group(), 64).stream()
+                    .sorted(java.util.Comparator.comparingInt(h -> String.valueOf(h.payload().get("pattern_key")).length()))
+                    .limit(MAX_EXACT).toList());
+        }
+        return hits.stream().limit(MAX_EXACT * 2L).toList();
     }
 
     @SuppressWarnings("unchecked")

@@ -22,6 +22,11 @@ public interface RagVectorStore {
 
     List<Hit> search(String collection, float[] vector, int limit, double minScore);
 
+    /** Các đoạn ngữ pháp có {@code pattern_key} chứa đúng chuỗi {@code fragment} (điểm 1.0). */
+    default List<Hit> byPattern(String collection, String fragment, int limit) {
+        return List.of();
+    }
+
     long count(String collection);
 
     record Point(String id, float[] vector, Map<String, Object> payload) { }

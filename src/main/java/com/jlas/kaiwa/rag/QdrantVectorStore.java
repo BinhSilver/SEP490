@@ -113,6 +113,23 @@ public class QdrantVectorStore implements RagVectorStore {
     }
 
     @Override
+    public List<Hit> byPattern(String collection, String fragment, int limit) {
+        // Không có full-text index nên match.text của Qdrant là so khớp chuỗi con chính xác.
+        Map<String, Object> filter = Map.of("must", List.of(
+                Map.of("key", "pattern_key", "match", Map.of("text", fragment)),
+                Map.of("key", "source_type", "match", Map.of("any", List.of("GRAMMAR", "JLPT_GRAMMAR", "CONFUSABLE")))));
+        JsonNode points = call(HttpMethod.POST, "/collections/" + collection + "/points/scroll",
+                Map.of("limit", limit, "with_vector", false, "with_payload", true, "filter", filter)).path("result").path("points");
+        List<Hit> hits = new ArrayList<>();
+        for (JsonNode point : points) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> payload = json.convertValue(point.path("payload"), LinkedHashMap.class);
+            hits.add(new Hit(point.path("id").asText(), 1.0, payload));
+        }
+        return hits;
+    }
+
+    @Override
     public long count(String collection) {
         return call(HttpMethod.POST, "/collections/" + collection + "/points/count", Map.of("exact", true))
                 .path("result").path("count").asLong();
