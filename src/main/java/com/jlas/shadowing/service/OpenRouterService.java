@@ -148,6 +148,9 @@ public class OpenRouterService {
     @Autowired
     private FuriganaCacheRepository furiganaCacheRepository;
 
+    @Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageRecorder;
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -307,7 +310,7 @@ public class OpenRouterService {
                             + "Do not translate, change, skip, or merge lines."),
                     Map.of("role", "user", "content", input.toString())));
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(apiKey.trim());
+            headers.setBearerAuth(com.jlas.common.ai.AiFeature.SHADOWING_SUBTITLES.apiKey(apiKey));
             headers.setContentType(MediaType.APPLICATION_JSON);
             String endpoint = "https://openrouter.ai/api/v1/chat/completions";
             ResponseEntity<String> response;
@@ -578,7 +581,7 @@ public class OpenRouterService {
 
         String url = "https://openrouter.ai/api/v1/chat/completions";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + apiKey);
+        headers.set("Authorization", "Bearer " + com.jlas.common.ai.AiFeature.SHADOWING_SUBTITLES.apiKey(apiKey));
         headers.set("HTTP-Referer", siteUrl);
         headers.set("X-Title", "JLAS Japanese Shadowing");
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -805,11 +808,27 @@ public class OpenRouterService {
         results.set(resultIdx, fallback);
     }
 
+    /** Ghi chi phí thật của lần gọi (furigana, dịch phụ đề) để báo cáo giá tạo video Shadowing ở trang admin. */
+    private void recordUsage(HttpEntity<Map<String, Object>> entity, ResponseEntity<String> response) {
+        if (usageRecorder == null || response.getBody() == null) {
+            return;
+        }
+        try {
+            Object model = entity.getBody() == null ? null : entity.getBody().get("model");
+            usageRecorder.recordOpenRouter(com.jlas.common.ai.AiFeature.SHADOWING_SUBTITLES, model == null ? null : String.valueOf(model),
+                    response.getBody());
+        } catch (Exception ignored) {
+            // A body that is not JSON is handled by the caller; usage is best effort.
+        }
+    }
+
     private ResponseEntity<String> postWithRetry(String url, HttpEntity<Map<String, Object>> entity, int maxRetries) {
         int delayMs = 2000;
         for (int attempt = 0; attempt <= maxRetries; attempt++) {
             try {
-                return restTemplate.postForEntity(Objects.requireNonNull(url), entity, String.class);
+                ResponseEntity<String> response = restTemplate.postForEntity(Objects.requireNonNull(url), entity, String.class);
+                recordUsage(entity, response);
+                return response;
             } catch (HttpClientErrorException e) {
                 if (e.getStatusCode().value() == 429 && attempt < maxRetries) {
                     System.err.println(

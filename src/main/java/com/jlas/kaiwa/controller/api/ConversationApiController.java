@@ -5,6 +5,7 @@ import com.jlas.auth.security.CurrentUser;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.kaiwa.config.AiCallTurnLimits;
 import com.jlas.kaiwa.dto.ChatTurnRequest;
 import com.jlas.kaiwa.dto.ChatTurnResponse;
 import com.jlas.kaiwa.dto.FuriganaTokenDto;
@@ -45,6 +46,7 @@ public class ConversationApiController {
     private final UserSanctionService sanctions;
     private final AiCallTurnService turnService;
     private final JapaneseChatInputValidator inputValidator;
+    private final AiCallTurnLimits limits;
 
     public ConversationApiController(
             AIConversationService conversationService,
@@ -54,7 +56,9 @@ public class ConversationApiController {
             AiCallQuotaService quotaService,
             UserSanctionService sanctions,
             AiCallTurnService turnService,
-            JapaneseChatInputValidator inputValidator) {
+            JapaneseChatInputValidator inputValidator,
+            AiCallTurnLimits limits) {
+        this.limits = limits;
         this.conversationService = conversationService;
         this.annotationService = annotationService;
         this.suggestedReplyService = suggestedReplyService;
@@ -79,7 +83,12 @@ public class ConversationApiController {
                 && !FreeChatSessionService.current(session, LocalDateTime.now()))
             throw new ApiException(ErrorCode.AICALL_FREE_CHAT_NEW_DAY);
         sanctions.assertCanAct(current.userId());
-        inputValidator.validate(request.getMessage());
+        String message = request.getMessage();
+        if (message.codePointCount(0, message.length()) > limits.messageMaxChars()) {
+            throw new ApiException(ErrorCode.AICALL_MESSAGE_TOO_LONG,
+                    "Tin nhắn tối đa " + limits.messageMaxChars() + " ký tự. Hãy chia thành vài câu ngắn.");
+        }
+        inputValidator.validate(message);
         // Giữ chỗ hạn mức/CP -> gọi AI -> chốt hoặc hoàn (JLAS-W0199).
         return ResponseEntity.ok(turnService.chat(current, request));
     }

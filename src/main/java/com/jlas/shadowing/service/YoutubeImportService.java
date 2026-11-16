@@ -10,7 +10,6 @@ import com.jlas.shadowing.repository.VideoRepository;
 import com.jlas.shadowing.util.VideoAgeRatings;
 import com.jlas.shadowing.util.NullSafe;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -22,15 +21,13 @@ import java.util.List;
 @Service
 public class YoutubeImportService {
 
-    @Value("${processing.ai.max.duration.seconds:1200}")
-    private int aiMaxDurationSeconds;
-
     @Autowired private YoutubeAnalyzeService youtubeAnalyzeService;
     @Autowired private YoutubeImportJobService youtubeImportJobService;
     @Autowired private YoutubeService youtubeService;
     @Autowired private VideoRepository videoRepository;
     @Autowired private TagRepository tagRepository;
     @Autowired private ShadowingVideoTags videoTags;
+    @Autowired private ShadowingCreateQuotaService createQuota;
 
     public YoutubeAnalyzeResultDto analyze(String url) throws Exception {
         return youtubeAnalyzeService.analyze(url);
@@ -46,6 +43,17 @@ public class YoutubeImportService {
     public YoutubeImportResultDto startImport(String url, String category, String targetLanguage,
                                               Boolean generateFurigana, List<String> genres,
                                               Integer minAge) throws Exception {
+        return startImport(url, category, targetLanguage, generateFurigana, genres, minAge, false);
+    }
+
+    /**
+     * {@code useCredit}: the user agreed to pay CP for the minutes past this week's allowance
+     * ({@link ShadowingCreateQuotaService}); without it such a video stops with SHADOWING_CREATE_QUOTA_EXCEEDED.
+     */
+    @Transactional
+    public YoutubeImportResultDto startImport(String url, String category, String targetLanguage,
+                                              Boolean generateFurigana, List<String> genres,
+                                              Integer minAge, boolean useCredit) throws Exception {
         List<Tag> genreTags = videoTags.genreTags(genres);
         Integer requestedRating = VideoAgeRatings.parse(minAge);
         YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(url);
@@ -58,13 +66,15 @@ public class YoutubeImportService {
             throw new IllegalArgumentException(
                     "Video quá dài vì không có phụ đề. Vui lòng chọn video dưới 5 phút.");
         }
+        // A long video with AI on is allowed; the page only warns that it costs more and takes longer.
         boolean wantAi = Boolean.TRUE.equals(generateFurigana);
-        if (wantAi && meta.getDuration() > aiMaxDurationSeconds) {
-            int maxMin = Math.max(1, aiMaxDurationSeconds / 60);
-            throw new IllegalArgumentException(
-                    "Khi bật furigana/dịch AI, video tối đa " + maxMin
-                            + " phút. Tắt AI để import video dài hơn (chỉ dùng phụ đề YouTube).");
-        }
+
+        requireEmbeddable(meta);
+        // Minutes with AI (furigana/translation, or speech to text when the video has no subtitles) count against the
+        // weekly allowance; taken in this transaction, so a video that fails to start gives them back.
+        ShadowingCreateQuotaService.Charge charge = createQuota.reserve(
+                com.jlas.auth.security.CurrentUser.currentUserId().orElse(null),
+                ShadowingCreateQuotaService.billableMinutes(meta.getDuration(), wantAi, meta.isRequiresAiStt()), useCredit);
 
         Video video = new Video();
         video.setTitle(meta.getTitle() != null && !meta.getTitle().isBlank()
@@ -88,7 +98,8 @@ public class YoutubeImportService {
         }
         video.setVisibility(VideoVisibility.PRIVATE);
         video.setMinAge(VideoAgeRatings.stricter(requestedRating, meta.getYoutubeMinAge()));
-        video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
+        // New lessons are always played through the YouTube embed; the video file is no longer downloaded.
+        video.setPlaybackMode(Video.PLAYBACK_EMBED);
 
         try {
             String thumbPath = meta.getThumbnail() != null && !meta.getThumbnail().isBlank()
@@ -101,6 +112,7 @@ public class YoutubeImportService {
 
         video = videoRepository.save(video);
         Long videoId = video.getId();
+        createQuota.attach(charge, videoId);
         String normalizedUrl = meta.getUrl();
 
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -114,7 +126,19 @@ public class YoutubeImportService {
         result.setLessonId(videoId);
         result.setJobId(videoId);
         result.setMessage("Đang tạo bài shadowing...");
+        result.setCreditCharged(charge.creditPaid());
         return result;
+    }
+
+    /**
+     * Lessons play through the YouTube embed and the file is not downloaded, so a video whose owner blocks
+     * embedding cannot be used: say so before any work starts.
+     */
+    private static void requireEmbeddable(YoutubeAnalyzeResultDto meta) {
+        if (!meta.isEmbeddable()) {
+            throw new IllegalArgumentException("Vì lý do bản quyền, chủ video không cho phép phát video này ngoài YouTube "
+                    + "nên không thể tạo bài shadowing. Hãy chọn một video khác.");
+        }
     }
 
     public YoutubeImportStatusDto getImportStatus(Long jobId) {
@@ -142,8 +166,9 @@ public class YoutubeImportService {
 
         try {
             YoutubeAnalyzeResultDto meta = youtubeAnalyzeService.analyze(video.getSourceUrl());
-            // The owner may have changed the embed setting since the first import.
-            video.setPlaybackMode(meta.isEmbeddable() ? Video.PLAYBACK_EMBED : Video.PLAYBACK_FILE);
+            // The owner may have turned embedding off since the first import; such a video can no longer play here.
+            requireEmbeddable(meta);
+            video.setPlaybackMode(Video.PLAYBACK_EMBED);
             videoRepository.save(video);
             youtubeImportJobService.processImport(NullSafe.longId(videoId), video.getSourceUrl(), meta);
         } catch (Exception e) {

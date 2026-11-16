@@ -28,8 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const thumbPreviewImg = document.getElementById('thumb-preview-img');
     const thumbInfo = document.getElementById('thumb-info');
 
-    /** When furigana/dịch AI is ON — all paths (file + YouTube). */
-    const AI_MAX_DURATION_SEC = 1200; // 20 minutes
+    /** Above this length, turning on furigana/dịch AI is still allowed; the page just warns it costs more. */
+    const AI_LONG_VIDEO_SEC = 1200; // 20 minutes
+
+    function longAiWarning(seconds) {
+        return `Video dài khoảng ${Math.round(seconds / 60)} phút. Bật furigana/dịch AI cho video trên 20 phút `
+            + 'sẽ xử lý lâu hơn và tốn nhiều chi phí AI hơn. Nếu video đã có phụ đề, bạn có thể tắt AI để tạo nhanh hơn.';
+    }
     let selectedFile = null;
     let selectedThumb = null;
     let fileDurationSec = 0;
@@ -85,6 +90,99 @@ document.addEventListener('DOMContentLoaded', () => {
         if (t) h['Authorization'] = 'Bearer ' + t;
         return h;
     }
+
+    // Phút tạo video mỗi tuần (Free 20, Pro 120); phần vượt 50 CP/phút, báo giá và hỏi trước khi tạo.
+    const AUTO_PAY = 'shadowingCreate';
+    const quotaLine = document.getElementById('create-quota');
+    let createQuota = null;
+
+    async function loadCreateQuota() {
+        try {
+            const res = await fetch('/api/youtube/create-quota', { headers: authHeaders() });
+            if (res.ok) createQuota = await res.json();
+        } catch { /* the popup still shows the price */ }
+        if (quotaLine) quotaLine.textContent = createQuotaText(createQuota);
+        return createQuota;
+    }
+
+    function createQuotaText(q) {
+        if (!q) return '';
+        if (q.unlimited) return 'Tài khoản biên soạn: tạo video không giới hạn.';
+        const left = Math.max(0, q.weeklyMinutes - q.usedMinutes);
+        if (left > 0) return `Tuần này còn ${left}/${q.weeklyMinutes} phút tạo video miễn phí.`;
+        return `Đã dùng hết ${q.weeklyMinutes} phút miễn phí tuần này · phút vượt ${q.creditPerMinute} CP`
+            + (q.pro ? '.' : ' · Pro được 120 phút/tuần.');
+    }
+
+    /**
+     * Minutes a video counts for, the same rule as the server (ShadowingCreateQuotaService.billableMinutes): its
+     * length in whole minutes when AI writes furigana/translation, three times that when speech has to be transcribed,
+     * 0 for a YouTube video that only uses its own subtitles.
+     */
+    function billableMinutes(durationSec, aiSubtitles, speechToText) {
+        if ((!aiSubtitles && !speechToText) || !(durationSec > 0)) return 0;
+        const minutes = Math.ceil(durationSec / 60);
+        return speechToText ? minutes * 3 : minutes;
+    }
+
+    /** "Video này dùng N phút hạn mức" for the confirm step, or '' when it costs nothing. */
+    function minutesNote(minutes, speechToText) {
+        if (!minutes || (createQuota && createQuota.unlimited)) return '';
+        return ` Video này dùng ${minutes} phút hạn mức${speechToText ? ' (chuyển giọng nói thành chữ nên tính gấp 3)' : ''}.`;
+    }
+
+    async function confirmCreateCredit(minutes) {
+        const q = (await loadCreateQuota()) || {};
+        const perMinute = q.creditPerMinute || 50;
+        const left = Math.max(0, (q.weeklyMinutes || 0) - (q.usedMinutes || 0));
+        const over = Math.max(0, minutes - left);
+        const price = over * perMinute;
+        if (!window.JlasCpConfirm) return { confirmed: false, option: false, price };
+        const auto = window.JlasCpAutoPay;
+        const choice = await window.JlasCpConfirm.open({
+            title: 'Vượt số phút miễn phí tuần này',
+            message: (auto && auto.capReached(AUTO_PAY, price) ? `Đã tự dùng đủ ${auto.DAILY_CAP} CP hôm nay nên cần xác nhận lại. ` : '')
+                + `Video này tính ${minutes} phút, tuần này còn ${left} phút miễn phí. `
+                + `Phần vượt: ${over} phút × ${perMinute} CP.`,
+            cost: price,
+            balance: q.creditBalance,
+            confirmLabel: `Tạo bằng ${price} CP`,
+            option: auto ? `Không hỏi lại hôm nay (tự dùng CP, tối đa ${auto.DAILY_CAP} CP/ngày)` : ''
+        });
+        return Object.assign(choice, { price });
+    }
+
+    /** CP this video would cost past the free minutes left, from the last loaded allowance. */
+    function expectedCredit(minutes) {
+        const q = createQuota;
+        if (!q || q.unlimited) return 0;
+        return Math.max(0, minutes - Math.max(0, q.weeklyMinutes - q.usedMinutes)) * q.creditPerMinute;
+    }
+
+    /**
+     * Sends a create request; past the week's free minutes it shows the price first and resends with useCredit.
+     * send(useCredit) returns the fetch Response. Resolves to { res, data }, or null when the user cancels.
+     */
+    async function sendWithCreateQuota(send, minutes) {
+        const auto = window.JlasCpAutoPay;
+        let res = await send(!!auto && auto.covers(AUTO_PAY, expectedCredit(minutes)));
+        let data = await res.json().catch(() => ({}));
+        if (res.status === 402 && data.code === 'SHADOWING_CREATE_QUOTA_EXCEEDED') {
+            const choice = await confirmCreateCredit(minutes);
+            if (!choice.confirmed) return null;
+            if (auto) {
+                if (choice.option) auto.enable(AUTO_PAY, choice.price);
+                else auto.disable(AUTO_PAY);
+            }
+            res = await send(true);
+            data = await res.json().catch(() => ({}));
+        }
+        if (res.status === 402 && data.code === 'INSUFFICIENT_CREDIT' && auto) auto.disable(AUTO_PAY);
+        if (data.creditCharged > 0 && auto) auto.add(AUTO_PAY, data.creditCharged);
+        return { res, data };
+    }
+
+    loadCreateQuota();
 
     modeTabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -261,13 +359,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fileFuri = document.getElementById('file-furigana-check');
         const wantAi = !!(fileFuri && fileFuri.checked);
-        if (wantAi && fileDurationSec > AI_MAX_DURATION_SEC) {
-            showAlert({
-                title: 'Quá dài cho AI',
-                message: `File dài ${formatFileDuration(fileDurationSec)}. Khi bật furigana/dịch AI tối đa 20 phút. Tắt AI để upload file dài hơn.`,
-                variant: 'warning'
-            });
-            return;
+        if (wantAi && fileDurationSec > AI_LONG_VIDEO_SEC) {
+            const goOn = typeof window.showConfirm === 'function'
+                ? await window.showConfirm({
+                    title: 'Video khá dài',
+                    message: longAiWarning(fileDurationSec),
+                    confirmText: 'Vẫn tạo bài',
+                    cancelText: 'Quay lại chỉnh sửa',
+                    variant: 'warning'
+                })
+                : window.confirm(longAiWarning(fileDurationSec));
+            if (!goOn) return;
         }
 
         const formData = new FormData();
@@ -288,13 +390,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const t = (window.JlasAuth && JlasAuth.getAccessToken && JlasAuth.getAccessToken())
                 || localStorage.getItem('accessToken');
             if (t) headers['Authorization'] = 'Bearer ' + t;
-            const res = await fetch('/api/videos/upload', { method: 'POST', headers, body: formData });
-            const data = await res.json().catch(() => ({}));
+            // An uploaded file is always transcribed, so its minutes count three times.
+            const sent = await sendWithCreateQuota(useCredit => {
+                formData.set('useCredit', useCredit ? 'true' : 'false');
+                return fetch('/api/videos/upload', { method: 'POST', headers, body: formData });
+            }, billableMinutes(fileDurationSec, wantAi, true));
+            if (!sent) {
+                fileStatus.textContent = '';
+                uploadBtn.disabled = false;
+                return;
+            }
+            const { res, data } = sent;
             if (res.ok || res.status === 202) {
                 window.location.href = `/shadowing/create/${data.id}/processing`;
             } else {
-                fileStatus.textContent = data.error || 'Lỗi upload.';
+                fileStatus.textContent = data.error || data.message || 'Lỗi upload.';
                 uploadBtn.disabled = false;
+                loadCreateQuota();
             }
         } catch {
             fileStatus.textContent = 'Lỗi kết nối.';
@@ -382,13 +494,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.blockedNoSubtitleTooLong) {
             previewBadges.innerHTML += '<li class="badge-err"><i class="fa-solid fa-ban"></i> Quá dài để dùng AI STT (>5 phút)</li>';
         }
+        if (notEmbeddable(data)) {
+            previewBadges.innerHTML += '<li class="badge-err"><i class="fa-solid fa-ban"></i> Không được phát ngoài YouTube (bản quyền)</li>';
+        }
 
-        importBtn.disabled = !!data.blockedNoSubtitleTooLong || !!data.blockedNonJapanese;
+        importBtn.disabled = !!data.blockedNoSubtitleTooLong || !!data.blockedNonJapanese || notEmbeddable(data);
         resultPanel.hidden = false;
+    }
+
+    // Lessons play through the YouTube embed (the video is not downloaded), so a video whose owner blocks
+    // playing it on other sites cannot become a lesson.
+    const NOT_EMBEDDABLE_MESSAGE = 'Vì lý do bản quyền, chủ video không cho phép phát video này ngoài YouTube nên mình '
+        + 'không thể tạo bài shadowing. Bạn hãy chọn một video khác nhé.';
+
+    function notEmbeddable(data) {
+        return !!data && data.embeddable === false;
     }
 
     function renderLanguageCheck(data) {
         if (!languageCheckPanel) return;
+        if (notEmbeddable(data)) {
+            languageCheckPanel.hidden = false;
+            languageCheckPanel.className = 'language-check-panel language-check-blocked';
+            languageCheckTitle.textContent = 'Kitsu-chan xin lỗi';
+            languageCheckMessage.textContent = NOT_EMBEDDABLE_MESSAGE;
+            return;
+        }
         const blocked = !!data.blockedNonJapanese;
         if (!blocked) {
             languageCheckPanel.hidden = true;
@@ -455,6 +586,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showAlert({ title: 'Không thể import', message: 'Video quá dài và không có phụ đề. Chọn video ngắn hơn 5 phút.', variant: 'warning' });
             return;
         }
+        if (notEmbeddable(analyzeData)) {
+            showAlert({ title: 'Video bị giới hạn bản quyền', message: NOT_EMBEDDABLE_MESSAGE, variant: 'warning' });
+            return;
+        }
         if (analyzeData.blockedNonJapanese) {
             showAlert({ title: 'Đã chặn video', message: analyzeData.languageMessage || 'KotsuKotsu chỉ nhận nội dung tiếng Nhật.', variant: 'warning' });
             return;
@@ -462,19 +597,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const ytFuri = document.getElementById('yt-furigana-check');
         const wantAi = !!(ytFuri && ytFuri.checked);
         const ytDur = Number(analyzeData.duration) || 0;
-        if (wantAi && ytDur > AI_MAX_DURATION_SEC) {
-            showAlert({
-                title: 'Quá dài cho AI',
-                message: `Video ~${Math.round(ytDur / 60)} phút. Khi bật furigana/dịch AI tối đa 20 phút. Tắt AI để import (chỉ phụ đề YouTube).`,
-                variant: 'warning'
-            });
-            return;
-        }
+        const longAi = wantAi && ytDur > AI_LONG_VIDEO_SEC;
+        const ytStt = !!analyzeData.requiresAiStt;
+        const ytMinutes = billableMinutes(ytDur, wantAi, ytStt);
 
         const confirmed = typeof window.showConfirm === 'function'
             ? await window.showConfirm({
                 title: 'Tạo bài Shadowing?',
-                message: 'Hệ thống sẽ bắt đầu tạo bài với video và thiết lập bạn đã chọn.',
+                message: (longAi
+                    ? longAiWarning(ytDur)
+                    : 'Hệ thống sẽ bắt đầu tạo bài với video và thiết lập bạn đã chọn.') + minutesNote(ytMinutes, ytStt),
                 confirmText: 'Tạo Shadowing',
                 cancelText: 'Quay lại chỉnh sửa',
                 variant: 'primary'
@@ -487,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
         analyzeBtn.disabled = true;
 
         try {
-            const res = await fetch('/api/youtube/import', {
+            const sent = await sendWithCreateQuota(useCredit => fetch('/api/youtube/import', {
                 method: 'POST',
                 headers: authHeaders(),
                 body: JSON.stringify({
@@ -496,15 +628,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     genres: window.ShadowingGenres.read(document.getElementById('yt-genres')),
                     targetLanguage: ytLangSelect.value,
                     generateFurigana: wantAi,
-                    minAge: Number(ytMinAgeSelect.value)
+                    minAge: Number(ytMinAgeSelect.value),
+                    useCredit
                 })
-            });
-            const data = await res.json().catch(() => ({}));
+            }), ytMinutes);
+            if (!sent) {
+                youtubeStatus.textContent = '';
+                importBtn.disabled = false;
+                analyzeBtn.disabled = false;
+                return;
+            }
+            const { res, data } = sent;
             if (res.ok || res.status === 202) {
                 const id = data.lessonId || data.jobId;
                 window.location.href = `/shadowing/create/${id}/processing`;
             } else {
-                const message = data.error || 'Không thể tạo bài học. Hãy kiểm tra link hoặc chọn video khác.';
+                loadCreateQuota();
+                const message = data.error || data.message || 'Không thể tạo bài học. Hãy kiểm tra link hoặc chọn video khác.';
                 youtubeStatus.textContent = message;
                 youtubeStatus.classList.add('is-error');
                 showAlert({ title: 'Không thể tạo bài shadowing', message, variant: 'error' });

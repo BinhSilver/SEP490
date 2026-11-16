@@ -28,6 +28,8 @@ public final class UserCreditTransaction {
         QUICK_LOOKUP_PACK,
         /** Một lần chấm phát âm sau khi hết lượt miễn phí trong ngày; lỗi chấm thì hoàn bằng REFUND. */
         PRONUNCIATION_CHECK,
+        /** Một video Shadowing tạo thêm sau khi hết hạn mức tuần; tạo lỗi ngay lúc bắt đầu thì hoàn bằng REFUND. */
+        SHADOWING_VIDEO_CREATE,
         /** [JLAS-W0108] F36: Mua lượt AI giải thích / hỏi đáp câu hỏi trong Lộ trình học. */
         LEARNING_AI_EXPLAIN
     }

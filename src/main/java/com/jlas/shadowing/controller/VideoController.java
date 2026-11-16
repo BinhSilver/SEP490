@@ -7,6 +7,7 @@ import com.jlas.shadowing.model.ShadowingGenre;
 import com.jlas.shadowing.model.Subtitle;
 import com.jlas.shadowing.model.Video;
 import com.jlas.shadowing.service.ShadowingBlobStore;
+import com.jlas.shadowing.service.ShadowingCreateQuotaService;
 import com.jlas.shadowing.service.VideoService;
 import com.jlas.shadowing.util.youtube.YoutubeUrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class VideoController {
 
     @Autowired private VideoService videoService;
     @Autowired private ShadowingBlobStore blobStore;
+    @Autowired private ShadowingCreateQuotaService createQuota;
 
     @GetMapping
     public ResponseEntity<List<VideoSummaryDto>> getAll(
@@ -80,15 +82,20 @@ public class VideoController {
             @RequestParam(value = "genres", required = false) List<String> genres,
             @RequestParam(value = "targetLanguage", defaultValue = "vi") String targetLanguage,
             @RequestParam(value = "generateFurigana", required = false, defaultValue = "false") Boolean generateFurigana,
-            @RequestParam(value = "minAge", required = false) Integer minAge) {
+            @RequestParam(value = "minAge", required = false) Integer minAge,
+            @RequestParam(value = "useCredit", defaultValue = "false") boolean useCredit) {
+        // Minutes past this week's allowance cost CP (ShadowingCreateQuotaService); 402 lets the page ask first.
         try {
             Video video = videoService.uploadVideo(file, thumbnail, title, category, tags, targetLanguage,
-                    generateFurigana, genres, minAge);
+                    generateFurigana, genres, minAge, useCredit);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "id", video.getId(),
                     "status", video.getStatus().name(),
-                    "message", "Processing started"
+                    "message", "Processing started",
+                    "creditCharged", createQuota.creditPaid(video.getId())
             ));
+        } catch (ApiException e) {
+            throw e;
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {

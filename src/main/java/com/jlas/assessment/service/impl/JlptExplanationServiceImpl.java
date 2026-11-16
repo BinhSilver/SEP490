@@ -60,6 +60,8 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
     private final Map<String, JlptExplanationResponse> cache = new ConcurrentHashMap<>();
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
 
     @Value("${openrouter.api.key:}")
     private String apiKey;
@@ -210,7 +212,7 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
                 : apiBaseUrl.replaceAll("/+$", "") + "/chat/completions";
         HttpRequest request = HttpRequest.newBuilder(URI.create(endpoint))
                 .timeout(Duration.ofSeconds(35))
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + com.jlas.common.ai.AiFeature.JLPT_EXPLAIN.apiKey(apiKey))
                 .header("Content-Type", "application/json")
                 .header("HTTP-Referer", siteUrl)
                 .header("X-Title", "JLAS JLPT Practice")
@@ -218,6 +220,7 @@ public class JlptExplanationServiceImpl implements JlptExplanationService {
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() < 200 || response.statusCode() >= 300) return "";
+        if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.JLPT_EXPLAIN, String.valueOf(payload.get("model")), response.body());
         return objectMapper.readTree(response.body()).path("choices").path(0)
                 .path("message").path("content").asText("").trim();
     }
