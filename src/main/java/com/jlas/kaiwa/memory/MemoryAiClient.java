@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.kaiwa.config.OpenRouterConfig;
+import com.jlas.kaiwa.service.ai.OllamaNativeChat;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static com.jlas.kaiwa.memory.MemoryTypes.*;
@@ -27,15 +30,16 @@ public class MemoryAiClient {
     private final RestTemplate chatHttp;
     private final RestTemplate embeddingHttp;
     private final String extractionPrompt;
-    @Value("${openrouter.api.key:}") private String apiKey;
-    @Value("${openrouter.api.url:https://openrouter.ai/api/v1}") private String apiUrl;
+    private final OpenRouterConfig provider;
     @Value("${kaiwa.memory.model:${openrouter.model:openai/gpt-4o-mini}}") private String model;
 
-    public MemoryAiClient(ObjectMapper json, MemoryProperties properties) {
+    public MemoryAiClient(ObjectMapper json, MemoryProperties properties, OpenRouterConfig provider) {
         this.json = json;
         this.properties = properties;
-        this.chatHttp = http(60_000);
-        this.embeddingHttp = http(4_000);
+        this.provider = provider;
+        this.chatHttp = http(provider.isLocal() ? provider.getReadTimeoutMs() : 60_000);
+        // A local embedding model may need a cold load from disk before its first vector.
+        this.embeddingHttp = http(provider.isLocal() ? 15_000 : 4_000);
         try (var stream = new ClassPathResource("prompts/kaiwa/memory-extraction.md").getInputStream()) {
             extractionPrompt = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (Exception e) {
@@ -50,21 +54,34 @@ public class MemoryAiClient {
         return new RestTemplate(factory);
     }
 
-    public boolean available() { return apiKey != null && !apiKey.isBlank() && !apiKey.startsWith("YOUR_"); }
+    public boolean available() {
+        if (provider.isLocal()) return true;
+        String apiKey = provider.getApiKey();
+        return apiKey != null && !apiKey.isBlank() && !apiKey.startsWith("YOUR_");
+    }
     /** Index identity includes the text recipe, so old vectors are rebuilt safely. */
-    public String embeddingModel() { return properties.embeddingModel() + "#user-evidence-v1"; }
+    public String embeddingModel() { return embeddingModelName() + "#user-evidence-v1"; }
+
+    private String embeddingModelName() {
+        return provider.isLocal() ? provider.getLocalEmbeddingModel() : properties.embeddingModel();
+    }
+
+    private String chatModel() {
+        return provider.isLocal() ? provider.getModel() : model;
+    }
 
     String endpoint(String path) {
-        return apiUrl.replaceAll("/+$", "").replaceAll("/chat/completions$", "") + path;
+        return provider.getApiUrl().replaceAll("/+$", "").replaceAll("/chat/completions$", "") + path;
     }
 
     private JsonNode post(RestTemplate http, String path, Map<String, Object> body) {
         if (!available()) throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Chưa cấu hình OPENROUTER_API_KEY.");
         var headers = new HttpHeaders();
-        headers.setBearerAuth(apiKey.strip());
+        if (!provider.isLocal()) headers.setBearerAuth(provider.getApiKey().strip());
         headers.setContentType(MediaType.APPLICATION_JSON);
         try {
-            String response = http.postForObject(endpoint(path), new HttpEntity<>(body, headers), String.class);
+            String url = path.startsWith("http") ? path : endpoint(path);
+            String response = http.postForObject(url, new HttpEntity<>(body, headers), String.class);
             return json.readTree(response);
         } catch (Exception e) {
             // Do not surface provider bodies: they may contain user conversation or credentials.
@@ -73,7 +90,7 @@ public class MemoryAiClient {
     }
 
     public double[] embed(String text) {
-        JsonNode vector = post(embeddingHttp, "/embeddings", Map.of("model", properties.embeddingModel(),
+        JsonNode vector = post(embeddingHttp, "/embeddings", Map.of("model", embeddingModelName(),
                 "input", text, "encoding_format", "float")).path("data").path(0).path("embedding");
         if (!vector.isArray() || vector.isEmpty() || vector.size() > 8192)
             throw new IllegalStateException("Invalid embedding response");
@@ -89,9 +106,17 @@ public class MemoryAiClient {
         return values;
     }
 
+    /** Chat cục bộ đi qua API gốc của Ollama (tắt thinking, giữ model nạp sẵn); cloud giữ nguyên /chat/completions. */
+    private String chat(Map<String, Object> request) {
+        if (!provider.isLocal())
+            return post(chatHttp, "/chat/completions", request).path("choices").path(0).path("message").path("content").asText("");
+        return post(chatHttp, OllamaNativeChat.url(provider), OllamaNativeChat.toNative(request, provider))
+                .path("message").path("content").asText("");
+    }
+
     public String reply(List<Map<String, String>> messages) {
-        String reply = post(chatHttp, "/chat/completions", Map.of("model", model, "messages", messages,
-                "temperature", 0.5, "max_tokens", 900)).path("choices").path(0).path("message").path("content").asText("").strip();
+        String reply = chat(Map.of("model", chatModel(), "messages", messages,
+                "temperature", 0.5, "max_tokens", 900)).strip();
         if (reply.isBlank() || reply.length() > 6000)
             throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "AI trả về nội dung không hợp lệ.");
         return reply;
@@ -102,12 +127,13 @@ public class MemoryAiClient {
             var data = Map.of("now", LocalDateTime.now().toString(), "previousSummary", session.summary(),
                     "turns", session.turns().stream().filter(t -> t.id() > session.processedRevision()).toList(),
                     "knownMemories", known.stream().map(m -> Map.of("key", m.key(), "content", m.content(), "kind", m.kind(), "status", m.status())).toList());
-            JsonNode response = post(chatHttp, "/chat/completions", Map.of("model", model, "temperature", 0,
-                    "max_tokens", 2400, "reasoning", Map.of("effort", "low", "exclude", true),
-                    "response_format", Map.of("type", "json_object"), "messages", List.of(
+            Map<String, Object> request = new HashMap<>(Map.of("model", chatModel(), "temperature", 0,
+                    "max_tokens", 2400, "response_format", Map.of("type", "json_object"), "messages", List.of(
                     Map.of("role", "system", "content", extractionPrompt),
                     Map.of("role", "user", "content", json.writeValueAsString(data)))));
-            JsonNode result = json.readTree(response.path("choices").path(0).path("message").path("content").asText());
+            // "reasoning" is an OpenRouter extension; never send it to a local Ollama model.
+            if (!provider.isLocal()) request.put("reasoning", Map.of("effort", "low", "exclude", true));
+            JsonNode result = json.readTree(chat(request));
             String summary = result.path("summary").asText("").strip();
             if (summary.isBlank() && !session.summary().isBlank()) summary = session.summary();
             if (summary.length() > 3000 || !result.path("facts").isArray() || result.path("facts").size() > 12)

@@ -1,0 +1,89 @@
+{
+  "version": "phase1-v1",
+  "note": "Bộ câu hỏi cố định cho Phase 1 (model gốc, chưa có RAG). mustContainAny chỉ là kiểm tra thô; chất lượng tiếng Nhật và tiếng Việt vẫn phải người đọc đánh giá.",
+  "systemPrompt": "Bạn là gia sư tiếng Nhật của J-LAS cho người Việt. Giải thích bằng tiếng Việt, ví dụ bằng tiếng Nhật kèm cách đọc hiragana. Dùng từ vựng và ngữ pháp phù hợp cấp JLPT của người học. Nếu không chắc chắn hoặc không có thông tin, hãy nói rõ là không chắc, không bịa nguồn, số trang hay giáo trình.",
+  "prompts": [
+    {
+      "id": "grammar-wa-ga-n5",
+      "category": "grammar_vi",
+      "level": "N5",
+      "user": "Người học N5 hỏi: Khác nhau giữa は và が là gì? Giải thích ngắn gọn và cho 2 ví dụ đơn giản.",
+      "mustContainAny": ["は", "が"]
+    },
+    {
+      "id": "grammar-wa-ga-n3",
+      "category": "level_adaptation",
+      "level": "N3",
+      "user": "Người học N3 hỏi: Khác nhau giữa は và が là gì? Hãy phân biệt cả trường hợp chủ đề mới, nhấn mạnh và mệnh đề phụ.",
+      "mustContainAny": ["は", "が"]
+    },
+    {
+      "id": "vocab-benkyou",
+      "category": "vocabulary",
+      "level": "N5",
+      "user": "「勉強する」nghĩa là gì? Cho 1 câu ví dụ N5 kèm cách đọc và nghĩa tiếng Việt.",
+      "mustContainAny": ["học", "べんきょう"]
+    },
+    {
+      "id": "kanji-shoku",
+      "category": "kanji",
+      "level": "N5",
+      "user": "Chữ Hán 食 có những cách đọc On và Kun nào thường gặp ở N5? Cho 2 từ ví dụ.",
+      "mustContainAny": ["た", "しょく"]
+    },
+    {
+      "id": "correction-particle",
+      "category": "correction",
+      "level": "N5",
+      "user": "Câu này có sai không: 「わたしは がっこうを いきます。」",
+      "json": true,
+      "mustContainAny": ["に", "へ"]
+    },
+    {
+      "id": "correction-correct-sentence",
+      "category": "correction",
+      "level": "N5",
+      "user": "Câu này có sai không: 「わたしは まいにち コーヒーを のみます。」",
+      "json": true,
+      "expectHasError": false
+    },
+    {
+      "id": "naturalness",
+      "category": "naturalness",
+      "level": "N4",
+      "user": "Câu 「わたしは あなたが すきです。」 có đúng ngữ pháp không, và người Nhật có hay nói tự nhiên như vậy không? Phân biệt rõ 'sai ngữ pháp' và 'đúng nhưng chưa tự nhiên'.",
+      "mustContainAny": ["tự nhiên", "ngữ pháp"]
+    },
+    {
+      "id": "vi-explain-te-form",
+      "category": "grammar_vi",
+      "level": "N5",
+      "user": "Giải thích thể て dùng để nối hai hành động, ví dụ 「あさごはんを たべて、がっこうへ いきます。」",
+      "mustContainAny": ["て"]
+    },
+    {
+      "id": "out-of-scope-textbook-page",
+      "category": "no_reliable_answer",
+      "level": "N5",
+      "user": "Mẫu ngữ pháp 〜てもいいです nằm ở trang số mấy trong giáo trình Sekai N5 của J-LAS?",
+      "mustContainAny": ["không chắc", "không có thông tin", "không biết", "không thể xác định", "không rõ"]
+    },
+    {
+      "id": "practice-generation",
+      "category": "practice",
+      "level": "N5",
+      "user": "Tạo 3 câu điền trợ từ (は/を/に) cho người học N5, có đáp án ở cuối.",
+      "mustContainAny": ["を", "に"]
+    }
+  ],
+  "correctionSchema": {
+    "type": "object",
+    "properties": {
+      "hasError": { "type": "boolean" },
+      "corrected": { "type": ["string", "null"] },
+      "reasonVi": { "type": "string" },
+      "confidence": { "type": "string", "enum": ["high", "medium", "low"] }
+    },
+    "required": ["hasError", "corrected", "reasonVi", "confidence"]
+  }
+}
