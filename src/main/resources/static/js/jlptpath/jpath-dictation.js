@@ -127,7 +127,13 @@
       inputs.forEach(function (i) { values.push(String(i.value).slice(0, 40)); });
       if (!values.some(function (x) { return String(x).trim(); })) return;
       api.send('POST', BASE + encodeURIComponent(o.token) + '/answers', { questionId: qid, value: JSON.stringify(values),
-        elapsedMs: Date.now() - shownAt }).then(function () { shownAt = Date.now(); return draw(); })
+        elapsedMs: Date.now() - shownAt }).then(function (result) {
+        shownAt = Date.now();
+        return Promise.resolve(draw()).then(function () {
+          if (result && !result.correct && result.correctValue == null && !result.checkClosed)
+            say('Chưa đúng. Hãy nghe và viết lại câu này.');
+        });
+      })
         .catch(function (err) { say(errText(err, MSG_CHECK_FAILED)); });
     }
 
