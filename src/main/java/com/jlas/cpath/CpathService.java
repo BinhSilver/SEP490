@@ -1557,6 +1557,16 @@ public class CpathService {
         return Map.of("scores", scores, "updated", scores.size());
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, Object> reviewPick(Long userId, String questionId, int optionIndex) {
+        WeeklyQ q = reviewQuestions(userId, requirePath(userId)).stream()
+                .filter(item -> item.id().equals(questionId)).findFirst()
+                .orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED, "Câu ôn tập không hợp lệ."));
+        if (optionIndex < 0 || optionIndex >= q.options().size())
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lựa chọn không hợp lệ.");
+        return Map.of("correct", optionIndex == q.answer());
+    }
+
     @Transactional
     @SuppressWarnings("unchecked")
     public Map<String, Object> submitReview(Long userId, Map<String, Object> body) {

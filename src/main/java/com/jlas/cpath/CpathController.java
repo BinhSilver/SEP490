@@ -287,6 +287,12 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitReview(user.userId(), body)));
     }
 
+    @PostMapping("/review/pick")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> reviewPick(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam String questionId, @RequestParam int optionIndex) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewPick(user.userId(), questionId, optionIndex)));
+    }
+
     /** The slider: 1 or 2 situations a day. */
     @org.springframework.web.bind.annotation.PutMapping("/path/daily")
     public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,

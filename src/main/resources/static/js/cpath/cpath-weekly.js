@@ -310,11 +310,26 @@
       var b = t.closest('[data-weekly-pick]');
       if (!b || !state.data) return;
       var q = state.data.questions[state.i];
-      state.answers[q.id] = Number(b.getAttribute('data-weekly-pick'));
-      state.dirty = true;
-      state.i++;
-      if (state.i >= state.data.questions.length) submit();
-      else { saveDraft(); show(); }
+      var choice = Number(b.getAttribute('data-weekly-pick'));
+      function accept() {
+        state.answers[q.id] = choice;
+        state.dirty = true;
+        state.i++;
+        if (state.i >= state.data.questions.length) submit();
+        else { saveDraft(); show(); }
+      }
+      if (!REVIEW) { accept(); return; }
+      if (state.picking) return;
+      state.picking = true;
+      client.send('POST', BASE + '/pick?questionId=' + encodeURIComponent(q.id) + '&optionIndex=' + choice)
+        .then(function (r) {
+          state.picking = false;
+          if (r && r.correct) accept();
+          else el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
+        }, function (e) {
+          state.picking = false;
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+        });
     });
     return load();
   }
