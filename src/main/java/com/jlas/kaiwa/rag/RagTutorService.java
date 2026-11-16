@@ -34,10 +34,12 @@ public class RagTutorService {
 
     private final RagRetriever retriever;
     private final LocalLlmClient llm;
+    private final TutorAntonymStore antonyms;
 
-    public RagTutorService(RagRetriever retriever, LocalLlmClient llm) {
+    public RagTutorService(RagRetriever retriever, LocalLlmClient llm, TutorAntonymStore antonyms) {
         this.retriever = retriever;
         this.llm = llm;
+        this.antonyms = antonyms;
     }
 
     public record Answer(String answer, List<RagRetriever.Passage> passages, RagLexiconLookup.Result lexicon,
@@ -65,10 +67,19 @@ public class RagTutorService {
         }
         RagLexiconLookup.WordEntry antonymOf = antonymTarget(question, context.lexicon());
         if (antonymOf != null) {
-            List<RagLexiconLookup.WordEntry> verified = verifiedAntonyms(antonymOf);
+            // Đã có người hỏi từ này thì dùng lại gợi ý đã lưu: ai hỏi cũng nhận cùng một đáp án, và người duyệt sửa được.
+            TutorAntonymStore.Saved saved = antonyms.find(antonymOf.id()).orElse(null);
+            List<RagLexiconLookup.WordEntry> verified;
+            if (saved == null) {
+                verified = verifiedAntonyms(antonymOf);
+                antonyms.save(antonymOf.id(), verified.isEmpty() ? null : verified.getFirst().id(), llm.model());
+            } else {
+                verified = saved.rejected() || saved.antonym() == null ? List.of() : List.of(saved.antonym());
+            }
+            boolean approved = saved != null && saved.approved();
             RagRetriever.Context shown = new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(
                     java.util.stream.Stream.concat(java.util.stream.Stream.of(antonymOf), verified.stream()).toList(), List.of()));
-            return new Answer(antonymAnswer(antonymOf, verified), List.of(), shown.lexicon(),
+            return new Answer(antonymAnswer(antonymOf, verified, approved), List.of(), shown.lexicon(),
                     verified.isEmpty() ? List.of() : RagPromptComposer.citations(shown), retrievalMs, (System.nanoTime() - retrieved) / 1_000_000);
         }
         String fixed = context.isEmpty() ? NO_SOURCE + (HEALTH_QUESTION.matcher(plain(question)).find() ? SEE_A_DOCTOR : "")
@@ -102,8 +113,8 @@ public class RagTutorService {
 
     /**
      * Model chỉ ĐỀ XUẤT từ; chỉ giữ từ nào có đúng mục trong từ điển J-LAS, và nghĩa, cách đọc hiển thị lấy từ mục đó.
-     * ponytail: không kiểm được hai từ có thật sự trái nghĩa hay không, chỉ kiểm từ có thật; gợi ý được ghi log để rà,
-     * khi cần thì lưu vào vocabulary_antonym sau khi người duyệt.
+     * ponytail: không kiểm được hai từ có thật sự trái nghĩa hay không, chỉ kiểm từ có thật; gợi ý được lưu ở trạng thái
+     * PENDING ({@link TutorAntonymStore}) cho người duyệt. Chưa có màn hình duyệt: đổi status bằng SQL.
      */
     private List<RagLexiconLookup.WordEntry> verifiedAntonyms(RagLexiconLookup.WordEntry word) {
         String raw = llm.chat(ANTONYM_PROMPT, List.of(), word.expression() + " (" + word.reading() + "): " + word.meaning(), 40);
@@ -120,10 +131,16 @@ public class RagTutorService {
         return verified;
     }
 
-    static String antonymAnswer(RagLexiconLookup.WordEntry word, List<RagLexiconLookup.WordEntry> verified) {
+    /** @param approved gợi ý đã được người duyệt: hiển thị như dữ liệu thường, không kèm dòng cảnh báo */
+    static String antonymAnswer(RagLexiconLookup.WordEntry word, List<RagLexiconLookup.WordEntry> verified, boolean approved) {
         if (verified.isEmpty()) {
             return "Từ điển J-LAS chưa ghi từ trái nghĩa của " + word.expression()
                     + ", và mình chưa tìm được gợi ý nào đối chiếu được với từ điển.";
+        }
+        if (approved) {
+            RagLexiconLookup.WordEntry v = verified.getFirst();
+            return "Từ trái nghĩa của " + word.expression() + " [D1]:\n- " + v.expression() + " (" + v.reading() + "): "
+                    + shortMeaning(v.meaning()) + " [D2]";
         }
         StringBuilder out = new StringBuilder("Từ điển J-LAS chưa ghi từ trái nghĩa của ").append(word.expression())
                 .append(" [D1]. Gợi ý của AI, đã đối chiếu với từ điển J-LAS:\n");

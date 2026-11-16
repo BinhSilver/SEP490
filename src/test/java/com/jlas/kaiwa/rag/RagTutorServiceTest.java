@@ -25,7 +25,8 @@ class RagTutorServiceTest {
 
     private final RagRetriever retriever = mock(RagRetriever.class);
     private final LocalLlmClient llm = mock(LocalLlmClient.class);
-    private final RagTutorService tutor = new RagTutorService(retriever, llm);
+    private final TutorAntonymStore antonyms = mock(TutorAntonymStore.class);
+    private final RagTutorService tutor = new RagTutorService(retriever, llm, antonyms);
 
     private static RagRetriever.Context passage(String title, String text) {
         return new RagRetriever.Context(List.of(new RagRetriever.Passage("id", 0.6, "GRAMMAR", title, text,
@@ -72,6 +73,29 @@ class RagTutorServiceTest {
         var tall = new RagLexiconLookup.WordEntry(3, "高い", "たかい", "cao", null, "N5", List.of("Trái nghĩa: 低い (ひくい)"));
         assertThat(RagTutorService.antonymTarget("Từ trái nghĩa của 高い", new RagLexiconLookup.Result(List.of(tall), List.of()))).isNull();
         assertThat(RagTutorService.antonymTarget("楽しい nghĩa là gì", new RagLexiconLookup.Result(List.of(fun), List.of()))).isNull();
+    }
+
+    @Test
+    void savedAntonymSuggestionIsReusedWithoutCallingTheModelAgain() {
+        var fun = new RagLexiconLookup.WordEntry(1, "楽しい", "たのしい", "vui", null, "N5");
+        var boring = new RagLexiconLookup.WordEntry(2, "つまらない", "つまらない", "chán", null, "N5");
+        when(retriever.retrieve(anyString(), isNull()))
+                .thenReturn(new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(List.of(fun), List.of())));
+        when(llm.chat(anyString(), any(), anyString(), anyInt())).thenReturn("つまらない");
+        when(retriever.words("つまらない")).thenReturn(List.of(boring));
+
+        tutor.ask("Từ trái nghĩa của 「楽しい」 là gì?");
+        verify(antonyms).save(eq(1L), eq(2L), any());
+
+        // Lần sau: gợi ý chờ duyệt vẫn kèm cảnh báo, đã duyệt thì không, bị từ chối thì báo chưa có; model không được gọi lại.
+        when(antonyms.find(1L)).thenReturn(java.util.Optional.of(new TutorAntonymStore.Saved("PENDING", boring)));
+        assertThat(tutor.ask("Từ trái nghĩa của 「楽しい」 là gì?").answer()).contains("つまらない", "chưa được người duyệt");
+        when(antonyms.find(1L)).thenReturn(java.util.Optional.of(new TutorAntonymStore.Saved("APPROVED", boring)));
+        assertThat(tutor.ask("Từ trái nghĩa của 「楽しい」 là gì?").answer())
+                .contains("つまらない (つまらない): chán [D2]").doesNotContain("chưa được người duyệt");
+        when(antonyms.find(1L)).thenReturn(java.util.Optional.of(new TutorAntonymStore.Saved("REJECTED", boring)));
+        assertThat(tutor.ask("Từ trái nghĩa của 「楽しい」 là gì?").answer()).contains("chưa tìm được gợi ý nào");
+        verify(llm, org.mockito.Mockito.times(1)).chat(anyString(), any(), anyString(), anyInt());
     }
 
     @Test
