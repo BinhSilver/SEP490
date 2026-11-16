@@ -41,8 +41,8 @@ public class YoutubeAnalyzeService {
 
         YoutubeAnalyzeResultDto dto = new YoutubeAnalyzeResultDto();
         dto.setYoutubeVideoId(videoId);
-        // Videos are played through YouTube's embed; one its owner does not allow to embed is downloaded instead.
-        // Only an explicit false counts; a missing field is treated as embeddable.
+        // Lessons play through YouTube's embed and the video is not downloaded, so the page stops a video whose owner
+        // does not allow embedding right here. Only an explicit false counts; a missing field is treated as embeddable.
         dto.setEmbeddable(!(root.path("playable_in_embed").isBoolean() && !root.path("playable_in_embed").asBoolean()));
         dto.setYoutubeMinAge(VideoAgeRatings.fromYoutubeAgeLimit(root.path("age_limit").asInt(0)));
         dto.setUrl(normalized);

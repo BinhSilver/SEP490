@@ -637,6 +637,7 @@ CREATE TABLE vocabulary_entry (
     KEY idx_vocabulary_romaji (reading_romaji),
     KEY idx_vocabulary_han_viet (han_viet),
     KEY idx_vocabulary_jlpt (jlpt_level),
+    KEY idx_vocabulary_daily_level (jlpt_level, dictionary_status, usage_scope), -- [JLAS2-34]
     CONSTRAINT chk_vocabulary_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')),
     CONSTRAINT chk_vocabulary_scope

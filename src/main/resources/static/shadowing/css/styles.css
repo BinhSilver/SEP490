@@ -2142,6 +2142,13 @@ rt {
     min-height: 1.25rem;
 }
 
+/* Lượt tạo video tuần này; giữ chỗ sẵn để dòng chữ hiện ra không đẩy form xuống. */
+.create-quota {
+    min-height: 1.25rem;
+    margin-top: 6px;
+    color: var(--color-text-muted, #64748b);
+}
+
 @media (max-width: 640px) {
     .create-mode-tab { font-size: 13px; padding: 10px 8px; }
     .create-mode-tab span { display: none; }
@@ -2843,6 +2850,74 @@ body.confirm-modal-open { overflow: hidden; }
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
 }
+
+/* Popup đang xoá: thùng rác há nắp "ăn" cái nhãn, lặp đến khi máy chủ xoá xong (confirm-modal.js showDeleting). */
+.bin-modal { width: min(340px, calc(100vw - 32px)); }
+.bin-modal-art { display: block; width: 132px; height: 132px; margin: 0 auto var(--space-sm); overflow: visible; }
+.bin-modal-title { margin-bottom: 4px; }
+.bin-modal-name {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bin-modal-label rect:first-child { fill: var(--color-primary-soft, #ede4ff); stroke: var(--color-primary, #6d4bd1); stroke-width: 2.4; }
+.bin-modal-label-hole { fill: var(--color-card, #fff); stroke: var(--color-primary, #6d4bd1); stroke-width: 1.6; }
+.bin-modal-label-line { fill: var(--color-primary, #6d4bd1); opacity: .55; }
+.bin-modal-body path { fill: var(--color-danger-soft, #fde8e8); stroke: var(--color-danger, #dc2626); stroke-width: 2.6; stroke-linejoin: round; }
+.bin-modal-stripe { fill: var(--color-danger, #dc2626); opacity: .35; }
+.bin-modal-lid rect { fill: var(--color-danger, #dc2626); }
+.bin-modal-check { opacity: 0; }
+.bin-modal-check circle { fill: color-mix(in srgb, var(--color-success, #16a34a) 16%, transparent); }
+.bin-modal-check path {
+    fill: none;
+    stroke: var(--color-success, #16a34a);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+}
+
+.bin-modal-label,
+.bin-modal-lid,
+.bin-modal-body { transform-box: fill-box; }
+.bin-modal-label { transform-origin: 50% 50%; animation: bin-label-fall 1.6s cubic-bezier(.45, 0, .55, 1) infinite; }
+.bin-modal-lid { transform-origin: 0% 100%; animation: bin-lid-chomp 1.6s ease-in-out infinite; }
+.bin-modal-body { transform-origin: 50% 100%; animation: bin-body-gulp 1.6s ease-in-out infinite; }
+
+@keyframes bin-label-fall {
+    0%   { opacity: 0; transform: translateY(-8px) rotate(-10deg); }
+    14%  { opacity: 1; transform: translateY(0) rotate(-10deg); }
+    42%  { opacity: 1; transform: translateY(26px) rotate(8deg); }
+    60%  { opacity: 1; transform: translateY(52px) rotate(-4deg) scale(.72); }
+    66%  { opacity: 0; transform: translateY(62px) rotate(0deg) scale(.5); }
+    100% { opacity: 0; transform: translateY(62px) scale(.5); }
+}
+
+@keyframes bin-lid-chomp {
+    0%, 22% { transform: rotate(0deg); }
+    36%     { transform: rotate(-42deg); }
+    58%     { transform: rotate(-42deg); }
+    66%     { transform: rotate(6deg); }
+    74%     { transform: rotate(-3deg); }
+    82%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes bin-body-gulp {
+    0%, 64% { transform: scale(1, 1); }
+    70%     { transform: scale(1.07, .9); }
+    78%     { transform: scale(.97, 1.04); }
+    86%, 100% { transform: scale(1, 1); }
+}
+
+/* Xoá xong: thùng rác lùi đi, dấu tích hiện ra. */
+.bin-modal.is-done .bin-modal-label,
+.bin-modal.is-done .bin-modal-lid,
+.bin-modal.is-done .bin-modal-body { animation: none; opacity: 0; transition: opacity .2s ease; }
+.bin-modal.is-done .bin-modal-check { opacity: 1; transition: opacity .2s ease; }
+.bin-modal.is-done .bin-modal-check path { stroke-dashoffset: 0; transition: stroke-dashoffset .35s ease .1s; }
 
 .confirm-modal-icon {
     width: 52px;

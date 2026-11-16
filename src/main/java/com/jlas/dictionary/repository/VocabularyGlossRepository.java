@@ -37,7 +37,7 @@ public interface VocabularyGlossRepository extends JpaRepository<VocabularyGloss
             + "join vocabulary_entry ve on ve.id = s.vocabulary_id "
             + "where g.language_code in ('vie', 'vi', 'eng', 'en') and g.gloss_text = :text "
             + "and g.gloss_text collate utf8mb4_0900_as_ci = :text "
-            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "and ve.dictionary_status = 'PUBLISHED' and ve.usage_scope <> 'TEXTBOOK' "
             + "group by s.vocabulary_id order by s.vocabulary_id asc", nativeQuery = true)
     List<Long> findVocabularyIdsByGlossExact(@Param("text") String text, Pageable pageable);
 
@@ -48,7 +48,7 @@ public interface VocabularyGlossRepository extends JpaRepository<VocabularyGloss
             + "where g.language_code in ('vie', 'vi', 'eng', 'en') "
             + "and g.gloss_text like concat(:prefix, '%') "
             + "and g.gloss_text collate utf8mb4_0900_as_ci like concat(:prefix, '%') "
-            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "and ve.dictionary_status = 'PUBLISHED' and ve.usage_scope <> 'TEXTBOOK' "
             + "group by s.vocabulary_id order by s.vocabulary_id asc", nativeQuery = true)
     List<Long> findVocabularyIdsByGlossPrefix(@Param("prefix") String likeEscapedPrefix, Pageable pageable);
 
@@ -63,7 +63,7 @@ public interface VocabularyGlossRepository extends JpaRepository<VocabularyGloss
             + "straight_join vocabulary_entry ve on ve.id = s.vocabulary_id "
             + "where g.gloss_text like concat('%', :word, '%') "
             + "and concat(' ', g.gloss_text) collate utf8mb4_0900_as_ci like concat('% ', :word, '%') "
-            + "and ve.dictionary_status = 'PUBLISHED' "
+            + "and ve.dictionary_status = 'PUBLISHED' and ve.usage_scope <> 'TEXTBOOK' "
             + "group by s.vocabulary_id order by s.vocabulary_id asc", nativeQuery = true)
     List<Long> findVocabularyIdsByGlossWord(@Param("word") String likeEscapedWord, Pageable pageable);
 }

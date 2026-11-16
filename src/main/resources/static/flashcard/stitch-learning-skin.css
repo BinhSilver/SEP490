@@ -936,6 +936,8 @@
 
 /* Quizlet-like test screen from the Stitch quiz reference. */
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing { min-height: 0; padding: 0 20px 72px; background: #f6f7fb; }
+/* The page colour must reach the bottom of the screen: a short question left the page body showing below on phones. */
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing { min-height: calc(100dvh - var(--header-height, 64px)); }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-sidebar { display: none; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-workspace,
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .main,

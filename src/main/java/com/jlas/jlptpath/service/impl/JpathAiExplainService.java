@@ -401,7 +401,7 @@ public class JpathAiExplainService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        headers.setBearerAuth(key);
+        headers.setBearerAuth(com.jlas.common.ai.AiFeature.LEARNING_AI_EXPLAIN.apiKey(key));
         headers.set("HTTP-Referer", siteUrl);
         headers.set("X-Title", siteName);
 
@@ -417,7 +417,7 @@ public class JpathAiExplainService {
             }
             @SuppressWarnings("unchecked")
             Map<String, Object> root = mapper.readValue(res.getBody(), Map.class);
-            usageRecorder.recordOpenRouter(USAGE_FEATURE, model, root);
+            usageRecorder.recordOpenRouter(com.jlas.common.ai.AiFeature.LEARNING_AI_EXPLAIN, model, root);
             Object choicesObj = root.get("choices");
             if (!(choicesObj instanceof List<?> choices) || choices.isEmpty()) {
                 return null;

@@ -6,13 +6,14 @@ import com.jlas.dictionary.service.QuickLookupAllowance;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService;
 import com.jlas.moderation.credit.service.UserCreditService;
 import com.jlas.shadowing.service.PronunciationQuotaService;
+import com.jlas.shadowing.service.ShadowingCreateQuotaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Mức sử dụng của một tài khoản, gom từ các hạn mức của kế hoạch Pro/CP để hiện trong trang hồ sơ: AI Call,
- * chấm phát âm và tra từ nhanh.
+ * chấm phát âm, tra từ nhanh và tạo video Shadowing.
  */
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class UsageOverviewService {
     private final AiCallQuotaService aiCall;
     private final PronunciationQuotaService pronunciation;
     private final QuickLookupAllowance quickLookups;
+    private final ShadowingCreateQuotaService shadowingCreate;
     private final UserCreditService credits;
 
     /**
@@ -38,8 +40,12 @@ public class UsageOverviewService {
     public record QuickLookup(boolean unlimited, int remaining, int packLookups, int packPrice) {
     }
 
+    /** Video minutes made this week (week starts on Monday) out of the weekly allowance; content creators are not counted. */
+    public record ShadowingCreate(boolean unlimited, int usedMinutes, int weeklyMinutes, int creditPerMinute) {
+    }
+
     public record UsageOverview(boolean pro, long creditBalance, AiCall aiCall, Pronunciation pronunciation,
-                                QuickLookup quickLookup) {
+                                QuickLookup quickLookup, ShadowingCreate shadowingCreate) {
     }
 
     @Transactional(readOnly = true)
@@ -52,8 +58,10 @@ public class UsageOverviewService {
                 aiCall.turnsLeft(user), aiCall.minutesPerTurn(), aiCall.creditPerTurn(), callsUnlimited);
         PronunciationQuotaService.Status checks = pronunciation.status(userId);
         QuickLookupAllowance.Status lookups = quickLookups.status(userId);
+        ShadowingCreateQuotaService.Status videos = shadowingCreate.status(userId);
         return new UsageOverview(premium.isActive(userId), credits.balance(userId), aiCallUsage,
                 new Pronunciation(checks.usedToday(), checks.dailyLimit(), checks.creditPrice()),
-                new QuickLookup(lookups.unlimited(), lookups.remaining(), lookups.packLookups(), lookups.packPrice()));
+                new QuickLookup(lookups.unlimited(), lookups.remaining(), lookups.packLookups(), lookups.packPrice()),
+                new ShadowingCreate(videos.unlimited(), videos.usedMinutes(), videos.weeklyMinutes(), videos.creditPerMinute()));
     }
 }

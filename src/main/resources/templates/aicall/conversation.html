@@ -10,7 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261110-mobile')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261116-ios-space')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
@@ -93,11 +93,10 @@
                         <div class="bubble-text jp msg-text"
                              th:if="${furiganaByMessageId[m.id] == null}"
                              th:text="${m.content}">tin nhắn</div>
+                        <!-- Token elements stay adjacent and the box itself does not keep whitespace (white-space: normal),
+                             so phones with a minimum font size (iOS) show no blank lines or indent before the text. -->
                         <div class="bubble-text bubble-text--tokens jp msg-text"
-                             th:unless="${furiganaByMessageId[m.id] == null}">
-                            <!-- Keep token elements adjacent: bubble-text uses pre-wrap, so
-                                 formatting whitespace here would become visible line breaks. -->
-                            <th:block th:each="token : ${furiganaByMessageId[m.id]}"><ruby th:if="${token.ruby}"
+                             th:unless="${furiganaByMessageId[m.id] == null}"><th:block th:each="token : ${furiganaByMessageId[m.id]}"><ruby th:if="${token.ruby}"
                                       th:class="${token.fromVocabDb} ? 'token token--dictionary' : 'token-fragment'"
                                       th:attr="data-surface=${token.surface}, data-reading=${token.reading},
                                                data-meaning=${token.meaning}, data-pos=${token.partOfSpeech},
@@ -106,8 +105,7 @@
                                       th:attr="data-surface=${token.surface}, data-reading=${token.reading},
                                                data-meaning=${token.meaning}, data-pos=${token.partOfSpeech},
                                                data-jlpt=${token.jlptLevel}"
-                                      th:text="${token.surface}"></span></th:block>
-                        </div>
+                                      th:text="${token.surface}"></span></th:block></div>
                         <div class="translation-line" hidden></div>
                         <div class="bubble-tools" th:if="${m.role == 'assistant'}">
                             <button type="button" class="tool-chip btn-tts" title="Phát âm"><i class="fa-solid fa-volume-high"></i> Phát</button>
@@ -157,6 +155,7 @@
                 <input type="text" id="messageInput"
                        placeholder="Nhập tiếng Nhật…"
                        autocomplete="off"
+                       th:attr="maxlength=${messageMaxChars},data-voice-max-seconds=${voiceMaxSeconds}"
                        th:disabled="${inProgress != true}" aria-label="Ô nhập tin nhắn tiếng Nhật" aria-describedby="composeError"/>
                 <button type="button" class="btn-send" id="btnSend" th:disabled="${inProgress != true}"
                         aria-label="Gửi">
@@ -434,12 +433,12 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
+<script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
 <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261110-mobile')}"></script>
+<script th:src="@{/js/conversation.js(v='20261116-turn-limits')}"></script>
 <script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
 <script src="/js/pages/aicall-guide.js?v=20261112-guide"></script>
 </body>

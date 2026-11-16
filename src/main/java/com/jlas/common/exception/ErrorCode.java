@@ -11,6 +11,7 @@ public enum ErrorCode {
     AICALL_JAPANESE_REQUIRED(HttpStatus.BAD_REQUEST, "AI Call chỉ nhận tiếng Nhật. Vui lòng nhập bằng Hiragana/Katakana hoặc viết câu Kanji kèm kana."),
     AICALL_STAGE_LOCKED(HttpStatus.FORBIDDEN, "Bạn cần hoàn thành các màn trước để mở màn này."),
     AICALL_FREE_CHAT_NEW_DAY(HttpStatus.CONFLICT, "Đã sang ngày mới, chuyển sang cuộc trò chuyện hôm nay."),
+    AICALL_MESSAGE_TOO_LONG(HttpStatus.BAD_REQUEST, "Tin nhắn quá dài."),
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên."),
     /** Video Shadowing có nhãn độ tuổi mà tài khoản chưa có ngày sinh: trang hiện hộp nhập ngày sinh. */
     BIRTH_DATE_REQUIRED(HttpStatus.FORBIDDEN, "Vui lòng nhập ngày sinh để xem video có giới hạn độ tuổi."),
@@ -27,6 +28,8 @@ public enum ErrorCode {
     QUICK_LOOKUP_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt tra từ nhanh."),
     /** Hết lượt chấm phát âm miễn phí hôm nay: dùng CP hoặc nâng cấp Pro. */
     PRONUNCIATION_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt chấm phát âm miễn phí hôm nay."),
+    /** Hết lượt tạo video Shadowing miễn phí tuần này: dùng CP hoặc nâng cấp Pro. */
+    SHADOWING_CREATE_QUOTA_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã dùng hết lượt tạo video Shadowing tuần này."),
     /** [JLAS-W0108] F36: Hết lượt AI giải thích câu hỏi Learning: mua thêm bằng CP hoặc nâng cấp Pro. */
     JPATH_AI_EXPLAIN_EXHAUSTED(HttpStatus.PAYMENT_REQUIRED, "Bạn đã hết lượt AI giải thích câu hỏi."),
     CPATH_WEEK_TEST_REQUIRED(HttpStatus.CONFLICT, "Bạn đã học xong phần của tuần này. Làm kiểm tra tuần (đạt từ 80%) để học sang tuần sau."),

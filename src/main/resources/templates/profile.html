@@ -523,7 +523,7 @@
     </div>
 </div>
 
-<!-- Popup mức sử dụng theo gói: AI Call, chấm phát âm, tra từ nhanh (js/pages/profile-usage.js) -->
+<!-- Popup mức sử dụng theo gói: AI Call, chấm phát âm, tra từ nhanh, tạo video Shadowing (js/pages/profile-usage.js) -->
 <div class="profile-modal" id="profileUsageModal" hidden>
     <div class="profile-modal__backdrop" data-usage-close></div>
     <div class="profile-card profile-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="profileUsageTitle">
@@ -551,7 +551,7 @@
     window.INITIAL_SECURITY_SECTION = /*[[${securitySection}]]*/ 'home';
 </script>
 <script th:src="@{/js/pages/profile-navigation.js?v=20261011-mobile-popup}"></script>
-<script defer th:src="@{/js/pages/profile-usage.js?v=20261103-auto}"></script>
+<script defer th:src="@{/js/pages/profile-usage.js?v=20261116-no-left}"></script>
 <script th:src="@{/js/components/date-wheel.js?v=20261105-age-range}"></script>
 <script>
 (function () {
@@ -567,6 +567,19 @@
     function fmtDate(iso) {
         if (!iso) return '—';
         try { return new Date(iso).toLocaleString('vi-VN'); } catch (e) { return iso; }
+    }
+
+    /** Thời gian Pro còn lại: "Còn 22 ngày 5 giờ", "Còn 5 giờ", "Còn dưới 1 giờ" hoặc "Đã hết hạn". */
+    function premiumLeft(iso, now) {
+        if (!iso) return '—';
+        var end = new Date(iso).getTime();
+        if (isNaN(end)) return '—';
+        var hours = Math.floor((end - (now || Date.now())) / 3600000);
+        if (end <= (now || Date.now())) return 'Đã hết hạn';
+        if (hours < 1) return 'Còn dưới 1 giờ';
+        var days = Math.floor(hours / 24);
+        var rest = hours % 24;
+        return 'Còn ' + (days > 0 ? days + ' ngày' + (rest > 0 ? ' ' : '') : '') + (rest > 0 ? rest + ' giờ' : '');
     }
 
     function completion(user) {
@@ -591,7 +604,10 @@
         var banEl = document.getElementById('stBan');
         banEl.textContent = user.isBan ? 'Đã khóa' : 'Hoạt động';
         banEl.className = 'status-pill ' + (user.isBan ? 'status-pill--warn' : 'status-pill--ok');
-        document.getElementById('stPremium').textContent = fmtDate(user.premiumExpiredAt);
+        var premiumEl = document.getElementById('stPremium');
+        premiumEl.textContent = premiumLeft(user.premiumExpiredAt);
+        // Ngày giờ hết hạn đầy đủ khi rê chuột vào.
+        premiumEl.title = user.premiumExpiredAt ? 'Hết hạn lúc ' + fmtDate(user.premiumExpiredAt) : '';
 
         var pct = completion(user);
         document.getElementById('completionPct').textContent = pct + '%';

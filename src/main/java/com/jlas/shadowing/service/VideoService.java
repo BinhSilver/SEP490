@@ -66,6 +66,7 @@ public class VideoService {
     @Autowired private UserActionPolicyPort actionPolicy;
     @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private ShadowingAgeGate ageGate;
+    @Autowired private ShadowingCreateQuotaService createQuota;
 
     @Value("${upload.path.video}")
     private String videoDir;
@@ -76,13 +77,9 @@ public class VideoService {
     @Value("${upload.path.thumbnail}")
     private String thumbnailDir;
 
-    /** General cap when AI is OFF. 0 = unlimited. */
+    /** Length cap for uploaded files, AI on or off. 0 = unlimited. */
     @Value("${video.max.duration.seconds:0}")
     private int maxDurationSeconds;
-
-    /** Cap when generateFurigana (AI furigana + translate) is ON — all upload paths. */
-    @Value("${processing.ai.max.duration.seconds:1200}")
-    private int aiMaxDurationSeconds;
 
     private static final Set<String> AUDIO_EXTENSIONS = Set.of(
             ".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac", ".opus"
@@ -94,26 +91,41 @@ public class VideoService {
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false, null, null);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, false, null, null, false);
     }
 
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, null, null);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, null, null, false);
     }
 
     @Transactional
     public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
                              Boolean generateFurigana, List<String> genres, Integer minAge) throws Exception {
-        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres, minAge);
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres, minAge,
+                false);
+    }
+
+    /**
+     * {@code useCredit}: the user agreed to pay CP for the minutes past this week's allowance
+     * ({@link ShadowingCreateQuotaService}); without it such a file stops with SHADOWING_CREATE_QUOTA_EXCEEDED.
+     */
+    @Transactional
+    public Video uploadVideo(MultipartFile file, MultipartFile thumbnail, String title,
+                             String category, List<String> tagNames, String targetLanguage,
+                             Boolean generateFurigana, List<String> genres, Integer minAge,
+                             boolean useCredit) throws Exception {
+        return uploadVideoInternal(file, thumbnail, title, category, tagNames, targetLanguage, generateFurigana, genres, minAge,
+                useCredit);
     }
 
     private Video uploadVideoInternal(MultipartFile file, MultipartFile thumbnail, String title,
                              String category, List<String> tagNames, String targetLanguage,
-                             Boolean generateFurigana, List<String> genres, Integer minAge) throws Exception {
+                             Boolean generateFurigana, List<String> genres, Integer minAge,
+                             boolean useCredit) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Vui lòng chọn file video hoặc âm thanh.");
         }
@@ -143,19 +155,23 @@ public class VideoService {
             targetFile.delete();
             throw new IllegalArgumentException("Không đọc được độ dài " + mediaLabel + ".");
         }
+        // A long file with AI on is allowed; the page only warns that it costs more and takes longer.
         boolean wantAi = Boolean.TRUE.equals(generateFurigana);
-        if (wantAi && duration > aiMaxDurationSeconds) {
-            targetFile.delete();
-            int maxMin = Math.max(1, aiMaxDurationSeconds / 60);
-            throw new IllegalArgumentException(
-                    (isAudio ? "Audio" : "Video") + " quá dài khi bật furigana/dịch AI. Tối đa "
-                            + maxMin + " phút. Tắt AI để import file dài hơn.");
-        }
-        if (!wantAi && maxDurationSeconds > 0 && duration > maxDurationSeconds) {
+        if (maxDurationSeconds > 0 && duration > maxDurationSeconds) {
             targetFile.delete();
             int maxMin = Math.max(1, maxDurationSeconds / 60);
             throw new IllegalArgumentException(
                     (isAudio ? "Audio" : "Video") + " quá dài. Tối đa " + maxMin + " phút.");
+        }
+        // An uploaded file is always transcribed (speech to text), so its minutes count three times; taken in this
+        // transaction, so a file that fails to start gives them back.
+        ShadowingCreateQuotaService.Charge charge;
+        try {
+            charge = createQuota.reserve(CurrentUser.currentUserId().orElse(null),
+                    ShadowingCreateQuotaService.billableMinutes(duration, wantAi, true), useCredit);
+        } catch (RuntimeException notStarted) {
+            targetFile.delete();
+            throw notStarted;
         }
 
         Video video = new Video();
@@ -186,6 +202,7 @@ public class VideoService {
         video = videoRepository.save(video);
 
         Long videoId = video.getId();
+        createQuota.attach(charge, videoId);
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
@@ -704,6 +721,10 @@ public class VideoService {
     public void deleteVideo(Long id) {
         Video video = videoRepository.findById(NullSafe.longId(id)).orElseThrow();
         requireOwner(video);
+        // A video that never finished processing gives back the minutes and CP it used.
+        if (video.getStatus() == VideoStatus.PROCESSING || video.getStatus() == VideoStatus.FAILED) {
+            createQuota.refundUnfinished(id);
+        }
         subtitleRepository.deleteByVideoId(id);
         commentRepository.deleteByVideoId(id);
         favoriteRepository.deleteByVideoId(id);

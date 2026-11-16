@@ -22,7 +22,7 @@ public interface VocabularyReadingRepository extends JpaRepository<VocabularyRea
     @Query(value = "select distinct ve.* from vocabulary_reading vr "
             + "join vocabulary_entry ve on ve.id = vr.vocabulary_id "
             + "where vr.normalized_reading = :reading "
-            + "and ve.dictionary_status = 'PUBLISHED'", nativeQuery = true)
+            + "and ve.dictionary_status = 'PUBLISHED' and ve.usage_scope <> 'TEXTBOOK'", nativeQuery = true)
     List<VocabularyEntry> findVocabularyByNormalizedReading(
             @Param("reading") String normalizedReading, Pageable pageable);
 }

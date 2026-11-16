@@ -37,8 +37,6 @@ public class YoutubeImportJobService {
     @Value("${youtube.max.duration.no-subtitle.seconds:300}")
     private int maxDurationNoSubtitleSeconds;
 
-    @Value("${processing.ai.max.duration.seconds:1200}")
-    private int aiMaxDurationSeconds;
 
     @Value("${youtube.subtitle.skip-theme-songs.enabled:true}")
     private boolean skipThemeSongs;
@@ -150,9 +148,9 @@ public class YoutubeImportJobService {
     }
 
     /**
-     * Last import step. Embeddable YouTube videos are played through the YouTube embed, so nothing is downloaded:
-     * only the duration and a thumbnail are stored. Videos whose owner does not allow embedding
-     * (playback mode FILE) are downloaded as before and played from the file.
+     * Last import step. Lessons are played through the YouTube embed, so the video file is not downloaded:
+     * only the duration and a thumbnail are stored. New imports are always EMBED (a video that blocks embedding
+     * is refused up front); only lessons imported earlier in playback mode FILE still use the downloaded file.
      */
     private void downloadVideoWithProgress(Video video, String url, YoutubeAnalyzeResultDto meta,
                                            Long videoId, long runId) throws Exception {
@@ -498,14 +496,6 @@ public class YoutubeImportJobService {
         System.out.println("[YouTube import] AI phase generateFurigana=" + wantFurigana
                 + " subtitles=" + workItems.size()
                 + " withYtTranslation=" + withYtTrans);
-
-        // Safety net (startImport should already reject)
-        double dur = video.getDuration() != null ? video.getDuration() : 0;
-        if (wantFurigana && dur > aiMaxDurationSeconds) {
-            int maxMin = Math.max(1, aiMaxDurationSeconds / 60);
-            throw new IllegalArgumentException(
-                    "Khi bật furigana/dịch AI, video tối đa " + maxMin + " phút.");
-        }
 
         // Furigana OFF  never call OpenRouter. Keep YouTube translation if present; furigana = plain JP.
         if (!wantFurigana) {
