@@ -1,6 +1,7 @@
 package com.jlas.kaiwa.rag;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -45,6 +46,32 @@ class RagTutorServiceTest {
         // Tiếng Việt không dấu một âm tiết không bị coi là romaji; câu đã có chữ Nhật thì không đoán.
         assertThat(RomajiKana.hints("giai thich giup minh, muon hieu them")).isEmpty();
         assertThat(RomajiKana.hints("ngữ pháp にとって dùng thế nào, nitotte")).isEmpty();
+    }
+
+    @Test
+    void antonymSuggestedByTheModelIsShownOnlyWhenTheDictionaryHasThatWord() {
+        var fun = new RagLexiconLookup.WordEntry(1, "楽しい", "たのしい", "vui", null, "N5");
+        var boring = new RagLexiconLookup.WordEntry(2, "つまらない", "つまらない", "chán", null, "N5");
+        when(retriever.retrieve(anyString(), isNull()))
+                .thenReturn(new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(List.of(fun), List.of())));
+        when(llm.chat(anyString(), any(), anyString(), anyInt())).thenReturn("つまらない、ほげほげ、楽しい");
+        when(retriever.words("つまらない")).thenReturn(List.of(boring));
+
+        RagTutorService.Answer answer = tutor.ask("Từ trái nghĩa của 「楽しい」 là gì?");
+
+        // Nghĩa và cách đọc lấy từ từ điển; từ không có trong từ điển và chính từ đang hỏi bị bỏ.
+        assertThat(answer.answer()).contains("つまらない (つまらない): chán [D2]", "chưa được người duyệt").doesNotContain("ほげほげ");
+        assertThat(answer.citations()).extracting(RagPromptComposer.Citation::code).containsExactly("D1", "D2");
+
+        when(llm.chat(anyString(), any(), anyString(), anyInt())).thenReturn("なし");
+        RagTutorService.Answer none = tutor.ask("Từ trái nghĩa của 「楽しい」 là gì?");
+        assertThat(none.answer()).contains("chưa tìm được gợi ý nào");
+        assertThat(none.citations()).isEmpty();
+
+        // Từ điển đã ghi từ trái nghĩa thì đi đường thường, không qua bước đề xuất.
+        var tall = new RagLexiconLookup.WordEntry(3, "高い", "たかい", "cao", null, "N5", List.of("Trái nghĩa: 低い (ひくい)"));
+        assertThat(RagTutorService.antonymTarget("Từ trái nghĩa của 高い", new RagLexiconLookup.Result(List.of(tall), List.of()))).isNull();
+        assertThat(RagTutorService.antonymTarget("楽しい nghĩa là gì", new RagLexiconLookup.Result(List.of(fun), List.of()))).isNull();
     }
 
     @Test

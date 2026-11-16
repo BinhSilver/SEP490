@@ -63,6 +63,14 @@ public class RagTutorService {
             return new Answer(hanVietAnswer(context.lexicon()), context.passages(), context.lexicon(),
                     RagPromptComposer.citations(context), retrievalMs, 0);
         }
+        RagLexiconLookup.WordEntry antonymOf = antonymTarget(question, context.lexicon());
+        if (antonymOf != null) {
+            List<RagLexiconLookup.WordEntry> verified = verifiedAntonyms(antonymOf);
+            RagRetriever.Context shown = new RagRetriever.Context(List.of(), new RagLexiconLookup.Result(
+                    java.util.stream.Stream.concat(java.util.stream.Stream.of(antonymOf), verified.stream()).toList(), List.of()));
+            return new Answer(antonymAnswer(antonymOf, verified), List.of(), shown.lexicon(),
+                    verified.isEmpty() ? List.of() : RagPromptComposer.citations(shown), retrievalMs, (System.nanoTime() - retrieved) / 1_000_000);
+        }
         String fixed = context.isEmpty() ? NO_SOURCE + (HEALTH_QUESTION.matcher(plain(question)).find() ? SEE_A_DOCTOR : "")
                 : !hints.isEmpty() && isGrammarQuestion(question) && notInSources(hints, context) ? unknownPattern(hints) : null;
         if (fixed != null) return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0);
@@ -72,6 +80,66 @@ public class RagTutorService {
         long done = System.nanoTime();
         return new Answer(answer, context.passages(), context.lexicon(), RagPromptComposer.citations(context),
                 retrievalMs, (done - retrieved) / 1_000_000);
+    }
+
+    private static final Pattern ANTONYM_QUESTION = Pattern.compile("\\b(trai nghia|nguoc nghia|doi nghia|antonym)\\b|反対語|対義語|反意語");
+    private static final Pattern JAPANESE_WORD = Pattern.compile("[\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}ー々]{2,}");
+    /** Đo ngày 2026-11-16 trên 34 từ cơ bản với qwen3.5:9b: gợi ý đầu tiên đúng gần hết, gợi ý thứ hai và thứ ba hay sai. */
+    static final int MAX_ANTONYMS = 1;
+    static final String ANTONYM_PROMPT = """
+            Bạn là từ điển tiếng Nhật. Người dùng đưa một từ tiếng Nhật kèm cách đọc và nghĩa tiếng Việt.
+            Hãy viết tối đa 3 từ tiếng Nhật TRÁI NGHĨA với từ đó, cùng loại từ (tính từ với tính từ, động từ với động từ),
+            ở dạng từ điển và cách viết thường gặp nhất, cách nhau bằng dấu phẩy. Không giải thích, không viết cách đọc.
+            Nếu từ đó không có từ trái nghĩa (ví dụ tên riêng, tên đồ vật, 誕生日), chỉ viết: なし
+            """;
+
+    /** Từ đang được hỏi từ trái nghĩa mà từ điển J-LAS chưa ghi; null khi không phải câu hỏi đó hoặc từ điển đã có. */
+    static RagLexiconLookup.WordEntry antonymTarget(String question, RagLexiconLookup.Result lexicon) {
+        if (lexicon.words().isEmpty() || !ANTONYM_QUESTION.matcher(plain(question) + question).find()) return null;
+        RagLexiconLookup.WordEntry word = lexicon.words().getFirst();
+        return word.extras().stream().anyMatch(e -> e.startsWith("Trái nghĩa")) ? null : word;
+    }
+
+    /**
+     * Model chỉ ĐỀ XUẤT từ; chỉ giữ từ nào có đúng mục trong từ điển J-LAS, và nghĩa, cách đọc hiển thị lấy từ mục đó.
+     * ponytail: không kiểm được hai từ có thật sự trái nghĩa hay không, chỉ kiểm từ có thật; gợi ý được ghi log để rà,
+     * khi cần thì lưu vào vocabulary_antonym sau khi người duyệt.
+     */
+    private List<RagLexiconLookup.WordEntry> verifiedAntonyms(RagLexiconLookup.WordEntry word) {
+        String raw = llm.chat(ANTONYM_PROMPT, List.of(), word.expression() + " (" + word.reading() + "): " + word.meaning(), 40);
+        List<RagLexiconLookup.WordEntry> verified = new ArrayList<>();
+        java.util.regex.Matcher m = JAPANESE_WORD.matcher(raw);
+        while (m.find() && verified.size() < MAX_ANTONYMS) {
+            String candidate = m.group();
+            if (candidate.equals("なし") || candidate.equals(word.expression())
+                    || verified.stream().anyMatch(v -> v.expression().equals(candidate))) continue;
+            retriever.words(candidate).stream().filter(w -> w.expression().equals(candidate)).findFirst().ifPresent(verified::add);
+        }
+        org.slf4j.LoggerFactory.getLogger(RagTutorService.class).info("Tutor antonym suggestion word={} proposed={} verified={}",
+                word.expression(), raw.replaceAll("\\s+", " "), verified.stream().map(RagLexiconLookup.WordEntry::expression).toList());
+        return verified;
+    }
+
+    static String antonymAnswer(RagLexiconLookup.WordEntry word, List<RagLexiconLookup.WordEntry> verified) {
+        if (verified.isEmpty()) {
+            return "Từ điển J-LAS chưa ghi từ trái nghĩa của " + word.expression()
+                    + ", và mình chưa tìm được gợi ý nào đối chiếu được với từ điển.";
+        }
+        StringBuilder out = new StringBuilder("Từ điển J-LAS chưa ghi từ trái nghĩa của ").append(word.expression())
+                .append(" [D1]. Gợi ý của AI, đã đối chiếu với từ điển J-LAS:\n");
+        int d = 2;
+        for (RagLexiconLookup.WordEntry v : verified) {
+            out.append("- ").append(v.expression()).append(" (").append(v.reading()).append("): ")
+                    .append(shortMeaning(v.meaning())).append(" [D").append(d++).append("]\n");
+        }
+        return out.append("Đây là gợi ý do AI chọn, chưa được người duyệt; cách đọc và nghĩa lấy từ từ điển J-LAS.").toString();
+    }
+
+    /** Mục từ điển có khi liệt kê hàng chục nghĩa; chỉ lấy vài nghĩa đầu cho dòng gợi ý. */
+    private static String shortMeaning(String meaning) {
+        if (meaning == null || meaning.isBlank()) return "-";
+        String first = String.join("; ", java.util.Arrays.stream(meaning.split("[;,]")).map(String::strip).limit(3).toList());
+        return first.length() > 80 ? first.substring(0, 80) + "…" : first;
     }
 
     private static final Pattern JAPANESE_TEXT = Pattern.compile("[\\p{IsHiragana}\\p{IsKatakana}\\p{IsHan}]");

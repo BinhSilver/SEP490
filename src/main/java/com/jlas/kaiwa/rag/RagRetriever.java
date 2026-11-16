@@ -33,6 +33,11 @@ public class RagRetriever {
         return retrieve(question, limit, null);
     }
 
+    /** Các mục từ điển khớp đúng chữ trong {@code text}; dùng để kiểm chứng một từ do model đề xuất. */
+    public List<RagLexiconLookup.WordEntry> words(String text) {
+        return lexicon.lookup(text).words();
+    }
+
     /** @param minScore null = ngưỡng cấu hình; admin hạ ngưỡng để hiệu chỉnh trên model thật */
     public Context retrieve(String question, Integer limit, Double minScore) {
         RagIndexService.requireEnabled(properties);
