@@ -68,7 +68,7 @@ public class RagContentSource {
                 + " meaning_vi, formation, usage_vi, nuance_vi, common_mistakes_vi FROM jpath_grammar g WHERE "
                 + jpathAllowed("g") + " ORDER BY level, unit_no, sort_order, code");
         Map<String, List<Map<String, Object>>> examples = new HashMap<>();
-        jdbc.queryForList("SELECT owner_code, ja, vi FROM jpath_example e WHERE owner_type = 'GRAMMAR' AND "
+        jdbc.queryForList("SELECT owner_code, ja, ja_furigana, vi FROM jpath_example e WHERE owner_type = 'GRAMMAR' AND "
                 + jpathAllowed("e") + " ORDER BY owner_code, sort_order, code")
                 .forEach(row -> examples.computeIfAbsent(str(row, "owner_code"), ignored -> new ArrayList<>()).add(row));
         List<RagChunk> chunks = new ArrayList<>();
@@ -90,7 +90,9 @@ public class RagContentSource {
             appendField(text, "Lỗi hay gặp", row, "common_mistakes_vi");
             List<Map<String, Object>> lines = new ArrayList<>();
             for (Map<String, Object> example : examples.getOrDefault(code, List.of()).stream().limit(MAX_EXAMPLES).toList()) {
-                text.append("\n- ").append(str(example, "ja")).append(" — ").append(str(example, "vi"));
+                // Câu có furigana dạng 駅(えき) để model chép cách đọc thay vì tự phiên âm.
+                text.append("\n- ").append(str(example, "ja_furigana").isBlank() ? str(example, "ja") : str(example, "ja_furigana"))
+                        .append(" — ").append(str(example, "vi"));
                 lines.add(Map.of("ja", str(example, "ja"), "vi", str(example, "vi")));
             }
             Map<String, Object> citation = new LinkedHashMap<>();
@@ -146,7 +148,7 @@ public class RagContentSource {
 
     private List<RagChunk> commDialogueChunks() {
         Map<String, List<Map<String, Object>>> linesBySituation = new LinkedHashMap<>();
-        jdbc.queryForList("SELECT l.situation_code, l.speaker, l.ja, l.vi, s.title_vi, s.level"
+        jdbc.queryForList("SELECT l.situation_code, l.speaker, l.ja, l.furigana, l.vi, s.title_vi, s.level"
                 + " FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code"
                 + " ORDER BY l.situation_code, l.line_order")
                 .forEach(row -> linesBySituation.computeIfAbsent(str(row, "situation_code"), ignored -> new ArrayList<>()).add(row));
@@ -164,7 +166,9 @@ public class RagContentSource {
                 StringBuilder text = new StringBuilder("Giao tiếp · ").append(title);
                 List<Map<String, Object>> citationLines = new ArrayList<>();
                 for (Map<String, Object> line : window) {
-                    text.append("\n").append(str(line, "speaker")).append(": ").append(str(line, "ja"))
+                    // cpath lưu furigana dạng {初|はじ}; đổi sang 初(はじ) cho giống J-Path.
+                    String furigana = str(line, "furigana").replaceAll("\\{([^|{}]+)\\|([^|{}]+)\\}", "$1($2)");
+                    text.append("\n").append(str(line, "speaker")).append(": ").append(furigana.isBlank() ? str(line, "ja") : furigana)
                             .append(" — ").append(str(line, "vi"));
                     citationLines.add(Map.of("speaker", str(line, "speaker"), "ja", str(line, "ja"), "vi", str(line, "vi")));
                 }

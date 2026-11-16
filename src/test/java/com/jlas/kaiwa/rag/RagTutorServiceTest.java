@@ -132,4 +132,12 @@ class RagTutorServiceTest {
         assertThat(RagTutorService.isGrammarQuestion("Cấu trúc này dùng sao")).isTrue();
         assertThat(RagTutorService.isGrammarQuestion("nittote là gì")).isFalse();
     }
+
+    @Test
+    void romajiInParenthesesIsRemovedButVietnameseAndJapaneseStay() {
+        assertThat(RagTutorService.stripRomaji("- 暇すらなかった。 (Hiragana: *hima sura nakatta*): Không có thời gian (rất bận) [S1]"))
+                .isEqualTo("- 暇すらなかった。: Không có thời gian (rất bận) [S1]");
+        assertThat(RagTutorService.stripRomaji("駅(えき)まで (N + まで) [S1]")).isEqualTo("駅(えき)まで (N + まで) [S1]");
+        assertThat(RagTutorService.stripRomaji("Dòng không có chữ Nhật (hello world)")).isEqualTo("Dòng không có chữ Nhật (hello world)");
+    }
 }

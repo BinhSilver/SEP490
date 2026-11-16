@@ -51,7 +51,7 @@ class RagContentSourceTest {
                 + " code_b VARCHAR(24), level VARCHAR(2), diff_vi VARCHAR(600), examples_json VARCHAR(2000))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS cpath_situation (code VARCHAR(24) PRIMARY KEY, title_vi VARCHAR(200), level VARCHAR(2))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS cpath_line (situation_code VARCHAR(24), line_order INT,"
-                + " speaker VARCHAR(40), ja VARCHAR(500), vi VARCHAR(500))");
+                + " speaker VARCHAR(40), ja VARCHAR(500), vi VARCHAR(500), furigana VARCHAR(800))");
         jdbc.execute("CREATE TABLE IF NOT EXISTS cpath_item (code VARCHAR(32) PRIMARY KEY, situation_code VARCHAR(24),"
                 + " kind VARCHAR(8), sort_order INT, ja VARCHAR(255), reading VARCHAR(255), vi VARCHAR(500), note_vi VARCHAR(500))");
         // content_source không có entity; tạo theo đúng sql/migrations/018_content_source.sql (rút gọn).
@@ -162,14 +162,14 @@ class RagContentSourceTest {
         RagChunk chunk = new RagContentSource(jdbc, properties(false, false)).load(null).stream()
                 .filter(c -> c.key().equals("jpath_grammar:ok")).findFirst().orElseThrow();
         assertThat(chunk.text()).contains("Mẫu ngữ pháp (JLPT N3)", "Biến thể:", "Ý nghĩa:", "Cách chia:", "Cách dùng:",
-                "Sắc thái:", "Lỗi hay gặp:", "例a").doesNotContain("例b", "例c", "例d");
+                "Sắc thái:", "Lỗi hay gặp:", "例(れい)a").doesNotContain("れい)b", "れい)c", "れい)d");
         assertThat(chunk.citation()).containsEntry("type", "JLPT_GRAMMAR").containsEntry("code", "ok");
         assertThat(((List<Map<String, Object>>) chunk.citation().get("lines")).getFirst()).doesNotContainKey("audioUrl");
         assertThat(new RagContentSource(jdbc, properties(false, false)).load(null)).extracting(RagChunk::key)
                 .doesNotContain("jpath_grammar:hold", "jpath_grammar:hidden", "jpath_grammar:draft");
         RagChunk opted = new RagContentSource(jdbc, properties(false, true)).load(null).stream()
                 .filter(c -> c.key().equals("jpath_grammar:ok")).findFirst().orElseThrow();
-        assertThat(opted.text()).contains("例b").doesNotContain("例c", "例d");
+        assertThat(opted.text()).contains("例(れい)b").doesNotContain("れい)c", "れい)d");
         assertThat(new RagContentSource(jdbc, properties(false, true)).load(null)).extracting(RagChunk::key)
                 .contains("jpath_grammar:hold").doesNotContain("jpath_grammar:hidden", "jpath_grammar:draft");
     }
@@ -194,13 +194,13 @@ class RagContentSourceTest {
     @Test
     void communicationLinesSplitAndPhrasesAppearOnlyInFirstPart() {
         jdbc.update("INSERT INTO cpath_situation VALUES ('TRV-01', 'Mua vé', 'N4')");
-        for (int i = 1; i <= 12; i++) jdbc.update("INSERT INTO cpath_line VALUES ('TRV-01', ?, '店員', ?, ?)",
-                i, "台詞" + i, "Dòng " + i);
+        for (int i = 1; i <= 12; i++) jdbc.update("INSERT INTO cpath_line VALUES ('TRV-01', ?, '店員', ?, ?, ?)",
+                i, "台詞" + i, "Dòng " + i, i == 1 ? "{台詞|せりふ}1" : null);
         jdbc.update("INSERT INTO cpath_item VALUES ('p1', 'TRV-01', 'PHRASE', 1, '切符をください', 'きっぷをください', 'Cho tôi vé', 'Lịch sự')");
         List<RagChunk> chunks = new RagContentSource(jdbc, properties(false, false)).load(null).stream()
                 .filter(c -> c.sourceType().equals("COMM_DIALOGUE")).toList();
         assertThat(chunks).extracting(RagChunk::key).containsExactly("cpath:TRV-01:0", "cpath:TRV-01:1");
-        assertThat(chunks.getFirst().text()).contains("Giao tiếp · Mua vé", "店員: 台詞1 — Dòng 1", "Mẫu câu: 切符をください (きっぷをください) — Cho tôi vé. Lịch sự");
+        assertThat(chunks.getFirst().text()).contains("Giao tiếp · Mua vé", "店員: 台詞(せりふ)1 — Dòng 1", "Mẫu câu: 切符をください (きっぷをください) — Cho tôi vé. Lịch sự");
         assertThat(chunks.get(1).text()).doesNotContain("Mẫu câu:");
         assertThat(chunks.getFirst().lessonId()).isZero();
         assertThat(chunks.getFirst().textbookId()).isZero();
@@ -216,9 +216,9 @@ class RagContentSourceTest {
     }
 
     private void jexample(String code, String owner, String status, int hidden, int order) {
-        jdbc.update("INSERT INTO jpath_example (code, owner_type, owner_code, level, sort_order, role, ja, vi, status, report_hidden, authored, updated_at)"
-                + " VALUES (?, 'GRAMMAR', ?, 'N3', ?, 'MAIN', ?, 'Dịch', ?, ?, FALSE, CURRENT_TIMESTAMP)",
-                code, owner, order, "例" + code, status, hidden != 0);
+        jdbc.update("INSERT INTO jpath_example (code, owner_type, owner_code, level, sort_order, role, ja, ja_furigana, vi, status, report_hidden, authored, updated_at)"
+                + " VALUES (?, 'GRAMMAR', ?, 'N3', ?, 'MAIN', ?, ?, 'Dịch', ?, ?, FALSE, CURRENT_TIMESTAMP)",
+                code, owner, order, "例" + code, "例(れい)" + code, status, hidden != 0);
     }
 
     @Test

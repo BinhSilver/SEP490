@@ -72,6 +72,10 @@ class TutorChatServiceTest {
         assertThat(tutor.ask(1L, "ok thanks", List.of()).answer()).isEqualTo(SmallTalk.THANKS_REPLY);
         TutorChatService.Reply who = tutor.ask(1L, "Bạn là ai? Bạn dùng model gì?", List.of());
         assertThat(who.answer()).isEqualTo(SmallTalk.IDENTITY_REPLY);
+        // Ngôn ngữ khác thì từ chối; có nhắc tiếng Nhật hoặc có chữ Nhật thì vẫn là câu hỏi thật.
+        assertThat(SmallTalk.reply("từ đi trong tiếng Anh là gì")).isEqualTo(SmallTalk.OUT_OF_SCOPE_REPLY);
+        assertThat(SmallTalk.reply("go trong tiếng Anh thì tiếng Nhật nói sao")).isNull();
+        assertThat(SmallTalk.reply("行く tiếng Anh là gì")).isNull();
         assertThat(who.sources()).isEmpty();
         verifyNoInteractions(rag);
 

@@ -61,10 +61,25 @@ public class RagTutorService {
         String fixed = context.isEmpty() ? NO_SOURCE + (HEALTH_QUESTION.matcher(plain(question)).find() ? SEE_A_DOCTOR : "")
                 : !hints.isEmpty() && isGrammarQuestion(question) && notInSources(hints, context) ? unknownPattern(hints) : null;
         if (fixed != null) return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0);
-        String answer = llm.chat(RagPromptComposer.systemPrompt(context, hints), history, question, MAX_ANSWER_TOKENS);
+        String answer = stripRomaji(llm.chat(RagPromptComposer.systemPrompt(context, hints), history, question, MAX_ANSWER_TOKENS));
         long done = System.nanoTime();
         return new Answer(answer, context.passages(), context.lexicon(), RagPromptComposer.citations(context),
                 retrievalMs, (done - retrieved) / 1_000_000);
+    }
+
+    private static final Pattern JAPANESE_TEXT = Pattern.compile("[\\p{IsHiragana}\\p{IsKatakana}\\p{IsHan}]");
+    private static final Pattern ROMAJI_PARENS = Pattern.compile(
+            "\\s*[(（]\\s*\\*?(?:(?:Hiragana|Romaji|Phiên âm|Đọc là)\\s*:\\s*)?\\*?[A-Za-zāīūēōâîûêôĀĪŪĒŌ][A-Za-zāīūēōâîûêôĀĪŪĒŌ' .,\\-]{5,}\\*?\\s*[)）]");
+
+    /**
+     * Bỏ phần phiên âm romaji trong ngoặc mà model 4B vẫn tự thêm dù prompt cấm (đo được: "owawarete", "Hát-pa-tô").
+     * ponytail: chỉ bắt ngoặc toàn chữ Latin không dấu tiếng Việt, dài từ 6 ký tự, trên dòng có chữ Nhật; romaji ngoài ngoặc
+     * không bắt được, cần thì đổi sang model lớn hơn.
+     */
+    static String stripRomaji(String answer) {
+        if (answer == null) return null;
+        return answer.lines().map(line -> JAPANESE_TEXT.matcher(line).find() ? ROMAJI_PARENS.matcher(line).replaceAll("") : line)
+                .collect(Collectors.joining("\n"));
     }
 
     /** Câu hỏi kèm chữ kana đổi từ romaji; câu hỏi nối tiếp ngắn thì kèm câu hỏi trước của người học. */
