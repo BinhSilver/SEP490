@@ -5,12 +5,15 @@
   var nextButton = document.getElementById('surveyNextButton');
   var backButton = document.getElementById('surveyBackButton');
   var notice = document.getElementById('surveyNotice');
+  var loading = document.getElementById('surveyLoading');
   var currentIndex = 0;
   var savedSurvey = null;
   var wizard = document.getElementById('surveyWizard');
   var form = document.getElementById('smartTestSurveyForm');
   var progressHeader = document.querySelector('.survey-progress-header');
   var invitation = document.getElementById('surveyInvitation');
+  if (form) form.hidden = true;
+  if (progressHeader) progressHeader.hidden = true;
   var startTest = document.getElementById('surveyStartTest');
   var goHome = document.getElementById('surveyGoHome');
   // [JLAS-W0108] A8: "Để sau" returns to the page the learner came from (same site, not the survey itself).
@@ -187,7 +190,7 @@
   }
 
   function showError(message) { notice.textContent = message || 'Không thể tạo bài kiểm tra. Vui lòng thử lại.'; notice.hidden = false; }
-  async function api(url, options) { var response = await fetch(url, Object.assign({ headers: window.JlasAuth.authHeaders() }, options || {})); var payload; try { payload = await response.json(); } catch (ignore) { payload = null; } if (!response.ok || !payload || !payload.success) throw new Error(payload && payload.message ? payload.message : 'Không thể kết nối tới máy chủ.'); return payload.data; }
+  async function api(url, options) { var response = await httpFetch(url, Object.assign({ headers: window.JlasAuth.authHeaders() }, options || {})); var payload; try { payload = await response.json(); } catch (ignore) { payload = null; } if (!response.ok || !payload || !payload.success) throw new Error(payload && payload.message ? payload.message : 'Không thể kết nối tới máy chủ.'); return payload.data; }
 
   function showInvitation(survey, justSaved) {
     savedSurvey = survey;
@@ -452,41 +455,80 @@
       }
     });
   }
-  function loadJpathConfig() {
-    if (!Flow) return Promise.resolve();
-    var comm = fetch('/api/learning/comm/goals', { headers: window.JlasAuth.authHeaders() })
-      .then(function (r) { commOn = r.ok; }, function () { commOn = false; });
-    return api('/api/learning/jlpt/config').then(function (config) {
-      if (config) jpathConfig = config;
-    }).catch(function () { jpathConfig = { enabled: false }; }).then(function () {
-      jpathOn = Boolean(jpathConfig && jpathConfig.enabled);
-      return comm;
-    });
+  function httpFetch(url, options) {
+    var fn = (typeof window !== 'undefined' && typeof window.fetch === 'function')
+      ? window.fetch.bind(window)
+      : (typeof fetch === 'function' ? fetch : null);
+    return fn ? fn(url, options) : Promise.reject(new Error('Không thể kết nối tới máy chủ.'));
   }
 
-  function loadSurvey() {
-    return api('/api/assessment/survey').then(async function (data) {
-      var survey = data && data.completed && data.survey ? data.survey : null;
-      if (jpathOn) {
-        try { entryStatus = await api('/api/learning/jlpt/entry-status'); } catch (ignore) { entryStatus = null; }
+  function finishLoading() {
+    if (loading) loading.hidden = true;
+  }
+
+  function showFormReady() {
+    finishLoading();
+    if (form) form.hidden = false;
+    if (progressHeader) progressHeader.hidden = false;
+    render();
+  }
+
+  function initSurvey() {
+    var canFetch = (typeof window !== 'undefined' && typeof window.fetch === 'function') || typeof fetch === 'function';
+    if (!canFetch) {
+      applyFlagVisibility();
+      setupDayPicker();
+      showFormReady();
+      return Promise.resolve();
+    }
+    var configPromise = Flow
+      ? api('/api/learning/jlpt/config').then(function (config) {
+          if (config) jpathConfig = config;
+        }).catch(function () { jpathConfig = { enabled: false }; })
+      : Promise.resolve();
+    var commPromise = Flow
+      ? httpFetch('/api/learning/comm/goals', { headers: window.JlasAuth.authHeaders() })
+          .then(function (r) { commOn = !!(r && r.ok); }, function () { commOn = false; })
+      : Promise.resolve();
+    var surveyPromise = api('/api/assessment/survey').catch(function (error) { return { __error: error }; });
+    var entryPromise = Flow
+      ? api('/api/learning/jlpt/entry-status').catch(function () { return null; })
+      : Promise.resolve(null);
+
+    return Promise.all([configPromise, commPromise, surveyPromise, entryPromise]).then(function (results) {
+      jpathOn = Boolean(jpathConfig && jpathConfig.enabled);
+      var surveyRes = results[2];
+      entryStatus = jpathOn ? (results[3] || null) : null;
+
+      applyFlagVisibility();
+      setupDayPicker();
+
+      if (surveyRes && surveyRes.__error) {
+        showFormReady();
+        showError(surveyRes.__error.message);
+        return;
       }
+
+      var survey = surveyRes && surveyRes.completed && surveyRes.survey ? surveyRes.survey : null;
       // ?edit=1|goal (settings: restart / change goal) and ?edit=days (start route without entry answers, C7).
-      var startStep = jpathOn ? Flow.editStartStep(editParam, {
+      var startStep = jpathOn && Flow ? Flow.editStartStep(editParam, {
         studied: survey ? (survey.selfReportedLevel === 'FROM_ZERO' ? 'NO' : 'YES') : null,
         kanaChoice: entryStatus && entryStatus.preferenceDone ? entryStatus.kanaChoice : null
       }) : null;
       if (survey) savedSurvey = survey;
-      if (startStep) openWizard(startStep);
-      else if (survey) showInvitation(survey);
-    }).catch(function (error) { showError(error.message); });
+      if (startStep) {
+        finishLoading();
+        openWizard(startStep);
+      } else if (survey) {
+        finishLoading();
+        showInvitation(survey);
+      } else {
+        showFormReady();
+      }
+    });
   }
 
-  loadJpathConfig().then(function () {
-    applyFlagVisibility();
-    setupDayPicker();
-    render();
-    return loadSurvey();
-  });
+  var initReady = initSurvey();
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -495,7 +537,8 @@
       formatDateISO: formatDateISO,
       getExamDateConstraints: getExamDateConstraints,
       initExamDateConstraints: initExamDateConstraints,
-      fillSurvey: fillSurvey
+      fillSurvey: fillSurvey,
+      ready: initReady
     };
   }
 })();

@@ -171,9 +171,10 @@ html.dark .cp-page {
    1. TRANG KHẢO SÁT GIAO TIẾP (survey.html — 5 bước, vừa 1 màn hình)
    ========================================================================== */
 .cp-survey-wrap {
-  max-width: 780px;
+  max-width: min(780px, 94vw);
+  width: 100%;
   margin: 0 auto;
-  padding: 12px 16px 24px;
+  padding: 1.5dvh 4vw 3dvh;
   box-sizing: border-box;
 }
 
@@ -297,6 +298,17 @@ html.dark .cp-page {
   line-height: 1.35;
 }
 
+.cp-survey__card .jp-alert {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--jp-radius-interactive);
+  background: var(--jp-danger-soft);
+  color: var(--jp-danger);
+  font-size: .88rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
 .cp-survey__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -305,7 +317,7 @@ html.dark .cp-page {
 
 .cp-survey__grid--topics {
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-  max-height: min(44vh, 310px);
+  max-height: min(44dvh, 310px);
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -340,6 +352,13 @@ html.dark .cp-page {
   cursor: default;
   background: color-mix(in srgb, var(--jp-c-purple-100) 72%, var(--cp-surface));
   border-color: var(--jp-c-purple-500);
+}
+/* [JLAS-W0108] F155: secondary survey clearly dims the locked main-goal card */
+.cp-pill:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+  background: var(--cp-surface-soft);
+  border-style: dashed;
 }
 
 .cp-pill__icon {
@@ -443,7 +462,8 @@ html.dark .cp-page {
   color: var(--cp-ink);
 }
 .cp-survey__date-input {
-  max-width: 240px;
+  max-width: min(240px, 100%);
+  width: 100%;
   min-height: 40px;
   padding: 6px 12px;
   border-radius: 10px;
@@ -550,9 +570,10 @@ html.dark .cp-page {
    3. TRANG TÌNH HUỐNG 4 BƯỚC (situation.html — vừa 1 màn hình)
    ========================================================================== */
 .cp-sit-shell {
-  max-width: 980px;
+  max-width: min(1040px, 95vw);
+  width: 100%;
   margin: 0 auto;
-  padding: 8px 16px 20px;
+  padding: 0 0 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -663,10 +684,47 @@ html.dark .cp-page {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 410px;
-  max-height: calc(100vh - 200px);
+  min-height: clamp(300px, 46dvh, 410px);
+  max-height: calc(100dvh - 200px);
   overflow-y: auto;
 }
+.cp-sit-stage--words { min-height: clamp(220px, 34dvh, 300px); }
+.cp-sit-stage--roleplay { min-height: 0; }
+.cp-settings { max-width: min(1040px, 95vw); width: 100%; }
+.cp-settings fieldset { border: 1px solid var(--cp-line); border-radius: 12px; padding: 12px; }
+.cp-settings legend { padding: 0 6px; font-weight: 600; }
+.cp-settings__options, .cp-settings__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.cp-settings__options label { display: inline-flex; align-items: center; gap: 5px; }
+.cp-settings__date { display: grid; gap: 6px; max-width: min(280px, 100%); }
+.cp-settings__date input { min-height: 40px; border: 1px solid var(--cp-line); border-radius: 8px; padding: 6px; }
+.cp-settings__preview { margin: 0; color: var(--cp-ink); font-weight: 600; }
+.cp-settings__notice { color: var(--jp-c-mint-900); font-weight: 600; }
+/* F61: grouped settings page */
+.cp-settings-page { display: grid; gap: 16px; }
+.cp-settings { display: grid; gap: 12px; scroll-margin-top: 80px; }
+.cp-settings h2 { margin: 0; font-size: 1.15rem; }
+.cp-settings h3 { margin: 0; font-size: 1rem; }
+.cp-settings__desc { margin: 0; color: var(--jp-muted, var(--cp-ink)); line-height: 1.5; }
+.cp-settings__head { display: grid; gap: 8px; margin-bottom: 4px; }
+.cp-settings__toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-settings__toc a { padding: 4px 12px; border: 1px solid var(--cp-line); border-radius: 999px; color: var(--cp-ink);
+  text-decoration: none; font-size: .88rem; font-weight: 600; }
+.cp-settings__toc a:hover { border-color: var(--jp-c-purple-500); color: var(--jp-c-purple-900); }
+.cp-settings__switches { display: grid; gap: 8px; }
+.cp-settings__switch { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid var(--cp-line);
+  border-radius: 12px; cursor: pointer; }
+.cp-settings__switch input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--jp-c-purple-500); flex: none; }
+.cp-settings__switch span { display: grid; gap: 2px; }
+.cp-settings__switch small { color: var(--jp-muted, var(--cp-ink)); font-size: .86rem; line-height: 1.45; }
+.cp-settings__switch:has(input:focus-visible) { outline: 2px solid var(--jp-c-purple-500); outline-offset: 2px; }
+.cp-settings__option { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--cp-line); border-radius: 12px; }
+.cp-settings__option--danger { border-color: var(--jp-danger); }
+.cp-settings__option--danger h3 { color: var(--jp-danger); }
+.cp-settings__date input[type="text"] { font: inherit; }
+.cp-btn-danger { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 7px 16px;
+  border-radius: 12px; border: 1px solid var(--jp-danger); background: var(--jp-danger); color: #ffffff; font: inherit;
+  font-size: .9rem; font-weight: 600; cursor: pointer; }
+.cp-btn-danger:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Bước 1: Thẻ từ & mẫu câu lật 2 chiều */
 .cp-deck-switch {
@@ -702,7 +760,7 @@ html.dark .cp-page {
 .cp-flashcard {
   position: relative;
   flex: 1 1 auto;
-  min-height: 240px;
+  min-height: 276px;
   padding: 20px 24px;
   border-radius: 12px;
   background: linear-gradient(180deg, var(--cp-surface) 0%, color-mix(in srgb, var(--jp-c-purple-100) 42%, var(--cp-surface)) 100%);
@@ -716,6 +774,8 @@ html.dark .cp-page {
   cursor: pointer;
   user-select: none;
 }
+.cp-flashcard__example { display: grid; gap: 3px; margin: 2px 0 0; color: var(--cp-ink); font-size: .88rem; }
+.cp-flashcard__example small { color: var(--cp-muted); font-size: .75rem; }
 .cp-flashcard__tag {
   font-size: .74rem;
   font-weight: 500;
@@ -775,17 +835,34 @@ html.dark .cp-page {
 }
 .cp-line {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 10px;
+  width: min(84%, 700px);
+  align-self: flex-start;
   padding: 10px 14px;
   border-radius: 12px;
   background: var(--cp-surface-soft);
   border: 1px solid var(--cp-line);
 }
 .cp-line.is-learner {
+  align-self: flex-end;
   background: color-mix(in srgb, var(--jp-c-purple-100) 58%, var(--cp-surface));
   border-color: color-mix(in srgb, var(--jp-c-purple-500) 32%, var(--cp-line));
 }
+.cp-line__avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+  font-size: .78rem;
+  font-weight: 700;
+}
+.cp-line.is-learner .cp-line__avatar { background: var(--jp-c-purple-500); color: #fff; }
 .cp-line.is-playing {
   border-color: var(--jp-c-purple-500);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--jp-c-purple-500) 20%, transparent);
@@ -807,6 +884,7 @@ html.dark .cp-page {
 }
 .cp-line__content {
   flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
   display: grid;
   gap: 3px;
@@ -1047,11 +1125,14 @@ html.dark .cp-page {
   .cp-survey__head { padding: 8px 12px; }
   .cp-pill { padding: 9px 12px; }
   .cp-sit-stage { min-height: 340px; padding: 12px 16px; }
-  .cp-flashcard { min-height: 195px; padding: 14px 18px; }
+}
+@media (max-height: 800px) and (min-width: 769px) {
+  .cp-flashcard { min-height: 240px; padding: 14px 18px; }
 }
 
 /* Điện thoại (375×812) */
 @media (max-width: 640px) {
+  .cp-flashcard { min-height: 296px; }
   .cp-sit-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cp-pace-grid { grid-template-columns: minmax(0, 1fr); }
   .cp-survey__foot,
@@ -1127,7 +1208,7 @@ html.dark .cp-page {
 
 /* === ROUND 8 CPATH POLISH === */
 .cp-sit-shell {
-  max-width: 1000px !important;
+  max-width: min(1040px, 95vw) !important;
   width: 100% !important;
 }
 .cp-survey__kitsu {
@@ -1643,3 +1724,523 @@ button.jp-sidenav__link {
 .cp-today__bubble::before { content: ""; position: absolute; left: -7px; top: 50%; width: 12px; height: 12px; transform: translateY(-50%) rotate(45deg);
   background: var(--cp-surface); border-left: 1px solid var(--jp-c-purple-500); border-bottom: 1px solid var(--jp-c-purple-500); }
 @media (max-width: 600px) { .cp-today__kitsu { flex-basis: 100%; } .cp-today__kitsu img { width: 52px; height: 52px; } }
+
+/* [JLAS-W0108] F68 Du lịch: romaji gần đúng, bước "Nghe & chọn nghĩa", khung "Chú thích" của bước Nghe */
+.cp-line__romaji {
+  overflow-wrap: anywhere; /* F173: a long romaji line wrapped out of the speech bubble on a phone */
+  min-width: 0;
+  font-size: .82rem;
+  color: var(--cp-muted);
+  letter-spacing: .01em;
+  line-height: 1.35;
+}
+.cp-sit-stage--meaning { gap: 14px; }
+.cp-meaning-play { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; }
+.cp-meaning-reveal {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--jp-c-mint-500);
+  background: var(--jp-c-mint-100);
+}
+.cp-meaning-reveal.is-wrong { border-color: var(--jp-c-coral-500); background: var(--jp-c-coral-100); }
+.cp-notes {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+}
+.cp-notes__title { margin: 4px 0 0; font-size: .95rem; }
+.cp-notes__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cp-notes__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+}
+.cp-notes__item > :not(.cp-audio-btn) { grid-column: 1; }
+.cp-notes__item > .cp-audio-btn { grid-column: 2; grid-row: 1 / span 4; }
+.cp-notes__ja { font-weight: 600; }
+.cp-notes__vi { font-size: .88rem; }
+.cp-notes__note { font-size: .82rem; color: var(--cp-muted); }
+
+/* [JLAS-W0108] F70/F79 Tốc độ nghe: thanh kéo 4 mức, mỗi mức có chú thích tương đương */
+.cp-speed {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+}
+.cp-speed__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cp-speed__title { font-weight: 600; font-size: .92rem; }
+.cp-speed__value { font-weight: 700; color: var(--cp-primary); }
+.cp-speed__range { width: 100%; accent-color: var(--cp-primary); margin: 2px 0; }
+.cp-speed__ticks { display: flex; justify-content: space-between; font-size: .78rem; color: var(--cp-muted); }
+.cp-speed__tick.is-on { color: var(--cp-primary); font-weight: 700; }
+.cp-speed__hint { margin: 0; font-size: .85rem; color: var(--cp-muted); }
+.cp-speed--compact { grid-template-columns: auto minmax(140px, 260px) 1fr; align-items: center; column-gap: 12px; padding: 8px 12px; margin: 8px 0; }
+.cp-speed--compact .cp-speed__head { flex-direction: column; align-items: flex-start; gap: 0; grid-row: 1 / span 2; }
+.cp-speed--compact .cp-speed__range { grid-column: 2; grid-row: 1; }
+.cp-speed--compact .cp-speed__ticks { grid-column: 2; grid-row: 2; }
+.cp-speed--compact .cp-speed__hint { grid-column: 3; grid-row: 1 / span 2; }
+@media (max-width: 640px) {
+  .cp-speed--compact { grid-template-columns: 1fr; }
+  .cp-speed--compact .cp-speed__head,
+  .cp-speed--compact .cp-speed__ticks,
+  .cp-speed--compact .cp-speed__range,
+  .cp-speed--compact .cp-speed__hint { grid-column: 1; grid-row: auto; }
+}
+
+/* F70 Bài nền: thẻ học, kiểm tra nhanh, kết quả */
+.cp-core-cards { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.cp-core-card {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 12px 14px;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  background: var(--cp-surface);
+  color: var(--cp-ink);
+}
+.cp-core-card.is-done { border-color: var(--jp-c-mint-500); }
+.cp-core-card__head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cp-core-card__kind { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--cp-primary-soft); color: var(--cp-primary-ink); }
+.cp-core-card__kind--keigo { background: var(--jp-c-coral-100); color: var(--jp-c-slate-900); }
+.cp-core-card__kind--grammar { background: var(--jp-c-mint-100); color: var(--jp-c-slate-900); }
+.cp-core-card__done { font-size: .78rem; color: var(--cp-muted); }
+.cp-core-card__main { display: flex; align-items: center; gap: 10px; }
+.cp-core-card__ja { font-size: 1.35rem; font-weight: 600; line-height: 1.5; }
+.cp-core-card__rd { color: var(--cp-muted); font-size: .9rem; }
+.cp-core-card__vi { font-weight: 600; }
+.cp-core-card__note { font-size: .82rem; color: var(--cp-muted); }
+.cp-core-card__ex { margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--cp-line); display: grid; gap: 2px; }
+.cp-core-card__ex-ja { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cp-core-card__ex-vi { font-size: .88rem; color: var(--cp-muted); }
+.cp-core-quiz { display: grid; gap: 12px; }
+.cp-core-quiz__count { margin: 0; font-size: .85rem; color: var(--cp-muted); }
+.cp-core-quiz__opts { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.cp-core-opt {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: 10px;
+  background: var(--cp-surface-soft);
+  color: var(--cp-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.cp-core-opt:hover, .cp-core-opt:focus-visible { border-color: var(--cp-primary); }
+.cp-core-opt.is-picked { border-color: var(--cp-primary); background: var(--cp-primary-soft); color: var(--cp-primary-ink); font-weight: 600; }
+.cp-core-result h2 { margin-top: 0; }
+.cp-core-wrong { margin: 8px 0; padding-left: 18px; }
+.cp-today__item--core .cp-today__icon { color: var(--cp-primary); }
+.cp-today__check { margin: 8px 0 0; font-size: .9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* F70 Du lịch: sổ câu cấp tốc, trò chơi nghe nhanh, hộ chiếu con dấu */
+.cp-pb__tools { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+.cp-pb__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cp-pb__place h2 { margin-top: 0; font-size: 1.05rem; }
+.cp-pb__place h2 small { color: var(--cp-muted); font-weight: 500; margin-left: 6px; }
+.cp-pb__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cp-pb__phrase {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: 10px;
+  background: var(--cp-surface-soft);
+  color: var(--cp-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.cp-pb__phrase:hover, .cp-pb__phrase:focus-visible { border-color: var(--cp-primary); }
+.cp-pb__icon { color: var(--cp-primary); padding-top: 3px; }
+.cp-pb__body { display: grid; gap: 2px; }
+.cp-pb__ja { font-size: 1.1rem; font-weight: 600; }
+.cp-pb__vi { font-size: .92rem; }
+.cp-pb__note { font-size: .82rem; color: var(--cp-muted); }
+.cp-game { display: grid; gap: 12px; }
+.cp-game__bar { display: flex; justify-content: space-between; gap: 10px; font-size: .95rem; }
+.cp-game__time { font-weight: 700; color: var(--cp-primary); }
+.cp-game__fb { margin: 0; padding: 8px 12px; border-radius: 10px; font-size: .9rem; }
+.cp-game__fb.is-ok { background: var(--jp-c-mint-100); border: 1px solid var(--jp-c-mint-500); color: var(--jp-c-slate-900); }
+.cp-game__fb.is-wrong { background: var(--jp-c-coral-100); border: 1px solid var(--jp-c-coral-500); color: var(--jp-c-slate-900); }
+.cp-game__record { font-weight: 700; color: var(--cp-primary); }
+.cp-game__start { display: grid; gap: 10px; justify-items: start; }
+.cp-trip { margin-top: 12px; padding: 12px 14px; border: 1px dashed var(--cp-line); border-radius: 12px; display: grid; gap: 10px; }
+.cp-trip__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.cp-trip__title { margin: 0; font-size: 1rem; }
+.cp-trip__count { font-size: .85rem; color: var(--cp-muted); }
+.cp-trip__stamps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.cp-trip__stamp { display: grid; justify-items: center; gap: 2px; text-align: center; font-size: .8rem; color: var(--cp-muted); }
+.cp-trip__seal {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px dashed var(--cp-line);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.cp-trip__stamp.is-stamped { color: var(--cp-ink); }
+.cp-trip__stamp.is-stamped .cp-trip__seal { border: 3px double var(--jp-c-coral-500); color: var(--jp-c-coral-500); transform: rotate(-8deg); }
+.cp-trip__name { font-weight: 600; color: inherit; }
+.cp-trip__links { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-survey__kana { margin-top: 14px; border: 1px solid var(--cp-line); border-radius: 12px; padding: 10px 14px; }
+.cp-survey__kana legend { font-weight: 600; padding: 0 4px; }
+.cp-survey__kana-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.cp-survey__kana-tip { margin: 8px 0 0; font-size: .9rem; }
+.cp-settings__depths { display: grid; gap: 8px; }
+.cp-settings__depth { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--cp-line); border-radius: 10px; cursor: pointer; }
+.cp-settings__depth.is-on { border-color: var(--cp-primary); background: var(--cp-primary-soft); color: var(--cp-primary-ink); }
+.cp-settings__depth span { display: grid; gap: 2px; }
+.cp-settings__depth small { color: var(--cp-muted); }
+.cp-settings__depth.is-on small { color: inherit; }
+
+/* [JLAS-W0108] F81: review result — the list spans the result column, "AI giải thích" sits at the end of each row */
+.cp-page .jp-result .jp-review { width: 100%; max-width: 760px; padding: 0; list-style: none; text-align: left; }
+.cp-page .jp-result .jp-review__row { justify-content: space-between; flex-wrap: wrap; padding: 10px 14px; }
+.cp-page .jp-result .jp-review__row > div:first-child { flex: 1 1 260px; min-width: 0; }
+.cp-page .jp-result .jp-review__row .jp-ai-slot { margin-top: 0; flex: 0 0 auto; }
+.cp-page .jp-result .jp-review__row .jp-ai-slot:has(.jp-ai__panel:not([hidden])) { flex-basis: 100%; }
+
+/* [JLAS-W0108] F83: Kitsu peeks 20px past the "Hôm nay" ring; leave that room so it never covers the title */
+.cp-page .jp-path .jp-today__top, .cp-page .jp-today__top { column-gap: 34px !important; }
+@media (max-width: 560px) { .cp-page .jp-today__cal-kitsu { right: -14px; width: 48px; height: 48px; } }
+
+/* [JLAS-W0108] F85/F157/F154: phone and tablet sticky footer clearance, scroll margin for reveal boxes, and report FAB */
+@media (max-width: 900px) {
+  .cp-page .cp-sit-foot,
+  .cp-page .cp-survey__foot { bottom: var(--jlab-mobile-bottom, 0px); padding-right: 72px; }
+  .cp-page .cp-sit-shell { padding-bottom: calc(var(--jlab-mobile-bottom, 0px) + 76px) !important; }
+  .cp-page .cp-meaning-reveal,
+  .cp-page .cp-why-box { scroll-margin-bottom: calc(var(--jlab-mobile-bottom, 0px) + 84px); }
+}
+@media (max-width: 640px) {
+  .cp-wide-only { display: none; }
+  .cp-page .cp-sit-foot { flex-wrap: nowrap; gap: 2vw; padding: 1.2dvh 2.8vw; }
+  .cp-page .cp-survey__foot { padding-right: 0; }
+  .cp-page .cp-sit-foot > * { flex: 1 1 0; min-width: 0; padding: 10px 8px; font-size: .86rem; line-height: 1.25; white-space: normal; text-align: center; }
+  .cp-page .cp-sit-foot > [data-cp-card-prev] { flex: 0 0 44px; }
+  .cp-sit-topbar .cp-btn-ghost { white-space: nowrap; padding: 8px 12px; }
+  body:has(.cp-sit-foot, .cp-survey__foot) .jp-report-fab { top: 76px; bottom: auto; right: 10px; width: 40px; height: 40px; }
+}
+@media (max-width: 640px) {
+  /* the card is the lesson: keep what sits above it short */
+  .cp-page .cp-speed--compact { row-gap: 2px; padding: 8px 12px; }
+  .cp-page .cp-speed--compact .cp-speed__head { flex-direction: row; align-items: baseline; gap: 8px; }
+  .cp-page .cp-speed--compact .cp-speed__hint { font-size: .78rem; }
+  .cp-page .cp-sit-steps { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 6px; }
+  .cp-page .cp-sit-steps::-webkit-scrollbar { display: none; }
+  .cp-page .cp-sit-steps .cp-step-tab { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
+}
+/* F85: a title and its small note never run together; the note drops under the title when the row is narrow */
+.cp-page .jp-today__pill-head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 2px; }
+@media (max-width: 640px) {
+  .cp-page .jp-today__pill-head .jp-today__pill-count { flex-basis: 100%; }
+  .cp-page .jp-todo__item { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; }
+  .cp-page .jp-todo__item > button:last-child { grid-column: auto; justify-self: end; }
+}
+/* F85: the result's button lines up with the list above it */
+.cp-page .jp-result .jp-result__actions { justify-self: start; justify-content: flex-start; }
+
+/* [JLAS-W0108] F46: reminder to learn Kana for a learner on full romaji */
+.cp-page .cp-kana-tip{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0;padding:12px 14px;border:1px dashed var(--color-primary,#7c3aed);border-radius:14px;background:color-mix(in srgb,var(--color-primary,#7c3aed) 6%,transparent)}
+.cp-page .cp-kana-tip p{flex:1 1 260px;margin:0;font-size:14px;line-height:1.5}
+.cp-page .cp-kana-tip__actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* [JLAS-W0108] F64: "Tôi biết tình huống này" check on the situation page */
+.cp-page .cp-known{margin:12px 0 16px;padding:16px;border:1px solid var(--color-outline-variant,#ddd6e8);border-radius:16px;background:var(--color-surface-lowest,#fff)}
+.cp-page .cp-known__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.cp-page .cp-known__head h2{margin:0;font-size:18px}
+.cp-page .cp-known__sub{margin:0 0 12px;color:var(--color-on-surface-variant,#5b5670);font-size:14px}
+.cp-page .cp-known__list{display:grid;gap:14px;margin:0 0 16px;padding-left:22px}
+.cp-page .cp-known__ja{margin:0 0 6px;font-size:17px;font-weight:600}
+.cp-page .cp-known__ja small{font-weight:400;color:var(--color-on-surface-variant,#5b5670)}
+.cp-page .cp-known__opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.cp-page .cp-known__opt{padding:9px 12px;border:1px solid var(--color-outline-variant,#ddd6e8);border-radius:12px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.cp-page .cp-known__opt.is-on{border-color:var(--color-primary,#7c3aed);background:color-mix(in srgb,var(--color-primary,#7c3aed) 10%,transparent);font-weight:600}
+.cp-page .cp-known__wrong{margin:8px 0 14px;padding-left:20px;font-size:14px}
+.cp-page .cp-known [data-cp-known-submit][disabled]{opacity:.55;cursor:not-allowed}
+
+/* [JLAS-W0108] F89: compact progress chip in the comm path banner (ring + "1/15 tình huống", no extra label) */
+.cp-page .jp-parts__banner-center { padding: 2px 10px 2px 4px; background: transparent; border-color: transparent; }
+.cp-page .jp-parts__banner-ring-wrap { display: inline-flex; align-items: center; gap: 8px; }
+.cp-page .jp-parts__banner-ring { flex-basis: 36px; width: 36px; height: 36px; }
+.cp-page .jp-parts__banner-ring svg { width: 36px; height: 36px; }
+.cp-page .jp-parts__banner-ring-pct { font-size: .66rem; }
+.cp-page .jp-parts__banner-ring-meta { display: block; }
+.cp-page .jp-parts__banner-ring-meta strong { font-size: .88rem; white-space: nowrap; }
+.cp-page .jp-parts__banner-ring-sub { display: none; }
+
+/* [JLAS-W0108] F91: phone layout for the comm path page */
+@media (max-width: 600px) {
+  /* today: keep the small "Học" button on the right of each situation instead of a full-width block */
+  .cp-page .cp-today__item { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px; }
+  .cp-page .cp-today__item .jp-btn { grid-column: auto; justify-self: end; min-width: 0; padding: 6px 14px; }
+  .cp-page .cp-today__actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .cp-page .cp-today__actions .jp-btn { justify-content: center; text-align: center; padding: 8px 6px; font-size: .82rem; line-height: 1.25; white-space: normal; }
+  .cp-page .cp-today__cta .cp-btn-primary { width: 100%; justify-content: center; text-align: center; }
+
+  /* banner: title on its own row, progress chip and week switcher share the next row */
+  .cp-page .jp-parts__banner-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+  .cp-page .jp-parts__banner-left { grid-column: 1 / -1; }
+  .cp-page .jp-parts__title { font-size: 1rem; }
+  .cp-page .jp-parts__banner-center { justify-self: start; padding-left: 0; }
+  .cp-page .jp-parts__banner-right { justify-self: end; }
+  .cp-page .jp-parts__banner-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .cp-page .jp-parts__banner-sub .cp-goal-switch > summary,
+  .cp-page .jp-parts__banner-sub .jp-parts__all-btn { padding: 7px 12px; font-size: .84rem; }
+  .cp-page .jp-parts__legend { order: 3; flex: 1 0 100%; display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .cp-page .jp-parts__legend::-webkit-scrollbar { display: none; }
+  .cp-page .jp-parts__legend-pill { flex: 0 0 auto; font-size: .74rem; padding: 3px 8px; }
+}
+
+/* [JLAS-W0108] F91: phone layout for the situation page */
+@media (max-width: 600px) {
+  .cp-page .cp-sit-topbar > div[style] { flex-wrap: wrap; gap: 6px !important; }
+  .cp-page .cp-sit-topbar [data-cp-known-open] { flex: 1 0 100%; justify-content: center; text-align: center; }
+  .cp-page .cp-sit-topbar > div[style] > .cp-btn-ghost:not([data-cp-known-open]) { flex: 1 1 0; justify-content: center; text-align: center; }
+  /* all four steps stay visible in one row (F85 scrolled them and hid steps 3-4) */
+  .cp-page .cp-sit-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; overflow: visible; padding: 4px; }
+  .cp-page .cp-sit-steps .cp-step-tab { min-width: 0; width: 100%; flex-direction: column; gap: 2px; justify-content: center; text-align: center;
+    white-space: normal; padding: 6px 2px; font-size: .74rem; line-height: 1.2; }
+}
+
+/* [JLAS-W0108] F98 → F122 (chủ dự án 14/11 "mất linh vật ở ô tròn"): still one mascot in the "Hôm nay" card, now the
+   one peeking over the date ring; the corner Kitsu and its bubble go (F119 left it nothing the card does not already say) */
+.cp-page.jp-path .cp-today.jp-today .jp-today__top > .jp-today__kitsu { display: none !important; }
+/* F98: on a tablet the "today" mascot and the week sign share the narrow left margin — the sign steps aside on that row
+   (on a phone jpath-path.css already hides every week sign) */
+@media (max-width: 900px) {
+  .cp-page .jp-parts__step:has(.jp-parts__mascot--today) .jp-parts__week-sign { display: none; }
+}
+
+/* [JLAS-W0108] F116: trang chi tiết ngày Giao tiếp — ô linh vật không lệch phải dính sát đường kẻ/ô dưới; xếp dọc, rộng đủ hàng, có khoảng cách */
+.cp-page .jp-dayd__hero-row { flex-direction: column; align-items: stretch; gap: 10px; margin: 14px 0 16px; }
+.cp-page .jp-dayd__hero-info { flex: none; }
+.cp-page .jp-dayd__mascot { width: 100%; box-sizing: border-box; }
+
+/* [JLAS-W0108] F119: khi cột trái (thẻ Lộ trình chính) đứng cạnh bản đồ, dòng "Đã đạt x/y chủ đề · trình độ · n tình huống/ngày" của biểu ngữ là lặp → ẩn; dưới 900px cột trái xuống cuối trang nên vẫn giữ */
+@media (min-width: 900px) { .cp-page .jp-parts__sub { display: none; } }
+/* F119: điện thoại — "1/15 tình huống" không bị nút chọn tuần che; thiếu chỗ thì nút tuần xuống dòng */
+@media (max-width: 600px) {
+  .cp-page .jp-parts__banner-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+  .cp-page .jp-parts__banner-left { flex: 1 1 100%; }
+  .cp-page .jp-parts__banner-center { flex: 1 0 auto; min-width: 0; }
+  .cp-page .jp-parts__banner-right { flex: 0 0 auto; margin-left: auto; }
+}
+
+/* [JLAS-W0108] F125: lộ trình đã hoàn thành (đạt bài test cuối) — nhãn "Đã hoàn thành", thẻ tóm tắt và bước tiếp theo */
+.cp-done-chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px;
+  background: var(--jp-c-mint-100); color: var(--jp-c-mint-900); border: 1px solid var(--jp-c-mint-500);
+  font-size: .74rem; font-weight: 600; letter-spacing: .02em; text-transform: none; vertical-align: middle; white-space: nowrap;
+}
+.cp-done-chip::before { content: "✓"; font-weight: 700; }
+.cp-page .cp-finished { display: grid; gap: 14px; margin-bottom: 16px; padding: 18px 20px; border: 1px solid var(--jp-c-mint-500);
+  border-radius: 16px; background: color-mix(in srgb, var(--jp-c-mint-100) 55%, var(--cp-surface)); }
+.cp-page .cp-finished__head { display: flex; align-items: center; gap: 14px; }
+.cp-page .cp-finished__kitsu { flex: 0 0 auto; width: 64px; height: 64px; }
+.cp-page .cp-finished__title { margin: 6px 0 2px; color: var(--cp-ink); font-size: 1.15rem; line-height: 1.35; }
+.cp-page .cp-finished__lead { margin: 0; color: var(--cp-muted); }
+.cp-page .cp-finished__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 0; }
+.cp-page .cp-finished__stat { padding: 10px 12px; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); }
+.cp-page .cp-finished__stat dt { color: var(--cp-muted); font-size: .8rem; }
+.cp-page .cp-finished__stat dd { margin: 2px 0 0; color: var(--cp-ink); font-weight: 700; font-size: 1rem; }
+.cp-page .cp-finished__cert { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0; }
+.cp-page .cp-finished__cert span { color: var(--cp-muted); font-size: .88rem; }
+.cp-page .cp-finished__next { display: grid; gap: 8px; padding-top: 12px; border-top: 1px dashed var(--cp-line); }
+.cp-page .cp-finished__next-title { margin: 0; color: var(--cp-ink); font-weight: 600; }
+.cp-page .cp-finished__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-page .cp-finished__hint { margin: 0; color: var(--cp-muted); font-size: .86rem; }
+.cp-goal-card__promote { padding: 0; border: 0; background: none; text-align: left; cursor: pointer; font-family: inherit; }
+.cp-goal-card__done-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cp-goal-card__done-list li { display: grid; gap: 2px; }
+@media (max-width: 600px) {
+  .cp-page .cp-finished { padding: 3.8vw; }
+  .cp-page .cp-finished__kitsu { width: 48px; height: 48px; }
+  .cp-page .cp-finished__actions > * { flex: 1 1 100%; text-align: center; }
+}
+
+/* [JLAS-W0108] ghi-chu #74: thẻ nhanh Lộ trình phụ ngay dưới Hôm nay trên màn nhỏ (dưới 900px cột trái xuống cuối trang) */
+.cp-page .cp-mobile-sec {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 10px 14px; margin-top: 12px; padding: 12px 14px;
+}
+.cp-page .cp-mobile-sec__body { display: grid; gap: 2px; min-width: 0; }
+.cp-page .cp-mobile-sec__meta { color: var(--cp-muted); font-size: .85rem; }
+.cp-page .cp-mobile-sec__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (min-width: 900px) { .cp-page .cp-mobile-sec { display: none; } }
+
+/* [JLAS-W0108] F150: tooltip chặng khóa mở xuống dưới để không bị tràn mép trên */
+.cp-page .jp-parts__lock-tip {
+  top: calc(100% + 10px); bottom: auto;
+  transform: translateX(-50%) translateY(-4px);
+}
+.cp-page .jp-parts__lock-tip::after {
+  top: -5px; bottom: auto; border-width: 0 5px 5px;
+  border-color: transparent transparent var(--jp-r4-line);
+}
+
+/* [JLAS-W0108] F178 (AI test L6): on a phone the situation head (title, display toggles, speed, 4 steps) took ~480px, so
+   the study card started under the sticky footer; the head is compacted so the card shows on the first screen */
+@media (max-width: 640px) {
+  .cp-sit-shell .cp-sit-topbar { padding: 10px 12px; gap: 8px; }
+  .cp-sit-shell .cp-sit-title { font-size: 1.05rem; margin: 2px 0 0; }
+  .cp-sit-shell .cp-sit-topbar > div:last-child { flex-wrap: wrap; gap: 6px !important; }
+  .cp-sit-shell .cp-sit-topbar > div:last-child .cp-btn-ghost { min-height: 32px !important; height: auto; padding: 4px 10px; font-size: .8rem; }
+  .cp-sit-shell .cp-speed--compact { padding: 8px 12px; }
+  .cp-sit-shell .cp-speed--compact .cp-speed__ticks,
+  .cp-sit-shell .cp-speed--compact .cp-speed__hint { display: none; }
+  .cp-sit-shell .cp-sit-steps { gap: 4px; }
+  .cp-sit-shell .cp-step-tab { min-height: 0; padding: 6px 4px; font-size: .72rem; line-height: 1.2; }
+  .cp-sit-shell .cp-sit-steps { scroll-margin-top: 72px; }
+  .cp-sit-shell .cp-sit-stage { padding-bottom: 12px; }
+}
+
+/* [JLAS-W0108] F192 (probe P2-2): on a short landscape phone (812x375) the sticky step footer, the fixed header and the
+   bottom bar left ~170px for the word card; let the footer scroll with the page there */
+@media (max-height: 500px) and (orientation: landscape) {
+  .cp-page .cp-sit-foot,
+  .cp-sit-foot { position: static; }
+}
+
+/* [JLAS-W0108] F194: card progress bar under the Từ vựng / Mẫu câu switch */
+.cp-deck-progress {
+  height: 4px;
+  margin: 0 0 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--jp-c-purple-100, #ece6ff) 80%, transparent);
+  overflow: hidden;
+}
+.cp-deck-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--jp-primary, #5b3cc4);
+  transition: width .25s ease;
+}
+
+/* [JLAS-W0108] F197: finished step tab — a red 済 seal stamped at the right edge (seal only, no mascot) */
+.cp-step-tab { position: relative; }
+.cp-step-tab.is-done { padding-right: 40px; }
+.cp-step-stamp {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.cp-step-stamp__seal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 2px solid #d8402f;
+  border-radius: 50%;
+  color: #d8402f;
+  font: 700 .9rem/1 'Noto Serif JP', 'Yu Mincho', serif;
+  transform: rotate(-12deg);
+  opacity: .9;
+}
+.cp-step-stamp.is-playing .cp-step-stamp__seal { animation: cp-stamp-seal 2.4s ease var(--cp-stamp-delay, 0s) both; }
+@keyframes cp-stamp-seal {
+  0% { opacity: 0; transform: rotate(-12deg) scale(1.6); }
+  12% { opacity: 1; transform: rotate(-12deg) scale(.92); }
+  20%, 100% { opacity: .9; transform: rotate(-12deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp-step-stamp.is-playing .cp-step-stamp__seal { animation: none; }
+}
+@media (max-width: 640px) {
+  .cp-step-tab.is-done { padding-right: 10px; }
+  .cp-step-stamp { width: 20px; height: 20px; top: 3px; right: 3px; transform: none; }
+  .cp-step-stamp__seal { font-size: .62rem; border-width: 1.5px; }
+}
+
+/* [JLAS-W0108] F199: listening-speed bar — fixed-width label block and hint so switching speed never shifts the row */
+.cp-speed--compact { grid-template-columns: 10.5rem minmax(160px, 280px) minmax(0, 1fr); background: color-mix(in srgb, var(--cp-primary) 4%, var(--cp-surface)); }
+.cp-speed--compact .cp-speed__head { width: 10.5rem; }
+.cp-speed__value {
+  display: inline-block;
+  min-width: 9.5rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cp-primary) 12%, transparent);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: center;
+}
+.cp-speed--compact .cp-speed__hint {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.6em;
+  line-height: 1.3;
+  align-self: center;
+}
+.cp-speed__ticks { font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .cp-speed--compact { grid-template-columns: 1fr; }
+  .cp-speed--compact .cp-speed__head { width: auto; flex-direction: row; align-items: center; justify-content: space-between; }
+}
+
+/* [JLAS-W0108] F207: result of the weekly check / role-play / quick practice — score in a coloured ring (red below
+   the pass mark, green when passed) at the head of a card, notes as soft chips, same look on all three */
+.cp-page .jp-check-page .jp-result {
+  justify-items: start;
+  text-align: left;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--cp-line, #e5e1f0);
+  border-radius: 16px;
+  background: var(--cp-surface, #fff);
+}
+.cp-page .jp-check-page .jp-result__score {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 7px solid color-mix(in srgb, #d8402f 30%, transparent);
+  border-top-color: #d8402f;
+  color: #c0392b;
+  font-size: 1.55rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.cp-page .jp-check-page .jp-result__score.jp-ok {
+  border-color: color-mix(in srgb, #1f9d55 30%, transparent);
+  border-top-color: #1f9d55;
+  color: #17804a;
+}
+.cp-page .jp-check-page .jp-result__title { margin: 0; font-size: 1.15rem; }
+.cp-page .jp-check-page .jp-result__note {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cp-primary, #5b3cc4) 8%, transparent);
+  font-size: .9rem;
+}
+
+/* [JLAS-W0108] F209: on a phone the step tabs are narrow — the 済 seal sits on the tab's top-right corner, off the text */
+@media (max-width: 640px) {
+  .cp-page .cp-step-tab.is-done { padding-right: 6px; overflow: visible; }
+  .cp-page .cp-step-tab .cp-step-stamp { top: -7px; right: -5px; width: 20px; height: 20px; transform: none; z-index: 1; }
+  .cp-page .cp-step-tab .cp-step-stamp__seal { background: var(--cp-surface, #fff); font-size: .62rem; border-width: 1.5px; }
+  .cp-page .cp-sit-steps { overflow: visible; padding-top: 10px; }
+}

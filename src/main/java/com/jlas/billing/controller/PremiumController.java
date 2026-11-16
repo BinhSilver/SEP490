@@ -5,6 +5,7 @@ import com.jlas.auth.security.UserPrincipal;
 import com.jlas.billing.service.PremiumCheckoutService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,13 @@ public class PremiumController {
         private String couponCode;
     }
 
+    @Getter
+    @Setter
+    public static class CouponRequest {
+        @NotBlank(message = "Vui lòng nhập mã giảm giá.")
+        private String code;
+    }
+
     @GetMapping("/plans")
     public ApiResponse<PremiumCheckoutService.Pricing> plans(@AuthenticationPrincipal UserPrincipal user) {
         return ApiResponse.ok("Bảng giá Premium", checkout.pricing(user == null ? null : user.userId()));
@@ -52,6 +60,12 @@ public class PremiumController {
     public ApiResponse<PremiumCheckoutService.OrderView> cancel(@PathVariable long orderCode,
                                                                 @AuthenticationPrincipal UserPrincipal user) {
         return ApiResponse.ok("Đã huỷ đơn thanh toán", checkout.cancel(user.userId(), orderCode));
+    }
+
+    @PostMapping("/orders/{orderCode}/coupon")
+    public ApiResponse<PremiumCheckoutService.OrderView> applyCoupon(@PathVariable long orderCode,
+            @Valid @RequestBody CouponRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("Đã áp dụng mã giảm giá", checkout.applyCoupon(user.userId(), orderCode, request.getCode()));
     }
 
     @GetMapping("/orders")

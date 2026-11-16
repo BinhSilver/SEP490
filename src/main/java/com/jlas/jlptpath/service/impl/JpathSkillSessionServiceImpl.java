@@ -112,8 +112,13 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         JpathDailyPlan plan = dailyPlans.lockToday(path);
-        Optional<JpathSkillSession> open = sessions
-                .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(userId, plan.getId(),
+        // F177 (AI test L7): a free session resumes only when it is the type the learner picked; "Học" on 情報検索 used to
+        // reopen an unfinished 短文 session of the same skill
+        boolean byType = r.kind() != JpathSkillSessionKind.DAY && r.typeCode() != null;
+        Optional<JpathSkillSession> open = byType
+                ? sessions.findFirstByUserIdAndPlanIdAndSkillAndKindAndTypeCodeAndCompletedAtIsNullOrderByIdDesc(userId,
+                        plan.getId(), r.skill(), r.kind(), r.typeCode())
+                : sessions.findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(userId, plan.getId(),
                         r.skill(), r.kind());
         if (open.isPresent()) {
             return open.get().getId();
@@ -278,10 +283,7 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
     }
 
     private Optional<JpathCheckSet> submitted(Long userId, String token) {
-        if (token == null) {
-            return Optional.empty();
-        }
-        return checks.findByTokenAndUserId(token, userId).filter(c -> SUBMITTED.equals(c.getStatus()));
+        return checkSet(userId, token).filter(c -> SUBMITTED.equals(c.getStatus()));
     }
 
     private JpathSkillSession own(Long userId, Long sessionId) {
@@ -294,19 +296,25 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
 
     private JpathSkillSessionView view(Long userId, JpathSkillSession s) {
         List<String> codes = codes(s.getSetCodesJson());
-        Integer practiceTotal = total(userId, s.getPracticeToken());
-        Integer dictationTotal = total(userId, s.getDictationToken());
+        Optional<JpathCheckSet> practiceCheck = checkSet(userId, s.getPracticeToken());
+        Optional<JpathCheckSet> dictationCheck = checkSet(userId, s.getDictationToken());
+        Integer practiceTotal = practiceCheck.map(JpathCheckSet::getTotalCount).orElse(null);
+        Integer dictationTotal = dictationCheck.map(JpathCheckSet::getTotalCount).orElse(null);
+        Integer practiceCorrect = practiceCheck.filter(c -> SUBMITTED.equals(c.getStatus()))
+                .map(JpathCheckSet::getCorrectCount).orElse(null);
+        Integer dictationCorrect = dictationCheck.filter(c -> SUBMITTED.equals(c.getStatus()))
+                .map(JpathCheckSet::getCorrectCount).orElse(null);
         int questions = practiceTotal != null ? practiceTotal : reader.visibleQuestions(codes).size();
         int dictation = dictationTotal != null ? dictationTotal
                 : s.getSkill() == JpathSkill.LISTENING ? JpathSkillPolicy.DICTATION_FLOOR : 0;
         return new JpathSkillSessionView(s.getId(), s.getSkill(), s.getKind(), s.getTypeCode(), s.getStep(),
                 codes.size(), questions, dictation, s.isReused(), s.getPracticeToken(), s.getDictationToken(),
-                s.getCompletedAt() != null, s.getCpAwarded() == null ? 0 : s.getCpAwarded(), s.getStudyDay());
+                s.getCompletedAt() != null, s.getCpAwarded() == null ? 0 : s.getCpAwarded(), s.getStudyDay(),
+                practiceCorrect, dictationCorrect);
     }
 
-    private Integer total(Long userId, String token) {
-        return token == null ? null
-                : checks.findByTokenAndUserId(token, userId).map(JpathCheckSet::getTotalCount).orElse(null);
+    private Optional<JpathCheckSet> checkSet(Long userId, String token) {
+        return token == null ? Optional.empty() : checks.findByTokenAndUserId(token, userId);
     }
 
     /** N5 → 5 … N1 → 1 (a larger rank is a lower level). */

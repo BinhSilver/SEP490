@@ -6,7 +6,9 @@ import com.jlas.jlptpath.dto.JpathPrintRequest;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathPrintService;
+import com.jlas.jlptpath.service.impl.PathTeamNotebook;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +26,7 @@ public class JpathSidePageController {
 
     private final JpathPathService paths;
     private final JpathPrintService print;
+    private final ObjectProvider<PathTeamNotebook> teamNotebook;
 
     /**
      * A4 writing sheet ({@code jlptpath/print}, no base shell): the query is a {@link JpathPrintRequest}; a bad query
@@ -76,7 +79,12 @@ public class JpathSidePageController {
     @GetMapping("/learning/jlpt/notebook")
     public String notebook(@AuthenticationPrincipal UserPrincipal user) {
         String blocked = guard(user);
-        return blocked != null ? blocked : "jlptpath/notebook";
+        if (blocked != null) {
+            return blocked;
+        }
+        // F126: the "Lộ trình học" notebook shows on /learning/notebook from now on, before the first word goes in
+        teamNotebook.ifAvailable(t -> t.ensure(user.userId()));
+        return "jlptpath/notebook";
     }
 
     /** Confusable pairs; jpath-confusables.js reads {@code GET /api/learning/jlpt/confusables}. */

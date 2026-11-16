@@ -47,15 +47,16 @@
 .jp-pair {
   min-height: 48px; padding: 8px 10px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive);
   background: var(--jp-surface); color: var(--jp-ink); font: inherit; text-align: center; cursor: pointer;
-  overflow-wrap: anywhere; transition: background-color .15s ease, border-color .15s ease;
+  overflow-wrap: anywhere; transition: background-color .1s ease, border-color .1s ease, opacity .1s ease;
 }
 .jp-pair[lang="ja"] { font-size: 1.15em; }
 .jp-pair.jp-sel { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); }
+.jp-pair.jp-pending { border: 1px solid var(--jp-primary); background: var(--jp-primary-soft); opacity: .75; cursor: progress; }
 .jp-pair.jp-ok {
   border: 1px solid var(--jp-ok); background: color-mix(in srgb, var(--jp-ok) 16%, var(--jp-surface)); color: var(--jp-ink);
   cursor: default;
 }
-.jp-pair.jp-bad { border: 1px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .6s ease; }
+.jp-pair.jp-bad { border: 1px solid var(--jp-danger); background: var(--jp-danger-soft); animation: jp-check-flash .22s ease; }
 @keyframes jp-check-flash { 0%, 100% { transform: none; } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
 /* quiz */
@@ -133,7 +134,7 @@
 .jp-result__title { margin: 0; font-size: 1em; font-weight: 400; line-height: 1.5; }
 .jp-result__note { margin: 0; padding: 8px 12px; border-radius: var(--jp-radius-interactive); background: var(--jp-primary-soft); }
 .jp-result__wrong, .jp-result__count { margin: 0; font-size: .95em; }
-.jp-result__actions { display: grid; gap: 8px; width: 100%; max-width: 360px; justify-items: stretch; }
+.jp-result__actions { display: grid; gap: clamp(6px, 1.4vw, 8px); width: 100%; max-width: min(360px, 92vw); justify-items: stretch; }
 .jp-result__actions .jp-link-btn { justify-self: center; }
 .jp-review { display: grid; gap: 8px; }
 .jp-review__title { margin: 0; font-size: 1em; }
@@ -156,8 +157,8 @@
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: var(--jp-overlay);
 }
 .jp-dialog-backdrop:has(.jp-review__cards) .jp-dialog {
-  box-sizing: border-box; display: grid; gap: 10px; width: min(440px, 100%); max-height: calc(100vh - 32px); overflow: auto;
-  padding: 16px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel); background: var(--jp-surface);
+  box-sizing: border-box; display: grid; gap: clamp(8px, 1.5vw, 10px); width: min(440px, 92vw); max-height: 92dvh; overflow: auto;
+  padding: clamp(12px, 3vw, 16px); border: 1px solid var(--jp-line); border-radius: var(--jp-radius-panel); background: var(--jp-surface);
   color: var(--jp-ink);
 }
 .jp-dialog-backdrop:has(.jp-review__cards) .jp-btn {
@@ -200,11 +201,11 @@
 }
 
 /* 04/11 redesign: wider check column */
-.jp-check-page { max-width: 900px; }
+.jp-check-page { max-width: min(900px, 92vw); }
 .jp-check-page > .jp-crumbs { margin-bottom: 14px; }
 
 /* 04/11 polish: màn học */
-.jp-check-page { max-width: 1000px; }
+.jp-check-page { max-width: min(1000px, 92vw); }
 .jp-check { gap: 22px; padding: 0; background: transparent; }
 .jp-check__head { padding-top: 8px; }
 .jp-check__title { font-size: 1.4em; line-height: 1.35; }
@@ -236,21 +237,21 @@
 .jp-done__actions .jp-btn { min-height: 52px; }
 @media (max-width: 640px) {
   .jp-check-page { padding-bottom: 0; }
-  .jp-check { gap: 16px; }
+  .jp-check { gap: 4vw; }
   .jp-check__title { font-size: 1.15em; }
-  .jp-check__prompt.jp-card { min-height: 115px; padding: 18px 8px; }
-  .jp-check__text[lang="ja"] { font-size: 2em; }
-  .jp-check-opt { min-height: 54px; padding: 10px 12px; }
-  .jp-check__next, .jp-result__actions, .jp-done__actions { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--jp-surface); }
+  .jp-check__prompt.jp-card { min-height: clamp(96px, 16dvh, 115px); padding: clamp(14px, 3vw, 18px) 2.2vw; }
+  .jp-check__text[lang="ja"] { font-size: clamp(1.7em, 6vw, 2em); }
+  .jp-check-opt { min-height: clamp(48px, 8dvh, 54px); padding: clamp(8px, 1.8dvh, 10px) 3.2vw; }
+  .jp-check__next, .jp-result__actions, .jp-done__actions { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; padding: clamp(10px, 2.4dvh, 12px) 4vw calc(clamp(10px, 2.4dvh, 12px) + env(safe-area-inset-bottom)); background: var(--jp-surface); }
   .jp-check__next { justify-self: stretch; width: 100%; box-sizing: border-box; }
   .jp-result__actions, .jp-done__actions { box-sizing: border-box; }
-  .jp-result__actions .jp-btn, .jp-done__actions .jp-btn { flex: 1 1 140px; }
-  .jp-done__stats { gap: 4px 16px; }
+  .jp-result__actions .jp-btn, .jp-done__actions .jp-btn { flex: 1 1 36vw; }
+  .jp-done__stats { gap: 1vw 4vw; }
 }
 @media (prefers-reduced-motion: reduce) { .jp-check__bar span { transition: none; } }
 
 /* Focus pages: one prompt or result, with supporting choices below. */
-.jp-check-page { max-width: 1000px; }
+.jp-check-page { max-width: min(1000px, 92vw); }
 .jp-check__bar { height: 5px; border-radius: 3px; }
 .jp-check__prompt.jp-card, .jp-result.jp-card, .jp-done.jp-card { border-radius: 8px; }
 .jp-check__prompt.jp-card { border: 1px solid var(--jp-line); background: var(--jp-surface); }
@@ -267,7 +268,7 @@
 }
 
 /* 04/11 polish round 4: kiểm tra và tổng kết ngày */
-.jp-check-page { max-width: 1120px; }
+.jp-check-page { max-width: min(1120px, 94vw); }
 .jp-check-opt { width: 100%; min-height: 64px; border-radius: 8px; }
 .jp-check-opt .jp-i { margin-left: auto; flex: none; }
 .jp-check-opt.jp-ok { border-color: var(--jp-ok); background: var(--jp-primary-soft); }
@@ -844,10 +845,10 @@ html.dark .jp-check {
 
 /* 06/11 Lượt 7: Đồng bộ khung thẻ trang Kiểm tra với trang Học thẻ, sửa nút Furigana & nút Nghe tròn chuẩn */
 .jp-check-page {
-  max-width: 720px;
+  max-width: min(720px, 92vw);
   margin: 0 auto;
-  padding-top: 12px;
-  padding-bottom: 24px;
+  padding-top: clamp(8px, 1.5vw, 12px);
+  padding-bottom: clamp(16px, 3vw, 24px);
 }
 
 .jp-check-topBar {
@@ -1405,4 +1406,100 @@ html.dark .cp-page {
   --jp-primary-soft: var(--surface-2, #382840) !important;
   --cp-done: #b37cf5 !important;
   --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
+}
+
+/* [JLAS-W0108] F100: JLPT path page (/learning), same rule as the comm path (F98): one mascot in the "Hôm nay" card.
+   Wider than 400px the Kitsu with the speech bubble shows, so the copy hugging the calendar ring is hidden; at 400px and
+   below jpath-path.css hides the bubble Kitsu, so the ring copy stays and the title steps right to clear its head. */
+@media (min-width: 401px) {
+  .jp-path:not(.cp-page) .jp-today .jp-today__cal-kitsu { display: none; }
+}
+@media (max-width: 400px) {
+  .jp-path:not(.cp-page) .jp-today .jp-today__top .jp-today__lead { margin-left: 18px; }
+}
+/* F100: from 641px the week sign stands in the map's top-left corner, where the first cloud also drifted over its title;
+   the cloud now starts right of the sign (signs are hidden at 640px and below) */
+@media (min-width: 641px) {
+  .jp-path:not(.cp-page) .jp-parts__backdrop .jp-parts__cloud--1 { left: 150px; }
+}
+
+/* [JLAS-W0108] F103: JLPT path page (/learning), skill day: the three "Hôm nay" pills (Đọc / Nghe / Ôn) stand
+   in three ~210px columns from 641px up, and the fixed button left the text ~25px wide, so "Nghe hiểu nhiệm vụ"
+   broke one letter per line. The text now keeps at least 120px; when the button does not fit next to it, it
+   drops under the text, aligned right. */
+.jp-path:not(.cp-page) .jp-today__pill.jp-todo__item { flex-wrap: wrap; row-gap: 8px; }
+.jp-path:not(.cp-page) .jp-today__pill-body.jp-todo__text { flex: 1 1 120px; }
+.jp-path:not(.cp-page) .jp-today__pill.jp-todo__item > :last-child { margin-left: auto; }
+
+/* [JLAS-W0108] F105: check page (/learning/jlpt/check/...) on a phone: the crumb "Quay về Lộ trình JLPT" and the
+   button "← Quay lại lộ trình" both lead to /learning, so the page head took two rows for one way back. When the
+   button goes to the path page too it is hidden up to 640px; when it goes back to a study session
+   (href /learning/jlpt/study…, "← Quay lại buổi học") it stays, since the crumb would not go there. */
+@media (max-width: 640px) {
+  .jp-check-topBar__actions .jp-check-back[href="/learning"] { display: none; }
+}
+
+/* [JLAS-W0108] F120: grammar pattern page (/learning/jlpt/grammar/{code}), owner 14/11 "siêu tệ về UI".
+   1) .jp-path { max-width: none } (jpath-path.css) comes after .jp-lesson-page { max-width: 1100px }, so on a wide
+      screen the hero and the two body columns ran to the right edge → the page is held at 1180px and centred.
+   2) "Cấu trúc" floated alone at the far end of the hero → the head box steps aside (display: contents) so
+      "Nghĩa" and "Cấu trúc" share one row under the pattern; on a phone they stack.
+   3) The two body columns started at different heights (a rule above the left column only, a 44px link row on
+      the right) → same rule on both, the link keeps its tap area without pushing the label down, columns 1:1.
+   4) The report flag (fixed, bottom right) covered the last example or the practice button → room at the end. */
+.jp-path.jp-lesson-page { max-width: min(1180px, 94vw); width: 100%; margin-inline: auto; box-sizing: border-box; }
+.jp-lesson-page .jp-lesson__hero { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  column-gap: clamp(24px, 4vw, 56px); row-gap: 0; align-items: end; }
+.jp-lesson-page .jp-lesson__hero > .jp-lesson__head { display: contents; }
+.jp-lesson-page .jp-lesson__hero .jp-lesson__eyebrow,
+.jp-lesson-page .jp-lesson__hero .jp-unitbar,
+.jp-lesson-page .jp-lesson__hero .jp-lesson__pattern { grid-column: 1 / -1; justify-self: start; }
+.jp-lesson-page .jp-lesson__hero .jp-lesson__meaning { grid-column: 1; min-width: 0; }
+.jp-lesson-page .jp-lesson__hero .jp-lesson__formula { grid-column: 2; min-width: 0; align-self: end;
+  padding-left: clamp(16px, 2.4vw, 24px); border-left: 1px solid color-mix(in srgb, var(--jp-primary) 22%, transparent); }
+@media (min-width: 1100px) {
+  .jp-lesson-page .jp-lesson__hero { grid-template-columns: minmax(0, auto) minmax(0, 1fr); }
+  .jp-lesson-page .jp-lesson__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: clamp(24px, 3.6vw, 48px); }
+  .jp-lesson-page .jp-lesson__examples { border-top: 1px solid var(--jp-line); }
+}
+.jp-lesson-page .jp-lesson__examples-head { min-height: 20px; }
+.jp-lesson-page .jp-lesson__examples-head .jp-link-btn { margin-block: -12px; }
+@media (min-width: 641px) {
+  .jp-path.jp-lesson-page { padding-bottom: clamp(56px, 8dvh, 88px); }
+}
+@media (max-width: 640px) {
+  .jp-lesson-page .jp-lesson__hero { grid-template-columns: minmax(0, 1fr); row-gap: 3.5vw; }
+  .jp-lesson-page .jp-lesson__hero .jp-lesson__formula { grid-column: 1; padding-left: 0; border-left: 0; }
+}
+/* F120 (same pass), item drawer (Kanji / Từ vựng detail, opened from the lists): on a 760–1000px screen the
+   kanji column took half the purple box while the readings got ~170px, so "Âm Kun" ran 8 lines → the kanji side
+   keeps what it needs (9em up to 0.7 share) and the labels shrink to 5.5em. */
+@media (min-width: 760px) {
+  .jp-drawer__top:has(.jp-facts) { grid-template-columns: minmax(9em, .7fr) minmax(0, 1.3fr); }
+}
+.jp-drawer__top .jp-fact { grid-template-columns: 5.5em minmax(0, 1fr); }
+
+/* [JLAS-W0108] F150: lỗi mở khóa tuần xuống dòng gọn; tooltip chặng khóa mở xuống dưới không bị che mép trên */
+.jp-today__weekly .jp-parts__err { flex: 1 0 100%; margin: 2px 0 0; }
+.jp-parts__lock-tip {
+  top: calc(100% + 10px); bottom: auto;
+  transform: translateX(-50%) translateY(-4px);
+}
+.jp-parts__lock-tip::after {
+  top: -5px; bottom: auto; border-width: 0 5px 5px;
+  border-color: transparent transparent var(--jp-r4-line);
+}
+
+/* [JLAS-W0108] F154f: chừa chỗ cho nút Báo sai nổi (.jp-report-fab) không che nút Câu tiếp trên máy tính & điện thoại */
+@media (min-width: 641px) {
+  .jp-check-page { padding-bottom: 88px; }
+  body:has(.jp-report-fab) .jp-check__next { margin-right: 64px; }
+}
+@media (max-width: 640px) {
+  body:has(.jp-check__next, .jp-result__actions, .jp-done__actions) .jp-report-fab {
+    bottom: calc(var(--jlab-mobile-bottom, 0px) + 78px);
+  }
+  .jp-check-page:has(.jp-check__next, .jp-result__actions, .jp-done__actions) {
+    padding-bottom: 76px;
+  }
 }

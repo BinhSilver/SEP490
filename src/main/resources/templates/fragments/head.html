@@ -62,6 +62,9 @@
     <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261111-nav-nowrap}" />
     <link rel="stylesheet" th:href="@{/css/pages/learning-journey.css}" />
+    <link th:if="${pageCss == 'smart-test'}" rel="stylesheet" th:href="@{/css/learning-v2-tokens.css?v=20261111-smart-test}" />
+    <link th:if="${pageCss == 'smart-test'}" rel="stylesheet" th:href="@{/css/pages/jpath-base.css?v=20261111-smart-test}" />
+    <link th:if="${pageCss == 'smart-test'}" rel="stylesheet" th:href="@{/css/pages/smart-test.css?v=20261111-learning-v2}" />
 
     <script th:src="@{/js/components/avatar-frame.js?v=20261021-catalog}"></script>
     <script th:src="@{/js/auth-session.js}"></script>

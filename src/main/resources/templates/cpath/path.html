@@ -19,6 +19,11 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-path cp-page" data-inline-dictionary>
+    <!-- L19: /learning sends a learner whose main goal is communication here; say so instead of a silent loop -->
+    <p class="jp-band" role="note" th:if="${param.from != null and param.from[0] == 'jlpt'}">
+        Mục tiêu chính của bạn đang là Giao tiếp, nên liên kết tới Lộ trình JLPT mở trang này.
+        Muốn học theo JLPT, bấm <strong>Lộ trình JLPT</strong> ở cột bên trái để chuyển mục tiêu chính.
+    </p>
     <div id="cpathPathRoot" class="jp-ws jp-ws--norail jp-path__grid" aria-busy="true">
         <aside class="jp-ws__side jp-path__side" aria-label="Điều hướng lộ trình giao tiếp">
             <div class="jp-path__levels" data-region="levels"></div>
@@ -33,6 +38,7 @@
                 <a class="jp-sidenav__link" href="/learning/comm/survey" th:href="@{/learning/comm/survey}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Thêm mục tiêu phụ
                 </a>
+                <a class="jp-sidenav__link" href="/learning/comm/settings" th:href="@{/learning/comm/settings}">Cài đặt lộ trình</a>
                 <a class="jp-sidenav__link" href="/learning/comm/notebook">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
                 </a>
