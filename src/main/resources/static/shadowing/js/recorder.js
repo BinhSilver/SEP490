@@ -265,6 +265,7 @@
     }
     const state = stateFor(finished.card);
     state.blob = blob;
+    state.upload = null; // a new take is converted again before its check
     state.objectUrl = URL.createObjectURL(blob);
     state.context = finished.context;
     state.attempt = null;
@@ -748,6 +749,46 @@
     return Object.assign(choice, { price: price });
   }
 
+  // Azure takes 16 kHz mono PCM. Converting here means the server no longer needs ffmpeg for a check (a host
+  // without it failed every one). If the browser cannot decode the recording, the original file is sent as before.
+  async function wavForAssessment(blob) {
+    const Context = window.AudioContext || window.webkitAudioContext;
+    const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Context || !Offline) return blob;
+    const context = new Context();
+    try {
+      const buffer = await blob.arrayBuffer();
+      const decoded = await new Promise((resolve, reject) => {
+        const result = context.decodeAudioData(buffer, resolve, reject);
+        if (result && typeof result.then === 'function') result.then(resolve, reject);
+      });
+      const rate = 16000;
+      const offline = new Offline(1, Math.max(1, Math.ceil(decoded.duration * rate)), rate);
+      const source = offline.createBufferSource();
+      source.buffer = decoded;
+      source.connect(offline.destination);
+      source.start(0);
+      const rendered = await offline.startRendering();
+      return pcmWav(rendered.getChannelData(0), rate);
+    } finally {
+      if (typeof context.close === 'function') context.close().catch(() => {});
+    }
+  }
+
+  function pcmWav(samples, rate) {
+    const view = new DataView(new ArrayBuffer(44 + samples.length * 2));
+    const text = (offset, value) => { for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i)); };
+    text(0, 'RIFF'); view.setUint32(4, 36 + samples.length * 2, true); text(8, 'WAVE');
+    text(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, rate, true); view.setUint32(28, rate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+    text(36, 'data'); view.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) {
+      const value = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(44 + i * 2, value < 0 ? value * 0x8000 : value * 0x7fff, true);
+    }
+    return new Blob([view], { type: 'audio/wav' });
+  }
+
   async function assess(card) {
     const state = stateFor(card);
     if (state.assessing) return state.assessing;
@@ -784,11 +825,13 @@
     const controller = new AbortController();
     const requestTimeout = setTimeout(() => controller.abort(), 60000);
     try {
+      if (!state.upload) state.upload = await wavForAssessment(state.blob).catch(() => state.blob);
+      const upload = state.upload;
       const send = function (useCredit) {
         const form = new FormData();
-        const extension = state.blob.type.includes('ogg') ? 'ogg' : state.blob.type.includes('mp4') ? 'm4a' : 'webm';
+        const extension = upload.type.includes('wav') ? 'wav' : upload.type.includes('ogg') ? 'ogg' : upload.type.includes('mp4') ? 'm4a' : 'webm';
         form.append('subtitleId', String(state.context.subtitleId));
-        form.append('audio', state.blob, 'shadowing-recording.' + extension);
+        form.append('audio', upload, 'shadowing-recording.' + extension);
         if (useCredit) form.append('useCredit', 'true');
         return fetch('/api/pronunciation/assess', {
           method: 'POST',

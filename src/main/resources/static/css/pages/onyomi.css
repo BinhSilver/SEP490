@@ -1192,7 +1192,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-quiz__popup-open,
 .oy-quiz__popup-close,
 .oy-quiz__backdrop,
-.oy-quiz__finish--page {
+.oy-quiz__finish--page,
+.oy-quiz__next-row {
   display: none;
 }
 
@@ -1557,6 +1558,19 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
   .oy-quiz__finish--page {
     display: inline-flex;
+  }
+
+  /* The question list is a popup here, so the way to the next question sits under the explanation. */
+  .oy-quiz__next-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--space-4);
+  }
+
+  .oy-quiz__next--page {
+    gap: 8px;
+    min-height: 48px;
+    padding-inline: 22px;
   }
 
   .oy-quiz__backdrop.is-open {

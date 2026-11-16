@@ -25,6 +25,8 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -105,9 +107,16 @@ public class AzurePronunciationAssessmentService {
             // MediaRecorder WebM commonly reports "Duration: N/A". Decode first so the
             // generated PCM WAV has a reliable duration header.
             stage = "convert-wav";
-            ffmpegService.convertFileToWav(source.toString(), wav.toString());
-            stage = "read-duration";
-            double duration = ffmpegService.getDuration(wav.toString());
+            // The page converts recordings to 16 kHz mono PCM itself, so the usual upload needs no ffmpeg (a host
+            // without it used to fail every check here). Anything else is still converted by ffmpeg.
+            double duration = readyWavSeconds(source);
+            if (duration > 0) {
+                Files.copy(source, wav, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                ffmpegService.convertFileToWav(source.toString(), wav.toString());
+                stage = "read-duration";
+                duration = ffmpegService.getDuration(wav.toString());
+            }
             if (duration <= 0 || duration > config.getMaxAudioSeconds()) {
                 throw new ApiException(ErrorCode.BAD_REQUEST,
                         "Bản thu phải có âm thanh và không dài quá " + config.getMaxAudioSeconds() + " giây");
@@ -284,6 +293,39 @@ public class AzurePronunciationAssessmentService {
             default -> false;
         };
         if (!valid) throw new ApiException(ErrorCode.BAD_REQUEST, "Nội dung file audio không hợp lệ");
+    }
+
+    /**
+     * Seconds of audio in a 16 kHz, mono, 16-bit PCM WAV, the format Azure is sent; -1 for any other file.
+     * Walks the RIFF chunks instead of assuming a 44-byte header, since encoders may add chunks before "data".
+     */
+    static double readyWavSeconds(Path file) throws IOException {
+        byte[] data = Files.readAllBytes(file);
+        if (data.length < 44 || !ascii(data, 0, "RIFF") || !ascii(data, 8, "WAVE")) return -1;
+        ByteBuffer bytes = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+        boolean pcm16kMono = false;
+        int position = 12;
+        while (position + 8 <= data.length) {
+            int size = bytes.getInt(position + 4);
+            if (size < 0) return -1;
+            if (ascii(data, position, "fmt ") && size >= 16 && position + 24 <= data.length) {
+                pcm16kMono = (bytes.getShort(position + 8) & 0xffff) == 1          // PCM
+                        && (bytes.getShort(position + 10) & 0xffff) == 1          // mono
+                        && bytes.getInt(position + 12) == 16_000
+                        && (bytes.getShort(position + 22) & 0xffff) == 16;
+            } else if (ascii(data, position, "data")) {
+                if (!pcm16kMono) return -1;
+                long audioBytes = Math.min(size, data.length - position - 8L);
+                return audioBytes > 0 ? audioBytes / 32_000.0 : -1;
+            }
+            position += 8 + size + (size & 1);
+        }
+        return -1;
+    }
+
+    private static boolean ascii(byte[] data, int offset, String text) {
+        return offset + text.length() <= data.length
+                && new String(data, offset, text.length(), StandardCharsets.US_ASCII).equals(text);
     }
 
     private static String normalizedMime(String contentType) {
