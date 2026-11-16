@@ -828,6 +828,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         int errors = b.errors();
         if (correct) {
             matched.add(r.leftId());
+            // Pair boards are practice: an earlier wrong pick is recoverable until this pair is matched.
+            wrongLeft.remove(r.leftId());
         } else {
             errors++;
             wrongLeft.add(r.leftId());
@@ -1025,7 +1027,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 Board b = p.boards().get(qv.board().boardId());
                 int pairs = key.pairs().size();
                 total += pairs;
-                correct += Math.max(0, pairs - b.errors());
+                // Count the final matched state, not wrong attempts made while practicing the board.
+                correct += b.matched().size();
                 b.wrongLeft().forEach(l -> wrong.add(key.pairItems().get(l)));
                 continue;
             }
