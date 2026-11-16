@@ -122,6 +122,30 @@
     return payload.data;
   }
 
+  /** POST /api/tutor/chat/stream: máy chủ trả từng dòng JSON; gọi onLine cho mỗi dòng ngay khi tới. */
+  async function streamChat(body, onLine) {
+    var response = await fetch('/api/tutor/chat/stream', {
+      method: 'POST', headers: headers(), credentials: 'same-origin', body: JSON.stringify(body)
+    });
+    if (!response.ok || !response.body) {
+      var payload = null;
+      try { payload = await response.json(); } catch (e) { payload = null; }
+      throw new Error(payload && payload.message ? payload.message : 'Gia sư chưa trả lời được, bạn thử lại sau nhé.');
+    }
+    var reader = response.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer = '';
+    for (;;) {
+      var chunk = await reader.read();
+      buffer += decoder.decode(chunk.value || new Uint8Array(), { stream: !chunk.done });
+      var lines = buffer.split('\n');
+      buffer = lines.pop();
+      lines.forEach(function (text) { if (text.trim()) onLine(JSON.parse(text)); });
+      if (chunk.done) break;
+    }
+    if (buffer.trim()) onLine(JSON.parse(buffer));
+  }
+
   function sourcesMarkup(sources) {
     if (!sources || !sources.length) return '';
     return '<details class="tutor-sources"><summary>Nguồn (' + sources.length + ')</summary><ul>' +
@@ -153,7 +177,7 @@
 
   function render() {
     els.log.innerHTML = (state.messages.length ? '' : introMarkup()) + state.messages.map(messageMarkup).join('') +
-      (state.busy ? '<div class="tutor-msg tutor-msg--bot tutor-typing" aria-label="Gia sư đang trả lời"><span></span><span></span><span></span></div>' : '');
+      (state.busy && state.messages[state.messages.length - 1].role !== 'assistant' ? '<div class="tutor-msg tutor-msg--bot tutor-typing" aria-label="Gia sư đang trả lời"><span></span><span></span><span></span></div>' : '');
     els.log.scrollTop = els.log.scrollHeight;
     els.send.disabled = state.busy;
     els.counter.textContent = els.input.value.length + '/' + state.maxChars;
@@ -173,11 +197,26 @@
     els.input.value = '';
     render();
     save();
+    var draft = null; // câu trả lời đang hiện dần; dòng "done" thay nó bằng bản đã lọc kèm nguồn
     try {
-      var data = await request('/api/tutor/chat', { method: 'POST', body: JSON.stringify({ question: q, history: history }) });
-      state.messages.push({ role: 'assistant', content: data.answer, sources: data.sources || [] });
+      await streamChat({ question: q, history: history }, function (line) {
+        if (line.error) throw new Error(line.error);
+        if (line.delta) {
+          if (!draft) { draft = { role: 'assistant', content: '', sources: [] }; state.messages.push(draft); }
+          draft.content += line.delta;
+          render();
+        }
+        if (line.done) {
+          if (!draft) { draft = { role: 'assistant', content: '', sources: [] }; state.messages.push(draft); }
+          draft.content = line.answer;
+          draft.sources = line.sources || [];
+          draft.complete = true;
+        }
+      });
+      if (!draft || !draft.complete) throw new Error('Gia sư chưa trả lời xong, bạn thử lại nhé.');
     } catch (e) {
-      state.messages.push({ role: 'error', content: e.message });
+      if (draft) state.messages.splice(state.messages.indexOf(draft), 1);
+      state.messages.push({ role: 'error', content: e.message || 'Gia sư chưa trả lời được, bạn thử lại sau nhé.' });
     } finally {
       state.busy = false;
       save();

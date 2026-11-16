@@ -49,6 +49,11 @@ public class RagTutorService {
 
     /** @param history các lượt trước trong cùng cuộc trò chuyện (role user/assistant), đã được giới hạn độ dài */
     public Answer ask(String question, List<Map<String, String>> history) {
+        return ask(question, history, null);
+    }
+
+    /** @param onDelta khác null thì nhận từng mẩu chữ của model khi nó viết; câu trả lời cố định không qua đây */
+    public Answer ask(String question, List<Map<String, String>> history, java.util.function.Consumer<String> onDelta) {
         long started = System.nanoTime();
         List<RomajiKana.Hint> hints = RomajiKana.hints(question);
         RagRetriever.Context context = kanjiOnlyWhenNeeded(retriever.retrieve(retrievalQuery(question, hints, history), null), question);
@@ -61,7 +66,9 @@ public class RagTutorService {
         String fixed = context.isEmpty() ? NO_SOURCE + (HEALTH_QUESTION.matcher(plain(question)).find() ? SEE_A_DOCTOR : "")
                 : !hints.isEmpty() && isGrammarQuestion(question) && notInSources(hints, context) ? unknownPattern(hints) : null;
         if (fixed != null) return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0);
-        String answer = stripRomaji(llm.chat(RagPromptComposer.systemPrompt(context, hints), history, question, MAX_ANSWER_TOKENS));
+        String system = RagPromptComposer.systemPrompt(context, hints);
+        String answer = stripRomaji(onDelta == null ? llm.chat(system, history, question, MAX_ANSWER_TOKENS)
+                : llm.chatStream(system, history, question, MAX_ANSWER_TOKENS, onDelta));
         long done = System.nanoTime();
         return new Answer(answer, context.passages(), context.lexicon(), RagPromptComposer.citations(context),
                 retrievalMs, (done - retrieved) / 1_000_000);
@@ -78,9 +85,18 @@ public class RagTutorService {
      */
     static String stripRomaji(String answer) {
         if (answer == null) return null;
-        return answer.lines().map(line -> JAPANESE_TEXT.matcher(line).find() ? ROMAJI_PARENS.matcher(line).replaceAll("") : line)
+        return answer.lines().map(line -> JAPANESE_TEXT.matcher(line).find()
+                        ? SHORT_ROMAJI.matcher(ROMAJI_PARENS.matcher(line).replaceAll("")).replaceAll("$1") : line)
                 .collect(Collectors.joining("\n"));
     }
+
+    /**
+     * Romaji ngắn ngay sau chữ Nhật, ví dụ "高い (takai)" (đo được trên model 9B). Chỉ bắt ngoặc toàn chữ thường từ 2 ký tự
+     * đứng liền sau chữ Nhật, nên "(N + まで)", "(BrSE)", "(JLPT N2)" được giữ.
+     * ponytail: một từ tiếng Anh viết thường ngay sau chữ Nhật, ví dụ "レビュー (review)", cũng bị bỏ.
+     */
+    private static final Pattern SHORT_ROMAJI = Pattern.compile(
+            "([\\p{IsHiragana}\\p{IsKatakana}\\p{IsHan}ー][*」』\"]*)\\s*[(（]\\s*\\*?[a-zāīūēōâîûêô][a-zāīūēōâîûêô' \\-]+\\*?\\s*[)）]");
 
     /** Câu hỏi kèm chữ kana đổi từ romaji; câu hỏi nối tiếp ngắn thì kèm câu hỏi trước của người học. */
     static String retrievalQuery(String question, List<RomajiKana.Hint> hints, List<Map<String, String>> history) {

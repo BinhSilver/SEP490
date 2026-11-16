@@ -123,6 +123,7 @@ Nút "Hỏi gia sư" ở góc phải dưới các trang học (trang dùng `frag
 
 - Hiện khi đã đăng nhập và `KAIWA_RAG_ENABLED=true`. Không hiện với khách, trang quản trị, `/smart-test`, `/jlpt/exam` và các trang quiz (để gia sư không làm bài hộ), và không hiện ở AI Call.
 - API: `GET /api/tutor/status`, `POST /api/tutor/chat` `{"question": "...", "history": [{"role": "user|assistant", "content": "..."}]}`. Trả `answer` và `sources` (mã `[D1]`/`[S1]` khớp với câu trả lời).
+- Hiện chữ dần: `POST /api/tutor/chat/stream` (cùng body) trả từng dòng JSON: nhiều dòng `{"delta": "..."}`, rồi một dòng cuối `{"done": true, "answer", "sources"}` (câu trả lời đã lọc romaji, thay cho phần đã hiện) hoặc `{"error": "..."}`. Câu trả lời cố định (chào hỏi, ngoài phạm vi, âm Hán Việt) chỉ có dòng cuối. Nút nổi dùng đường này.
 - Luôn dùng model Ollama trên máy chủ AI (`OLLAMA_CHAT_MODEL`), kể cả khi AI Call dùng OpenRouter. Ollama lỗi thì báo lỗi, không chuyển sang API cloud.
 - Giới hạn: `TUTOR_MAX_CONCURRENT` câu cùng lúc cho cả LAN (mặc định 2, Ollama trên một GPU chạy lần lượt), chờ tối đa `TUTOR_WAIT_SECONDS` (30), mỗi người `TUTOR_QUESTIONS_PER_HOUR` câu mỗi giờ (60) và một câu một lúc, câu hỏi tối đa 500 ký tự.
 - Chỉ trả lời theo nguồn J-LAS. Không tìm được nguồn nào thì trả lời cố định, không gọi model. Hỏi mẫu ngữ pháp bằng romaji (ví dụ `nittote`) thì đổi sang kana (`にっとて`) để tìm; giáo trình không có đúng chữ đó thì báo chưa có mẫu này và nhờ người học viết bằng chữ Nhật, không để model đoán sang mẫu khác. `sources` chỉ gồm các nguồn câu trả lời có trích.

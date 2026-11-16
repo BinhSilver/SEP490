@@ -50,7 +50,7 @@ public class OpenRouterConfig {
     @Value("${kaiwa.llm.ollama.base-url:http://127.0.0.1:11434/v1}")
     private String ollamaBaseUrl;
 
-    @Value("${kaiwa.llm.ollama.model:qwen3.5:4b}")
+    @Value("${kaiwa.llm.ollama.model:qwen3.5:9b}")
     private String ollamaModel;
 
     @Value("${kaiwa.llm.ollama.embedding-model:bge-m3}")

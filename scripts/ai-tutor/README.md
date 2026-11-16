@@ -32,7 +32,7 @@ Không thêm bảng, không đổi schema, không đổi quy tắc tính phí. K
 3. Tải model và đo:
 
    ```powershell
-   ollama pull qwen3.5:4b
+   ollama pull qwen3.5:9b
    ollama pull bge-m3
    cd <thư mục repo>
    powershell -ExecutionPolicy Bypass -File scripts\ai-tutor\benchmark-ollama.ps1
@@ -42,7 +42,7 @@ Không thêm bảng, không đổi schema, không đổi quy tắc tính phí. K
 
    Kết quả nằm ở `target\ai-tutor-benchmark\<thời gian>\results.json` và `summary.md`. Gửi lại hai file này để chốt model.
 
-   Model mặc định là `qwen3.5:4b` (đã đo trên RTX 3070 Ti, xem báo cáo Phase 1). Model này mặc định bật thinking: khi bật, nó dùng hết 2048 token mà không ra câu trả lời. J-LAS và script luôn gửi `think:false`; nếu tự gọi Ollama bằng tay cũng phải tắt. Kiểm tra giấy phép model trước khi dùng ngoài phạm vi đồ án.
+   Model mặc định là `qwen3.5:9b` (6,6 GB; đo ngày 2026-11-16 trên RTX 3070 Ti 8 GB: bám nguồn tốt hơn `qwen3.5:4b`, không bịa quy tắc chia, nhưng chậm gần gấp 3 — trung bình 7,5 giây mỗi câu so với 2,6 giây — và dùng 7,9/8,2 GB VRAM cùng bge-m3). Máy yếu hơn thì đặt `OLLAMA_CHAT_MODEL=qwen3.5:4b`. Muốn kho model nằm ngoài ổ C thì chạy `ollama serve` với `OLLAMA_MODELS=<thư mục>` và trỏ `OLLAMA_BASE_URL` tới cổng của nó. Model này mặc định bật thinking: khi bật, nó dùng hết 2048 token mà không ra câu trả lời. J-LAS và script luôn gửi `think:false`; nếu tự gọi Ollama bằng tay cũng phải tắt. Kiểm tra giấy phép model trước khi dùng ngoài phạm vi đồ án.
 
 ## 3. Bật Ollama trong J-LAS
 
@@ -55,7 +55,7 @@ kaiwa:
     read-timeout-ms: 90000          # lần nạp model đầu tiên có thể chậm
     ollama:
       base-url: http://127.0.0.1:11434/v1
-      model: qwen3.5:4b
+      model: qwen3.5:9b
       keep-alive: 30m               # giữ model trong VRAM; nạp lạnh mất ~20 s
       think: false
       num-ctx: 4096

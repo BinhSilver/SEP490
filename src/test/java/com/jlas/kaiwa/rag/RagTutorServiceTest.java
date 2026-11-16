@@ -139,6 +139,11 @@ class RagTutorServiceTest {
                 .isEqualTo("- 暇すらなかった。: Không có thời gian (rất bận) [S1]");
         assertThat(RagTutorService.stripRomaji("駅(えき)まで (N + まで) [S1]")).isEqualTo("駅(えき)まで (N + まで) [S1]");
         assertThat(RagTutorService.stripRomaji("Dòng không có chữ Nhật (hello world)")).isEqualTo("Dòng không có chữ Nhật (hello world)");
+        // Romaji ngắn ngay sau chữ Nhật (model 9B); nhãn viết hoa và nghĩa tiếng Việt được giữ.
+        assertThat(RagTutorService.stripRomaji("Từ trái nghĩa của 高い (takai) là 低い [D1].")).isEqualTo("Từ trái nghĩa của 高い là 低い [D1].");
+        assertThat(RagTutorService.stripRomaji("**高い** (takai) nghĩa là đắt")).isEqualTo("**高い** nghĩa là đắt");
+        assertThat(RagTutorService.stripRomaji("ブリッジSE (BrSE) và 高い (đắt) và 文法 (JLPT N2)"))
+                .isEqualTo("ブリッジSE (BrSE) và 高い (đắt) và 文法 (JLPT N2)");
     }
 
     @Test

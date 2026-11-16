@@ -80,4 +80,61 @@ public class LocalLlmClient {
             throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "Máy chủ AI trả lỗi, bạn thử lại sau nhé.");
         }
     }
+
+    /**
+     * Như {@link #chat} nhưng Ollama trả từng mẩu chữ; mỗi mẩu được đưa cho {@code onDelta} ngay khi tới.
+     * @return toàn bộ câu trả lời
+     */
+    public String chatStream(String systemPrompt, List<Map<String, String>> history, String userMessage, int maxTokens,
+                             java.util.function.Consumer<String> onDelta) {
+        List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(Map.of("role", "system", "content", systemPrompt));
+        if (history != null) messages.addAll(history);
+        messages.add(Map.of("role", "user", "content", userMessage));
+        Map<String, Object> openAi = new HashMap<>();
+        openAi.put("model", config.getOllamaModel());
+        openAi.put("messages", messages);
+        openAi.put("temperature", 0.3);
+        openAi.put("max_tokens", maxTokens);
+        Map<String, Object> body = OllamaNativeChat.toNative(openAi, config);
+        body.put("stream", true);
+        try {
+            java.net.http.HttpClient http = java.net.http.HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofMillis(config.getConnectTimeoutMs())).build();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(java.net.URI.create(OllamaNativeChat.url(config)))
+                    .timeout(java.time.Duration.ofMillis(config.getReadTimeoutMs()))
+                    .header("Content-Type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body), StandardCharsets.UTF_8)).build();
+            java.net.http.HttpResponse<java.util.stream.Stream<String>> response =
+                    http.send(request, java.net.http.HttpResponse.BodyHandlers.ofLines());
+            StringBuilder content = new StringBuilder();
+            try (java.util.stream.Stream<String> lines = response.body()) {
+                for (String line : (Iterable<String>) lines::iterator) {
+                    if (line.isBlank()) continue;
+                    Map<?, ?> chunk = json.readValue(line, Map.class);
+                    if (response.statusCode() >= 400 || chunk.get("error") != null) {
+                        throw new java.io.IOException("HTTP " + response.statusCode() + " " + chunk.get("error"));
+                    }
+                    String delta = OllamaNativeChat.content(chunk);
+                    if (delta != null && !delta.isEmpty()) {
+                        content.append(delta);
+                        onDelta.accept(delta);
+                    }
+                }
+            }
+            if (content.toString().isBlank()) {
+                throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "Model trên máy chủ AI không trả lời.");
+            }
+            return content.toString().trim();
+        } catch (java.net.ConnectException | java.net.http.HttpTimeoutException e) {
+            log.warn("Local LLM unreachable model={}: {}", config.getOllamaModel(), e.getMessage());
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Máy chủ AI chưa sẵn sàng, bạn thử lại sau nhé.");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Máy chủ AI chưa sẵn sàng, bạn thử lại sau nhé.");
+        } catch (java.io.IOException e) {
+            log.warn("Local LLM error model={}: {}", config.getOllamaModel(), e.getMessage());
+            throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "Máy chủ AI trả lỗi, bạn thử lại sau nhé.");
+        }
+    }
 }

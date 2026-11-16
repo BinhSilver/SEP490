@@ -53,13 +53,13 @@ class TutorChatServiceTest {
 
     @Test
     void answersWithTheSourcesItCites() {
-        when(rag.ask(anyString(), anyList())).thenReturn(answer("**は** là trợ từ chủ đề [S1]."));
+        when(rag.ask(anyString(), anyList(), any())).thenReturn(answer("**は** là trợ từ chủ đề [S1]."));
 
         TutorChatService.Reply reply = service(true, limits(2, 1, 60)).ask(7L, "  は dùng thế nào?  ", List.of());
 
         assertThat(reply.answer()).isEqualTo("**は** là trợ từ chủ đề [S1].");
         assertThat(reply.sources()).extracting(RagPromptComposer.Citation::code).containsExactly("S1");
-        verify(rag).ask("は dùng thế nào?", List.of());
+        verify(rag).ask("は dùng thế nào?", List.of(), null);
     }
 
     @Test
@@ -80,11 +80,11 @@ class TutorChatServiceTest {
         verifyNoInteractions(rag);
 
         // Câu hỏi thật có chứa các chữ đó vẫn được gia sư trả lời.
-        when(rag.ask(anyString(), anyList())).thenReturn(answer("..."));
+        when(rag.ask(anyString(), anyList(), any())).thenReturn(answer("..."));
         tutor.ask(1L, "Câu \"bạn là ai\" tiếng Nhật nói thế nào?", List.of());
         tutor.ask(1L, "こんにちは", List.of());
-        verify(rag).ask("Câu \"bạn là ai\" tiếng Nhật nói thế nào?", List.of());
-        verify(rag).ask("こんにちは", List.of());
+        verify(rag).ask("Câu \"bạn là ai\" tiếng Nhật nói thế nào?", List.of(), null);
+        verify(rag).ask("こんにちは", List.of(), null);
     }
 
     @Test
@@ -108,7 +108,7 @@ class TutorChatServiceTest {
                 .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_FAILED));
         assertThatThrownBy(() -> tutor.ask(1L, "あ".repeat(501), List.of()))
                 .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_FAILED));
-        verify(rag, never()).ask(anyString(), anyList());
+        verify(rag, never()).ask(anyString(), anyList(), any());
     }
 
     @Test
@@ -132,7 +132,7 @@ class TutorChatServiceTest {
 
     @Test
     void eachLearnerHasAnHourlyQuota() {
-        when(rag.ask(anyString(), anyList())).thenReturn(answer("ok"));
+        when(rag.ask(anyString(), anyList(), any())).thenReturn(answer("ok"));
         TutorChatService tutor = service(true, limits(2, 1, 2));
 
         tutor.ask(1L, "câu 1", List.of());
@@ -149,7 +149,7 @@ class TutorChatServiceTest {
     void oneQuestionAtATimePerLearnerAndBusyWhenAllSlotsTaken() throws Exception {
         CountDownLatch started = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
-        when(rag.ask(anyString(), anyList())).thenAnswer(invocation -> {
+        when(rag.ask(anyString(), anyList(), any())).thenAnswer(invocation -> {
             started.countDown();
             release.await(5, TimeUnit.SECONDS);
             return answer("ok");

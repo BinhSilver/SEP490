@@ -67,6 +67,11 @@ public class TutorChatService {
     }
 
     public Reply ask(long userId, String question, List<Message> history) {
+        return ask(userId, question, history, null);
+    }
+
+    /** @param onDelta khác null thì nhận từng mẩu chữ khi model viết (hiện chữ dần); câu trả lời cuối vẫn là {@link Reply} */
+    public Reply ask(long userId, String question, List<Message> history, java.util.function.Consumer<String> onDelta) {
         if (!rag.enabled()) throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Gia sư AI chưa được bật trên máy chủ.");
         String q = question == null ? "" : question.strip();
         if (q.isEmpty() || q.length() > limits.maxQuestionChars()) {
@@ -83,7 +88,7 @@ public class TutorChatService {
             }
             try {
                 takeHourlyQuota(userId);
-                RagTutorService.Answer answer = tutor.ask(q, sanitize(history));
+                RagTutorService.Answer answer = tutor.ask(q, sanitize(history), onDelta);
                 log.info("Tutor answered userId={} sources={} retrievalMs={} generationMs={}",
                         userId, answer.citations().size(), answer.retrievalMs(), answer.generationMs());
                 return new Reply(answer.answer(), cited(answer.answer(), answer.citations()), answer.retrievalMs(), answer.generationMs());
