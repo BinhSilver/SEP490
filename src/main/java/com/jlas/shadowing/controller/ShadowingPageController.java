@@ -57,6 +57,13 @@ public class ShadowingPageController {
     public String editor(@PathVariable Long id, Model model) {
         Video video = videoService.getVideo(id);
         if (!videoService.canEdit(video)) {
+            // A moderator gets the same page with only the age rating, as in the title drop-down of the editor.
+            if (videoService.canRateAge(video)) {
+                model.addAttribute("videoId", id);
+                model.addAttribute("videoTitle", video.getTitle());
+                model.addAttribute("minAge", video.getMinAge() == null ? 0 : video.getMinAge());
+                return "shadowing/editor-age";
+            }
             return "redirect:/shadowing/player/" + id + "?mode=shadowing";
         }
         model.addAttribute("videoId", id);
@@ -99,6 +106,7 @@ public class ShadowingPageController {
         }
         Video video = videoService.getVideo(id);
         model.addAttribute("canEditVideo", videoService.canEdit(video));
+        // Moderators who are not the owner change the age rating on the editor page (age only).
         model.addAttribute("canRateAge", videoService.canRateAge(video));
         model.addAttribute("videoId", id);
         return "shadowing/player";

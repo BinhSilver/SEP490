@@ -126,6 +126,8 @@ yt-dlp:
   python:
     path: ${YT_DLP_PYTHON_PATH:}
   js-runtime: ${YT_DLP_JS_RUNTIME:}
+  # cookies.txt of a signed-in YouTube account, for servers YouTube asks to "confirm you're not a bot".
+  cookies-file: ${YT_DLP_COOKIES_FILE:}
   download:
     helper-path: ${YT_DLP_DOWNLOAD_HELPER_PATH:}
 
@@ -211,6 +213,28 @@ aicall:
     premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:40}
     minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
     credit-per-turn: ${AICALL_CREDIT_PER_TURN:10}
+  # Giới hạn một lượt (kế hoạch mục 2): tin nhắn N ký tự, nói vào micro tối đa vài giây, giọng đọc K ký tự mỗi câu.
+  # Câu trả lời của AI tối đa 900 token (M, trong OpenRouterClient).
+  turn-limits:
+    message-max-chars: ${AICALL_MESSAGE_MAX_CHARS:150}
+    voice-max-seconds: ${AICALL_VOICE_MAX_SECONDS:30}
+    tts-max-chars: ${AICALL_TTS_MAX_CHARS:200}
+
+# API key OpenRouter riêng cho từng tính năng (tên trong com.jlas.common.ai.AiFeature), để dashboard OpenRouter tách
+# chi phí theo key. Để trống thì tính năng dùng key chung openrouter.api.key. Ví dụ env:
+#   OPENROUTER_FEATURE_KEYS_AI_CALL_REPLY, OPENROUTER_FEATURE_KEYS_SHADOWING_SUBTITLES, OPENROUTER_FEATURE_KEYS_JLPT_EXPLAIN
+# Dù có key riêng hay không, mỗi lần gọi đều được ghi vào ai_usage_log theo tên tính năng (trang admin "Chi phí AI").
+
+# Bảng giá nhà cung cấp để quy chi phí AI ra tiền ở báo cáo admin (kế hoạch mục 2, bước "Quy ra tiền").
+# OpenRouter tự trả chi phí USD mỗi lần gọi; Fish Audio và Azure thì tính ở đây. Sửa khi nhà cung cấp đổi giá.
+ai-pricing:
+  usd-to-vnd: ${AI_PRICING_USD_TO_VND:26000}
+  # s2.1-pro-free: 0; bản trả phí s2.1-pro: 15
+  fish-audio-usd-per-million-bytes: ${AI_PRICING_FISH_AUDIO_USD_PER_MILLION_BYTES:0}
+  azure-pronunciation-usd-per-hour: ${AI_PRICING_AZURE_PRONUNCIATION_USD_PER_HOUR:1.32}
+  # Hệ số trong công thức giá CP: làm tròn lên bội số của 5 (chi phí P90 × hệ số ÷ giá 1 CP)
+  markup: ${AI_PRICING_MARKUP:3}
+  vnd-per-credit: ${AI_PRICING_VND_PER_CREDIT:100}
 
 azure:
   storage:
