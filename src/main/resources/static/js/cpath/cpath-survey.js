@@ -228,7 +228,13 @@
       + '</svg>';
   }
 
-  function topicLabel(code) {
+  function topicLabel(code, goals) {
+    for (var i = 0; i < (goals || []).length; i++) {
+      var topics = goals[i].topics || [];
+      for (var j = 0; j < topics.length; j++) {
+        if (topics[j].code === code && topics[j].nameVi) return topics[j].nameVi;
+      }
+    }
     return TOPIC_LABELS_FALLBACK[code] || code;
   }
 
@@ -248,7 +254,7 @@
       add(['HOME', 'MARKET', 'PUBLIC', 'HEALTH', 'SCHOOL', 'SOCIAL', 'TIME']);
     }
     return codes.map(function (c) {
-      return { code: c, labelVi: topicLabel(c), exampleVi: TOPIC_EXAMPLES[c] || '' };
+      return { code: c, labelVi: topicLabel(c, goals), exampleVi: TOPIC_EXAMPLES[c] || '' };
     });
   }
 
