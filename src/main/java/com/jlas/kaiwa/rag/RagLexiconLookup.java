@@ -36,7 +36,13 @@ public class RagLexiconLookup {
     public record KanjiEntry(long id, String character, String hanViet, String meaningVi, String jlptLevel,
                              List<String> onyomi, List<String> kunyomi) { }
 
-    public record WordEntry(long id, String expression, String reading, String meaning, String wordType, String jlptLevel) { }
+    /** @param extras dòng bổ sung từ DB: từ trái nghĩa, mẹo nhớ, câu ví dụ có furigana */
+    public record WordEntry(long id, String expression, String reading, String meaning, String wordType, String jlptLevel,
+                            List<String> extras) {
+        public WordEntry(long id, String expression, String reading, String meaning, String wordType, String jlptLevel) {
+            this(id, expression, reading, meaning, wordType, jlptLevel, List.of());
+        }
+    }
 
     public record Result(List<WordEntry> words, List<KanjiEntry> kanji) {
         public boolean isEmpty() { return words.isEmpty() && kanji.isEmpty(); }
@@ -86,7 +92,53 @@ public class RagLexiconLookup {
         Map<String, WordEntry> byExpression = new LinkedHashMap<>();
         for (String candidate : candidates)
             found.stream().filter(w -> w.expression().equals(candidate)).forEach(w -> byExpression.putIfAbsent(w.expression() + "|" + w.reading(), w));
-        return byExpression.values().stream().limit(MAX_WORDS).toList();
+        List<WordEntry> words = byExpression.values().stream().limit(MAX_WORDS).toList();
+        Map<Long, List<String>> extras = extras(words);
+        return words.stream().map(w -> new WordEntry(w.id(), w.expression(), w.reading(), w.meaning(), w.wordType(), w.jlptLevel(),
+                extras.getOrDefault(w.id(), List.of()))).toList();
+    }
+
+    static final int MAX_WORD_EXAMPLES = 3;
+
+    /**
+     * Từ trái nghĩa của từ điển, và mẹo nhớ + câu ví dụ của lộ trình JLPT (cùng luật trạng thái với index).
+     * Lộ trình JLPT được ghép theo chữ + cách đọc: dictionary_entry_id của nó không trùng id mục từ điển Nhật-Việt.
+     */
+    private Map<Long, List<String>> extras(List<WordEntry> words) {
+        Map<Long, List<String>> extras = new LinkedHashMap<>();
+        if (words.isEmpty()) return extras;
+        String marks = String.join(",", Collections.nCopies(words.size(), "?"));
+        jdbc.query("SELECT a.vocabulary_id, a.antonym_text, a.antonym_reading FROM vocabulary_antonym a WHERE a.vocabulary_id IN (" + marks + ") ORDER BY a.id",
+                rs -> {
+                    String reading = rs.getString("antonym_reading");
+                    extras.computeIfAbsent(rs.getLong("vocabulary_id"), k -> new ArrayList<>()).add("Trái nghĩa: " + rs.getString("antonym_text")
+                            + (reading == null || reading.isBlank() ? "" : " (" + reading + ")"));
+                }, words.stream().map(WordEntry::id).toArray());
+
+        Map<String, Long> idByWord = new LinkedHashMap<>();
+        words.forEach(w -> idByWord.putIfAbsent(w.expression() + "|" + w.reading(), w.id()));
+        String allowed = "%1$s.report_hidden = FALSE AND %1$s.status IN ('AI_CHECKED', 'REVIEWED'" + (properties.includeUnreviewed() ? ", 'HOLD'" : "") + ")";
+        Object[] expressions = words.stream().map(WordEntry::expression).toArray();
+        jdbc.query("SELECT v.expression, v.reading, v.mnemonic_vi FROM jpath_vocabulary v WHERE v.expression IN (" + marks + ")"
+                        + " AND v.mnemonic_vi IS NOT NULL AND v.mnemonic_vi <> '' AND " + allowed.formatted("v") + " ORDER BY v.code",
+                rs -> {
+                    Long id = idByWord.get(rs.getString("expression") + "|" + rs.getString("reading"));
+                    if (id == null) return;
+                    List<String> lines = extras.computeIfAbsent(id, k -> new ArrayList<>());
+                    if (lines.stream().noneMatch(l -> l.startsWith("Mẹo nhớ"))) lines.add("Mẹo nhớ: " + rs.getString("mnemonic_vi"));
+                }, expressions);
+        Map<Long, Integer> examples = new LinkedHashMap<>();
+        jdbc.query("SELECT v.expression, v.reading, e.ja, e.ja_furigana, e.vi FROM jpath_vocabulary v JOIN jpath_example e"
+                        + " ON e.owner_type = 'VOCAB' AND e.owner_code = v.code WHERE v.expression IN (" + marks + ")"
+                        + " AND " + allowed.formatted("v") + " AND " + allowed.formatted("e") + " ORDER BY v.code, e.sort_order, e.code",
+                rs -> {
+                    Long id = idByWord.get(rs.getString("expression") + "|" + rs.getString("reading"));
+                    if (id == null || examples.merge(id, 1, Integer::sum) > MAX_WORD_EXAMPLES) return;
+                    String furigana = rs.getString("ja_furigana");
+                    extras.computeIfAbsent(id, k -> new ArrayList<>()).add("Ví dụ: "
+                            + (furigana == null || furigana.isBlank() ? rs.getString("ja") : furigana) + " — " + rs.getString("vi"));
+                }, expressions);
+        return extras;
     }
 
     private List<KanjiEntry> kanji(List<String> characters) {

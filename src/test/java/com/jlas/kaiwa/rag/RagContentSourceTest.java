@@ -244,6 +244,24 @@ class RagContentSourceTest {
         assertThat(strong.kunyomi()).containsExactly("つよ.い");
     }
 
+    @Test
+    void wordGetsAntonymsAndOnlyAllowedJpathExamples() {
+        word(1, "都合", "つごう", "sự tiện");
+        jdbc.update("INSERT INTO vocabulary_antonym (vocabulary_id, antonym_text, antonym_reading, source_id) VALUES (1, '不都合', 'ふつごう', 1)");
+        jdbc.update("INSERT INTO jpath_vocabulary (code, level, topic_key, sort_order, priority, tier, expression, reading,"
+                + " normalized_expression, normalized_reading, kana_only, mnemonic_vi, status, report_hidden, authored, updated_at) VALUES"
+                + " ('v1', 'N4', 't', 1, 1, 'CORE', '都合', 'つごう', '都合', 'つごう', FALSE, 'Mẹo', 'AI_CHECKED', FALSE, FALSE, CURRENT_TIMESTAMP)");
+        for (String[] e : new String[][]{{"e1", "AI_CHECKED"}, {"e2", "HOLD"}}) {
+            jdbc.update("INSERT INTO jpath_example (code, owner_type, owner_code, level, sort_order, role, ja, ja_furigana, vi, status,"
+                    + " report_hidden, authored, updated_at) VALUES (?, 'VOCAB', 'v1', 'N4', 1, 'MAIN', '都合', ?, 'Dịch', ?, FALSE, FALSE,"
+                    + " CURRENT_TIMESTAMP)", e[0], "都合(つごう)" + e[0], e[1]);
+        }
+
+        List<String> extras = new RagLexiconLookup(jdbc, properties(false, false)).lookup("都合 là gì").words().getFirst().extras();
+
+        assertThat(extras).containsExactly("Trái nghĩa: 不都合 (ふつごう)", "Mẹo nhớ: Mẹo", "Ví dụ: 都合(つごう)e1 — Dịch");
+    }
+
     private void word(long id, String expression, String reading, String meaning) {
         jdbc.update("INSERT INTO vocabulary_entry (id, expression, normalized_expression, reading, normalized_reading, meaning, jlpt_level,"
                 + " usage_scope, dictionary_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'N5', 'TEXTBOOK', 'PUBLISHED',"

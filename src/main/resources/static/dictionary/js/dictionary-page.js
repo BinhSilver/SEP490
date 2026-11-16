@@ -213,7 +213,8 @@
         (data.pitchAccentSource === 'KANJIUM' ? ' title="The pitch accent notation was provided by Uros O. through his free database."' : '') + '>' +
         (data.pitchAccentSource === 'UNIDIC_CWJ' ? 'Trọng âm: UniDic (NINJAL)' :
           data.pitchAccentSource === 'KANJIUM' ? 'Trọng âm: Kanjium – Uros O. (CC BY-SA 4.0)' : '') + '</div>') +
-      '<div class="dict-actions">' + actionButton('Giải nghĩa AI', 'sparkles', 'dict-action--ai') +
+      '<div class="dict-actions">' + '<button type="button" class="dict-action dict-action--ai" data-tutor-ask="' +
+      esc('Giải thích từ 「' + data.expression + '」: nghĩa, cách đọc và ví dụ.') + '"><i class="fa-solid fa-sparkles"></i> Giải nghĩa AI</button>' +
       actionButton('Kết hợp từ', 'link') +
       actionButton('Luyện phát âm', 'microphone') + '</div>' + ui.jlptBadgeHtml(data.jlptLevel) +
       sensesHtml(data.senses);
@@ -221,8 +222,16 @@
       '<p lang="ja">' + esc(data.exampleJa) + ui.speakerButtonHtml(data.exampleJa) + '</p>' +
       '<p>' + esc(data.exampleVi || '') + '</p></div>';
     html += '<section class="dict-word-section"><h2>Tra cứu chuyên sâu với AI</h2><div class="dict-chip-row">' +
-      ['Cụm từ cố định', 'Lỗi phổ biến', 'Cách dùng', 'Từ trái nghĩa', 'Đoạn văn minh họa']
-        .map(function (label) { return '<button type="button" class="dict-ai-chip" data-coming-soon>' + esc(label) + '</button>'; }).join('') +
+      // Mỗi nút gửi một câu hỏi soạn sẵn cho gia sư AI (tutor-widget.js); gia sư chỉ trả lời theo dữ liệu J-LAS.
+      [['Cụm từ cố định', 'Từ 「{w}」 hay đi kèm với những từ nào? Nêu các cụm từ thường gặp.'],
+        ['Lỗi phổ biến', 'Người học hay mắc lỗi gì khi dùng từ 「{w}」?'],
+        ['Cách dùng', 'Từ 「{w}」 dùng như thế nào? Cho ví dụ.'],
+        ['Từ trái nghĩa', 'Từ trái nghĩa của 「{w}」 là gì?'],
+        ['Đoạn văn minh họa', 'Cho các câu ví dụ có từ 「{w}」.']]
+        .map(function (chip) {
+          return '<button type="button" class="dict-ai-chip" data-tutor-ask="' + esc(chip[1].replace('{w}', data.expression)) + '">' +
+            esc(chip[0]) + '</button>';
+        }).join('') +
       '</div></section>' + (data.id == null ? '' : '<div data-contributions></div>');
     if (conjugations) html += '<section class="dict-word-section"><h2>Chia động từ</h2><div class="dict-table-wrap"><table class="dict-conjugation">' +
       '<thead><tr><th>Tên thể (形)</th><th>Từ</th></tr></thead><tbody>' + conjugations.map(function (row) {
@@ -1124,6 +1133,14 @@
         return;
       }
       if (!event.target.closest('.dict-search-bar')) hideSuggestions();
+      var tutorAsk = event.target.closest('[data-tutor-ask]');
+      if (tutorAsk) {
+        var tutor = window.JlasTutorWidget;
+        if (!tutor || !tutor.open(tutorAsk.getAttribute('data-tutor-ask'))) {
+          ui.toast(window.JlasAuth && window.JlasAuth.isLoggedIn() ? 'Gia sư AI đang tạm nghỉ, bạn thử lại sau nhé' : 'Đăng nhập để hỏi gia sư AI');
+        }
+        return;
+      }
       var coming = event.target.closest('[data-coming-soon]');
       if (coming) ui.toast('Sắp ra mắt');
       var otherPage = event.target.closest('[data-other-page]');

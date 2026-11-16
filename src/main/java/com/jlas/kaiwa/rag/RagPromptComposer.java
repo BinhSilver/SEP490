@@ -19,7 +19,8 @@ public final class RagPromptComposer {
             - Nếu không có đoạn [S] nào nói về đúng mẫu ngữ pháp được hỏi (đoạn chỉ giống chữ cũng không tính), chỉ trả lời "Tài liệu J-LAS chưa có mẫu này." rồi hỏi lại người học muốn hỏi mẫu nào. Không giải thích mẫu đó, không chuyển sang mẫu khác.
             - Nghĩa của một từ chỉ lấy từ dòng [D] Từ của chính từ đó; không suy ra nghĩa của từ ghép từ nghĩa từng kanji.
             - Khi sửa câu người học viết, chỉ nêu lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra, rồi viết câu đúng; không chắc thì nói không chắc. Không gán nghĩa khác cho từ để câu sai thành đúng.
-            - Câu ví dụ chỉ chép từ đoạn [S] nói về đúng mẫu đang hỏi, và ghi mã của chính đoạn đó.
+            - Câu ví dụ chỉ chép từ đoạn [S] nói về đúng mẫu đang hỏi hoặc từ dòng "Ví dụ" dưới dòng [D] của đúng từ đang hỏi, và ghi mã của chính nguồn đó. Không tự đặt câu ví dụ mới.
+            - Từ trái nghĩa, cụm từ hay đi kèm, lỗi hay gặp, mẹo nhớ: chỉ nêu khi NGUỒN có ghi. NGUỒN không ghi thì nói "Tài liệu J-LAS chưa có thông tin này cho từ này." và không tự nghĩ ra.
             - Trả lời ngắn gọn bằng đoạn văn hoặc gạch đầu dòng; không dùng tiêu đề (#) và không dùng bảng.
             - Không bịa số trang, tên bài hay giáo trình. Không tự nhận đã chấm điểm hay cập nhật tiến độ học.
             """;
@@ -56,6 +57,7 @@ public final class RagPromptComposer {
             if (word.wordType() != null) prompt.append(" | Loại: ").append(word.wordType());
             if (word.jlptLevel() != null) prompt.append(" | ").append(word.jlptLevel());
             prompt.append('\n');
+            word.extras().forEach(extra -> prompt.append("    ").append(extra).append('\n'));
         }
         if (context.passages().isEmpty()) prompt.append("[S] (không có đoạn giáo trình nào khớp câu hỏi)\n");
         int s = 1;

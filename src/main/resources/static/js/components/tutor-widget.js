@@ -261,5 +261,13 @@
     render();
   }
 
-  return { mount: mount, formatAnswer: formatAnswer, isHiddenPath: isHiddenPath, historyForRequest: historyForRequest };
+  /** Trang khác (vd. tra cứu) mở gia sư với một câu hỏi soạn sẵn; false khi gia sư không có trên trang (khách, máy chủ tắt). */
+  function open(question) {
+    if (!els.panel) return false;
+    setOpen(true);
+    if (question) ask(question);
+    return true;
+  }
+
+  return { mount: mount, open: open, formatAnswer: formatAnswer, isHiddenPath: isHiddenPath, historyForRequest: historyForRequest };
 });
