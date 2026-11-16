@@ -416,6 +416,7 @@
         + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
         + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
+        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
