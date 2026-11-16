@@ -129,6 +129,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final int SKILL_QUIZ_SIZE = 10;
     /** Grammar reviews outside a TODAY round (no plan cap). */
     static final int REVIEW_ROOM_DEFAULT = 10;
+    /** F137: topic/week-known checks allowed per learner study day. */
+    static final int KNOWN_CHECKS_PER_DAY = 3;
     /** Grace on top of the question timer for network latency. */
     static final long TIMER_GRACE_MS = 2000;
 
@@ -292,6 +294,15 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         if (spec.skip()) {
             return skipStep(userId, spec);
+        }
+
+        if (free && (spec.kind() == JpathCheckKind.TOPIC_KNOWN || spec.kind() == JpathCheckKind.WEEK_KNOWN)) {
+            long usedToday = checks.countByUserIdAndKindInAndIssuedAtGreaterThanEqual(userId,
+                    List.of(JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.WEEK_KNOWN), serverStartOfToday(userId));
+            if (usedToday >= KNOWN_CHECKS_PER_DAY) {
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Bạn đã dùng đủ 3 lượt 'Tôi biết chủ đề/tuần này' hôm nay. Ngày mai thử lại nhé.");
+            }
         }
 
         JpathCheckSet previous = null;
