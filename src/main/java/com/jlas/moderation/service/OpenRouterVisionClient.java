@@ -25,6 +25,8 @@ public class OpenRouterVisionClient {
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
 
     @Value("${openrouter.api.key:}")
     private String apiKey;
@@ -125,7 +127,7 @@ public class OpenRouterVisionClient {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey == null ? "" : apiKey.trim());
+        headers.setBearerAuth(com.jlas.common.ai.AiFeature.MODERATION_IMAGE.apiKey(apiKey));
         headers.set("HTTP-Referer", siteUrl);
         headers.set("X-Title", siteName);
 
@@ -139,6 +141,7 @@ public class OpenRouterVisionClient {
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
             throw new IllegalStateException("OpenRouter vision HTTP " + resp.getStatusCode());
         }
+        if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.MODERATION_IMAGE, model, resp.getBody());
         JsonNode root = objectMapper.readTree(resp.getBody());
         if (root.has("error")) {
             throw new IllegalStateException("OpenRouter vision error: " + root.get("error"));

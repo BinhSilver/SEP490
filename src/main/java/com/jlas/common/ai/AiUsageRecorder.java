@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AiUsageRecorder {
     private static final Logger log = LoggerFactory.getLogger(AiUsageRecorder.class);
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON = new com.fasterxml.jackson.databind.ObjectMapper();
 
     private final JdbcTemplate jdbc;
 
@@ -62,6 +63,21 @@ public class AiUsageRecorder {
                 completion == null ? null : integer(completion.get("reasoning_tokens")),
                 prompt == null ? null : integer(prompt.get("cached_tokens")),
                 null, null, decimal(usage.get("cost"))));
+    }
+
+    public void recordOpenRouter(AiFeature feature, String model, Map<?, ?> response) {
+        recordOpenRouter(feature.name(), model, response);
+    }
+
+    /** Same as the Map version, from the raw JSON body; a body that is not JSON is logged without counts. */
+    public void recordOpenRouter(AiFeature feature, String model, String rawResponse) {
+        Map<?, ?> response = null;
+        try {
+            response = rawResponse == null ? null : JSON.readValue(rawResponse, Map.class);
+        } catch (Exception ignored) {
+            // still counted as a call with an unknown cost
+        }
+        recordOpenRouter(feature.name(), model, response);
     }
 
     private static Map<?, ?> map(Object value) {

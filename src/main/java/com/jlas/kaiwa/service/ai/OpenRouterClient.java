@@ -1,5 +1,6 @@
 package com.jlas.kaiwa.service.ai;
 
+import com.jlas.common.ai.AiFeature;
 import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import java.nio.charset.StandardCharsets;
@@ -23,10 +24,6 @@ public class OpenRouterClient {
 
     private static final Logger log = LoggerFactory.getLogger(OpenRouterClient.class);
 
-    /** ai_usage_log feature names: the NPC reply of a turn, and the helpers (furigana, translation, suggestions). */
-    static final String FEATURE_REPLY = "AI_CALL_REPLY";
-    static final String FEATURE_HELPER = "AI_CALL_HELPER";
-
     private final OpenRouterConfig config;
     private final RestTemplate restTemplate;
     private final AiUsageRecorder usage;
@@ -43,19 +40,21 @@ public class OpenRouterClient {
         this.restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
     }
 
-    public String complete(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, false, false);
+    /** A helper call (suggestion, furigana, translation); {@code feature} names it in the usage log and picks its key. */
+    public String complete(AiFeature feature, String systemPrompt, List<Map<String, String>> history, String userMessage) {
+        return complete(feature, systemPrompt, history, userMessage, false, false);
     }
 
     public String completeStructured(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, false, true);
+        return complete(AiFeature.AI_CALL_REPLY, systemPrompt, history, userMessage, false, true);
     }
 
     public String completeGraph(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, true, true);
+        return complete(AiFeature.AI_CALL_REPLY, systemPrompt, history, userMessage, true, true);
     }
 
-    private String complete(String systemPrompt, List<Map<String, String>> history, String userMessage, boolean graph, boolean structured) {
+    private String complete(AiFeature feature, String systemPrompt, List<Map<String, String>> history, String userMessage,
+                            boolean graph, boolean structured) {
         List<Map<String, String>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
         if (history != null) {
@@ -85,7 +84,7 @@ public class OpenRouterClient {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setAcceptCharset(List.of(StandardCharsets.UTF_8));
-        headers.setBearerAuth(config.getApiKey() == null ? "" : config.getApiKey().trim());
+        headers.setBearerAuth(feature.apiKey(config.getApiKey()));
         headers.set("HTTP-Referer", config.getSiteUrl());
         headers.set("X-Title", config.getSiteName());
 
@@ -109,7 +108,7 @@ public class OpenRouterClient {
                 throw new IllegalStateException("OpenRouter error: " + responseBody.get("error"));
             }
 
-            usage.recordOpenRouter(graph || structured ? FEATURE_REPLY : FEATURE_HELPER, config.getModel(), responseBody);
+            usage.recordOpenRouter(feature, config.getModel(), responseBody);
             String content = extractGraphContent(responseBody);
             if (content == null || content.isBlank()) {
                 throw new IllegalStateException("OpenRouter message content empty (model may be thinking-only or wrong id: "

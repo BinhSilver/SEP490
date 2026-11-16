@@ -105,7 +105,7 @@ public class SuggestedReplyService {
                     + "\nJLPT: " + s.getJlptLevel()
                     + "\nState: " + state
                     + "\nUser role: " + (s.getUserRole() != null ? s.getUserRole().getName() : "learner");
-            String raw = openRouterClient.complete(system, List.of(), user);
+            String raw = openRouterClient.complete(com.jlas.common.ai.AiFeature.AI_CALL_SUGGEST, system, List.of(), user);
             int a = raw.indexOf('[');
             int b = raw.lastIndexOf(']');
             if (a >= 0 && b > a) {
