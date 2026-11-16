@@ -118,6 +118,21 @@ class RagIndexServiceTest {
     }
 
     @Test
+    void lessonScopedRunPreservesGlobalChunksAndFullRunRemovesStaleOnes() {
+        RagChunk global = new RagChunk("jpath_grammar:g1", "JLPT_GRAMMAR", 0, 0, 0, "N3", "Mẫu", "Mẫu",
+                Map.of("type", "JLPT_GRAMMAR"));
+        chunks.add(global);
+        RagIndexService service = service(true);
+        service.reindex(null);
+
+        chunks.remove(global);
+        assertThat(service.reindex(1L).deleted()).isZero();
+        assertThat(store.points).containsKey(global.pointId());
+        assertThat(service.reindex(null).deleted()).isEqualTo(1);
+        assertThat(store.points).doesNotContainKey(global.pointId());
+    }
+
+    @Test
     void disabledRagRefusesToRun() {
         assertThatThrownBy(() -> service(false).reindex(null))
                 .isInstanceOfSatisfying(ApiException.class, e -> assertThat(e.getErrorCode()).isEqualTo(ErrorCode.SERVICE_UNAVAILABLE));

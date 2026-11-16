@@ -126,7 +126,8 @@
     if (!sources || !sources.length) return '';
     return '<details class="tutor-sources"><summary>Nguồn (' + sources.length + ')</summary><ul>' +
       sources.map(function (s) {
-        return '<li><span class="tutor-cite">' + escapeHtml(s.code) + '</span> <span lang="ja">' + escapeHtml(s.title) +
+        var titleLang = (s.kind === 'COMM_DIALOGUE') ? '' : ' lang="ja"';
+        return '<li><span class="tutor-cite">' + escapeHtml(s.code) + '</span> <span' + titleLang + '>' + escapeHtml(s.title) +
           '</span><small>' + escapeHtml(s.detail) + '</small></li>';
       }).join('') + '</ul></details>';
   }

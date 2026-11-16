@@ -58,9 +58,7 @@ public final class RagPromptComposer {
         if (context.passages().isEmpty()) prompt.append("[S] (không có đoạn giáo trình nào khớp câu hỏi)\n");
         int s = 1;
         for (RagRetriever.Passage passage : context.passages()) {
-            Object textbook = passage.citation().getOrDefault("textbook", "");
-            Object lesson = passage.citation().getOrDefault("lesson", "");
-            prompt.append("[S").append(s++).append("] ").append(textbook).append(" › ").append(lesson).append('\n')
+            prompt.append("[S").append(s++).append("] ").append(sourceLabel(passage)).append('\n')
                     .append(passage.text()).append('\n');
         }
         return prompt.toString();
@@ -81,11 +79,19 @@ public final class RagPromptComposer {
         }
         int s = 1;
         for (RagRetriever.Passage passage : context.passages()) {
-            Object textbook = passage.citation().getOrDefault("textbook", "");
-            Object lesson = passage.citation().getOrDefault("lesson", "");
-            out.add(new Citation("S" + s++, passage.sourceType(), passage.title(), textbook + " › " + lesson));
+            out.add(new Citation("S" + s++, passage.sourceType(), passage.title(), sourceLabel(passage)));
         }
         return out;
+    }
+
+    private static String sourceLabel(RagRetriever.Passage passage) {
+        return switch (passage.sourceType()) {
+            case "JLPT_GRAMMAR" -> "Lộ trình JLPT " + passage.citation().getOrDefault("level", "") + " · Ngữ pháp";
+            case "CONFUSABLE" -> "Lộ trình JLPT " + passage.citation().getOrDefault("level", "") + " · Phân biệt";
+            case "COMM_DIALOGUE" -> "Giao tiếp · " + passage.citation().getOrDefault("situation", passage.title());
+            default -> passage.citation().getOrDefault("textbook", "") + " › "
+                    + passage.citation().getOrDefault("lesson", "");
+        };
     }
 
     private static String join(List<String> values) {

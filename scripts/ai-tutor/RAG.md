@@ -20,12 +20,16 @@ Nguồn được đánh mã `[D1]` (từ điển) và `[S1]` (giáo trình) tron
 | `GRAMMAR` | 1 `grammar_point` (mẫu, nghĩa, lưu ý, ví dụ) + tối đa 6 câu ví dụ `content_item` của nó | giáo trình, unit, bài, mẫu, từng câu ví dụ kèm `audioUrl`, `startMs`, `endMs` |
 | `DIALOGUE` | tối đa 10 dòng `LISTENING` liên tiếp của một phần bài, có tên người nói từ `dialogue_role` | như trên, từng dòng có người nói và mốc audio |
 | `READING` | tối đa 10 mục `READING` của một phần bài | như trên |
+| `JLPT_GRAMMAR` | 1 mẫu `jpath_grammar` + tối đa 6 câu `jpath_example` hợp lệ | cấp JLPT, mẫu, mã và câu ví dụ; không có audio |
+| `CONFUSABLE` | 1 cặp dễ nhầm `jpath_confusable_pair` với hai mục còn hợp lệ | cấp JLPT, hai mã và ví dụ; không có audio |
+| `COMM_DIALOGUE` | tối đa 10 dòng `cpath_line` của một tình huống; đoạn đầu kèm mẫu câu `cpath_item` | tên tình huống, người nói và câu thoại; không có audio |
 
 ### Nội dung nào được index
 
 - Chỉ bài `lesson.status = PUBLISHED` thuộc giáo trình `textbook.status = PUBLISHED`.
 - **Không** index thứ gì có dòng `content_source.source_code = VNJPCLUB` ở cấp giáo trình, unit, bài, mẫu ngữ pháp hoặc mục nội dung (chưa có giấy phép phân phối lại). Bật bằng `kaiwa.rag.include-vnjpclub` chỉ khi đã có giấy phép.
 - **Không** index nội dung `AI_GENERATED` chưa có `review_status = DA_DUYET` (giáo trình N3–N1 do AI viết). Bật bằng `kaiwa.rag.include-unreviewed`.
+- Dữ liệu J-Path chỉ lấy `AI_CHECKED` hoặc `REVIEWED`, bỏ `report_hidden = 1` và `DRAFT`. Khi bật `kaiwa.rag.include-unreviewed`, lấy thêm `HOLD` (cả mẫu và ví dụ); cặp dễ nhầm chỉ lấy khi cả hai mục còn hợp lệ. Dữ liệu J-Path và Comm-path chỉ vào lần reindex toàn bộ.
 - Tra cứu từ vựng bỏ các từ do seed vnjpclub thêm mới (`content_source.note = 'Tu moi tu vnjpclub'`); từ có sẵn mà vnjpclub dùng lại thì vẫn tra.
 
 Trên DB thử (seed của `develop`): 234 đoạn (133 ngữ pháp, 50 hội thoại, 51 bài đọc) từ Sekai N5 và Bảng chữ cái; 1317 dòng, 1084 dòng có mốc audio.

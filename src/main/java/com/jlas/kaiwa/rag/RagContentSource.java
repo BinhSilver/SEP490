@@ -1,5 +1,8 @@
 package com.jlas.kaiwa.rag;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Repository;
  * <ul>
  *   <li>{@code GRAMMAR}: một mẫu ngữ pháp + tối đa {@value #MAX_EXAMPLES} câu ví dụ của nó (kèm audio).</li>
  *   <li>{@code DIALOGUE}, {@code READING}: các mục cùng một phần của bài, gom tối đa {@value #LINES_PER_CHUNK} dòng.</li>
+ *   <li>{@code JLPT_GRAMMAR}, {@code CONFUSABLE}: mẫu và cặp dễ nhầm đã được duyệt trong J-Path.</li>
+ *   <li>{@code COMM_DIALOGUE}: tối đa {@value #LINES_PER_CHUNK} dòng hội thoại theo tình huống Comm-path.</li>
  * </ul>
  */
 @Repository
@@ -26,6 +31,7 @@ public class RagContentSource {
 
     static final int MAX_EXAMPLES = 6;
     static final int LINES_PER_CHUNK = 10;
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private static final String LESSON_COLUMNS = """
             l.id AS lesson_id, l.title AS lesson_title, u.title AS unit_title,
@@ -44,7 +50,157 @@ public class RagContentSource {
         Map<Long, Audio> audio = loadAudio();
         List<RagChunk> chunks = new ArrayList<>(grammarChunks(lessonId, audio));
         chunks.addAll(sectionChunks(lessonId, audio));
+        if (lessonId == null) {
+            chunks.addAll(jpathGrammarChunks());
+            chunks.addAll(confusableChunks());
+            chunks.addAll(commDialogueChunks());
+        }
         return chunks;
+    }
+
+    private String jpathAllowed(String alias) {
+        return alias + ".report_hidden = FALSE AND " + alias + ".status IN ('AI_CHECKED', 'REVIEWED'"
+                + (properties.includeUnreviewed() ? ", 'HOLD'" : "") + ")";
+    }
+
+    private List<RagChunk> jpathGrammarChunks() {
+        List<Map<String, Object>> grammar = jdbc.queryForList("SELECT code, level, pattern, pattern_variants_json,"
+                + " meaning_vi, formation, usage_vi, nuance_vi, common_mistakes_vi FROM jpath_grammar g WHERE "
+                + jpathAllowed("g") + " ORDER BY level, unit_no, sort_order, code");
+        Map<String, List<Map<String, Object>>> examples = new HashMap<>();
+        jdbc.queryForList("SELECT owner_code, ja, vi FROM jpath_example e WHERE owner_type = 'GRAMMAR' AND "
+                + jpathAllowed("e") + " ORDER BY owner_code, sort_order, code")
+                .forEach(row -> examples.computeIfAbsent(str(row, "owner_code"), ignored -> new ArrayList<>()).add(row));
+        List<RagChunk> chunks = new ArrayList<>();
+        for (Map<String, Object> row : grammar) {
+            String code = str(row, "code");
+            String level = str(row, "level");
+            String pattern = str(row, "pattern");
+            StringBuilder text = new StringBuilder("Mẫu ngữ pháp (JLPT ").append(level).append("): ").append(pattern);
+            JsonNode variants = jsonArray(row, "pattern_variants_json");
+            if (!variants.isEmpty()) {
+                List<String> values = new ArrayList<>();
+                variants.forEach(v -> values.add(v.asText()));
+                text.append("\nBiến thể: ").append(String.join(", ", values));
+            }
+            appendField(text, "Ý nghĩa", row, "meaning_vi");
+            appendField(text, "Cách chia", row, "formation");
+            appendField(text, "Cách dùng", row, "usage_vi");
+            appendField(text, "Sắc thái", row, "nuance_vi");
+            appendField(text, "Lỗi hay gặp", row, "common_mistakes_vi");
+            List<Map<String, Object>> lines = new ArrayList<>();
+            for (Map<String, Object> example : examples.getOrDefault(code, List.of()).stream().limit(MAX_EXAMPLES).toList()) {
+                text.append("\n- ").append(str(example, "ja")).append(" — ").append(str(example, "vi"));
+                lines.add(Map.of("ja", str(example, "ja"), "vi", str(example, "vi")));
+            }
+            Map<String, Object> citation = new LinkedHashMap<>();
+            citation.put("type", "JLPT_GRAMMAR");
+            citation.put("level", level);
+            citation.put("pattern", pattern);
+            citation.put("code", code);
+            citation.put("lines", lines);
+            chunks.add(new RagChunk("jpath_grammar:" + code, "JLPT_GRAMMAR", 0, 0, 0, level, pattern, text.toString(), citation));
+        }
+        return chunks;
+    }
+
+    private List<RagChunk> confusableChunks() {
+        Map<String, String> labels = new HashMap<>();
+        jdbc.queryForList("SELECT code, pattern FROM jpath_grammar g WHERE " + jpathAllowed("g"))
+                .forEach(row -> labels.put("GRAMMAR:" + str(row, "code"), str(row, "pattern")));
+        jdbc.queryForList("SELECT code, expression, reading FROM jpath_vocabulary v WHERE " + jpathAllowed("v"))
+                .forEach(row -> labels.put("VOCAB:" + str(row, "code"), str(row, "expression")
+                        + (str(row, "reading").isBlank() ? "" : " (" + str(row, "reading") + ")")));
+        jdbc.queryForList("SELECT * FROM jpath_kanji k WHERE " + jpathAllowed("k"))
+                .forEach(row -> labels.put("KANJI:" + str(row, "code"), str(row, "character")));
+        List<RagChunk> chunks = new ArrayList<>();
+        for (Map<String, Object> row : jdbc.queryForList("SELECT item_type, code_a, code_b, level, diff_vi, examples_json"
+                + " FROM jpath_confusable_pair ORDER BY item_type, code_a, code_b")) {
+            String type = str(row, "item_type");
+            String a = labels.get(type + ":" + str(row, "code_a"));
+            String b = labels.get(type + ":" + str(row, "code_b"));
+            if (a == null || b == null) continue;
+            String level = str(row, "level");
+            StringBuilder text = new StringBuilder("Phân biệt ").append(a).append(" và ").append(b)
+                    .append(" (JLPT ").append(level).append("): ").append(str(row, "diff_vi"));
+            List<Map<String, Object>> lines = new ArrayList<>();
+            for (JsonNode example : jsonArray(row, "examples_json")) {
+                String ja = example.path("ja").asText("");
+                String vi = example.path("vi").asText("");
+                if (ja.isBlank()) continue;
+                text.append("\n- ").append(ja).append(" — ").append(vi);
+                lines.add(Map.of("ja", ja, "vi", vi));
+            }
+            Map<String, Object> citation = new LinkedHashMap<>();
+            citation.put("type", "CONFUSABLE");
+            citation.put("level", level);
+            citation.put("itemType", type);
+            citation.put("codeA", str(row, "code_a"));
+            citation.put("codeB", str(row, "code_b"));
+            citation.put("lines", lines);
+            chunks.add(new RagChunk("jpath_confusable:" + type + ":" + str(row, "code_a") + ":" + str(row, "code_b"),
+                    "CONFUSABLE", 0, 0, 0, level, a + " / " + b, text.toString(), citation));
+        }
+        return chunks;
+    }
+
+    private List<RagChunk> commDialogueChunks() {
+        Map<String, List<Map<String, Object>>> linesBySituation = new LinkedHashMap<>();
+        jdbc.queryForList("SELECT l.situation_code, l.speaker, l.ja, l.vi, s.title_vi, s.level"
+                + " FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code"
+                + " ORDER BY l.situation_code, l.line_order")
+                .forEach(row -> linesBySituation.computeIfAbsent(str(row, "situation_code"), ignored -> new ArrayList<>()).add(row));
+        Map<String, List<Map<String, Object>>> phrases = new HashMap<>();
+        jdbc.queryForList("SELECT situation_code, ja, reading, vi, note_vi FROM cpath_item"
+                + " WHERE kind = 'PHRASE' AND situation_code IS NOT NULL ORDER BY situation_code, sort_order, code")
+                .forEach(row -> phrases.computeIfAbsent(str(row, "situation_code"), ignored -> new ArrayList<>()).add(row));
+        List<RagChunk> chunks = new ArrayList<>();
+        linesBySituation.forEach((code, allLines) -> {
+            Map<String, Object> first = allLines.getFirst();
+            String title = str(first, "title_vi").isBlank() ? code : str(first, "title_vi");
+            for (int part = 0; part * LINES_PER_CHUNK < allLines.size(); part++) {
+                List<Map<String, Object>> window = allLines.subList(part * LINES_PER_CHUNK,
+                        Math.min(allLines.size(), (part + 1) * LINES_PER_CHUNK));
+                StringBuilder text = new StringBuilder("Giao tiếp · ").append(title);
+                List<Map<String, Object>> citationLines = new ArrayList<>();
+                for (Map<String, Object> line : window) {
+                    text.append("\n").append(str(line, "speaker")).append(": ").append(str(line, "ja"))
+                            .append(" — ").append(str(line, "vi"));
+                    citationLines.add(Map.of("speaker", str(line, "speaker"), "ja", str(line, "ja"), "vi", str(line, "vi")));
+                }
+                if (part == 0) for (Map<String, Object> phrase : phrases.getOrDefault(code, List.of())) {
+                    text.append("\nMẫu câu: ").append(str(phrase, "ja"));
+                    if (!str(phrase, "reading").isBlank()) text.append(" (").append(str(phrase, "reading")).append(")");
+                    text.append(" — ").append(str(phrase, "vi"));
+                    if (!str(phrase, "note_vi").isBlank()) text.append(". ").append(str(phrase, "note_vi"));
+                }
+                Map<String, Object> citation = new LinkedHashMap<>();
+                citation.put("type", "COMM_DIALOGUE");
+                citation.put("situation", title);
+                citation.put("situationCode", code);
+                citation.put("lines", citationLines);
+                chunks.add(new RagChunk("cpath:" + code + ":" + part, "COMM_DIALOGUE", 0, 0, 0,
+                        nullable(first, "level"), title, text.toString(), citation));
+            }
+        });
+        return chunks;
+    }
+
+    private static void appendField(StringBuilder text, String label, Map<String, Object> row, String column) {
+        if (!str(row, column).isBlank()) text.append("\n").append(label).append(": ").append(str(row, column));
+    }
+
+    private static JsonNode jsonArray(Map<String, Object> row, String column) {
+        Object raw = row.get(column);
+        String value = raw instanceof byte[] bytes ? new String(bytes, StandardCharsets.UTF_8) : str(row, column);
+        if (value.isBlank()) return JSON.createArrayNode();
+        try {
+            JsonNode parsed = JSON.readTree(value);
+            if (parsed.isTextual()) parsed = JSON.readTree(parsed.asText());
+            return parsed.isArray() ? parsed : JSON.createArrayNode();
+        } catch (Exception e) {
+            throw new IllegalStateException("Invalid " + column + " JSON", e);
+        }
     }
 
     /** Điều kiện cho bí danh t/u/l và các thực thể con đã cho (vd. {@code GRAMMAR_POINT} → {@code gp.id}). */
