@@ -188,6 +188,11 @@ public class CpathService {
         if (secondary && goal.equals(db.queryForObject("SELECT goal_code FROM cpath_user_path WHERE id = ?", String.class, main))) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu phụ phải khác mục tiêu chính.");
         }
+        if (!secondary) {
+            // owner 17/11 (mentor review): one main goal — a communication goal as the main goal pauses an ACTIVE
+            // JLPT path (progress kept; choosing JLPT again resumes it), the mirror of JLPT pausing communication
+            db.update("UPDATE jpath_user_path SET status = 'PAUSED', active_flag = NULL WHERE user_id = ? AND status = 'ACTIVE'", userId);
+        }
         List<Long> resumable = secondary ? List.of() : db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
         // F118 (owner 14/11): the new main goal is the learner's secondary goal → that row becomes the main path, so
         // its situations, topics and notebook carry over instead of a fresh 0% main path

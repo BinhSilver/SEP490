@@ -678,3 +678,7 @@ html body .jp-path .jp-tools__panel .jp-warmup__actions .jp-link-btn:not([data-w
 html body .jp-path .jp-tools__chip::after { content: "▾"; width: auto; height: auto; border: 0; transform: none; font-size: .8rem; }
 html body .jp-path .jp-tools__chip[aria-expanded="true"]::after { transform: rotate(180deg); }
 html body .jp-path .jp-tools__panel .jp-warmup__actions .jp-btn { border-radius: 999px !important; }
+/* Owner 17/11 "mất kitsu, các lộ trình phải đồng bộ": the JLPT "Hôm nay" card uses the communication layout —
+   Kitsu peeks over the date circle, the separate speech-bubble Kitsu is hidden (both paths, all widths). */
+html body .jp-path .jp-today .jp-today__cal-kitsu { display: block !important; }
+html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !important; }
