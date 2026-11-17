@@ -71,7 +71,7 @@ public class YoutubeImportJobService {
             if (dtos == null || dtos.isEmpty()) {
                 throw new IllegalArgumentException(
                         "Không tạo được phụ đề từ video này. "
-                                + "Hãy chọn video có phụ đề tiếng Nhật (CC), hoặc video ≤ 5 phút để dùng AI STT.");
+                                + "Hãy chọn video có phụ đề tiếng Nhật (CC) hoặc có lời nói tiếng Nhật rõ ràng.");
             }
             int beforeSplit = dtos.size();
             dtos = SubtitleSegmenter.splitLongCues(dtos);
@@ -244,7 +244,7 @@ public class YoutubeImportJobService {
                 return new ResolvedSubtitles(retry, sourceOf(jaTrack.get()));
             }
             // Last resort for short videos: STT even if analyze thought there were JP subs
-            if (meta.getDuration() <= maxDurationNoSubtitleSeconds) {
+            if (noSubtitleLengthAllowed(meta)) {
                 System.err.println("[YouTube import] falling back to Deepgram STT");
                 return new ResolvedSubtitles(transcribeWithDeepgram(url, video, videoId, runId),
                         SubtitleQualitySource.DEEPGRAM);
@@ -254,12 +254,17 @@ public class YoutubeImportJobService {
                             + "Thử cập nhật yt-dlp: pip install -U yt-dlp");
         }
 
-        if (meta.getDuration() > maxDurationNoSubtitleSeconds) {
-            throw new IllegalArgumentException(
-                    "Video quá dài vì không có phụ đề. Vui lòng chọn video dưới 5 phút.");
+        if (!noSubtitleLengthAllowed(meta)) {
+            throw new IllegalArgumentException("Video quá dài vì không có phụ đề. Vui lòng chọn video dưới "
+                    + Math.max(1, maxDurationNoSubtitleSeconds / 60) + " phút.");
         }
         return new ResolvedSubtitles(transcribeWithDeepgram(url, video, videoId, runId),
                 SubtitleQualitySource.DEEPGRAM);
+    }
+
+    /** 0 = no cap: speech-to-text is paid for by the minute, so any length may go through Deepgram. */
+    private boolean noSubtitleLengthAllowed(YoutubeAnalyzeResultDto meta) {
+        return maxDurationNoSubtitleSeconds <= 0 || meta.getDuration() <= maxDurationNoSubtitleSeconds;
     }
 
     private List<SubtitleDto> transcribeWithDeepgram(String url, Video video, Long videoId, long runId)

@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** Above this length, turning on furigana/dịch AI is still allowed; the page just warns it costs more. */
     const AI_LONG_VIDEO_SEC = 1200; // 20 minutes
+    /** Uploaded files (not YouTube links): server limits, video.max.duration.seconds and the multipart size. */
+    const UPLOAD_MAX_SEC = 20 * 60;
+    const UPLOAD_MAX_BYTES = 500 * 1024 * 1024;
 
     function longAiWarning(seconds) {
         return `Video dài khoảng ${Math.round(seconds / 60)} phút. Bật furigana/dịch AI cho video trên 20 phút `
@@ -258,7 +261,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showAlert('Vui lòng chọn file video (MP4, MOV, WebM) hoặc audio (MP3, WAV, M4A, OGG).');
             return;
         }
-        if (file.size > 100 * 1024 * 1024) { showAlert('File quá lớn (tối đa 100MB)'); return; }
+        if (file.size > UPLOAD_MAX_BYTES) {
+            showAlert({ title: 'File quá lớn', message: 'File tối đa 500MB. Hãy giảm độ phân giải hoặc cắt ngắn video rồi thử lại.', variant: 'warning' });
+            return;
+        }
 
         selectedFile = file;
         const sizeMB = (file.size / 1024 / 1024).toFixed(1);
@@ -280,7 +286,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 resetFile();
                 return;
             }
-            // No hard duration reject here — AI 20-min limit checked at upload if furigana is on
+            if (fileDurationSec > UPLOAD_MAX_SEC) {
+                URL.revokeObjectURL(objectUrl);
+                showAlert({
+                    title: 'File quá dài',
+                    message: `File dài ${formatFileDuration(fileDurationSec)}. File tải lên tối đa 20 phút; hãy cắt ngắn rồi thử lại, hoặc dùng link YouTube (không giới hạn thời lượng).`,
+                    variant: 'warning'
+                });
+                resetFile();
+                return;
+            }
 
             dropzone.classList.add('has-file');
             fileInfo.textContent = `${file.name} — ${sizeMB} MB — ${formatFileDuration(fileDurationSec)}${audio ? ' · audio' : ''}`;
@@ -359,19 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fileFuri = document.getElementById('file-furigana-check');
         const wantAi = !!(fileFuri && fileFuri.checked);
-        if (wantAi && fileDurationSec > AI_LONG_VIDEO_SEC) {
-            const goOn = typeof window.showConfirm === 'function'
-                ? await window.showConfirm({
-                    title: 'Video khá dài',
-                    message: longAiWarning(fileDurationSec),
-                    confirmText: 'Vẫn tạo bài',
-                    cancelText: 'Quay lại chỉnh sửa',
-                    variant: 'warning'
-                })
-                : window.confirm(longAiWarning(fileDurationSec));
-            if (!goOn) return;
-        }
-
         const formData = new FormData();
         formData.append('file', selectedFile);
         if (selectedThumb) formData.append('thumbnail', selectedThumb);
@@ -492,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             previewBadges.innerHTML += '<li class="badge-warn"><i class="fa-solid fa-microphone"></i> Sẽ dùng AI tạo phụ đề (Deepgram)</li>';
         }
         if (data.blockedNoSubtitleTooLong) {
-            previewBadges.innerHTML += '<li class="badge-err"><i class="fa-solid fa-ban"></i> Quá dài để dùng AI STT (>5 phút)</li>';
+            previewBadges.innerHTML += '<li class="badge-err"><i class="fa-solid fa-ban"></i> Quá dài để AI nhận giọng nói</li>';
         }
         if (notEmbeddable(data)) {
             previewBadges.innerHTML += '<li class="badge-err"><i class="fa-solid fa-ban"></i> Không được phát ngoài YouTube (bản quyền)</li>';
@@ -583,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         if (analyzeData.blockedNoSubtitleTooLong) {
-            showAlert({ title: 'Không thể import', message: 'Video quá dài và không có phụ đề. Chọn video ngắn hơn 5 phút.', variant: 'warning' });
+            showAlert({ title: 'Không thể import', message: analyzeData.message || 'Video quá dài và không có phụ đề.', variant: 'warning' });
             return;
         }
         if (notEmbeddable(analyzeData)) {

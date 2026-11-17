@@ -49,13 +49,13 @@ spring:
             enabled: true
             paths: /css/**,/js/**
 
-  # Giới hạn chung cho multipart; application-local.yaml có thể đặt lại (ví dụ 100MB cho video shadowing).
-  # Từng tính năng vẫn tự kiểm giới hạn riêng (avatar/thumbnail giáo trình 2MB).
+  # Giới hạn chung cho multipart, đủ cho video Shadowing tải lên (tối đa 20 phút, xem video.max.duration).
+  # Từng tính năng vẫn tự kiểm giới hạn riêng (ảnh bài đọc 5MB, avatar/thumbnail giáo trình 2MB, gói skin 25MB).
   servlet:
     multipart:
-      max-file-size: 5MB
-      # Lớn hơn max-file-size một chút: ảnh đúng 5MB cộng phần đầu multipart vẫn lọt (ảnh bài đọc tối đa 5MB).
-      max-request-size: 6MB
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:500MB}
+      # Lớn hơn max-file-size một chút cho phần đầu multipart và các trường đi kèm (tiêu đề, ảnh bìa).
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:510MB}
 
 # ── Server ───────────────────────────────────────────────────────────────────
 server:
@@ -135,7 +135,8 @@ youtube:
   max:
     duration:
       no-subtitle:
-        seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
+        # 0 = không giới hạn: video không phụ đề tính phút hạn mức gấp 3 (Deepgram), người dùng trả theo phút.
+        seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:0}
   subtitle:
     # Drop anime opening/ending song lyrics found from [音楽] blocks in YouTube auto captions.
     skip-theme-songs:
@@ -213,12 +214,46 @@ aicall:
     premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:40}
     minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
     credit-per-turn: ${AICALL_CREDIT_PER_TURN:10}
+  # Số lượt gọi AI chạy đồng thời trên một máy chủ.
+  turn:
+    max-concurrent-turns: ${AICALL_MAX_CONCURRENT_TURNS:20}
   # Giới hạn một lượt (kế hoạch mục 2): tin nhắn N ký tự, nói vào micro tối đa vài giây, giọng đọc K ký tự mỗi câu.
   # Câu trả lời của AI tối đa 900 token (M, trong OpenRouterClient).
   turn-limits:
     message-max-chars: ${AICALL_MESSAGE_MAX_CHARS:150}
     voice-max-seconds: ${AICALL_VOICE_MAX_SECONDS:30}
     tts-max-chars: ${AICALL_TTS_MAX_CHARS:200}
+
+# Gia sư AI: tìm nội dung giáo trình (RAG). Embedding bge-m3 qua OpenRouter (key chung hoặc
+# OPENROUTER_FEATURE_KEYS_TUTOR_SEARCH), vector lưu trong bảng rag_chunk (migration 084), app tự tìm trong bộ nhớ.
+# Dựng chỉ mục: POST /api/admin/system/ai/rag/reindex (ADMIN).
+kaiwa:
+  rag:
+    enabled: ${KAIWA_RAG_ENABLED:false}
+    embedding-model: ${KAIWA_RAG_EMBEDDING_MODEL:baai/bge-m3}
+    top-k: ${KAIWA_RAG_TOP_K:5}
+    min-score: ${KAIWA_RAG_MIN_SCORE:0.50}
+    include-vnjpclub: false
+    include-unreviewed: false
+
+# Chatbot gia sư (nút nổi trên các trang học), tách khỏi AI Call. Bật cùng kaiwa.rag.enabled. Model trả lời là một
+# API kiểu OpenAI (tutor.llm.*, ví dụ DeepSeek qua Deploy); model lỗi thì báo lỗi, không chuyển sang nhà cung cấp khác.
+tutor:
+  max-concurrent: ${TUTOR_MAX_CONCURRENT:10}
+  wait-seconds: ${TUTOR_WAIT_SECONDS:30}
+  questions-per-hour: ${TUTOR_QUESTIONS_PER_HOUR:60}
+  max-question-chars: 500
+  history-messages: 6
+  # Tầng 2: J-LAS không có nội dung cho một câu hỏi có chữ Nhật thì AI tổng hợp câu trả lời có nhãn "chưa có trong tài liệu
+  # J-LAS", lưu vào tutor_ai_answer (migration 082) chờ duyệt. Mặc định tắt.
+  ai-fallback: ${TUTOR_AI_FALLBACK:false}
+  ai-fallback-per-day: ${TUTOR_AI_FALLBACK_PER_DAY:20}
+  llm:
+    base-url: ${TUTOR_LLM_BASE_URL:https://api-cdn.deploy.com/api/v1}
+    api-key: ${TUTOR_LLM_API_KEY:}
+    model: ${TUTOR_LLM_MODEL:deepseek-ai/deepseek-v4.1-flash-1017}
+    # none = tắt phần suy nghĩ của model suy luận (DeepSeek V4, GLM...) để trả lời nhanh; trống = không gửi tham số.
+    reasoning-effort: ${TUTOR_LLM_REASONING_EFFORT:none}
 
 # API key OpenRouter riêng cho từng tính năng (tên trong com.jlas.common.ai.AiFeature), để dashboard OpenRouter tách
 # chi phí theo key. Để trống thì tính năng dùng key chung openrouter.api.key. Ví dụ env:
@@ -267,10 +302,11 @@ pronunciation:
     local:
       root: ${PRONUNCIATION_STORAGE_ROOT:storage/pronunciation}
 
+# File tải lên tạo bài Shadowing: tối đa 20 phút (giới hạn phần cứng: dung lượng, ffmpeg). Link YouTube không giới hạn.
 video:
   max:
     duration:
-      seconds: ${VIDEO_MAX_DURATION_SECONDS:0}
+      seconds: ${VIDEO_MAX_DURATION_SECONDS:1200}
 
 processing:
   ai:
