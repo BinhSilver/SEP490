@@ -72,6 +72,9 @@ public class SecurityConfig {
                         // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
                         .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        // Duyệt nội dung do gia sư AI tạo ra: hàng chờ người biên soạn.
+                        .requestMatchers("/admin/tutor-review", "/admin/tutor-review/**", "/api/admin/tutor-review/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
