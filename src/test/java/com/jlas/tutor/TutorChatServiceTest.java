@@ -88,6 +88,24 @@ class TutorChatServiceTest {
     }
 
     @Test
+    void translationGoesStraightToTheAiTierWhenEnabled() {
+        var empty = new RagLexiconLookup.Result(List.of(), List.of());
+        var translated = new RagTutorService.Answer("Bản dịch", List.of(), empty, List.of(), 0, 40,
+                RagTutorService.TIER_AI_TRANSLATION, false);
+        when(rag.aiTranslate(anyString(), any(), any())).thenReturn(translated);
+        when(rag.usesApiModel()).thenReturn(true);
+
+        TutorChatService.Reply reply = service(true, new TutorProperties(2, 1, 60, 500, 6, true, 5)).ask(7L, "Dịch giúp: 明日は雨です", List.of());
+        assertThat(reply.tier()).isEqualTo(RagTutorService.TIER_AI_TRANSLATION);
+        assertThat(reply.answer()).isEqualTo("Bản dịch");
+        verify(rag, org.mockito.Mockito.never()).ask(anyString(), anyList(), any());
+
+        // Tầng 2 tắt: yêu cầu dịch đi đường thường của tầng 1.
+        when(rag.ask(anyString(), anyList(), any())).thenReturn(answer("Ngày mai trời mưa [S1]."));
+        assertThat(service(true, limits(2, 1, 60)).ask(8L, "Dịch giúp: 明日は雨です", List.of()).tier()).isEqualTo(RagTutorService.TIER_JLAS);
+    }
+
+    @Test
     void dailyAiQuotaCountsOnlyRealModelCalls() {
         TutorChatService tutor = service(true, new TutorProperties(2, 1, 60, 500, 6, true, 2));
         assertThat(tutor.takeDailyAiQuota(1L)).isTrue();

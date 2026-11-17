@@ -181,13 +181,17 @@ public class RagTutorService {
             reviewed = false;
             aiAnswers.save(question, body, llm.model());
         }
-        // Từ tiếng Nhật trong câu hỏi và câu trả lời, đối chiếu với từ điển: cách đọc và nghĩa luôn là của J-LAS.
+        return withDictionary((standalone ? NOT_IN_JLAS : "") + (reviewed ? AI_REVIEWED_PART : AI_PART), body, question,
+                reviewed ? TIER_AI_REVIEWED : TIER_AI, started);
+    }
+
+    /** Câu trả lời tầng 2 kèm danh sách từ tiếng Nhật có trong từ điển: cách đọc và nghĩa luôn là của J-LAS. */
+    private Answer withDictionary(String label, String body, String question, String tier, long started) {
         List<RagLexiconLookup.WordEntry> words = new ArrayList<>();
         for (RagLexiconLookup.WordEntry w : retriever.words(question + "\n" + body)) {
             if (words.size() < RagLexiconLookup.MAX_WORDS && words.stream().noneMatch(x -> x.expression().equals(w.expression()))) words.add(w);
         }
-        StringBuilder out = new StringBuilder(standalone ? NOT_IN_JLAS : "").append(reviewed ? AI_REVIEWED_PART : AI_PART)
-                .append("\n\n").append(body);
+        StringBuilder out = new StringBuilder(label).append("\n\n").append(body);
         if (!words.isEmpty()) {
             out.append("\n\nTừ trong câu trả lời, cách đọc và nghĩa theo từ điển J-LAS:");
             for (RagLexiconLookup.WordEntry w : words) {
@@ -195,7 +199,46 @@ public class RagTutorService {
             }
         }
         return new Answer(out.toString(), List.of(), new RagLexiconLookup.Result(words, List.of()), List.of(), 0,
-                (System.nanoTime() - started) / 1_000_000, reviewed ? TIER_AI_REVIEWED : TIER_AI, false);
+                (System.nanoTime() - started) / 1_000_000, tier, false);
+    }
+
+    // ---------------------------------------------------------------------
+    // Dịch câu (tầng 2, không lưu)
+    // ---------------------------------------------------------------------
+
+    public static final String TIER_AI_TRANSLATION = "AI_TRANSLATION";
+    private static final Pattern TRANSLATION_QUESTION = Pattern.compile("\\b(dich|translate|phien dich)\\b");
+    static final String TRANSLATION_PART = "Bản dịch do AI thực hiện, chưa được người duyệt, bạn nên đối chiếu thêm với giáo viên hoặc từ điển:";
+    static final String TRANSLATE_PROMPT = """
+            Bạn là gia sư tiếng Nhật cho người Việt. Người học nhờ dịch một câu hoặc đoạn ngắn giữa tiếng Nhật và tiếng Việt.
+            - Câu tiếng Nhật thì dịch sang tiếng Việt tự nhiên; câu tiếng Việt thì dịch sang tiếng Nhật chuẩn, lịch sự (thể です/ます)
+              trừ khi người học yêu cầu thể thường.
+            - Viết bản dịch trước, sau đó tối đa 3 gạch đầu dòng giải thích ngắn các từ hoặc mẫu ngữ pháp chính.
+            - KHÔNG viết cách đọc, furigana, romaji, âm Hán Việt hay cấp JLPT: hệ thống tự thêm từ từ điển J-LAS.
+            - Không dịch sang hay từ ngôn ngữ khác ngoài tiếng Nhật và tiếng Việt; không phải yêu cầu dịch như vậy thì chỉ viết: なし
+            - Chỗ nào không chắc thì nói rõ là không chắc. Không tiêu đề, không bảng.
+            """;
+
+    /** Người học nhờ dịch một câu (Nhật → Việt hoặc Việt → Nhật). */
+    public static boolean isTranslationRequest(String question) {
+        return TRANSLATION_QUESTION.matcher(plain(question)).find();
+    }
+
+    /**
+     * Dịch bằng AI, gắn nhãn chưa duyệt, kèm cách đọc và nghĩa từ điển. KHÔNG lưu: câu cần dịch hầu như không lặp lại,
+     * và người học có thể dán nội dung riêng tư.
+     *
+     * @param mayCallModel gọi ngay trước khi hỏi AI (kiểm hạn mức); false thì không dịch
+     * @return bản dịch, hoặc null khi hết hạn mức hay AI cho rằng đây không phải yêu cầu dịch tiếng Nhật
+     */
+    public Answer aiTranslate(String question, java.util.function.Consumer<String> onDelta, java.util.function.BooleanSupplier mayCallModel) {
+        long started = System.nanoTime();
+        if (!mayCallModel.getAsBoolean()) return null;
+        if (onDelta != null) onDelta.accept(TRANSLATION_PART + "\n\n");
+        String raw = stripRomaji(onDelta == null ? llm.chat(TRANSLATE_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS)
+                : llm.chatStream(TRANSLATE_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS, onDelta)).strip();
+        if (raw.isEmpty() || raw.startsWith("なし")) return null;
+        return withDictionary(TRANSLATION_PART, raw, question, TIER_AI_TRANSLATION, started);
     }
 
     private static final Pattern ANTONYM_QUESTION = Pattern.compile("\\b(trai nghia|nguoc nghia|doi nghia|antonym)\\b|反対語|対義語|反意語");

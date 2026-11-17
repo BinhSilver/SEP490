@@ -99,6 +99,26 @@ class RagTutorServiceTest {
     }
 
     @Test
+    void translationIsLabelledShowsDictionaryWordsAndIsNeverSaved() {
+        assertThat(RagTutorService.isTranslationRequest("Dịch giúp mình câu này: 明日は雨です")).isTrue();
+        assertThat(RagTutorService.isTranslationRequest("Dịch sang tiếng Nhật: Hôm nay trời mưa")).isTrue();
+        assertThat(RagTutorService.isTranslationRequest("雨 nghĩa là gì")).isFalse();
+
+        var rain = new RagLexiconLookup.WordEntry(9, "雨", "あめ", "mưa", null, "N5");
+        when(retriever.words(anyString())).thenReturn(List.of(rain));
+        when(llm.chat(eq(RagTutorService.TRANSLATE_PROMPT), anyList(), anyString(), anyInt())).thenReturn("Ngày mai trời mưa. (ashita)");
+
+        RagTutorService.Answer answer = tutor.aiTranslate("Dịch giúp: 明日は雨です", null, () -> true);
+        assertThat(answer.tier()).isEqualTo(RagTutorService.TIER_AI_TRANSLATION);
+        assertThat(answer.answer()).startsWith(RagTutorService.TRANSLATION_PART).contains("Ngày mai trời mưa.", "雨 (あめ): mưa");
+        verifyNoInteractions(aiAnswers);
+
+        assertThat(tutor.aiTranslate("Dịch giúp: 明日は雨です", null, () -> false)).isNull();
+        when(llm.chat(eq(RagTutorService.TRANSLATE_PROMPT), anyList(), anyString(), anyInt())).thenReturn("なし");
+        assertThat(tutor.aiTranslate("Dịch sang tiếng Pháp: 雨", null, () -> true)).isNull();
+    }
+
+    @Test
     void questionKeyIgnoresCaseSpacesAndTrailingPunctuation() {
         assertThat(TutorAiAnswerStore.hash("誕生日  hay đi với từ nào？")).isEqualTo(TutorAiAnswerStore.hash(" 誕生日 Hay đi với từ nào"));
         assertThat(TutorAiAnswerStore.hash("誕生日")).isNotEqualTo(TutorAiAnswerStore.hash("誕生"));

@@ -96,6 +96,14 @@ public class TutorChatService {
             }
             try {
                 takeHourlyQuota(userId);
+                if (RagTutorService.isTranslationRequest(q) && limits.aiFallback() && tutor.usesApiModel()) {
+                    // Dịch câu: đi thẳng tầng 2, không lưu. Hết hạn mức thì để tầng 1 trả lời như thường.
+                    RagTutorService.Answer translated = tutor.aiTranslate(q, onDelta, () -> takeDailyAiQuota(userId));
+                    if (translated != null) {
+                        log.info("Tutor AI translation userId={} generationMs={}", userId, translated.generationMs());
+                        return new Reply(translated.answer(), List.of(), 0, translated.generationMs(), translated.tier());
+                    }
+                }
                 RagTutorService.Answer answer = tutor.ask(q, sanitize(history), onDelta);
                 log.info("Tutor answered userId={} sources={} retrievalMs={} generationMs={}",
                         userId, answer.citations().size(), answer.retrievalMs(), answer.generationMs());
