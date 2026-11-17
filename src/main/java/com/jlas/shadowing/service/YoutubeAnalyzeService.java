@@ -96,16 +96,19 @@ public class YoutubeAnalyzeService {
 
         boolean needsStt = !hasManual && !hasAuto;
         dto.setRequiresAiStt(needsStt);
-        dto.setBlockedNoSubtitleTooLong(needsStt && dto.getDuration() > maxDurationNoSubtitleSeconds);
+        // 0 = no cap: a video without subtitles is paid for by the minute (counted three times for speech-to-text).
+        dto.setBlockedNoSubtitleTooLong(needsStt && maxDurationNoSubtitleSeconds > 0
+                && dto.getDuration() > maxDurationNoSubtitleSeconds);
 
         if (hasManual || hasAuto) {
             dto.setAiCostLabel(hasYtTranslation ? "0" : "Furigana AI");
         } else if (dto.isBlockedNoSubtitleTooLong()) {
             dto.setAiCostLabel("—");
-            dto.setMessage("Video quá dài và không có phụ đề. Vui lòng chọn video dưới 5 phút.");
+            dto.setMessage("Video quá dài và không có phụ đề. Vui lòng chọn video dưới "
+                    + Math.max(1, maxDurationNoSubtitleSeconds / 60) + " phút.");
         } else {
             dto.setAiCostLabel("Deepgram STT");
-            dto.setMessage("Không có phụ đề — sẽ dùng AI nhận dạng giọng nói (≤ 5 phút).");
+            dto.setMessage("Không có phụ đề — sẽ dùng AI nhận dạng giọng nói.");
         }
 
         if (dto.getDuration() <= 0) {

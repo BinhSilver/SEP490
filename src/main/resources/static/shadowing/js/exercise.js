@@ -894,7 +894,8 @@
     const explanationText = isChoiceQuestion() ? result.explanation : result.translation;
     explanation.hidden = incorrect || !explanationText;
     explanation.textContent = explanationText || '';
-    setStatus(incorrect && !isChoiceQuestion() ? '' : (result.feedback || ''), incorrect);
+    // A wrong or revealed answer shows no line of text: the colours and the buttons already say what happened.
+    setStatus(incorrect || result.result === 'REVEALED' ? '' : (result.feedback || ''), incorrect);
     renderMarkers();
     renderTranscript();
     showLiveSubtitle(subtitles.find(function (item) { return Number(item.id) === Number(question?.subtitleId); }));
@@ -1121,6 +1122,92 @@
 
   pauseButton.addEventListener('click', pauseSession);
   resumeButton.addEventListener('click', resumeSession);
+
+  // --- Subtitle list can be folded away so the question below gets its space ---
+  const transcriptToggle = document.getElementById('exercise-transcript-toggle');
+  const TRANSCRIPT_KEY = 'jlas.shadowing.exercise.transcriptCollapsed';
+
+  function setTranscriptCollapsed(collapsed) {
+    questionPanel.classList.toggle('is-transcript-collapsed', collapsed);
+    transcript.hidden = collapsed;
+    transcriptToggle.setAttribute('aria-expanded', String(!collapsed));
+    transcriptToggle.innerHTML = collapsed
+      ? '<i class="fa-solid fa-chevron-down" aria-hidden="true"></i> <span>Hiện</span>'
+      : '<i class="fa-solid fa-chevron-up" aria-hidden="true"></i> <span>Ẩn</span>';
+    if (!collapsed) {
+      const active = transcript.querySelector('.exercise-transcript-row.is-active');
+      if (active) active.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  if (transcriptToggle) {
+    let startCollapsed = false;
+    try { startCollapsed = localStorage.getItem(TRANSCRIPT_KEY) === '1'; } catch (_) { /* storage blocked */ }
+    setTranscriptCollapsed(startCollapsed);
+    transcriptToggle.addEventListener('click', function () {
+      const collapsed = !questionPanel.classList.contains('is-transcript-collapsed');
+      setTranscriptCollapsed(collapsed);
+      try { localStorage.setItem(TRANSCRIPT_KEY, collapsed ? '1' : '0'); } catch (_) { /* storage blocked */ }
+    });
+  }
+
+  // --- PC layout: fixed panel sizes, long text gets smaller instead of the panel getting taller ---
+  const desktopLayout = window.matchMedia('(min-width: 861px)');
+  const liveSubtitleBox = document.getElementById('exercise-live-subtitle');
+  const answerBox = document.getElementById('exercise-answer-box');
+  const MIN_LIVE_FONT_PX = 14;
+  const MIN_ANSWER_SCALE = 0.6;
+  let fitFrame = 0;
+
+  function overflows(box) {
+    return box.scrollHeight > box.clientHeight + 1;
+  }
+
+  function fitLiveSubtitle() {
+    liveJapanese.style.fontSize = '';
+    if (!desktopLayout.matches || mediaPanel.classList.contains('is-subtitle-hidden')) return;
+    let size = parseFloat(getComputedStyle(liveJapanese).fontSize);
+    while (overflows(liveSubtitleBox) && size > MIN_LIVE_FONT_PX) {
+      size = Math.max(MIN_LIVE_FONT_PX, size - 1);
+      liveJapanese.style.fontSize = size + 'px';
+    }
+  }
+
+  function fitAnswer() {
+    answerBox.style.removeProperty('--exercise-answer-scale');
+    if (!desktopLayout.matches) return;
+    let scale = 1;
+    while (overflows(answerBox) && scale > MIN_ANSWER_SCALE) {
+      scale = Math.max(MIN_ANSWER_SCALE, Math.round((scale - 0.05) * 100) / 100);
+      answerBox.style.setProperty('--exercise-answer-scale', String(scale));
+    }
+  }
+
+  function fitPanels() {
+    fitFrame = 0;
+    fitLiveSubtitle();
+    fitAnswer();
+  }
+
+  function scheduleFit() {
+    if (!fitFrame) fitFrame = requestAnimationFrame(fitPanels);
+  }
+
+  // Text, shown/hidden parts and panel sizes all change from many places; watch them instead of hooking each one.
+  const fitObserver = new MutationObserver(scheduleFit);
+  [liveSubtitleBox, answerBox].forEach(function (box) {
+    fitObserver.observe(box, { childList: true, subtree: true, characterData: true,
+      attributes: true, attributeFilter: ['hidden', 'class'] });
+  });
+  fitObserver.observe(mediaPanel, { attributes: true, attributeFilter: ['class'] });
+  fitObserver.observe(workspace, { attributes: true, attributeFilter: ['hidden'] });
+  if (window.ResizeObserver) {
+    const sizeObserver = new ResizeObserver(scheduleFit);
+    sizeObserver.observe(liveSubtitleBox);
+    sizeObserver.observe(answerBox);
+  }
+  window.addEventListener('resize', scheduleFit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFit);
 
   loadSession();
 }());

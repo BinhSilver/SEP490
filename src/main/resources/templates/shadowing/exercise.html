@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261110-review">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261117-guide2">
+    <link rel="stylesheet" href="/css/components/page-guide.css?v=20261117-bullets">
     <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap">
     <link rel="icon" href="/images/jlab.png" type="image/png">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -27,6 +28,7 @@
             <a id="exercise-back-link" href="/shadowing">Chọn lại chế độ</a>
             <div id="exercise-title-row">
             <div><span id="exercise-mode-label">Luyện nghe</span><h1 id="exercise-video-title">Đang tải…</h1></div>
+            <button id="exercise-guide-open" class="page-guide-button" type="button" disabled><i class="fa-regular fa-circle-question" aria-hidden="true"></i> Hướng dẫn</button>
             </div>
             <div id="exercise-session-actions" hidden aria-label="Điều khiển phiên học">
                 <button id="exercise-pause-button" type="button"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tạm dừng</button>
@@ -36,6 +38,8 @@
 
         <section id="exercise-workspace" hidden>
             <div id="exercise-media-panel" class="shadowing-mobile-stage">
+                <!-- On PC with a mouse, the progress bar and buttons sit on the video and show on hover. -->
+                <div id="exercise-stage">
                 <video id="exercise-media" class="shadowing-video-surface" playsinline preload="metadata"></video>
                 <div id="exercise-video-timeline" aria-label="Tiến trình video và các điểm dừng">
                     <span id="exercise-video-progress"></span>
@@ -63,6 +67,7 @@
                     <button type="button" data-media-action="mute" data-media-target="exercise-media" aria-label="Tắt âm thanh" aria-pressed="false"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
                     <span id="exercise-video-clock">0:00 / 0:00</span>
                 </div>
+                </div>
                 <div id="exercise-live-subtitle" class="shadowing-live-subtitle" aria-live="polite">
                     <p id="exercise-live-japanese" class="shadowing-live-japanese" lang="ja">Bấm Phát bài để bắt đầu nghe từ đầu.</p>
                     <p id="exercise-live-translation" class="shadowing-live-translation"></p>
@@ -71,6 +76,12 @@
 
             <div id="exercise-question-panel">
                 <section id="exercise-transcript-box" aria-label="Danh sách phụ đề">
+                    <div id="exercise-transcript-head">
+                        <span>Phụ đề cả bài</span>
+                        <button id="exercise-transcript-toggle" type="button" aria-expanded="true" aria-controls="exercise-transcript">
+                            <i class="fa-solid fa-chevron-up" aria-hidden="true"></i> <span>Ẩn</span>
+                        </button>
+                    </div>
                     <div id="exercise-transcript"></div>
                 </section>
 
@@ -137,6 +148,8 @@
 <script src="/shadowing/js/subtitle-display.js?v=20261012-7"></script>
 <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
 <script src="/shadowing/js/youtube-media.js?v=20261109-file-first"></script>
-<script src="/shadowing/js/exercise.js?v=20261110-review"></script>
+<script src="/shadowing/js/exercise.js?v=20261117-no-reveal-line"></script>
+<script src="/js/components/page-guide.js?v=20261117-bullets"></script>
+<script src="/shadowing/js/exercise-guide.js?v=20261117-bullets"></script>
 </body>
 </html>
