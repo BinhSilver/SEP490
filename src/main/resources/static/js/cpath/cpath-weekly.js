@@ -310,11 +310,26 @@
       var b = t.closest('[data-weekly-pick]');
       if (!b || !state.data) return;
       var q = state.data.questions[state.i];
-      state.answers[q.id] = Number(b.getAttribute('data-weekly-pick'));
-      state.dirty = true;
-      state.i++;
-      if (state.i >= state.data.questions.length) submit();
-      else { saveDraft(); show(); }
+      var choice = Number(b.getAttribute('data-weekly-pick'));
+      function accept() {
+        state.answers[q.id] = choice;
+        state.dirty = true;
+        state.i++;
+        if (state.i >= state.data.questions.length) submit();
+        else { saveDraft(); show(); }
+      }
+      if (!REVIEW) { accept(); return; }
+      if (state.picking) return;
+      state.picking = true;
+      client.send('POST', BASE + '/pick?questionId=' + encodeURIComponent(q.id) + '&optionIndex=' + choice)
+        .then(function (r) {
+          state.picking = false;
+          if (r && r.correct) accept();
+          else el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
+        }, function (e) {
+          state.picking = false;
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+        });
     });
     return load();
   }
@@ -344,11 +359,21 @@
       var q = byId[x.id] || {};
       var idx = answers ? answers[x.id] : null;
       var picked = idx != null && q.options ? q.options[idx] : '';
+      var aiSlot = x.ja && x.answer
+        ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
+          source: 'CPATH_ROLEPLAY',
+          contextText: q.promptVi || '',
+          prompt: q.promptJa || x.ja,
+          options: q.options || [],
+          userAnswer: picked || '',
+          correctAnswer: x.answer
+        })) + '"></div>' : '';
       return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '">'
         + '<div><span lang="ja">' + esc(x.ja) + '</span>' + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>'
         + (x.correct ? '<div class="jp-review__picked">Đáp: <span lang="ja">' + esc(x.answer) + '</span></div>'
           : (picked ? '<div class="jp-review__picked">Bạn chọn: <span class="jp-bad" lang="ja">' + esc(picked) + '</span></div>' : '')
             + '<div class="jp-review__picked">Đáp án: <strong lang="ja">' + esc(x.answer) + '</strong></div>')
+        + aiSlot
         + '</li>';
     }).join('') + '</ul>';
   }
@@ -365,7 +390,7 @@
       root.document.title = (scope === 'goal' ? 'Bài test cuối mục tiêu' : scope === 'topic' ? 'Nhập vai cuối chủ đề' : 'Luyện nhanh tình huống')
         + ' - KotsuKotsu';
     }
-    var state = { questions: [], goal: '', index: 0, answers: {}, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false };
+    var state = { questions: [], goal: '', index: 0, answers: {}, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false, picking: false };
     function error(message) {
       el.innerHTML = '<p class="jp-alert" role="alert">' + esc(message) + '</p><button type="button" class="jp-btn" data-rp-retry>Thử lại</button>';
     }
@@ -449,7 +474,30 @@
         return;
       }
       var pick = target.closest('[data-rp-pick]');
-      if (pick) { state.answers[q.id] = Number(pick.getAttribute('data-rp-pick')); state.index++; render(); return; }
+      if (pick) {
+        if (state.picking) return;
+        var optionIndex = Number(pick.getAttribute('data-rp-pick'));
+        if (scope !== 'situation') {
+          state.answers[q.id] = optionIndex; state.index++; render(); return;
+        }
+        state.picking = true;
+        el.querySelectorAll('[data-rp-pick]').forEach(function (button) { button.disabled = true; });
+        client.send('POST', '/api/learning/comm/roleplay/pick?code=' + encodeURIComponent(code)
+          + '&questionId=' + encodeURIComponent(q.id) + '&optionIndex=' + optionIndex).then(function (verdict) {
+          state.picking = false;
+          if (verdict && verdict.correct) {
+            state.answers[q.id] = optionIndex; state.index++; render();
+          } else {
+            render();
+            el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
+          }
+        }, function (err) {
+          state.picking = false;
+          render();
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+        });
+        return;
+      }
       if (target.closest('[data-rp-skip]')) {
         if (state.timer) root.clearTimeout(state.timer);
         if (state.recorder && state.recorder.state !== 'inactive') { state.recorder.onstop = null; state.recorder.stop(); }

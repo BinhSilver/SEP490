@@ -39,11 +39,11 @@ const isSecondary = g => g.grammar_role === 'SECONDARY';
 const FIXABLE = {
   REVIEW_VOCAB: ['expression', 'reading', 'meaning_vi', 'word_type_label', 'topic_key', 'topic_vi', 'examples', 'mnemonic_vi', 'confusable_ids', 'variants'],
   REVIEW_KANJI: ['han_viet', 'han_viet_alt', 'meanings_vi', 'mnemonic_vi', 'confusable_ids'],
-  REVIEW_GRAMMAR: ['pattern', ...GRAMMAR_TEXT, 'examples', 'unit_no', 'unit_title_vi', ...Object.keys(BANK)]
+  REVIEW_GRAMMAR: ['pattern', ...GRAMMAR_TEXT, 'examples', 'unit_no', 'unit_title_vi', 'related_ids', ...Object.keys(BANK)]
 };
 const REVIEW_KINDS = new Set(Object.keys(FIXABLE));
 const SOURCE_OF = { meaning_vi: 'meaning_source', meanings_vi: 'meaning_source', word_type_label: 'word_type_source', examples: 'example_source' };
-const ARRAY_FIELDS = new Set(['han_viet_alt', 'confusable_ids', 'variants']);
+const ARRAY_FIELDS = new Set(['han_viet_alt', 'confusable_ids', 'variants', 'related_ids']);
 
 const vocabContext = v => ({ expression: v.expression, reading: v.reading, meaning_vi: v.meaning_vi, word_type_label: v.word_type_label,
   topic_vi: v.topic_vi, examples: v.examples.map(e => ({ ja: e.ja, vi: e.vi })) });
@@ -289,7 +289,7 @@ function applyFix(item, field, value, log) {
   }
   item.provenance.fixed_fields = [...new Set([...(item.provenance.fixed_fields ?? []), field])].sort();
   (item.provenance.ai_fields ??= []).push(field);
-  if (field === 'confusable_ids') for (const gone of (before ?? []).filter(x => !value.includes(x))) log.unlinked.add(`${item.id}|${gone}`);
+  if (field === 'confusable_ids' || field === 'related_ids') for (const gone of (before ?? []).filter(x => !value.includes(x))) log.unlinked.add(`${item.id}|${gone}`);
   if (JSON.stringify(before) !== JSON.stringify(item[field] ?? null))
     log.conflicts.push({ kind: 'REVIEW_FIX', id: item.id, field, chosen: 'AI',
       values: [{ source: beforeSource, value: before }, { source: 'AI', value: structuredClone(item[field]) }] });
@@ -378,6 +378,8 @@ export function applyPackets(level, packets) {
   // Confusables are symmetric; a pair a review removed is removed on both sides.
   const unlinked = (a, b) => log.unlinked.has(`${a}|${b}`) || log.unlinked.has(`${b}|${a}`);
   for (const list of [out.vocabulary, out.kanji]) for (const x of list) x.confusable_ids = (x.confusable_ids ?? []).filter(o => !unlinked(x.id, o));
+  // Related grammar links come from a shared spelling prefix (だけど ~ だけでなく); a link a review removes goes on both sides.
+  for (const g of out.grammar) g.related_ids = (g.related_ids ?? []).filter(o => !unlinked(g.id, o));
   for (const list of [out.vocabulary, out.kanji]) for (const x of list) for (const other of x.confusable_ids ?? []) {
     const o = byId.get(other);
     if (o && !unlinked(x.id, o.id) && !(o.confusable_ids ?? []).includes(x.id)) o.confusable_ids = [...(o.confusable_ids ?? []), x.id];

@@ -180,6 +180,18 @@ public class CpathRoleplayService {
         return questions(context(userId, scope, code));
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, Object> quickPick(Long userId, String code, String questionId, int optionIndex) {
+        Question q = questions(context(userId, "situation", code)).stream()
+                .filter(candidate -> candidate.id().equals(questionId) && !candidate.speaking())
+                .findFirst().orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED,
+                        "Câu luyện nhanh không hợp lệ."));
+        if (optionIndex < 0 || optionIndex >= q.options().size()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lựa chọn không hợp lệ.");
+        }
+        return Map.of("correct", optionIndex == q.answer());
+    }
+
     @Transactional
     public Map<String, Object> submit(Long userId, String scope, String code, Map<String, Integer> answers,
                                       Map<String, Integer> speakingScores) {

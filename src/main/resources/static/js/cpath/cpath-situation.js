@@ -416,6 +416,7 @@
         + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
         + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
+        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
@@ -598,10 +599,12 @@
       + '<footer class="cp-sit-foot">'
       + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="LISTEN">‹ Quay lại Nghe</button>'
       + (tIdx + 1 < turns.length
-        ? (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo ›</button>'
+        ? (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo ›</button>'
+          : isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-retry>Chọn lại</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>')
-        : (isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
+        : (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
           + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 3 · Sang Luyện nói ›') + '</button>'
+          : isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-retry>Chọn lại</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>'))
       + '</footer>';
   }
@@ -973,6 +976,7 @@
       playingAll: false,
       turnIdx: 0,
       roleplayAnswers: {},
+      roleplayMisses: {},
       speakIdx: 0,
       speakScores: {},
       speakSkipped: {},
@@ -1061,7 +1065,7 @@
         var turns = list(sitData && sitData.challenge && sitData.challenge.turns);
         var corr = 0;
         turns.forEach(function (trn, idx) {
-          if (Number(state.roleplayAnswers[idx]) === Number(trn.answerIndex)) corr++;
+          if (!state.roleplayMisses[idx] && Number(state.roleplayAnswers[idx]) === Number(trn.answerIndex)) corr++;
         });
         body = { correct: corr, total: Math.max(1, turns.length) };
       } else if (stepKey === 'SPEAK') {
@@ -1399,9 +1403,17 @@
       var rpOpt = t.closest('[data-cp-roleplay-opt]');
       if (rpOpt) {
         state.roleplayAnswers[state.turnIdx] = Number(rpOpt.getAttribute('data-cp-roleplay-opt'));
+        var turn = list(sitData && sitData.challenge && sitData.challenge.turns)[state.turnIdx];
+        if (turn && Number(state.roleplayAnswers[state.turnIdx]) !== Number(turn.answerIndex)) state.roleplayMisses[state.turnIdx] = true;
         render();
         var rpRev = el && typeof el.querySelector === 'function' ? el.querySelector('.cp-meaning-reveal, .cp-why-box') : null;
         if (rpRev && typeof rpRev.scrollIntoView === 'function') rpRev.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return;
+      }
+
+      if (t.closest('[data-cp-roleplay-retry]')) {
+        delete state.roleplayAnswers[state.turnIdx];
+        render();
         return;
       }
 
