@@ -158,6 +158,7 @@
         reading: p.reading || '',
         vi: p.vi || '',
         note: p.note || 'Mẫu câu giao tiếp quan trọng.',
+        example: p.example || null,
         audioUrl: p.audioUrl || ''
       };
     });
@@ -395,6 +396,7 @@
     if (!ja) return null;
     var whole = ls.filter(function (l) { return String(l.ja).indexOf(ja) >= 0; })[0];
     if (whole) return whole;
+    if (card.example && card.example.ja) return card.example;
     var pieces = ja.split(/[～〜~…・／\/（）()「」]+/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length >= 2; });
     if (!pieces.length) return null;
     var all = ls.filter(function (l) { return pieces.every(function (pc) { return String(l.ja).indexOf(pc) >= 0; }); })[0];

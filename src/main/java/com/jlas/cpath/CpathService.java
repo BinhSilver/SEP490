@@ -846,6 +846,15 @@ public class CpathService {
             w.put("vi", rs.getString("vi"));
             w.put("note", rs.getString("note_vi"));
             w.put("audioUrl", url(rs.getString("audio_path")));
+            // owner 17/11: own example when no dialogue line shows the phrase (column added 17/11, absent on old DBs)
+            String exJa = optColumn(rs, "example_ja");
+            if (exJa != null && !exJa.isBlank()) {
+                Map<String, Object> ex = new LinkedHashMap<>();
+                ex.put("ja", exJa);
+                ex.put("furigana", optColumn(rs, "example_furigana"));
+                ex.put("vi", optColumn(rs, "example_vi"));
+                w.put("example", ex);
+            }
             return w;
         }, code));
         m.put("lines", db.query("SELECT * FROM cpath_line WHERE situation_code = ? ORDER BY line_order", (rs, i) -> {
@@ -1784,6 +1793,58 @@ public class CpathService {
             throw new ApiException(ErrorCode.CPATH_DISPLAY_UNAVAILABLE);
         }
         return path(userId);
+    }
+
+    /**
+     * Owner 17/11 (mentor review): one clear picture of the learner's goals for both paths — the main goal (the
+     * survey goal: JLPT or a communication goal), the secondary goal (communication only) and the paused paths that
+     * choosing their goal again resumes. Every goal panel and message reads this, so both paths say the same thing.
+     */
+    public Map<String, Object> goalsOverview(Long userId) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        String surveyGoal = db.queryForList("SELECT goal FROM user_learning_survey WHERE user_id = ?", String.class, userId)
+                .stream().findFirst().orElse(null);
+        List<Map<String, Object>> jlpt = db.queryForList("SELECT status, open_level FROM jpath_user_path WHERE user_id = ? "
+                + "AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", userId);
+        Map<String, Object> cMain = pathRow(userId, "MAIN");
+        Map<String, Object> cSec = pathRow(userId, "SECONDARY");
+        Map<String, Object> main = null;
+        if (cMain != null) {
+            main = goalMap("COMM", (String) cMain.get("goal_code"), (String) cMain.get("name_vi"), "/learning/comm/path");
+        } else if (!jlpt.isEmpty() && "ACTIVE".equals(jlpt.get(0).get("status"))) {
+            main = goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning");
+        }
+        m.put("surveyGoal", surveyGoal);
+        m.put("main", main);
+        m.put("secondary", cSec == null ? null : goalMap("COMM", (String) cSec.get("goal_code"), (String) cSec.get("name_vi"), "/learning/comm/path"));
+        List<Map<String, Object>> paused = new ArrayList<>();
+        if (!jlpt.isEmpty() && "PAUSED".equals(jlpt.get(0).get("status"))) {
+            paused.add(goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning/jlpt/resume"));
+        }
+        for (Map<String, Object> r : db.queryForList("SELECT p.goal_code, g.name_vi, p.role FROM cpath_user_path p JOIN cpath_goal g "
+                + "ON g.code = p.goal_code WHERE p.user_id = ? AND p.status = 'PAUSED' ORDER BY p.id DESC", userId)) {
+            String code = (String) r.get("goal_code");
+            boolean shown = paused.stream().anyMatch(x -> code.equals(x.get("goal")))
+                    || (main != null && code.equals(main.get("goal"))) || (cSec != null && code.equals(cSec.get("goal_code")));
+            if (!shown) paused.add(goalMap("COMM", code, (String) r.get("name_vi"), "/survey?edit=goal"));
+        }
+        m.put("paused", paused);
+        // a secondary goal studies alongside a communication main path only (it has no daily schedule of its own)
+        m.put("canAddSecondary", cMain != null);
+        return m;
+    }
+
+    private static String optColumn(java.sql.ResultSet rs, String column) {
+        try { return rs.getString(column); } catch (java.sql.SQLException e) { return null; }
+    }
+
+    private static Map<String, Object> goalMap(String kind, String goal, String nameVi, String url) {
+        Map<String, Object> g = new LinkedHashMap<>();
+        g.put("kind", kind);
+        g.put("goal", goal);
+        g.put("nameVi", nameVi);
+        g.put("url", url);
+        return g;
     }
 
     /** F61: pauses the main path; progress is kept and choosing the same goal again in the survey resumes it. */
