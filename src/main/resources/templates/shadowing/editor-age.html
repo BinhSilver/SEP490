@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="/js/theme-init.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa độ tuổi | KotsuKotsu Shadowing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/theme-bridge.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261116-bin">
+    <link rel="icon" href="/images/jlab.png" type="image/png"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261117-icon-center"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+</head>
+<!-- Trang chỉnh sửa của người kiểm duyệt (không phải chủ video): chỉ đổi được độ tuổi, giống phần xổ xuống khi bấm
+     tiêu đề ở trang chỉnh sửa phụ đề. Phụ đề và các thông tin khác chỉ chủ video mới sửa được. -->
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-editor">
+    <div id="jlabBaseShellMount"></div>
+
+    <main id="jlabBaseContent" class="container" th:attr="data-video-id=${videoId}">
+        <div class="editor-toolbar">
+            <div>
+                <h1 class="tagline" id="editor-title" title="Nhấn để đổi độ tuổi" role="button" tabindex="0"
+                    aria-controls="metadata-panel" aria-expanded="true" th:text="'Tiêu đề: ' + ${videoTitle}">Tiêu đề: …</h1>
+            </div>
+            <div class="editor-toolbar-actions">
+                <a class="button-secondary btn-sm" th:href="@{/shadowing/player/{id}(id=${videoId},mode='shadowing')}">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về trang luyện
+                </a>
+            </div>
+        </div>
+
+        <div id="metadata-panel" class="store-utility-card metadata-panel" style="margin-bottom:16px;">
+            <div class="form-group">
+                <label class="form-label" for="meta-min-age">Độ tuổi</label>
+                <select id="meta-min-age" data-jl-select class="form-input form-select" aria-describedby="meta-min-age-hint">
+                    <option value="0" th:selected="${minAge == 0}">Mọi lứa tuổi</option>
+                    <option value="13" th:selected="${minAge == 13}">13+</option>
+                    <option value="16" th:selected="${minAge == 16}">16+</option>
+                    <option value="18" th:selected="${minAge == 18}">18+</option>
+                </select>
+                <p id="meta-min-age-hint" class="caption">Bạn đang mở với quyền kiểm duyệt nên chỉ đổi được độ tuổi; phụ đề và
+                    các thông tin khác do chủ video sửa.</p>
+            </div>
+            <button id="save-meta-btn" class="button-primary btn-sm"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Lưu độ tuổi</button>
+            <span id="save-meta-status" class="caption" aria-live="polite"></span>
+        </div>
+    </main>
+
+    <script src="/js/auth-session.js"></script>
+    <script src="/js/jlab-base-shell.js"></script>
+    <script>
+      (function () {
+        var main = document.getElementById('jlabBaseContent');
+        var videoId = main.getAttribute('data-video-id');
+        var title = document.getElementById('editor-title');
+        var panel = document.getElementById('metadata-panel');
+        var select = document.getElementById('meta-min-age');
+        var button = document.getElementById('save-meta-btn');
+        var status = document.getElementById('save-meta-status');
+
+        function toggle() {
+          var open = panel.hidden;
+          panel.hidden = !open;
+          title.setAttribute('aria-expanded', String(open));
+        }
+        title.addEventListener('click', toggle);
+        title.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+
+        button.addEventListener('click', async function () {
+          button.disabled = true;
+          status.textContent = 'Đang lưu…';
+          try {
+            var headers = window.JlasAuth && typeof window.JlasAuth.authHeaders === 'function'
+              ? window.JlasAuth.authHeaders() : { 'Content-Type': 'application/json' };
+            var res = await fetch('/api/videos/' + videoId + '/age-rating', {
+              method: 'PUT', headers: headers, credentials: 'same-origin',
+              body: JSON.stringify({ minAge: Number(select.value) })
+            });
+            var body = await res.json().catch(function () { return {}; });
+            if (!res.ok) throw new Error(body.message || body.error || 'Chưa lưu được độ tuổi.');
+            status.textContent = 'Đã lưu';
+          } catch (e) {
+            status.textContent = e.message || 'Không kết nối được máy chủ.';
+          } finally {
+            button.disabled = false;
+          }
+        });
+      })();
+    </script>
+</body>
+</html>

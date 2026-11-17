@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const lessonCategoryBadge = document.getElementById('lesson-category-badge');
     const lessonViewsBadge = document.getElementById('lesson-views-badge');
     const lessonAgeBadge = document.getElementById('lesson-age-badge');
-    const ageRatingSelect = document.getElementById('age-rating-select');
-    const ageRatingStatus = document.getElementById('age-rating-status');
     const transcriptCount = document.getElementById('transcript-count');
     const favoriteBtn = document.getElementById('favorite-btn');
     const shareBtn = document.getElementById('share-btn');
@@ -60,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : `/api/videos/${videoId}/stream`;
     }
 
-    /** Age badge for everyone; the picker exists only for the owner and moderators (canRateAge). */
+    /** Age badge for everyone; the owner changes the rating on the subtitle editor page. */
     function applyAgeRating(minAge) {
         const age = Number(minAge) || 0;
         if (lessonAgeBadge) {
@@ -68,32 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lessonAgeBadge.textContent = age ? age + '+' : '';
             lessonAgeBadge.title = age ? `Dành cho người từ ${age} tuổi trở lên` : '';
         }
-        if (ageRatingSelect) {
-            ageRatingSelect.value = String(age);
-            ageRatingSelect.dataset.saved = String(age);
-        }
     }
-
-    ageRatingSelect?.addEventListener('change', async () => {
-        ageRatingSelect.disabled = true;
-        ageRatingStatus.textContent = 'Đang lưu…';
-        try {
-            const res = await fetch(`/api/videos/${videoId}/age-rating`, {
-                method: 'PUT',
-                headers: headers(),
-                body: JSON.stringify({ minAge: Number(ageRatingSelect.value) })
-            });
-            const body = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(body.message || body.error || 'Chưa lưu được nhãn độ tuổi.');
-            applyAgeRating(body.minAge);
-            ageRatingStatus.textContent = 'Đã lưu';
-        } catch (e) {
-            ageRatingSelect.value = ageRatingSelect.dataset.saved || '0';
-            ageRatingStatus.textContent = e.message;
-        } finally {
-            ageRatingSelect.disabled = false;
-        }
-    });
 
     let videoMeta = null;
     let isFavorited = false;

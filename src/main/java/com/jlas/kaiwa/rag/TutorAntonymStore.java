@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
- * Gợi ý từ trái nghĩa của gia sư AI, lưu trong {@code tutor_antonym_suggestion} (sql/migrations/079) để người hỏi sau
+ * Gợi ý từ trái nghĩa của gia sư AI, lưu trong {@code tutor_antonym_suggestion} (sql/migrations/083) để người hỏi sau
  * nhận cùng một đáp án và người duyệt rà lại. DB chưa chạy migration thì mọi thao tác thành "không có gì":
  * gia sư vẫn gợi ý, chỉ không lưu.
  */
@@ -42,7 +42,7 @@ public class TutorAntonymStore {
             if (!rows.isEmpty()) jdbc.update("UPDATE tutor_antonym_suggestion SET ask_count = ask_count + 1 WHERE vocabulary_id = ?", vocabularyId);
             return rows.stream().findFirst();
         } catch (DataAccessException e) {
-            log.warn("tutor_antonym_suggestion is not usable (migration 079 not applied?): {}", e.getMostSpecificCause().getMessage());
+            log.warn("tutor_antonym_suggestion is not usable (migration 083 not applied?): {}", e.getMostSpecificCause().getMessage());
             return Optional.empty();
         }
     }

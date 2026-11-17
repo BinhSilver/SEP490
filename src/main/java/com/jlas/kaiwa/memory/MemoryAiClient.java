@@ -2,7 +2,10 @@ package com.jlas.kaiwa.memory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.ai.AiFeature;
+import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.common.exception.ApiException;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import com.jlas.kaiwa.service.ai.OllamaNativeChat;
@@ -32,6 +35,7 @@ public class MemoryAiClient {
     private final String extractionPrompt;
     private final OpenRouterConfig provider;
     @Value("${kaiwa.memory.model:${openrouter.model:openai/gpt-4o-mini}}") private String model;
+    @Autowired(required = false) private AiUsageRecorder usage;
 
     public MemoryAiClient(ObjectMapper json, MemoryProperties properties, OpenRouterConfig provider) {
         this.json = json;
@@ -74,14 +78,16 @@ public class MemoryAiClient {
         return provider.getApiUrl().replaceAll("/+$", "").replaceAll("/chat/completions$", "") + path;
     }
 
-    private JsonNode post(RestTemplate http, String path, Map<String, Object> body) {
+    private JsonNode post(AiFeature feature, RestTemplate http, String path, Map<String, Object> body) {
         if (!available()) throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Chưa cấu hình OPENROUTER_API_KEY.");
         var headers = new HttpHeaders();
-        if (!provider.isLocal()) headers.setBearerAuth(provider.getApiKey().strip());
+        // Ollama cục bộ không nhận key và không tính chi phí; OpenRouter dùng key riêng của tính năng (nếu có) và ghi ai_usage_log.
+        if (!provider.isLocal()) headers.setBearerAuth(feature.apiKey(provider.getApiKey()));
         headers.setContentType(MediaType.APPLICATION_JSON);
         try {
             String url = path.startsWith("http") ? path : endpoint(path);
             String response = http.postForObject(url, new HttpEntity<>(body, headers), String.class);
+            if (usage != null && !provider.isLocal()) usage.recordOpenRouter(feature, String.valueOf(body.get("model")), response);
             return json.readTree(response);
         } catch (Exception e) {
             // Do not surface provider bodies: they may contain user conversation or credentials.
@@ -90,7 +96,7 @@ public class MemoryAiClient {
     }
 
     public double[] embed(String text) {
-        JsonNode vector = post(embeddingHttp, "/embeddings", Map.of("model", embeddingModelName(),
+        JsonNode vector = post(AiFeature.AI_CALL_MEMORY_EMBED, embeddingHttp, "/embeddings", Map.of("model", embeddingModelName(),
                 "input", text, "encoding_format", "float")).path("data").path(0).path("embedding");
         if (!vector.isArray() || vector.isEmpty() || vector.size() > 8192)
             throw new IllegalStateException("Invalid embedding response");
@@ -107,15 +113,15 @@ public class MemoryAiClient {
     }
 
     /** Chat cục bộ đi qua API gốc của Ollama (tắt thinking, giữ model nạp sẵn); cloud giữ nguyên /chat/completions. */
-    private String chat(Map<String, Object> request) {
+    private String chat(AiFeature feature, Map<String, Object> request) {
         if (!provider.isLocal())
-            return post(chatHttp, "/chat/completions", request).path("choices").path(0).path("message").path("content").asText("");
-        return post(chatHttp, OllamaNativeChat.url(provider), OllamaNativeChat.toNative(request, provider))
+            return post(feature, chatHttp, "/chat/completions", request).path("choices").path(0).path("message").path("content").asText("");
+        return post(feature, chatHttp, OllamaNativeChat.url(provider), OllamaNativeChat.toNative(request, provider))
                 .path("message").path("content").asText("");
     }
 
     public String reply(List<Map<String, String>> messages) {
-        String reply = chat(Map.of("model", chatModel(), "messages", messages,
+        String reply = chat(AiFeature.AI_CALL_MEMORY_CHAT, Map.of("model", chatModel(), "messages", messages,
                 "temperature", 0.5, "max_tokens", 900)).strip();
         if (reply.isBlank() || reply.length() > 6000)
             throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "AI trả về nội dung không hợp lệ.");
@@ -133,7 +139,7 @@ public class MemoryAiClient {
                     Map.of("role", "user", "content", json.writeValueAsString(data)))));
             // "reasoning" is an OpenRouter extension; never send it to a local Ollama model.
             if (!provider.isLocal()) request.put("reasoning", Map.of("effort", "low", "exclude", true));
-            JsonNode result = json.readTree(chat(request));
+            JsonNode result = json.readTree(chat(AiFeature.AI_CALL_MEMORY_EXTRACT, request));
             String summary = result.path("summary").asText("").strip();
             if (summary.isBlank() && !session.summary().isBlank()) summary = session.summary();
             if (summary.length() > 3000 || !result.path("facts").isArray() || result.path("facts").size() > 12)

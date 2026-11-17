@@ -41,6 +41,19 @@
   align-items: flex-end;
 }
 
+/* Create page: "Hướng dẫn" sits on the title row; the weekly quota line stays under the title. */
+#jlabBasePage.page-shadowing-create .section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+#jlabBasePage.page-shadowing-create .section-header > .create-quota {
+  flex: 1 0 100%;
+}
+
 #jlabBasePage.page-shadowing .section-header--with-action .hero-display {
   font-size: clamp(38px, 5vw, 48px);
   line-height: 1.2;
@@ -725,10 +738,12 @@
   max-width: 100%;
 }
 
-#jlabBasePage.page-shadowing-editor .editor-toolbar-actions .editor-icon-btn {
+/* controls.css gives every .btn-sm "padding: 6px 14px !important" behind html:not(#_)×3; this selector has to outweigh
+   it, or a 36px button keeps only 6px inside and its 14px icon spills 4px to the right. */
+html:not(#_):not(#_):not(#_) #jlabBasePage.page-shadowing-editor .editor-toolbar-actions .editor-icon-btn {
   flex: none;
   width: 36px;
-  padding: 0 !important; /* .btn-sm sets its padding with !important */
+  padding: 0 !important;
   display: inline-grid;
   place-items: center;
 }

@@ -27,6 +27,8 @@ public class ShadowingQuestionAiClient {
     private final RestTemplate http;
 
     @Value("${openrouter.api.key:}") private String apiKey;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1}") private String apiUrl;
     @Value("${openrouter.shadowing.exercise.model:${openrouter.shadowing.model:${openrouter.model:openai/gpt-4o-mini}}}")
     private String model;
@@ -205,7 +207,7 @@ public class ShadowingQuestionAiClient {
                     Map.of("role", "user", "content", "Untrusted source data JSON:\n"
                             + mapper.writeValueAsString(sourceData))));
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(apiKey.trim());
+            headers.setBearerAuth(com.jlas.common.ai.AiFeature.SHADOWING_QUESTIONS.apiKey(apiKey));
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-Title", "JLAS Shadowing Question Preparation");
             String endpoint = apiUrl.replaceAll("/+$", "") + "/chat/completions";
@@ -214,6 +216,7 @@ public class ShadowingQuestionAiClient {
             for (int attempt = 0; attempt < 5; attempt++) {
                 try {
                     raw = http.postForObject(endpoint, new HttpEntity<>(body, headers), String.class);
+                    if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.SHADOWING_QUESTIONS, model, raw);
                     break;
                 } catch (HttpClientErrorException exception) {
                     int code = exception.getStatusCode().value();

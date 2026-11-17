@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Hàng chờ duyệt nội dung do gia sư AI tạo ra: câu trả lời tầng 2 ({@code tutor_ai_answer}, migration 082) và gợi ý từ
- * trái nghĩa ({@code tutor_antonym_suggestion}, migration 079). Người duyệt là CONTENT_CREATOR hoặc ADMIN.
+ * trái nghĩa ({@code tutor_antonym_suggestion}, migration 083). Người duyệt là CONTENT_CREATOR hoặc ADMIN.
  */
 @Repository
 public class TutorReviewQueue {

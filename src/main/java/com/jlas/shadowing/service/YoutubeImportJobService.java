@@ -37,8 +37,6 @@ public class YoutubeImportJobService {
     @Value("${youtube.max.duration.no-subtitle.seconds:300}")
     private int maxDurationNoSubtitleSeconds;
 
-    @Value("${processing.ai.max.duration.seconds:1200}")
-    private int aiMaxDurationSeconds;
 
     @Value("${youtube.subtitle.skip-theme-songs.enabled:true}")
     private boolean skipThemeSongs;
@@ -73,7 +71,7 @@ public class YoutubeImportJobService {
             if (dtos == null || dtos.isEmpty()) {
                 throw new IllegalArgumentException(
                         "Không tạo được phụ đề từ video này. "
-                                + "Hãy chọn video có phụ đề tiếng Nhật (CC), hoặc video ≤ 5 phút để dùng AI STT.");
+                                + "Hãy chọn video có phụ đề tiếng Nhật (CC) hoặc có lời nói tiếng Nhật rõ ràng.");
             }
             int beforeSplit = dtos.size();
             dtos = SubtitleSegmenter.splitLongCues(dtos);
@@ -150,9 +148,9 @@ public class YoutubeImportJobService {
     }
 
     /**
-     * Last import step. Embeddable YouTube videos are played through the YouTube embed, so nothing is downloaded:
-     * only the duration and a thumbnail are stored. Videos whose owner does not allow embedding
-     * (playback mode FILE) are downloaded as before and played from the file.
+     * Last import step. Lessons are played through the YouTube embed, so the video file is not downloaded:
+     * only the duration and a thumbnail are stored. New imports are always EMBED (a video that blocks embedding
+     * is refused up front); only lessons imported earlier in playback mode FILE still use the downloaded file.
      */
     private void downloadVideoWithProgress(Video video, String url, YoutubeAnalyzeResultDto meta,
                                            Long videoId, long runId) throws Exception {
@@ -246,7 +244,7 @@ public class YoutubeImportJobService {
                 return new ResolvedSubtitles(retry, sourceOf(jaTrack.get()));
             }
             // Last resort for short videos: STT even if analyze thought there were JP subs
-            if (meta.getDuration() <= maxDurationNoSubtitleSeconds) {
+            if (noSubtitleLengthAllowed(meta)) {
                 System.err.println("[YouTube import] falling back to Deepgram STT");
                 return new ResolvedSubtitles(transcribeWithDeepgram(url, video, videoId, runId),
                         SubtitleQualitySource.DEEPGRAM);
@@ -256,12 +254,17 @@ public class YoutubeImportJobService {
                             + "Thử cập nhật yt-dlp: pip install -U yt-dlp");
         }
 
-        if (meta.getDuration() > maxDurationNoSubtitleSeconds) {
-            throw new IllegalArgumentException(
-                    "Video quá dài vì không có phụ đề. Vui lòng chọn video dưới 5 phút.");
+        if (!noSubtitleLengthAllowed(meta)) {
+            throw new IllegalArgumentException("Video quá dài vì không có phụ đề. Vui lòng chọn video dưới "
+                    + Math.max(1, maxDurationNoSubtitleSeconds / 60) + " phút.");
         }
         return new ResolvedSubtitles(transcribeWithDeepgram(url, video, videoId, runId),
                 SubtitleQualitySource.DEEPGRAM);
+    }
+
+    /** 0 = no cap: speech-to-text is paid for by the minute, so any length may go through Deepgram. */
+    private boolean noSubtitleLengthAllowed(YoutubeAnalyzeResultDto meta) {
+        return maxDurationNoSubtitleSeconds <= 0 || meta.getDuration() <= maxDurationNoSubtitleSeconds;
     }
 
     private List<SubtitleDto> transcribeWithDeepgram(String url, Video video, Long videoId, long runId)
@@ -498,14 +501,6 @@ public class YoutubeImportJobService {
         System.out.println("[YouTube import] AI phase generateFurigana=" + wantFurigana
                 + " subtitles=" + workItems.size()
                 + " withYtTranslation=" + withYtTrans);
-
-        // Safety net (startImport should already reject)
-        double dur = video.getDuration() != null ? video.getDuration() : 0;
-        if (wantFurigana && dur > aiMaxDurationSeconds) {
-            int maxMin = Math.max(1, aiMaxDurationSeconds / 60);
-            throw new IllegalArgumentException(
-                    "Khi bật furigana/dịch AI, video tối đa " + maxMin + " phút.");
-        }
 
         // Furigana OFF  never call OpenRouter. Keep YouTube translation if present; furigana = plain JP.
         if (!wantFurigana) {

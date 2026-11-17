@@ -383,15 +383,36 @@ document.addEventListener('DOMContentLoaded', () => {
                         variant: 'danger'
                     });
                     if (!confirmed) return;
-                    const res = await fetch(`/api/videos/${v.id}`, {
-                        method: 'DELETE',
-                        headers: authHeaders()
-                    });
-                    if (!res.ok) {
-                        showToast('Không thể xóa video. Thử lại sau.');
+                    delBtn.disabled = true;
+                    // Deleting can take a while: the bin popup covers the page so the button cannot be pressed again.
+                    const bin = typeof window.showDeleting === 'function'
+                        ? window.showDeleting({ title: v.title, message: 'Đang xóa video…' })
+                        : { done: () => Promise.resolve(), fail() {} };
+                    let res;
+                    try {
+                        res = await fetch(`/api/videos/${v.id}`, {
+                            method: 'DELETE',
+                            headers: authHeaders()
+                        });
+                    } catch {
+                        // No answer at all (server restarting, network down): say so instead of failing silently.
+                        bin.fail();
+                        delBtn.disabled = false;
+                        showToast('Không kết nối được máy chủ nên chưa xóa video. Thử lại sau ít phút.');
                         return;
                     }
-                    loadVideos(currentPage);
+                    if (!res.ok) {
+                        bin.fail();
+                        delBtn.disabled = false;
+                        const body = await res.json().catch(() => ({}));
+                        showToast(body.message || body.error || 'Không thể xóa video. Thử lại sau.');
+                        return;
+                    }
+                    // The bin keeps eating until the list no longer shows the video, so the popup never says "Đã xóa"
+                    // while the card is still on screen.
+                    card.remove();
+                    await loadVideos(currentPage).catch(() => {});
+                    await bin.done('Đã xóa video');
                 });
             }
 

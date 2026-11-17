@@ -1,5 +1,6 @@
 package com.jlas.kaiwa.service.ai;
 
+import com.jlas.common.ai.AiFeature;
 import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import java.nio.charset.StandardCharsets;
@@ -23,10 +24,6 @@ public class OpenRouterClient {
 
     private static final Logger log = LoggerFactory.getLogger(OpenRouterClient.class);
 
-    /** ai_usage_log feature names: the NPC reply of a turn, and the helpers (furigana, translation, suggestions). */
-    static final String FEATURE_REPLY = "AI_CALL_REPLY";
-    static final String FEATURE_HELPER = "AI_CALL_HELPER";
-
     private final OpenRouterConfig config;
     private final RestTemplate restTemplate;
     private final AiUsageRecorder usage;
@@ -43,19 +40,21 @@ public class OpenRouterClient {
         this.restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
     }
 
-    public String complete(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, false, false);
+    /** A helper call (suggestion, furigana, translation); {@code feature} names it in the usage log and picks its key. */
+    public String complete(AiFeature feature, String systemPrompt, List<Map<String, String>> history, String userMessage) {
+        return complete(feature, systemPrompt, history, userMessage, false, false);
     }
 
     public String completeStructured(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, false, true);
+        return complete(AiFeature.AI_CALL_REPLY, systemPrompt, history, userMessage, false, true);
     }
 
     public String completeGraph(String systemPrompt, List<Map<String, String>> history, String userMessage) {
-        return complete(systemPrompt, history, userMessage, true, true);
+        return complete(AiFeature.AI_CALL_REPLY, systemPrompt, history, userMessage, true, true);
     }
 
-    private String complete(String systemPrompt, List<Map<String, String>> history, String userMessage, boolean graph, boolean structured) {
+    private String complete(AiFeature feature, String systemPrompt, List<Map<String, String>> history, String userMessage,
+                            boolean graph, boolean structured) {
         List<Map<String, String>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
         if (history != null) {
@@ -84,7 +83,7 @@ public class OpenRouterClient {
             String providerSort = config.getProviderSort();
             if (providerSort != null && !providerSort.isBlank()) body.put("provider", Map.of("sort", providerSort.trim()));
         }
-        return send(body, graph || structured ? FEATURE_REPLY : FEATURE_HELPER);
+        return send(body, feature);
     }
 
     /**
@@ -121,14 +120,18 @@ public class OpenRouterClient {
         return config.isLocal() ? "Ollama" : "OpenRouter";
     }
 
-    private String send(Map<String, Object> body, String feature) {
+    /**
+     * @param feature tên tính năng cho ai_usage_log và key OpenRouter riêng của tính năng đó; null (probe) = key chung,
+     *                không ghi chi phí. Ollama cục bộ không nhận key, header OpenRouter, và không ghi chi phí.
+     */
+    private String send(Map<String, Object> body, AiFeature feature) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setAcceptCharset(List.of(StandardCharsets.UTF_8));
-        String apiKey = config.getApiKey() == null ? "" : config.getApiKey().trim();
         if (!config.isLocal()) {
-            headers.setBearerAuth(apiKey);
+            String sharedKey = config.getApiKey() == null ? "" : config.getApiKey().trim();
+            headers.setBearerAuth(feature == null ? sharedKey : feature.apiKey(sharedKey));
             headers.set("HTTP-Referer", config.getSiteUrl());
             headers.set("X-Title", config.getSiteName());
         }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.ai.AiFeature;
 import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.kaiwa.config.OpenRouterConfig;
 import com.jlas.kaiwa.memory.MemoryAiClient;
@@ -123,7 +124,7 @@ class LocalLlmProviderTest {
     void ollamaChatUsesLocalModelWithoutCloudKeyOrOpenRouterExtensions() {
         OpenRouterClient client = client(config("ollama", 5_000));
 
-        String reply = client.complete("Bạn là gia sư tiếng Nhật.", List.of(), "「食べる」の意味は？");
+        String reply = client.complete(AiFeature.AI_CALL_SUGGEST, "Bạn là gia sư tiếng Nhật.", List.of(), "「食べる」の意味は？");
 
         assertThat(reply).isEqualTo("はい、わかりました。");
         Recorded request = requests.getFirst();
@@ -169,7 +170,7 @@ class LocalLlmProviderTest {
         OpenRouterConfig config = config("ollama", 5_000);
         ReflectionTestUtils.setField(config, "ollamaThink", true);
 
-        client(config).complete("s", List.of(), "u");
+        client(config).complete(AiFeature.AI_CALL_SUGGEST, "s", List.of(), "u");
 
         assertThat(requests.getFirst().body().path("think").asBoolean()).isTrue();
     }
@@ -178,7 +179,7 @@ class LocalLlmProviderTest {
     void openRouterStaysTheDefaultAndKeepsItsHeaders() {
         OpenRouterClient client = client(config("anything-else", 5_000));
 
-        client.complete("system", List.of(), "こんにちは");
+        client.complete(AiFeature.AI_CALL_SUGGEST, "system", List.of(), "こんにちは");
 
         Recorded request = requests.getFirst();
         assertThat(request.authorization()).isEqualTo("Bearer sk-or-secret");
@@ -193,7 +194,7 @@ class LocalLlmProviderTest {
         OpenRouterClient client = client(config("ollama", 1_000));
 
         long started = System.nanoTime();
-        assertThatThrownBy(() -> client.complete("system", List.of(), "test"))
+        assertThatThrownBy(() -> client.complete(AiFeature.AI_CALL_SUGGEST, "system", List.of(), "test"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageStartingWith("Ollama call failed");
         long elapsedMs = (System.nanoTime() - started) / 1_000_000;
@@ -232,7 +233,7 @@ class LocalLlmProviderTest {
         OpenRouterConfig config = config("ollama", 1_000);
         ReflectionTestUtils.setField(config, "ollamaBaseUrl", "http://127.0.0.1:1/v1");
 
-        assertThatThrownBy(() -> client(config).complete("s", List.of(), "こんにちは"))
+        assertThatThrownBy(() -> client(config).complete(AiFeature.AI_CALL_SUGGEST, "s", List.of(), "こんにちは"))
                 .hasMessageStartingWith("Ollama call failed")
                 .message().doesNotContain("127.0.0.1").doesNotContain("/api/chat");
     }
@@ -296,7 +297,7 @@ class LocalLlmProviderTest {
         List<Thread> threads = new java.util.ArrayList<>();
         for (int i = 0; i < 4; i++) {
             Thread thread = new Thread(() -> {
-                if (!client.complete("s", List.of(), "u").isBlank()) ok.incrementAndGet();
+                if (!client.complete(AiFeature.AI_CALL_SUGGEST, "s", List.of(), "u").isBlank()) ok.incrementAndGet();
             });
             threads.add(thread);
             thread.start();
