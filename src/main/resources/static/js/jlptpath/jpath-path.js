@@ -723,10 +723,13 @@
         var p = apiClient.send('PUT', D().SETTINGS_URL, patch);
         if (p && typeof p.catch === 'function') p.catch(function () { /* the tour shows again next time */ });
       } };
+      // owner 17/11: shown once — the flag is saved when the guide opens, not only on finish/skip
+      var savedAtOpen = !state.path.tourDone;
+      if (savedAtOpen) { state.path.tourDone = true; saver.save({ tourDone: true }); }
       state.tour = tour.create({ doc: doc, onFinish: function () {
         state.tour = null;
+        if (!savedAtOpen) saver.save({ tourDone: true });
         state.path.tourDone = true;
-        saver.save({ tourDone: true });
         if (env.history && /(^|[?&])tour=1(&|$)/.test((loc && loc.search) || '')) {
           try { env.history.replaceState(null, '', withoutTour(loc)); } catch (e) { /* ignore */ }
         }
