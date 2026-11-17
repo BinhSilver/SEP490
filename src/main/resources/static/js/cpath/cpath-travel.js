@@ -123,39 +123,101 @@
 
   // ------------------------------------------------------------------------------------------------ game
 
-  function gameStartHtml(data) {
-    return '<header class="jp-page-head"><h1 class="jp-page-head__title">Trò chơi nghe nhanh</h1>'
-      + '<p class="jp-page-head__lede">' + esc(data.seconds || 60) + ' giây: nghe từ hoặc câu du lịch rồi chọn nghĩa. '
-      + 'Đúng liên tiếp được cộng thêm điểm chuỗi; sai thì chuỗi về 0.</p></header>'
-      + (root.CpathAudio ? root.CpathAudio.sliderHtml({ compact: true }) : '')
-      + '<section class="jp-card cp-game__start">'
-      + '<p>Kỷ lục của bạn: <strong>' + esc(data.best || 0) + '</strong> điểm</p>'
-      + '<button type="button" class="cp-btn-primary" data-game-start' + ((data.questions || []).length ? '' : ' disabled') + '>Bắt đầu</button>'
-      + ((data.questions || []).length ? '' : '<p class="jp-side__note">Chưa có âm thanh cho trò chơi.</p>')
+  // owner 17/11: wider game screens, the Japanese and romaji can be shown, a review list at the end
+  var GAME_VIEW_KEY = 'cpath-game-view';
+  function readView() {
+    try { var v = JSON.parse(root.localStorage.getItem(GAME_VIEW_KEY) || '{}'); return { ja: !!v.ja, romaji: !!v.romaji }; }
+    catch (e) { return { ja: false, romaji: false }; }
+  }
+  function saveView(v) { try { root.localStorage.setItem(GAME_VIEW_KEY, JSON.stringify(v)); } catch (e) { /* private window */ } }
+
+  function viewToggles(view) {
+    var v = view || {};
+    return '<div class="cp-game__toggles" role="group" aria-label="Hiện chữ">'
+      + '<button type="button" class="cp-rest-chip" data-game-view="ja" aria-pressed="' + (v.ja ? 'true' : 'false') + '"><span>Hiện chữ Nhật</span></button>'
+      + '<button type="button" class="cp-rest-chip" data-game-view="romaji" aria-pressed="' + (v.romaji ? 'true' : 'false') + '"><span>Romaji</span></button>'
+      + '</div>';
+  }
+
+  function jaBlock(q, view, force) {
+    var v = view || {};
+    var showJa = force || v.ja;
+    var showRo = force ? v.romaji || !v.ja : v.romaji;
+    if (!showJa && !showRo) return '';
+    return '<div class="cp-game__text">'
+      + (showJa ? '<span class="cp-game__ja" lang="ja">' + esc(q.ja) + '</span>' : '')
+      + (showRo ? '<span class="cp-game__romaji">' + esc(romajiOf(q.reading || q.ja)) + '</span>' : '')
+      + '</div>';
+  }
+
+  function gameStartHtml(data, view) {
+    var n = (data.questions || []).length;
+    return '<header class="jp-page-head cp-game__head"><h1 class="jp-page-head__title">Trò chơi nghe nhanh</h1>'
+      + '<p class="jp-page-head__lede">Nghe từ hoặc câu du lịch rồi chọn nghĩa đúng. Đúng liên tiếp được cộng điểm chuỗi; sai thì chuỗi về 0.</p></header>'
+      + '<section class="jp-card cp-game cp-game__start">'
+      + '<ul class="cp-game__tiles">'
+      + '<li><strong>' + esc(data.seconds || 60) + ' giây</strong><span>mỗi lượt chơi</span></li>'
+      + '<li><strong>+10 → +18</strong><span>điểm, tăng theo chuỗi đúng</span></li>'
+      + '<li><strong>' + esc(data.best || 0) + '</strong><span>kỷ lục của bạn</span></li></ul>'
+      + '<div class="cp-game__setup"><div class="cp-game__setup-row"><span class="cp-game__setup-label">Tốc độ nghe</span>'
+      + (root.CpathAudio ? root.CpathAudio.sliderHtml({ compact: true }) : '') + '</div>'
+      + '<div class="cp-game__setup-row"><span class="cp-game__setup-label">Khi nghe</span>' + viewToggles(view)
+      + '<span class="cp-game__setup-hint">Mới học thì bật chữ hoặc romaji; quen rồi tắt đi để luyện tai.</span></div></div>'
+      + '<button type="button" class="cp-btn-primary cp-game__go" data-game-start' + (n ? '' : ' disabled') + '>Bắt đầu</button>'
+      + (n ? '' : '<p class="jp-side__note">Chưa có âm thanh cho trò chơi.</p>')
       + '</section>';
   }
 
-  function gameQuestionHtml(st) {
+  function gameQuestionHtml(st, view) {
     var q = st.questions[st.i];
-    return '<section class="jp-card cp-game" aria-live="polite">'
-      + '<div class="cp-game__bar"><span class="cp-game__time" data-game-time>' + st.left + ' giây</span>'
-      + '<span>Điểm <strong>' + st.score + '</strong></span><span>Chuỗi <strong>' + st.streak + '</strong></span></div>'
-      + '<button type="button" class="cp-btn-primary cp-meaning-play" data-game-replay>' + speaker() + ' Nghe lại</button>'
-      + (st.feedback ? '<p class="cp-game__fb' + (st.feedback.ok ? ' is-ok' : ' is-wrong') + '" role="status">'
-        + (st.feedback.ok ? '+' + st.feedback.points + ' điểm' : 'Đáp án: ' + esc(st.feedback.answer))
-        + ' · <span lang="ja">' + esc(st.feedback.ja) + '</span></p>' : '')
-      + '<div class="cp-core-quiz__opts" role="group" aria-label="Chọn nghĩa">'
+    var total = Number(st.seconds) || 60;
+    var pct = Math.max(0, Math.min(100, Math.round(st.left * 100 / total)));
+    var fb = st.feedback;
+    return '<section class="jp-card cp-game cp-game--play" aria-live="polite">'
+      + '<div class="cp-game__bar">'
+      + '<span class="cp-game__stat cp-game__time"><span data-game-time>' + st.left + '</span> giây</span>'
+      + '<span class="cp-game__stat">Điểm <strong>' + st.score + '</strong></span>'
+      + '<span class="cp-game__stat">Chuỗi <strong>' + st.streak + '</strong></span>'
+      + '<span class="cp-game__stat">Đúng <strong>' + st.right + '/' + st.answered + '</strong></span></div>'
+      + '<div class="cp-game__timebar" aria-hidden="true"><span data-game-timebar style="width:' + pct + '%"></span></div>'
+      + '<div class="cp-game__prompt">'
+      + '<button type="button" class="cp-game__play" data-game-replay aria-label="Nghe lại">' + speaker() + '</button>'
+      + '<div class="cp-game__prompt-body"><span class="cp-game__ask">Câu ' + (st.answered + 1) + ' · Nghe rồi chọn nghĩa</span>'
+      + jaBlock(q, view, false) + '</div>' + viewToggles(view) + '</div>'
+      + (fb ? '<div class="cp-game__fb' + (fb.ok ? ' is-ok' : ' is-wrong') + '" role="status">'
+        + '<strong>' + (fb.ok ? 'Đúng! +' + fb.points + ' điểm' : 'Chưa đúng') + '</strong>'
+        + '<span class="cp-game__fb-line"><span lang="ja">' + esc(fb.q.ja) + '</span>'
+        + '<span class="cp-game__fb-ro">' + esc(romajiOf(fb.q.reading || fb.q.ja)) + '</span>'
+        + '<span>= ' + esc(fb.q.options[fb.q.answer]) + '</span></span></div>' : '')
+      + '<div class="cp-game__opts" role="group" aria-label="Chọn nghĩa">'
       + q.options.map(function (o, i) {
-        return '<button type="button" class="cp-core-opt" data-game-pick="' + i + '">' + esc(o) + '</button>';
+        return '<button type="button" class="cp-game__opt" data-game-pick="' + i + '"><span class="cp-game__opt-key">'
+          + 'ABCD'.charAt(i) + '</span><span>' + esc(o) + '</span></button>';
       }).join('') + '</div></section>';
   }
 
   function gameEndHtml(st, res) {
     var best = res && res.best != null ? res.best : st.best;
-    return '<section class="jp-card cp-core-result" role="status"><h2>Hết giờ!</h2>'
-      + '<p>Bạn được <strong>' + st.score + '</strong> điểm · đúng ' + st.right + '/' + st.answered + ' · chuỗi dài nhất ' + st.bestStreak + '.</p>'
-      + (res && res.record ? '<p class="cp-game__record">Kỷ lục mới!</p>' : '<p>Kỷ lục: ' + esc(best) + ' điểm.</p>')
-      + '<div class="cp-settings__actions"><button type="button" class="cp-btn-primary" data-game-again>Chơi lại</button>'
+    var acc = st.answered ? Math.round(st.right * 100 / st.answered) : 0;
+    var wrong = (st.log || []).filter(function (x) { return !x.ok; });
+    var seen = {};
+    wrong = wrong.filter(function (x) { if (seen[x.q.ja]) return false; seen[x.q.ja] = 1; return true; });
+    return '<section class="jp-card cp-game cp-game__end" role="status">'
+      + '<div class="cp-game__end-head"><h2>Hết giờ!</h2>'
+      + (res && res.record ? '<span class="cp-game__record">Kỷ lục mới!</span>' : '<span class="cp-game__best">Kỷ lục: ' + esc(best) + ' điểm</span>') + '</div>'
+      + '<ul class="cp-game__tiles">'
+      + '<li><strong>' + st.score + '</strong><span>điểm</span></li>'
+      + '<li><strong>' + st.right + '/' + st.answered + '</strong><span>câu đúng · ' + acc + '%</span></li>'
+      + '<li><strong>' + st.bestStreak + '</strong><span>chuỗi dài nhất</span></li></ul>'
+      + (wrong.length ? '<div class="cp-game__review"><p class="cp-game__review-title">Nghe lại các câu chưa đúng (' + wrong.length + ')</p><ul>'
+        + wrong.map(function (x) {
+          return '<li><button type="button" class="cp-game__review-item" data-pb-play="' + esc(x.q.audioUrl || '') + '" data-pb-text="' + esc(x.q.ja) + '">'
+            + '<span class="cp-pb__icon">' + speaker() + '</span><span class="cp-game__review-body"><span lang="ja">' + esc(x.q.ja) + '</span>'
+            + '<span class="cp-game__fb-ro">' + esc(romajiOf(x.q.reading || x.q.ja)) + '</span>'
+            + '<span class="cp-game__review-vi">' + esc(x.q.options[x.q.answer]) + '</span></span></button></li>';
+        }).join('') + '</ul></div>'
+        : (st.answered ? '<p class="cp-game__perfect">Không sai câu nào. Giỏi lắm!</p>' : ''))
+      + '<div class="cp-game__end-acts"><button type="button" class="cp-btn-primary" data-game-again>Chơi lại</button>'
       + '<a class="cp-btn-ghost" href="/learning/comm/phrasebook">Mở sổ câu</a>'
       + '<a class="cp-btn-ghost" href="/learning/comm/path">Về lộ trình</a></div></section>';
   }
@@ -164,11 +226,11 @@
     if (!el || !root.JpathApi) return;
     var d = deps || {};
     var setTimer = d.setInterval || root.setInterval, clearTimer = d.clearInterval || root.clearInterval;
-    var data = null, st = null, timer = null;
+    var data = null, st = null, timer = null, view = readView();
     function render() {
-      if (!st) { el.innerHTML = gameStartHtml(data); return; }
+      if (!st) { el.innerHTML = gameStartHtml(data, view); return; }
       if (st.over) return;
-      el.innerHTML = gameQuestionHtml(st);
+      el.innerHTML = gameQuestionHtml(st, view);
     }
     function current() { return st.questions[st.i]; }
     function say() { var q = current(); if (q) play(q.audioUrl, q.ja); }
@@ -182,14 +244,16 @@
     }
     function start() {
       var qs = (data.questions || []).slice();
-      st = { questions: qs, i: 0, left: Number(data.seconds) || 60, score: 0, streak: 0, bestStreak: 0, right: 0, answered: 0,
+      st = { questions: qs, i: 0, left: Number(data.seconds) || 60, seconds: Number(data.seconds) || 60, log: [], score: 0, streak: 0, bestStreak: 0, right: 0, answered: 0,
         best: data.best || 0, feedback: null, over: false };
       render();
       say();
       timer = setTimer(function () {
         st.left -= 1;
         var tEl = el.querySelector('[data-game-time]');
-        if (tEl) tEl.textContent = st.left + ' giây';
+        if (tEl) tEl.textContent = String(st.left);
+        var bEl = el.querySelector('[data-game-timebar]');
+        if (bEl) bEl.style.width = Math.max(0, Math.round(st.left * 100 / st.seconds)) + '%';
         if (st.left <= 0) finish();
       }, 1000);
     }
@@ -202,11 +266,12 @@
         st.bestStreak = Math.max(st.bestStreak, st.streak);
         var p = points(st.streak);
         st.score += p;
-        st.feedback = { ok: true, points: p, ja: q.ja };
+        st.feedback = { ok: true, points: p, q: q };
       } else {
         st.streak = 0;
-        st.feedback = { ok: false, answer: q.options[q.answer], ja: q.ja };
+        st.feedback = { ok: false, q: q };
       }
+      st.log.push({ ok: ok, q: q });
       st.i = (st.i + 1) % st.questions.length;
       render();
       say();
@@ -216,6 +281,10 @@
       var t = ev.target;
       if (t.closest && t.closest('[data-game-start]')) { start(); return; }
       if (t.closest && t.closest('[data-game-again]')) { st = null; load(); return; }
+      var vb = t.closest && t.closest('[data-game-view]');
+      if (vb) { var k = vb.getAttribute('data-game-view'); view[k] = !view[k]; saveView(view); if (!st || !st.over) render(); return; }
+      var rv = t.closest && t.closest('[data-pb-play]');
+      if (rv) { play(rv.getAttribute('data-pb-play'), rv.getAttribute('data-pb-text')); return; }
       if (!st || st.over) return;
       if (t.closest && t.closest('[data-game-replay]')) { say(); return; }
       var b = t.closest && t.closest('[data-game-pick]');
