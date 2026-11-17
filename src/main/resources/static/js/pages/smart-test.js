@@ -348,7 +348,9 @@
     createButton.hidden = pathLookupState === 'none' && Boolean(window.SmartTestResultRoute && window.SmartTestResultRoute.notice(state.result).blockCreate);
     if (updateButton) {
       updateButton.hidden = !existingPathUrl || !state.attemptId;
-      if (!updateButton.hidden) updateButton.href = smartTestConfirmUrl();
+      // The confirm page only serves learners without an ACTIVE path and sends everyone else back to /learning, so
+      // "update the path from this result" opens the level/goal block of the path settings instead.
+      if (!updateButton.hidden) updateButton.href = '/learning/jlpt/settings#jp-settings-change-title';
     }
   }
 
