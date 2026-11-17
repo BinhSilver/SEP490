@@ -15,7 +15,7 @@
     </div>
     <div id="jpathCheckRoot" class="jp-check-root" aria-busy="true"
          th:attr="data-check-token=${checkToken}">
-        <p class="jp-status" role="status">Đang tải bài kiểm tra…</p>
+        <p class="jp-status jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài kiểm tra…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
