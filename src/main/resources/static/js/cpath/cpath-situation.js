@@ -403,20 +403,32 @@
 
     var saving = !!(state && state.savingStep);
     var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
+    // Owner 17/11: Furigana puts the reading above the Japanese (word and example), Bản dịch shows the meanings.
+    var sameLine = example && example.furigana && String(example.ja) === String(card.ja);
+    function headHtml(furi) {
+      if (furi && hasDistinctReading && card.kind === 'WORD') {
+        return '<div class="cp-flashcard__ja" lang="ja"><ruby>' + esc(card.ja) + '<rt>' + esc(card.reading) + '</rt></ruby></div>';
+      }
+      if (furi && sameLine) return '<div class="cp-flashcard__ja" lang="ja">' + toRubyHtml(example.furigana, true) + '</div>';
+      return '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
+        + (furi && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '');
+    }
+    var exampleHtml = example && !sameLine ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">'
+      + toRubyHtml(example.furigana || example.ja, state.display.furigana) + '</span>'
+      + (state.display.translation && example.vi ? '<span class="cp-flashcard__ex-vi">' + esc(example.vi) + '</span>' : '') + '</p>' : '';
     var cardBody = !flipped
-      ? '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (state.display.furigana && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+      ? headHtml(!!state.display.furigana)
         + romajiHtml(card.reading || card.ja, state)
-        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
+        + (state.display.translation && card.vi ? '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>' : '')
+        + exampleHtml
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + svgSpeaker() + '</button>'
         + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn' + (state.saved && state.saved[card.id] ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + (state.saved && state.saved[card.id] ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (state.saved && state.saved[card.id] ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
         + ''
-      : '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+      : headHtml(true)
         + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
-        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
+        + exampleHtml
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
