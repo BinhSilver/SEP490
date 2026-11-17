@@ -32,14 +32,17 @@
                 <p class="jp-path__loading jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải lộ trình…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
             <section class="jp-path__today" data-slot="today"></section>
-            <a class="jp-btn" style="justify-self:start" href="/learning/jlpt/settings#jp-settings-schedule-title">Đổi nhịp học và ngày nghỉ</a>
             <section class="jp-path__warmup" data-slot="warmup" hidden></section>
-            <section class="jp-path__warmup" data-slot="week-skip" hidden></section>
+            <!-- owner 17/11: pace, sliders and the week-skip offers share one compact row; an opened one spans the row -->
+            <div class="jp-path__tools">
+                <a class="jp-btn jp-btn--sm" href="/learning/jlpt/settings#jp-settings-schedule-title">Đổi nhịp học và ngày nghỉ</a>
+                <details class="jp-path__pace" data-part="pace">
+                    <summary class="jp-path__pace-head">Điều chỉnh nhịp học</summary>
+                    <div class="jp-path__slider" data-slot="slider"></div>
+                </details>
+                <section class="jp-path__warmup" data-slot="week-skip" hidden></section>
+            </div>
             <div class="jp-path__stage" data-region="stage"></div>
-            <details class="jp-path__pace" data-part="pace">
-                <summary class="jp-path__pace-head">Điều chỉnh nhịp học</summary>
-                <div class="jp-path__slider" data-slot="slider"></div>
-            </details>
             <div class="jp-path__tabpart">
                 <div class="jp-path__tabs" data-region="tabs"></div>
                 <div class="jp-path__numbers" id="jp-tab-panel" role="tabpanel" data-region="numbers"></div>

@@ -623,3 +623,23 @@ html body .jp-parts:has(.jp-parts__popover) .jp-parts__stage { position: relativ
 .jp-week-skip-box__body .jp-warmup__title { font-size: .95rem; margin: 0; }
 .jp-week-skip-box__body .jp-warmup__sub { font-size: .82rem; margin: 2px 0 0; }
 .jp-week-skip-box__body .jp-btn { padding: 6px 12px; min-height: 0; font-size: .88rem; }
+/* Owner 17/11 "chưa gọn": pace button, "Điều chỉnh nhịp học" and "Đã biết trước?" sit in one row of small
+   chips; whichever is opened takes the full row width below them. */
+html body .jp-path .jp-path__tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin: 0; }
+html body .jp-path .jp-path__tools > * { margin: 0 !important; }
+html body .jp-path .jp-path__tools > .jp-path__pace,
+html body .jp-path .jp-path__tools > .jp-path__warmup { flex: 0 0 auto; border: 0 !important; padding: 0 !important; background: none !important; }
+html body .jp-path .jp-path__tools > .jp-path__pace[open],
+html body .jp-path .jp-path__tools > .jp-path__warmup:has(details[open]) { flex: 1 1 100%; order: 9; }
+html body .jp-path .jp-path__tools .jp-path__pace-head,
+html body .jp-path .jp-path__tools .jp-week-skip-box__sum {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 14px !important; border: 1px solid var(--jp-line, #e6e1f5);
+  border-radius: 999px; background: var(--jp-surface, #fff); font-size: .9rem; font-weight: 600; color: var(--jp-ink, #1f1b2e); cursor: pointer; }
+html body .jp-path .jp-path__tools .jp-week-skip-box { border: 0; background: none; }
+html body .jp-path .jp-path__tools .jp-week-skip-box__sum::after { margin-left: 4px; }
+html body .jp-path .jp-path__tools .jp-path__pace[open] > .jp-path__slider,
+html body .jp-path .jp-path__tools .jp-week-skip-box[open] > .jp-week-skip-box__body {
+  margin-top: 8px; padding: 12px; border: 1px solid var(--jp-line, #e6e1f5); border-radius: 14px; background: var(--jp-surface, #fff); }
+html body .jp-path .jp-path__tools .jp-btn--sm { min-height: 36px; padding: 6px 14px; border-radius: 999px; font-size: .9rem; }
+html body .jp-path .jp-path__tools .jp-week-skip-box__title { white-space: nowrap; }
+html body .jp-path .jp-path__stage .jp-weekguide { margin: 4px 0 !important; }

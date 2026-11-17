@@ -75,6 +75,7 @@
     var at = -1;
     var finished = false;
     var layer = null;
+    var sizeWatch = null;
     var lit = null;
     var back = null;
     var scrim = null;
@@ -177,6 +178,7 @@
       if (finished) return;
       finished = true;
       unlight();
+      if (sizeWatch) { try { sizeWatch.disconnect(); } catch (e) { /* gone */ } sizeWatch = null; }
       if (doc) doc.removeEventListener('keydown', onKey, true);
       if (win && typeof win.removeEventListener === 'function') {
         win.removeEventListener('resize', place);
@@ -211,6 +213,11 @@
       if (win && typeof win.addEventListener === 'function') {
         win.addEventListener('resize', place);
         win.addEventListener('scroll', place, true);
+      }
+      // owner 17/11: content loading after the guide opened (week-skip box, skeletons) moved the target while the
+      // highlight stayed put — follow any size change of the page
+      if (win && typeof win.ResizeObserver === 'function' && doc.body) {
+        try { sizeWatch = new win.ResizeObserver(function () { place(); }); sizeWatch.observe(doc.body); } catch (e) { sizeWatch = null; }
       }
       doc.addEventListener('keydown', onKey, true);
       show(0);

@@ -87,7 +87,7 @@
       var open = false;
       try { open = root.localStorage.getItem('jpath-week-skip:open') === '1'; } catch (e) { open = false; }
       el.innerHTML = '<details class="jp-week-skip-box"' + (open ? ' open' : '') + '>'
-        + '<summary class="jp-week-skip-box__sum"><span class="jp-week-skip-box__title">Đã biết trước? Kiểm tra nhanh để bỏ qua</span>'
+        + '<summary class="jp-week-skip-box__sum"><span class="jp-week-skip-box__title">Đã biết trước? Kiểm tra để bỏ qua</span>'
         + '<span class="jp-week-skip-box__count">' + n + ' gợi ý</span></summary>'
         + '<div class="jp-week-skip-box__body">' + html + '</div></details>';
       var det = typeof el.querySelector === 'function' ? el.querySelector('details') : null;
