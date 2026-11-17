@@ -94,13 +94,14 @@
   function quizHtml(q, index, total, picked, display) {
     var d = display || {};
     return '<section class="jp-card cp-core-quiz" aria-labelledby="cpCoreQ">'
-      + '<p class="cp-core-quiz__count">Câu ' + (index + 1) + '/' + total + ' · chọn nghĩa đúng</p>'
+      + '<div class="cp-core-quiz__top"><p class="cp-core-quiz__count">Câu <b>' + (index + 1) + '</b>/' + total + ' · chọn nghĩa đúng</p>'
+      + '<div class="cp-core-quiz__bar" aria-hidden="true"><span style="width:' + Math.round((index + 1) * 100 / Math.max(1, total)) + '%"></span></div></div>'
       + '<div class="cp-core-card__main"><div id="cpCoreQ" class="cp-core-card__ja" lang="ja">' + ruby(q.ja, d.furigana !== false) + '</div>'
       + playBtn(q.audioUrl, spoken(q), 'Nghe') + '</div>'
       + (d.romaji ? '<div class="cp-line__romaji">' + esc(q.romaji || romajiOf(q.reading || q.ja)) + '</div>' : '')
       + '<div class="cp-core-quiz__opts" role="group" aria-label="Các nghĩa">'
       + (q.options || []).map(function (o, i) {
-        return '<button type="button" class="cp-core-opt' + (picked === o ? ' is-picked' : '') + '" data-core-pick="' + i + '">' + esc(o) + '</button>';
+        return '<button type="button" class="cp-core-opt' + (picked === o ? ' is-picked' : '') + '" data-core-pick="' + i + '"><span class="cp-core-opt__key" aria-hidden="true">' + 'ABCDEF'.charAt(i) + '</span><span class="cp-core-opt__text">' + esc(o) + '</span></button>';
       }).join('')
       + '</div></section>';
   }
@@ -205,7 +206,7 @@
       }
       var q = todo[qi];
       el.innerHTML = header() + quizHtml(q, qi, todo.length, answers[q.code], display)
-        + '<div class="cp-settings__actions">'
+        + '<div class="cp-settings__actions cp-core-quiz__actions">'
         + (qi > 0 ? '<button type="button" class="cp-btn-ghost" data-core-prev>Câu trước</button>' : '')
         + (!isCheck ? '<button type="button" class="cp-btn-ghost" data-core-back>Xem lại thẻ</button>' : '')
         + '<button type="button" class="cp-btn-primary" data-core-next' + (answers[q.code] == null || busy ? ' disabled' : '') + '>'

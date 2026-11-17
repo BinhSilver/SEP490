@@ -2189,3 +2189,28 @@ html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
 /* The stage scrolls (overflow-y: auto) and the 3D turn, replayed on every render, grew the card past it for 0.25 s,
    so the stage's own scrollbar flashed on each flip or action. The card's box clips that projection instead. */
 .cp-flashcard-clip { overflow: clip; overflow-clip-margin: 0; border-radius: 16px; perspective: 1100px; }
+
+/* Owner 17/11: Bài nền quiz redesign — one centred card, progress bar, word centred, 2-column lettered options. */
+.cp-core-quiz { max-width: 760px; margin: 8px auto 0; padding: 22px 26px 26px; gap: 18px;
+  background: var(--cp-surface, #fff); border: 1px solid var(--cp-line); border-radius: 18px; box-shadow: 0 6px 24px rgba(40, 30, 90, .06); }
+.cp-core-quiz__top { display: grid; gap: 8px; }
+.cp-core-quiz__count b { color: var(--cp-primary-ink); }
+.cp-core-quiz__bar { height: 6px; border-radius: 99px; background: var(--cp-surface-soft); overflow: hidden; }
+.cp-core-quiz__bar span { display: block; height: 100%; border-radius: inherit; background: var(--cp-primary); transition: width .25s; }
+.cp-core-quiz .cp-core-card__main { justify-content: center; padding: 18px 0 6px; }
+.cp-core-quiz .cp-core-card__ja { font-size: 2rem; }
+.cp-core-quiz__opts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cp-core-opt { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; min-height: 58px;
+  transition: border-color .15s, background .15s, transform .1s; }
+.cp-core-opt:active { transform: scale(.99); }
+.cp-core-opt__key { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--cp-line); font-size: .85rem; font-weight: 700; color: var(--cp-muted); background: var(--cp-surface, #fff); }
+.cp-core-opt.is-picked .cp-core-opt__key { background: var(--cp-primary); border-color: var(--cp-primary); color: #fff; }
+.cp-core-opt__text { min-width: 0; line-height: 1.4; }
+.cp-core-quiz__actions { max-width: 760px; margin: 16px auto 0; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 600px) {
+  .cp-core-quiz { padding: 16px; }
+  .cp-core-quiz__opts { grid-template-columns: 1fr; }
+  .cp-core-quiz__actions { justify-content: stretch; }
+  .cp-core-quiz__actions > * { flex: 1 1 auto; }
+}
