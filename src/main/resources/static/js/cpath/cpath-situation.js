@@ -988,6 +988,7 @@
     if (mId) { try { sitId = decodeURIComponent(mId[1]); } catch (e) { sitId = null; } }
     if (!sitId) sitId = el.getAttribute('data-situation-id');
     if (!sitId) {
+      if (root.location && typeof root.location.replace === 'function') { root.location.replace('/learning/comm'); return; }
       el.innerHTML = '<p class="jp-alert" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
       return;
     }

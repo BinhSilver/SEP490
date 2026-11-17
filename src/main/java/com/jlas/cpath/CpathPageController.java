@@ -70,6 +70,8 @@ public class CpathPageController {
     /** The pages link with {@code ?id=}; the situation page reads the id from the query first. */
     @GetMapping("/learning/comm/situation")
     public String situationByQuery(@RequestParam(name = "id", required = false) String id, Model model) {
+        // no id (old bookmark, hand-typed url): nothing to show, go back to the path instead of an error line
+        if (id == null || id.isBlank()) return "redirect:/learning/comm";
         model.addAttribute("situationId", id);
         return "cpath/situation";
     }

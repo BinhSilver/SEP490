@@ -4,35 +4,69 @@
 <body id="jlabBasePage" class="app-body certificate-body journey-ui">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="certificate-page">
-    <section class="cert-card">
-        <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
-        <h1 th:text="${earned} ? 'Hoàn thành lộ trình giao tiếp' : 'Tiến độ chứng nhận giao tiếp'">Hoàn thành lộ trình giao tiếp</h1>
-        <p class="cert-level">Mục tiêu: <strong th:text="${targetLevel}">Giao tiếp</strong></p>
-        <p class="cert-date" th:unless="${earned}">Đã đạt <strong th:text="${passedTopics}">0</strong>/<strong th:text="${totalTopics}">0</strong> chủ đề. Hoàn thành bài test cuối để nhận chứng nhận.</p>
-        <p class="cert-date" th:if="${earned}">Ngày hoàn thành:
-            <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
-        </p>
-        <p class="cert-disclaimer">Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu.</p>
-        <button class="cert-print-button" th:if="${earned}" type="button" onclick="window.print()">In / Lưu PDF</button>
-        <p th:unless="${earned}"><a th:href="@{/learning/comm/path}">Về lộ trình giao tiếp</a></p>
+    <section class="cert-card" th:classappend="${earned} ? ' is-earned' : ' is-progress'">
+        <div class="cert-frame">
+            <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
+            <p class="cert-kanji" aria-hidden="true" lang="ja">会話</p>
+            <h1 th:text="${earned} ? 'Hoàn thành lộ trình giao tiếp' : 'Tiến độ chứng nhận giao tiếp'">Hoàn thành lộ trình giao tiếp</h1>
+            <div class="cert-ribbon" th:if="${earned}" aria-hidden="true"><span>修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH ·&nbsp;</span><span>修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH ·&nbsp;</span></div>
+            <p class="cert-level">Mục tiêu: <strong th:text="${targetLevel}">Giao tiếp</strong></p>
+            <p class="cert-date" th:unless="${earned}">Đã đạt <strong th:text="${passedTopics}">0</strong>/<strong th:text="${totalTopics}">0</strong> chủ đề. Hoàn thành bài test cuối để nhận chứng nhận.</p>
+            <p class="cert-date" th:if="${earned}">Ngày hoàn thành:
+                <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
+            </p>
+            <span class="cert-seal" th:if="${earned}" aria-hidden="true" lang="ja">修了</span>
+            <p class="cert-disclaimer">Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu, không phải chứng chỉ chính thức.</p>
+        </div>
+        <div class="cert-actions">
+            <button class="cert-print-button" th:if="${earned}" type="button" onclick="window.print()">In / Lưu PDF</button>
+            <a class="cert-back" th:href="@{/learning/comm/path}">Về lộ trình giao tiếp</a>
+        </div>
         <nav class="cp-next-steps" th:if="${earned}" aria-label="Bước học tiếp">
             <h2>Gợi ý bước tiếp</h2>
-            <p><a th:href="@{/learning/comm/survey}">Chọn mục tiêu giao tiếp khác</a></p>
-            <p th:if="${workGoal}"><a th:href="@{/learning/comm/survey(goal='WORK')}">Chọn lĩnh vực Công việc khác</a></p>
-            <p><a th:href="@{/learning/jlpt/start}">Bắt đầu lộ trình JLPT</a></p>
+            <div class="cp-next-steps__list">
+                <a th:href="@{/learning/comm/survey}">Chọn mục tiêu giao tiếp khác</a>
+                <a th:if="${workGoal}" th:href="@{/learning/comm/survey(goal='WORK')}">Chọn lĩnh vực Công việc khác</a>
+                <a th:href="@{/learning/jlpt/start}">Bắt đầu lộ trình JLPT</a>
+            </div>
         </nav>
     </section>
 </main>
 <style>
     .certificate-page { display: flex; justify-content: center; padding: 48px 16px; }
-    .cert-card { max-width: 640px; width: 100%; text-align: center; padding: 48px 40px;
-        border: 2px solid var(--color-primary); border-radius: 12px; }
-    .cert-eyebrow { letter-spacing: .08em; text-transform: uppercase; font-size: .8rem; color: var(--color-on-surface-variant); }
+    .cert-card { max-width: 680px; width: 100%; text-align: center; animation: certRise .7s ease-out both; }
+    .cert-frame { position: relative; padding: 44px 32px 36px; border: 2px solid var(--color-primary);
+        border-radius: 12px; outline: 1px solid var(--color-primary); outline-offset: -10px; overflow: hidden;
+        background: var(--color-surface, transparent); }
+    .cert-eyebrow { letter-spacing: .12em; text-transform: uppercase; font-size: .8rem; color: var(--color-on-surface-variant); }
+    .cert-kanji { margin: 8px 0 0; font-size: clamp(3.5rem, 12vw, 6rem); line-height: 1; font-weight: 800;
+        color: var(--color-primary); letter-spacing: .04em; }
+    .is-progress .cert-kanji { opacity: .35; }
+    .cert-frame h1 { margin: 12px 0 18px; letter-spacing: .06em; text-transform: uppercase; font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
+    .cert-ribbon { display: flex; width: max-content; margin: 0 -32px 20px; padding: 6px 0; white-space: nowrap;
+        background: var(--color-primary); color: var(--color-on-primary); font-size: .8rem; letter-spacing: .1em; }
+    .cert-ribbon span { animation: certMarquee 18s linear infinite; }
+    .cert-seal { position: absolute; right: 24px; bottom: 64px; width: 64px; height: 64px; display: grid; place-items: center;
+        border: 2px solid var(--color-primary); border-radius: 50%; color: var(--color-primary); font-weight: 700;
+        transform: rotate(-12deg); opacity: .85; }
     .cert-disclaimer { margin-top: 24px; font-size: .85rem; color: var(--color-on-surface-variant); }
-    .cert-print-button { margin-top: 24px; padding: 12px 24px; border-radius: 999px; border: none;
+    .cert-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; margin-top: 24px; }
+    .cert-print-button { padding: 12px 24px; border-radius: 999px; border: none;
         background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; cursor: pointer; }
+    .cert-back { padding: 11px 22px; border-radius: 999px; border: 1px solid var(--color-primary); color: var(--color-primary);
+        font-weight: 600; text-decoration: none; }
     .cp-next-steps { margin-top: 32px; }
-    @media print { #jlabBaseShellMount, .cert-print-button, .cp-next-steps { display: none !important; } }
+    .cp-next-steps h2 { font-size: 1.1rem; margin: 0 0 12px; }
+    .cp-next-steps__list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .cp-next-steps__list a { padding: 8px 16px; border-radius: 999px; background: var(--color-primary-container, rgba(124,58,237,.1));
+        color: var(--color-primary); text-decoration: none; font-weight: 600; }
+    @keyframes certMarquee { to { transform: translateX(-100%); } }
+    @keyframes certRise { from { opacity: 0; transform: translateY(16px); } }
+    @media (prefers-reduced-motion: reduce) { .cert-card, .cert-ribbon span { animation: none; } }
+    @media (max-width: 480px) { .cert-frame { padding: 36px 18px 28px; } .cert-ribbon { margin: 0 -18px 20px; }
+        .cert-seal { position: static; margin: 12px auto 0; } }
+    @media print { #jlabBaseShellMount, .cert-actions, .cp-next-steps { display: none !important; }
+        .cert-card, .cert-ribbon span { animation: none !important; } }
 </style>
 </body>
 </html>

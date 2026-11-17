@@ -1048,7 +1048,11 @@
       if (seen && !forced) return;
       // owner 17/11: the guide shows once (first visit after the path is made); later only from "Xem hướng dẫn"
       try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
-      tour.create({ doc: root.document, steps: TOUR_STEPS, onFinish: function () {} }).start();
+      // a finished path hands out no new situation: step 1 says how to review instead of "Học tiếp"
+      var steps = pathData && pathData.finished
+        ? [{ target: TOUR_STEPS[0].target, text: 'Lộ trình này đã xong nên không có tình huống mới. Bấm Ôn tập hôm nay hoặc một tình huống trên bản đồ để ôn lại.' }].concat(TOUR_STEPS.slice(1))
+        : TOUR_STEPS;
+      tour.create({ doc: root.document, steps: steps, onFinish: function () {} }).start();
     }
 
     function renderAll() {
