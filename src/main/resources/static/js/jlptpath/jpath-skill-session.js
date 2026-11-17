@@ -270,7 +270,7 @@
   /** The 4 buttons under the questions: Kết quả / Làm lại / Đáp án / Dịch nghĩa. */
   function toolbarHtml(set, ctx) {
     var allPicked = list(set.questionIds).length > 0
-      && list(set.questionIds).every(function (id) { return !!ctx.picks[id]; });
+      && list(set.questionIds).every(function (id) { return !!ctx.answered[id] || !!ctx.picks[id]; });
     var btn = function (data, cls, label, disabled, pressed) {
       return '<button type="button" class="jp-btn' + (cls ? ' ' + cls : '') + '" data-skill-tool="' + data + '"'
         + (disabled ? ' disabled' : '') + (pressed == null ? '' : ' aria-pressed="' + pressed + '"') + '>'
@@ -287,20 +287,21 @@
   /** One exam-style question (問1 …) with its four choices. */
   function questionHtml(q, no, ctx) {
     var a = ctx.answered[q.id];
+    var locked = ctx.graded || (ctx.practice && !!a);
     var picked = !ctx.graded ? ctx.picks[q.id] : null;
     var opts = list(q.options).map(function (o) {
       var cls = '';
-      if (ctx.graded && a) {
+      if (locked && a) {
         if (o.id === a.correctValue) cls = ' class="is-right"';
         else if (o.id === a.value) cls = ' class="is-wrong"';
       } else if (picked === o.id) {
         cls = ' class="is-picked"';
       }
-      return '<button type="button"' + cls + (ctx.graded ? ' disabled' : '') + ' data-answer-option="'
+      return '<button type="button"' + cls + (locked ? ' disabled' : '') + ' data-answer-option="'
         + esc(o.id) + '"><span lang="ja">' + esc(o.label) + '</span><!--opt' + list(q.options).indexOf(o) + '--></button>';
     }).join('');
     var verdict = '';
-    if (ctx.graded && a) {
+    if (locked && a) {
       var pickedOpt = list(q.options).filter(function (o) { return o && o.id === a.value; })[0];
       var rightOpt = list(q.options).filter(function (o) { return o && o.id === a.correctValue; })[0];
       var pickedLbl = pickedOpt ? pickedOpt.label : 'Chưa chọn';
@@ -365,7 +366,7 @@
     var graded = setDone(set, st.answered);
     var report = attrJson({ targetType: 'SKILL_SET', targetCode: set.code, pageContext: 'SKILL_SESSION' });
     var ctx = { token: view.token, questions: st.questions, answered: st.answered, picks: st.picks || {},
-      graded: graded, showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
+      graded: graded, practice: view.kind === 'SKILL_PRACTICE', showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
     var trq = trOf(set, view.token);
     if (trq && Array.isArray(trq.questions_vi)) {
       list(set.questionIds).forEach(function (qid, k) { if (trq.questions_vi[k]) ctx.qvi[qid] = trq.questions_vi[k]; });
@@ -506,7 +507,7 @@
       var set = ps.sets[state.current];
       if (!set) return;
       var allPicked = list(set.questionIds).length > 0
-        && list(set.questionIds).every(function (qid) { return !!state.picks[qid]; });
+        && list(set.questionIds).every(function (qid) { return !!ps.answered[qid] || !!state.picks[qid]; });
       var resultBtn = body.querySelector('[data-skill-tool="result"]');
       if (resultBtn) resultBtn.disabled = !allPicked;
       var redoBtn = body.querySelector('[data-skill-tool="redo"]');
@@ -522,6 +523,7 @@
       if (lockBtn) lockBtn.disabled = true;
       var seq = Promise.resolve();
       list(set.questionIds).forEach(function (qid) {
+        if (ps.answered[qid]) return;
         seq = seq.then(function () {
           return api.send('POST', BASE + '/checks/' + encodeURIComponent(ps.token) + '/answers',
             { questionId: qid, value: values[qid] || '', elapsedMs: Date.now() - state.shownAt });
@@ -532,6 +534,7 @@
         state.shownAt = Date.now();
         return api.get(BASE + '/checks/' + encodeURIComponent(ps.token)).then(function (v) {
           state.view = v;
+          if (v.kind === 'SKILL_PRACTICE') state.picks = {};
           renderPractice();
           // probe L2: a question locked from another window keeps that answer — say so instead of a silent "wrong"
           var got = answeredMap(v);
