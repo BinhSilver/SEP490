@@ -162,6 +162,14 @@ public class JpathCheckPicker {
         if (codes == null || codes.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Không còn tuần nào để kiểm.");
         }
+        if (tab == JpathTab.KANA) {
+            // AI 1 #11: the quick kana check matches every kana of the offered rows (fast board questions)
+            Set<String> wanted = new HashSet<>(codes);
+            List<JpathKana> kana = content.kana(null).stream().filter(k -> wanted.contains(k.getCode())).toList();
+            BuiltCheck kanaCheck = requireQuestions(builder.kanaRowCheck(kana, seed));
+            Set<String> askedKana = new HashSet<>(kanaCheck.itemCodes());
+            return new Built(kanaCheck, codes.stream().filter(c -> !askedKana.contains(c)).toList());
+        }
         BuiltCheck check = switch (sliderType(tab)) {
             case VOCAB -> {
                 List<JpathVocabulary> words = content.vocabs(codes).stream().filter(content::learnable).toList();
@@ -222,8 +230,9 @@ public class JpathCheckPicker {
             };
         } else {
             JpathItemState only = src == JpathCheckSource.NOTEBOOK ? JpathItemState.NOTEBOOK : null;
-            // Owner 05/11 weekly test: the items first learned in the last 7 days
-            java.time.LocalDateTime weekStart = java.time.LocalDateTime.now().minusDays(7);
+            // Owner 05/11 weekly test: the items first learned in the last 7 days. F143: first_learned_at holds the
+            // learner's local time, so the window is measured on the learner's clock, not the JVM's.
+            java.time.LocalDateTime weekStart = clock.localNow(userId).minusDays(7);
             codes = userItems.findByUserIdAndItemType(userId, type).stream()
                     .filter(i -> src != JpathCheckSource.WEEK
                             || (i.getFirstLearnedAt() != null && i.getFirstLearnedAt().isAfter(weekStart)))

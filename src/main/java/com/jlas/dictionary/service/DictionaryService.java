@@ -13,6 +13,7 @@ import com.jlas.dictionary.dto.TextbookUnitsResponse;
 import com.jlas.dictionary.dto.TopicLessonsResponse;
 import com.jlas.dictionary.dto.TopicResponse;
 import com.jlas.dictionary.dto.VocabularyResponse;
+import com.jlas.dictionary.dto.PageResponse;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ import java.util.List;
  * Nội dung learner không được xem trả NOT_FOUND (không lộ tồn tại).
  */
 public interface DictionaryService {
+
+    PageResponse<VocabularyResponse> getKanjiVocabulary(String character, int page, int size);
 
     // ---------------------------------------------------------------------
     // Tra cứu từ điển

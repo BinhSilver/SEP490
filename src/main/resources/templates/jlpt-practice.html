@@ -5,7 +5,7 @@
 <div id="jlabBaseShellMount"></div>
 <main class="jlpt-practice-page" data-inline-dictionary>
     <header class="jlpt-practice-hero">
-        <div class="jp-hero-copy"><a class="jp-back" href="/jlpt">← Thư viện JLPT</a><span class="jp-eyebrow">MỖI NGÀY, VỮNG THÊM MỘT CHÚT</span><h1>Từng dạng nhỏ.<br /><em>Tiến bộ lớn.</em></h1><p>Chọn một kỹ năng, luyện đúng phần cần củng cố.<br />Một phiên ngắn hôm nay, thêm tự tin cho kỳ thi.</p><div class="jp-hero-tags"><span>✦ N5 → N1</span><span>4 nhóm kỹ năng</span><span>Câu hỏi từ kho đề JLPT</span></div></div>
+        <div class="jp-hero-copy"><a class="jp-back" href="/jlpt">← Thư viện JLPT</a><span class="jp-eyebrow">MỖI NGÀY, VỮNG THÊM MỘT CHÚT</span><h1>Từng dạng nhỏ.<br /><em>Tiến bộ lớn.</em></h1></div>
         <div class="jp-hero-art" aria-hidden="true"><div class="jp-paper-back"></div><div class="jp-paper"><small>今日も、少しずつ。</small><b>練習</b><span>LUYỆN TẬP THEO DẠNG</span><div class="jp-paper-progress"><i></i></div><footer>✓ Mỗi câu, một bước tiến</footer></div><span class="jp-art-star">✧</span></div>
     </header>
 
@@ -13,9 +13,17 @@
         <div class="jlpt-filter-block"><strong><span class="jp-step">01</span> Cấp độ của bạn</strong><nav id="practiceLevels" aria-label="Cấp độ JLPT"></nav></div>
         <div class="jlpt-filter-block"><strong><span class="jp-step">02</span> Hôm nay, mình luyện gì?</strong><nav id="practiceSections" aria-label="Nhóm kỹ năng"></nav></div>
         <div class="jlpt-filter-block jp-types-block"><strong><span class="jp-step">03</span> Chọn dạng cần củng cố</strong><div id="practiceTypes" class="jlpt-practice-types" aria-live="polite"></div></div>
-        <aside class="jp-session-card"><span class="jp-eyebrow">PHIÊN LUYỆN CỦA BẠN</span><div class="jp-session-level" id="practiceSummaryLevel">N3</div><h2 id="practiceSummaryType">Chọn dạng câu hỏi</h2><p id="practiceSummarySection">Một chút tập trung, một bước tiến bộ.</p><div class="jp-session-note"><span aria-hidden="true">✦</span><p>Kiểm tra đáp án sau mỗi câu. Xem giải thích để hiểu rõ chỗ chưa chắc.</p></div></aside>
+        <aside class="jp-session-card"><span class="jp-eyebrow">PHIÊN LUYỆN CỦA BẠN</span><div class="jp-session-level" id="practiceSummaryLevel">N3</div><h2 id="practiceSummaryType">Chọn dạng câu hỏi</h2></aside>
         <footer>
-            <label>Số câu<select id="practiceLimit"><option value="10">10 câu</option><option value="20" selected>20 câu</option><option value="30">30 câu</option><option value="50">50 câu</option></select></label>
+            <fieldset class="jp-question-count" id="practiceLimit">
+                <legend>Số câu</legend>
+                <div class="jp-question-count__options">
+                    <label><input type="radio" name="practiceLimit" value="10" /><span>10</span></label>
+                    <label><input type="radio" name="practiceLimit" value="20" checked /><span>20</span></label>
+                    <label><input type="radio" name="practiceLimit" value="30" /><span>30</span></label>
+                    <label><input type="radio" name="practiceLimit" value="50" /><span>50</span></label>
+                </div>
+            </fieldset>
             <button id="practiceStart" type="button" disabled>Bắt đầu luyện →</button>
         </footer>
         <p id="practiceSetupNotice" class="jlpt-practice-notice" role="alert" hidden></p>
@@ -42,6 +50,6 @@
 </main>
 <script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
 <script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
-<script th:src="@{/js/pages/jlpt-practice.js?v=8-furigana}"></script>
+<script th:src="@{/js/pages/jlpt-practice.js?v=20261111-ui}"></script>
 </body>
 </html>

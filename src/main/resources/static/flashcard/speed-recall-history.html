@@ -11,9 +11,11 @@
   <link rel="stylesheet" href="/css/theme-bridge.css">
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/flashcard/speed-recall.css">
-  <link rel="stylesheet" href="/flashcard/speed-recall-arcade.css?v=20261011-mobile-hud">
-  <link rel="stylesheet" href="/css/jlab-base-shell.css">
+  <link rel="stylesheet" href="/flashcard/speed-recall-arcade.css?v=20261111-no-lip">
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
   <div id="jlabBaseShellMount"></div>
@@ -30,7 +32,7 @@
       <form id="setup-form">
         <div class="sr-fields">
           <label>Thẻ muốn luyện
-            <select id="filter"><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="CUSTOM">Chọn cặp từ tùy ý</option><option value="RANDOM">Ngẫu nhiên</option></select>
+            <select id="filter" data-jl-select><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="CUSTOM">Chọn cặp từ tùy ý</option><option value="RANDOM">Ngẫu nhiên</option></select>
           </label>
           <label><span id="count-label">Số câu hỏi</span> <input id="count" type="number" min="1" step="1" inputmode="numeric" value="1" required></label>
         </div>
@@ -132,6 +134,6 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
-  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261110-time-limit"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261111-select"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.jlas.kaiwa.controller.api;
 
 import com.jlas.auth.security.CurrentUser;
+import com.jlas.kaiwa.config.AiCallTurnLimits;
 import com.jlas.kaiwa.config.FishAudioConfig;
 import com.jlas.kaiwa.service.ai.FishAudioClient;
 import com.jlas.auth.security.UserPrincipal;
@@ -30,15 +31,17 @@ public class TtsApiController {
     private final ConversationMessageRepository messages;
     private final ConversationSpeakerService speakers;
     private final ConversationSessionRepository sessions;
+    private final AiCallTurnLimits limits;
 
     public TtsApiController(FishAudioClient fishAudioClient, FishAudioConfig fishAudioConfig,
             UserSanctionService sanctions, ConversationMessageRepository messages, ConversationSpeakerService speakers,
-            ConversationSessionRepository sessions) {
+            ConversationSessionRepository sessions, AiCallTurnLimits limits) {
         this.fishAudioClient = fishAudioClient;
         this.fishAudioConfig = fishAudioConfig;
         this.sanctions = sanctions;
         this.messages = messages; this.speakers = speakers;
         this.sessions = sessions;
+        this.limits = limits;
     }
 
     @GetMapping("/status")
@@ -152,7 +155,8 @@ public class TtsApiController {
                 voiceId = actor.voiceVariants().getOrDefault(gender.toLowerCase(java.util.Locale.ROOT), voiceId);
             }
         }
-        return new TtsInput(text, gender, speed, voiceId, null);
+        // Giọng đọc tối đa K ký tự mỗi câu (kế hoạch Pro/CP): giữ chi phí một lượt dưới giá CP đã tính.
+        return new TtsInput(limits.clipForVoice(text), gender, speed, voiceId, null);
     }
 
     private static HttpHeaders audioHeaders() {

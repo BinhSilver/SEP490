@@ -103,7 +103,7 @@
     return out;
   }
 
-  function weekStripHtml(day, today, isDone) {
+  function weekStripHtml(day, today, isDone, weekStatus) {
     var days = weekDays(day);
     if (!days.length) return '';
     var cells = days.map(function (di, idx) {
@@ -113,7 +113,9 @@
       var isCurrent = di === day;
       var isToday = di === today;
       var isFuture = today && di > today;
-      var isPastDone = (!isFuture && !isCurrent) || (isCurrent && isDone);
+      // AI 1 #15: a past day is ticked only when the history says something was studied that day
+      var known = weekStatus && Object.prototype.hasOwnProperty.call(weekStatus, di) ? !!weekStatus[di] : null;
+      var isPastDone = isCurrent ? !!isDone : (known !== null ? known : false);
       var cls = 'jp-dayd__node'
         + (isCurrent ? ' is-current' : '')
         + (isToday ? ' is-today' : '')
@@ -128,7 +130,7 @@
         + badge
         + '</span>'
         + (isToday ? '<span class="jp-dayd__today-tag">Hôm nay</span>' : '');
-      var stepCls = 'jp-dayd__step' + (isFuture ? ' is-future' : ' is-past') + (isCurrent ? ' is-current' : '');
+      var stepCls = 'jp-dayd__step' + (isFuture ? ' is-future' : ' is-past') + (isCurrent ? ' is-current' : '') + (isPastDone ? ' is-done' : '');
       var delayAttr = ' style="--jp-step-idx:' + idx + '"';
       if (isFuture) {
         return '<li class="' + stepCls + '"' + delayAttr + '><span class="' + cls + '" aria-disabled="true" title="'
@@ -196,13 +198,25 @@
     var wrongAll = list(x.wrongItems);
     wrongCodes = {};
     wrongAll.forEach(function (w) { if (w) wrongCodes[w.itemType + ':' + w.code] = true; });
-    var strip = weekStripHtml(day, today, !!x.done);
+    var strip = weekStripHtml(day, today, !!x.done, x.weekStatus);
     var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác"><a class="jp-btn" href="?d=' + esc(shift(day, -1)) + '">‹ Hôm trước</a>'
       + (day < today ? '<a class="jp-btn" href="?d=' + esc(shift(day, 1)) + '">Hôm sau ›</a>' : '') + '</nav>';
     var html = strip + '<header class="jp-dayd__head"><h1 class="jp-page-head__title">' + title(day) + ' · '
       + esc(KIND[x.kind] || 'Ngoài lộ trình') + '</h1>' + nav + '</header>';
     var reviewed = items.filter(function (i) { return i.lastAction === 'REVIEW_RATE'; });
-    var fresh = items.filter(function (i) { return i.lastAction !== 'REVIEW_RATE'; });
+    // F171: the badge counts what the sections show — one row per item, only the study tabs (it said 12 where the
+    // history and the sections listed 10, because an item studied twice or a non-tab row counted again)
+    var shownTypes = {};
+    TABS.forEach(function (t) { shownTypes[t[0]] = true; });
+    var seenFresh = {};
+    var fresh = items.filter(function (i) {
+      if (i.lastAction === 'REVIEW_RATE' || !shownTypes[i.itemType]) return false;
+      var k = i.itemType + ':' + i.code;
+      if (seenFresh[k]) return false;
+      seenFresh[k] = true;
+      return true;
+    });
+    var hasType = function (type) { return items.some(function (i) { return i.itemType === type; }); };
     // Owner 05/11: same look as the study parts; quiz results behind their own button
     var best = bestScores(x.checks);
     var scores = TABS.filter(function (t) { return t[0] in best; }).map(function (t) {
@@ -242,13 +256,14 @@
         + reviewed.map(itemHtml).join('') + '</ul></section>';
     }
     html += '<div class="jp-dayd__actions">'
-      + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">' + SVG_REFRESH + '<span>Ôn lại ' + wrongAll.length + ' mục sai</span></a>' : '')
-      + (day === today ? '<button type="button" class="jp-btn" data-jpath-writing="' + esc(JSON.stringify({ today: 'KANJI' }))
+      + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">' + SVG_REFRESH + '<span>Ôn mục sai trong Sổ tay</span></a>' : '')
+      // F171: a kana-only day has no kanji to write or print
+      + (day === today && hasType('KANJI') ? '<button type="button" class="jp-btn" data-jpath-writing="' + esc(JSON.stringify({ today: 'KANJI' }))
         + '">' + SVG_PEN + '<span>Luyện viết kanji hôm nay</span></button>' : '')
-      + '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'KANJI', day: day }))
-      + '">' + SVG_PRINT + '<span>In bảng kanji ngày này</span></button>'
-      + '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'VOCAB', day: day }))
-      + '">' + SVG_PRINT + '<span>In bảng từ vựng ngày này</span></button>'
+      + (hasType('KANJI') ? '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'KANJI', day: day }))
+      + '">' + SVG_PRINT + '<span>In bảng kanji ngày này</span></button>' : '')
+      + (hasType('VOCAB') ? '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'VOCAB', day: day }))
+      + '">' + SVG_PRINT + '<span>In bảng từ vựng ngày này</span></button>' : '')
       + '<a class="jp-link-btn jp-dayd__back" href="/learning">Về lộ trình</a></div>'
       + '<p class="jp-side__note">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
     return html;
@@ -263,13 +278,38 @@
     var today = iso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(String(root.location && root.location.search || ''));
     var day = m ? m[1] : today;
+    // F185: a wrong (2026-02-31) or future ?d= errored forever or jumped silently; open today, say so, fix the URL
+    var notice = '';
+    if (m) {
+      var probe = new Date(day + 'T00:00:00Z');
+      if (isNaN(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) { day = today; notice = 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.'; }
+    } else if (/[?&]d=/.test(String(root.location && root.location.search || ''))) {
+      notice = 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.';
+    }
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
-      root.JpathApi.get(BASE + '/history/' + day).then(function (d) {
+      var wDays = weekDays(day);
+      var histQuery = wDays.length ? '?from=' + wDays[0] + '&to=' + wDays[wDays.length - 1] : '';
+      var histPromise = root.JpathApi.get(BASE + '/history' + histQuery).then(function (h) {
+        var map = {};
+        if (h && Array.isArray(h.days)) {
+          h.days.forEach(function (hd) {
+            if (hd && hd.day) map[hd.day] = !!(hd.done || Number(hd.newLearned) > 0 || Number(hd.reviewed) > 0);
+          });
+        }
+        return map;
+      }, function () { return null; });
+      Promise.all([root.JpathApi.get(BASE + '/history/' + day), histPromise]).then(function (res) {
+        var d = res[0];
+        var weekMap = res[1];
         if (d && d.today) today = String(d.today);
-        if (day > today) { day = today; load(); return; }
+        if (day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
+        if (d && weekMap) d.weekStatus = weekMap;
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = dayHtml(d, day, today);
+        el.innerHTML = (notice ? '<p class="jp-day-notice" role="status">' + esc(notice) + '</p>' : '') + dayHtml(d, day, today);
+        if (notice && root.history && root.history.replaceState) {
+          try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
+        }
         if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);
         if (root.JpathWriting && root.JpathWriting.bind) root.JpathWriting.bind(el);
       }, function () {

@@ -32,7 +32,10 @@
   if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
     var notice = function () {
       var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem ngày học hôm nay".';
-      if (root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg);
+      if (root.JlasToast && typeof root.JlasToast.show === 'function' && root.JlasToast.show(msg, 'success')) {
+        try { root.history.replaceState(null, '', root.location.pathname); } catch (e) { /* keep the url */ }
+        return;
+      }
       var div = root.document.createElement('div');
       div.className = 'jp-saved-note';
       div.setAttribute('role', 'status');
@@ -55,11 +58,14 @@
   var WAVE_POS = ['center', 'left', 'center', 'right'];
   var WAVE_X = { left: 20, center: 240, right: 460 };
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy (about a third of the bytes)
+  function small(src) { return String(src).replace(/\.webp$/, '-128.webp'); }
+
   var SIDE_KITSUS = [
-    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Bạn làm tốt lắm!' },
+    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Cố lên nhé!' },
     { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
     { src: '/images/mascots/kitsu/kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Cùng tiến lên nào!' },
-    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Sắp tới đích rồi!' },
+    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Từng bước một!' },
     { src: '/images/mascots/kitsu/kitsu-resting-30.webp', alt: 'Kitsu nghỉ ngơi', say: 'Đều đặn mỗi ngày!' },
     { src: '/images/mascots/kitsu/kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Giữ vững phong độ!' }
   ];
@@ -88,7 +94,7 @@
         + '" style="--cf-i:' + i + '" aria-hidden="true"></span>');
     }
     return '<div class="jp-saved-note__confetti-wrap" aria-hidden="true">' + pieces.join('') + '</div>'
-      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
+      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
       + '<div class="jp-saved-note__body">'
       + '<strong class="jp-saved-note__title">Hoàn thành xuất sắc!</strong>'
       + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".') + '</span>'
@@ -242,9 +248,14 @@
       + '</svg>';
   }
 
+  var SCENE_MARK = { vocab: '語', kanji: '漢', grammar: '文', kana: 'あ', skills: '読' };
+
   function sceneBackdropHtml(sceneKey) {
     return '<div class="jp-parts__backdrop jp-parts__backdrop--' + esc(sceneKey) + '" aria-hidden="true">'
       + '<div class="jp-parts__sky-pattern jp-parts__sky-pattern--' + esc(sceneKey) + '"></div>'
+      // F23: a faint treasure-map layer (grid + contour rings) and one big kanji watermark per tab
+      + '<div class="jp-parts__mapgrid"></div>'
+      + '<span class="jp-parts__watermark" lang="ja">' + (SCENE_MARK[sceneKey] || '学') + '</span>'
       + '<div class="jp-parts__clouds">'
       + smallCloudSvg('jp-parts__cloud--1')
       + smallCloudSvg('jp-parts__cloud--2')
@@ -441,10 +452,22 @@
   }
 
   /* Round 6 Item 1d: 1 side Kitsu per week, pose varies by week */
-  function weekSideKitsuHtml(weekNum, side) {
-    var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
+  // [JLAS-W0108] C2: the side Kitsu follows the week's progress - celebrates a finished week, points at the
+  // current one, wonders about the weeks ahead (the old per-week pose stays when the state is unknown)
+  var K = '/images/mascots/kitsu/';
+  var MOOD_KITSUS = {
+    past: [{ src: K + 'kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Xong tuần này rồi!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Giỏi lắm!' }],
+    current: [{ src: K + 'kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Tuần này đây!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Từng bước một!' }],
+    upcoming: [{ src: K + 'kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Sắp tới nè!' },
+      { src: K + 'kitsu-preparing.webp', alt: 'Kitsu chuẩn bị', say: 'Chờ mình nhé!' }]
+  };
+  function weekSideKitsuHtml(weekNum, side, state, second) {
+    var mood = MOOD_KITSUS[state];
+    var k = mood ? mood[second ? 1 : 0] : SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
-      + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<img class="jp-parts__mascot-img" src="' + small(k.src) + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
       + '</span>';
   }
@@ -597,7 +620,7 @@
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
@@ -637,7 +660,7 @@
       + ' data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
@@ -696,11 +719,14 @@
     if (stepIdx === 1) {
       marginExtras += weekThemeSceneHtml(weekObj, tabKey, sceneSide);
     }
+    // [JLAS-W0108] F102: the side Kitsu (104px + speech) stands in the margin away from the node: a node on the right
+    // has its margin on the left, a node on the left has it on the right, and a centre node keeps its label on the right,
+    // so its Kitsu goes left. Before, a Kitsu on the node's own side covered the orb and its number on wide screens.
+    var kitsuSide = pos === 'left' ? 'right' : 'left';
     if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
-      var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
-      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide);
+      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide, weekObj.state, false);
     } else if (stepIdx === 5 && !isToday && !isTodayDone) {
-      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide);
+      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, kitsuSide, weekObj.state, true);
     } else if (stepIdx === 2 || stepIdx === 4) {
       var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
       marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
@@ -715,7 +741,7 @@
     var weekAnchorAttr = isFirstInWeek ? ' data-parts-week-anchor="' + weekObj.weekNum + '"' : '';
 
     if (isUpcomingWeek) {
-      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--next jp-parts__step--upcoming-week jp-parts__step--pos-' + pos + '"'
         + weekAnchorAttr + ' style="--step-i:' + stepIdx + '">'
         + '<div class="jp-parts__node-row">'
@@ -784,7 +810,7 @@
     var connector = hasNext ? curveSvg(pos, nextPos, isOpenChest, false, isPastWeek) : '';
 
     if (isUpcomingWeek) {
-      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--milestone jp-parts__step--upcoming-week ' + stateCls + ' jp-parts__step--pos-' + pos + '"'
         + ' style="--step-i:' + stepIdx + '">'
         + '<div class="jp-parts__node-row">'
@@ -1067,7 +1093,16 @@
       + '<ol class="jp-parts__list jp-parts__map">' + mapItemsHtml + '</ol>'
       + '</div>';
 
-    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + stageHtml + '</div>';
+    var completedWeek = weeks.some(function (week, idx) {
+      return week.allDone && idx < weeks.length - 1 && (week.isCurrent || (weeks[idx + 1] && weeks[idx + 1].isCurrent));
+    });
+    var aheadHtml = completedWeek
+      ? '<div class="jp-card" role="note"><strong>Học trước tuần sau</strong>'
+        + '<p>Bạn đã học xong các mục của tuần này. Vào Học thêm để bắt đầu các mục tiếp theo.</p>'
+        + '<button type="button" class="jp-btn" data-parts-extra="' + esc(TABS[sceneKey][0]) + '">Học thêm ' + esc(t[1]) + '</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-extra-error></span></div>'
+      : '';
+    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + aheadHtml + stageHtml + '</div>';
   }
 
   /* Round 6 Bổ sung 1: Keep popover strictly inside viewport & below sticky banner so it is never covered */
@@ -1133,16 +1168,28 @@
       else wk.disabled = false;
     }, function (e) {
       wk.disabled = false;
-      // one message per button (not one more line per click); "nothing learned yet" said plainly
-      var box = wk.parentNode && wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
-      if (!box) {
-        wk.insertAdjacentHTML('afterend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
-        box = wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
+      // one message per button placed at the end of the weekly row so it wraps onto its own line
+      var row = (typeof wk.closest === 'function' && (wk.closest('.jp-today__weekly') || wk.closest('.jp-parts__weekly') || wk.closest('.jp-parts__pop-actions')))
+        || wk.parentNode;
+      var box = row && typeof row.querySelector === 'function' ? row.querySelector('.jp-parts__err[data-for="' + tab + '"]') : null;
+      if (!box && row) {
+        if (typeof row.insertAdjacentHTML === 'function') {
+          row.insertAdjacentHTML('beforeend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
+          box = typeof row.querySelector === 'function' ? row.querySelector('.jp-parts__err[data-for="' + tab + '"]') : null;
+        } else if (row.ownerDocument && typeof row.ownerDocument.createElement === 'function' && typeof row.appendChild === 'function') {
+          box = row.ownerDocument.createElement('span');
+          box.className = 'jp-parts__err';
+          box.setAttribute('role', 'status');
+          box.setAttribute('data-for', tab);
+          row.appendChild(box);
+        }
       }
       var notYet = e && (e.status === 409 || e.code === 'JPATH_CONTENT_NOT_LEARNABLE');
       var name = tab === 'KANJI' ? 'Kanji' : tab === 'GRAMMAR' ? 'ngữ pháp' : 'từ vựng';
-      box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
-        : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+      if (box) {
+        box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
+          : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+      }
     });
   }
 
@@ -1195,6 +1242,18 @@
     try { el.scrollIntoView({ block: 'center', behavior: behavior }); } catch (e) { el.scrollIntoView(); }
   }
 
+  var LIST_QUERY_KEYS = ['topic', 'state', 'q', 'radical', 'sort', 'view', 'unit', 'open'];
+
+  function hasListQuery() {
+    var search = root && root.location && typeof root.location.search === 'string' ? root.location.search : '';
+    if (!search || typeof URLSearchParams !== 'function') return false;
+    var params = new URLSearchParams(search);
+    return LIST_QUERY_KEYS.some(function (k) {
+      var v = params.get(k);
+      return v !== null && v !== '';
+    });
+  }
+
   function mount(partsEl, listEl, tabKey, opts) {
     if (!partsEl) return null;
     bindGlobalEvents();
@@ -1207,6 +1266,7 @@
       if (listEl) listEl.hidden = false;
       return null;
     }
+    if (partsEl.__allOpen === undefined && hasListQuery()) partsEl.__allOpen = true;
     partsEl.hidden = false;
     if (listEl) listEl.hidden = !partsEl.__allOpen;
     var mine = (partsEl.__seq || 0) + 1;
@@ -1297,6 +1357,34 @@
           return;
         }
 
+        var extra = t.closest('[data-parts-extra]');
+        if (extra) {
+          var tab = extra.getAttribute('data-parts-extra');
+          var errorBox = extra.parentNode.querySelector('[data-parts-extra-error]');
+          extra.disabled = true;
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/sessions', { tab: tab, mode: 'EXTRA', count: 5 }))
+            .then(function (view) {
+              if (!view || view.sessionId == null) throw new Error('Chưa mở được lượt học thêm.');
+              root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
+            }).catch(function (error) {
+              extra.disabled = false;
+              if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
+              if (error && error.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
+                Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', {
+                  kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
+                  direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false
+                })).then(function (res) {
+                  var token = res && (res.token || res.checkToken);
+                  if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token)
+                    + '?return=' + encodeURIComponent('/learning?tab=' + partsEl.__tab));
+                }).catch(function (checkError) {
+                  if (errorBox) errorBox.textContent = checkError && checkError.message || 'Chưa mở được bài kiểm tra tuần.';
+                });
+              }
+            });
+          return;
+        }
+
         var re = t.closest('[data-parts-relearn]');
         if (re) {
           var d0 = partsEl.__data || {};
@@ -1342,6 +1430,7 @@
       renderCurrent();
       if (root && typeof root.requestAnimationFrame === 'function') {
         root.requestAnimationFrame(function () {
+          if (partsEl.__allOpen && listEl) { scrollToTarget(listEl); return; }
           var todayNode = partsEl.querySelector('[data-parts-today="true"]')
             || partsEl.querySelector('[data-parts-week-anchor="' + curW + '"]');
           if (todayNode) scrollToTarget(todayNode);
@@ -1360,6 +1449,8 @@
     weeklyHtml: weeklyHtml,
     savedNoticeHtml: savedNoticeHtml,
     adjustPopoverInViewport: adjustPopoverInViewport,
+    hasListQuery: hasListQuery,
+    triggerWeeklyCheck: triggerWeeklyCheck,
     mount: mount
   };
 });

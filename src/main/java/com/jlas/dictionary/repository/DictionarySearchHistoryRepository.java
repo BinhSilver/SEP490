@@ -15,4 +15,6 @@ public interface DictionarySearchHistoryRepository extends JpaRepository<Diction
     List<DictionarySearchHistory> findTop20ByUser_IdOrderBySearchedAtDesc(Long userId);
 
     Page<DictionarySearchHistory> findByUserIdOrderBySearchedAtDesc(Long userId, Pageable pageable);
+
+    List<DictionarySearchHistory> findByUser_IdOrderBySearchedAtDescIdDesc(Long userId, Pageable pageable);
 }

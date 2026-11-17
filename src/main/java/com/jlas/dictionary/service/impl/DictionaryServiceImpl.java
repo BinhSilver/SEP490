@@ -225,11 +225,32 @@ public class DictionaryServiceImpl implements DictionaryService {
         List<KanjiReadingResponse> readings = groupReadings(List.of(kanji.getId()))
                 .getOrDefault(kanji.getId(), List.of());
         List<VocabularyEntry> related = vocabularyKanjiRepository.findVocabularyByKanjiCharacter(
-                normalized, PageRequest.of(0, RELATED_VOCABULARY_LIMIT));
+                normalized, PageRequest.of(0, RELATED_VOCABULARY_LIMIT)).getContent();
 
         KanjiResponse response = mapper.toKanjiResponse(kanji, readings);
         response.setRelatedVocabulary(toVocabularyResponses(related));
         return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<VocabularyResponse> getKanjiVocabulary(String character, int page, int size) {
+        String normalized = DictionaryUtil.normalizeText(character);
+        if (kanjiRepository.findByCharacter(normalized).isEmpty()) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy Kanji");
+        }
+        int safePage = Math.max(0, page);
+        int safeSize = Math.max(1, Math.min(size, MAX_PAGE_SIZE));
+        var result = vocabularyKanjiRepository.findVocabularyByKanjiCharacter(
+                normalized, PageRequest.of(safePage, safeSize));
+        return PageResponse.<VocabularyResponse>builder()
+                .content(toVocabularyResponses(result.getContent()))
+                .page(safePage)
+                .size(safeSize)
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .last(result.isLast())
+                .build();
     }
 
     @Override
@@ -392,7 +413,7 @@ public class DictionaryServiceImpl implements DictionaryService {
         }
         Map<String, List<VocabularyEntry>> byExpression = new HashMap<>();
         for (VocabularyEntry entry : vocabularyEntryRepository
-                .findByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(substrings, PUBLISHED)) {
+                .findLookupByNormalizedExpressionInAndDictionaryStatusOrderByIdAsc(substrings, PUBLISHED)) {
             byExpression.computeIfAbsent(entry.getNormalizedExpression(), key -> new ArrayList<>()).add(entry);
         }
 

@@ -25,6 +25,7 @@ import com.jlas.dictionary.dto.LessonKanjiRequest;
 import com.jlas.dictionary.dto.LessonSummaryResponse;
 import com.jlas.dictionary.dto.LessonUpsertRequest;
 import com.jlas.dictionary.dto.PagedResponse;
+import com.jlas.dictionary.dto.PageResponse;
 import com.jlas.dictionary.dto.ReorderRequest;
 import com.jlas.dictionary.dto.SearchHistoryResponse;
 import com.jlas.dictionary.dto.SearchResultResponse;
@@ -50,6 +51,8 @@ import com.jlas.dictionary.service.DictionaryEngagementService;
 import com.jlas.dictionary.service.DictionaryService;
 import com.jlas.dictionary.service.LessonImportService;
 import com.jlas.dictionary.service.QuickLookupAllowance;
+import com.jlas.dictionary.service.impl.GrammarDictionaryService;
+import com.jlas.dictionary.service.impl.DailyDictionaryWordsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
@@ -88,6 +91,13 @@ public class DictionaryController {
     private final ContentAdminService contentAdminService;
     private final LessonImportService lessonImportService;
     private final QuickLookupAllowance quickLookups;
+    private final GrammarDictionaryService grammarDictionary;
+    private final DailyDictionaryWordsService dailyDictionaryWords;
+
+    @GetMapping("/daily-words")
+    public ApiResponse<DailyDictionaryWordsService.Result> dailyWords(@AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("OK", dailyDictionaryWords.dailyWords(id(user)));
+    }
 
     @GetMapping(value = "/tts", produces = "audio/mpeg")
     public ResponseEntity<byte[]> tts(@RequestParam(required = false) String text,
@@ -114,6 +124,19 @@ public class DictionaryController {
         return ApiResponse.ok("OK", dictionaryService.search(query, page, size, id(user)));
     }
 
+    @GetMapping("/grammar")
+    public ResponseEntity<ApiResponse<PageResponse<GrammarDictionaryService.Summary>>> grammarSearch(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", grammarDictionary.search(q, page, size)));
+    }
+
+    @GetMapping("/grammar/{code}")
+    public ResponseEntity<ApiResponse<GrammarDictionaryService.Detail>> grammarDetail(@PathVariable String code) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", grammarDictionary.detail(code)));
+    }
+
     @GetMapping("/vocabulary/{id}")
     public ApiResponse<VocabularyResponse> vocabularyDetail(@PathVariable Long id) {
         return ApiResponse.ok("OK", dictionaryService.getVocabularyDetail(id));
@@ -124,12 +147,21 @@ public class DictionaryController {
         return ApiResponse.ok("OK", dictionaryService.getKanjiDetail(character));
     }
 
+    @GetMapping("/kanji/{character}/vocabulary")
+    public ResponseEntity<ApiResponse<PageResponse<VocabularyResponse>>> kanjiVocabulary(
+            @PathVariable String character,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", dictionaryService.getKanjiVocabulary(character, page, size)));
+    }
+
     /** Nhận diện Kanji vẽ tay theo thời gian thực; FE gọi sau mỗi nét (đã debounce), không gọi theo mousemove. */
     @PostMapping("/handwriting/recognize")
     public ApiResponse<List<KanjiResponse>> recognizeHandwriting(
             @Valid @RequestBody HandwritingRequest request,
-            @AuthenticationPrincipal UserPrincipal user) {
-        handwritingRateLimiter.check(id(user));
+            @AuthenticationPrincipal UserPrincipal user, HttpServletRequest servletRequest) {
+        String clientKey = user == null ? "ip:" + servletRequest.getRemoteAddr() : "user:" + user.userId();
+        handwritingRateLimiter.check(clientKey);
         return ApiResponse.ok("OK", dictionaryService.recognizeHandwriting(request));
     }
 

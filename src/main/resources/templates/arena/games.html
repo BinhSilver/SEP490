@@ -20,14 +20,35 @@
             </span>
         </div>
 
-        <section class="ar-games" aria-labelledby="ar-games-title">
-            <header class="ar-section-head ar-section-head--hub">
-                <div>
-                    <h1 id="ar-games-title">Vừa chơi vừa học</h1>
-                    <a class="ar-btn ar-btn--sm ar-hub-shop" th:href="@{/games/shop}">
-                        <i class="fa-solid fa-store" aria-hidden="true"></i> Cửa hàng
-                    </a>
-                </div>
+        <header class="ar-hub-head">
+            <h1 id="ar-games-title">Vừa chơi vừa học</h1>
+            <a class="ar-btn ar-btn--sm ar-hub-shop" th:href="@{/games/shop}">
+                <i class="fa-solid fa-store" aria-hidden="true"></i> Cửa hàng
+            </a>
+        </header>
+
+        <!-- Single player: games played alone, against the clock or the leaderboard. -->
+        <section class="ar-hub-section" aria-labelledby="ar-solo-title">
+            <h2 id="ar-solo-title" class="ar-hub-section__title">Chơi một mình</h2>
+            <a class="ar-solo-card" th:href="@{/kana-connect}">
+                <span class="ar-solo-card__art" aria-hidden="true">
+                    <span>か</span><span>な</span><span>つ</span>
+                    <span>な</span><span>ぐ</span><span>く</span>
+                    <span>さ</span><span>い</span><span>と</span>
+                </span>
+                <span class="ar-solo-card__body">
+                    <span class="ar-game-card__tag">Thử thách hằng ngày</span>
+                    <strong class="ar-solo-card__name">Kana Connect</strong>
+                    <span class="ar-solo-card__text">Nối các ô kana liền nhau thành từ, tìm từ 8 từ trở lên và đua top cùng mọi người. Bàn mới mỗi ngày lúc 00:00.</span>
+                </span>
+                <span class="ar-btn ar-btn--primary ar-solo-card__cta">Chơi</span>
+            </a>
+        </section>
+
+        <!-- Multiplayer: pick a game here; mode (quick match, room, practice) and deck are chosen in the lobby. -->
+        <section class="ar-hub-section ar-games" aria-labelledby="ar-multi-title">
+            <div class="ar-hub-section__head">
+                <h2 id="ar-multi-title" class="ar-hub-section__title">Chơi cùng người khác</h2>
                 <form class="ar-join" data-join-form novalidate>
                     <label class="ar-label" for="ar-join-code">Có mã phòng của bạn bè?</label>
                     <div class="ar-join__row">
@@ -45,34 +66,30 @@
                     </div>
                     <p id="ar-join-error" class="ar-error-text" data-join-error role="alert" hidden></p>
                 </form>
-            </header>
+            </div>
             <div class="ar-game-grid">
-                <article th:each="game : ${games}" class="ar-game-card"
-                         th:classappend="'ar-game-card--' + ${game.slug}">
+                <a th:each="game : ${games}" class="ar-game-card ar-game-card--link"
+                   th:classappend="'ar-game-card--' + ${game.slug}"
+                   th:href="@{/games/lobby(game=${game.type})}">
                     <figure class="ar-game-card__art">
                         <div class="ar-preview" th:attr="data-game-preview=${game.slug}" role="img"
                              th:aria-label="'Minh hoạ cách chơi ' + ${game.name}">
                             <img th:src="@{${game.image}}" alt="" loading="lazy" width="960" height="600">
                         </div>
                     </figure>
-                    <div class="ar-game-card__body">
-                        <p class="ar-game-card__tag" th:text="${game.tagline}">Tagline</p>
-                        <h3 th:text="${game.name}">Tên game</h3>
-
-                        <div class="ar-game-card__actions">
-                            <a class="ar-btn ar-btn--primary" th:href="@{/games/lobby(game=${game.type},mode='QUICK')}">Ghép trận</a>
-                            <a class="ar-btn" th:href="@{/games/lobby(game=${game.type},mode='VERSUS')}">Mời bạn</a>
-                            <a class="ar-btn" th:href="@{/games/lobby(game=${game.type},mode='SOLO')}">Luyện tập</a>
-                        </div>
-                    </div>
-                </article>
+                    <span class="ar-game-card__body">
+                        <span class="ar-game-card__tag" th:text="${game.tagline}">Tagline</span>
+                        <span class="ar-game-card__name" th:text="${game.name}">Tên game</span>
+                        <span class="ar-game-card__modes">Ghép trận, chơi với bạn bè hoặc luyện tập</span>
+                    </span>
+                </a>
             </div>
         </section>
     </div>
 </main>
 
 <script th:src="@{/arena/js/arena-client.js(v='20261109-kotsu')}"></script>
-<script th:src="@{/arena/js/games-page.js(v='20261013-numeric-room-code')}"></script>
+<script th:src="@{/arena/js/games-page.js(v='20261111-hub')}"></script>
 <script th:src="@{/arena/js/game-previews.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

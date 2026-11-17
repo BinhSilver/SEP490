@@ -135,7 +135,7 @@ html[data-theme="dark"] .kc-tut-num { fill: var(--dark-button); stroke: var(--da
 @keyframes kc-pick { 50% { box-shadow: 0 0 0 3px var(--kc-active); } }
 .kc-word:not(.is-found) .kc-slot.is-hint { background: var(--kc-active); color: var(--kc-accent-ink); box-shadow: inset 0 0 0 1.5px var(--kc-active-edge); }
 
-.kc-frame { grid-area: board; padding: 10px; border: 2px solid var(--kc-frame-edge); border-radius: 16px; background: var(--kc-wall); }
+.kc-frame { position: relative; grid-area: board; padding: 10px; border: 2px solid var(--kc-frame-edge); border-radius: 16px; background: var(--kc-wall); }
 .kc-board {
   position: relative; display: grid; width: 100%; aspect-ratio: 1;
   grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
@@ -351,3 +351,40 @@ html:not([data-theme="dark"]) .kc-tut-note.is-good { color: #4f6b12; }
 .kc-podium .af-host.has-frame { margin: 15px 0; }
 .kc-podium__spot.is-rank2 .af-host.has-frame, .kc-podium__spot.is-rank3 .af-host.has-frame { margin: 18px 0; }
 .kc-podium__spot.is-rank1 .af-host.has-frame { margin: 23px 0; }
+
+/* Locked board before Bắt đầu / Tiếp tục: blank, blurred tiles under a start button (no kana is sent yet). */
+.kc-board.is-locked { filter: blur(3px); pointer-events: none; }
+.kc-board.is-locked .kc-tile span { visibility: hidden; }
+.kc-gate { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 16px;
+  border-radius: 14px; background: color-mix(in srgb, var(--kc-cell) 55%, transparent); text-align: center; }
+.kc-gate[hidden] { display: none; }
+.kc-gate__btn { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 28px; border: 0; border-radius: 999px;
+  background: var(--kc-accent-ink); color: #fff; font: 800 18px/1 inherit; cursor: pointer; box-shadow: 0 12px 28px rgba(101, 68, 207, .35);
+  transition: transform .15s ease, box-shadow .15s ease; }
+.kc-gate__btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(101, 68, 207, .4); }
+.kc-gate__btn:focus-visible { outline: 3px solid var(--kc-active-edge); outline-offset: 3px; }
+.kc-gate__btn:disabled { opacity: .7; cursor: progress; }
+html[data-theme="dark"] .kc-gate { background: color-mix(in srgb, var(--dark-bg, #16131c) 55%, transparent); }
+html[data-theme="dark"] .kc-gate__btn { background: var(--dark-button); color: var(--dark-on-button); box-shadow: 0 12px 28px rgba(0, 0, 0, .4); }
+
+/* Chain lock over the locked board: two crossed chains and a padlock; Bắt đầu springs the lock and drops the chains. */
+.kc-gate { overflow: hidden; gap: 14px; }
+.kc-chain { position: absolute; top: 50%; left: -30%; width: 160%; height: 22px; margin-top: -11px; z-index: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='22' viewBox='0 0 36 22'%3E%3Cellipse cx='11' cy='11' rx='9.5' ry='6.5' fill='none' stroke='%235f5a52' stroke-width='4'/%3E%3Cellipse cx='11' cy='11' rx='9.5' ry='6.5' fill='none' stroke='%23c9c3b8' stroke-width='1.4'/%3E%3Crect x='19' y='8.6' width='17' height='4.8' rx='2.4' fill='%235f5a52'/%3E%3Crect x='20' y='9.6' width='15' height='1.6' rx='.8' fill='%23d8d2c6'/%3E%3C/svg%3E") repeat-x center / 36px 22px; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .28)); }
+.kc-chain--a { transform: rotate(32deg); }
+.kc-chain--b { transform: rotate(-32deg); }
+.kc-lock, .kc-gate__btn { position: relative; z-index: 1; }
+.kc-lock { display: grid; place-items: center; width: 64px; height: 64px; border: 4px solid #8a6a12; border-radius: 18px;
+  background: linear-gradient(160deg, #ffd65a, #e2a514); color: #5b3f00; font-size: 26px; box-shadow: 0 10px 22px rgba(0, 0, 0, .25); }
+.kc-gate.is-unlocking { animation: kc-gate-out .7s ease-in forwards; }
+.kc-gate.is-unlocking .kc-lock { animation: kc-lock-open .7s cubic-bezier(.3, .7, .4, 1) forwards; }
+.kc-gate.is-unlocking .kc-chain--a { animation: kc-chain-a .7s cubic-bezier(.5, 0, .9, .5) forwards; }
+.kc-gate.is-unlocking .kc-chain--b { animation: kc-chain-b .7s cubic-bezier(.5, 0, .9, .5) forwards; }
+.kc-gate.is-unlocking .kc-gate__btn { animation: kc-fade-out .25s ease-out forwards; }
+@keyframes kc-lock-open { 0% { transform: none; } 25% { transform: rotate(-14deg) scale(1.12); } 45% { transform: rotate(10deg) scale(1.12); }
+  70% { transform: translateY(-6px) scale(1.2); opacity: 1; } 100% { transform: translateY(-18px) scale(1.35); opacity: 0; } }
+@keyframes kc-chain-a { 0% { transform: rotate(32deg); } 25% { transform: rotate(32deg) translateX(6px); } 100% { transform: rotate(32deg) translateX(-70%) translateY(40px); opacity: 0; } }
+@keyframes kc-chain-b { 0% { transform: rotate(-32deg); } 25% { transform: rotate(-32deg) translateX(-6px); } 100% { transform: rotate(-32deg) translateX(70%) translateY(40px); opacity: 0; } }
+@keyframes kc-fade-out { to { opacity: 0; transform: scale(.92); } }
+@keyframes kc-gate-out { 0%, 55% { background-color: color-mix(in srgb, var(--kc-cell) 55%, transparent); } 100% { background-color: transparent; } }
+html[data-theme="dark"] .kc-lock { border-color: #6b5210; background: linear-gradient(160deg, #e6bf4a, #b8840f); color: #2e2100; }

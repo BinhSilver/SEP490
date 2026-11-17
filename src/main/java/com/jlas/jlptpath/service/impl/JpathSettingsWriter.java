@@ -4,6 +4,7 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.config.JpathProperties;
 import com.jlas.jlptpath.dto.JpathModeSuggestion;
+import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathSettingsUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathUserLevel;
@@ -159,15 +160,43 @@ public class JpathSettingsWriter {
             boolean minutesChanged) {
     }
 
+    /** [JLAS-W0108] F151: Validated schedule inputs shared by {@link #checkSchedule} and {@link #preview}. */
+    private record ValidatedSchedule(JpathPathViewAssembler.Schedule schedule, boolean targetChanged,
+            boolean modeChanged, boolean minutesChanged) {
+    }
+
+    /**
+     * [JLAS-W0108] F151: Read-only pace preview using the exact same schedule & {@code views.pacing(...)} logic as
+     * {@link #checkSchedule}, returning {@code pacing.pace()} directly without throwing on {@code blocked}.
+     */
+    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    JpathPaceView preview(Long userId, JpathUserPath path, JpathUserLevel level, JpathSettingsUpdateRequest r) {
+        ValidatedSchedule validated = validateSchedule(userId, path, level, r);
+        return views.pacing(path, level, validated.schedule(), validated.targetChanged()).pace();
+    }
+
     private ScheduleChange checkSchedule(Long userId, JpathSettingsUpdateRequest r) {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
         JpathUserLevel level = userLevels.findForUpdate(path.getId(), path.getOpenLevel())
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
+        ValidatedSchedule validated = validateSchedule(userId, path, level, r);
+        // Enforcing only decides `blocked`; when not blocked the pace equals the learner view of the new schedule.
+        JpathPathViewAssembler.Pacing pacing = views.pacing(path, level, validated.schedule(),
+                validated.targetChanged());
+        if (pacing.pace().blocked()) {
+            throw new ApiException(ErrorCode.JPATH_TARGET_TOO_SOON, pacing.pace().messageVi());
+        }
+        return new ScheduleChange(path, level, validated.schedule(), pacing, validated.targetChanged(),
+                validated.modeChanged(), validated.minutesChanged());
+    }
+
+    private ValidatedSchedule validateSchedule(Long userId, JpathUserPath path, JpathUserLevel level,
+            JpathSettingsUpdateRequest r) {
         String open = path.getOpenLevel();
 
         String target = path.getTargetLevel();
-        if (r.targetLevel() != null) {
+        if (r != null && r.targetLevel() != null) {
             target = catalog.capToReleased(r.targetLevel());
             if (LEVELS.indexOf(target) < LEVELS.indexOf(open)) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cấp mục tiêu không được thấp hơn cấp mở "
@@ -176,12 +205,12 @@ public class JpathSettingsWriter {
         }
 
         LocalDate exam = path.getExamDate();
-        if (Boolean.TRUE.equals(r.clearExamDate())) {
+        if (r != null && Boolean.TRUE.equals(r.clearExamDate())) {
             if (r.examDate() != null) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn ngày thi mới hoặc xóa ngày thi.");
             }
             exam = null;
-        } else if (r.examDate() != null) {
+        } else if (r != null && r.examDate() != null) {
             LocalDate today = clock.today(userId);
             if (!r.examDate().isAfter(today) || r.examDate().isAfter(today.plusYears(EXAM_MAX_YEARS))) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày thi phải sau hôm nay và trong vòng 3 năm.");
@@ -190,19 +219,19 @@ public class JpathSettingsWriter {
         }
 
         int minutes = path.getDailyMinutes();
-        if (r.dailyMinutes() != null) {
+        if (r != null && r.dailyMinutes() != null) {
             minutes = r.dailyMinutes();
             JpathPacingEngine.requireMinuteOption(minutes);
         }
 
-        EnumSet<DayOfWeek> skillDays = r.skillDays() != null ? JpathDays.parseCodes(r.skillDays())
+        EnumSet<DayOfWeek> skillDays = r != null && r.skillDays() != null ? JpathDays.parseCodes(r.skillDays())
                 : JpathDays.parse(path.getSkillDays());
-        EnumSet<DayOfWeek> restDays = r.restDays() != null ? JpathDays.parseCodes(r.restDays())
+        EnumSet<DayOfWeek> restDays = r != null && r.restDays() != null ? JpathDays.parseCodes(r.restDays())
                 : JpathDays.parse(path.getRestDays());
         JpathDays.validate(skillDays, restDays);
 
         DayOfWeek third;
-        if (r.thirdSkillDay() != null) {
+        if (r != null && r.thirdSkillDay() != null) {
             third = r.thirdSkillDay().isBlank() ? null : oneDay(r.thirdSkillDay());
             if (third != null && (skillDays.contains(third) || restDays.contains(third))) {
                 throw new ApiException(ErrorCode.JPATH_SKILL_DAYS_INVALID,
@@ -217,7 +246,7 @@ public class JpathSettingsWriter {
         }
 
         JpathStudyMode storedMode = path.getStudyMode() == null ? JpathStudyMode.COMBINED : path.getStudyMode();
-        JpathStudyMode mode = r.studyMode() == null ? storedMode : r.studyMode();
+        JpathStudyMode mode = r == null || r.studyMode() == null ? storedMode : r.studyMode();
 
         boolean targetChanged = !target.equals(path.getTargetLevel()) || !Objects.equals(exam, path.getExamDate());
         boolean minutesChanged = minutes != path.getDailyMinutes();
@@ -227,12 +256,7 @@ public class JpathSettingsWriter {
                 : new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(), level.getSliderGrammar());
         JpathPathViewAssembler.Schedule schedule = new JpathPathViewAssembler.Schedule(target, exam, minutes,
                 skillDays, restDays, third, mode, sliders);
-        // Enforcing only decides `blocked`; when not blocked the pace equals the learner view of the new schedule.
-        JpathPathViewAssembler.Pacing pacing = views.pacing(path, level, schedule, targetChanged);
-        if (pacing.pace().blocked()) {
-            throw new ApiException(ErrorCode.JPATH_TARGET_TOO_SOON, pacing.pace().messageVi());
-        }
-        return new ScheduleChange(path, level, schedule, pacing, targetChanged, mode != storedMode, minutesChanged);
+        return new ValidatedSchedule(schedule, targetChanged, mode != storedMode, minutesChanged);
     }
 
     /** Writes a checked schedule; returns the tabs of today's plan that keep their targets (null = not refreshed). */

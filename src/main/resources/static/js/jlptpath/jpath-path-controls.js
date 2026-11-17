@@ -237,7 +237,7 @@
     var circum = (2 * Math.PI * r).toFixed(1);
     var offset = (circum * (1 - pct / 100)).toFixed(1);
     var tip = VI_WEEKDAY_FULL[dowIdx] + ', ngày ' + m[3] + '/' + m[2] + ' (' + monthNum + '月 ' + kanjiDow + ') · hoàn thành ' + pct + '%';
-    return '<div class="jp-today__cal" data-pct="' + pct + '" data-tip="' + esc(tip) + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">'
+    return '<div class="jp-today__cal" data-pct="' + pct + '" data-tip="' + esc(tip) + '" aria-label="' + esc(tip) + '">'
       + '<div class="jp-today__cal-water" style="height:' + pct + '%" aria-hidden="true">'
       + '<svg class="jp-today__cal-waves" viewBox="0 0 160 20" preserveAspectRatio="none" aria-hidden="true">'
       + '<path class="jp-today__cal-wave-back" d="M0,10 C20,16 40,4 60,10 C80,16 100,4 120,10 C140,16 150,7 160,10 L160,20 L0,20 Z"></path>'
@@ -249,8 +249,10 @@
       + '</svg>'
       + '<div class="jp-today__cal-inner">'
       + '<strong class="jp-today__cal-day">' + esc(m[3]) + '</strong>'
-      + '<span class="jp-today__cal-jp" lang="ja">' + esc(monthNum + '月') + ' <span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
+      + '<span class="jp-today__cal-jp" lang="ja"><span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
       + '</div>'
+      // owner 10/11 (F31): Kitsu sits by the ring and wraps its tail round it
+      + '<img class="jp-today__cal-kitsu" src="/images/mascots/kitsu/kitsu-cheer-30-128.webp" alt="" width="60" height="60" loading="lazy">'
       + '</div>';
   }
 
@@ -355,7 +357,7 @@
   function studyDayHtml(t) {
     var tip = 'Ôn thẻ đến hạn rồi học mới liền một lượt';
     return '<div class="jp-today__go">'
-      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED" data-tip="' + esc(tip) + '" title="' + esc(tip) + '">Học hôm nay</button>'
+      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED" data-tip="' + esc(tip) + '">Học hôm nay</button>'
       + '</div>'
       + studyPillsHtml(t);
   }
@@ -452,7 +454,7 @@
       + '<div class="jp-today__lead">'
       + '<div class="jp-today__title-row">'
       + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
-      + (t.allDone ? '<span class="jp-today__badge jp-today__badge--done">' + medalMiniSvg() + ' Đã học hôm nay</span>' : '')
+      + (t.allDone ? '<span class="jp-today__stamp" role="img" tabindex="0" aria-label="Bạn đã hoàn thành toàn bộ bài học hôm nay!" data-tip="Bạn đã hoàn thành toàn bộ bài học hôm nay!"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="jpStampArc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"></path></defs><circle class="jp-today__stamp-o" cx="50" cy="50" r="47"></circle><circle class="jp-today__stamp-i" cx="50" cy="50" r="29"></circle><text class="jp-today__stamp-arc"><textPath href="#jpStampArc" startOffset="0">KOTSUKOTSU ・ ĐÃ HỌC HÔM NAY ・</textPath></text><text class="jp-today__stamp-jp" x="50" y="58" text-anchor="middle" lang="ja">済</text></svg></span>' : '')
       + '</div>'
       + '<p class="jp-today__subtitle">' + esc(dayLine(t)) + '</p>'
       + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '')
@@ -470,8 +472,7 @@
 
     if (t.allDone) {
       return html + '<div class="jp-today__done-bar">'
-        + '<p class="jp-today__done">' + medalMiniSvg() + ' Bạn đã hoàn thành toàn bộ bài học hôm nay!</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/day">Xem ngày học hôm nay</a>'
+        + '<a class="jp-btn jp-btn--primary jp-today__review-btn" href="/learning/jlpt/day">Xem lại phần đã học hôm nay</a>'
         + '</div>'
         + (t.kind !== 'REST' && t.kind !== 'SKILL' && !t.kanaPhase ? studyPillsHtml(t) : '')
         + missed + end;
@@ -578,5 +579,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });

@@ -4,7 +4,6 @@
 @import url("/css/components/theme-switch.css?v=20261009-nav-switch");
 
 html[data-theme="dark"] #jlabBaseBrandLogo { filter:brightness(2.5); }
-#jlabBaseLearningPathLink[aria-disabled="true"] { background:transparent; border:0; color:var(--color-on-surface-variant); opacity:.55; cursor:not-allowed; }
 
 /*
  * JLAS shared feature shell.
@@ -216,7 +215,6 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 }
 
 #jlabBaseHomeLink,
-#jlabBaseLearningPathLink,
 #jlabBaseTextbooksLink,
 #jlabBaseLookupLink,
 #jlabBaseGameLink,
@@ -241,14 +239,12 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 }
 
 #jlabBaseHomeLink:hover,
-#jlabBaseLearningPathLink:hover,
 #jlabBaseTextbooksLink:hover,
 #jlabBaseLookupLink:hover,
 #jlabBaseGameLink:hover,
 #jlabBaseCommunityLink:hover,
 #jlabBaseAboutLink:hover,
 #jlabBaseHomeLink[aria-current="page"],
-#jlabBaseLearningPathLink[aria-current="page"],
 #jlabBaseTextbooksLink[aria-current="page"],
 #jlabBaseLookupLink[aria-current="page"],
 #jlabBaseGameLink[aria-current="page"],
@@ -257,7 +253,6 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 }
 
 #jlabBaseHomeLink[aria-current="page"]::after,
-#jlabBaseLearningPathLink[aria-current="page"]::after,
 #jlabBaseTextbooksLink[aria-current="page"]::after,
 #jlabBaseLookupLink[aria-current="page"]::after,
 #jlabBaseGameLink[aria-current="page"]::after,
@@ -387,7 +382,7 @@ html[data-theme="dark"] #jlabBaseBottomNavToggle {
 #jlabBaseLoginLink:focus-visible,
 #jlabBaseRegisterLink:focus-visible,
 #jlabBaseHomeLink:focus-visible,
-#jlabBaseLearningPathLink:focus-visible,
+#jlabBaseOnyomiItem:focus-visible,
 #jlabBaseTextbooksLink:focus-visible,
 #jlabBaseLookupLink:focus-visible,
 #jlabBaseGameLink:focus-visible,
@@ -951,6 +946,10 @@ html[data-theme="dark"] #jlabBaseNotificationList .jlab-notif__time {
  * không dùng Font Awesome ::before glyph; kích thước theo .jlab-base-icon / .jlab-base-icon--chevron.
  * ============================================================================= */
 #jlabBaseExamsWrapper { position:relative; }
+/* Header items never break onto two lines or get squeezed by a page's own CSS: a cramped header (streak and
+   coin counters, a role-only "Tạo đề" menu) used to wrap "Học tập" on some pages. */
+.nav-tools-dropdown, .nav-tools-trigger { flex-shrink:0; }
+.nav-tools-trigger, .nav-tools-trigger > span, .site-header__nav > a { white-space:nowrap !important; }
 #jlabBaseExamsButton { display:inline-flex; align-items:center; gap:7px; padding:8px 0; border:0; background:transparent; color:var(--color-on-surface-variant, #494551); font:500 0.875rem/1.2 -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; cursor:pointer; }
 #jlabBaseExamsButton:hover,#jlabBaseExamsButton[aria-current="page"],#jlabBaseExamsButton[aria-expanded="true"] { color:var(--color-primary); }
 #jlabBaseExamsChevron { transition: transform 180ms ease; }

@@ -453,8 +453,13 @@ public class MemoryMatchServiceImpl implements MemoryMatchService {
                 return false;
             }
             MemoryPlayer player = session.player(session.getCurrentTurnUserId());
-            if (player != null && !session.getSelection().isEmpty()) {
-                player.recordMistake();
+            // A turn that runs out is still a turn taken: count it, like a flipped pair, so "Lượt" goes up.
+            session.incrementMoves();
+            if (player != null) {
+                player.recordMove();
+                if (!session.getSelection().isEmpty()) {
+                    player.recordMistake();
+                }
             }
             hideSelection(session);
             session.setResolving(false);

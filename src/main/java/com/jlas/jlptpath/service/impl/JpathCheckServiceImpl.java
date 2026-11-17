@@ -117,6 +117,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final String ISSUED = "ISSUED";
     static final String SUBMITTED = "SUBMITTED";
     static final String EXPIRED = "EXPIRED";
+    /** Zone of the server timestamp columns (issued_at, submitted_at), as {@link JpathClock#now()} writes them. */
+    private static final java.time.ZoneId SERVER_ZONE = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
     static final String CHECK_ANSWER = "CHECK_ANSWER";
     static final String SKILL_REVIEW = "skillReview";
     static final String SKILL_DAY = "skillDay";
@@ -229,6 +231,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         this.partsService = partsService;
     }
 
+    /** F133: Premium for the free checks of N4+ (optional so tests building the service without it still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
+
     public JpathCheckServiceImpl(JpathCheckSetRepository checks, JpathUserPathRepository paths,
                                  JpathUserLevelRepository levels, JpathStudySessionRepository sessions,
                                  JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs,
@@ -280,6 +286,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         levels.findForUpdate(path.getId(), path.getOpenLevel());
         Spec spec = free ? freeSpec(userId, path, r, old) : sessionSpec(userId, path, session, r);
+        if (free && old == null && premiumGate != null) {
+            // F133: a free check moves the progress of its level (the open one when it names none): Premium for N4+
+            premiumGate.requireLevel(userId, spec.level() != null ? spec.level() : path.getOpenLevel());
+        }
         if (spec.skip()) {
             return skipStep(userId, spec);
         }
@@ -301,6 +311,17 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                     writeToken(spec, previous.getToken());
                 }
                 return view(previous);
+            }
+        }
+
+        if (spec.kind() == JpathCheckKind.SKIP_ONE) {
+            JpathCheckSet open = requireOneTryToday(userId,
+                    spec.session() != null ? spec.step().itemCode() : r.itemCode());
+            if (open != null && spec.session() == null) {
+                // F131: a second click or tab gets the open check of the item, so one wrong answer is the day's try;
+                // nothing was answered on it yet, so its question time starts again now
+                open.setIssuedAt(clock.now());
+                return view(open);
             }
         }
 
@@ -480,7 +501,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 level = level == null ? open : level;
             }
             case WEEK_KNOWN -> {
-                JpathCheckPicker.sliderType(tab);
+                if (tab != JpathTab.KANA) JpathCheckPicker.sliderType(tab);
                 level = open;
             }
             case FREE_QUIZ -> {
@@ -503,7 +524,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
             default -> { }
         }
-        if (level != null && r.kind() != JpathCheckKind.FREE_QUIZ && r.kind() != JpathCheckKind.CONFUSABLE
+        // F134: a free quiz of every item (source ALL) keeps to the opened levels too; one of the learner's own rows
+        // (LEARNED, NOTEBOOK, WEEK) may sit on any level
+        boolean levelBound = r.kind() != JpathCheckKind.CONFUSABLE
+                && (r.kind() != JpathCheckKind.FREE_QUIZ || source == JpathCheckSource.ALL);
+        if (level != null && levelBound
                 && JpathPathRules.LEVELS.indexOf(level) > JpathPathRules.LEVELS.indexOf(open)) {
             throw new ApiException(ErrorCode.JPATH_LEVEL_LOCKED);
         }
@@ -553,7 +578,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
             case WEEK_KNOWN -> {
                 JpathPartsService parts = partsService == null ? null : partsService.getIfAvailable();
-                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab());
+                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count());
                 if (w == null || !w.offer()) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra bỏ qua tuần chưa mở cho bạn.");
                 }
@@ -618,6 +643,49 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     private static boolean isNew(JpathQueueStep st, JpathTab tab) {
         return st.kind() == JpathStepKind.NEW && !st.repeat() && st.tab() == tab && st.itemCode() != null;
+    }
+
+    /**
+     * F117 (owner 14/11, same rule as F111): "Đã biết" / "Tôi biết mẫu này" is one try per item a learner day. A
+     * failed try already showed the answer, so a new SKIP_ONE for that item waits until tomorrow. F131: a try is a
+     * SKIP_ONE of the item submitted and failed today, or one still open with a wrong answer (the answer was shown
+     * even if it was never submitted). Returns the open free check of the item with no answer yet (null when none),
+     * for the caller to hand back instead of a new one.
+     */
+    private JpathCheckSet requireOneTryToday(Long userId, String itemCode) {
+        if (itemCode == null) {
+            return null;
+        }
+        LocalDateTime since = serverStartOfToday(userId);
+        boolean tried = checks.findByUserIdAndKindAndStatusAndPassedAndSubmittedAtGreaterThanEqual(userId,
+                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, since).stream()
+                .anyMatch(c -> readList(c.getItemCodesJson()).contains(itemCode));
+        JpathCheckSet open = null;
+        for (JpathCheckSet c : checks.findByUserIdAndKindAndStatusAndIssuedAtGreaterThanEqualOrderByIdAsc(userId,
+                JpathCheckKind.SKIP_ONE, ISSUED, since)) {
+            if (!readList(c.getItemCodesJson()).contains(itemCode)) {
+                continue;
+            }
+            Map<String, Answer> answers = readProgress(c).answers();
+            if (answers.values().stream().anyMatch(a -> !a.correct())) {
+                tried = true;
+            } else if (answers.isEmpty() && c.getSessionId() == null) {
+                open = c;
+            }
+        }
+        if (tried) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Hôm nay bạn đã thử mục này rồi. Ngày mai thử lại nhé, hoặc học như bình thường.");
+        }
+        return open;
+    }
+
+    /**
+     * F143: the start of the learner's today as server time (Asia/Ho_Chi_Minh, like {@code issued_at} and
+     * {@code submitted_at}), so a learner outside the server's zone gets their own day, as the history page does.
+     */
+    private LocalDateTime serverStartOfToday(Long userId) {
+        return clock.today(userId).atStartOfDay(clock.zone(userId)).withZoneSameInstant(SERVER_ZONE).toLocalDateTime();
     }
 
     /**
@@ -786,7 +854,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         Progress p = readProgress(set);
         Answer done = p.answers().get(qv.id());
         if (done != null) {
-            return result(set, qv, key, questionCode, done);
+            // probe L2: a replay (e.g. from another tab) says which answer is kept and whether the check is closed
+            JpathAnswerResult kept = result(set, qv, key, questionCode, done);
+            return new JpathAnswerResult(kept.correct(), kept.correctValue(), kept.explanation(), kept.compare(),
+                    kept.report(), done.value() == null ? "" : done.value(), !ISSUED.equals(set.getStatus()));
+        }
+        if (r.value() != null && r.value().length() > 1000) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời quá dài.");
         }
         requireOpen(set);
         LocalDateTime now = clock.now();

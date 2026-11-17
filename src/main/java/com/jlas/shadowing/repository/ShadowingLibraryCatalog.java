@@ -177,15 +177,24 @@ public class ShadowingLibraryCatalog {
      */
     private Map<Long, Integer> relevance(LibrarySearch search, List<Entry> entries) {
         if (search == null) return null;
-        Map<Long, Map<Long, String>> lines = new HashMap<>();
+        // The Japanese line and its Vietnamese translation are both searched ("cảm ơn vì đã vất vả" finds
+        // お疲れ様でした through its translation). They are kept as separate texts so a phrase never spans the two.
+        Map<Long, Map<String, String>> lines = new HashMap<>();
         for (String term : search.terms()) {
-            jdbc.query("SELECT id, video_id, text FROM subtitle WHERE LOWER(text) LIKE ?",
-                    rs -> { lines.computeIfAbsent(rs.getLong("video_id"), k -> new HashMap<>()).put(rs.getLong("id"), rs.getString("text")); },
-                    "%" + term + "%");
+            String like = "%" + term + "%";
+            jdbc.query("SELECT id, video_id, text, translation FROM subtitle WHERE LOWER(text) LIKE ? OR LOWER(translation) LIKE ?",
+                    rs -> {
+                        Map<String, String> own = lines.computeIfAbsent(rs.getLong("video_id"), k -> new HashMap<>());
+                        long id = rs.getLong("id");
+                        own.put("ja:" + id, rs.getString("text"));
+                        String translation = rs.getString("translation");
+                        if (translation != null && !translation.isBlank()) own.put("vi:" + id, translation);
+                    },
+                    like, like);
         }
         Map<Long, Integer> scores = new HashMap<>();
         for (Entry entry : entries) {
-            Map<Long, String> own = lines.get(entry.id());
+            Map<String, String> own = lines.get(entry.id());
             int score = search.score(entry.title(), entry.tags(), own == null ? List.of() : own.values());
             if (score > 0) scores.put(entry.id(), score);
         }

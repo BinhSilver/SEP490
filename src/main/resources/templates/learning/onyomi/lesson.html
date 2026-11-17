@@ -13,7 +13,7 @@
                 <ul>
                     <li><a href="#s-rules"><i class="fa-solid fa-book-open" aria-hidden="true"></i> Quy tắc</a></li>
                     <li><a href="#s-flashcards"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Thẻ ghi nhớ</a></li>
-                    <li th:if="${lesson.practiceQuestionCount > 0}"><a th:href="@{/learning/onyomi/lessons/{id}/practice(id=${lesson.lessonId})}"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Luyện tập</a></li>
+                    <li th:if="${lesson.practiceQuestionCount > 0}"><a class="oy-sidebar__practice" th:href="@{/learning/onyomi/lessons/{id}/practice(id=${lesson.lessonId})}"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span th:text="${done ? 'Luyện lượt mới' : 'Luyện tập'}">Luyện tập</span><i class="fa-solid fa-arrow-right oy-sidebar__go" aria-hidden="true"></i></a></li>
                 </ul>
             </nav>
             <div class="oy-panel oy-sidebar__status">
@@ -138,7 +138,8 @@
                 </div>
             </section>
 
-            <section class="oy-section" id="s-quiz" aria-labelledby="s-quiz-title" th:if="${lesson.practiceQuestionCount > 0}">
+            <!-- Phones hide the sidebar, so this block is their way into practice; wide screens use the sidebar button. -->
+            <section class="oy-section oy-section--phone-practice" id="s-quiz" aria-labelledby="s-quiz-title" th:if="${lesson.practiceQuestionCount > 0}">
                 <div class="oy-section__head">
                     <h2 id="s-quiz-title">Luyện tập</h2>
                 </div>

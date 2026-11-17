@@ -31,11 +31,16 @@ public class ShadowingExerciseAiClient {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1}")
     private String apiUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.shadowing.exercise.model:${openrouter.shadowing.model:${openrouter.model:openai/gpt-4o-mini}}}")
     private String model;
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
     private final String systemPrompt;
 
     public ShadowingExerciseAiClient(ObjectMapper objectMapper) {
@@ -75,13 +80,14 @@ public class ShadowingExerciseAiClient {
                     Map.of("role", "user", "content", userData)));
 
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(apiKey.trim());
+            headers.setBearerAuth(com.jlas.common.ai.AiFeature.SHADOWING_EXERCISES.apiKey(apiKey));
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("HTTP-Referer", "http://localhost:8080");
+            headers.set("HTTP-Referer", siteUrl);
             headers.set("X-Title", "JLAS Shadowing Exercise Builder");
             String response = restTemplate.postForObject(
                     apiUrl.replaceAll("/+$", "") + "/chat/completions",
                     new HttpEntity<>(body, headers), String.class);
+            if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.SHADOWING_EXERCISES, model, response);
             return parseResponse(response, subtitles.size());
         } catch (Exception exception) {
             log.warn("Shadowing exercise AI analysis failed: {}", safeMessage(exception));

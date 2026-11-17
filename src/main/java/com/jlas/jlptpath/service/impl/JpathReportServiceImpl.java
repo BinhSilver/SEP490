@@ -116,6 +116,7 @@ public class JpathReportServiceImpl implements JpathReportService {
                             .anyMatch(v -> ref.code().equals(v.getCode())))
                     .orElse(false);
             case SKILL_SET, SKILL_QUESTION -> targets.skillVisible(ref, catalogStatuses(), this::released);
+            case PAGE -> true;
         };
     }
 

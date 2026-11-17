@@ -18,7 +18,8 @@ public interface JpathTodayTargetsPort {
     /**
      * After the week schedule changed (skill days, rest days, third skill day): today's plan that nothing was done on
      * yet (no item, review or reward, no open study session, no skill session) takes the kind of the new schedule, its
-     * tabs rebuilt. A started plan keeps its kind; the change reaches it from tomorrow. True when today changed.
+     * tabs rebuilt, when that kind is a study day. A rest or skill day moved onto today, or a started plan, keeps
+     * today's kind; the change reaches it from tomorrow (F130). True when today changed.
      */
     default boolean replanUntouchedToday(Long userId) {
         return false;

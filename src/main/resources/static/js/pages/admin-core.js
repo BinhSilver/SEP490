@@ -37,6 +37,7 @@
       { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
       { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
       { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
+      { key: 'system-ai-cost', label: 'Chi phí AI', icon: 'fa-calculator', href: '/admin/system/ai-cost', roles: SYSTEM },
       { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM }
     ] },
     { title: 'Trò chơi', items: [

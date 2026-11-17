@@ -198,6 +198,8 @@
     var foot = '';
     if (state === 'NEW' && g.learnable !== false) {
       foot += '<button type="button" class="jp-btn" data-action="queue-today">Học mẫu này trong lượt hôm nay</button>';
+      // F64 (owner 11/11): "Tôi biết mẫu này" right on the grammar card; one question, right = known
+      foot += '<button type="button" class="jp-link-btn" data-action="grammar-known">Tôi biết mẫu này (kiểm 1 câu)</button>';
     }
     var nav = '';
     if (has(g.prevCode)) {
@@ -243,6 +245,18 @@
         if (token) env.navigate(H().checkUrl(token, env.returnTo));
         return null;
       }).catch(function (e) {
+        el.disabled = false;
+        H().showError(container, 'lesson-error', H().messageOf(e));
+      });
+      return true;
+    }
+    if (action === 'grammar-known') {
+      el.disabled = true;
+      env.api.send('POST', H().itemUrl('GRAMMAR', g.code) + '/known').then(function (res) {
+        if (res && res.checkToken) { env.navigate(H().checkUrl(res.checkToken, env.returnTo)); return; }
+        var status = container.querySelector('[data-part="lesson-status"]');
+        if (status) status.textContent = 'Đã ghi mẫu này là đã biết.';
+      }, function (e) {
         el.disabled = false;
         H().showError(container, 'lesson-error', H().messageOf(e));
       });

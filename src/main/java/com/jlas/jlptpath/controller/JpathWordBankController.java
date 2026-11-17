@@ -30,8 +30,9 @@ public class JpathWordBankController {
 
     @GetMapping("/confusables")
     public ResponseEntity<ApiResponse<List<JpathConfusablePairView>>> confusables(
-            @AuthenticationPrincipal UserPrincipal user, @RequestParam(defaultValue = "VOCAB") String tab) {
-        return ResponseEntity.ok(ApiResponse.ok("OK", confusables.pairs(user.userId(), tab)));
+            @AuthenticationPrincipal UserPrincipal user, @RequestParam(defaultValue = "VOCAB") String tab,
+            @RequestParam(defaultValue = "false") boolean preview) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", confusables.pairs(user.userId(), tab, preview)));
     }
 
     @GetMapping("/extra-links")

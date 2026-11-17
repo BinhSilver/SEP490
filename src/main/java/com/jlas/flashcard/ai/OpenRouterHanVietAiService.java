@@ -92,11 +92,16 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1/chat/completions}")
     private String apiUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.model:qwen/qwen-2.5-7b-instruct}")
     private String model;
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
 
     @Override
     public String generateHanViet(String front, String back) {
@@ -452,14 +457,15 @@ public class OpenRouterHanVietAiService implements HanVietAiService {
 
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.APPLICATION_JSON);
-        h.setBearerAuth(apiKey);
-        h.set("HTTP-Referer", "http://localhost:8080");
+        h.setBearerAuth(com.jlas.common.ai.AiFeature.FLASHCARD_HAN_VIET.apiKey(apiKey));
+        h.set("HTTP-Referer", siteUrl);
         h.set("X-Title", "JLAS Flashcard HanViet");
 
         try {
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> res = restTemplate.postForEntity(url, new HttpEntity<>(body, h), Map.class);
             if (res.getBody() == null) return null;
+            if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.FLASHCARD_HAN_VIET, String.valueOf(body.get("model")), res.getBody());
             List<?> choices = (List<?>) res.getBody().get("choices");
             if (choices == null || choices.isEmpty()) return null;
             Map<?, ?> msg = (Map<?, ?>) ((Map<?, ?>) choices.get(0)).get("message");

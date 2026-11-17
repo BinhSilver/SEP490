@@ -308,4 +308,101 @@
 
         return openInfoModal(html, '[data-modal-close]');
     };
+
+    /**
+     * Popup "thùng rác ăn nhãn" trong lúc đang xoá: chặn cả trang nên không bấm xoá thêm lần nữa khi máy chủ chậm.
+     * const bin = showDeleting({ title }); … await bin.done('Đã xoá') hoặc bin.fail();
+     * Hoạt cảnh lặp lại cho tới khi người gọi báo xong; lúc đó nó chạy nốt nhịp đang dở (CYCLE_MS, khớp với animation
+     * trong styles.css) rồi mới hiện dấu tích, nên không bị cắt giữa chừng và luôn có ít nhất một nhịp "ăn".
+     */
+    window.showDeleting = function showDeleting(options = {}) {
+        const CYCLE_MS = 1600;
+        const DONE_MS = 650;
+        const { title = '', message = 'Đang xoá…' } = options;
+        const opened = Date.now();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'confirm-modal-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-modal bin-modal';
+        dialog.setAttribute('role', 'status');
+        dialog.setAttribute('aria-live', 'polite');
+        dialog.setAttribute('aria-busy', 'true');
+        dialog.innerHTML = `
+            <svg class="bin-modal-art" viewBox="0 0 120 120" aria-hidden="true">
+                <g class="bin-modal-label">
+                    <rect x="38" y="6" width="44" height="24" rx="6"></rect>
+                    <circle cx="46" cy="18" r="2.6" class="bin-modal-label-hole"></circle>
+                    <rect x="52" y="13" width="24" height="3.4" rx="1.7" class="bin-modal-label-line"></rect>
+                    <rect x="52" y="20" width="16" height="3.4" rx="1.7" class="bin-modal-label-line"></rect>
+                </g>
+                <g class="bin-modal-body">
+                    <path d="M36 56h48l-4.5 46a6 6 0 0 1-6 5.4H46.5a6 6 0 0 1-6-5.4z"></path>
+                    <rect x="50" y="64" width="3.4" height="34" rx="1.7" class="bin-modal-stripe"></rect>
+                    <rect x="58.3" y="64" width="3.4" height="34" rx="1.7" class="bin-modal-stripe"></rect>
+                    <rect x="66.6" y="64" width="3.4" height="34" rx="1.7" class="bin-modal-stripe"></rect>
+                </g>
+                <g class="bin-modal-lid">
+                    <rect x="31" y="46" width="58" height="8" rx="4"></rect>
+                    <rect x="52" y="40" width="16" height="7" rx="3"></rect>
+                </g>
+                <g class="bin-modal-check">
+                    <circle cx="60" cy="60" r="34"></circle>
+                    <path d="M45 61l10 10 20-22"></path>
+                </g>
+            </svg>
+            <h2 class="confirm-modal-title bin-modal-title">${esc(message)}</h2>
+            ${title ? `<p class="confirm-modal-message bin-modal-name">${esc(title)}</p>` : ''}
+        `;
+
+        const content = document.getElementById('jlabBaseContent');
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+        document.body.classList.add('confirm-modal-open');
+        // Nothing behind the popup can be clicked or reached with Tab while it is up.
+        if (content) content.inert = true;
+        requestAnimationFrame(() => {
+            overlay.classList.add('is-open');
+            dialog.classList.add('is-open');
+        });
+
+        let closed = false;
+        function close() {
+            if (closed) return;
+            closed = true;
+            overlay.classList.remove('is-open');
+            dialog.classList.remove('is-open');
+            setTimeout(() => {
+                overlay.remove();
+                dialog.remove();
+                if (content) content.inert = false;
+                if (!document.querySelector('.confirm-modal')) document.body.classList.remove('confirm-modal-open');
+            }, 320);
+        }
+
+        // Until the end of the cycle that is playing (at least the first one).
+        const waitMin = () => {
+            const elapsed = Date.now() - opened;
+            const cycles = Math.max(1, Math.ceil(elapsed / CYCLE_MS));
+            return new Promise(resolve => setTimeout(resolve, cycles * CYCLE_MS - elapsed));
+        };
+
+        return {
+            /** Shows the tick and the text for a moment, then closes. */
+            done(text = 'Đã xoá') {
+                return waitMin().then(() => new Promise(resolve => {
+                    dialog.classList.add('is-done');
+                    dialog.setAttribute('aria-busy', 'false');
+                    dialog.querySelector('.bin-modal-title').textContent = text;
+                    setTimeout(() => { close(); resolve(); }, DONE_MS);
+                }));
+            },
+            /** Closes at once; the caller says what went wrong. */
+            fail() {
+                close();
+            }
+        };
+    };
 })();

@@ -4,6 +4,7 @@ import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.config.JpathProperties;
 import com.jlas.jlptpath.dto.JpathDisplaySettings;
+import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.dto.JpathSettingsUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSettingsView;
@@ -82,6 +83,15 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public JpathPaceView preview(Long userId, JpathSettingsUpdateRequest request) {
+        JpathUserPath path = findActive(userId)
+                .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
+        JpathUserLevel level = openLevel(path);
+        return writer.preview(userId, path, level, request);
+    }
+
+    @Override
     @Transactional
     public JpathSettingsView update(Long userId, JpathSettingsUpdateRequest request) {
         JpathSettingsWriter.Result result = writer.update(userId, request);
@@ -124,6 +134,13 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
 
     @Override
     @Transactional
+    public JpathPathView returnLevel(Long userId, String level) {
+        JpathPathUpdater.Change c = changer.returnLevel(userId, level);
+        return views.view(c.path(), c.level(), c.pacing(), c.appliesFromTomorrow());
+    }
+
+    @Override
+    @Transactional
     public void restart(Long userId, String confirmText) {
         changer.restart(userId, confirmText);
     }
@@ -149,7 +166,7 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
                 third == null ? null : JpathDays.format(List.of(third)), thirdAuto, level.getStage(), p.mode(),
                 JpathSettingsWriter.suggestion(path), JpathDisplaySettings.from(row, open), web, email,
                 emailAvailable, time.format(HH_MM), views.sliderView(path, level, p, appliesFromTomorrow), open,
-                JpathPathRules.lowerLevels(catalog, open));
+                JpathPathRules.lowerLevels(catalog, open), changer.returnLevels(path.getId(), open));
     }
 
     private Optional<JpathUserPath> findActive(Long userId) {

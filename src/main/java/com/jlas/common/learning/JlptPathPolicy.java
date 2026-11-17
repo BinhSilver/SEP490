@@ -11,9 +11,9 @@ public final class JlptPathPolicy {
     public enum Choice { ACCEPT_RECOMMENDATION, DECLINE_RECOMMENDATION }
 
     public static final List<String> TARGET_LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
-    /** Targets whose whole route has releasable content today. N2/N1 join only together with their data and the
-     * readiness gate (spec §2.1; owner 2026-10-19 Q6 approved the N5–N1 matrix itself). */
-    private static final List<String> DEFAULT_RELEASED_TARGETS = List.of("N5", "N4", "N3");
+    /** Targets the survey and Smart Test may aim at. [JLAS-W0108] N2/N1 data shipped (owner 2026-11-05), so all five
+     * are allowed; whether a level is open for study is still jpath_level.released (catalog). */
+    private static final List<String> DEFAULT_RELEASED_TARGETS = List.of("N5", "N4", "N3", "N2", "N1");
     private static final Map<String, Integer> RANK = Map.of(
             "BELOW_N5", 0, "N5", 1, "N4", 2, "N3", 3, "N2", 4, "N1", 5);
 

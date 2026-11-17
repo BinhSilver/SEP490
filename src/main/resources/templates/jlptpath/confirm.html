@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!-- [JLAS-W0108] Confirmation screen before the JLPT path is created; jpath-confirm.js fills it from the API. -->
+<!-- [JLAS-W0108] AI 1 #9: one confirmation screen (no 3-step wizard) before the JLPT path is created;
+     the three groups stack. Confirmation screen before the JLPT path is created; jpath-confirm.js fills it from the API. -->
 <head th:replace="~{fragments/head :: standard('Xác nhận lộ trình JLPT - KotsuKotsu', null)}"></head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-confirm')}"></th:block>
 <link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css(v=${jpathAssetVersion})}" />
@@ -16,16 +17,14 @@
         </div>
         <div class="jp-confirm__mascot" aria-hidden="true">
             <img class="jp-confirm__fox jp-confirm__fox--step1" src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="60" height="60">
-            <img class="jp-confirm__fox jp-confirm__fox--step2" src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="" width="60" height="60">
-            <img class="jp-confirm__fox jp-confirm__fox--step3" src="/images/mascots/kitsu/kitsu-cheer-30.webp" alt="" width="60" height="60">
         </div>
     </header>
 
     <p class="jp-confirm__alert" role="alert" data-role="error" hidden></p>
     <p class="jp-confirm__loading" role="status" data-role="loading">Đang tải thông tin…</p>
 
-    <div class="jp-confirm__content" data-role="content" data-jp-wizard hidden>
-        <div class="jp-wizard__step" data-jp-wizard-step="Lộ trình" data-jp-wizard-sub="Cấp và lịch học">
+    <div class="jp-confirm__content" data-role="content" hidden>
+        <div class="jp-confirm__group" data-jp-confirm-group="Lộ trình">
         <section class="jp-confirm-card" data-role="smart" aria-labelledby="jp-confirm-smart-title" hidden>
             <h2 class="jp-confirm-card__title" id="jp-confirm-smart-title">Kết quả Smart Test</h2>
             <p class="jp-confirm-smart__level">
@@ -79,7 +78,7 @@
         </section>
 
         </div>
-        <div class="jp-wizard__step" data-jp-wizard-step="Nhịp học" data-jp-wizard-sub="Mỗi ngày học bao nhiêu">
+        <div class="jp-confirm__group" data-jp-confirm-group="Nhịp học">
         <section class="jp-confirm-card" aria-labelledby="jp-confirm-sliders-title">
             <h2 class="jp-confirm-card__title" id="jp-confirm-sliders-title">Mỗi ngày học</h2>
             <div class="jp-confirm-sliders" data-role="slider-list"></div>
@@ -97,7 +96,7 @@
         </section>
 
         </div>
-        <div class="jp-wizard__step" data-jp-wizard-step="Cách học" data-jp-wizard-sub="Rồi tạo lộ trình">
+        <div class="jp-confirm__group" data-jp-confirm-group="Cách học">
         <section class="jp-confirm-card" aria-labelledby="jp-confirm-mode-title">
             <h2 class="jp-confirm-card__title" id="jp-confirm-mode-title">Cách học mỗi ngày</h2>
             <div class="jp-confirm-modes" role="radiogroup" aria-labelledby="jp-confirm-mode-title" data-role="modes"></div>

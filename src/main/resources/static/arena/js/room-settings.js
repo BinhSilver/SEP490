@@ -54,29 +54,22 @@
       options.distinguishCardTypes = !!options.distinguishCardTypes;
     } else if (!config.manualDuration) options.durationSeconds = suggested;
     config.options = options;
+    /* Hỏi bằng / Đáp bằng: a dropdown each; the field the other side already uses is disabled and says why. */
     function fields(key, label, current, other) {
-      return '<div class="ar-room-setup__field"><span>' + label + '</span><div role="group" aria-label="' + label + '">'
-        + FIELDS.map(function (field) { return '<button type="button" data-' + key + '="' + field
-          + '" data-focus-key="' + key + '-' + field + '" aria-pressed="' + (field === current) + '"'
-          + (field === other ? ' disabled' : '') + '>' + LABELS[field] + '</button>'; }).join('') + '</div></div>';
+      return '<label class="ar-room-setup__pair">' + label + '<select data-jl-select data-pair="' + key + '" data-focus-key="' + key
+        + '" aria-label="' + label + '">' + FIELDS.map(function (field) { return '<option value="' + field + '"'
+          + (field === current ? ' selected' : '')
+          + (field === other ? ' disabled data-hint="Không thể hỏi và đáp cùng một nội dung"' : '') + '>' + LABELS[field] + '</option>'; }).join('')
+        + '</select></label>';
     }
     function select(key, label, choices, current, format) {
-      return '<label>' + label + '<select data-option="' + key + '" data-focus-key="' + key + '" aria-label="' + label + '">'
+      return '<label>' + label + '<select data-jl-select data-option="' + key + '" data-focus-key="' + key + '" aria-label="' + label + '">'
         + choices.map(function (number) { return '<option value="' + number + '"' + (number === current ? ' selected' : '') + '>'
           + format(number) + '</option>'; }).join('') + '</select></label>';
     }
-    root.innerHTML = '<div class="ar-room-setup__fields">'
-      + fields('question', 'Hỏi bằng', config.question, config.answer) + fields('answer', 'Đáp bằng', config.answer, config.question) + '</div>'
-      + '<div class="ar-room-setup__cards-head"><strong>Thẻ · ' + selected.length + '/' + cards.length + ' đã chọn</strong>'
-      + '<span><button type="button" data-all>Chọn tất cả</button><button type="button" data-none>Bỏ chọn hết</button></span></div>'
-      + '<div class="ar-room-setup__cards" data-room-cards>' + cards.map(function (card) {
-        var ok = !!value(card, config.question) && !!value(card, config.answer);
-        var checked = selected.some(function (entry) { return entry.id === card.id; });
-        return '<label><input type="checkbox" data-card="' + card.id + '" data-focus-key="card-' + card.id + '"'
-          + (checked ? ' checked' : '') + (ok ? '' : ' disabled') + '><strong>' + esc(value(card, config.question) || card.kanji || '—')
-          + '</strong><small>' + esc(ok ? value(card, config.answer) : 'Thiếu dữ liệu') + '</small></label>';
-      }).join('') + '</div>'
-      + (memory ? '<p class="ar-room-setup__board" aria-live="polite">Bàn ' + pairs * 2 + ' thẻ · ' + pairs + ' cặp</p>' : '')
+    var pairHtml = '<div class="ar-room-setup__fields">'
+      + fields('question', 'Hỏi bằng', config.question, config.answer) + fields('answer', 'Đáp bằng', config.answer, config.question) + '</div>';
+    var optionsHtml = (memory ? '<p class="ar-room-setup__board" aria-live="polite">Bàn ' + pairs * 2 + ' thẻ · ' + pairs + ' cặp</p>' : '')
       + '<div class="ar-room-setup__options' + (memory ? ' ar-room-setup__options--memory' : config.gameType === 'AIR_DEFENSE' ? ' ar-room-setup__options--air' : '') + '">'
       + (memory ? select('distinguishCardTypes', 'Màu thẻ', [0, 1], options.distinguishCardTypes ? 1 : 0,
           function (color) { return color ? 'Hai màu' : 'Cùng màu'; })
@@ -86,11 +79,22 @@
         options.durationSeconds, function (time) { return durationLabel(time) + (time === suggested ? ' · Gợi ý' : ''); })
       + (config.gameType === 'NEKO_CATCH' ? select('lives', 'Số tim', [1, 2, 3, 4, 5], options.lives, String)
         + select('choices', 'Số cá / lượt', Array.from({ length: maxFish - 1 }, function (_, index) { return index + 2; }), options.choices, String) : ''))
-      + '</div><p class="ar-room-setup__suggestion">Gợi ý: ' + durationLabel(suggested) + ' cho ' + (memory ? pairs + ' cặp.' : selected.length + ' thẻ.') + '</p>'
-      + (memory ? '<details class="ar-room-setup__versus"' + (rulesOpen ? ' open' : '') + '><summary>Luật đấu hai người</summary><div class="ar-room-setup__options ar-room-setup__options--air">'
+      + '</div><p class="ar-room-setup__suggestion">Gợi ý: ' + durationLabel(suggested) + ' cho ' + (memory ? pairs + ' cặp.' : selected.length + ' thẻ.') + '</p>';
+    var cardsHtml = '<div class="ar-room-setup__cards-head"><strong>Thẻ · ' + selected.length + '/' + cards.length + ' đã chọn</strong>'
+      + '<span><button type="button" data-all>Chọn tất cả</button><button type="button" data-none>Bỏ chọn hết</button></span></div>'
+      + '<div class="ar-room-setup__cards" data-room-cards>' + cards.map(function (card) {
+        var ok = !!value(card, config.question) && !!value(card, config.answer);
+        var checked = selected.some(function (entry) { return entry.id === card.id; });
+        return '<label><input type="checkbox" data-card="' + card.id + '" data-focus-key="card-' + card.id + '"'
+          + (checked ? ' checked' : '') + (ok ? '' : ' disabled') + '><strong>' + esc(value(card, config.question) || card.kanji || '—')
+          + '</strong><small>' + esc(ok ? value(card, config.answer) : 'Thiếu dữ liệu') + '</small></label>';
+      }).join('') + '</div>';
+    var versusHtml = (memory ? '<details class="ar-room-setup__versus"' + (rulesOpen ? ' open' : '') + '><summary>Luật đấu hai người</summary><div class="ar-room-setup__options ar-room-setup__options--air">'
         + select('turnSeconds', 'Thời gian mỗi lượt', [10, 15, 20], options.turnSeconds || 15, function (time) { return time + ' giây'; })
         + '</div><label class="ar-check"><input type="checkbox" data-keep-turn' + (options.keepTurnOnMatch !== false ? ' checked' : '')
         + '> Ghép đúng được lật tiếp</label></details>' : '');
+    // Pair and timing first (one compact block), then the card list, then the two-player rules.
+    root.innerHTML = pairHtml + optionsHtml + cardsHtml + versusHtml;
     root.querySelector('[data-room-cards]').scrollTop = top;
     if (focusKey) {
       var target = Array.from(root.querySelectorAll('[data-focus-key]')).find(function (node) { return node.dataset.focusKey === focusKey; });
@@ -98,8 +102,8 @@
     }
     function emit(changes) { config.onChange(Object.assign({ question: config.question, answer: config.answer,
       options: options, manualDuration: config.manualDuration }, changes)); }
-    root.querySelectorAll('[data-question],[data-answer]').forEach(function (button) {
-      button.onclick = function () { var change = {}; change[button.dataset.question ? 'question' : 'answer'] = button.dataset.question || button.dataset.answer; emit(change); };
+    root.querySelectorAll('[data-pair]').forEach(function (select) {
+      select.onchange = function () { var change = {}; change[select.dataset.pair] = select.value; emit(change); };
     });
     root.querySelector('[data-all]').onclick = function () { emit({ options: Object.assign({}, options, { cardIds: null }) }); };
     root.querySelector('[data-none]').onclick = function () { emit({ options: Object.assign({}, options, { cardIds: [] }) }); };

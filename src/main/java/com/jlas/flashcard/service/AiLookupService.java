@@ -25,6 +25,9 @@ public class AiLookupService {
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1/chat/completions}")
     private String apiUrl;
 
+    @Value("${openrouter.site.url:http://localhost:8080}")
+    private String siteUrl;
+
     @Value("${openrouter.model:google/gemma-3-27b-it:free}")
     private String model;
 
@@ -159,6 +162,8 @@ public class AiLookupService {
     }
 
     private final RestTemplate restTemplate = new RestTemplate();
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
 
     private boolean hasValidKey() {
         String key = apiKey == null ? "" : apiKey.trim();
@@ -181,8 +186,8 @@ public class AiLookupService {
 
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.APPLICATION_JSON);
-        h.setBearerAuth(apiKey.trim());
-        h.set("HTTP-Referer", "http://localhost:8080");
+        h.setBearerAuth(com.jlas.common.ai.AiFeature.FLASHCARD_AI_LOOKUP.apiKey(apiKey));
+        h.set("HTTP-Referer", siteUrl);
         h.set("X-Title", "Japanese Flashcard");
 
         try {
@@ -195,6 +200,7 @@ public class AiLookupService {
             @SuppressWarnings("rawtypes")
             ResponseEntity<Map> res = restTemplate.postForEntity(endpoint, new HttpEntity<>(body, h), Map.class);
             if (res.getBody() == null) return null;
+            if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.FLASHCARD_AI_LOOKUP, model, res.getBody());
             List<?> choices = (List<?>) res.getBody().get("choices");
             if (choices == null || choices.isEmpty()) return null;
             Map<?, ?> msg = (Map<?, ?>) ((Map<?, ?>) choices.get(0)).get("message");

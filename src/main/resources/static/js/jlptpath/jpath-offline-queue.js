@@ -10,6 +10,8 @@
  *   pending(), attach(win) ('online' -> flush), resume(), clear()
  * Events are saved under KEY_PREFIX + sessionId; when storage is missing or throws the queue lives in memory.
  * Resending is safe: the server applies events idempotently by eventId.
+ * F144: two tabs of one session share the key — every save and flush first takes in the events the other tab stored
+ * (by clientEventId), leaving out those this tab already sent or dropped, so neither tab wipes the other's events.
  */
 (function (root, factory) {
   'use strict';
@@ -40,6 +42,7 @@
     var send = opts.send;
     var schedule = opts.setTimeout || (root && root.setTimeout ? root.setTimeout.bind(root) : setTimeout);
     var onChange = typeof opts.onChange === 'function' ? opts.onChange : function () {};
+    var gone = {};
     var events = load();
     var running = null;
     var failures = 0;
@@ -57,7 +60,28 @@
       }
     }
 
+    function idOf(e) {
+      var id = e && (e.clientEventId || e.eventId);
+      return id ? 'id:' + id : 'json:' + JSON.stringify(e);
+    }
+
+    function forget(list) { list.forEach(function (e) { gone[idOf(e)] = true; }); }
+
+    /** Takes in the events another tab stored under the same key (not the ones this tab already sent or dropped). */
+    function adopt() {
+      if (!storage) return;
+      var have = {};
+      events.forEach(function (e) { have[idOf(e)] = true; });
+      load().forEach(function (e) {
+        var id = idOf(e);
+        if (have[id] || gone[id]) return;
+        have[id] = true;
+        events.push(e);
+      });
+    }
+
     function save() {
+      adopt();
       if (!storage) return;
       try { storage.setItem(key, JSON.stringify(events)); } catch (e) { storage = null; }
     }
@@ -81,10 +105,12 @@
     function run() {
       var outcome = { sent: 0, kept: 0, dropped: 0 };
       function next() {
+        adopt();
         if (!events.length) return Promise.resolve(outcome);
         var batch = events.slice(0, BATCH);
         return Promise.resolve().then(function () { return send(batch); }).then(function (result) {
           events.splice(0, batch.length);
+          forget(batch);
           save();
           failures = 0;
           outcome.sent += batch.length;
@@ -93,6 +119,7 @@
         }, function (err) {
           if (isRejected(err)) {
             events.splice(0, batch.length);
+            forget(batch);
             save();
             outcome.dropped += batch.length;
             onChange({ dropped: batch.length, error: err, pending: events.length });
@@ -125,6 +152,8 @@
     }
 
     function clear() {
+      adopt();
+      forget(events);
       events = [];
       if (!storage) return;
       try { storage.removeItem(key); } catch (e) { storage = null; }
