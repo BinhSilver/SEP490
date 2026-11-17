@@ -386,6 +386,28 @@
       + 'stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="var(--jp-save-fill, none)"/></svg>';
   }
 
+
+  /** Owner 17/11: the dialogue line that shows this card in use. A pattern like 「～程度にとどまっております」 has a
+   *  placeholder (～) and is conjugated in the dialogue, so match its fixed pieces and, failing that, a shorter stem. */
+  function exampleLineFor(card, lines) {
+    var ls = list(lines).filter(function (l) { return l && l.ja; });
+    var ja = String(card && card.ja || '');
+    if (!ja) return null;
+    var whole = ls.filter(function (l) { return String(l.ja).indexOf(ja) >= 0; })[0];
+    if (whole) return whole;
+    var pieces = ja.split(/[～〜~…・／\/（）()「」]+/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length >= 2; });
+    if (!pieces.length) return null;
+    var all = ls.filter(function (l) { return pieces.every(function (pc) { return String(l.ja).indexOf(pc) >= 0; }); })[0];
+    if (all) return all;
+    var longest = pieces.slice().sort(function (a, b) { return b.length - a.length; })[0];
+    for (var n = longest.length - 1; n >= Math.min(3, longest.length); n--) {
+      var stem = longest.slice(0, n);
+      var hit = ls.filter(function (l) { return String(l.ja).indexOf(stem) >= 0; })[0];
+      if (hit) return hit;
+    }
+    return null;
+  }
+
   function renderStepWords(sit, state) {
     var deck = buildDeck(sit);
     if (!deck.length) {
@@ -397,9 +419,7 @@
     var wordCount = list(sit.words).length;
     var tabCount = card.kind === 'WORD' ? wordCount : deck.length - wordCount;
     var tabIndex = card.kind === 'WORD' ? idx + 1 : idx - wordCount + 1;
-    var example = list(sit.lines).filter(function (line) {
-      return line && line.ja && card.ja && String(line.ja).indexOf(String(card.ja)) >= 0;
-    })[0];
+    var example = exampleLineFor(card, sit.lines);
 
     var saving = !!(state && state.savingStep);
     var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
@@ -1541,6 +1561,7 @@
   }
 
   return {
+    exampleLineFor: exampleLineFor,
     situationHtml: situationHtml,
     knownPanelHtml: knownPanelHtml,
     toRubyHtml: toRubyHtml,
