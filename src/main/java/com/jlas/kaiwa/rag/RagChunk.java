@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /**
  * Một đoạn giáo trình đưa vào index. {@code key} sinh từ bản ghi MySQL (vd. {@code grammar_point:12}),
- * nên id điểm trong Qdrant luôn giống nhau giữa các lần reindex.
+ * nên id của đoạn trong chỉ mục (bảng rag_chunk) luôn giống nhau giữa các lần reindex.
  *
  * @param citation dữ liệu trích dẫn trả cho người dùng: giáo trình, bài, câu ví dụ, audio và mốc thời gian
  */
@@ -31,7 +31,7 @@ public record RagChunk(String key, String sourceType, long sourceId, long lesson
         return UUID.nameUUIDFromBytes(("jlas-rag:" + key).getBytes(StandardCharsets.UTF_8)).toString();
     }
 
-    /** Hash của mọi thứ ghi vào Qdrant; giống nhau thì không cần embed lại. */
+    /** Hash của mọi thứ ghi vào chỉ mục; giống nhau thì không cần embed lại. */
     public String contentHash(String citationJson) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

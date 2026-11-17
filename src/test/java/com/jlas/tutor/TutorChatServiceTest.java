@@ -36,7 +36,7 @@ class TutorChatServiceTest {
     private Clock clock = Clock.fixed(Instant.parse("2026-10-26T10:00:00Z"), ZoneOffset.UTC);
 
     private static RagProperties ragProperties(boolean enabled) {
-        return new RagProperties(enabled, "http://127.0.0.1:6333", "", "jlas_content", 16, 5, 0.5, false, false, 1_000);
+        return new RagProperties(enabled, "baai/bge-m3", "jlas_content", 16, 5, 0.5, false, false, 1_000);
     }
 
     private static RagTutorService.Answer answer(String text) {
@@ -64,14 +64,13 @@ class TutorChatServiceTest {
     }
 
     @Test
-    void missingDataGetsALabelledAiAnswerOnlyWhenEnabledWithAnApiModel() {
+    void missingDataGetsALabelledAiAnswerOnlyWhenEnabled() {
         var empty = new RagLexiconLookup.Result(List.of(), List.of());
         var noSource = new RagTutorService.Answer(RagTutorService.NO_SOURCE_PREFIX + ", nên mình không trả lời.", List.of(), empty,
                 List.of(), 10, 0, RagTutorService.TIER_JLAS, true);
         var ai = new RagTutorService.Answer("AI part", List.of(), empty, List.of(), 0, 50, RagTutorService.TIER_AI, false);
         when(rag.ask(anyString(), anyList(), any())).thenReturn(noSource);
         when(rag.aiFallback(anyString(), org.mockito.ArgumentMatchers.anyBoolean(), any(), any())).thenReturn(ai);
-        when(rag.usesApiModel()).thenReturn(true);
         TutorProperties on = new TutorProperties(2, 1, 60, 500, 6, true, 1);
 
         TutorChatService.Reply reply = service(true, on).ask(7L, "誕生日 hay đi với từ nào?", List.of());
@@ -79,11 +78,9 @@ class TutorChatServiceTest {
         assertThat(reply.tier()).isEqualTo(RagTutorService.TIER_AI);
         verify(rag).aiFallback(eq("誕生日 hay đi với từ nào?"), eq(true), any(), any());
 
-        // Tắt cấu hình hoặc gia sư đang dùng model trên máy: giữ câu "chưa có", không gọi tầng 2.
+        // Tắt cấu hình: giữ câu "chưa có", không gọi tầng 2.
         assertThat(service(true, limits(2, 1, 60)).ask(8L, "誕生日 hay đi với từ nào?", List.of()).tier())
                 .isEqualTo(RagTutorService.TIER_JLAS);
-        when(rag.usesApiModel()).thenReturn(false);
-        assertThat(service(true, on).ask(9L, "誕生日 hay đi với từ nào?", List.of()).tier()).isEqualTo(RagTutorService.TIER_JLAS);
         verify(rag, org.mockito.Mockito.times(1)).aiFallback(anyString(), org.mockito.ArgumentMatchers.anyBoolean(), any(), any());
     }
 
@@ -93,7 +90,6 @@ class TutorChatServiceTest {
         var translated = new RagTutorService.Answer("Bản dịch", List.of(), empty, List.of(), 0, 40,
                 RagTutorService.TIER_AI_TRANSLATION, false);
         when(rag.aiTranslate(anyString(), any(), any())).thenReturn(translated);
-        when(rag.usesApiModel()).thenReturn(true);
 
         TutorChatService.Reply reply = service(true, new TutorProperties(2, 1, 60, 500, 6, true, 5)).ask(7L, "Dịch giúp: 明日は雨です", List.of());
         assertThat(reply.tier()).isEqualTo(RagTutorService.TIER_AI_TRANSLATION);

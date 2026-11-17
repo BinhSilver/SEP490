@@ -214,7 +214,7 @@ aicall:
     premium-monthly-minutes: ${AICALL_PREMIUM_MONTHLY_MINUTES:40}
     minutes-per-turn: ${AICALL_MINUTES_PER_TURN:0.2}
     credit-per-turn: ${AICALL_CREDIT_PER_TURN:10}
-  # Số lượt gọi AI chạy đồng thời. Với Ollama trên một GPU 8 GB, đặt bằng OLLAMA_NUM_PARALLEL (vd. 2).
+  # Số lượt gọi AI chạy đồng thời trên một máy chủ.
   turn:
     max-concurrent-turns: ${AICALL_MAX_CONCURRENT_TURNS:20}
   # Giới hạn một lượt (kế hoạch mục 2): tin nhắn N ký tự, nói vào micro tối đa vài giây, giọng đọc K ký tự mỗi câu.
@@ -224,49 +224,34 @@ aicall:
     voice-max-seconds: ${AICALL_VOICE_MAX_SECONDS:30}
     tts-max-chars: ${AICALL_TTS_MAX_CHARS:200}
 
-# Nhà cung cấp LLM cho AI Call: openrouter (mặc định, API cloud) | ollama (chạy cục bộ, không cần API key).
-# Khi Ollama lỗi, AI Call báo lỗi và hoàn lượt; không tự chuyển sang API cloud.
+# Gia sư AI: tìm nội dung giáo trình (RAG). Embedding bge-m3 qua OpenRouter (key chung hoặc
+# OPENROUTER_FEATURE_KEYS_TUTOR_SEARCH), vector lưu trong bảng rag_chunk (migration 084), app tự tìm trong bộ nhớ.
+# Dựng chỉ mục: POST /api/admin/system/ai/rag/reindex (ADMIN).
 kaiwa:
-  llm:
-    provider: ${KAIWA_LLM_PROVIDER:openrouter}
-    connect-timeout-ms: ${KAIWA_LLM_CONNECT_TIMEOUT_MS:15000}
-    read-timeout-ms: ${KAIWA_LLM_READ_TIMEOUT_MS:60000}
-    ollama:
-      base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434/v1}
-      model: ${OLLAMA_CHAT_MODEL:qwen3.5:9b}
-      embedding-model: ${OLLAMA_EMBEDDING_MODEL:bge-m3}
-      keep-alive: ${OLLAMA_KEEP_ALIVE_APP:30m}
-      think: ${OLLAMA_THINK:false}
-      num-ctx: ${OLLAMA_NUM_CTX:4096}
-      warm-up-on-startup: ${OLLAMA_WARM_UP:true}
   rag:
     enabled: ${KAIWA_RAG_ENABLED:false}
-    qdrant-url: ${QDRANT_URL:http://127.0.0.1:6333}
-    qdrant-api-key: ${QDRANT_API_KEY:}
+    embedding-model: ${KAIWA_RAG_EMBEDDING_MODEL:baai/bge-m3}
     top-k: ${KAIWA_RAG_TOP_K:5}
     min-score: ${KAIWA_RAG_MIN_SCORE:0.50}
     include-vnjpclub: false
     include-unreviewed: false
 
-# Chatbot gia sư (nút nổi trên các trang học), tách khỏi AI Call. Bật cùng kaiwa.rag.enabled; model trả lời theo
-# tutor.llm (Ollama cục bộ hoặc API kiểu OpenAI như DeepSeek). Model lỗi thì báo lỗi, không chuyển sang nhà cung cấp khác.
+# Chatbot gia sư (nút nổi trên các trang học), tách khỏi AI Call. Bật cùng kaiwa.rag.enabled. Model trả lời là một
+# API kiểu OpenAI (tutor.llm.*, ví dụ DeepSeek qua Deploy); model lỗi thì báo lỗi, không chuyển sang nhà cung cấp khác.
 tutor:
-  max-concurrent: ${TUTOR_MAX_CONCURRENT:2}
+  max-concurrent: ${TUTOR_MAX_CONCURRENT:10}
   wait-seconds: ${TUTOR_WAIT_SECONDS:30}
   questions-per-hour: ${TUTOR_QUESTIONS_PER_HOUR:60}
   max-question-chars: 500
   history-messages: 6
   # Tầng 2: J-LAS không có nội dung cho một câu hỏi có chữ Nhật thì AI tổng hợp câu trả lời có nhãn "chưa có trong tài liệu
-  # J-LAS", lưu vào tutor_ai_answer (migration 082) chờ duyệt. Chỉ chạy khi tutor.llm.provider=api. Mặc định tắt.
+  # J-LAS", lưu vào tutor_ai_answer (migration 082) chờ duyệt. Mặc định tắt.
   ai-fallback: ${TUTOR_AI_FALLBACK:false}
   ai-fallback-per-day: ${TUTOR_AI_FALLBACK_PER_DAY:20}
-  # Model trả lời của gia sư: ollama (cục bộ, kaiwa.llm.ollama.*) | api (API kiểu OpenAI, cần api-key).
-  # Embedding (bge-m3) và Qdrant vẫn chạy cục bộ trong cả hai trường hợp.
   llm:
-    provider: ${TUTOR_LLM_PROVIDER:ollama}
-    base-url: ${TUTOR_LLM_BASE_URL:https://api.deepseek.com}
+    base-url: ${TUTOR_LLM_BASE_URL:https://api-cdn.deploy.com/api/v1}
     api-key: ${TUTOR_LLM_API_KEY:}
-    model: ${TUTOR_LLM_MODEL:deepseek-chat}
+    model: ${TUTOR_LLM_MODEL:deepseek-ai/deepseek-v4.1-flash-1017}
     # none = tắt phần suy nghĩ của model suy luận (DeepSeek V4, GLM...) để trả lời nhanh; trống = không gửi tham số.
     reasoning-effort: ${TUTOR_LLM_REASONING_EFFORT:none}
 

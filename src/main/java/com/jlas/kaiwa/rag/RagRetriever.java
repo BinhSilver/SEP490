@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 /**
- * Lấy ngữ cảnh cho một câu hỏi: tra chính xác từ/kanji trong MySQL và tìm đoạn giáo trình gần nhất trong Qdrant.
+ * Lấy ngữ cảnh cho một câu hỏi: tra chính xác từ/kanji trong MySQL và tìm đoạn giáo trình gần nhất trong chỉ mục (rag_chunk).
  * Không tìm thấy gì thì trả rỗng; không bao giờ tự lấp chỗ trống.
  */
 @Service

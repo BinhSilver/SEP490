@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Kho vector của RAG. Bản thật là Qdrant; test dùng bản trong bộ nhớ. */
+/** Kho vector của RAG. Bản thật là {@link MysqlVectorStore} (bảng rag_chunk); test dùng bản trong bộ nhớ. */
 public interface RagVectorStore {
 
     /** Số chiều vector của collection, rỗng nếu collection chưa có. */

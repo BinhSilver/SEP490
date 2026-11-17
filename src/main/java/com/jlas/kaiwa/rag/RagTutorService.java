@@ -1,6 +1,6 @@
 package com.jlas.kaiwa.rag;
 
-import com.jlas.kaiwa.service.ai.LocalLlmClient;
+import com.jlas.kaiwa.service.ai.TutorLlmClient;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
- * Trả lời một câu hỏi có nguồn từ giáo trình J-LAS, bằng model trên máy chủ AI.
+ * Trả lời một câu hỏi có nguồn từ giáo trình J-LAS, bằng model của gia sư ({@link TutorLlmClient}).
  * Dùng cho chatbot gia sư của người học và cho API đánh giá của ADMIN.
  */
 @Service
@@ -33,11 +33,11 @@ public class RagTutorService {
     static final String SEE_A_DOCTOR = " Nếu bạn đang không khỏe, hãy hỏi bác sĩ hoặc dược sĩ nhé.";
 
     private final RagRetriever retriever;
-    private final LocalLlmClient llm;
+    private final TutorLlmClient llm;
     private final TutorAntonymStore antonyms;
     private final TutorAiAnswerStore aiAnswers;
 
-    public RagTutorService(RagRetriever retriever, LocalLlmClient llm, TutorAntonymStore antonyms, TutorAiAnswerStore aiAnswers) {
+    public RagTutorService(RagRetriever retriever, TutorLlmClient llm, TutorAntonymStore antonyms, TutorAiAnswerStore aiAnswers) {
         this.retriever = retriever;
         this.llm = llm;
         this.antonyms = antonyms;
@@ -121,11 +121,6 @@ public class RagTutorService {
 
     /** Phần đầu cố định của {@link #NO_SOURCE}: tầng 1 không có nguồn nào. */
     public static final String NO_SOURCE_PREFIX = "Tài liệu J-LAS chưa có nội dung cho câu hỏi này";
-
-    /** Tầng 2 chỉ chạy với model qua API (đã đo chính xác hơn); model nhỏ trên máy hay bịa khi không có nguồn. */
-    public boolean usesApiModel() {
-        return llm.isApi();
-    }
 
     /** Câu model tầng 1 dùng khi nguồn không có thông tin (prompt bắt viết đúng câu này). */
     static final String MISSING_MARK = "Tài liệu J-LAS chưa có";

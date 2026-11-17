@@ -32,7 +32,7 @@ class RagContentSourceTest {
     @Autowired JdbcTemplate jdbc;
 
     private static RagProperties properties(boolean includeVnjpclub, boolean includeUnreviewed) {
-        return new RagProperties(true, "http://127.0.0.1:6333", "", "jlas_content", 16, 5, 0.45, includeVnjpclub, includeUnreviewed, 1_000);
+        return new RagProperties(true, "baai/bge-m3", "jlas_content", 16, 5, 0.45, includeVnjpclub, includeUnreviewed, 1_000);
     }
 
     @BeforeEach

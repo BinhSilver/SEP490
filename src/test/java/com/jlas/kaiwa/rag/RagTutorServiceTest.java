@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.jlas.kaiwa.service.ai.LocalLlmClient;
+import com.jlas.kaiwa.service.ai.TutorLlmClient;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class RagTutorServiceTest {
     private static final RagLexiconLookup.Result NO_WORDS = new RagLexiconLookup.Result(List.of(), List.of());
 
     private final RagRetriever retriever = mock(RagRetriever.class);
-    private final LocalLlmClient llm = mock(LocalLlmClient.class);
+    private final TutorLlmClient llm = mock(TutorLlmClient.class);
     private final TutorAntonymStore antonyms = mock(TutorAntonymStore.class);
     private final TutorAiAnswerStore aiAnswers = mock(TutorAiAnswerStore.class);
     private final RagTutorService tutor = new RagTutorService(retriever, llm, antonyms, aiAnswers);

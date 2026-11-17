@@ -33,7 +33,7 @@ class RagIndexServiceTest {
     private List<RagChunk> chunks;
 
     private RagIndexService service(boolean enabled) {
-        RagProperties properties = new RagProperties(enabled, "http://127.0.0.1:6333", "", "jlas_content", 2, 5, 0.45, false, false, 1_000);
+        RagProperties properties = new RagProperties(enabled, "baai/bge-m3", "jlas_content", 2, 5, 0.45, false, false, 1_000);
         return new RagIndexService(source, embedder, store, properties, new ObjectMapper());
     }
 
@@ -160,7 +160,7 @@ class RagIndexServiceTest {
         assertThat(store.points).hasSize(3);
     }
 
-    /** Bản trong bộ nhớ của Qdrant, đủ cho các thao tác index dùng. */
+    /** Kho vector trong bộ nhớ, đủ cho các thao tác index dùng. */
     static final class InMemoryStore implements RagVectorStore {
         final Map<String, Point> points = new HashMap<>();
         Integer dimension;

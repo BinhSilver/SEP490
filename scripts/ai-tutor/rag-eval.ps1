@@ -3,7 +3,7 @@
   Đánh giá RAG của gia sư AI qua API admin của J-LAS (Phase 2).
 
 .DESCRIPTION
-  1. (Tuỳ chọn) gọi /reindex để đồng bộ Qdrant theo MySQL.
+  1. (Tuỳ chọn) gọi /reindex để đồng bộ chỉ mục tìm kiếm (bảng rag_chunk) theo MySQL.
   2. Với mỗi câu hỏi trong file: gọi /search với ngưỡng thấp (mặc định 0) để thấy điểm thật của bge-m3,
      ghi top đoạn + điểm + từ/kanji tra được.
   3. Với -Ask: gọi /ask (model chat thật) và ghi câu trả lời + thời gian.
@@ -43,7 +43,7 @@ $dir = Join-Path $OutDir $stamp
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
 
 $status = (Invoke-Api GET "$api/status" $null).data
-Write-Host ("RAG enabled={0} qdrant={1} collection={2} points={3}" -f $status.enabled, $status.qdrantReachable, $status.collection, $status.points)
+Write-Host ("RAG enabled={0} store={1} collection={2} points={3}" -f $status.enabled, $status.storeReachable, $status.collection, $status.points)
 
 $reindexReport = $null
 if ($Reindex) {

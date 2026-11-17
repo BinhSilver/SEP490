@@ -22,7 +22,6 @@ import com.jlas.config.AuthProperties;
 import com.jlas.kaiwa.rag.RagIndexService;
 import com.jlas.kaiwa.rag.RagRetriever;
 import com.jlas.kaiwa.rag.RagTutorService;
-import com.jlas.kaiwa.service.ai.OpenRouterClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,19 +31,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** Endpoint chẩn đoán model AI và quản trị RAG chỉ dành cho ADMIN; người học và khách không gọi được. */
+/** Quản trị chỉ mục tìm kiếm của gia sư AI chỉ dành cho ADMIN; người học và khách không gọi được. */
 @SpringBootTest(properties = "spring.config.location=classpath:/application-ai-test.yaml")
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-class AiProviderAdminControllerTest {
-    private static final String URL = "/api/admin/system/ai/health";
-
+class RagAdminControllerTest {
     @Autowired MockMvc mvc;
     @Autowired UserRepository users;
     @Autowired RoleRepository roles;
     @Autowired AuthProperties authProperties;
     @Autowired PasswordEncoder passwords;
-    @MockitoBean OpenRouterClient llm;
     @MockitoBean EmailService email;
     @MockitoBean GoogleTokenService google;
     @MockitoBean RagIndexService ragIndex;
@@ -52,22 +48,6 @@ class AiProviderAdminControllerTest {
     @MockitoBean RagTutorService ragTutor;
     @MockitoBean KanjiMapCatalog kanjiMapCatalog;
     @MockitoBean KanjiMapContentService kanjiMapContentService;
-
-    @Test
-    void onlyAdminCanProbeTheModel() throws Exception {
-        when(llm.probe()).thenReturn(new OpenRouterClient.ProbeResult("ollama", "qwen3.5:4b", true, 420, null, 3));
-
-        mvc.perform(get(URL)).andExpect(status().isUnauthorized());
-        mvc.perform(get(URL).header("Authorization", bearer(user("ai-learner", "LEARNER"))))
-                .andExpect(status().isForbidden());
-        mvc.perform(get(URL).header("Authorization", bearer(user("ai-moderator", "MODERATOR"))))
-                .andExpect(status().isForbidden());
-        mvc.perform(get(URL).header("Authorization", bearer(user("ai-admin", "ADMIN"))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.provider").value("ollama"))
-                .andExpect(jsonPath("$.data.ok").value(true))
-                .andExpect(jsonPath("$.data.latencyMs").value(420));
-    }
 
     @Test
     void onlyAdminCanRebuildOrQueryTheRagIndex() throws Exception {

@@ -3,7 +3,6 @@ package com.jlas.kaiwa.service.ai;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
-import com.jlas.kaiwa.config.OpenRouterConfig;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
@@ -22,35 +21,31 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * Model chat của chatbot gia sư, tách khỏi {@link OpenRouterClient} của AI Call. Mặc định là Ollama cục bộ;
- * {@code tutor.llm.provider=api} (kèm {@code tutor.llm.api-key}) thì gọi một API kiểu OpenAI như DeepSeek.
- * Model lỗi thì báo lỗi, không tự chuyển sang nhà cung cấp khác.
+ * Model chat của chatbot gia sư, tách khỏi {@link OpenRouterClient} của AI Call: một API kiểu OpenAI
+ * ({@code tutor.llm.*}, ví dụ DeepSeek qua Deploy). Model lỗi thì báo lỗi, không tự chuyển sang nhà cung cấp khác.
  */
 @Component
-public class LocalLlmClient {
+@EnableConfigurationProperties(TutorLlmProperties.class)
+public class TutorLlmClient {
 
-    private static final Logger log = LoggerFactory.getLogger(LocalLlmClient.class);
+    private static final Logger log = LoggerFactory.getLogger(TutorLlmClient.class);
 
-    private final OpenRouterConfig config;
+    private final TutorLlmProperties config;
     private final ObjectMapper json;
     private final HttpClient http;
 
-    public LocalLlmClient(OpenRouterConfig config, ObjectMapper json) {
+    public TutorLlmClient(TutorLlmProperties config, ObjectMapper json) {
         this.config = config;
         this.json = json;
-        this.http = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(config.getConnectTimeoutMs())).build();
+        this.http = HttpClient.newBuilder().connectTimeout(Duration.ofMillis(config.connectTimeoutMs())).build();
     }
 
     public String model() {
-        return config.getTutorModel();
-    }
-
-    /** Đang gọi API ngoài (DeepSeek...) thay vì Ollama cục bộ. */
-    public boolean isApi() {
-        return config.isTutorApi();
+        return config.model();
     }
 
     /** @param history các lượt trước, mỗi phần tử có {@code role} (user/assistant) và {@code content} */
@@ -59,7 +54,7 @@ public class LocalLlmClient {
     }
 
     /**
-     * Như {@link #chat} nhưng model trả từng mẩu chữ; mỗi mẩu được đưa cho {@code onDelta} ngay khi tới.
+     * Như {@link #chat} nhưng model trả từng mẩu chữ (SSE); mỗi mẩu được đưa cho {@code onDelta} ngay khi tới.
      * @return toàn bộ câu trả lời
      */
     public String chatStream(String systemPrompt, List<Map<String, String>> history, String userMessage, int maxTokens,
@@ -67,33 +62,43 @@ public class LocalLlmClient {
         return send(systemPrompt, history, userMessage, maxTokens, onDelta);
     }
 
+    /**
+     * Nhà cung cấp đôi khi treo không trả gì (đo được trên Deploy: 2/12 lượt quá 60 giây). Hết thời gian mà chưa nhận chữ
+     * nào thì thử lại một lần; đã hiện chữ cho người học rồi thì không thử lại để không lặp nội dung.
+     */
     private String send(String systemPrompt, List<Map<String, String>> history, String userMessage, int maxTokens,
                         Consumer<String> onDelta) {
+        boolean[] received = {false};
+        Consumer<String> tracking = onDelta == null ? null : delta -> { received[0] = true; onDelta.accept(delta); };
+        try {
+            return sendOnce(systemPrompt, history, userMessage, maxTokens, tracking);
+        } catch (ApiException e) {
+            if (e.getErrorCode() != ErrorCode.SERVICE_UNAVAILABLE || received[0] || !config.configured()) throw e;
+            log.info("Tutor API retry after no response model={}", config.model());
+            return sendOnce(systemPrompt, history, userMessage, maxTokens, tracking);
+        }
+    }
+
+    private String sendOnce(String systemPrompt, List<Map<String, String>> history, String userMessage, int maxTokens,
+                            Consumer<String> onDelta) {
+        if (!config.configured()) {
+            throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Gia sư AI chưa được cấu hình model, bạn thử lại sau nhé.");
+        }
         List<Map<String, String>> messages = new ArrayList<>();
         messages.add(Map.of("role", "system", "content", systemPrompt));
         if (history != null) messages.addAll(history);
         messages.add(Map.of("role", "user", "content", userMessage));
         Map<String, Object> body = new HashMap<>();
-        body.put("model", config.getTutorModel());
+        body.put("model", config.model());
         body.put("messages", messages);
         body.put("temperature", 0.3);
         body.put("max_tokens", maxTokens);
-        boolean api = config.isTutorApi();
-        String label = api ? "Tutor API" : "Local LLM";
+        body.put("stream", onDelta != null);
+        if (!config.reasoningEffort().isEmpty()) body.put("reasoning_effort", config.reasoningEffort());
         try {
-            HttpRequest.Builder request;
-            if (api) {
-                body.put("stream", onDelta != null);
-                if (!config.getTutorReasoningEffort().isEmpty()) body.put("reasoning_effort", config.getTutorReasoningEffort());
-                request = HttpRequest.newBuilder(URI.create(config.getTutorChatUrl()))
-                        .header("Authorization", "Bearer " + config.getTutorApiKey());
-            } else {
-                body = OllamaNativeChat.toNative(body, config);
-                body.put("stream", onDelta != null);
-                request = HttpRequest.newBuilder(URI.create(OllamaNativeChat.url(config)));
-            }
-            HttpResponse<Stream<String>> response = http.send(request
-                    .timeout(Duration.ofMillis(config.getReadTimeoutMs()))
+            HttpResponse<Stream<String>> response = http.send(HttpRequest.newBuilder(URI.create(config.chatUrl()))
+                    .timeout(Duration.ofMillis(config.readTimeoutMs()))
+                    .header("Authorization", "Bearer " + config.apiKey())
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json.writeValueAsString(body), StandardCharsets.UTF_8)).build(),
                     HttpResponse.BodyHandlers.ofLines()); // charset theo Content-Type, mặc định UTF-8
@@ -104,16 +109,15 @@ public class LocalLlmClient {
                     throw new IOException("HTTP " + response.statusCode() + " " + lines.collect(Collectors.joining(" ")));
                 }
                 if (onDelta == null) {
-                    Map<?, ?> reply = json.readValue(lines.collect(Collectors.joining("\n")), Map.class);
-                    content.append(nullToEmpty(api ? openAiContent(reply, "message") : OllamaNativeChat.content(reply)));
+                    content.append(nullToEmpty(content(json.readValue(lines.collect(Collectors.joining("\n")), Map.class), "message")));
                 } else {
                     for (String line : (Iterable<String>) lines::iterator) {
-                        String data = api ? sseData(line) : line;
+                        String data = line.startsWith("data:") ? line.substring(5).strip() : null;
                         if (data == null || data.isBlank()) continue;
                         if (data.equals("[DONE]")) break;
                         Map<?, ?> chunk = json.readValue(data, Map.class);
                         if (chunk.get("error") != null) throw new IOException("stream error " + chunk.get("error"));
-                        String delta = api ? openAiContent(chunk, "delta") : OllamaNativeChat.content(chunk);
+                        String delta = content(chunk, "delta");
                         if (delta != null && !delta.isEmpty()) {
                             content.append(delta);
                             onDelta.accept(delta);
@@ -126,24 +130,19 @@ public class LocalLlmClient {
             }
             return content.toString().trim();
         } catch (ConnectException | HttpTimeoutException e) {
-            log.warn("{} unreachable model={}: {}", label, config.getTutorModel(), e.getMessage());
+            log.warn("Tutor API unreachable model={}: {}", config.model(), e.getMessage());
             throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Máy chủ AI chưa sẵn sàng, bạn thử lại sau nhé.");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Máy chủ AI chưa sẵn sàng, bạn thử lại sau nhé.");
         } catch (IOException e) {
-            log.warn("{} error model={}: {}", label, config.getTutorModel(), e.getMessage());
+            log.warn("Tutor API error model={}: {}", config.model(), e.getMessage());
             throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "Máy chủ AI trả lỗi, bạn thử lại sau nhé.");
         }
     }
 
-    /** Dòng SSE {@code data: {...}} → phần sau {@code data:}; dòng khác (chú thích, trống) → null. */
-    private static String sseData(String line) {
-        return line.startsWith("data:") ? line.substring(5).strip() : null;
-    }
-
-    /** {@code choices[0].<key>.content} của API kiểu OpenAI; bỏ {@code reasoning_content} của model suy luận. */
-    private static String openAiContent(Map<?, ?> reply, String key) {
+    /** {@code choices[0].<key>.content}; bỏ {@code reasoning_content} của model suy luận. */
+    private static String content(Map<?, ?> reply, String key) {
         if (reply.get("choices") instanceof List<?> choices && !choices.isEmpty()
                 && choices.getFirst() instanceof Map<?, ?> choice && choice.get(key) instanceof Map<?, ?> message
                 && message.get("content") instanceof String s) {

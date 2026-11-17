@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Đồng bộ Qdrant theo MySQL. Mỗi lần chạy so content_hash của từng điểm: chỉ embed đoạn mới hoặc đổi,
+ * Đồng bộ chỉ mục tìm kiếm ({@link RagVectorStore}, bảng rag_chunk) theo nội dung MySQL. Mỗi lần chạy so content_hash của từng điểm: chỉ embed đoạn mới hoặc đổi,
  * xoá điểm không còn trong MySQL, giữ nguyên phần còn lại. Chạy lại khi không có gì đổi thì không embed gì.
  */
 @Service
@@ -42,8 +42,8 @@ public class RagIndexService {
     public record Report(String collection, String embeddingModel, Long lessonId, int chunks, int embedded,
                          int unchanged, int deleted, long durationMs) { }
 
-    /** @param qdrantReachable null khi RAG tắt (không gọi Qdrant) */
-    public record Status(boolean enabled, Boolean qdrantReachable, String collection, String embeddingModel, Long points,
+    /** @param storeReachable null khi RAG tắt (không đọc chỉ mục) */
+    public record Status(boolean enabled, Boolean storeReachable, String collection, String embeddingModel, Long points,
                          boolean includeVnjpclub, boolean includeUnreviewed) { }
 
     public String collection() {

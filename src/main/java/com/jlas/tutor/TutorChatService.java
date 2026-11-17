@@ -96,7 +96,7 @@ public class TutorChatService {
             }
             try {
                 takeHourlyQuota(userId);
-                if (RagTutorService.isTranslationRequest(q) && limits.aiFallback() && tutor.usesApiModel()) {
+                if (RagTutorService.isTranslationRequest(q) && limits.aiFallback()) {
                     // Dịch câu: đi thẳng tầng 2, không lưu. Hết hạn mức thì để tầng 1 trả lời như thường.
                     RagTutorService.Answer translated = tutor.aiTranslate(q, onDelta, () -> takeDailyAiQuota(userId));
                     if (translated != null) {
@@ -108,7 +108,7 @@ public class TutorChatService {
                 log.info("Tutor answered userId={} sources={} retrievalMs={} generationMs={}",
                         userId, answer.citations().size(), answer.retrievalMs(), answer.generationMs());
                 List<RagPromptComposer.Citation> sources = cited(answer.answer(), answer.citations());
-                if (answer.fallbackEligible() && limits.aiFallback() && tutor.usesApiModel()) {
+                if (answer.fallbackEligible() && limits.aiFallback()) {
                     // Tầng 2: J-LAS không có nội dung; tầng 1 không có nguồn nào thì câu trả lời AI thay hẳn, có thì nối sau.
                     boolean standalone = sources.isEmpty() && answer.answer().startsWith(RagTutorService.NO_SOURCE_PREFIX);
                     RagTutorService.Answer ai = tutor.aiFallback(q, standalone, onDelta, () -> takeDailyAiQuota(userId));

@@ -4,15 +4,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
- * Giới hạn của chatbot gia sư. Chatbot bật khi {@code kaiwa.rag.enabled=true} (cần Qdrant và Ollama trên máy chủ AI).
+ * Giới hạn của chatbot gia sư. Chatbot bật khi {@code kaiwa.rag.enabled=true}.
  *
- * @param maxConcurrent      số câu hỏi model xử lý cùng lúc cho cả LAN; Ollama trên một GPU chạy lần lượt
+ * @param maxConcurrent      số câu hỏi gia sư xử lý cùng lúc trên một máy chủ
  * @param waitSeconds        thời gian một câu hỏi chờ chỗ trống trước khi báo bận
  * @param questionsPerHour   số câu hỏi tối đa của một người trong 60 phút
  * @param maxQuestionChars   độ dài tối đa một câu hỏi
  * @param historyMessages    số lượt trước gửi kèm để model hiểu câu hỏi nối tiếp
  * @param aiFallback         tầng 2: J-LAS không có nội dung cho một câu hỏi tiếng Nhật thì AI tổng hợp câu trả lời có nhãn
- *                           (chỉ chạy khi gia sư dùng model qua API)
  * @param aiFallbackPerDay   số lượt AI tổng hợp tối đa của một người trong 24 giờ; bản đã lưu không tính
  */
 @ConfigurationProperties(prefix = "tutor")

@@ -35,7 +35,7 @@ public class RagAdminController {
         return ApiResponse.ok("Trạng thái RAG", index.status());
     }
 
-    /** Đồng bộ Qdrant theo MySQL; chỉ embed đoạn mới/đổi. {@code lessonId} để đồng bộ riêng một bài. */
+    /** Đồng bộ chỉ mục tìm kiếm theo MySQL; chỉ embed đoạn mới/đổi. {@code lessonId} để đồng bộ riêng một bài. */
     @PostMapping("/reindex")
     public ApiResponse<RagIndexService.Report> reindex(@RequestParam(required = false) Long lessonId) {
         return ApiResponse.ok("Đã đồng bộ index", index.reindex(lessonId));
