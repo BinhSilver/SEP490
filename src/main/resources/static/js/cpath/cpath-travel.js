@@ -49,6 +49,23 @@
 
   // ------------------------------------------------------------------------------------------- phrasebook
 
+  /** owner 17/11: a phrase alone reads like a grammar pattern; show one ready sentence that uses it. */
+  function exampleOf(p, lines) {
+    var sit = root && root.CpathSituation;
+    if (sit && typeof sit.exampleLineFor === 'function') return sit.exampleLineFor({ ja: p.ja, example: p.example }, lines || []);
+    return p.example && p.example.ja ? p.example : null;
+  }
+
+  function exampleHtml(p, lines, romaji) {
+    var ex = exampleOf(p, lines);
+    if (!ex || !ex.ja || String(ex.ja) === String(p.ja)) return '';
+    return '<button type="button" class="cp-pb__example" data-pb-play="' + esc(ex.audioUrl || '') + '" data-pb-text="' + esc(ex.ja) + '">'
+      + '<span class="cp-pb__ex-label">Ví dụ</span>'
+      + '<span class="cp-pb__ex-ja" lang="ja">' + esc(ex.ja) + '</span>'
+      + (romaji ? '<span class="cp-line__romaji">' + esc(romajiOf(ex.ja)) + '</span>' : '')
+      + (ex.vi ? '<span class="cp-pb__ex-vi">' + esc(ex.vi) + '</span>' : '') + '</button>';
+  }
+
   function phrasebookHtml(data, romaji, filter) {
     var topics = (data && data.topics) || [];
     var chips = '<div class="cp-pb__chips" role="group" aria-label="Chọn nơi">'
@@ -67,7 +84,8 @@
             + '<span class="cp-pb__body"><span class="cp-pb__ja" lang="ja">' + esc(p.ja) + '</span>'
             + (romaji ? '<span class="cp-line__romaji">' + esc(romajiOf(p.reading || p.ja)) + '</span>' : '')
             + '<span class="cp-pb__vi">' + esc(p.vi) + '</span>'
-            + (p.note ? '<span class="cp-pb__note">' + esc(p.note) + '</span>' : '') + '</span></button></li>';
+            + (p.note ? '<span class="cp-pb__note">' + esc(p.note) + '</span>' : '') + '</span></button>'
+            + exampleHtml(p, t.lines, romaji) + '</li>';
         }).join('') + '</ul></section>';
     }).join('');
     return '<header class="jp-page-head"><h1 class="jp-page-head__title">Sổ câu cấp tốc</h1>'
@@ -215,6 +233,6 @@
     load();
   }
 
-  return { points: points, phrasebookHtml: phrasebookHtml, gameQuestionHtml: gameQuestionHtml, gameEndHtml: gameEndHtml,
+  return { exampleOf: exampleOf, points: points, phrasebookHtml: phrasebookHtml, gameQuestionHtml: gameQuestionHtml, gameEndHtml: gameEndHtml,
     mountPhrasebook: mountPhrasebook, mountGame: mountGame };
 });

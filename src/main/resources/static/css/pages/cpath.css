@@ -2241,3 +2241,12 @@ html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
   .cp-core-result__ring { width: 68px; height: 68px; } .cp-core-result__ring span { width: 54px; height: 54px; font-size: .95rem; }
   .cp-core-result__actions > * { flex: 1 1 100%; text-align: center; }
 }
+/* owner 17/11: Sổ câu cấp tốc shows one ready sentence under each phrase */
+.cp-pb__list > li { display: grid; gap: 4px; }
+.cp-pb__example { display: grid; gap: 2px; width: 100%; margin-left: 30px; width: calc(100% - 30px); text-align: left; padding: 8px 12px;
+  border: 0; border-left: 3px solid var(--cp-primary); border-radius: 0 10px 10px 0; background: var(--cp-surface, #fff);
+  color: var(--cp-ink); font: inherit; cursor: pointer; }
+.cp-pb__example:hover, .cp-pb__example:focus-visible { background: var(--cp-surface-soft); }
+.cp-pb__ex-label { font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--cp-primary); }
+.cp-pb__ex-ja { font-size: 1rem; }
+.cp-pb__ex-vi { font-size: .88rem; color: var(--cp-muted); }
