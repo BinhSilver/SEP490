@@ -602,3 +602,7 @@ html body .jp-path .jp-today .jp-today__top { margin-top: 14px; }
 .jp-notice__close { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); width: 30px; height: 30px;
   border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 1.25rem; line-height: 1; cursor: pointer; opacity: .7; }
 .jp-notice__close:hover, .jp-notice__close:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 10%, transparent); }
+/* Owner 17/11: the progress "water" spilled out of the date circle as a square — clip it to the circle.
+   The circle keeps overflow visible for Kitsu, so the water itself is clipped to the 76px circle (centre = 38px
+   above the water's bottom, which sits on the circle's bottom). */
+html body .jp-today .jp-today__cal-water { clip-path: circle(37px at 50% calc(100% - 38px)); }
