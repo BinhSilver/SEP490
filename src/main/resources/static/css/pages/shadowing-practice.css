@@ -1984,3 +1984,258 @@ html[data-theme="dark"] .page-shadowing-practice-select .ps-tags span { backgrou
   #jlabBasePage.page-shadowing-practice-select .ps-media #practice-mode-section { grid-area: modes; padding-top: 12px; border-top: 1px solid rgba(79, 55, 138, .12); }
 }
 html[data-theme="dark"] .page-shadowing-practice-select .ps-media #practice-mode-section { border-top-color: var(--dm-shadowing-line); }
+@media (min-width: 861px) {
+  html[data-theme="dark"] #exercise-actions { background: var(--dm-shadowing-surface); }
+}
+/* The session lock button is gone: the play button already pauses the video. */
+#exercise-session-actions {
+  display: none !important;
+}
+
+/* PC: same layout as before (video with the subtitle box under it, list and question on the right), but every panel
+   keeps one size for the whole session. The right column takes the height of the left one, and exercise.js shrinks
+   long text instead of letting a panel grow. */
+@media (min-width: 861px) {
+  #exercise-shell {
+    width: min(1280px, 100%);
+  }
+
+  #exercise-workspace {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  #exercise-media-panel {
+    height: auto;
+  }
+
+  #exercise-media,
+  #exercise-media-panel.has-long-live-subtitle #exercise-media,
+  #exercise-media-panel.has-extra-long-live-subtitle #exercise-media,
+  #exercise-media-panel.is-subtitle-hidden #exercise-media {
+    flex: 0 0 auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Fixed height; hiding the subtitle leaves the box empty so nothing moves. */
+  #exercise-live-subtitle,
+  #exercise-media-panel.has-long-live-subtitle #exercise-live-subtitle,
+  #exercise-media-panel.has-extra-long-live-subtitle #exercise-live-subtitle {
+    flex: 0 0 auto;
+    height: clamp(150px, 21vh, 210px);
+    min-height: 0;
+    margin-top: 14px;
+    justify-content: center;
+    padding-top: 13px;
+  }
+
+  #exercise-media-panel.is-subtitle-hidden #exercise-live-subtitle {
+    display: flex;
+    visibility: hidden;
+  }
+
+  /* contain: size keeps the question from stretching the row: the row is as tall as the video column. */
+  #exercise-question-panel {
+    contain: size;
+    height: auto;
+    gap: 18px;
+    grid-template-rows: minmax(0, 34%) minmax(0, 1fr);
+  }
+
+  #exercise-transcript-box {
+    height: auto;
+  }
+
+  /* When even the smallest text does not fit, the answer box scrolls but its buttons stay in view. */
+  #exercise-answer-dock {
+    overflow: visible;
+  }
+
+  #exercise-actions {
+    position: sticky;
+    z-index: 1;
+    bottom: 0;
+    padding-bottom: 6px;
+    background: #fff;
+  }
+
+  #exercise-answer-box {
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-size: max(13px, calc(1rem * var(--exercise-answer-scale, 1)));
+  }
+
+  /* Buttons keep their size; only the question, choices and explanations get smaller. */
+  #exercise-actions,
+  #exercise-review-back {
+    font-size: 1rem;
+  }
+
+  #exercise-prompt {
+    font-size: max(15px, calc(clamp(18px, 2.2vw, 24px) * var(--exercise-answer-scale, 1)));
+  }
+
+  #exercise-prompt .exercise-expected-answer,
+  #exercise-review-expected {
+    font-size: max(14px, calc(clamp(16px, 1.9vw, 21px) * var(--exercise-answer-scale, 1)));
+  }
+
+  #exercise-review-prompt {
+    font-size: max(14px, calc(clamp(16px, 1.9vw, 20px) * var(--exercise-answer-scale, 1)));
+  }
+
+  #exercise-partial-feedback p {
+    font-size: max(14px, calc(19px * var(--exercise-answer-scale, 1)));
+  }
+
+  #exercise-review-explanation {
+    font-size: max(12px, calc(14px * var(--exercise-answer-scale, 1)));
+  }
+
+  .exercise-choice {
+    min-height: calc(48px * var(--exercise-answer-scale, 1));
+    padding: calc(10px * var(--exercise-answer-scale, 1)) 14px;
+  }
+}
+
+/* PC with a mouse: the progress bar and buttons sit on the video and show while the pointer is over it, like YouTube. */
+@media (min-width: 861px) and (hover: hover) {
+  #exercise-stage {
+    position: relative;
+    overflow: hidden;
+    background: #101725;
+  }
+
+  #exercise-stage .shadowing-youtube-surface {
+    border-radius: 0;
+  }
+
+  #jlabBasePage #exercise-media-controls {
+    position: absolute;
+    z-index: 3;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 34px 12px 10px;
+    background: linear-gradient(180deg, rgba(10, 8, 20, 0), rgba(10, 8, 20, .78));
+  }
+
+  #exercise-video-timeline {
+    position: absolute;
+    z-index: 4;
+    right: 14px;
+    bottom: 58px;
+    left: 14px;
+    margin: 0;
+    background: rgba(255, 255, 255, .35);
+  }
+
+  #exercise-video-clock {
+    margin-left: auto;
+    color: #fff;
+  }
+
+  #exercise-video-timeline,
+  #jlabBasePage #exercise-media-controls {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+
+  #exercise-stage:hover #exercise-video-timeline,
+  #exercise-stage:focus-within #exercise-video-timeline,
+  #jlabBasePage #exercise-stage:hover #exercise-media-controls,
+  #jlabBasePage #exercise-stage:focus-within #exercise-media-controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Header of the subtitle list with a button that folds the list away, giving its height to the question below. */
+#exercise-transcript-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px 6px 16px;
+  color: #6b6470;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+#exercise-transcript-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #d8d0e1;
+  border-radius: 999px;
+  background: #fff;
+  color: #4f378a;
+  cursor: pointer;
+  font: 750 12px/1 Inter, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#exercise-transcript-toggle:hover,
+#exercise-transcript-toggle:focus-visible {
+  border-color: #8065ba;
+  background: #f5f1fc;
+  outline: 0;
+}
+
+#exercise-transcript-toggle i {
+  font-size: 10px;
+}
+
+#exercise-transcript[hidden] {
+  display: none !important;
+}
+
+#exercise-question-panel.is-transcript-collapsed #exercise-transcript-head {
+  padding-bottom: 8px;
+}
+
+@media (min-width: 861px) {
+  #exercise-workspace #exercise-question-panel.is-transcript-collapsed {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+}
+
+html[data-theme="dark"] #exercise-transcript-head {
+  color: var(--dm-shadowing-muted);
+}
+
+html[data-theme="dark"] #exercise-transcript-toggle {
+  border-color: var(--dm-shadowing-line);
+  background: var(--dm-shadowing-surface);
+  color: var(--dm-shadowing-accent, #cdb8ff);
+}
+
+html[data-theme="dark"] #exercise-transcript-toggle:hover,
+html[data-theme="dark"] #exercise-transcript-toggle:focus-visible {
+  background: var(--dm-shadowing-accent-soft);
+}
+
+/* The column holding the list and the question is only a layout box, in dark mode too (no frame around both cards). */
+html[data-theme="dark"] #exercise-workspace #exercise-question-panel {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* The on-video buttons stay visible while the page guide (js/components/page-guide.js) explains them. */
+#jlabBasePage.page-guide-active #exercise-video-timeline,
+#jlabBasePage.page-guide-active #exercise-media-controls {
+  opacity: 1;
+  pointer-events: auto;
+}

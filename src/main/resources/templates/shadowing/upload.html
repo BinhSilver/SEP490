@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="/css/base.css"/>
     <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261116-bin">
     <link rel="icon" href="/images/jlab.png" type="image/png"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261117-guide"/>
+    <link rel="stylesheet" href="/css/components/page-guide.css?v=20261117-bullets">
     <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/css/components/cp-confirm.css?v=20261031-pro-cp"/>
@@ -26,6 +27,7 @@
         <section>
             <header class="section-header">
                 <h1 class="hero-display">Tạo bài học mới.</h1>
+                <button id="create-guide-open" class="page-guide-button" type="button" disabled><i class="fa-regular fa-circle-question" aria-hidden="true"></i> Hướng dẫn</button>
                 <p id="create-quota" class="caption create-quota" aria-live="polite"></p>
             </header>
 
@@ -43,7 +45,7 @@
                 <div id="dropzone" class="upload-dropzone">
                     <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px; color: var(--primary); margin-bottom: 12px;"></i>
                     <p class="tagline" style="margin: 0 0 4px;">Kéo thả video hoặc audio vào đây</p>
-                    <p class="caption">Video: MP4, MOV, WebM · Audio: MP3, WAV, M4A, OGG — tối đa 5 phút, 100MB</p>
+                    <p class="caption">Video: MP4, MOV, WebM · Audio: MP3, WAV, M4A, OGG — tối đa 20 phút</p>
                     <input type="file" id="video-file" accept="video/*,audio/mpeg,audio/mp3,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,audio/aac,audio/ogg,audio/flac,.mp3,.wav,.m4a,.ogg,.flac,.aac,.opus" hidden>
                     <p id="file-info" class="caption" style="margin-top: 12px;"></p>
                 </div>
@@ -195,6 +197,8 @@
     <script src="/shadowing/js/confirm-modal.js?v=20261116-bin-cycle"></script>
     <script src="/js/components/cp-confirm.js?v=20261103-auto"></script>
     <script src="/js/components/cp-auto-pay.js?v=20261116-minutes"></script>
-    <script src="/shadowing/js/upload.js?v=20261116-minutes"></script>
+    <script src="/shadowing/js/upload.js?v=20261117-upload-20min"></script>
+    <script src="/js/components/page-guide.js?v=20261117-bullets"></script>
+    <script src="/shadowing/js/create-guide.js?v=20261117-keep-ai2"></script>
 </body>
 </html>
