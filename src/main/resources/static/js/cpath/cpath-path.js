@@ -435,7 +435,10 @@
     var actions = '<div class="cp-today__actions">'
       + extra
       // F119: 'Đổi nhịp học' dropped here - the side card and the ⚙ tab already open the settings
-      + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
+      // owner 17/11: no review button before anything is due (a new learner saw "Ôn tập hôm nay" on day one)
+      + (typeof todayObj.reviewDue === 'number' && todayObj.reviewDue <= 0 ? ''
+        : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay'
+          + (typeof todayObj.reviewDue === 'number' ? ' (' + todayObj.reviewDue + ')' : '') + '</a>')
       + (finished ? '' : weeklyOpen
         ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
         : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + ' hoặc khi bạn học xong phần của tuần</span>')

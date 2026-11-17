@@ -469,6 +469,8 @@ public class CpathService {
         String testDay = weeklyTestDay(userId, p);
         todayMap.put("weeklyTestDay", testDay);
         todayMap.put("weeklyOpen", weeklyOpen(userId, p, learnerToday, testDay)); // F44: the path page shows the same rule
+        // owner 17/11: the path page offers "Ôn tập hôm nay" only when something is due (Sổ tay or 1/3/7/14/30-day items)
+        todayMap.put("reviewDue", reviewQuestions(userId, p).size());
         m.put("today", todayMap);
         Map<String, Object> sec = pathRow(userId, "SECONDARY");
         if (sec == null) {

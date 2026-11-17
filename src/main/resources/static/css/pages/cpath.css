@@ -2186,3 +2186,6 @@ button.jp-sidenav__link {
    the stage for a moment; clip that overflow and keep the scrollbar gutter so the layout does not jump. */
 html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
 .cp-sit-stage { overflow-x: clip; overflow-clip-margin: 0; }
+/* The stage scrolls (overflow-y: auto) and the 3D turn, replayed on every render, grew the card past it for 0.25 s,
+   so the stage's own scrollbar flashed on each flip or action. The card's box clips that projection instead. */
+.cp-flashcard-clip { overflow: clip; overflow-clip-margin: 0; border-radius: 16px; perspective: 1100px; }

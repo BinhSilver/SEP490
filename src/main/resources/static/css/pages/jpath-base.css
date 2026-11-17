@@ -584,3 +584,18 @@ html.dark .cp-page {
 .jp-skel__grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
 @keyframes jp-skel-wave { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .jp-skel__b { animation: none; } }
+
+/* [JLAS-W0108] Owner 17/11: the left column (path card + menu) must not slide up and down while the page scrolls.
+   It was sticky but taller than the screen, so it scrolled, stuck, then moved again. It now stays put under the
+   header and scrolls inside itself when it is taller than the window (both paths). */
+@media (min-width: 900px) {
+  html body .jp-path .jp-path__side { position: sticky; top: 72px; align-self: start; max-height: calc(100dvh - 88px);
+    overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+}
+/* Owner 17/11: Kitsu on the date circle sat on the card's top border — moved down a little. */
+html body .jp-today .jp-today__cal-kitsu { top: -10px; }
+/* Owner 17/11: closable one-time notices (jpath-nav.js). */
+.jp-notice--closable { position: relative; padding-right: 44px !important; }
+.jp-notice__close { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); width: 30px; height: 30px;
+  border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 1.25rem; line-height: 1; cursor: pointer; opacity: .7; }
+.jp-notice__close:hover, .jp-notice__close:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 10%, transparent); }

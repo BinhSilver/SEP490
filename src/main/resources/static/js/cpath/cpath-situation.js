@@ -445,9 +445,9 @@
       + '</div>'
       // F194: a thin bar that fills card by card replaces the "Từ vựng · 1/25" chip on the card
       + '<div class="cp-deck-progress" aria-hidden="true"><span style="width:' + Math.round(100 * tabIndex / Math.max(1, tabCount)) + '%"></span></div>'
-      + '<div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
+      + '<div class="cp-flashcard-clip"><div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
       + cardBody
-      + '</div>'
+      + '</div></div>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
       + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + ' aria-label="Thẻ trước">‹<span class="cp-wide-only"> Thẻ trước</span></button>'
