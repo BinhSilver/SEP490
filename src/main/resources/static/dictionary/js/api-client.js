@@ -34,6 +34,13 @@
       var params = new URLSearchParams({ q: query, page: String(page || 0), size: String(size || 20) });
       return fetch('/api/dictionary/search?' + params.toString(), { headers: authHeaders() }).then(parse);
     },
+    grammarSearch: function (query, page, size) {
+      var params = new URLSearchParams({ q: query, page: String(page || 0), size: String(size || 20) });
+      return fetch('/api/dictionary/grammar?' + params.toString(), { headers: authHeaders() }).then(parse);
+    },
+    grammarDetail: function (code) {
+      return fetch('/api/dictionary/grammar/' + encodeURIComponent(code), { headers: authHeaders() }).then(parse);
+    },
     vocabularyDetail: function (id) {
       return fetch('/api/dictionary/vocabulary/' + encodeURIComponent(id), { headers: authHeaders() }).then(parse);
     },
@@ -76,6 +83,11 @@
     kanjiDetail: function (character) {
       return fetch('/api/dictionary/kanji/' + encodeURIComponent(character), { headers: authHeaders() }).then(parse);
     },
+    kanjiVocabulary: function (character, page, size) {
+      var params = new URLSearchParams({ page: String(page || 0), size: String(size || 20) });
+      return fetch('/api/dictionary/kanji/' + encodeURIComponent(character) + '/vocabulary?' + params,
+        { headers: authHeaders() }).then(parse);
+    },
     /** Nhận diện Kanji vẽ tay: payload = { width, height, strokes: [[[x, y], ...], ...] }. */
     recognizeHandwriting: function (payload, signal) {
       var headers = authHeaders();
@@ -99,6 +111,22 @@
     },
     history: function () {
       return fetch('/api/dictionary/history', { headers: authHeaders() }).then(parse);
+    },
+    dailyWords: function () {
+      return fetch('/api/dictionary/daily-words', { headers: authHeaders() }).then(parse);
+    },
+    notebooks: function () {
+      return fetch('/api/dictionary/notebooks', { headers: authHeaders() }).then(parse);
+    },
+    createNotebook: function (name) {
+      var headers = authHeaders(); headers['Content-Type'] = 'application/json';
+      return fetch('/api/dictionary/notebooks', {
+        method: 'POST', headers: headers, body: JSON.stringify({ name: name })
+      }).then(parse);
+    },
+    addToNotebook: function (notebookId, vocabularyId) {
+      return fetch('/api/dictionary/notebooks/' + encodeURIComponent(notebookId) + '/entries/' +
+        encodeURIComponent(vocabularyId), { method: 'POST', headers: authHeaders() }).then(parse);
     }
   };
 

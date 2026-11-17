@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, exception) ->
                                 handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/dev/**").hasRole("ADMIN")
                         // Arena SSE completes through an async dispatch of an authenticated request.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/kanji-map", "/api/admin/kanji-map/**").hasRole("CONTENT_CREATOR")
@@ -76,6 +77,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
+                        .requestMatchers("/search", "/search/**", "/dictionary/index.html",
+                                "/dictionary/css/**", "/dictionary/js/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
@@ -84,6 +87,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
                                 "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/dictionary/handwriting/recognize").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learning/lessons/*/quiz").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/premium/plans", "/api/credits/packages", "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",

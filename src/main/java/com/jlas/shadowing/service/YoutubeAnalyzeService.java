@@ -41,8 +41,8 @@ public class YoutubeAnalyzeService {
 
         YoutubeAnalyzeResultDto dto = new YoutubeAnalyzeResultDto();
         dto.setYoutubeVideoId(videoId);
-        // Videos are played through YouTube's embed; one its owner does not allow to embed is downloaded instead.
-        // Only an explicit false counts; a missing field is treated as embeddable.
+        // Lessons play through YouTube's embed and the video is not downloaded, so the page stops a video whose owner
+        // does not allow embedding right here. Only an explicit false counts; a missing field is treated as embeddable.
         dto.setEmbeddable(!(root.path("playable_in_embed").isBoolean() && !root.path("playable_in_embed").asBoolean()));
         dto.setYoutubeMinAge(VideoAgeRatings.fromYoutubeAgeLimit(root.path("age_limit").asInt(0)));
         dto.setUrl(normalized);
@@ -96,16 +96,19 @@ public class YoutubeAnalyzeService {
 
         boolean needsStt = !hasManual && !hasAuto;
         dto.setRequiresAiStt(needsStt);
-        dto.setBlockedNoSubtitleTooLong(needsStt && dto.getDuration() > maxDurationNoSubtitleSeconds);
+        // 0 = no cap: a video without subtitles is paid for by the minute (counted three times for speech-to-text).
+        dto.setBlockedNoSubtitleTooLong(needsStt && maxDurationNoSubtitleSeconds > 0
+                && dto.getDuration() > maxDurationNoSubtitleSeconds);
 
         if (hasManual || hasAuto) {
             dto.setAiCostLabel(hasYtTranslation ? "0" : "Furigana AI");
         } else if (dto.isBlockedNoSubtitleTooLong()) {
             dto.setAiCostLabel("—");
-            dto.setMessage("Video quá dài và không có phụ đề. Vui lòng chọn video dưới 5 phút.");
+            dto.setMessage("Video quá dài và không có phụ đề. Vui lòng chọn video dưới "
+                    + Math.max(1, maxDurationNoSubtitleSeconds / 60) + " phút.");
         } else {
             dto.setAiCostLabel("Deepgram STT");
-            dto.setMessage("Không có phụ đề — sẽ dùng AI nhận dạng giọng nói (≤ 5 phút).");
+            dto.setMessage("Không có phụ đề — sẽ dùng AI nhận dạng giọng nói.");
         }
 
         if (dto.getDuration() <= 0) {

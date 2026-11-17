@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Cài đặt lộ trình Giao tiếp - KotsuKotsu', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cài đặt lộ trình Giao tiếp</title>
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
+    <div class="jp-ws jp-ws--focus">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
+        <div class="jp-ws__main">
+            <div id="cpathSettingsRoot" class="cp-settings-page"><p class="jp-status" role="status">Đang tải cài đặt…</p></div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/cpath/cpath-audio.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-settings.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

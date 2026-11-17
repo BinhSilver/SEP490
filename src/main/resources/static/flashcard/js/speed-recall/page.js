@@ -4,7 +4,7 @@ import { romajiToHiragana } from './romaji.js';
 import { normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
-import { bindSetupUi } from './setup-ui.js?v=20261011';
+import { bindSetupUi } from './setup-ui.js?v=20261111-select';
 import '../card-selection.js?v=20261015-pager';
 
 const params = new URLSearchParams(location.search);
@@ -41,6 +41,8 @@ const MODE_KEY = 'jlas.speedRecall.mode';
 const TIME_KEY = 'jlas.speedRecall.timeLimit';
 let mode = { question: 'KANJI', answer: 'HIRAGANA' };
 let selectedCardIds = null, randomSelection = null;
+// Filter + usable cards the count was last set for; when they change the count goes back to "all of them".
+let countKey = '';
 // The original mode is named KANJI_TO_READING, so a Hiragana answer is "READING" on the wire.
 function modeName(m = mode) { return m.question + '_TO_' + (m.answer === 'HIRAGANA' ? 'READING' : m.answer); }
 function parseMode(name) {
@@ -86,22 +88,28 @@ function loadSavedTimeLimit() {
     if (saved && Array.from(select.options).some(option => option.value === saved)) select.value = saved;
   } catch (e) { /* storage may be blocked */ }
 }
+/** Hỏi bằng / Đáp bằng are dropdowns; an option that cannot be played is disabled and says why on its second line. */
 function renderModePicker() {
-  document.querySelectorAll('[data-question]').forEach(button => {
-    const q = button.dataset.question, on = q === mode.question;
-    button.classList.toggle('is-active', on); button.setAttribute('aria-pressed', String(on));
-    const usable = FIELDS.some(a => validMode({ question: q, answer: a }));
-    button.disabled = !usable;
-    button.title = usable ? '' : 'Bộ thẻ chưa có thẻ nào đủ ' + FIELD_LABELS[q] + ' để hỏi';
-  });
-  document.querySelectorAll('[data-answer]').forEach(button => {
-    const a = button.dataset.answer, on = a === mode.answer;
-    button.classList.toggle('is-active', on); button.setAttribute('aria-pressed', String(on));
-    const same = a === mode.question, usable = validMode({ question: mode.question, answer: a });
-    button.disabled = !usable;
-    button.title = same ? 'Không thể hỏi và đáp cùng một nội dung'
-      : usable ? '' : 'Không có thẻ nào có đủ ' + FIELD_LABELS[mode.question] + ' và ' + FIELD_LABELS[a];
-  });
+  const question = $('question-field'), answer = $('answer-field');
+  if (question) {
+    Array.from(question.options).forEach(option => {
+      const usable = FIELDS.some(a => validMode({ question: option.value, answer: a }));
+      option.disabled = !usable;
+      if (usable) delete option.dataset.hint;
+      else option.dataset.hint = 'Bộ thẻ chưa có thẻ nào đủ ' + FIELD_LABELS[option.value] + ' để hỏi';
+    });
+    question.value = mode.question;
+  }
+  if (answer) {
+    Array.from(answer.options).forEach(option => {
+      const a = option.value, same = a === mode.question, usable = validMode({ question: mode.question, answer: a });
+      option.disabled = !usable;
+      if (usable) delete option.dataset.hint;
+      else option.dataset.hint = same ? 'Không thể hỏi và đáp cùng một nội dung'
+        : 'Không có thẻ nào có đủ ' + FIELD_LABELS[mode.question] + ' và ' + FIELD_LABELS[a];
+    });
+    answer.value = mode.answer;
+  }
   text('mode-summary', 'Nhìn ' + FIELD_LABELS[mode.question] + ', gõ ' + FIELD_LABELS[mode.answer] + '.');
   text('answer-hint', ANSWER_HINTS[mode.answer]);
 }
@@ -193,9 +201,15 @@ function optionSummary() {
   else selectedCardIds.forEach(id => { if (!eligible.has(id)) selectedCardIds.delete(id); });
   const total = available(), count = $('count');
   const current = Number(count.value);
+  const key = $('filter').value + ':' + selectionPool().map(card => card.id).join(',');
+  const reset = key !== countKey;
+  countKey = key;
   count.max = String(total);
-  count.readOnly = $('filter').value !== 'RANDOM';
-  count.value = String(count.readOnly ? total : Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
+  // Only "Chọn cặp từ tùy ý" is fixed: there the ticked cards are the count. Other filters take any count up to
+  // the usable cards (the server draws that many at random).
+  count.readOnly = $('filter').value === 'CUSTOM';
+  count.value = String(count.readOnly || (reset && $('filter').value !== 'RANDOM') ? total
+    : Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
   text('count-label', 'Số câu');
   text('count-suffix', '/ ' + total + ' thẻ');
   text('eligible-count', total + ' thẻ sẵn sàng');
@@ -512,10 +526,8 @@ on('typing-input', 'keydown', checkTypedAnswer);
 on('typing-input', 'focus', caretToEnd);
 on('typing-input', 'click', caretToEnd);
 
-document.querySelectorAll('[data-question]').forEach(button =>
-  button.addEventListener('click', () => void changeMode({ question: button.dataset.question, answer: mode.answer }), { signal: events.signal }));
-document.querySelectorAll('[data-answer]').forEach(button =>
-  button.addEventListener('click', () => void changeMode({ question: mode.question, answer: button.dataset.answer }), { signal: events.signal }));
+on('question-field', 'change', () => void changeMode({ question: $('question-field').value, answer: mode.answer }));
+on('answer-field', 'change', () => void changeMode({ question: mode.question, answer: $('answer-field').value }));
 on('typing-slots', 'click', () => $('typing-input').focus({ preventScroll: true }));
 on('typing-slots', 'keydown', event => {
   if (event.key === 'Enter' && engine.view?.state === 'ANSWER_FEEDBACK') {

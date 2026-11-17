@@ -185,7 +185,8 @@ public final class VerbDeinflector {
         add(rules, ta, vk, "きた", "くる");
         add(rules, terminal, vk, "こよう", "くる", "くれば", "くる", "こい", "くる");
 
-        // Tính từ đuôi い (dạng く trạng từ bỏ qua: 早く, 良く đã là mục riêng và dễ nhận nhầm).
+        // Tính từ đuôi い: kiểm tra từ loại của mục gốc trước khi nhận dạng く trạng từ.
+        add(rules, terminal, adjI, "く", "い");
         add(rules, ta, adjI, "かった", "い");
         add(rules, adjI, adjI, "くない", "い");
         add(rules, te, adjI, "くて", "い");

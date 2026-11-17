@@ -91,8 +91,8 @@ const OFFLINE_POLL_MS = 5000;
 /** A catch/miss reply that takes longer than this unlocks the round and re-syncs (fetch has no timeout). */
 const LOCK_TIMEOUT_MS = 8000;
 
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Animations always play, whatever the device's reduced-motion setting (project rule).
+const prefersReducedMotion = () => false;
 
 function roundFor(state: NekoStateView, me: NekoPlayerView): NekoRoundView | null {
   const count = state.rounds.length;
@@ -1004,9 +1004,10 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             pregameCountRef.current = n;
             setPregameCountdown(n);
           }
-          if (!countdownBeepRef.current && msLeft <= 3200 && msLeft > 1000) {
+          if (!countdownBeepRef.current && msLeft <= 3200 && msLeft > 300) {
             countdownBeepRef.current = true;
-            soundManager.playSFX('countdown');
+            // Arriving late (slow load): start the 3-2-1 sound where the number on screen already is.
+            soundManager.playCountdown(Math.max(0, 3200 - msLeft) / 1000);
           }
         }
       }
@@ -1402,6 +1403,9 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         if (step.caught) {
           const item = step.caught;
           sendActionRef.current('catch', item.roundId, item.choiceId, { x: item.x, y: item.y });
+          // One catch per round, right or wrong: the other answers leave at once, so nobody can
+          // catch a wrong fish and then dash over to the right one (or the other way round).
+          if (lockRef.current?.roundId === item.roundId) clearAnswerFish();
         }
         if (step.exhausted && roundId) {
           if (lockRef.current?.roundId === roundId) {

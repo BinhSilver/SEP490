@@ -776,6 +776,7 @@
       }
       var select = document.createElement('select');
       select.className = 'select import-template-field';
+      select.setAttribute('data-jl-select', '');
       select.setAttribute('aria-label', 'Trường thứ ' + (index + 1));
       FlashImportSeparators.FIELDS.forEach(function (field) {
         var option = document.createElement('option');

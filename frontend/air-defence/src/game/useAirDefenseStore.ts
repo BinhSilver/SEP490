@@ -1,12 +1,12 @@
 // ============================================================================
 // AIR DEFENCE — STORE MÔ PHỎNG TRẬN ĐẤU (JLAS Game Arena)
-// Mô phỏng đợt địch, loot, augment, hyper beam và điểm số chạy ở trình duyệt; server giữ dãy từ chung,
+// Mô phỏng đợt địch, loot, hyper beam và điểm số chạy ở trình duyệt; server giữ dãy từ chung,
 // kiểm lại từng lần bắn trúng (/kill), nhận HP/điểm (/report) và chuyển tiếp đòn combo (/attack).
 // Phần nối mạng có nhịp (report, finish, SSE) nằm ở matchController.ts.
 // ============================================================================
 
 import { create } from "zustand";
-import type { AugmentCard, AudioSettings, FloatingText, GameMode, LootItem, LootItemType, Screen, TargetWord, WeakWord } from "./types";
+import type { AudioSettings, FloatingText, GameMode, LootItem, LootItemType, Screen, TargetWord, WeakWord } from "./types";
 import { GAME_CONFIG } from "./gameConfig";
 import { cardSpeedMultiplier } from '../../../shared/cardSpeed';
 import { soundManager } from "./soundEffects";
@@ -64,56 +64,6 @@ export function playerPlaneSprite(): string {
   return planeSprite;
 }
 
-export const AUGMENTS_POOL: AugmentCard[] = [
-  {
-    id: "DUAL_CANNON",
-    title: "PHÁO ĐÔI PLASMA",
-    category: "OFFENSE",
-    description: "Tăng 50% năng lượng Siêu pháo nhận được mỗi lần gõ trúng.",
-    icon: "fa-angles-up",
-    tone: "cyan"
-  },
-  {
-    id: "CRYO_PAYLOAD",
-    title: "ĐẠN ĐÓNG BĂNG",
-    category: "CONTROL",
-    description: "Giảm 35% tốc độ rơi của toàn bộ quái vật không gian.",
-    icon: "fa-snowflake",
-    tone: "violet"
-  },
-  {
-    id: "GOLD_MAGNET",
-    title: "NAM CHÂM XU",
-    category: "UTILITY",
-    description: "Nhận thêm 50% xu mỗi lần bắn trúng.",
-    icon: "fa-magnet",
-    tone: "amber"
-  },
-  {
-    id: "SHIELD_BARRIER",
-    title: "LÁ CHẮN LƯỢNG TỬ",
-    category: "DEFENSE",
-    description: "Thêm ngay 3 lớp khiên chặn địch.",
-    icon: "fa-shield-halved",
-    tone: "cyan"
-  },
-  {
-    id: "REPAIR_NANO",
-    title: "HỒI MÁU",
-    category: "SURVIVAL",
-    description: "Hồi ngay 30% máu.",
-    icon: "fa-kit-medical",
-    tone: "amber"
-  },
-  {
-    id: "CHRONO_FREEZE",
-    title: "NGƯNG ĐỌNG THỜI GIAN",
-    category: "TACTICAL",
-    description: "Cứ mỗi 5 combo, địch đứng yên 4 giây.",
-    icon: "fa-hourglass-half",
-    tone: "violet"
-  }
-];
 
 // ----------------------------------------------------------------------------
 // Thông tin trận (từ AirStateView)
@@ -365,7 +315,6 @@ interface AirDefenseState {
   bestCombo: number;
   creditsEarned: number;
   hyperBeamCharge: number;
-  remainingRerolls: number;
   /** Số lần bắn trúng nhờ gõ đúng (tính cả từng HP của boss). */
   hits: number;
   wrongInputs: number;
@@ -375,8 +324,6 @@ interface AirDefenseState {
   targets: TargetWord[];
   lootItems: LootItem[];
   floatingTexts: FloatingText[];
-  activeAugments: AugmentCard[];
-  draftAugments: AugmentCard[];
   weakWords: WeakWord[];
   pendingAttacks: AirAttackView[];
   banner: ArenaBanner | null;
@@ -423,8 +370,6 @@ interface AirDefenseState {
   aimTypingBullet: (input: string) => void;
   fireTypingBullet: (targetPos?: { x: number; y: number } | null) => void;
   fireHyperBeam: () => void;
-  selectAugment: (augment: AugmentCard) => void;
-  rerollAugments: () => void;
   tickGameLoop: (delta: number) => void;
   advanceToNextWave: () => void;
   spawnLoot: (x: number, y: number, isBoss?: boolean, allowHyperOrb?: boolean) => void;
@@ -564,28 +509,15 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
   const completeWaveTransition = (wave: number, nextWave: number, isBossNext: boolean) => {
     const current = get();
     if (current.outcome !== "playing" || !current.match) return;
-    if (wave % GAME_CONFIG.ENEMIES.augmentDraftInterval === 0) {
-      const draft = [...AUGMENTS_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
-      soundManager.switchBgm("lobby");
-      set({
-        screen: "augment",
-        draftAugments: draft,
-        wave: nextWave,
-        inboundBoss: isBossNext,
-        isTransitioning: false,
-        waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
-      });
-    } else {
-      soundManager.switchBgm(isBossNext ? "boss" : "battle");
-      const nextTargets = generateWave(nextWave, current.match.words);
-      set({
-        wave: nextWave,
-        targets: nextTargets,
-        inboundBoss: isBossNext,
-        isTransitioning: false,
-        waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
-      });
-    }
+    soundManager.switchBgm(isBossNext ? "boss" : "battle");
+    const nextTargets = generateWave(nextWave, current.match.words);
+    set({
+      wave: nextWave,
+      targets: nextTargets,
+      inboundBoss: isBossNext,
+      isTransitioning: false,
+      waveTransition: { active: false, phase: "none", clearedWave: wave, incomingWave: nextWave, isBoss: false }
+    });
   };
 
   const beginFinishPresentation = () => {
@@ -677,7 +609,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     bestCombo: 0,
     creditsEarned: 0,
     hyperBeamCharge: 0,
-    remainingRerolls: GAME_CONFIG.ENEMIES.defaultRerolls,
     hits: 0,
     wrongInputs: 0,
     usedMilestones: [],
@@ -685,8 +616,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
     targets: [],
     lootItems: [],
     floatingTexts: [],
-    activeAugments: [],
-    draftAugments: [],
     weakWords: [],
     pendingAttacks: [],
     banner: null,
@@ -777,13 +706,10 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         combo: 0,
         creditsEarned: 0,
         hyperBeamCharge: 0,
-        remainingRerolls: GAME_CONFIG.ENEMIES.defaultRerolls,
         hits: 0,
         usedMilestones: [],
         lootItems: [],
         floatingTexts: [],
-        activeAugments: [],
-        draftAugments: [],
         weakWords: [],
         pendingAttacks: [],
         banner: null,
@@ -941,7 +867,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       clearGameTimers();
       stopIntroTicker();
       const canPresent = summary !== null && !!s.match && s.bootStatus === 'ready'
-        && (isBattleScreen(s.screen) || s.screen === 'augment');
+        && isBattleScreen(s.screen);
       const presentation = canPresent ? beginFinishPresentation() : {};
       if (presentation.finishingPresentation) {
         set({ ...presentation, outcome: 'over', result: summary, aborted: false,
@@ -1140,7 +1066,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       if (!input.trim()) return false;
       if (s.isTransitioning) return false;
 
-      const { targets, score, combo, bestCombo, creditsEarned, wave, hyperBeamCharge, activeAugments, advanceToNextWave, spawnLoot } = s;
+      const { targets, score, combo, bestCombo, creditsEarned, wave, hyperBeamCharge, advanceToNextWave, spawnLoot } = s;
 
       // 1. Tìm mọi địch có đáp án khớp (luật giống hệt GameAnswerMatcher của server).
       const matchingIndices: number[] = [];
@@ -1179,9 +1105,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         if (hit.type === "MINI_BOSS" && isKilled) {
           creditDelta += GAME_CONFIG.SCORING.bossCreditsBonus;
         }
-        if (activeAugments.some((a) => a.id === "GOLD_MAGNET")) {
-          creditDelta = Math.round(creditDelta * GAME_CONFIG.SCORING.goldMagnetCoinBonus);
-        }
 
         soundManager.playLaser();
         if (isKilled) {
@@ -1194,15 +1117,8 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         if (isKilled) {
           chargeDelta = hit.type === "MINI_BOSS" ? GAME_CONFIG.PLAYER.hyperBeamChargePerBossKill : GAME_CONFIG.PLAYER.hyperBeamChargePerKill;
         }
-        if (activeAugments.some((a) => a.id === "DUAL_CANNON")) {
-          chargeDelta *= GAME_CONFIG.PLAYER.dualCannonChargeMultiplier;
-        }
 
-        // 4. Lõi CHRONO_FREEZE: đóng băng 4 giây sau mỗi 5 combo
-        let newFreeze = get().freezeTimer;
-        if (newCombo > 0 && newCombo % 5 === 0 && activeAugments.some((a) => a.id === "CHRONO_FREEZE")) {
-          newFreeze = Math.max(newFreeze, 4.0);
-        }
+        const newFreeze = get().freezeTimer;
 
         // 5. Điểm hạ địch và chuỗi bắn trúng hiển thị riêng.
         const hitColor = newCombo >= 20 ? "#ff4d6d" : newCombo >= 10 ? "#c3a6ff" : newCombo >= 5 ? "#ffc857" : "#55f4ff";
@@ -1380,46 +1296,6 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
       }, GAME_CONFIG.PLAYER.hyperBeamChargeTimeMs);
     },
 
-    // ------------------------------------------------------------------ augment
-    selectAugment: (augment) => {
-      const { activeAugments, wave, hp, maxHp, shield, match, outcome, mode, screen } = get();
-      if (!match || outcome !== "playing" || screen !== "augment") return;
-      const updatedAugments = [...activeAugments, augment];
-
-      let newHp = hp;
-      let newShield = shield;
-      if (augment.id === "REPAIR_NANO") {
-        newHp = Math.min(maxHp, Math.round(hp + maxHp * 0.3));
-      } else if (augment.id === "SHIELD_BARRIER") {
-        newShield += 3;
-      }
-
-      const nextTargets = generateWave(wave, match.words);
-      const isBoss = isBossWave(wave);
-
-      soundManager.switchBgm(isBoss ? "boss" : "battle");
-
-      set({
-        screen: mode,
-        activeAugments: updatedAugments,
-        hp: newHp,
-        shield: newShield,
-        targets: nextTargets,
-        inboundBoss: isBoss,
-        isTransitioning: false
-      });
-    },
-
-    rerollAugments: () => {
-      const { remainingRerolls } = get();
-      if (remainingRerolls <= 0) return;
-      const draft = [...AUGMENTS_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
-      set({
-        remainingRerolls: remainingRerolls - 1,
-        draftAugments: draft
-      });
-    },
-
     // ------------------------------------------------------------------ vòng lặp 60 FPS
     tickGameLoop: (rawDelta) => {
       let s = get();
@@ -1483,8 +1359,7 @@ export const useAirDefenseStore = create<AirDefenseState>((set, get) => {
         let missedCards = 0;
         const remainingTargets: TargetWord[] = [];
         let missedList: WeakWord[] = s.weakWords;
-        const hasCryo = s.activeAugments.some((a) => a.id === "CRYO_PAYLOAD");
-        const speedMult = (isFrozen ? 0 : 1) * (hasCryo ? 0.65 : 1.0) * cardSpeedMultiplier(s.completedCards);
+        const speedMult = (isFrozen ? 0 : 1) * cardSpeedMultiplier(s.completedCards);
 
         s.targets.forEach((t) => {
           if (t.isDead) return;

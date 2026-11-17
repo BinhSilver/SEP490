@@ -17,5 +17,17 @@ public record JpathSettingsView(String targetLevel, List<String> targetOptions, 
         List<String> restDays, String thirdSkillDay, boolean thirdSkillDayAuto, JpathStage stage,
         JpathStudyMode studyMode, JpathModeSuggestion suggestion, JpathDisplaySettings display, boolean reminderWeb,
         boolean reminderEmail, boolean emailAvailable, String reminderTime, JpathSliderView sliders,
-        String openLevel, List<String> lowerLevels) {
+        String openLevel, List<String> lowerLevels, List<String> returnLevels) {
+
+    /** Without levels to return to (AI 1 #13: {@code returnLevels} = higher levels already reached, see JpathPathChanger). */
+    public JpathSettingsView(String targetLevel, List<String> targetOptions, LocalDate examDate,
+            JpathPaceView pace, int dailyMinutes, List<Integer> minuteOptions, List<String> skillDays,
+            List<String> restDays, String thirdSkillDay, boolean thirdSkillDayAuto, JpathStage stage,
+            JpathStudyMode studyMode, JpathModeSuggestion suggestion, JpathDisplaySettings display,
+            boolean reminderWeb, boolean reminderEmail, boolean emailAvailable, String reminderTime,
+            JpathSliderView sliders, String openLevel, List<String> lowerLevels) {
+        this(targetLevel, targetOptions, examDate, pace, dailyMinutes, minuteOptions, skillDays, restDays,
+                thirdSkillDay, thirdSkillDayAuto, stage, studyMode, suggestion, display, reminderWeb, reminderEmail,
+                emailAvailable, reminderTime, sliders, openLevel, lowerLevels, List.of());
+    }
 }

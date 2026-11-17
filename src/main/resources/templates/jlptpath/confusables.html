@@ -8,16 +8,20 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-confusables>
 <div class="jp-ws jp-ws--norail">
-    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Phân biệt chữ dễ nhầm')}"></th:block>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Phân biệt dễ nhầm')}"></th:block>
     <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
         <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/confusables')}"></th:block>
     </aside>
     <div class="jp-ws__main">
-        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Phân biệt chữ dễ nhầm</h1></header>
+        <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Phân biệt dễ nhầm</h1></header>
         <div class="jp-side__range" role="group" aria-label="Loại mục">
             <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
             <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
             <button type="button" class="jp-side-btn" data-tab="GRAMMAR" aria-pressed="false">Ngữ pháp</button>
+        </div>
+        <div class="jp-side__range jp-confusables-mode" role="group" aria-label="Danh sách">
+            <button type="button" class="jp-side-btn" data-mode="mine" aria-pressed="true">Của bạn</button>
+            <button type="button" class="jp-side-btn" data-mode="preview" aria-pressed="false">Xem trước tất cả</button>
         </div>
         <div class="jp-side__range">
             <button type="button" class="jp-side-btn jp-side-btn--primary" data-role="start" disabled>Luyện 10 câu</button>

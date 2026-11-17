@@ -142,14 +142,34 @@ public class JpathStudyEventApplier {
             outcomes.add(one(b, e));
         }
         if (b.applied) {
+            if (ofTodaysPlan(b) && JpathSessionMode.TODAY.name().equals(b.session.getMode())) {
+                JpathDailyTab kanaTab = tab(b, JpathTab.KANA);
+                if (kanaTab != null && kanaTab.getDoneAt() == null && kanaTab.getCheckPassedAt() != null
+                        && !hasRemainingKanaSteps(b.queue, b.session.getPosition())) {
+                    // [JLAS-W0108] F149: complete deferred KANA tab once the last trailing KANA card finishes
+                    b.touched.add(JpathTab.KANA);
+                }
+            }
             if (b.touched.isEmpty()) {
                 completion.evaluate(userId, plan, tabs, null, true);
             }
             for (JpathTab t : b.touched) {
-                completion.evaluate(userId, plan, tabs, t, true);
+                JpathDailyTab row = tab(b, t);
+                boolean eligible = t != JpathTab.KANA || row == null || !row.isTooFast();
+                completion.evaluate(userId, plan, tabs, t, eligible);
             }
         }
         return new Applied(outcomes, session);
+    }
+
+    private static boolean hasRemainingKanaSteps(List<JpathQueueStep> queue, int fromPosition) {
+        for (int i = Math.max(0, fromPosition); i < queue.size(); i++) {
+            JpathQueueStep st = queue.get(i);
+            if (st.tab() == JpathTab.KANA && st.kind() == JpathStepKind.NEW) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ---- one event -----------------------------------------------------------------------------------------
@@ -259,7 +279,8 @@ public class JpathStudyEventApplier {
         }
         record(b, e, rating, rating == null ? null : rating != JpathRating.FORGOT);
         if (rating == JpathRating.FORGOT) {
-            b.queue = JpathQueueBuilder.appendRepeat(b.queue, step, MAX_REPEATS);
+            // [JLAS-W0108] F149: place FORGOT NEW repeats before their tab's MICRO_CHECK (e.g. KANA_ROW check)
+            b.queue = JpathQueueBuilder.insertRepeatBeforeCheck(b.queue, b.session.getPosition(), step, MAX_REPEATS);
         }
         return advance(b, e, null, null);
     }

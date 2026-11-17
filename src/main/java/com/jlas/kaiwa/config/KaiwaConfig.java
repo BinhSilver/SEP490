@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties({AiCallQuotaProperties.class, AiCallTurnProperties.class})
+@EnableConfigurationProperties({AiCallQuotaProperties.class, AiCallTurnProperties.class, AiCallTurnLimits.class})
 public class KaiwaConfig {
 }

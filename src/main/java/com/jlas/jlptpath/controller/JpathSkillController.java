@@ -34,6 +34,9 @@ public class JpathSkillController {
     private final JpathSkillCatalogService catalog;
     private final JpathSkillLessonService lessons;
     private final JpathSkillSessionService sessions;
+    /** F5: N3–N1 need Premium (optional so unit tests building the controller by hand still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
     private final JpathSectionPracticeService sections;
 
     public JpathSkillController(JpathSkillCatalogService catalog, JpathSkillLessonService lessons,
@@ -48,6 +51,7 @@ public class JpathSkillController {
     @PostMapping("/sections")
     public ResponseEntity<ApiResponse<JpathCheckView>> startSection(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSectionStartRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId()); // F133: same gate as a skill session
         return ResponseEntity.ok(ApiResponse.ok("OK", sections.start(user.userId(), request.skill())));
     }
 
@@ -74,6 +78,7 @@ public class JpathSkillController {
     public ResponseEntity<ApiResponse<JpathSkillLessonCheckResult>> checkLesson(
             @AuthenticationPrincipal UserPrincipal user, @PathVariable String typeCode,
             @Valid @RequestBody JpathSkillLessonCheckRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId()); // F133: the theory step of a skill session
         return ResponseEntity.ok(ApiResponse.ok("OK",
                 lessons.check(user.userId(), typeCode, request.option(), request.sessionId())));
     }
@@ -81,6 +86,7 @@ public class JpathSkillController {
     @PostMapping("/sessions")
     public ResponseEntity<ApiResponse<JpathSkillSessionView>> startSession(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSkillSessionStartRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId());
         return ResponseEntity.ok(ApiResponse.ok("OK", sessions.start(user.userId(), request)));
     }
 

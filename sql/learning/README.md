@@ -9,7 +9,7 @@ task needs go into these files, never into `sql/migrations/` or `sql/seeds/`.
 | File | Content |
 |---|---|
 | `learning_schema.sql` | Part A: every Learning table, final shape, `CREATE TABLE IF NOT EXISTS`. Part B: guarded upgrades (columns, indexes, FKs, CHECKs, Learning columns on shared tables) for older databases. Part C: jpath and cpath tables. |
-| `learning_data_N5.sql` | Common data (Learning flags on the base textbooks, kana rules, goal catalogue, jpath base data), then every N5 row. |
+| `learning_data_N5.sql` | Common data (clears the learning-path flag on the textbook team's books, kana rules, goal catalogue, jpath base data), then every N5 row. |
 | `learning_data_N4.sql` … `learning_data_N1.sql` | Every row of one JLPT level. A level may read rows of a lower level, never of a higher one. |
 | `learning_data_comm.sql` | The communication path: goals, topics, situations, lines, words and phrases, AI call scenarios. |
 
@@ -29,8 +29,11 @@ mysql -u root -p --default-character-set=utf8mb4 <db> < sql/learning/learning_sc
 for F in N5 N4 N3 N2 N1 comm; do mysql -u root -p --default-character-set=utf8mb4 <db> < sql/learning/learning_data_$F.sql; done   # 2. data, in this order
 ```
 
+- **Only some levels** (a demo machine, a quick install): run the schema, then `learning_data_N5.sql` and stop at the
+  highest level you need, e.g. `for F in N5 N4; do …; done`. A level reads only lower levels, so a shorter chain is
+  complete for those levels; add the next file later the same way. Run `learning_data_comm.sql` last, as in the full order.
 - **Schema first**: the data writes Learning tables and Learning columns that the schema creates.
-- **Data order**: N5 carries the common data first (it sets the Learning flags on the base textbooks and holds
+- **Data order**: N5 carries the common data first (it clears the learning-path flag on the textbook team's books and holds
   the goal catalogue) and the levels run from N5 up to N1 (a level may read rows that a lower level inserted, never a
   higher one).
 - Every file is re-runnable (upserts by stable keys); a second run changes nothing. Never use `--force`.
@@ -85,3 +88,13 @@ CHECK change to Part B through its guarded helper so that a second run changes n
   chính sách đó. Nhưng AUTO_INCREMENT của `grammar_point`, `content_item`, `lesson`… trên DB thật đang nằm trong dải N3, nên
   hàng mới của bất kỳ nhóm nào cũng nhận id trong dải đó; nếu bản dựng lại sách N3 có thêm ô mới thì ô đó có thể trùng id
   hàng của nhóm khác. Khi gộp: nâng AUTO_INCREMENT các bảng này lên trên 8e9 hoặc chuyển dải id của sách tổng hợp.
+
+## Sửa liên kết từ điển (F35, 11/11)
+
+`jpath_vocabulary.dictionary_entry_id` từng được nướng cứng theo id của một bản DB, nên trên DB khác có thể trỏ
+sai từ (重い → 台所) hoặc id không tồn tại. Từ 11/11 mỗi file `learning_data_N*.sql` tự tra lại id theo
+(normalized_expression, normalized_reading) ngay khi nạp. Với DB **đã nạp từ trước** thì chạy một lần:
+
+    mysql <db> < sql/learning/fix_jpath_dictionary_links.sql
+
+Chạy lại nhiều lần vẫn an toàn. Từ không tra ra mục từ điển sẽ để NULL và web báo rõ khi lưu sổ tay.

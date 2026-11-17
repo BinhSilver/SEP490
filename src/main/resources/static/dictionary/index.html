@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="/css/components/buttons.css" />
   <link rel="stylesheet" href="/css/components/cards.css" />
   <link rel="stylesheet" href="/css/components/inputs.css" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261103-nav-hover-2" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261108-plum" />
+  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261115-side-kanji" />
 </head>
 <body id="jlabBasePage" class="dictionary-page">
   <div id="jlabBaseShellMount"></div>
@@ -51,24 +51,24 @@
           <button type="button" class="dict-tab" data-tab="kanji" role="tab">Hán tự</button>
           <button type="button" class="dict-tab" data-tab="example" role="tab">Mẫu câu</button>
           <button type="button" class="dict-tab" data-tab="grammar" role="tab">Ngữ pháp</button>
-          <button type="button" class="dict-tab" data-tab="japanese" role="tab">Nhật - Nhật</button>
         </nav>
       </section>
 
       <section id="dict-home-panels" class="dict-home-panels">
         <div class="dict-home-panel">
           <div class="dict-panel-heading">
-            <span>Tra cứu gần đây</span>
+            <div><h2>Tra cứu gần đây</h2><p>Bấm để tra lại</p></div>
           </div>
           <div id="dict-recent-list" class="dict-recent-grid"></div>
           <p id="dict-recent-empty" class="dict-detail__empty" hidden>Đăng nhập để lưu và đồng bộ lịch sử tra cứu của bạn.</p>
         </div>
-        <div class="dict-home-panel dict-home-panel--placeholder">
+        <div class="dict-home-panel">
           <div class="dict-panel-heading">
-            <span>Từ vựng mỗi ngày</span>
-            <span class="dict-badge dict-badge--outline">Sắp ra mắt</span>
+            <div><h2>Từ vựng mỗi ngày</h2><p id="dict-daily-subtitle"></p></div>
+            <span id="dict-daily-badge" class="dict-badge dict-badge--outline" hidden></span>
           </div>
-          <p class="dict-detail__empty">Gợi ý một từ vựng mới mỗi ngày kèm ví dụ và phát âm — tính năng đang được phát triển.</p>
+          <div id="dict-daily-list" class="dict-daily-list"></div>
+          <p id="dict-daily-empty" class="dict-detail__empty" hidden></p>
         </div>
       </section>
 
@@ -76,13 +76,55 @@
       <div id="dict-results-layout" class="dict-results-layout" hidden>
         <section id="dict-detail-pane" class="dict-detail-pane"></section>
         <aside id="dict-other-results" class="dict-panel" hidden>
-          <h2>Kết quả khác</h2>
+          <section id="dict-side-kanji" class="dict-side-kanji" hidden></section>
+          <h2 id="dict-other-title">Kết quả khác</h2>
           <div id="dict-vocab-list" class="dict-vocab-list"></div>
-          <button id="dict-load-more" type="button" class="btn btn--secondary dict-load-more" hidden>Xem thêm</button>
+          <nav id="dict-other-pagination" class="dict-pagination" aria-label="Trang kết quả khác"></nav>
         </aside>
       </div>
     </div>
   </main>
+  <div id="dict-notebook-popover" class="dict-save-popover" role="dialog" aria-label="Lưu vào sổ tay" hidden>
+    <div class="dict-save-popover__head">
+      <strong class="dict-save-popover__title">Lưu</strong>
+      <p id="dict-notebook-word" class="dict-save-popover__word" lang="ja"></p>
+      <button type="button" class="dict-save-popover__close" data-notebook-close aria-label="Đóng">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div data-notebook-view="list">
+      <label class="dict-save-search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input id="dict-notebook-search" type="search" placeholder="Tìm sổ tay" autocomplete="off" aria-label="Tìm sổ tay">
+      </label>
+      <div class="dict-save-popover__scroll">
+        <p id="dict-notebook-loading" class="dict-notebook-message" role="status" hidden>Đang tải sổ tay…</p>
+        <div id="dict-notebook-error" class="dict-notebook-message" hidden>
+          <p>Không thể tải sổ tay lúc này.</p>
+          <button type="button" class="dict-save-retry" data-notebook-retry>Thử lại</button>
+        </div>
+        <div id="dict-notebook-list" class="dict-save-list"></div>
+      </div>
+      <div class="dict-save-popover__footer">
+        <button type="button" class="dict-save-row" data-notebook-new>
+          <span class="dict-save-tile dict-save-tile--plus" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>
+          <span class="dict-save-row__text"><span class="dict-save-row__name">Tạo sổ tay</span></span>
+        </button>
+      </div>
+    </div>
+    <form id="dict-notebook-create" class="dict-save-create" hidden>
+      <div class="dict-save-create__head">
+        <button type="button" class="dict-save-popover__close" data-notebook-back aria-label="Quay lại">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </button>
+        <strong>Tạo sổ tay</strong>
+      </div>
+      <label for="dict-notebook-name">Tên sổ tay</label>
+      <input id="dict-notebook-name" name="name" type="text" maxlength="120" required autocomplete="off">
+      <button type="submit" class="dict-save-create__submit">Tạo và lưu</button>
+    </form>
+    <p id="dict-notebook-status" class="dict-notebook-status" role="status" aria-live="polite"></p>
+  </div>
   <!-- Giữ navbar dùng chung; modal viết tay lấy bố cục từ prototype screen_05. -->
   <div id="dict-handwriting-modal" class="modal-backdrop dict-modal-backdrop" aria-hidden="true">
     <div class="dict-modal" role="dialog" aria-modal="true" aria-labelledby="dict-modal-title">
@@ -193,10 +235,10 @@
   <script src="/dictionary/js/radical.js?v=20261016-1"></script>
   <script src="/js/jlab-base-shell.js?v=20261109-kotsu"></script>
   <script src="/js/components.js"></script>
-  <script src="/dictionary/js/api-client.js?v=20261109-kotsu"></script>
+  <script src="/dictionary/js/api-client.js?v=20261115-daily1"></script>
   <script src="/dictionary/js/ja-render.js?v=20261030-4"></script>
   <script src="/dictionary/js/conjugation.js?v=20261030-2"></script>
-  <script src="/dictionary/js/mock-data.js?v=20261030-2"></script>
-  <script src="/dictionary/js/dictionary-page.js?v=20261030-6"></script>
+  <script src="/dictionary/js/mock-data.js?v=20261115-daily1"></script>
+  <script src="/dictionary/js/dictionary-page.js?v=20261115-kanji-print"></script>
 </body>
 </html>

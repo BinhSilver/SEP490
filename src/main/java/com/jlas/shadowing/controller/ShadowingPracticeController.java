@@ -30,6 +30,11 @@ public class ShadowingPracticeController {
         return service.get(CurrentUser.requireUserId(), sessionId);
     }
 
+    @GetMapping("/sessions/{sessionId}/stops/{number}")
+    public PracticeQuestionView review(@PathVariable long sessionId, @PathVariable int number) {
+        return service.review(CurrentUser.requireUserId(), sessionId, number);
+    }
+
     @PostMapping("/sessions/{sessionId}/answers")
     public PracticeAnswerResponse answer(@PathVariable long sessionId,
                                          @Valid @RequestBody SubmitPracticeAnswerRequest request) {

@@ -637,6 +637,7 @@ CREATE TABLE vocabulary_entry (
     KEY idx_vocabulary_romaji (reading_romaji),
     KEY idx_vocabulary_han_viet (han_viet),
     KEY idx_vocabulary_jlpt (jlpt_level),
+    KEY idx_vocabulary_daily_level (jlpt_level, dictionary_status, usage_scope), -- [JLAS2-34]
     CONSTRAINT chk_vocabulary_jlpt
         CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1')),
     CONSTRAINT chk_vocabulary_scope
@@ -1609,6 +1610,30 @@ CREATE TABLE jlpt_exam (
     CONSTRAINT chk_jlpt_exam_level CHECK (jlpt_level IN ('N1','N2','N3','N4','N5')),
     CONSTRAINT chk_jlpt_exam_month CHECK (exam_month IS NULL OR exam_month IN (7,12)),
     CONSTRAINT chk_jlpt_exam_status CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-270] Related vocabulary and grammar saved per JLPT exam.
+CREATE TABLE jlpt_exam_study_list (
+    exam_id BIGINT UNSIGNED NOT NULL,
+    metadata JSON NOT NULL,
+    import_batch_id BINARY(16) NULL,
+    PRIMARY KEY (exam_id),
+    KEY idx_jlpt_study_list_import_batch (import_batch_id),
+    CONSTRAINT fk_jlpt_study_list_exam FOREIGN KEY (exam_id)
+        REFERENCES jlpt_exam (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE jlpt_exam_study_item (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    exam_id BIGINT UNSIGNED NOT NULL,
+    item_kind ENUM('VOCABULARY','GRAMMAR','UNMATCHED_GRAMMAR') NOT NULL,
+    sort_order INT UNSIGNED NOT NULL,
+    payload JSON NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_jlpt_study_item_order (exam_id, item_kind, sort_order),
+    CONSTRAINT fk_jlpt_study_item_list FOREIGN KEY (exam_id)
+        REFERENCES jlpt_exam_study_list (exam_id) ON DELETE CASCADE,
+    CONSTRAINT chk_jlpt_study_item_order CHECK (sort_order > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE jlpt_part (

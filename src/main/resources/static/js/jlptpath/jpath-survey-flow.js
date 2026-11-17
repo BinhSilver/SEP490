@@ -46,8 +46,9 @@
     steps = ['goal', 'studied'];
     // Before the goal is chosen the JLPT order is counted, the goal most learners pick.
     if (!a.goal || a.goal === 'JLPT') {
-      // While "studied" is unanswered the longer branch is counted, so the first screen reads 1/7.
-      if (studied || !a.studied) steps.push('duration', 'kana');
+      // While "studied" is unanswered the longer branch is counted, so the first screen reads 1/8.
+      // F21 (team 10/11): a learner who studied says their level, so Smart Test starts there instead of at N5
+      if (studied || !a.studied) steps.push('duration', 'level', 'kana');
       steps.push('target', 'minutes', 'days');
       return steps;
     }
@@ -62,8 +63,9 @@
     return isFinite(value) && value < KANA_REVIEW_BELOW_MONTHS ? 'REVIEW' : null;
   }
 
-  function selfReportedLevelFor(studied) {
-    return studied === 'YES' ? 'UNKNOWN' : 'FROM_ZERO';
+  function selfReportedLevelFor(studied, level) {
+    if (studied !== 'YES') return 'FROM_ZERO';
+    return ['N5', 'N4', 'N3', 'N2', 'N1'].indexOf(level) >= 0 ? level : 'UNKNOWN';
   }
 
   function buildPreferenceBody(answers) {

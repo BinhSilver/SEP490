@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Bài nền Giao tiếp - KotsuKotsu', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài nền Giao tiếp - KotsuKotsu</title>
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-path.css(v=${jpathAssetVersion})}" />
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-side cp-page" data-inline-dictionary>
+    <div class="jp-ws jp-ws--norail">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
+        <aside class="jp-ws__side" aria-label="Điều hướng lộ trình giao tiếp">
+            <nav class="jp-sidenav" aria-label="Trang của lộ trình">
+                <p class="jp-sidenav__title">Lộ trình Giao tiếp</p>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/path}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Bản đồ tuần
+                </a>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/core}" aria-current="page">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-book-open"/></svg> Bài nền
+                </a>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/day}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
+                </a>
+                <a class="jp-sidenav__link" th:href="@{/learning/comm/notebook}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
+                </a>
+            </nav>
+        </aside>
+        <div class="jp-ws__main">
+            <div id="cpathCoreRoot" aria-live="polite">
+                <p class="jp-status" role="status">Đang tải bài nền…</p>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/cpath/cpath-audio.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-situation.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-core.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

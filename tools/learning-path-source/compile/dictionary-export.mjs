@@ -83,7 +83,8 @@ function query(db, sql) {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))) {
-  const db = argValue(process.argv.slice(2), '--db', 'jlas_mirai');
+  // F35: default to the system DB; ids are re-resolved at load time anyway, but the build DB should be jlas
+  const db = argValue(process.argv.slice(2), '--db', 'jlas');
   if (!process.env.MYSQL_PWD) throw new Error('MYSQL_PWD is not set');
   const rows = Object.fromEntries(Object.entries(QUERIES).map(([name, sql]) => [name, query(db, sql)]));
   writeOrCheck(EXPORT_FILE, rows, false);

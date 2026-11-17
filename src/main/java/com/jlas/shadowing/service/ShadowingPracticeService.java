@@ -193,6 +193,28 @@ public class ShadowingPracticeService {
         }
         ShadowingPracticeItem item = practiceRepository.findItem(sessionId, session.getCurrentPosition());
         if (item == null) throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy câu hiện tại");
+        return sessionView(session, video, stops, questionView(session, item));
+    }
+
+    /** A stop the learner already finished, read back with their answer so it can be reviewed while re-listening. */
+    public PracticeQuestionView review(long userId, long sessionId, int number) {
+        ShadowingPracticeSession session = ownedSession(userId, sessionId);
+        Video video = videoRepository.findById(session.getVideoId())
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy video"));
+        ageGate.requireAllowed(video, userId);
+        if (number < 1 || number > session.getTotalQuestions()) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy câu hỏi");
+        }
+        ShadowingPracticeItem item = practiceRepository.findItem(sessionId, number - 1);
+        if (item == null) throw new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy câu hỏi");
+        PracticeQuestionView view = questionView(session, item);
+        // Only finished stops: reading an unanswered one would give its answer away.
+        if (!view.answered()) throw new ApiException(ErrorCode.CONFLICT, "Câu này chưa làm xong");
+        return view;
+    }
+
+    private PracticeQuestionView questionView(ShadowingPracticeSession session, ShadowingPracticeItem item) {
+        long sessionId = session.getId();
         Subtitle subtitle = subtitleRepository.findById(item.getSubtitleId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy phụ đề"));
         ShadowingClozeCandidate candidate = item.getClozeCandidateId() == null
@@ -217,7 +239,7 @@ public class ShadowingPracticeService {
                 prepared == null ? null : prepared.kind(), prepared == null ? null : prepared.level(),
                 prepared == null ? List.of() : shuffledChoices(prepared.choices(), sessionId, item.getId()),
                 settled && prepared != null ? prepared.explanation() : null);
-        return sessionView(session, video, stops, question);
+        return question;
     }
 
     static List<String> shuffledChoices(List<String> choices, long sessionId, long itemId) {

@@ -16,8 +16,6 @@
   function updateNotebookButton() {
     var button = detail.querySelector('[data-action="notebook"]');
     if (button) { button.textContent = notebook.has(state.selected) ? '✓ Đã lưu · Chọn sổ' : 'Lưu vào sổ tay'; button.disabled = notebook.busy(); }
-    var book = notebook.book();
-    $('notebook-open').href = '/learning/notebook' + (book ? '?book=' + book.id : '');
     var studyButton = $('study-content').querySelector('[data-study-notebook]');
     if (studyButton && state.study) {
       var allSaved = state.study.wrong.every(function(ch) { return notebook.has(ch); });
@@ -107,7 +105,7 @@
   function meaning(node) { return model.vietnameseMeaning(node); }
   function transform() {
     var v = state.view;
-    $('world').style.transform = 'translate(' + v.x + 'px,' + v.y + 'px) scale(' + v.scale + ')';
+    $('world').style.transform = 'translate(' + Math.round(v.x) + 'px,' + Math.round(v.y) + 'px) scale(' + v.scale + ')';
     $('zoom-value').textContent = Math.round(v.scale * 100) + '%';
   }
   function zoom(factor, x, y) {
@@ -179,7 +177,7 @@
     });
     chooseBranch(selected);
   }
-  function resetHint() { $('hint').textContent = 'Bấm + để mở tiếp · Kéo để di chuyển · Cuộn để thu phóng'; }
+  function resetHint() { $('hint').textContent = ''; }
   function initialBranches() {
     resetHint();
     state.collapsed.clear(); state.limits.clear(); state.expanded = false;
@@ -256,7 +254,6 @@
     var expandLabel = state.expanded ? 'Thu gọn các nhánh' : 'Mở rộng các nhánh';
     $('expand').setAttribute('aria-label', expandLabel); $('expand').title = expandLabel; $('expand').setAttribute('aria-pressed', String(state.expanded));
     board.setAttribute('aria-busy', 'false');
-    $('study-open').disabled = f.matched.size < 2;
     if (refit) requestAnimationFrame(home);
   }
   function cancelAnimation() { state.animations.forEach(function (animation) { animation.cancel(); }); state.animations = []; }
@@ -547,7 +544,6 @@
   });
   $('compare-form').addEventListener('submit', function (event) { event.preventDefault(); compareWith($('compare-input').value); });
   $('compare-suggestions').addEventListener('click', function (event) { var button = event.target.closest('[data-compare-target]'); if (button) compareWith(button.dataset.compareTarget); });
-  $('study-open').addEventListener('click', startStudy);
   $('study-close').addEventListener('click', function () { $('study-dialog').close(); });
   $('study-content').addEventListener('click', async function (event) {
     var button = event.target.closest('button'); if (!button) return;

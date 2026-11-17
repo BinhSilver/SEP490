@@ -13,13 +13,23 @@ import com.jlas.jlptpath.enums.JpathSkillStep;
 public record JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
                                     JpathSkillStep step, int setCount, int questionCount, int dictationCount,
                                     boolean reused, String practiceToken, String dictationToken, boolean done,
-                                    int cpAwarded, java.time.LocalDate studyDay) {
+                                    int cpAwarded, java.time.LocalDate studyDay,
+                                    Integer practiceCorrect, Integer dictationCorrect) {
+    /** Canonical view before per-section correct counts (05/11 caller compatibility). */
+    public JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
+                                 JpathSkillStep step, int setCount, int questionCount, int dictationCount,
+                                 boolean reused, String practiceToken, String dictationToken, boolean done,
+                                 int cpAwarded, java.time.LocalDate studyDay) {
+        this(id, skill, kind, typeCode, step, setCount, questionCount, dictationCount, reused, practiceToken,
+                dictationToken, done, cpAwarded, studyDay, null, null);
+    }
+
     /** Owner 05/11: the study day of the session, so the practice page names the right date. */
     public JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
                                  JpathSkillStep step, int setCount, int questionCount, int dictationCount,
                                  boolean reused, String practiceToken, String dictationToken, boolean done,
                                  int cpAwarded) {
         this(id, skill, kind, typeCode, step, setCount, questionCount, dictationCount, reused, practiceToken,
-                dictationToken, done, cpAwarded, null);
+                dictationToken, done, cpAwarded, null, null, null);
     }
 }

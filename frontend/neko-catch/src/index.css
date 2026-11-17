@@ -115,25 +115,6 @@ input[type='range']::-webkit-slider-thumb {
   50%       { opacity: 0.9; }
 }
 
-/* Accessibility: Respect prefers-reduced-motion */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  .animate-bounce,
-  .animate-spin,
-  .animate-pulse,
-  .animate-fade-in,
-  .animate-slide-up,
-  .animate-glow-pulse,
-  .animate-spin-slow {
-    animation: none !important;
-  }
-}
-
 /* Mèo ở màn cài đặt trước trận (LobbyCat): thở khi ngủ, lắc lư khẽ khi ngồi. */
 @keyframes lobby-cat-breathe {
   0%, 100% { transform: scale(1, 1); }

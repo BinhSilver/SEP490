@@ -26,7 +26,6 @@ export const GAME_CONFIG = {
     hyperBeamChargePerBossKill: 50,  // % Năng lượng Hyper Beam nạp khi tiêu diệt Boss chiến hạm (+50%)
     hyperBeamChargePerHit: 5,        // % Năng lượng Hyper Beam nạp khi gõ đúng 1 từ gây sát thương (+5%)
     hyperBeamMaxCharge: 100,         // Ngưỡng năng lượng để kích hoạt chiêu cuối Hyper Beam (100%)
-    dualCannonChargeMultiplier: 1.5, // Lõi Pháo đôi: thêm 50% năng lượng từ mỗi lần gõ trúng
     hyperBeamBossDamage: 3,          // Sát thương chiêu cuối Hyper Beam gây ra cho Boss chiến hạm (3 HP)
     hyperBeamChargeTimeMs: 900,      // Giai đoạn 1: Khoảng nghỉ nạp tụ năng lượng trước khi bắn (900ms)
     hyperBeamDurationMs: 3000,       // Giai đoạn 2: Duy trì chùm siêu Laser cực đại (3000ms = 3 giây)
@@ -51,10 +50,7 @@ export const GAME_CONFIG = {
     baseSpeed: 0.066,                // Giữ tốc độ đợt đầu; nhịp tăng theo số thẻ dùng chung với game mèo
     fastEnemySpeedMult: 1.45,        // Hệ số tốc độ của Quái Tốc Biến (Monster Fast)
     spaceMineSpeedMult: 0.9,         // Hệ số tốc độ của Thủy Lôi Vũ Trụ (Space Mine)
-    bossSpeedMult: 0.52,             // Hệ số tốc độ di chuyển của Boss chiến hạm (chậm rãi, nặng nề)
-    augmentDraftInterval: 3,         // Chu kỳ mở màn hình chọn Lõi Augment (sau mỗi 3 Wave hoàn thành)
-    defaultRerolls: 3,               // Số lượt đổi bài (Reroll) lõi nâng cấp mặc định
-    versusAugmentAutoPickMs: 10000   // Đối kháng: tự chọn ngẫu nhiên 1 lõi sau 10 giây (thế giới của đối thủ vẫn chạy)
+    bossSpeedMult: 0.52              // Hệ số tốc độ di chuyển của Boss chiến hạm (chậm rãi, nặng nề)
   },
 
   // --------------------------------------------------------------------------
@@ -82,8 +78,7 @@ export const GAME_CONFIG = {
     baseScorePerTarget: 1,           // Mỗi địch bị hạ nhận đúng 1 điểm, kể cả boss và Hyper Beam
     baseCreditsPerTarget: 5,         // Credits thưởng cơ bản cho mỗi quái tiêu diệt
     creditsWaveMultiplier: 2,        // Credits thưởng tăng dần theo cấp độ Wave
-    bossCreditsBonus: 150,           // Credits thưởng thêm tức thì khi hạ Boss
-    goldMagnetCoinBonus: 1.5         // Hệ số nhân Credits (vật phẩm trong trận) khi có Lõi Gold Magnet
+    bossCreditsBonus: 150            // Credits thưởng thêm tức thì khi hạ Boss
   },
 
   // --------------------------------------------------------------------------

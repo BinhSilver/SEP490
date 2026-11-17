@@ -117,7 +117,7 @@
           confirmText: valid ? 'Gỡ nội dung' : 'Khôi phục',
           extraHtml: valid && canSanction
             ? '<div class="field"><label class="field__label" for="admSanction">Chế tài cho người đăng</label>' +
-              '<select class="select" id="admSanction">' + A.sanctionOptions(true) + '</select></div>' : '',
+              '<select class="select" id="admSanction" data-jl-select>' + A.sanctionOptions(true) + '</select></div>' : '',
           collect: function (modal) {
             var select = modal.querySelector('#admSanction');
             return { sanction: select ? A.parseSanction(select.value) : null };

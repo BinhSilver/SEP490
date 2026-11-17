@@ -31,6 +31,14 @@ public class MissionClock {
         return LocalDate.ofInstant(now(), zone);
     }
 
+    /**
+     * The real moment a mission-time instant falls on. Browsers count down against their own clock, so any time
+     * sent to them must leave the demo offset out, or a +30 day jump shows a hint opening in "43199:57".
+     */
+    public Instant toWallClock(Instant missionTime) {
+        return missionTime == null ? null : missionTime.minus(offset);
+    }
+
     public Duration offset() {
         return offset;
     }

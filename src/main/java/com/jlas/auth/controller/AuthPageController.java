@@ -13,8 +13,9 @@ public class AuthPageController {
     private String googleClientId;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, org.springframework.security.core.Authentication authentication) {
         model.addAttribute("layoutMode", "marketing");
+        // F24: one home page for everyone; the guest blocks inside it are shown by landing.js (no JWT on page loads)
         return "index";
     }
 

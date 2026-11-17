@@ -131,7 +131,7 @@
       + '  </label>'
       + '  <label class="ar-deck-filter" title="Nguồn bộ flashcard: Bộ của tôi">'
       + '    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16l-6 7v7l-4 2v-9L4 4z"/></svg>'
-      + '    <select aria-label="Lọc nguồn bộ flashcard" data-deck-filter>'
+      + '    <select aria-label="Lọc nguồn bộ flashcard" data-deck-filter data-jl-select data-variant="overlay">'
       + TABS.map(function (tab) {
         return '<option value="' + tab.key + '"' + (tab.key === self.tab ? ' selected' : '') + '>' + esc(tab.label) + '</option>';
       }).join('')
@@ -338,11 +338,11 @@
     container.innerHTML = ''
       + '<div class="ar-fields">'
       + '  <div><label class="ar-label" for="ar-q-field">Nội dung câu hỏi</label>'
-      + '    <select id="ar-q-field" class="ar-select" data-q>' + options(config.question, null) + '</select></div>'
+      + '    <select id="ar-q-field" class="ar-select" data-q data-jl-select>' + options(config.question, null) + '</select></div>'
       + '  <button type="button" class="ar-icon-btn ar-swap" data-swap aria-label="Đổi chỗ câu hỏi và đáp án" title="Đổi chỗ câu hỏi và đáp án">'
       + '    <i class="fa-solid fa-right-left" aria-hidden="true"></i></button>'
       + '  <div><label class="ar-label" for="ar-a-field">Nội dung đáp án</label>'
-      + '    <select id="ar-a-field" class="ar-select" data-a>' + options(config.answer, config.question) + '</select></div>'
+      + '    <select id="ar-a-field" class="ar-select" data-a data-jl-select>' + options(config.answer, config.question) + '</select></div>'
       + '</div>'
       + (detail ? '<p class="ar-pair-note' + (enough ? '' : ' is-bad') + '" role="status">'
         + (enough

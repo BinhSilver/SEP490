@@ -177,18 +177,18 @@
     color: var(--dm-feature-warning, #99620b);
 }
 
-.jlpt-exam-sidebar button.is-marked {
-    border-color: var(--dm-feature-line, #d39a32);
-    background: var(--dm-feature-soft, #fff3d4);
-    color: var(--dm-feature-warning, #88570b);
-    box-shadow: inset 0 -3px 0 #e3a83d;
+#jlptPalette button.is-marked,
+#jlptPalette button.is-marked.is-current,
+#jlptPalette button.is-marked.is-answered {
+    border-color: #d97706;
+    background: #f59e0b;
+    color: #422006;
+    box-shadow: none;
 }
 
-.jlpt-exam-sidebar button.is-marked.is-current {
-    border-color: var(--dm-feature-accent, #d39a32);
-    background: var(--color-primary);
-    color: var(--color-on-primary);
-    box-shadow: inset 0 -4px 0 #f2bc55;
+#jlptPalette button.is-marked.is-current {
+    outline: 2px solid #b45309;
+    outline-offset: 2px;
 }
 
 .jlpt-exam-choice > span {
@@ -255,11 +255,6 @@
     border-color: var(--color-primary);
     background: var(--color-primary);
     color: var(--color-on-primary);
-}
-
-.jlpt-exam-sidebar nav button.is-answered.is-marked {
-    border-color: var(--dm-feature-success-line, #d39a32);
-    box-shadow: inset 0 -3px 0 #e3a83d;
 }
 
 .jlpt-exam-filter-empty {

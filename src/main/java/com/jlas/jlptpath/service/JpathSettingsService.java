@@ -1,6 +1,7 @@
 package com.jlas.jlptpath.service;
 
 import com.jlas.jlptpath.dto.JpathDisplaySettings;
+import com.jlas.jlptpath.dto.JpathPaceView;
 import com.jlas.jlptpath.dto.JpathPathView;
 import com.jlas.jlptpath.dto.JpathSettingsUpdateRequest;
 import com.jlas.jlptpath.dto.JpathSettingsView;
@@ -17,6 +18,13 @@ public interface JpathSettingsService {
 
     /** The settings page; without an ACTIVE path only the display and reminder block. */
     JpathSettingsView get(Long userId);
+
+    /**
+     * [JLAS-W0108] F151: Read-only pace preview for candidate schedule/target changes using the active path's real
+     * remaining items, kana rows, stored sliders, third skill day and skill practice progress (returns blocked/warn/ok
+     * without throwing {@code JPATH_TARGET_TOO_SOON}). No ACTIVE path → {@code JPATH_NO_ACTIVE_PATH}.
+     */
+    JpathPaceView preview(Long userId, JpathSettingsUpdateRequest request);
 
     /**
      * Applies the given fields (null = keep) after checking all of them; nothing is written when one check fails. A
@@ -39,6 +47,9 @@ public interface JpathSettingsService {
      * ACTIVE path → JPATH_NO_ACTIVE_PATH.
      */
     JpathPathView lowerLevel(Long userId, String level);
+
+    /** AI 1 #13: back to a higher level already reached (see JpathSettingsView.returnLevels). */
+    JpathPathView returnLevel(Long userId, String level);
 
     /**
      * Restart from the beginning (spec 4.12): the text must pass {@link #restartTextMatches}

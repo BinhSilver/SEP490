@@ -1,18 +1,7 @@
-/** Màn hình trong trận: chiến đấu (vô tận / đối kháng), chọn lõi Augment, tổng kết. */
-export type Screen = "endless" | "pvp" | "augment" | "debrief";
+/** Màn hình trong trận: chiến đấu (vô tận / đối kháng), tổng kết. */
+export type Screen = "endless" | "pvp" | "debrief";
 
 export type GameMode = "endless" | "pvp";
-
-export type AugmentCategory = "OFFENSE" | "DEFENSE" | "CONTROL" | "UTILITY" | "SURVIVAL" | "TACTICAL";
-
-export interface AugmentCard {
-  id: string;
-  title: string;
-  description: string;
-  category: AugmentCategory;
-  icon: string;
-  tone: "cyan" | "rose" | "violet" | "amber";
-}
 
 export interface TargetWord {
   /** id duy nhất của phi thuyền trên màn hình (một từ có thể xuất hiện nhiều lần). */

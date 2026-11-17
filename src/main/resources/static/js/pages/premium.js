@@ -61,8 +61,6 @@
     var period = yearly && !monthly ? 'year' : 'month';
     var current = data.current;
     var q = data.aiCall;
-    var couponCode = null;
-    var preview = null;
 
     function premiumPlan() { return period === 'year' ? yearly : monthly; }
 
@@ -115,8 +113,6 @@
             '</ul>' +
             (current && current.premiumActive ? '<p class="pm-note">Bạn đang có Premium đến ' + date(current.expiresAt) +
               '. Mua thêm sẽ cộng ' + plan.durationDays + ' ngày vào hạn này.</p>' : '') +
-            '<div class="pm-coupon"><label for="premiumCoupon">Mã giảm giá</label><input id="premiumCoupon" class="input" data-coupon maxlength="40" value="' + esc(couponCode || '') + '"><button type="button" class="btn btn--secondary" data-apply-coupon>Áp dụng</button></div>' +
-            (preview ? '<p class="pm-note">Giảm ' + vnd(preview.discountAmount) + ' · Thanh toán ' + vnd(preview.finalAmount) + '</p>' : '') +
             '<p class="pm-error" data-error aria-live="assertive"></p>' + cta(plan) +
           '</article>' : '<article class="pm-plan"><h2>Premium</h2><p class="pm-muted">Hiện chưa có gói Premium nào đang bán.</p></article>') +
         '</div>' +
@@ -132,23 +128,13 @@
 
     root.addEventListener('click', async function (event) {
       var toggle = event.target.closest('[data-period]');
-      if (toggle) { period = toggle.dataset.period; couponCode = null; preview = null; render(); return; }
-      var apply = event.target.closest('[data-apply-coupon]');
-      if (apply) {
-        var plan = premiumPlan();
-        var code = root.querySelector('[data-coupon]').value.trim();
-        try {
-          var quote = await api('POST', '/api/billing/coupons/preview', { code: code, productType: 'PREMIUM', productId: plan.id });
-          couponCode = quote.code; preview = quote; render();
-        } catch (e) { root.querySelector('[data-error]').textContent = e.message; }
-        return;
-      }
+      if (toggle) { period = toggle.dataset.period; render(); return; }
       var buy = event.target.closest('[data-buy]');
       if (!buy) return;
       buy.disabled = true;
       buy.textContent = 'Đang tạo đơn…';
       try {
-        var order = await api('POST', API + '/checkout', { planId: Number(buy.dataset.buy), couponCode: couponCode });
+        var order = await api('POST', API + '/checkout', { planId: Number(buy.dataset.buy), couponCode: null });
         location.assign('/premium/checkout/' + order.orderCode);
       } catch (e) {
         root.querySelector('[data-error]').textContent = e.message;
@@ -165,6 +151,7 @@
     var timer = null;
     var countdown = null;
     var qrRendered = false;
+    var busy = false;
 
     // PayOS sends the buyer back with ?cancel=1 after cancelling there: confirm it with the server.
     var order = new URLSearchParams(location.search).get('cancel') === '1'
@@ -190,7 +177,7 @@
       return 'Link hết hạn sau ' + m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    function render(o) {
+    function render(o, resultError) {
       if (o.status === 'PAID') {
         stop();
         root.innerHTML = '<div class="pm-card pm-result pm-result--ok"><i class="fa-solid fa-circle-check pm-result__icon" aria-hidden="true"></i>' +
@@ -209,7 +196,8 @@
         root.innerHTML = '<div class="pm-checkout">' + summary(o) +
           '<section class="pm-card pm-result pm-result--bad"><i class="fa-solid fa-circle-xmark pm-result__icon" aria-hidden="true"></i>' +
           '<h1>' + esc((STATUS[o.status] || [o.status])[0]) + '</h1><p class="pm-muted">' + esc(text[o.status] || '') + '</p>' +
-          '<div class="pm-actions"><a class="btn btn--primary" href="/premium">Chọn lại gói</a></div></section></div>';
+          (resultError ? '<p class="pm-error">' + esc(resultError) + '</p>' : '') +
+          '<div class="pm-actions"><a class="btn btn--primary" href="' + (o.productType === 'CREDIT' ? '/credits' : '/premium') + '">Chọn lại gói</a></div></section></div>';
         return;
       }
       if (!qrRendered) {
@@ -219,16 +207,20 @@
             '<p class="pm-muted">Mở ứng dụng ngân hàng, quét mã và giữ nguyên số tiền, nội dung chuyển khoản.</p>' +
             '<p><span class="pm-status"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Đang chờ xác nhận thanh toán</span></p>' +
             '<p class="pm-muted" data-countdown></p>' +
+            (!Number(o.discountAmount) ? '<div class="pm-coupon"><label for="checkoutCoupon">Mã giảm giá</label>' +
+              '<div class="pm-coupon__controls"><input id="checkoutCoupon" class="input" data-coupon maxlength="40" autocomplete="off">' +
+              '<button class="btn btn--secondary" type="button" data-apply-coupon>Áp dụng</button></div></div>' : '') +
             '<div class="pm-actions">' +
-              (o.checkoutUrl ? '<a class="btn btn--secondary" href="' + esc(o.checkoutUrl) + '" target="_blank" rel="noopener">Mở trang thanh toán PayOS</a>' : '') +
               '<button class="btn btn--secondary" type="button" data-cancel>Huỷ đơn</button></div>' +
             '<p class="pm-error" data-error aria-live="assertive"></p>' +
           '</section></div>';
         var box = root.querySelector('[data-qr]');
-        if (window.QRCode && o.qrCode) {
+        try {
+          if (!window.QRCode || !o.qrCode) throw new Error('QR unavailable');
           new window.QRCode(box, { text: o.qrCode, width: 232, height: 232, correctLevel: window.QRCode.CorrectLevel.M });
-        } else {
-          box.outerHTML = '<p class="pm-muted">Không hiển thị được mã QR. Hãy mở trang thanh toán PayOS.</p>';
+        } catch (ignored) {
+          box.outerHTML = '<p class="pm-muted">Không hiển thị được mã QR.' +
+            (o.checkoutUrl ? ' <a href="' + esc(o.checkoutUrl) + '" target="_blank" rel="noopener">Mở trang thanh toán PayOS</a>.' : '') + '</p>';
         }
         qrRendered = true;
       } else {
@@ -245,14 +237,54 @@
     async function poll() {
       try {
         order = await api('GET', API + '/orders/' + code);
+        if (busy) return;
         render(order);
       } catch (e) { /* transient: keep polling */ }
       if (order.status === 'PENDING') timer = setTimeout(poll, POLL_MS);
     }
 
     root.addEventListener('click', async function (event) {
+      var apply = event.target.closest('[data-apply-coupon]');
+      if (apply) {
+        if (busy) return;
+        var coupon = root.querySelector('[data-coupon]');
+        var error = root.querySelector('[data-error]');
+        var couponCode = coupon.value.trim();
+        error.textContent = '';
+        if (!couponCode) { error.textContent = 'Vui lòng nhập mã giảm giá.'; coupon.focus(); return; }
+        busy = true;
+        apply.disabled = true;
+        coupon.disabled = true;
+        apply.textContent = 'Đang áp dụng…';
+        try {
+          stop();
+          order = await api('POST', API + '/orders/' + code + '/coupon', { code: couponCode });
+          if (String(order.orderCode) !== String(code)) {
+            location.replace('/premium/checkout/' + order.orderCode);
+            return;
+          }
+          qrRendered = false;
+          render(order);
+          if (order.status === 'PENDING') timer = setTimeout(poll, POLL_MS);
+        } catch (e) {
+          try {
+            order = await api('GET', API + '/orders/' + code);
+          } catch (ignored) { /* Keep the existing checkout visible if status cannot be fetched. */ }
+          if (order.status !== 'PENDING') {
+            render(order, e.message);
+          } else {
+            error.textContent = e.message;
+            coupon.disabled = false;
+            apply.disabled = false;
+            apply.textContent = 'Áp dụng';
+            timer = setTimeout(poll, POLL_MS);
+          }
+        } finally { busy = false; }
+        return;
+      }
       var cancel = event.target.closest('[data-cancel]');
       if (!cancel) return;
+      if (busy) return;
       if (!confirm('Huỷ đơn thanh toán này?')) return;
       cancel.disabled = true;
       try {
@@ -305,28 +337,19 @@
       '<div class="pm-plans">' + data.packages.map(function (p) {
         return '<article class="pm-plan"><h2>' + esc(p.name) + '</h2><p>' + esc(p.description || '') + '</p>' +
           '<div class="pm-price"><strong>' + p.creditAmount + ' CP</strong><span>' + vnd(p.price) + '</span></div>' +
-          '<label>Mã giảm giá <input class="input" data-coupon-for="' + p.id + '" maxlength="40"></label>' +
-          '<button type="button" class="btn btn--secondary" data-preview-credit="' + p.id + '">Áp dụng</button>' +
-          '<p class="pm-note" data-quote-for="' + p.id + '"></p>' +
           (data.paymentsEnabled ? '<button type="button" class="btn btn--primary" data-buy-credit="' + p.id + '">Mua CP</button>' : '<button type="button" disabled>Thanh toán đang bảo trì</button>') +
           '<p class="pm-error" data-error-for="' + p.id + '"></p></article>';
       }).join('') + '</div><p><a href="/premium/billing">Lịch sử mua CP và thanh toán</a></p>';
     root.addEventListener('click', async function (event) {
-      var button = event.target.closest('[data-preview-credit],[data-buy-credit]');
+      var button = event.target.closest('[data-buy-credit]');
       if (!button) return;
-      var id = Number(button.dataset.previewCredit || button.dataset.buyCredit);
-      var code = root.querySelector('[data-coupon-for="' + id + '"]').value.trim();
+      var id = Number(button.dataset.buyCredit);
       var error = root.querySelector('[data-error-for="' + id + '"]');
       error.textContent = '';
       try {
-        if (button.dataset.previewCredit) {
-          var quote = await api('POST', '/api/billing/coupons/preview', { code: code, productType: 'CREDIT', productId: id });
-          root.querySelector('[data-quote-for="' + id + '"]').textContent = 'Giảm ' + vnd(quote.discountAmount) + ' · Thanh toán ' + vnd(quote.finalAmount);
-        } else {
-          button.disabled = true;
-          var order = await api('POST', '/api/credits/checkout', { packageId: id, couponCode: code || null });
-          location.assign('/premium/checkout/' + order.orderCode);
-        }
+        button.disabled = true;
+        var order = await api('POST', '/api/credits/checkout', { packageId: id, couponCode: null });
+        location.assign('/premium/checkout/' + order.orderCode);
       } catch (e) { error.textContent = e.message; button.disabled = false; }
     });
   }

@@ -3,7 +3,10 @@ package com.jlas.dictionary.controller;
 import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.repository.LessonRepository;
 import com.jlas.dictionary.repository.TextbookRepository;
+import com.jlas.dictionary.service.impl.DictionaryKanjiPrintService;
 import com.jlas.dictionary.service.TextbookAccessPolicy;
+import com.jlas.common.exception.ApiException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,12 +32,25 @@ public class DictionaryPageController {
     private final TextbookRepository textbookRepository;
     private final TextbookAccessPolicy accessPolicy;
     private final com.jlas.flashcard.repository.FlashcardTextbookLinks flashcardLinks;
+    private final DictionaryKanjiPrintService kanjiPrint;
 
-    @GetMapping({"/search", "/search/{tab:word|kanji|example|grammar|japanese}",
-            "/search/{tab:word|kanji|example|grammar|japanese}/{query}",
+    @GetMapping({"/search", "/search/{tab:word|kanji|example|grammar}",
+            "/search/{tab:word|kanji|example|grammar}/{query}",
             "/search/grammar_details/{id}"})
     public String page() {
         return "forward:/dictionary/index.html";
+    }
+
+    /** The dictionary writing sheet uses dictionary content and does not require a JLPT path. */
+    @GetMapping("/dictionary/kanji/{character}/print")
+    public String printKanji(@PathVariable String character, Model model, HttpServletResponse response) {
+        try {
+            model.addAttribute("sheet", kanjiPrint.sheet(character));
+        } catch (ApiException e) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            model.addAttribute("printError", e.getMessage());
+        }
+        return "jlptpath/print";
     }
 
     @GetMapping("/textbooks")
