@@ -82,8 +82,8 @@
       + '<div class="cp-core-card__vi">' + esc(item.meaningVi) + '</div>'
       + (item.note ? '<div class="cp-core-card__note">' + esc(item.note) + '</div>' : '')
       + (ex && ex.ja ? '<div class="cp-core-card__ex">'
-        + '<div class="cp-core-card__ex-ja" lang="ja">' + ruby(ex.furigana || ex.ja, d.furigana !== false)
-        + ' ' + playBtn(ex.audioUrl, ex.ja, 'Nghe câu ví dụ') + '</div>'
+        + '<div class="cp-core-card__ex-ja" lang="ja"><span class="cp-core-card__ex-text">' + ruby(ex.furigana || ex.ja, d.furigana !== false) + '</span>'
+        + playBtn(ex.audioUrl, ex.ja, 'Nghe câu ví dụ') + '</div>'
         + (d.romaji ? '<div class="cp-line__romaji">' + esc(romajiOf(ex.furigana || ex.ja)) + '</div>' : '')
         + (d.translation !== false && ex.vi ? '<div class="cp-core-card__ex-vi">' + esc(ex.vi) + '</div>' : '')
         + '</div>' : '')

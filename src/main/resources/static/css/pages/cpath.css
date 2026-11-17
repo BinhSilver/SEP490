@@ -1820,7 +1820,10 @@ button.jp-sidenav__link {
 .cp-core-card__vi { font-weight: 600; }
 .cp-core-card__note { font-size: .82rem; color: var(--cp-muted); }
 .cp-core-card__ex { margin-top: 4px; padding-top: 6px; border-top: 1px dashed var(--cp-line); display: grid; gap: 2px; }
-.cp-core-card__ex-ja { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cp-core-card__ex-ja { display: flex; align-items: center; gap: 6px; }
+/* The sentence is one flex item: as direct children every text run and <ruby> wrapped on its own (いい 天気 / ですから…). */
+.cp-core-card__ex-text { flex: 1 1 auto; min-width: 0; line-height: 1.9; }
+.cp-core-card__ex-ja > :not(.cp-core-card__ex-text) { flex: none; }
 .cp-core-card__ex-vi { font-size: .88rem; color: var(--cp-muted); }
 .cp-core-quiz { display: grid; gap: 12px; }
 .cp-core-quiz__count { margin: 0; font-size: .85rem; color: var(--cp-muted); }
