@@ -592,8 +592,11 @@ html.dark .cp-page {
   html body .jp-path .jp-path__side { position: sticky; top: 72px; align-self: start; max-height: calc(100dvh - 88px);
     overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 }
-/* Owner 17/11: Kitsu on the date circle sat on the card's top border — moved down a little. */
-html body .jp-today .jp-today__cal-kitsu { top: -10px; }
+/* Owner 17/11: the whole top block of the today card (date circle + Kitsu + title) moves down, not only Kitsu. */
+html body .jp-path .jp-today .jp-today__top { margin-top: 14px; }
+/* Owner 17/11: a past study day left unlearned shows "Chưa học · Học bù", not "Bắt đầu". */
+.jp-parts__bubble--missed { background: var(--jp-warn-bg, #fff4e0) !important; color: var(--jp-warn-ink, #8a4b00) !important;
+  border-color: var(--jp-warn-line, #f0c27a) !important; }
 /* Owner 17/11: closable one-time notices (jpath-nav.js). */
 .jp-notice--closable { position: relative; padding-right: 44px !important; }
 .jp-notice__close { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); width: 30px; height: 30px;

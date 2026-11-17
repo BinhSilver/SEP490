@@ -680,7 +680,11 @@ public class CpathService {
             Map<String, Object> pr = prog.get(s.get("code"));
             String status = done(pr) ? (today.equals(toDate(pr.get("study_day"))) ? "TODAY_DONE" : "DONE")
                     : pr != null && today.equals(toDate(pr.get("study_day"))) ? "TODAY" : "NEXT";
-            items.add(item("SITUATION", s.get("code"), s.get("title_vi"), s.get("title_ja"), s.get("topic_code"), s.get("topic_name"), status, null));
+            Map<String, Object> sitNode = item("SITUATION", s.get("code"), s.get("title_vi"), s.get("title_ja"), s.get("topic_code"), s.get("topic_name"), status, null);
+            // owner 17/11: a past study day left unlearned is "missed", not a brand-new lesson
+            LocalDate planned = pr == null ? null : toDate(pr.get("study_day"));
+            sitNode.put("missed", !done(pr) && planned != null && planned.isBefore(today));
+            items.add(sitNode);
             boolean lastOfTopic = i == order.size() - 1 || !s.get("topic_code").equals(order.get(i + 1).get("topic_code"));
             if (lastOfTopic) {
                 Map<String, Object> t = topicRows.get(s.get("topic_code"));

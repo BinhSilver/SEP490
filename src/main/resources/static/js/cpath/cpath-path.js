@@ -531,7 +531,7 @@
 
     var stepsSummary = '';
     var actionHref = pageUrl('situation', { id: item.id });
-    var actionLabel = isDone ? 'Ôn lại tình huống' : 'Bắt đầu học (4 bước)';
+    var actionLabel = isDone ? 'Ôn lại tình huống' : (item.missed ? 'Học bù (4 bước)' : 'Bắt đầu học (4 bước)');
 
     if (item.type === 'SITUATION') {
       stepsSummary = '<ul class="jp-parts__pills-grid">'
@@ -672,7 +672,8 @@
 
     var bubble = isToday
       ? '<span class="jp-parts__bubble">Bắt đầu</span>'
-      : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>' : '');
+      : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>'
+        : (item.missed && !isDone ? '<span class="jp-parts__bubble jp-parts__bubble--missed">Chưa học · Học bù</span>' : ''));
     var todayKitsu = (isToday || isTodayDone) && showTodayKitsu
       ? '<span class="jp-parts__mascot jp-parts__mascot--today jp-parts__mascot--left" aria-hidden="true">'
         + '<span class="jp-parts__mascot-speech">' + (isTodayDone ? 'Giỏi quá!' : 'Vào tình huống này nhé!') + '</span>'
@@ -1026,9 +1027,9 @@
       var seen = false;
       try { seen = root.localStorage.getItem(TOUR_KEY) === '1'; } catch (e) { seen = false; }
       if (seen && !forced) return;
-      tour.create({ doc: root.document, steps: TOUR_STEPS, onFinish: function () {
-        try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
-      } }).start();
+      // owner 17/11: the guide shows once (first visit after the path is made); later only from "Xem hướng dẫn"
+      try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
+      tour.create({ doc: root.document, steps: TOUR_STEPS, onFinish: function () {} }).start();
     }
 
     function renderAll() {
