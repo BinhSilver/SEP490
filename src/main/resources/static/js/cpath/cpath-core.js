@@ -141,12 +141,28 @@
   /** Items still to check: not done yet (all of them in the known check). */
   function pending(items) { return (items || []).filter(function (x) { return !x.done; }); }
 
+  /** Owner 17/11: every quiz attempt asks in a new random order, options shuffled too. Answers stay keyed by item
+   *  code and checked by meaning, so grading and progress do not depend on the order. */
+  function shuffled(list, rnd) {
+    var a = (list || []).slice();
+    var r = rnd || Math.random;
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function quizOrder(list, rnd) {
+    return shuffled(list, rnd).map(function (q) {
+      var c = {}; for (var k in q) if (Object.prototype.hasOwnProperty.call(q, k)) c[k] = q[k];
+      if (Array.isArray(q.options)) c.options = shuffled(q.options, rnd);
+      return c;
+    });
+  }
+
   function mount(el, deps) {
     if (!el || !root.JpathApi) return;
     var d = deps || {};
     var search = d.search != null ? d.search : String(root.location && root.location.search || '');
     var isCheck = /[?&]check=1/.test(search);
-    var data = null, phase = 'learn', qi = 0, answers = {}, result = null, busy = false;
+    var data = null, phase = 'learn', qi = 0, answers = {}, result = null, busy = false, quiz = null;
     var A = root.CpathAudio;
 
     function header() {
@@ -174,7 +190,7 @@
         el.innerHTML = header() + resultHtml(result, items, isCheck, answers);
         return;
       }
-      var todo = isCheck ? items : pending(items);
+      var todo = phase === 'quiz' && quiz ? quiz : (isCheck ? items : pending(items));
       if (!isCheck && data.done) {
         el.innerHTML = header() + '<section class="jp-card cp-core-result" role="status"><h2>Bài nền hôm nay đã xong</h2>'
           + '<p>Bạn có thể xem lại thẻ bên dưới hoặc vào tình huống hôm nay.</p>'
@@ -211,6 +227,7 @@
       var url = isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson';
       Promise.resolve(root.JpathApi.get(url)).then(function (x) {
         data = x || {}; phase = isCheck ? 'quiz' : 'learn'; qi = 0; answers = {}; result = null;
+        quiz = isCheck ? quizOrder(data.questions) : null;
         if (A) A.fromDisplay(data.display);
         render();
       }).catch(function (e) {
@@ -227,8 +244,8 @@
         if (A) A.play(play.getAttribute('data-core-play'), play.getAttribute('data-core-text'));
         return;
       }
-      var items = isCheck ? (data && data.questions || []) : pending(data && data.items);
-      if (t.closest('[data-core-quiz]')) { phase = 'quiz'; qi = 0; answers = {}; render(); return; }
+      var items = quiz || (isCheck ? (data && data.questions || []) : pending(data && data.items));
+      if (t.closest('[data-core-quiz]')) { phase = 'quiz'; qi = 0; answers = {}; quiz = quizOrder(pending(data && data.items)); render(); return; }
       if (t.closest('[data-core-back]')) { phase = 'learn'; render(); return; }
       if (t.closest('[data-core-prev]')) { qi = Math.max(0, qi - 1); render(); return; }
       var pick = t.closest('[data-core-pick]');
@@ -247,5 +264,5 @@
     load();
   }
 
-  return { ruby: ruby, cardHtml: cardHtml, quizHtml: quizHtml, resultHtml: resultHtml, pending: pending, spoken: spoken, mount: mount };
+  return { shuffled: shuffled, quizOrder: quizOrder, ruby: ruby, cardHtml: cardHtml, quizHtml: quizHtml, resultHtml: resultHtml, pending: pending, spoken: spoken, mount: mount };
 });
