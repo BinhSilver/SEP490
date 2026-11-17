@@ -162,14 +162,9 @@
       + '</section>';
   }
 
-  function goalSection(path) {
-    return '<section class="jp-card cp-settings" id="cpSetGoal" aria-labelledby="cpGoalSettingsTitle">'
-      + '<h2 id="cpGoalSettingsTitle">Mục tiêu chính và mục tiêu phụ</h2>'
-      + '<p class="cp-settings__desc">Mục tiêu đang học: <strong>' + esc(path.nameVi || 'Giao tiếp') + '</strong>. '
-      + 'Đổi mục tiêu chính sẽ giữ tiến độ cũ, chọn lại mục tiêu này là học tiếp. Mục tiêu phụ học xen với mục tiêu chính.</p>'
-      + '<div class="cp-settings__actions"><a class="cp-btn-ghost" href="/survey?edit=goal">Đổi mục tiêu chính</a>'
-      + '<a class="cp-btn-ghost" href="/learning/comm/survey?secondary=1">Thêm mục tiêu phụ</a>'
-      + '<a class="cp-btn-ghost" href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></div></section>';
+  /** Owner 17/11: the shared "Mục tiêu học của bạn" panel (jpath-goals.js), the same on the JLPT settings. */
+  function goalSection() {
+    return '<div id="cpSetGoal" data-jpath-goals></div>';
   }
 
   function manageSection(path, notices) {
@@ -221,6 +216,8 @@
       var focusId = root.document && root.document.activeElement && root.document.activeElement.getAttribute
         ? root.document.activeElement.getAttribute('data-cp-display') : null;
       el.innerHTML = view(path, draft, '', !!undo, notices, core);
+      var goalsEl = el.querySelector && el.querySelector('[data-jpath-goals]');
+      if (goalsEl && typeof window !== 'undefined' && window.JpathGoals) window.JpathGoals.mount(goalsEl);
       if (focusId) {
         var again = el.querySelector('[data-cp-display="' + focusId + '"]');
         if (again) again.focus();

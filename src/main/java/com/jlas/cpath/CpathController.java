@@ -65,7 +65,7 @@ public class CpathController {
     private PremiumAccess premium;
 
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
-    private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
+    private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
             "/notebook", "/day");
 
@@ -97,6 +97,12 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> create(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", service.createPath(user.userId(), body)));
+    }
+
+    /** Owner 17/11: main goal, secondary goal and paused paths of both paths, for every goal panel and message. */
+    @GetMapping("/goals/overview")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> goalsOverview(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.goalsOverview(user.userId())));
     }
 
     @GetMapping("/path")

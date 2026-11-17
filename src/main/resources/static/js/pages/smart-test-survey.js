@@ -360,6 +360,27 @@
     // [JLAS-W0108] Owner 07/11: only the new paths remain; /learning routes to the JLPT or communication path.
     window.location.assign('/learning');
   });
+  /** Owner 17/11 (mentor review): changing the main goal says up front what happens to the current paths. */
+  function showGoalChangeNote() {
+    var slide = form.querySelector('[data-survey-step="goal"]');
+    if (!slide || slide.querySelector('.survey-goal-change')) return;
+    var note = document.createElement('div');
+    note.className = 'survey-goal-change';
+    note.setAttribute('role', 'note');
+    note.setAttribute('data-notice-keep', '');
+    note.innerHTML = '<strong>Bạn đang đổi mục tiêu chính.</strong> '
+      + '<span data-goal-change-detail>Lộ trình đang học sẽ tạm dừng, tiến độ giữ nguyên; chọn lại mục tiêu cũ là học tiếp.</span>';
+    slide.insertBefore(note, slide.firstChild);
+    api('/api/learning/comm/goals/overview').then(function (v) {
+      var parts = [];
+      if (v && v.main) parts.push('Mục tiêu chính hiện tại: ' + (v.main.kind === 'JLPT' ? 'Lộ trình ' : 'Giao tiếp · ') + v.main.nameVi + ' — sẽ tạm dừng, tiến độ giữ nguyên.');
+      if (v && v.secondary) parts.push('Mục tiêu phụ: Giao tiếp · ' + v.secondary.nameVi + ' — chọn mục tiêu này thì nó được nâng lên làm chính và giữ tiến độ.');
+      parts.push('Chọn lại một mục tiêu đã học trước đây là học tiếp từ chỗ cũ.');
+      var d = note.querySelector('[data-goal-change-detail]');
+      if (d) d.textContent = ' ' + parts.join(' ');
+    }, function () { /* the short note stays */ });
+  }
+
   function openWizard(startStep) {
     if (savedSurvey) fillSurvey(savedSurvey);
     // An old answer only the legacy survey offers (duration 3 "Dưới 6 tháng") stays visible so the step reads answered.
@@ -369,6 +390,7 @@
       });
     }
     applyEntryStatus();
+    if (editParam === 'goal') showGoalChangeNote();
     invitation.hidden = true;
     form.hidden = false;
     progressHeader.hidden = false;
