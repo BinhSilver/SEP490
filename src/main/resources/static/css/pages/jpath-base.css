@@ -623,24 +623,26 @@ html body .jp-parts:has(.jp-parts__popover) .jp-parts__stage { position: relativ
 .jp-week-skip-box__body .jp-warmup__title { font-size: .95rem; margin: 0; }
 .jp-week-skip-box__body .jp-warmup__sub { font-size: .82rem; margin: 2px 0 0; }
 .jp-week-skip-box__body .jp-btn { padding: 6px 12px; min-height: 0; font-size: .88rem; }
-/* Owner 17/11 "chưa gọn": pace button, "Điều chỉnh nhịp học" and "Đã biết trước?" sit in one row of small
-   chips; whichever is opened takes the full row width below them. */
-html body .jp-path .jp-path__tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; margin: 0; }
-html body .jp-path .jp-path__tools > * { margin: 0 !important; }
-html body .jp-path .jp-path__tools > .jp-path__pace,
-html body .jp-path .jp-path__tools > .jp-path__warmup { flex: 0 0 auto; border: 0 !important; padding: 0 !important; background: none !important; }
-html body .jp-path .jp-path__tools > .jp-path__pace[open],
-html body .jp-path .jp-path__tools > .jp-path__warmup:has(details[open]) { flex: 1 1 100%; order: 9; }
-html body .jp-path .jp-path__tools .jp-path__pace-head,
-html body .jp-path .jp-path__tools .jp-week-skip-box__sum {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 14px !important; border: 1px solid var(--jp-line, #e6e1f5);
-  border-radius: 999px; background: var(--jp-surface, #fff); font-size: .9rem; font-weight: 600; color: var(--jp-ink, #1f1b2e); cursor: pointer; }
-html body .jp-path .jp-path__tools .jp-week-skip-box { border: 0; background: none; }
-html body .jp-path .jp-path__tools .jp-week-skip-box__sum::after { margin-left: 4px; }
-html body .jp-path .jp-path__tools .jp-path__pace[open] > .jp-path__slider,
-html body .jp-path .jp-path__tools .jp-week-skip-box[open] > .jp-week-skip-box__body {
-  margin-top: 8px; padding: 12px; border: 1px solid var(--jp-line, #e6e1f5); border-radius: 14px; background: var(--jp-surface, #fff); }
-html body .jp-path .jp-path__tools .jp-btn--sm { min-height: 36px; padding: 6px 14px; border-radius: 999px; font-size: .9rem; }
-html body .jp-path .jp-path__tools .jp-week-skip-box__title { white-space: nowrap; }
-html body .jp-path .jp-path__stage .jp-weekguide { margin: 4px 0 !important; }
-html body .jp-path .jp-path__tools .jp-path__pace[open] > .jp-path__pace-more { margin: 8px 2px 0; font-size: .88rem; }
+/* Owner 17/11: JLPT path tool row — chips in one row, one full-width panel below (jpath-week-skip.js tools()). */
+html body .jp-path .jp-tools { display: grid; gap: 10px; }
+html body .jp-path .jp-tools__bar { display: flex; flex-wrap: wrap; gap: 8px; }
+html body .jp-path .jp-tools__chip { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 6px 14px 6px 16px;
+  border: 1px solid var(--jp-line, #e6e1f5); border-radius: 999px; background: var(--jp-surface, #fff); color: var(--jp-ink, #1f1b2e);
+  font: inherit; font-size: .92rem; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s; }
+html body .jp-path .jp-tools__chip::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); opacity: .6; transition: transform .2s; }
+html body .jp-path .jp-tools__chip[aria-expanded="true"] { border-color: var(--jp-c-purple-500, #5521b5); background: var(--jp-c-purple-50, #f3eeff); color: var(--jp-c-purple-700, #4b1fa6); }
+html body .jp-path .jp-tools__chip[aria-expanded="true"]::after { transform: translateY(2px) rotate(-135deg); }
+html body .jp-path .jp-tools__chip:hover { border-color: var(--jp-c-purple-500, #5521b5); }
+html body .jp-path .jp-tools__count { font-size: .78rem; padding: 2px 8px; border-radius: 99px; background: var(--jp-c-purple-50, #f1ecff); color: var(--jp-c-purple-700, #4b1fa6); }
+html body .jp-path .jp-tools__panel { margin: 0 !important; padding: 14px 16px !important; border: 1px solid var(--jp-line, #e6e1f5) !important;
+  border-radius: 16px !important; background: var(--jp-surface, #fff) !important; display: grid; gap: 10px; }
+html body .jp-path .jp-tools__panel[hidden] { display: none !important; }
+html body .jp-path .jp-tools__panel .jp-path__slider > * { margin: 0 !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; background: none !important; }
+html body .jp-path .jp-tools__more { margin: 0; padding-top: 10px; border-top: 1px dashed var(--jp-line, #e6e1f5); font-size: .88rem; }
+html body .jp-path .jp-tools__more a { color: var(--jp-c-purple-700, #4b1fa6); font-weight: 600; text-decoration: none; }
+html body .jp-path .jp-tools__panel .jp-warmup { margin: 0 !important; padding: 12px 0 !important; background: none !important; border: 0 !important;
+  border-bottom: 1px solid var(--jp-line, #e6e1f5) !important; border-radius: 0 !important; }
+html body .jp-path .jp-tools__panel .jp-warmup:last-child { border-bottom: 0 !important; padding-bottom: 0 !important; }
+html body .jp-path .jp-tools__panel .jp-warmup:first-child { padding-top: 0 !important; }
+html body .jp-path .jp-stage .jp-weekguide, html body .jp-path .jp-path__stage .jp-weekguide { margin: 4px 0 !important; }

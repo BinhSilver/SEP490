@@ -14,7 +14,7 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathWeekSkip = api;
   if (root && root.document && typeof module === 'undefined') {
-    var start = function () { api.mount(root.document.querySelector('[data-slot="week-skip"]')); };
+    var start = function () { api.mount(root.document.querySelector('[data-slot="week-skip"]')); api.tools(root.document); };
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start);
     else start();
   }
@@ -71,6 +71,30 @@
       + (kana ? kanaHtml(kana) : '');
   }
 
+  /** Owner 17/11: the path's tool row — one panel open at a time, the open one remembered on this device. */
+  function tools(doc) {
+    var box = doc && doc.querySelector ? doc.querySelector('[data-jp-tools]') : null;
+    if (!box) return;
+    function set(name) {
+      var chips = box.querySelectorAll('[data-tool]');
+      for (var i = 0; i < chips.length; i++) {
+        var on = chips[i].getAttribute('data-tool') === name;
+        chips[i].setAttribute('aria-expanded', on ? 'true' : 'false');
+        var panel = box.querySelector('[data-tool-panel="' + chips[i].getAttribute('data-tool') + '"]');
+        if (panel) panel.hidden = !on;
+      }
+      try { root.localStorage.setItem('jpath-tools:open', name || ''); } catch (e) { /* private mode */ }
+    }
+    box.addEventListener('click', function (ev) {
+      var chip = ev.target.closest && ev.target.closest('[data-tool]');
+      if (!chip) return;
+      set(chip.getAttribute('aria-expanded') === 'true' ? '' : chip.getAttribute('data-tool'));
+    });
+    var saved = '';
+    try { saved = root.localStorage.getItem('jpath-tools:open') || ''; } catch (e) { saved = ''; }
+    if (saved === 'pace') set('pace');
+  }
+
   function mount(el) {
     var client = root && root.JpathApi;
     if (!el || !client) return null;
@@ -81,24 +105,24 @@
     return Promise.all(asks).then(function (offers) {
       var html = cardHtml(offers);
       if (!html) { el.hidden = true; el.innerHTML = ''; return; }
-      el.hidden = false;
-      // owner 17/11: compact — one collapsible line, open state remembered on this device
       var n = (html.match(/class="jp-warmup jp-week-skip"/g) || []).length;
-      var open = false;
-      try { open = root.localStorage.getItem('jpath-week-skip:open') === '1'; } catch (e) { open = false; }
-      el.innerHTML = '<details class="jp-week-skip-box"' + (open ? ' open' : '') + '>'
-        + '<summary class="jp-week-skip-box__sum"><span class="jp-week-skip-box__title">Đã biết trước? Kiểm tra để bỏ qua</span>'
-        + '<span class="jp-week-skip-box__count">' + n + ' gợi ý</span></summary>'
-        + '<div class="jp-week-skip-box__body">' + html + '</div></details>';
-      var det = typeof el.querySelector === 'function' ? el.querySelector('details') : null;
-      if (det && det.addEventListener) det.addEventListener('toggle', function () {
-        try { root.localStorage.setItem('jpath-week-skip:open', det.open ? '1' : '0'); } catch (e) { /* private mode */ }
-      });
+      var chip = root.document && root.document.querySelector ? root.document.querySelector('[data-tool="skip"]') : null;
+      el.innerHTML = html;
+      if (chip) {
+        // owner 17/11: inside the path's tool row the offers open from their own button (jpath tools below)
+        chip.hidden = false;
+        var count = chip.querySelector('[data-tool-count]');
+        if (count) count.textContent = n + ' gợi ý';
+      } else {
+        el.hidden = false;
+      }
       el.onclick = function (ev) {
         var t = ev.target;
         if (t.closest && t.closest('[data-week-skip-later]')) {
           hide();
           el.hidden = true;
+          var c = root.document && root.document.querySelector ? root.document.querySelector('[data-tool="skip"]') : null;
+          if (c) { c.hidden = true; c.setAttribute('aria-expanded', 'false'); }
           return;
         }
         var b = t.closest && t.closest('[data-week-skip-tab]');
@@ -120,5 +144,5 @@
     }, function () { el.hidden = true; });
   }
 
-  return { cardHtml: cardHtml, mount: mount };
+  return { cardHtml: cardHtml, mount: mount, tools: tools };
 });

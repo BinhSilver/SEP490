@@ -33,14 +33,17 @@
             </div>
             <section class="jp-path__today" data-slot="today"></section>
             <section class="jp-path__warmup" data-slot="warmup" hidden></section>
-            <!-- owner 17/11: pace, sliders and the week-skip offers share one compact row; an opened one spans the row -->
-            <div class="jp-path__tools">
-                <details class="jp-path__pace" data-part="pace">
-                    <summary class="jp-path__pace-head">Nhịp học và ngày nghỉ</summary>
+            <!-- owner 17/11: one row of tool buttons; a button opens its one full-width panel below (the other closes) -->
+            <div class="jp-tools" data-jp-tools>
+                <div class="jp-tools__bar" role="group" aria-label="Công cụ lộ trình">
+                    <button type="button" class="jp-tools__chip" data-tool="pace" aria-expanded="false" aria-controls="jpToolPace">Nhịp học và ngày nghỉ</button>
+                    <button type="button" class="jp-tools__chip" data-tool="skip" aria-expanded="false" aria-controls="jpToolSkip" hidden>Đã biết trước? Kiểm tra để bỏ qua <span class="jp-tools__count" data-tool-count></span></button>
+                </div>
+                <div class="jp-tools__panel" id="jpToolPace" data-tool-panel="pace" hidden>
                     <div class="jp-path__slider" data-slot="slider"></div>
-                    <p class="jp-path__pace-more"><a href="/learning/jlpt/settings#jp-settings-schedule-title">Đổi ngày học, ngày nghỉ và ngày thi trong Cài đặt lộ trình</a></p>
-                </details>
-                <section class="jp-path__warmup" data-slot="week-skip" hidden></section>
+                    <p class="jp-tools__more"><a href="/learning/jlpt/settings#jp-settings-schedule-title">Đổi ngày học, ngày nghỉ và ngày thi trong Cài đặt lộ trình ›</a></p>
+                </div>
+                <section class="jp-tools__panel jp-path__warmup" id="jpToolSkip" data-tool-panel="skip" data-slot="week-skip" hidden></section>
             </div>
             <div class="jp-path__stage" data-region="stage"></div>
             <div class="jp-path__tabpart">
