@@ -105,7 +105,7 @@
       + '</div></section>';
   }
 
-  function resultHtml(res, items, isCheck) {
+  function resultHtml(res, items, isCheck, answers) {
     var byCode = {};
     (items || []).forEach(function (x) { byCode[x.code] = x; });
     var wrong = (res.results || []).filter(function (r) { return !r.correct; });
@@ -122,7 +122,15 @@
     return '<section class="jp-card cp-core-result" role="status">' + head
       + (wrong.length ? '<ul class="cp-core-wrong">' + wrong.map(function (r) {
         var it = byCode[r.code] || {};
-        return '<li><span lang="ja">' + esc(it.ja || r.code) + '</span> — ' + esc(r.answer) + '</li>';
+        var aiSlot = it.ja && r.answer
+          ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
+            source: 'CPATH_CORE',
+            prompt: 'Chọn nghĩa tiếng Việt đúng cho: ' + it.ja,
+            options: it.options || [],
+            userAnswer: answers && answers[r.code] || '',
+            correctAnswer: r.answer
+          })) + '"></div>' : '';
+        return '<li><span lang="ja">' + esc(it.ja || r.code) + '</span> — ' + esc(r.answer) + aiSlot + '</li>';
       }).join('') + '</ul>' : '')
       + '<div class="cp-settings__actions">'
       + (!isCheck && !res.lessonDone ? '<button type="button" class="cp-btn-primary" data-core-again>Học lại phần sai</button>' : '')
@@ -163,7 +171,7 @@
         return;
       }
       if (phase === 'result' && result) {
-        el.innerHTML = header() + resultHtml(result, items, isCheck);
+        el.innerHTML = header() + resultHtml(result, items, isCheck, answers);
         return;
       }
       var todo = isCheck ? items : pending(items);

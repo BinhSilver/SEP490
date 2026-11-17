@@ -359,11 +359,21 @@
       var q = byId[x.id] || {};
       var idx = answers ? answers[x.id] : null;
       var picked = idx != null && q.options ? q.options[idx] : '';
+      var aiSlot = x.ja && x.answer
+        ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
+          source: 'CPATH_ROLEPLAY',
+          contextText: q.promptVi || '',
+          prompt: q.promptJa || x.ja,
+          options: q.options || [],
+          userAnswer: picked || '',
+          correctAnswer: x.answer
+        })) + '"></div>' : '';
       return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '">'
         + '<div><span lang="ja">' + esc(x.ja) + '</span>' + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>'
         + (x.correct ? '<div class="jp-review__picked">Đáp: <span lang="ja">' + esc(x.answer) + '</span></div>'
           : (picked ? '<div class="jp-review__picked">Bạn chọn: <span class="jp-bad" lang="ja">' + esc(picked) + '</span></div>' : '')
             + '<div class="jp-review__picked">Đáp án: <strong lang="ja">' + esc(x.answer) + '</strong></div>')
+        + aiSlot
         + '</li>';
     }).join('') + '</ul>';
   }
