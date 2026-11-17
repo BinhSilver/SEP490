@@ -33,7 +33,8 @@ public class OllamaWarmUp {
     /** Nạp model khi AI Call chạy Ollama, hoặc khi chatbot gia sư được bật (chatbot luôn dùng Ollama). */
     @EventListener(ApplicationReadyEvent.class)
     public void warmUp() {
-        if (!config.isOllamaWarmUp() || (!config.isLocal() && !rag.enabled())) return;
+        // Gia sư gọi API ngoài thì không có model cục bộ nào để làm nóng, và không gọi API trả phí lúc khởi động.
+        if (!config.isOllamaWarmUp() || (!config.isLocal() && (!rag.enabled() || config.isTutorApi()))) return;
         Thread.ofVirtual().name("ollama-warm-up").start(() -> {
             if (config.isLocal()) {
                 OpenRouterClient.ProbeResult result = client.probe();
