@@ -96,25 +96,29 @@ public class TutorChatService {
             }
             try {
                 takeHourlyQuota(userId);
+                List<Map<String, String>> turns = sanitize(history);
                 if (RagTutorService.isTranslationRequest(q) && limits.aiFallback()) {
-                    // Dịch câu: đi thẳng tầng 2, không lưu. Hết hạn mức thì để tầng 1 trả lời như thường.
-                    RagTutorService.Answer translated = tutor.aiTranslate(q, onDelta, () -> takeDailyAiQuota(userId));
+                    // Dịch, đặt câu, chuyển thể câu: đi thẳng tầng 2, không lưu. Hết hạn mức thì để tầng 1 trả lời như thường.
+                    RagTutorService.Answer translated = tutor.aiTranslate(q, turns, onDelta, () -> takeDailyAiQuota(userId));
                     if (translated != null) {
                         log.info("Tutor AI translation userId={} generationMs={}", userId, translated.generationMs());
                         return new Reply(translated.answer(), List.of(), 0, translated.generationMs(), translated.tier());
                     }
                 }
-                RagTutorService.Answer answer = tutor.ask(q, sanitize(history), onDelta);
+                RagTutorService.Answer answer = tutor.ask(q, turns, onDelta);
                 log.info("Tutor answered userId={} sources={} retrievalMs={} generationMs={}",
                         userId, answer.citations().size(), answer.retrievalMs(), answer.generationMs());
                 List<RagPromptComposer.Citation> sources = cited(answer.answer(), answer.citations());
                 if (answer.fallbackEligible() && limits.aiFallback()) {
                     // Tầng 2: J-LAS không có nội dung; tầng 1 không có nguồn nào thì câu trả lời AI thay hẳn, có thì nối sau.
-                    boolean standalone = sources.isEmpty() && answer.answer().startsWith(RagTutorService.NO_SOURCE_PREFIX);
-                    RagTutorService.Answer ai = tutor.aiFallback(q, standalone, onDelta, () -> takeDailyAiQuota(userId));
+                    // Tầng 1 từ chối (ngoài phạm vi) cũng thay hẳn: tầng 2 xét lại, câu từ chối không nối trước câu trả lời.
+                    boolean standalone = sources.isEmpty() && (answer.answer().startsWith(RagTutorService.NO_SOURCE_PREFIX)
+                            || answer.answer().equals(RagTutorService.OUT_OF_SCOPE_REPLY));
+                    RagTutorService.Answer ai = tutor.aiFallback(q, turns, standalone, onDelta, () -> takeDailyAiQuota(userId));
                     if (ai != null) {
                         log.info("Tutor AI fallback userId={} tier={} generationMs={}", userId, ai.tier(), ai.generationMs());
-                        return new Reply(standalone ? ai.answer() : answer.answer() + "\n\n" + ai.answer(), sources,
+                        boolean alone = standalone || ai.answer().equals(RagTutorService.OUT_OF_SCOPE_REPLY);
+                        return new Reply(alone ? ai.answer() : answer.answer() + "\n\n" + ai.answer(), alone ? List.of() : sources,
                                 answer.retrievalMs(), answer.generationMs() + ai.generationMs(), ai.tier());
                     }
                 }

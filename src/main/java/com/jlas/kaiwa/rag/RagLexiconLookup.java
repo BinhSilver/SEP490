@@ -82,16 +82,30 @@ public class RagLexiconLookup {
         String vnjpclub = properties.includeVnjpclub() ? "" : " AND NOT EXISTS (SELECT 1 FROM content_source cs"
                 + " WHERE cs.entity_type = 'VOCABULARY' AND cs.entity_id = v.id AND cs.source_code = 'VNJPCLUB'"
                 + " AND cs.note = 'Tu moi tu vnjpclub')";
-        List<WordEntry> found = jdbc.query("SELECT v.id, v.expression, v.reading, v.meaning, v.word_type, v.jlpt_level"
+        // Mục "tin được": có cấp JLPT, dùng trong giáo trình (usage_scope khác DICTIONARY) hoặc có trong lộ trình JLPT.
+        // Bản nhập từ điển gốc có nhiều mục rác chép cùng một nghĩa cho mọi cách đọc (先生 シーサン, 一日 ひとえ, 生 いく).
+        Set<Long> trusted = new java.util.HashSet<>();
+        List<WordEntry> found = jdbc.query("SELECT v.id, v.expression, v.reading, v.meaning, v.word_type, v.jlpt_level,"
+                        + " (v.jlpt_level IS NOT NULL OR v.usage_scope <> 'DICTIONARY' OR EXISTS (SELECT 1 FROM jpath_vocabulary j"
+                        + " WHERE j.expression = v.expression AND j.reading = v.reading)) AS trusted"
                         + " FROM vocabulary_entry v WHERE v.dictionary_status = 'PUBLISHED' AND v.expression IN (" + marks + ")"
                         + vnjpclub + " ORDER BY v.id",
-                (rs, n) -> new WordEntry(rs.getLong("id"), rs.getString("expression"), rs.getString("reading"),
-                        rs.getString("meaning"), rs.getString("word_type"), rs.getString("jlpt_level")),
+                (rs, n) -> {
+                    if (rs.getBoolean("trusted")) trusted.add(rs.getLong("id"));
+                    return new WordEntry(rs.getLong("id"), rs.getString("expression"), rs.getString("reading"),
+                            rs.getString("meaning"), rs.getString("word_type"), rs.getString("jlpt_level"));
+                },
                 candidates.toArray());
-        // Giữ thứ tự xuất hiện trong câu hỏi, không lặp cùng biểu thức.
+        // Giữ thứ tự xuất hiện trong câu hỏi, không lặp cùng biểu thức. Biểu thức có mục tin được thì chỉ giữ các mục đó;
+        // không có thì giữ mục đầu, trừ một chữ kanji đứng riêng (đã có dòng Kanji với On/Kun đúng).
         Map<String, WordEntry> byExpression = new LinkedHashMap<>();
-        for (String candidate : candidates)
-            found.stream().filter(w -> w.expression().equals(candidate)).forEach(w -> byExpression.putIfAbsent(w.expression() + "|" + w.reading(), w));
+        for (String candidate : candidates) {
+            List<WordEntry> same = found.stream().filter(w -> w.expression().equals(candidate)).toList();
+            List<WordEntry> good = same.stream().filter(w -> trusted.contains(w.id())).toList();
+            List<WordEntry> kept = !good.isEmpty() ? good
+                    : same.isEmpty() || candidate.codePointCount(0, candidate.length()) == 1 ? List.of() : List.of(same.getFirst());
+            kept.forEach(w -> byExpression.putIfAbsent(w.expression() + "|" + w.reading(), w));
+        }
         List<WordEntry> words = byExpression.values().stream().limit(MAX_WORDS).toList();
         Map<Long, List<String>> extras = extras(words);
         return words.stream().map(w -> new WordEntry(w.id(), w.expression(), w.reading(), w.meaning(), w.wordType(), w.jlptLevel(),
@@ -141,6 +155,57 @@ public class RagLexiconLookup {
         return extras;
     }
 
+    /** Các từ của một chủ đề trong lộ trình JLPT, ví dụ N5 "Ăn, uống". */
+    public record Topic(String level, String title, List<String> lines) { }
+
+    static final int MAX_TOPIC_WORDS = 20;
+    private static final Pattern TOPIC_LEVEL = Pattern.compile("\\bn([1-5])\\b");
+    private static final Pattern TOPIC_ASK = Pattern.compile("\\btu( vung| ngu| nao)?\\b");
+    private static final Pattern TOPIC_AFTER = Pattern.compile("\\b(ve|chu de|lien quan (den|toi)|thuoc)\\b(.*)");
+
+    /**
+     * "5 từ N5 về đồ ăn": chủ đề cùng cấp có tên chứa nhiều chữ của phần sau "về" nhất.
+     * ponytail: so từng chữ không dấu với tên chủ đề; "đồ ăn" khớp "Ăn, uống" và "Món ăn" nhờ chữ "an". Cần chính xác hơn thì
+     * thêm từ khoá cho từng chủ đề.
+     *
+     * @return null khi câu hỏi không hỏi từ của một cấp theo chủ đề, hoặc không chủ đề nào khớp
+     */
+    public Topic topic(String plainQuestion) {
+        Matcher level = TOPIC_LEVEL.matcher(plainQuestion);
+        Matcher after = TOPIC_AFTER.matcher(plainQuestion);
+        if (!level.find() || !TOPIC_ASK.matcher(plainQuestion).find() || !after.find()) return null;
+        Set<String> asked = new LinkedHashSet<>(List.of(after.group(3).replaceAll("\\bn[1-5]\\b|[^a-z ]", " ").strip().split("\\s+")));
+        asked.removeIf(w -> w.length() < 2 || TOPIC_STOP.contains(w));
+        if (asked.isEmpty()) return null;
+        String lvl = "N" + level.group(1);
+        Map<String, Integer> score = new LinkedHashMap<>();
+        Map<String, String> titles = new LinkedHashMap<>();
+        jdbc.query("SELECT topic_key, title_vi FROM jpath_vocab_topic WHERE level = ? ORDER BY sort_order", rs -> {
+            String title = rs.getString("title_vi");
+            Set<String> words = new java.util.HashSet<>(List.of(java.text.Normalizer.normalize(title.toLowerCase(), java.text.Normalizer.Form.NFD)
+                    .replaceAll("\\p{M}", "").replace('đ', 'd').replaceAll("[^a-z ]", " ").strip().split("\\s+")));
+            int hits = (int) asked.stream().filter(words::contains).count();
+            if (hits > 0) { score.put(rs.getString("topic_key"), hits); titles.put(rs.getString("topic_key"), title); }
+        }, lvl);
+        if (score.isEmpty()) return null;
+        int best = Collections.max(score.values());
+        List<String> keys = score.entrySet().stream().filter(e -> e.getValue() == best).map(Map.Entry::getKey).limit(3).toList();
+        String marks = String.join(",", Collections.nCopies(keys.size(), "?"));
+        List<Object> args = new ArrayList<>(List.of(lvl));
+        args.addAll(keys);
+        List<String> lines = jdbc.query("SELECT v.expression, v.reading, v.meaning_vi FROM jpath_vocabulary v WHERE v.level = ?"
+                        + " AND v.topic_key IN (" + marks + ") AND v.report_hidden = FALSE AND v.status IN ('AI_CHECKED', 'REVIEWED'"
+                        + (properties.includeUnreviewed() ? ", 'HOLD'" : "") + ") ORDER BY v.code LIMIT " + MAX_TOPIC_WORDS,
+                (rs, n) -> "- " + rs.getString("expression") + " (" + rs.getString("reading") + "): " + rs.getString("meaning_vi"),
+                args.toArray());
+        if (lines.isEmpty()) return null;
+        return new Topic(lvl, String.join(", ", keys.stream().map(titles::get).toList()), lines);
+    }
+
+    private static final Set<String> TOPIC_STOP = Set.of("tu", "vung", "ngu", "chu", "de", "cho", "minh", "liet", "ke", "cap",
+            "cac", "nhung", "nao", "gi", "co", "khong", "la", "hay", "mot", "vai", "cua", "trong", "tieng", "nhat", "va", "voi",
+            "ban", "giup", "toi", "em", "nhe", "nha", "di", "duoc", "lien", "quan", "den", "thuoc", "jlpt", "ve");
+
     private List<KanjiEntry> kanji(List<String> characters) {
         if (characters.isEmpty()) return List.of();
         String marks = String.join(",", Collections.nCopies(characters.size(), "?"));
@@ -150,8 +215,9 @@ public class RagLexiconLookup {
         jdbc.query("SELECT r.kanji_id, r.reading_type, r.reading_text FROM kanji_reading r JOIN kanji k ON k.id = r.kanji_id"
                         + " WHERE k.`character` IN (" + marks + ") ORDER BY r.is_common DESC, r.id",
                 rs -> {
-                    String type = rs.getString("reading_type");
-                    var target = type != null && type.toUpperCase().startsWith("ON") ? on : kun;
+                    String type = rs.getString("reading_type") == null ? "" : rs.getString("reading_type").toUpperCase();
+                    if (type.equals("NANORI")) return; // cách đọc tên người (生 → いく, ふ): không phải Kun
+                    var target = type.startsWith("ON") ? on : kun;
                     target.computeIfAbsent(rs.getLong("kanji_id"), k -> new ArrayList<>()).add(rs.getString("reading_text"));
                 }, characters.toArray());
         jdbc.query("SELECT k.id, k.`character`, k.han_viet, k.meaning_vi, k.jlpt_level FROM kanji k WHERE k.`character` IN (" + marks + ")",

@@ -258,6 +258,14 @@
       '<button type="button" class="tutor-toggle" aria-controls="jlasTutorPanel" aria-expanded="false" title="Hỏi gia sư">' +
       icon(ICONS.cap) + '<span>Hỏi gia sư</span></button>';
     document.body.appendChild(wrap);
+    // Con cáo của web (home-mascot.js) thay biểu tượng mũ, kèm lời mời; thiếu file đó thì giữ nút cũ.
+    if (window.HomeMascot && typeof window.HomeMascot.attach === 'function') {
+      var toggle = wrap.querySelector('.tutor-toggle');
+      toggle.classList.add('tutor-toggle--fox');
+      toggle.setAttribute('aria-label', 'Hỏi gia sư: Tôi có thể giúp gì cho bạn?');
+      toggle.innerHTML = '<span class="tutor-bubble">Tôi có thể giúp gì cho bạn?</span><span class="tutor-fox"></span>';
+      window.HomeMascot.attach(toggle.querySelector('.tutor-fox'));
+    }
     els = {
       panel: wrap.querySelector('.tutor-panel'), toggle: wrap.querySelector('.tutor-toggle'),
       log: wrap.querySelector('.tutor-log'), form: wrap.querySelector('.tutor-form'),

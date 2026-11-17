@@ -21,7 +21,7 @@ public record TutorProperties(
         @DefaultValue("60") int questionsPerHour,
         @DefaultValue("500") int maxQuestionChars,
         @DefaultValue("6") int historyMessages,
-        @DefaultValue("false") boolean aiFallback,
+        @DefaultValue("true") boolean aiFallback,
         @DefaultValue("20") int aiFallbackPerDay) {
 
     public TutorProperties {
