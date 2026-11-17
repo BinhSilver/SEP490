@@ -2214,3 +2214,30 @@ html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
   .cp-core-quiz__actions { justify-content: stretch; }
   .cp-core-quiz__actions > * { flex: 1 1 auto; }
 }
+
+/* Owner 17/11: Bài nền result card — score ring, wrong items as rows, actions at the bottom. */
+.cp-core-result { max-width: 760px; margin: 8px auto 0; padding: 24px 26px; display: grid; gap: 16px;
+  background: var(--cp-surface, #fff); border: 1px solid var(--cp-line); border-radius: 18px; box-shadow: 0 6px 24px rgba(40, 30, 90, .06); }
+.cp-core-result__head { display: flex; align-items: center; gap: 20px; }
+.cp-core-result__ring { --c: var(--cp-primary); flex: none; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--cp-surface-soft) 0); }
+.cp-core-result.is-good .cp-core-result__ring { --c: #1f9d63; }
+.cp-core-result.is-retry .cp-core-result__ring { --c: #e08a1e; }
+.cp-core-result__ring span { width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--cp-surface, #fff); font-weight: 800; font-size: 1.1rem; color: var(--cp-ink); }
+.cp-core-result__text h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.cp-core-result__text p { margin: 0; color: var(--cp-muted); }
+.cp-core-result__sub { margin: 4px 0 0; font-size: .85rem; font-weight: 700; color: var(--cp-muted); text-transform: uppercase; letter-spacing: .04em; }
+.cp-core-result .cp-core-wrong { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cp-core-wrong__item { padding: 12px 14px; border: 1px solid var(--cp-line); border-left: 4px solid #e08a1e; border-radius: 12px; background: var(--cp-surface-soft); display: grid; gap: 8px; }
+.cp-core-wrong__row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.cp-core-wrong__ja { font-size: 1.25rem; font-weight: 700; }
+.cp-core-wrong__vi { color: var(--cp-ink); }
+.cp-core-wrong__item .jp-ai-slot { justify-self: start; }
+.cp-core-result__actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 4px; border-top: 1px solid var(--cp-line); }
+@media (max-width: 600px) {
+  .cp-core-result { padding: 18px 16px; }
+  .cp-core-result__head { gap: 14px; }
+  .cp-core-result__ring { width: 68px; height: 68px; } .cp-core-result__ring span { width: 54px; height: 54px; font-size: .95rem; }
+  .cp-core-result__actions > * { flex: 1 1 100%; text-align: center; }
+}

@@ -120,7 +120,12 @@
         ? '<h2>Xong bài nền hôm nay</h2><p>Đúng ' + res.correct + '/' + res.total + '. Các mục này cũng được tính bên lộ trình JLPT.</p>'
         : '<h2>Đúng ' + res.correct + '/' + res.total + '</h2><p>Còn ' + wrong.length + ' mục chưa thuộc. Xem lại rồi kiểm tra lại nhé.</p>';
     }
-    return '<section class="jp-card cp-core-result" role="status">' + head
+    var pct = res.total ? Math.round((res.correct || 0) * 100 / res.total) : (res.score || 0);
+    var good = isCheck ? !!res.passed : (res.lessonDone || !wrong.length);
+    return '<section class="jp-card cp-core-result' + (good ? ' is-good' : ' is-retry') + '" role="status">'
+      + '<div class="cp-core-result__head"><div class="cp-core-result__ring" style="--p:' + (isCheck ? res.score : pct) + '" aria-hidden="true"><span>'
+      + (isCheck ? res.score : pct) + '%</span></div><div class="cp-core-result__text">' + head + '</div></div>'
+      + (wrong.length ? '<p class="cp-core-result__sub">Mục cần xem lại</p>' : '')
       + (wrong.length ? '<ul class="cp-core-wrong">' + wrong.map(function (r) {
         var it = byCode[r.code] || {};
         var aiSlot = it.ja && r.answer
@@ -131,9 +136,10 @@
             userAnswer: answers && answers[r.code] || '',
             correctAnswer: r.answer
           })) + '"></div>' : '';
-        return '<li><span lang="ja">' + esc(it.ja || r.code) + '</span> — ' + esc(r.answer) + aiSlot + '</li>';
+        return '<li class="cp-core-wrong__item"><div class="cp-core-wrong__row"><span class="cp-core-wrong__ja" lang="ja">' + esc(it.ja || r.code) + '</span>'
+          + '<span class="cp-core-wrong__vi">' + esc(r.answer) + '</span></div>' + aiSlot + '</li>';
       }).join('') + '</ul>' : '')
-      + '<div class="cp-settings__actions">'
+      + '<div class="cp-settings__actions cp-core-result__actions">'
       + (!isCheck && !res.lessonDone ? '<button type="button" class="cp-btn-primary" data-core-again>Học lại phần sai</button>' : '')
       + '<a class="' + (isCheck || res.lessonDone ? 'cp-btn-primary' : 'cp-btn-ghost') + '" href="/learning/comm/path">Về lộ trình — học tình huống hôm nay</a>'
       + '</div></section>';
