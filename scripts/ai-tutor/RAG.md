@@ -84,21 +84,6 @@ powershell -ExecutionPolicy Bypass -File scripts\ai-tutor\rag-eval.ps1 -Token <t
 
 Script gọi `/search` với ngưỡng 0 để thấy điểm thật của từng câu hỏi trong `rag-eval-questions.json` (gồm câu ngoài phạm vi), rồi `/ask` để lấy câu trả lời. Chọn `min-score` nằm giữa điểm của các câu có nguồn đúng và các câu ngoài phạm vi. Kết quả: `target\ai-tutor-rag-eval\<thời gian>\summary.md`.
 
-## 5. Test tự động
-
-```powershell
-.\mvnw.cmd -B test -Dtest="RagIndexServiceTest,RagContentSourceTest,RagEmbedderAndPromptTest,MysqlVectorStoreTest,RagAdminControllerTest,RagTutorServiceTest,TutorLlmClientTest"
-```
-
-| Test | Kiểm tra |
-|---|---|
-| `RagIndexServiceTest` | Chạy lại không embed lại; id không đổi theo thứ tự; chỉ embed đoạn đổi, xoá đoạn mất; reindex một bài không đụng bài khác; RAG tắt thì từ chối; hai lượt reindex cùng lúc thì lượt sau bị từ chối |
-| `RagContentSourceTest` (H2) | Chỉ lấy bài PUBLISHED; bỏ vnjpclub và AI chưa duyệt ở mọi cấp; hội thoại chia 10 dòng; J-Path, cặp dễ nhầm, Comm-path theo luật trạng thái; tra cứu bỏ từ vnjpclub thêm mới |
-| `RagEmbedderAndPromptTest` | Embedding qua OpenRouter `/embeddings` theo lô; số vector sai thì không ghi; lỗi mạng không lộ địa chỉ; prompt đánh mã nguồn |
-| `MysqlVectorStoreTest` (H2) | Ghi đè cùng id, xoá theo lô, tìm cosine, tìm theo tên mẫu, lọc theo bài, tách bộ chỉ mục |
-| `RagAdminControllerTest` | Khách 401; LEARNER/MODERATOR 403 cho reindex, search, ask; ADMIN 200 |
-| `TutorLlmClientTest` | Gọi API trả lời có key và `reasoning_effort`; trả lời chữ dần (SSE); lỗi không lộ key; thiếu key báo rõ |
-
 ## 6. Xử lý sự cố
 
 | Triệu chứng | Nguyên nhân thường gặp |
