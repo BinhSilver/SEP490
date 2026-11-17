@@ -414,10 +414,17 @@
         + '</div>';
     }
 
+    // owner 17/11: a learner coming from the goal step (no path yet) goes back to that step, not to a path they lack
+    var topBack = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.jp-back') : null;
+    if (topBack && !state.secondaryPath) {
+      topBack.setAttribute('href', '/survey?edit=goal');
+      var lbl = topBack.querySelector('span');
+      if (lbl) lbl.textContent = 'Quay lại chọn mục tiêu';
+    }
     var prevBtn = step > 1
       ? '<button type="button" class="cp-btn-ghost" data-cp-prev>‹ Quay lại</button>'
       // step 1 still goes back: a secondary goal returns to the path, otherwise to the general survey (owner 11/11)
-      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey') + '">‹ Quay lại</a>';
+      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey?edit=goal') + '">‹ Quay lại</a>';
     var nextBtn = step < total
       ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
