@@ -380,14 +380,27 @@
     var allDone = situations.length > 0 && doneCount === situations.length;
     var firstActive = situations.filter(function (s) { return !isDone(s); })[0] || null;
 
+    // owner 17/11: same rows as the JLPT "Hôm nay" (ring, title, line, button or medal)
+    var jctl = root && root.JpathPathControls;
+    var ring = function (done) {
+      return jctl && jctl.progressRingSvg ? jctl.progressRingSvg(done ? 1 : 0, 1, done)
+        : '<span class="cp-today__icon" aria-hidden="true">' + (done ? svgMedal() : svgDialogueBubble()) + '</span>';
+    };
+    var medal = function (txt) {
+      return '<span class="jp-todo__done">' + (jctl && jctl.medalMiniSvg ? jctl.medalMiniSvg() : '') + ' ' + txt + '</span>';
+    };
+    var pill = function (done, title, sub, href, cls) {
+      return '<li class="jp-today__pill jp-todo__item cp-today__item' + (cls || '') + (done ? ' is-done' : '') + '">'
+        + ring(done)
+        + '<span class="jp-today__pill-body jp-todo__text"><strong>' + title + '</strong>'
+        + '<span class="jp-today__pill-sub jp-todo__sub">' + sub + '</span></span>'
+        + (done ? medal('Đã học') + '<a class="jp-btn jp-btn--sm" href="' + esc(href) + '">Ôn lại</a>'
+          : '<a class="jp-btn jp-btn--sm" href="' + esc(href) + '">Học</a>')
+        + '</li>';
+    };
     var items = situations.map(function (s, idx) {
-      var done = isDone(s);
-      return '<li class="cp-today__item' + (done ? ' is-done' : '') + '">'
-        + '<span class="cp-today__icon" aria-hidden="true">' + (done ? svgMedal() : svgDialogueBubble()) + '</span>'
-        + '<span class="cp-today__text"><strong>' + esc(s.titleVi) + '</strong>'
-        + '<span>' + esc(topicLabel(s.topicCode, s.topicName)) + ' · Tình huống ' + (idx + 1) + '</span></span>'
-        + '<a class="jp-btn jp-btn--sm' + (done ? '' : ' jp-btn--primary') + '" href="' + esc(pageUrl('situation', { id: s.id })) + '">'
-        + (done ? 'Ôn lại' : 'Học') + '</a></li>';
+      return pill(isDone(s), esc(s.titleVi), esc(topicLabel(s.topicCode, s.topicName)) + ' · Tình huống ' + (idx + 1),
+        pageUrl('situation', { id: s.id }), '');
     }).join('');
 
     // F70 (owner 12/11): the base lesson comes first, then the situations of the day that use its items
@@ -395,12 +408,10 @@
     var coreToday = core && core.today ? core.today : null;
     var coreDone = !!(coreToday && coreToday.count > 0 && coreToday.done >= coreToday.count);
     var coreItem = coreToday && coreToday.count > 0
-      ? '<li class="cp-today__item cp-today__item--core' + (coreDone ? ' is-done' : '') + '">'
-        + '<span class="cp-today__icon" aria-hidden="true">' + (coreDone ? svgMedal() : svgStar()) + '</span>'
-        + '<span class="cp-today__text"><strong>Bài nền · ' + coreToday.count + ' từ và mẫu câu</strong>'
-        + '<span>' + (coreDone ? 'Đã thuộc ' + coreToday.done + '/' + coreToday.count : 'Học trước để dùng trong tình huống hôm nay')
-        + ' · ' + esc(core.depthLabel || '') + ' ' + Number(core.done || 0) + '/' + Number(core.total || 0) + '</span></span>'
-        + '<a class="jp-btn jp-btn--sm' + (coreDone ? '' : ' jp-btn--primary') + '" href="/learning/comm/core">' + (coreDone ? 'Xem lại' : 'Học') + '</a></li>'
+      ? pill(coreDone, 'Bài nền · ' + coreToday.count + ' từ và mẫu câu',
+        (coreDone ? 'Đã thuộc ' + coreToday.done + '/' + coreToday.count : 'Học trước để dùng trong tình huống hôm nay')
+          + ' · ' + esc(core.depthLabel || '') + ' ' + Number(core.done || 0) + '/' + Number(core.total || 0),
+        '/learning/comm/core', ' cp-today__item--core')
       : '';
     if (coreItem && !coreDone) firstActive = { coreLesson: true };
     var check = core && core.knownCheck && core.knownCheck.open > 0
@@ -410,7 +421,7 @@
 
     var body;
     if (situations.length || coreItem) {
-      body = '<ul class="cp-today__list">' + coreItem + items + '</ul>' + check;
+      body = '<ol class="jp-today__pills jp-todo cp-today__list" aria-label="Tiến độ từng phần hôm nay">' + coreItem + items + '</ol>' + check;
     } else if (finished) {
       // F125: a finished path gets no new day; any situation stays open on the map for review
       body = '<p class="cp-today__empty">Lộ trình đã hoàn thành nên không giao bài mới mỗi ngày. '
@@ -432,16 +443,20 @@
     var weeklyOpen = typeof todayObj.weeklyOpen === 'boolean' ? todayObj.weeklyOpen
       : (!todayObj.weeklyTestDay || (dayIso && String(todayObj.weeklyTestDay).slice(0, 10) <= dayIso));
     var reviewHref = pageUrl('weekly') + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review';
+    var chest = jctl && jctl.chestMiniSvg ? '<span class="jp-today__weekly-icon">' + jctl.chestMiniSvg() + '</span>' : '';
+    var weeklyBox = finished ? '' : (weeklyOpen
+      ? '<div class="jp-today__weekly jp-today__weekly--due">' + chest
+        + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần · Hôm nay</strong></div>'
+        + '<div class="jp-today__weekly-btns"><a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('weekly')) + '">Làm bài</a></div></div>'
+      : '<div class="jp-today__weekly jp-today__weekly--upcoming">' + chest
+        + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần · ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + '</strong>'
+        + '<span class="jp-today__weekly-countdown">hoặc khi học xong phần của tuần</span></div></div>');
     var actions = '<div class="cp-today__actions">'
       + extra
-      // F119: 'Đổi nhịp học' dropped here - the side card and the ⚙ tab already open the settings
       // owner 17/11: no review button before anything is due (a new learner saw "Ôn tập hôm nay" on day one)
       + (typeof todayObj.reviewDue === 'number' && todayObj.reviewDue <= 0 ? ''
         : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay'
           + (typeof todayObj.reviewDue === 'number' ? ' (' + todayObj.reviewDue + ')' : '') + '</a>')
-      + (finished ? '' : weeklyOpen
-        ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
-        : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + ' hoặc khi bạn học xong phần của tuần</span>')
       + '</div>';
 
     var lead = situations.length
@@ -487,12 +502,16 @@
       + '<div class="jp-today__kitsu" aria-hidden="true"><span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
       + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="" /></div>'
       + '</div>'
-      + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="'
-        + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
+      + '<div class="jp-today__body"><div class="jp-today__main">'
+      + (firstActive ? '<div class="jp-today__go"><a class="jp-btn jp-btn--primary jp-btn--lg" href="'
+        + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">'
+        + (doneCount > 0 || coreDone ? 'Học tiếp' : 'Học hôm nay') + '</a></div>' : '')
       + kanaTipHtml(d, st)
       + body
-      + travelExtrasHtml(st.stamps, d.goal)
       + actions
+      + '</div></div>'
+      + (weeklyBox ? '<div class="jp-today__bottom">' + weeklyBox + '</div>' : '')
+      + travelExtrasHtml(st.stamps, d.goal)
       + '</section>';
   }
 
