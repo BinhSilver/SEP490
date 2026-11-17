@@ -2181,3 +2181,8 @@ button.jp-sidenav__link {
   .cp-page .cp-step-tab .cp-step-stamp__seal { background: var(--cp-surface, #fff); font-size: .62rem; border-width: 1.5px; }
   .cp-page .cp-sit-steps { overflow: visible; padding-top: 10px; }
 }
+
+/* Owner 17/11: flipping or moving to the next card made the page scrollbar flash. The 3D turn grows the card past
+   the stage for a moment; clip that overflow and keep the scrollbar gutter so the layout does not jump. */
+html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
+.cp-sit-stage { overflow-x: clip; overflow-clip-margin: 0; }
