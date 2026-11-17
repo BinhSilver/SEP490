@@ -163,7 +163,11 @@
     if (message.role === 'error') {
       return '<div class="tutor-msg tutor-msg--error" role="alert">' + escapeHtml(message.content) + '</div>';
     }
-    return '<div class="tutor-msg tutor-msg--bot"><div class="tutor-msg__text">' + formatAnswer(message.content) + '</div>' +
+    // Câu trả lời AI tổng hợp (J-LAS không có nội dung) có khung và nhãn riêng để người học không nhầm với giáo trình.
+    var ai = message.tier === 'AI' || message.tier === 'AI_REVIEWED';
+    return '<div class="tutor-msg tutor-msg--bot' + (ai ? ' tutor-msg--ai' : '') + '">' +
+      (ai ? '<span class="tutor-tier">' + (message.tier === 'AI' ? 'AI tổng hợp · chưa duyệt' : 'AI tổng hợp · đã duyệt') + '</span>' : '') +
+      '<div class="tutor-msg__text">' + formatAnswer(message.content) + '</div>' +
       sourcesMarkup(message.sources) + '</div>';
   }
 
@@ -210,6 +214,7 @@
           if (!draft) { draft = { role: 'assistant', content: '', sources: [] }; state.messages.push(draft); }
           draft.content = line.answer;
           draft.sources = line.sources || [];
+          draft.tier = line.tier || 'JLAS';
           draft.complete = true;
         }
       });

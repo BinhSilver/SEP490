@@ -247,6 +247,10 @@ tutor:
   questions-per-hour: ${TUTOR_QUESTIONS_PER_HOUR:60}
   max-question-chars: 500
   history-messages: 6
+  # Tầng 2: J-LAS không có nội dung cho một câu hỏi có chữ Nhật thì AI tổng hợp câu trả lời có nhãn "chưa có trong tài liệu
+  # J-LAS", lưu vào tutor_ai_answer (migration 082) chờ duyệt. Chỉ chạy khi tutor.llm.provider=api. Mặc định tắt.
+  ai-fallback: ${TUTOR_AI_FALLBACK:false}
+  ai-fallback-per-day: ${TUTOR_AI_FALLBACK_PER_DAY:20}
   # Model trả lời của gia sư: ollama (cục bộ, kaiwa.llm.ollama.*) | api (API kiểu OpenAI, cần api-key).
   # Embedding (bge-m3) và Qdrant vẫn chạy cục bộ trong cả hai trường hợp.
   llm:

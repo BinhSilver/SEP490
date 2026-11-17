@@ -11,6 +11,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param questionsPerHour   số câu hỏi tối đa của một người trong 60 phút
  * @param maxQuestionChars   độ dài tối đa một câu hỏi
  * @param historyMessages    số lượt trước gửi kèm để model hiểu câu hỏi nối tiếp
+ * @param aiFallback         tầng 2: J-LAS không có nội dung cho một câu hỏi tiếng Nhật thì AI tổng hợp câu trả lời có nhãn
+ *                           (chỉ chạy khi gia sư dùng model qua API)
+ * @param aiFallbackPerDay   số lượt AI tổng hợp tối đa của một người trong 24 giờ; bản đã lưu không tính
  */
 @ConfigurationProperties(prefix = "tutor")
 public record TutorProperties(
@@ -18,9 +21,12 @@ public record TutorProperties(
         @DefaultValue("30") int waitSeconds,
         @DefaultValue("60") int questionsPerHour,
         @DefaultValue("500") int maxQuestionChars,
-        @DefaultValue("6") int historyMessages) {
+        @DefaultValue("6") int historyMessages,
+        @DefaultValue("false") boolean aiFallback,
+        @DefaultValue("20") int aiFallbackPerDay) {
 
     public TutorProperties {
+        aiFallbackPerDay = Math.max(0, aiFallbackPerDay);
         maxConcurrent = Math.max(1, maxConcurrent);
         waitSeconds = Math.max(0, waitSeconds);
         questionsPerHour = Math.max(1, questionsPerHour);

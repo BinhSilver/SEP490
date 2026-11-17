@@ -26,7 +26,8 @@ class RagTutorServiceTest {
     private final RagRetriever retriever = mock(RagRetriever.class);
     private final LocalLlmClient llm = mock(LocalLlmClient.class);
     private final TutorAntonymStore antonyms = mock(TutorAntonymStore.class);
-    private final RagTutorService tutor = new RagTutorService(retriever, llm, antonyms);
+    private final TutorAiAnswerStore aiAnswers = mock(TutorAiAnswerStore.class);
+    private final RagTutorService tutor = new RagTutorService(retriever, llm, antonyms, aiAnswers);
 
     private static RagRetriever.Context passage(String title, String text) {
         return new RagRetriever.Context(List.of(new RagRetriever.Passage("id", 0.6, "GRAMMAR", title, text,
@@ -47,6 +48,60 @@ class RagTutorServiceTest {
         // Tiếng Việt không dấu một âm tiết không bị coi là romaji; câu đã có chữ Nhật thì không đoán.
         assertThat(RomajiKana.hints("giai thich giup minh, muon hieu them")).isEmpty();
         assertThat(RomajiKana.hints("ngữ pháp にとって dùng thế nào, nitotte")).isEmpty();
+    }
+
+    @Test
+    void onlyJapaneseQuestionsJLasCannotAnswerMayUseTheAiTier() {
+        when(retriever.retrieve(anyString(), isNull())).thenReturn(new RagRetriever.Context(List.of(), NO_WORDS));
+        assertThat(tutor.ask("誕生日 hay đi với từ nào?").fallbackEligible()).isTrue();
+        assertThat(tutor.ask("Hôm nay thời tiết thế nào?").fallbackEligible()).isFalse();
+        // Cách đọc, âm Hán Việt, cấp JLPT chỉ lấy từ dữ liệu J-LAS.
+        assertThat(tutor.ask("誕生日 đọc là gì?").fallbackEligible()).isFalse();
+        assertThat(tutor.ask("Âm Hán Việt của 誕生 là gì?").fallbackEligible()).isFalse();
+
+        when(retriever.retrieve(anyString(), isNull())).thenReturn(passage("〜に", "Mẫu ngữ pháp: 〜に"));
+        when(llm.chat(anyString(), anyList(), anyString(), anyInt())).thenReturn("Tài liệu J-LAS chưa có thông tin này cho từ này.");
+        assertThat(tutor.ask("誕生日 hay đi với từ nào?").fallbackEligible()).isTrue();
+        when(llm.chat(anyString(), anyList(), anyString(), anyInt())).thenReturn("〜に chỉ thời điểm [S1].");
+        assertThat(tutor.ask("誕生日 hay đi với từ nào?").fallbackEligible()).isFalse();
+    }
+
+    @Test
+    void aiTierIsLabelledSavedReusedAndShowsDictionaryReadings() {
+        var birthday = new RagLexiconLookup.WordEntry(5, "誕生日", "たんじょうび", "sinh nhật", null, "N5");
+        when(retriever.words(anyString())).thenReturn(List.of(birthday));
+        when(llm.chat(eq(RagTutorService.FALLBACK_PROMPT), anyList(), anyString(), anyInt()))
+                .thenReturn("- 誕生日を祝う (tanjoubi wo iwau) — chúc mừng sinh nhật");
+
+        RagTutorService.Answer fresh = tutor.aiFallback("誕生日 hay đi với từ nào?", true, null, () -> true);
+        assertThat(fresh.tier()).isEqualTo(RagTutorService.TIER_AI);
+        assertThat(fresh.answer()).startsWith(RagTutorService.NOT_IN_JLAS + RagTutorService.AI_PART)
+                .contains("誕生日を祝う — chúc mừng sinh nhật", "誕生日 (たんじょうび): sinh nhật").doesNotContain("tanjoubi");
+        verify(aiAnswers).save(eq("誕生日 hay đi với từ nào?"), anyString(), any());
+
+        // Nối sau câu trả lời tầng 1: không lặp câu "chưa có".
+        assertThat(tutor.aiFallback("誕生日 hay đi với từ nào?", false, null, () -> true).answer()).startsWith(RagTutorService.AI_PART);
+
+        // Đã lưu: không gọi lại AI và không tốn hạn mức; đã duyệt thì đổi nhãn; bị từ chối thì không có tầng 2.
+        org.mockito.Mockito.clearInvocations(llm);
+        when(aiAnswers.find("q")).thenReturn(java.util.Optional.of(new TutorAiAnswerStore.Saved("APPROVED", "đã sửa")));
+        RagTutorService.Answer reviewed = tutor.aiFallback("q", true, null, () -> { throw new AssertionError("quota used"); });
+        assertThat(reviewed.tier()).isEqualTo(RagTutorService.TIER_AI_REVIEWED);
+        assertThat(reviewed.answer()).contains(RagTutorService.AI_REVIEWED_PART, "đã sửa");
+        when(aiAnswers.find("q")).thenReturn(java.util.Optional.of(new TutorAiAnswerStore.Saved("REJECTED", "sai")));
+        assertThat(tutor.aiFallback("q", true, null, () -> true)).isNull();
+        verifyNoInteractions(llm);
+
+        // Hết hạn mức, hoặc AI nói đây không phải câu hỏi tiếng Nhật: giữ câu trả lời tầng 1.
+        assertThat(tutor.aiFallback("mới", true, null, () -> false)).isNull();
+        when(llm.chat(eq(RagTutorService.FALLBACK_PROMPT), anyList(), anyString(), anyInt())).thenReturn("なし");
+        assertThat(tutor.aiFallback("mới", true, null, () -> true)).isNull();
+    }
+
+    @Test
+    void questionKeyIgnoresCaseSpacesAndTrailingPunctuation() {
+        assertThat(TutorAiAnswerStore.hash("誕生日  hay đi với từ nào？")).isEqualTo(TutorAiAnswerStore.hash(" 誕生日 Hay đi với từ nào"));
+        assertThat(TutorAiAnswerStore.hash("誕生日")).isNotEqualTo(TutorAiAnswerStore.hash("誕生"));
     }
 
     @Test

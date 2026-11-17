@@ -35,15 +35,34 @@ public class RagTutorService {
     private final RagRetriever retriever;
     private final LocalLlmClient llm;
     private final TutorAntonymStore antonyms;
+    private final TutorAiAnswerStore aiAnswers;
 
-    public RagTutorService(RagRetriever retriever, LocalLlmClient llm, TutorAntonymStore antonyms) {
+    public RagTutorService(RagRetriever retriever, LocalLlmClient llm, TutorAntonymStore antonyms, TutorAiAnswerStore aiAnswers) {
         this.retriever = retriever;
         this.llm = llm;
         this.antonyms = antonyms;
+        this.aiAnswers = aiAnswers;
     }
 
+    /** Tầng của câu trả lời: có nguồn J-LAS, AI tổng hợp chưa duyệt, hoặc AI tổng hợp đã được người duyệt. */
+    public static final String TIER_JLAS = "JLAS", TIER_AI = "AI", TIER_AI_REVIEWED = "AI_REVIEWED";
+
+    /**
+     * @param tier              {@link #TIER_JLAS}, {@link #TIER_AI} hoặc {@link #TIER_AI_REVIEWED}
+     * @param fallbackEligible  J-LAS không trả lời được một câu hỏi tiếng Nhật: được phép nhờ tầng 2 ({@link #aiFallback})
+     */
     public record Answer(String answer, List<RagRetriever.Passage> passages, RagLexiconLookup.Result lexicon,
-                         List<RagPromptComposer.Citation> citations, long retrievalMs, long generationMs) { }
+                         List<RagPromptComposer.Citation> citations, long retrievalMs, long generationMs,
+                         String tier, boolean fallbackEligible) {
+        public Answer(String answer, List<RagRetriever.Passage> passages, RagLexiconLookup.Result lexicon,
+                      List<RagPromptComposer.Citation> citations, long retrievalMs, long generationMs) {
+            this(answer, passages, lexicon, citations, retrievalMs, generationMs, TIER_JLAS, false);
+        }
+
+        Answer eligible(boolean value) {
+            return new Answer(answer, passages, lexicon, citations, retrievalMs, generationMs, tier, value);
+        }
+    }
 
     public Answer ask(String question) {
         return ask(question, List.of());
@@ -84,13 +103,99 @@ public class RagTutorService {
         }
         String fixed = context.isEmpty() ? NO_SOURCE + (HEALTH_QUESTION.matcher(plain(question)).find() ? SEE_A_DOCTOR : "")
                 : !hints.isEmpty() && isGrammarQuestion(question) && notInSources(hints, context) ? unknownPattern(hints) : null;
-        if (fixed != null) return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0);
+        if (fixed != null) {
+            return new Answer(fixed, context.passages(), context.lexicon(), List.of(), retrievalMs, 0)
+                    .eligible(context.isEmpty() && fallbackAllowed(question) && !HEALTH_QUESTION.matcher(plain(question)).find());
+        }
         String system = RagPromptComposer.systemPrompt(context, hints);
         String answer = stripRomaji(onDelta == null ? llm.chat(system, history, question, MAX_ANSWER_TOKENS)
                 : llm.chatStream(system, history, question, MAX_ANSWER_TOKENS, onDelta));
         long done = System.nanoTime();
         return new Answer(answer, context.passages(), context.lexicon(), RagPromptComposer.citations(context),
-                retrievalMs, (done - retrieved) / 1_000_000);
+                retrievalMs, (done - retrieved) / 1_000_000).eligible(answer.contains(MISSING_MARK) && fallbackAllowed(question));
+    }
+
+    // ---------------------------------------------------------------------
+    // Tầng 2: J-LAS thiếu dữ liệu cho một câu hỏi tiếng Nhật
+    // ---------------------------------------------------------------------
+
+    /** Phần đầu cố định của {@link #NO_SOURCE}: tầng 1 không có nguồn nào. */
+    public static final String NO_SOURCE_PREFIX = "Tài liệu J-LAS chưa có nội dung cho câu hỏi này";
+
+    /** Tầng 2 chỉ chạy với model qua API (đã đo chính xác hơn); model nhỏ trên máy hay bịa khi không có nguồn. */
+    public boolean usesApiModel() {
+        return llm.isApi();
+    }
+
+    /** Câu model tầng 1 dùng khi nguồn không có thông tin (prompt bắt viết đúng câu này). */
+    static final String MISSING_MARK = "Tài liệu J-LAS chưa có";
+    /** Cách đọc, âm Hán Việt, cấp JLPT: chỉ lấy từ dữ liệu J-LAS, không bao giờ để AI tự nói. */
+    private static final Pattern DATA_ONLY_QUESTION = Pattern.compile(
+            "\\b(doc la|doc the nao|doc sao|cach doc|phat am|han viet|am on|am kun|onyomi|kunyomi|cap jlpt|cap do|trinh do|n[1-5] hay)\\b");
+    private static final Pattern JAPANESE_IN_QUESTION = Pattern.compile("[\\p{IsHiragana}\\p{IsKatakana}\\p{IsHan}]");
+    static final int MAX_FALLBACK_TOKENS = 500;
+    static final String AI_PART = "Phần dưới do AI tổng hợp, chưa được người duyệt, bạn nên đối chiếu thêm với giáo viên hoặc từ điển:";
+    static final String AI_REVIEWED_PART = "Phần dưới do AI tổng hợp và đã được người duyệt:";
+    static final String NOT_IN_JLAS = "Tài liệu J-LAS chưa có nội dung này. ";
+    static final String FALLBACK_PROMPT = """
+            Bạn là gia sư tiếng Nhật cho người Việt. Tài liệu J-LAS chưa có nội dung cho câu hỏi này, nên hãy trả lời bằng
+            kiến thức tiếng Nhật chuẩn mà bạn chắc chắn đúng.
+            - Chỉ trả lời về tiếng Nhật. Câu hỏi không phải về học tiếng Nhật thì chỉ viết: なし
+            - KHÔNG viết cách đọc, furigana, romaji, âm Hán Việt hay cấp JLPT: hệ thống tự thêm những thứ này từ từ điển J-LAS.
+            - Câu ví dụ tiếng Nhật ngắn, đơn giản, đúng ngữ pháp, mỗi câu kèm nghĩa tiếng Việt.
+            - Điều gì không chắc thì nói rõ là không chắc; không bịa nguồn, sách hay số liệu.
+            - Trả lời bằng tiếng Việt, ngắn gọn (dưới 150 chữ), dùng gạch đầu dòng nếu cần; không tiêu đề, không bảng.
+            """;
+
+    /** Câu hỏi có chữ Nhật (tự đủ nghĩa, lưu lại được) và không hỏi thứ chỉ được lấy từ dữ liệu. */
+    static boolean fallbackAllowed(String question) {
+        return JAPANESE_IN_QUESTION.matcher(question).find() && !DATA_ONLY_QUESTION.matcher(plain(question)).find();
+    }
+
+    /**
+     * Tầng 2: dùng lại bản đã lưu cho câu hỏi này, hoặc nhờ AI tổng hợp rồi lưu lại ở trạng thái chờ duyệt.
+     * Mọi từ tiếng Nhật trong câu trả lời có trong từ điển J-LAS được liệt kê kèm cách đọc và nghĩa lấy từ từ điển.
+     *
+     * @param standalone   true khi tầng 1 không có nguồn nào (câu trả lời thay hẳn tầng 1); false khi nối sau câu trả lời
+     *                     tầng 1 đã có nguồn. Danh sách từ không đánh mã [D] để không trùng mã nguồn của tầng 1.
+     * @param mayCallModel gọi ngay trước khi hỏi AI (kiểm hạn mức); false thì không hỏi
+     * @return câu trả lời tầng 2, hoặc null khi bản đã lưu bị người duyệt từ chối, hết hạn mức, hoặc AI không trả lời được
+     */
+    public Answer aiFallback(String question, boolean standalone, java.util.function.Consumer<String> onDelta,
+                             java.util.function.BooleanSupplier mayCallModel) {
+        long started = System.nanoTime();
+        TutorAiAnswerStore.Saved saved = aiAnswers.find(question).orElse(null);
+        String body;
+        boolean reviewed;
+        if (saved != null) {
+            if (saved.rejected()) return null;
+            body = saved.answer();
+            reviewed = saved.approved();
+        } else {
+            if (!mayCallModel.getAsBoolean()) return null;
+            if (onDelta != null) onDelta.accept((standalone ? NOT_IN_JLAS : "\n\n") + AI_PART + "\n\n");
+            String raw = stripRomaji(onDelta == null ? llm.chat(FALLBACK_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS)
+                    : llm.chatStream(FALLBACK_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS, onDelta)).strip();
+            if (raw.isEmpty() || raw.equals("なし") || raw.startsWith("なし")) return null;
+            body = raw;
+            reviewed = false;
+            aiAnswers.save(question, body, llm.model());
+        }
+        // Từ tiếng Nhật trong câu hỏi và câu trả lời, đối chiếu với từ điển: cách đọc và nghĩa luôn là của J-LAS.
+        List<RagLexiconLookup.WordEntry> words = new ArrayList<>();
+        for (RagLexiconLookup.WordEntry w : retriever.words(question + "\n" + body)) {
+            if (words.size() < RagLexiconLookup.MAX_WORDS && words.stream().noneMatch(x -> x.expression().equals(w.expression()))) words.add(w);
+        }
+        StringBuilder out = new StringBuilder(standalone ? NOT_IN_JLAS : "").append(reviewed ? AI_REVIEWED_PART : AI_PART)
+                .append("\n\n").append(body);
+        if (!words.isEmpty()) {
+            out.append("\n\nTừ trong câu trả lời, cách đọc và nghĩa theo từ điển J-LAS:");
+            for (RagLexiconLookup.WordEntry w : words) {
+                out.append("\n- ").append(w.expression()).append(" (").append(w.reading()).append("): ").append(shortMeaning(w.meaning()));
+            }
+        }
+        return new Answer(out.toString(), List.of(), new RagLexiconLookup.Result(words, List.of()), List.of(), 0,
+                (System.nanoTime() - started) / 1_000_000, reviewed ? TIER_AI_REVIEWED : TIER_AI, false);
     }
 
     private static final Pattern ANTONYM_QUESTION = Pattern.compile("\\b(trai nghia|nguoc nghia|doi nghia|antonym)\\b|反対語|対義語|反意語");

@@ -58,7 +58,15 @@ public class TutorChatService {
 
     public record Message(String role, String content) { }
 
-    public record Reply(String answer, List<RagPromptComposer.Citation> sources, long retrievalMs, long generationMs) { }
+    /** @param tier {@code JLAS} (có nguồn J-LAS), {@code AI} (AI tổng hợp, chưa duyệt) hoặc {@code AI_REVIEWED} */
+    public record Reply(String answer, List<RagPromptComposer.Citation> sources, long retrievalMs, long generationMs, String tier) {
+        public Reply(String answer, List<RagPromptComposer.Citation> sources, long retrievalMs, long generationMs) {
+            this(answer, sources, retrievalMs, generationMs, RagTutorService.TIER_JLAS);
+        }
+    }
+
+    private static final Duration DAY = Duration.ofDays(1);
+    private final Map<Long, Deque<Instant>> aiFallbacks = new ConcurrentHashMap<>();
 
     public record Status(boolean enabled, int maxQuestionChars) { }
 
@@ -91,7 +99,18 @@ public class TutorChatService {
                 RagTutorService.Answer answer = tutor.ask(q, sanitize(history), onDelta);
                 log.info("Tutor answered userId={} sources={} retrievalMs={} generationMs={}",
                         userId, answer.citations().size(), answer.retrievalMs(), answer.generationMs());
-                return new Reply(answer.answer(), cited(answer.answer(), answer.citations()), answer.retrievalMs(), answer.generationMs());
+                List<RagPromptComposer.Citation> sources = cited(answer.answer(), answer.citations());
+                if (answer.fallbackEligible() && limits.aiFallback() && tutor.usesApiModel()) {
+                    // Tầng 2: J-LAS không có nội dung; tầng 1 không có nguồn nào thì câu trả lời AI thay hẳn, có thì nối sau.
+                    boolean standalone = sources.isEmpty() && answer.answer().startsWith(RagTutorService.NO_SOURCE_PREFIX);
+                    RagTutorService.Answer ai = tutor.aiFallback(q, standalone, onDelta, () -> takeDailyAiQuota(userId));
+                    if (ai != null) {
+                        log.info("Tutor AI fallback userId={} tier={} generationMs={}", userId, ai.tier(), ai.generationMs());
+                        return new Reply(standalone ? ai.answer() : answer.answer() + "\n\n" + ai.answer(), sources,
+                                answer.retrievalMs(), answer.generationMs() + ai.generationMs(), ai.tier());
+                    }
+                }
+                return new Reply(answer.answer(), sources, answer.retrievalMs(), answer.generationMs());
             } finally {
                 slots.release();
             }
@@ -112,6 +131,18 @@ public class TutorChatService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return false;
+        }
+    }
+
+    /** Một lượt AI tổng hợp (tầng 2) trong 24 giờ qua; false khi đã dùng hết hạn mức, lúc đó gia sư giữ câu "chưa có". */
+    boolean takeDailyAiQuota(long userId) {
+        Instant now = clock.instant();
+        Deque<Instant> times = aiFallbacks.computeIfAbsent(userId, id -> new ArrayDeque<>());
+        synchronized (times) {
+            while (!times.isEmpty() && times.peekFirst().isBefore(now.minus(DAY))) times.pollFirst();
+            if (times.size() >= limits.aiFallbackPerDay()) return false;
+            times.addLast(now);
+            return true;
         }
     }
 

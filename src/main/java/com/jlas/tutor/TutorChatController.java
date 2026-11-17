@@ -60,7 +60,7 @@ public class TutorChatController {
             try {
                 TutorChatService.Reply reply = tutor.ask(userId, request == null ? null : request.question(),
                         request == null ? null : request.history(), delta -> send.accept(java.util.Map.of("delta", delta)));
-                send.accept(java.util.Map.of("done", true, "answer", reply.answer(), "sources", reply.sources()));
+                send.accept(java.util.Map.of("done", true, "answer", reply.answer(), "sources", reply.sources(), "tier", reply.tier()));
             } catch (com.jlas.common.exception.ApiException e) {
                 send.accept(java.util.Map.of("error", e.getMessage()));
             } catch (java.io.UncheckedIOException e) {

@@ -48,6 +48,11 @@ public class LocalLlmClient {
         return config.getTutorModel();
     }
 
+    /** Đang gọi API ngoài (DeepSeek...) thay vì Ollama cục bộ. */
+    public boolean isApi() {
+        return config.isTutorApi();
+    }
+
     /** @param history các lượt trước, mỗi phần tử có {@code role} (user/assistant) và {@code content} */
     public String chat(String systemPrompt, List<Map<String, String>> history, String userMessage, int maxTokens) {
         return send(systemPrompt, history, userMessage, maxTokens, null);
