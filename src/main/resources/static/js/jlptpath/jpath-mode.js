@@ -37,11 +37,11 @@
   }
 
   function barHtml(mode) {
-    return '<div class="jp-mode" role="tablist" aria-label="Chế độ học">' + MODES.map(function (m) {
+    return '<div class="jp-modebar" role="tablist" aria-label="Chế độ học">' + MODES.map(function (m) {
       var on = m.code === mode;
-      return '<button type="button" role="tab" class="jp-mode__tab' + (on ? ' is-on' : '') + '" data-mode="' + m.code
-        + '" aria-selected="' + on + '"><span class="jp-mode__label">' + m.label + '</span>'
-        + '<span class="jp-mode__sub">' + m.sub + '</span></button>';
+      return '<button type="button" role="tab" class="jp-modebar__tab' + (on ? ' is-on' : '') + '" data-mode="' + m.code
+        + '" aria-selected="' + on + '"><span class="jp-modebar__label">' + m.label + '</span>'
+        + '<span class="jp-modebar__sub">' + m.sub + '</span></button>';
     }).join('') + '</div>';
   }
 
@@ -57,15 +57,18 @@
 
   function mount(doc) {
     var main = doc && doc.querySelector ? doc.querySelector('.jp-path__main') : null;
-    if (!main || main.querySelector('.jp-mode')) return null;
+    if (!main || main.querySelector('.jp-modebar')) return null;
     var query = null;
     try { query = new root.URLSearchParams(root.location.search).get('mode'); } catch (e) { query = null; }
     var mode = pick(read(), query, inFree(doc, root.location && root.location.hash));
-    main.insertAdjacentHTML('afterbegin', barHtml(mode));
+    // JLPT: under the page title (hero), communication: at the top of the main column
+    var hero = main.querySelector(':scope > .jp-path__hero');
+    if (hero) hero.insertAdjacentHTML('afterend', barHtml(mode));
+    else main.insertAdjacentHTML('afterbegin', barHtml(mode));
     var set = function (m, keep) {
       mode = m;
       main.setAttribute('data-mode', m);
-      Array.prototype.forEach.call(main.querySelectorAll('.jp-mode__tab'), function (b) {
+      Array.prototype.forEach.call(main.querySelectorAll('.jp-modebar__tab'), function (b) {
         var on = b.getAttribute('data-mode') === m;
         b.classList.toggle('is-on', on);
         b.setAttribute('aria-selected', String(on));
@@ -73,7 +76,7 @@
       if (keep) save(m);
     };
     set(mode, false);
-    main.querySelector('.jp-mode').addEventListener('click', function (ev) {
+    main.querySelector('.jp-modebar').addEventListener('click', function (ev) {
       var b = ev.target.closest ? ev.target.closest('[data-mode]') : null;
       if (b) set(b.getAttribute('data-mode'), true);
     });
