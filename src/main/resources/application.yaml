@@ -49,13 +49,13 @@ spring:
             enabled: true
             paths: /css/**,/js/**
 
-  # Giới hạn chung cho multipart; application-local.yaml có thể đặt lại (ví dụ 100MB cho video shadowing).
-  # Từng tính năng vẫn tự kiểm giới hạn riêng (avatar/thumbnail giáo trình 2MB).
+  # Giới hạn chung cho multipart, đủ cho video Shadowing tải lên (tối đa 20 phút, xem video.max.duration).
+  # Từng tính năng vẫn tự kiểm giới hạn riêng (ảnh bài đọc 5MB, avatar/thumbnail giáo trình 2MB, gói skin 25MB).
   servlet:
     multipart:
-      max-file-size: 5MB
-      # Lớn hơn max-file-size một chút: ảnh đúng 5MB cộng phần đầu multipart vẫn lọt (ảnh bài đọc tối đa 5MB).
-      max-request-size: 6MB
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:500MB}
+      # Lớn hơn max-file-size một chút cho phần đầu multipart và các trường đi kèm (tiêu đề, ảnh bìa).
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:510MB}
 
 # ── Server ───────────────────────────────────────────────────────────────────
 server:
@@ -135,7 +135,8 @@ youtube:
   max:
     duration:
       no-subtitle:
-        seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:300}
+        # 0 = không giới hạn: video không phụ đề tính phút hạn mức gấp 3 (Deepgram), người dùng trả theo phút.
+        seconds: ${YOUTUBE_MAX_NO_SUBTITLE_SECONDS:0}
   subtitle:
     # Drop anime opening/ending song lyrics found from [音楽] blocks in YouTube auto captions.
     skip-theme-songs:
@@ -267,10 +268,11 @@ pronunciation:
     local:
       root: ${PRONUNCIATION_STORAGE_ROOT:storage/pronunciation}
 
+# File tải lên tạo bài Shadowing: tối đa 20 phút (giới hạn phần cứng: dung lượng, ffmpeg). Link YouTube không giới hạn.
 video:
   max:
     duration:
-      seconds: ${VIDEO_MAX_DURATION_SECONDS:0}
+      seconds: ${VIDEO_MAX_DURATION_SECONDS:1200}
 
 processing:
   ai:

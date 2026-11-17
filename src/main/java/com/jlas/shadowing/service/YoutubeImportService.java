@@ -63,8 +63,8 @@ public class YoutubeImportService {
                     : "Video không được nhận diện là tiếng Nhật. Vui lòng chọn video có nội dung tiếng Nhật.");
         }
         if (meta.isBlockedNoSubtitleTooLong()) {
-            throw new IllegalArgumentException(
-                    "Video quá dài vì không có phụ đề. Vui lòng chọn video dưới 5 phút.");
+            throw new IllegalArgumentException(meta.getMessage() != null ? meta.getMessage()
+                    : "Video quá dài vì không có phụ đề.");
         }
         // A long video with AI on is allowed; the page only warns that it costs more and takes longer.
         boolean wantAi = Boolean.TRUE.equals(generateFurigana);
