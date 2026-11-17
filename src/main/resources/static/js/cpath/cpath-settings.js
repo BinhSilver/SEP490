@@ -83,8 +83,10 @@
         + (draft.restDays.indexOf(d[0]) >= 0 ? ' checked' : '') + '> ' + d[1] + '</label>'; }).join('')
       + '</div></fieldset>'
       + '<label class="cp-settings__date">Muốn hoàn thành trước ngày <input type="date" data-cp-finish value="' + esc(draft.finishDate) + '"></label>'
-      + '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến học xong các tình huống '
-      + shortDate(calc.date) + ' (' + draft.dailySituations + ' tình huống/ngày học).</p>'
+      + (calc.remaining > 0
+        ? '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến học xong các tình huống '
+          + shortDate(calc.date) + ' (' + draft.dailySituations + ' tình huống/ngày học).</p>'
+        : '<p class="cp-settings__preview" role="status">Bạn đã học hết các tình huống của lộ trình này. Nhịp học chỉ còn dùng cho phần ôn tập.</p>')
       + (calc.late ? '<p class="jp-alert" role="alert">Nhịp hiện chọn có thể không kịp ngày hoàn thành. Hãy tăng số tình huống hoặc giảm ngày nghỉ.</p>' : '')
       + note(notices.pace, notices.paceError)
       + '<div class="cp-settings__actions"><button type="button" class="cp-btn-primary" data-cp-save-pace>Lưu nhịp học</button>'

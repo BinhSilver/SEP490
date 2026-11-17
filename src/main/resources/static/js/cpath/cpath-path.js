@@ -359,7 +359,7 @@
       + stat('CP từ lộ trình', '+' + (Number(f.cp) || 0) + ' CP')
       + '</dl>'
       + '<p class="cp-finished__cert"><a class="cp-btn-primary" href="' + esc(f.certificateUrl || '/learning/comm/certificate') + '">Xem chứng nhận</a>'
-      + '<span>Bản đồ vẫn mở để ôn lại; lộ trình đã hoàn thành không giao bài mới mỗi ngày.</span></p>'
+      + '</p>'
       + choices
       + '</section>';
   }
