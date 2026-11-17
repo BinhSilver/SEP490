@@ -259,3 +259,52 @@ html[data-theme="dark"] .tutor-sources small { color: #b8b3c0; }
 @media (prefers-reduced-motion: reduce) {
   .tutor-typing span { animation: none; }
 }
+
+/* Nút gia sư là con cáo của web (home-mascot.js) kèm bong bóng lời mời; bong bóng ẩn khi khung chat đang mở. */
+.tutor-toggle--fox,
+.tutor-toggle--fox:hover {
+  min-height: 0;
+  padding: 0;
+  gap: 4px;
+  background: none;
+  box-shadow: none;
+  color: var(--color-on-surface, #161d1f);
+}
+.tutor-fox { display: block; width: 76px; height: 76px; flex: none; transition: transform .2s ease; }
+.tutor-toggle--fox:hover .tutor-fox { transform: translateY(-3px); }
+.tutor-toggle--fox:focus-visible { border-radius: 24px; }
+.tutor-bubble {
+  position: relative;
+  padding: 10px 14px;
+  font: 600 .9rem/1.3 var(--font-body, system-ui, sans-serif);
+  color: var(--color-on-surface, #161d1f);
+  background: var(--color-surface-lowest, #ffffff);
+  border: 1px solid var(--color-outline-variant, #e6dcf3);
+  border-radius: 16px 16px 4px 16px;
+  box-shadow: 0 8px 24px rgba(79, 55, 138, .18);
+  white-space: nowrap;
+  animation: tutorBubbleIn .35s ease both;
+}
+.tutor-toggle--fox[aria-expanded="true"] .tutor-bubble { display: none; }
+@keyframes tutorBubbleIn { from { opacity: 0; transform: translateY(6px) scale(.96); } }
+
+/* Sprite 3x3 của con cáo (giống css/pages/home-mascot.css, file đó chỉ nạp ở trang chủ). */
+.tutor-fox .hm-mascot,
+.tutor-fox .hm-mascot__squash { position: relative; display: block; width: 100%; height: 100%; }
+.tutor-fox .hm-mascot__squash { transform-origin: 50% 78%; }
+.tutor-fox .hm-mascot { filter: drop-shadow(0 6px 10px rgb(0 0 0 / .22)); }
+.tutor-fox .hm-mascot__layer { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 300% 300%; }
+.tutor-fox .hm-mascot__react { opacity: 0; }
+.tutor-fox.is-reacting .hm-mascot__dir { opacity: 0; }
+.tutor-fox.is-reacting .hm-mascot__react { opacity: 1; }
+html[data-theme="dark"] .tutor-fox .hm-mascot { filter: drop-shadow(0 0 10px rgb(255 214 170 / .28)) drop-shadow(0 6px 10px rgb(0 0 0 / .4)); }
+
+@media (max-width: 560px) {
+  .tutor-toggle.tutor-toggle--fox { width: auto; }
+  .tutor-toggle--fox .tutor-bubble { display: none; }
+  .tutor-fox { width: 60px; height: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutor-bubble { animation: none; }
+  .tutor-fox, .tutor-toggle--fox:hover .tutor-fox { transition: none; transform: none; }
+}

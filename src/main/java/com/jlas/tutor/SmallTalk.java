@@ -17,6 +17,12 @@ final class SmallTalk {
     private static final Pattern IDENTITY = Pattern.compile(
             "((ban|may|em) (la ai|la gi|ten (la )?gi)( vay| the| a)? ?)+((ban )?dung (model|mo hinh) gi( vay| the)?)?"
                     + "|(ban )?dung (model|mo hinh) gi( vay| the)?|ai tao ra ban|who are you|what model are you");
+    /** "Bạn có thể làm gì?", "bạn giúp được gì", "gia sư có chức năng gì". */
+    private static final Pattern CAPABILITIES = Pattern.compile(
+            "((ban|gia su|bot|em|may|cau) )?((co the|biet) )?(lam|giup|ho tro|tra loi)( duoc)?( cho (minh|toi|em))?"
+                    + " (gi|nhung gi|viec gi|nhung viec gi)( cho (minh|toi|em))?( vay| the| a| khong| nao| nhi)*"
+                    + "|((ban|gia su|bot) )?co (nhung )?(chuc nang|tinh nang) gi( vay| the| a)*"
+                    + "|what can you do|help");
     private static final Pattern ABOUT_JLAS = Pattern.compile(
             "(j ?las|web (nay|nay la)|trang (web )?nay)( la gi| la web gi| dung de lam gi| co gi| lam duoc gi)( vay| the| a)?");
 
@@ -40,6 +46,15 @@ final class SmallTalk {
     static final String THANKS_REPLY = "Không có gì! Bạn cứ hỏi tiếp nhé.";
     static final String IDENTITY_REPLY = "Mình là gia sư AI của J-LAS. Mình trả lời dựa trên giáo trình và từ điển J-LAS;"
             + " phần nào J-LAS chưa có thì mình ghi rõ là AI tổng hợp. Bạn muốn hỏi từ vựng, kanji hay mẫu ngữ pháp nào?";
+    static final String CAPABILITIES_REPLY = "Mình là gia sư tiếng Nhật của J-LAS. Mình có thể giúp bạn:\n"
+            + "- Tra từ vựng: nghĩa, cách đọc, cấp JLPT, câu ví dụ, mẹo nhớ, từ trái nghĩa.\n"
+            + "- Kanji: âm Hán Việt, âm On/Kun, nghĩa của từng chữ.\n"
+            + "- Ngữ pháp: giải thích mẫu câu (ví dụ ～にとって), phân biệt các mẫu dễ nhầm, kính ngữ.\n"
+            + "- Liệt kê từ theo cấp và chủ đề, ví dụ \"5 từ N5 về đồ ăn\".\n"
+            + "- Đặt câu với một từ, chuyển câu sang thể lịch sự hay thể thường, dịch câu Nhật–Việt.\n"
+            + "- Sửa câu tiếng Nhật bạn viết, gợi ý mẹo học.\n\n"
+            + "Mình trả lời dựa trên giáo trình và từ điển J-LAS; phần nào J-LAS chưa có thì mình ghi rõ là AI tổng hợp."
+            + " Bạn cứ gõ từ hoặc câu hỏi, bằng chữ Nhật hay tiếng Việt đều được.";
     static final String ABOUT_JLAS_REPLY = "J-LAS là nền tảng học tiếng Nhật cho người Việt: giáo trình theo bài, lộ trình JLPT"
             + " từ N5 đến N1, từ điển Nhật–Việt, đề thi thử JLPT, luyện hội thoại với AI, shadowing và các trò chơi luyện kana, kanji."
             + " Mình là gia sư AI trong đó: bạn hỏi mình về từ vựng, kanji, ngữ pháp hay nhờ đặt câu, dịch câu nhé.";
@@ -66,6 +81,7 @@ final class SmallTalk {
         if (THANKS.matcher(plain).matches()) return THANKS_REPLY;
         if (IDENTITY.matcher(plain).matches()) return IDENTITY_REPLY;
         if (ABOUT_JLAS.matcher(plain).matches()) return ABOUT_JLAS_REPLY;
+        if (CAPABILITIES.matcher(plain).matches()) return CAPABILITIES_REPLY;
         if (OTHER_LANGUAGE.matcher(plain).find() && !ABOUT_JAPANESE.matcher(plain).find()) return OUT_OF_SCOPE_REPLY;
         return null;
     }
