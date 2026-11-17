@@ -30,7 +30,7 @@
   'use strict';
 
   var BASE = '/api/learning/jlpt';
-  var TABS = [['VOCAB', 'Từ vựng', 'từ'], ['KANJI', 'Kanji', 'chữ'], ['GRAMMAR', 'Ngữ pháp', 'mẫu']];
+  var TABS = [['KANA', 'Bảng chữ', 'chữ'], ['VOCAB', 'Từ vựng', 'từ'], ['KANJI', 'Kanji', 'chữ'], ['GRAMMAR', 'Ngữ pháp', 'mẫu']];
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -51,6 +51,8 @@
   }
 
   function sessionBody(g) {
+    // kana sessions count rows (about 5 kana each), not single characters
+    if (g.tab === 'KANA') return { tab: 'KANA', mode: 'BROWSE', count: Math.max(1, Math.min(200, Math.ceil(g.items.length / 5))) };
     return { tab: g.tab, mode: 'BROWSE', startItemCode: g.items[0].code, count: Math.min(200, g.items.length) };
   }
   function redoBody(c) { return { kind: 'FREE_QUIZ', tab: c.tab || null, redoOf: c.token }; }
@@ -78,7 +80,8 @@
     return '<section class="jp-card jp-revisit" aria-labelledby="jpRevisitTitle">'
       + '<div class="jp-revisit__head"><h2 class="jp-revisit__title" id="jpRevisitTitle">Xem lại bài đã học</h2>'
       + '<a class="jp-revisit__history" href="/learning/jlpt/history' + (day ? '?day=' + esc(day) : '') + '">Lịch sử học ›</a></div>'
-      + '<p class="jp-revisit__note">Ngày này vẫn tính là đã xong. Học lại hay làm lại chỉ là luyện thêm, điểm cũ vẫn được lưu.</p>'
+      + '<p class="jp-revisit__note">' + (detail && detail.done ? 'Ngày này vẫn tính là đã xong. ' : '')
+      + 'Học lại hay làm lại chỉ là luyện thêm, điểm cũ vẫn được lưu.</p>'
       + '<ul class="jp-revisit__rows">' + rows + '</ul>'
       + '<p class="jp-revisit__msg" role="status" hidden></p></section>';
   }
