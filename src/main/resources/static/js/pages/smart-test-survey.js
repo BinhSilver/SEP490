@@ -194,9 +194,10 @@
 
   function showInvitation(survey, justSaved) {
     savedSurvey = survey;
-    if (commOn && survey && (survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')) {
-      // no in-between screen: a new answer opens the communication survey, a returning learner their path
-      window.location.assign(justSaved ? '/learning/comm/survey?goal=' + encodeURIComponent(survey.goal) : '/learning/comm');
+    if (justSaved && commOn && survey && (survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')) {
+      // a new communication answer goes straight to the communication survey; a returning learner who opened
+      // Smart Test from the menu stays here (owner 17/11: the menu entry must not bounce them to the path)
+      window.location.assign('/learning/comm/survey?goal=' + encodeURIComponent(survey.goal));
       return;
     }
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
@@ -215,7 +216,8 @@
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
     if (keepsPath) {
       document.getElementById('inviteTitle').textContent = 'Lộ trình JLPT của bạn vẫn được giữ!';
-      document.getElementById('inviteText').textContent = 'Bạn đã có lộ trình nên không cần làm lại Smart Test. Tiến độ học vẫn được giữ nguyên.';
+      document.getElementById('inviteText').textContent = 'Tiến độ học vẫn được giữ nguyên. Bạn có thể làm lại Smart Test để đo trình độ hiện tại; '
+        + 'ở trang kết quả, KotsuKotsu so cấp mới với lộ trình và cho bạn đổi cấp nếu cần.';
     } else if (resumesSmartTest) {
       document.getElementById('inviteTitle').textContent = 'Kitsu đã lưu lịch học của bạn!';
       document.getElementById('inviteText').textContent = 'Bạn đã có bài Smart Test. Tiếp tục để xem kết quả và xác nhận lộ trình JLPT.';
@@ -229,7 +231,10 @@
       document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
     }
-    startTest.hidden = needsPathOnly;
+    // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
+    startTest.hidden = needsPathOnly && !keepsPath;
+    var startLabel = startTest.querySelector('span');
+    if (startLabel) startLabel.textContent = keepsPath ? 'Làm lại Smart Test' : 'Bắt đầu Smart Test';
     noTest = needsPathOnly;
     goHome.textContent = needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
     goHome.classList.toggle('smart-test-primary', needsPathOnly);
@@ -344,7 +349,7 @@
       localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
       window.location.assign('/smart-test');
     } catch (error) { showError(error.message); }
-    finally { startTest.disabled = false; startTest.querySelector('span').textContent = 'Bắt đầu Smart Test'; }
+    finally { startTest.disabled = false; }
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
