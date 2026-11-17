@@ -332,7 +332,7 @@
       + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù.</li>';
     return '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
       + '<p class="jp-muted">Đổi ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
-      + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Điều chỉnh nhịp học" bên dưới.</p></details>';
+      + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Nhịp học và ngày nghỉ" phía trên.</p></details>';
   }
 
   // ------------------------------------------------------------------------------------------------ numbers
