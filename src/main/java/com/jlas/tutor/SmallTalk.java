@@ -5,8 +5,8 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Câu chào, cảm ơn và câu hỏi về chính gia sư được đáp ngắn, cố định. Đưa qua model thì model 4B biến lời chào thành
- * bài giảng はじめまして và tự nhận sai về mình. Chỉ khớp cả câu, để câu như "bạn là ai tiếng Nhật nói thế nào" vẫn được trả lời.
+ * Câu chào, cảm ơn, câu hỏi về chính gia sư, và lời tâm sự buồn được đáp ngắn, cố định, không qua model.
+ * Chỉ khớp cả câu (trừ lời tâm sự), để câu như "bạn là ai tiếng Nhật nói thế nào" vẫn được trả lời.
  */
 final class SmallTalk {
 
@@ -17,29 +17,55 @@ final class SmallTalk {
     private static final Pattern IDENTITY = Pattern.compile(
             "((ban|may|em) (la ai|la gi|ten (la )?gi)( vay| the| a)? ?)+((ban )?dung (model|mo hinh) gi( vay| the)?)?"
                     + "|(ban )?dung (model|mo hinh) gi( vay| the)?|ai tao ra ban|who are you|what model are you");
+    private static final Pattern ABOUT_JLAS = Pattern.compile(
+            "(j ?las|web (nay|nay la)|trang (web )?nay)( la gi| la web gi| dung de lam gi| co gi| lam duoc gi)( vay| the| a)?");
 
     /** Hỏi về ngôn ngữ khác mà không nhắc gì tới tiếng Nhật: ngoài phạm vi của J-LAS, không đưa qua model. */
     private static final Pattern OTHER_LANGUAGE = Pattern.compile(
-            "\\b(tieng (anh|han|trung|hoa|phap|duc|nga|thai|tay ban nha|y)|english|korean|chinese|french|german|spanish)\\b");
-    private static final Pattern ABOUT_JAPANESE = Pattern.compile("\\b(nhat|japan(ese)?|nihongo|kanji|hiragana|katakana|jlpt)\\b");
+            "\b(tieng (anh|han|trung|hoa|phap|duc|nga|thai|tay ban nha|y)|english|korean|chinese|french|german|spanish)\b");
+    private static final Pattern ABOUT_JAPANESE = Pattern.compile("\b(nhat|japan(ese)?|nihongo|kanji|hiragana|katakana|jlpt)\b");
 
-    static final String OUT_OF_SCOPE_REPLY = "Mình chỉ hỗ trợ học tiếng Nhật trên J-LAS, nên không trả lời câu hỏi này được."
-            + " Bạn muốn biết từ hay mẫu câu này trong tiếng Nhật thì hỏi mình nhé.";
+    /** Ý nghĩ tự tử, tự hại: luôn đáp trước mọi thứ khác, kể cả khi câu có chữ Nhật. */
+    private static final Pattern CRISIS = Pattern.compile(
+            "\\b(khong muon song|chang muon song|het muon song|muon chet|(muon|dinh|se|nghi den|nghi toi|tinh) tu (tu|sat)|tu sat|ket lieu|tu lam hai|chan song"
+                    + "|khong thiet song|song lam gi|khong con ly do de song|bien mat khoi the gian|kill myself|suicide)\\b");
+    private static final Pattern CRISIS_JA = Pattern.compile("死にたい|消えたい|自殺|生きたくない|生きる意味がない");
+    /** Buồn, nản vì học hay thi: động viên rồi mời học tiếp. */
+    private static final Pattern SAD = Pattern.compile(
+            "\\b(thi truot|truot (n[1-5]|jlpt|ky thi|bai thi)|thi rot|rot (n[1-5]|jlpt)|chan qua|chan that|buon qua|buon that|nan qua"
+                    + "|nan that|that vong|ap luc qua|met moi qua|muon bo cuoc|muon bo hoc|hoc mai khong vao|khong hoc noi)\\b");
+
+    static final String OUT_OF_SCOPE_REPLY = com.jlas.kaiwa.rag.RagTutorService.OUT_OF_SCOPE_REPLY;
     static final String GREETING_REPLY = "Chào bạn! Mình là gia sư AI của J-LAS. Bạn muốn hỏi từ vựng, kanji hay mẫu ngữ pháp nào trong giáo trình?";
     static final String THANKS_REPLY = "Không có gì! Bạn cứ hỏi tiếp nhé.";
-    static final String IDENTITY_REPLY = "Mình là gia sư AI của J-LAS. Mình chỉ trả lời dựa trên giáo trình"
-            + " và từ điển J-LAS, không tra Internet. Bạn muốn hỏi từ vựng, kanji hay mẫu ngữ pháp nào?";
+    static final String IDENTITY_REPLY = "Mình là gia sư AI của J-LAS. Mình trả lời dựa trên giáo trình và từ điển J-LAS;"
+            + " phần nào J-LAS chưa có thì mình ghi rõ là AI tổng hợp. Bạn muốn hỏi từ vựng, kanji hay mẫu ngữ pháp nào?";
+    static final String ABOUT_JLAS_REPLY = "J-LAS là nền tảng học tiếng Nhật cho người Việt: giáo trình theo bài, lộ trình JLPT"
+            + " từ N5 đến N1, từ điển Nhật–Việt, đề thi thử JLPT, luyện hội thoại với AI, shadowing và các trò chơi luyện kana, kanji."
+            + " Mình là gia sư AI trong đó: bạn hỏi mình về từ vựng, kanji, ngữ pháp hay nhờ đặt câu, dịch câu nhé.";
+    static final String CRISIS_REPLY = "Mình rất tiếc khi bạn đang thấy nặng nề đến vậy. Cảm giác của bạn là thật và đáng được"
+            + " lắng nghe, bạn không phải chịu một mình. Một kỳ thi không quyết định giá trị của bạn.\n\n"
+            + "Nếu bạn đang nghĩ tới việc làm hại bản thân, hãy nói ngay với một người bạn tin tưởng (gia đình, bạn bè, thầy cô),"
+            + " hoặc gọi đường dây hỗ trợ tâm lý Ngày Mai 096 306 1414. Nếu bạn đang gặp nguy hiểm, gọi cấp cứu 115.\n\n"
+            + "Khi bạn thấy ổn hơn, mình vẫn ở đây để cùng bạn ôn lại từng chút một.";
+    static final String SAD_REPLY = "Mình hiểu, trượt hay học mãi chưa vào thì rất buồn và mệt. Bạn đã bỏ công sức ra học,"
+            + " và lần này chưa được không có nghĩa là bạn không làm được. Nghỉ ngơi một chút cũng được nhé.\n\n"
+            + "Khi bạn sẵn sàng, mình có thể giúp: ôn lại từ vựng, kanji hay mẫu ngữ pháp bạn hay sai, giải thích câu bạn chưa hiểu,"
+            + " hoặc gợi ý cách chia nhỏ việc ôn tập. Bạn muốn bắt đầu từ phần nào?";
 
     private SmallTalk() { }
 
     /** Câu đáp cố định, hoặc {@code null} khi đây là một câu hỏi thật. */
     static String reply(String question) {
-        if (JAPANESE.matcher(question).find()) return null;
         String plain = Normalizer.normalize(question.toLowerCase(Locale.ROOT), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "").replace('đ', 'd').replaceAll("[^a-z0-9]+", " ").strip();
+                .replaceAll("\\p{M}", "").replace('đ', 'd').replaceAll("[^a-z0-9\\p{IsHiragana}\\p{IsKatakana}\\p{IsHan}]+", " ").strip();
+        if (CRISIS.matcher(plain).find() || CRISIS_JA.matcher(question).find()) return CRISIS_REPLY;
+        if (JAPANESE.matcher(question).find()) return null;
+        if (SAD.matcher(plain).find()) return SAD_REPLY;
         if (GREETING.matcher(plain).matches()) return GREETING_REPLY;
         if (THANKS.matcher(plain).matches()) return THANKS_REPLY;
         if (IDENTITY.matcher(plain).matches()) return IDENTITY_REPLY;
+        if (ABOUT_JLAS.matcher(plain).matches()) return ABOUT_JLAS_REPLY;
         if (OTHER_LANGUAGE.matcher(plain).find() && !ABOUT_JAPANESE.matcher(plain).find()) return OUT_OF_SCOPE_REPLY;
         return null;
     }
