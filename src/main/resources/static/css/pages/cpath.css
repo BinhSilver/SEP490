@@ -1799,15 +1799,20 @@ button.jp-sidenav__link {
 /* F70 Bài nền: thẻ học, kiểm tra nhanh, kết quả */
 .cp-core-cards { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, max(330px, calc((100% - 28px) / 3))), 1fr)); }
 .cp-core-card {
+  /* Two rows of the shared grid (word, example): cards in one row share each row's height,
+     so the dashed example lines line up across the row. */
   display: grid;
-  gap: 4px;
-  align-content: start;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  row-gap: 8px;
   padding: 12px 14px;
   border: 1px solid var(--cp-line);
   border-radius: 12px;
   background: var(--cp-surface);
   color: var(--cp-ink);
 }
+.cp-core-card__word { display: grid; gap: 4px; align-content: start; }
+.cp-core-card__ex { align-self: start; }
 .cp-core-card.is-done { border-color: var(--jp-c-mint-500); }
 .cp-core-card__head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .cp-core-card__kind { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--cp-primary-soft); color: var(--cp-primary-ink); }

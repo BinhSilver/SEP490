@@ -68,7 +68,7 @@
     var reading = item.reading && item.reading !== item.ja ? item.reading : '';
     var rom = d.romaji ? (item.romaji || romajiOf(item.reading || item.ja)) : '';
     var ex = item.example;
-    return '<li class="cp-core-card' + (item.done ? ' is-done' : '') + '">'
+    return '<li class="cp-core-card' + (item.done ? ' is-done' : '') + '"><div class="cp-core-card__word">'
       + '<div class="cp-core-card__head">'
       + '<span class="cp-core-card__kind cp-core-card__kind--' + esc(String(item.kind).toLowerCase()) + '">' + esc(KIND_LABEL[item.kind] || 'Mục') + '</span>'
       + (item.done ? '<span class="cp-core-card__done">Đã thuộc</span>' : '')
@@ -81,6 +81,7 @@
       + (rom ? '<div class="cp-line__romaji">' + esc(rom) + '</div>' : '')
       + '<div class="cp-core-card__vi">' + esc(item.meaningVi) + '</div>'
       + (item.note ? '<div class="cp-core-card__note">' + esc(item.note) + '</div>' : '')
+      + '</div>'
       + (ex && ex.ja ? '<div class="cp-core-card__ex">'
         + '<div class="cp-core-card__ex-ja" lang="ja"><span class="cp-core-card__ex-text">' + ruby(ex.furigana || ex.ja, d.furigana !== false) + '</span>'
         + playBtn(ex.audioUrl, ex.ja, 'Nghe câu ví dụ') + '</div>'
