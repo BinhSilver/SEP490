@@ -51,10 +51,10 @@
             <div data-jpath-extra-links class="jp-path__extra"></div>
         </aside>
         <div class="jp-ws__main jp-path__main">
-            <section class="jp-path__today" data-slot="today">
+            <section class="jp-path__today" data-slot="today" data-mode-part="today">
                 <p class="jp-path__loading jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải lộ trình giao tiếp…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </section>
-            <div class="jp-path__tabpart">
+            <div class="jp-path__tabpart" data-mode-part="free">
                 <section class="jp-path__parts" data-slot="parts" aria-live="polite"></section>
             </div>
         </div>
@@ -67,6 +67,7 @@
 <script src="../../static/js/jlptpath/jpath-furigana.js" th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/jlptpath/jpath-path-controls.js" th:src="@{/js/jlptpath/jpath-path-controls.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/jlptpath/jpath-tour.js" th:src="@{/js/jlptpath/jpath-tour.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/jlptpath/jpath-mode.js" th:src="@{/js/jlptpath/jpath-mode.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/cpath/cpath-path.js" th:src="@{/js/cpath/cpath-path.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

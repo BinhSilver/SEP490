@@ -164,6 +164,10 @@
       at = i;
       var step = live[i];
       var el = targetOf(step);
+      // owner 17/11: a step in the hidden mode (Học hôm nay / Tự chọn bài) opens that mode first
+      var part = el && el.closest ? el.closest('[data-mode-part]') : null;
+      var modeCtl = root && root.JpathMode && root.JpathMode.current;
+      if (part && modeCtl && modeCtl.get() !== part.getAttribute('data-mode-part')) modeCtl.set(part.getAttribute('data-mode-part'), false);
       if (el && el.classList) { el.classList.add(TARGET_CLASS); lit = el; }
       if (el && typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });

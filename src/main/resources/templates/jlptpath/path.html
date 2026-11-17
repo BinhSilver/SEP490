@@ -31,10 +31,10 @@
             <div class="jp-path__hero" data-region="hero">
                 <p class="jp-path__loading jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải lộ trình…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
-            <section class="jp-path__today" data-slot="today"></section>
-            <section class="jp-path__warmup" data-slot="warmup" hidden></section>
+            <section class="jp-path__today" data-slot="today" data-mode-part="today"></section>
+            <section class="jp-path__warmup" data-slot="warmup" data-mode-part="today" hidden></section>
             <!-- owner 17/11: one row of tool buttons; a button opens its one full-width panel below (the other closes) -->
-            <div class="jp-tools" data-jp-tools>
+            <div class="jp-tools" data-jp-tools data-mode-part="today">
                 <div class="jp-tools__bar" role="group" aria-label="Công cụ lộ trình">
                     <button type="button" class="jp-tools__chip" data-tool="pace" aria-expanded="false" aria-controls="jpToolPace">Nhịp học và ngày nghỉ</button>
                     <button type="button" class="jp-tools__chip" data-tool="skip" aria-expanded="false" aria-controls="jpToolSkip" hidden>Đã biết trước? Kiểm tra để bỏ qua <span class="jp-tools__count" data-tool-count></span></button>
@@ -45,8 +45,8 @@
                 </div>
                 <section class="jp-tools__panel jp-path__warmup" id="jpToolSkip" data-tool-panel="skip" data-slot="week-skip" hidden></section>
             </div>
-            <div class="jp-path__stage" data-region="stage"></div>
-            <div class="jp-path__tabpart">
+            <div class="jp-path__stage" data-region="stage" data-mode-part="free"></div>
+            <div class="jp-path__tabpart" data-mode-part="free">
                 <div class="jp-path__tabs" data-region="tabs"></div>
                 <div class="jp-path__numbers" id="jp-tab-panel" role="tabpanel" data-region="numbers"></div>
                 <section class="jp-path__parts" data-slot="parts" aria-live="polite"></section>
@@ -58,6 +58,7 @@
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-path-controls.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-mode.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>

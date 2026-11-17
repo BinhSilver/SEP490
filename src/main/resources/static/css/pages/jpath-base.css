@@ -682,3 +682,18 @@ html body .jp-path .jp-tools__panel .jp-warmup__actions .jp-btn { border-radius:
    Kitsu peeks over the date circle, the separate speech-bubble Kitsu is hidden (both paths, all widths). */
 html body .jp-path .jp-today .jp-today__cal-kitsu { display: block !important; }
 html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !important; }
+
+/* owner 17/11: "Học hôm nay" / "Tự chọn bài" as two modes on the path pages (jpath-mode.js) */
+.jp-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 6px; margin: 0 0 16px;
+  background: var(--jp-surface-2, #f3f1fb); border: 1px solid var(--jp-line, #e4e0f2); border-radius: 16px; }
+.jp-mode__tab { display: grid; gap: 2px; justify-items: start; text-align: left; padding: 10px 16px; border: 0;
+  border-radius: 12px; background: transparent; color: var(--jp-ink-2, #5b5670); cursor: pointer; font: inherit; }
+.jp-mode__tab:hover { background: rgba(255,255,255,.6); }
+.jp-mode__tab.is-on { background: var(--jp-surface, #fff); color: var(--jp-ink, #1f1b2e); box-shadow: 0 1px 4px rgba(40,30,90,.12); }
+.jp-mode__tab:focus-visible { outline: 2px solid var(--jp-accent, #6c4ed9); outline-offset: 2px; }
+.jp-mode__label { font-weight: 700; font-size: 1rem; }
+.jp-mode__tab.is-on .jp-mode__label { color: var(--jp-accent, #6c4ed9); }
+.jp-mode__sub { font-size: .82rem; opacity: .8; }
+.jp-path__main[data-mode="today"] [data-mode-part="free"],
+.jp-path__main[data-mode="free"] [data-mode-part="today"] { display: none !important; }
+@media (max-width: 560px) { .jp-mode__sub { display: none; } .jp-mode__tab { justify-items: center; text-align: center; padding: 10px 8px; } }
