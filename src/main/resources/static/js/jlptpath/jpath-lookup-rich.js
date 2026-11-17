@@ -199,7 +199,11 @@
     };
     doc.addEventListener('mousedown', function (ev) {
       var card = doc.querySelector('aside.inline-dict');
-      if (card && !card.hidden && ev.target && !card.contains(ev.target)) closeCard();
+      if (card && !card.hidden && ev.target && !card.contains(ev.target)) {
+        closeCard();
+        // the shared lookup reopens on pointerup while the text is still selected: drop the selection
+        try { if (root.getSelection) root.getSelection().removeAllRanges(); } catch (e) { /* no selection API */ }
+      }
     }, true);
     doc.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeCard(); });
     if (root.addEventListener) root.addEventListener('scroll', function (ev) {
