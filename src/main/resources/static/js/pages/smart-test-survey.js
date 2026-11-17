@@ -194,6 +194,10 @@
 
   function showInvitation(survey, justSaved) {
     savedSurvey = survey;
+    if (justSaved && commOn && survey && survey.goal === 'JLPT') {
+      // owner 17/11: one main goal — JLPT as the main goal pauses the communication paths (progress kept)
+      api('/api/learning/comm/goals/pause-for-jlpt', { method: 'POST' }).catch(function () { /* nothing to pause */ });
+    }
     if (justSaved && commOn && survey && (survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')) {
       // a new communication answer goes straight to the communication survey; a returning learner who opened
       // Smart Test from the menu stays here (owner 17/11: the menu entry must not bounce them to the path)

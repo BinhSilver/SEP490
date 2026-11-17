@@ -65,7 +65,7 @@ public class CpathController {
     private PremiumAccess premium;
 
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
-    private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
+    private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/goals/pause-for-jlpt", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
             "/notebook", "/day");
 
@@ -103,6 +103,12 @@ public class CpathController {
     @GetMapping("/goals/overview")
     public ResponseEntity<ApiResponse<Map<String, Object>>> goalsOverview(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.goalsOverview(user.userId())));
+    }
+
+    /** Owner 17/11: main goal switched to JLPT → communication paths pause (progress kept). */
+    @PostMapping("/goals/pause-for-jlpt")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> pauseForJlpt(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp. Tiến độ được giữ nguyên.", service.pauseForJlptMain(user.userId())));
     }
 
     @GetMapping("/path")

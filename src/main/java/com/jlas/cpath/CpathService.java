@@ -1809,14 +1809,23 @@ public class CpathService {
         Map<String, Object> cMain = pathRow(userId, "MAIN");
         Map<String, Object> cSec = pathRow(userId, "SECONDARY");
         Map<String, Object> main = null;
-        if (cMain != null) {
-            main = goalMap("COMM", (String) cMain.get("goal_code"), (String) cMain.get("name_vi"), "/learning/comm/path");
-        } else if (!jlpt.isEmpty() && "ACTIVE".equals(jlpt.get(0).get("status"))) {
+        boolean jlptActive = !jlpt.isEmpty() && "ACTIVE".equals(jlpt.get(0).get("status"));
+        // the survey goal decides the main goal; a communication path still open from before a switch to JLPT is
+        // shown as "still open" with a one-click pause, never as a second main goal
+        boolean jlptMain = jlptActive && ("JLPT".equals(surveyGoal) || cMain == null);
+        List<Map<String, Object>> leftOpen = new ArrayList<>();
+        if (jlptMain) {
             main = goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning");
+            if (cMain != null) leftOpen.add(goalMap("COMM", (String) cMain.get("goal_code"), (String) cMain.get("name_vi"), "/learning/comm/path"));
+            if (cSec != null) leftOpen.add(goalMap("COMM", (String) cSec.get("goal_code"), (String) cSec.get("name_vi"), "/learning/comm/path"));
+        } else if (cMain != null) {
+            main = goalMap("COMM", (String) cMain.get("goal_code"), (String) cMain.get("name_vi"), "/learning/comm/path");
+            if (jlptActive) leftOpen.add(goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning"));
         }
         m.put("surveyGoal", surveyGoal);
         m.put("main", main);
-        m.put("secondary", cSec == null ? null : goalMap("COMM", (String) cSec.get("goal_code"), (String) cSec.get("name_vi"), "/learning/comm/path"));
+        m.put("secondary", jlptMain || cSec == null ? null : goalMap("COMM", (String) cSec.get("goal_code"), (String) cSec.get("name_vi"), "/learning/comm/path"));
+        m.put("leftOpen", leftOpen);
         List<Map<String, Object>> paused = new ArrayList<>();
         if (!jlpt.isEmpty() && "PAUSED".equals(jlpt.get(0).get("status"))) {
             paused.add(goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning/jlpt/resume"));
@@ -1830,8 +1839,19 @@ public class CpathService {
         }
         m.put("paused", paused);
         // a secondary goal studies alongside a communication main path only (it has no daily schedule of its own)
-        m.put("canAddSecondary", cMain != null);
+        m.put("canAddSecondary", cMain != null && !jlptMain);
         return m;
+    }
+
+    /**
+     * Owner 17/11: the main goal became JLPT — the communication main and secondary paths step aside (PAUSED,
+     * progress kept; choosing a communication goal again resumes it). Also the "Tạm dừng" button for paths left
+     * open by an earlier switch.
+     */
+    @Transactional
+    public Map<String, Object> pauseForJlptMain(Long userId) {
+        int n = db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND status = 'ACTIVE'", userId);
+        return Map.of("paused", n);
     }
 
     private static String optColumn(java.sql.ResultSet rs, String column) {

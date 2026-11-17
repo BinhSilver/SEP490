@@ -646,3 +646,18 @@ html body .jp-path .jp-tools__panel .jp-warmup { margin: 0 !important; padding: 
 html body .jp-path .jp-tools__panel .jp-warmup:last-child { border-bottom: 0 !important; padding-bottom: 0 !important; }
 html body .jp-path .jp-tools__panel .jp-warmup:first-child { padding-top: 0 !important; }
 html body .jp-path .jp-stage .jp-weekguide, html body .jp-path .jp-path__stage .jp-weekguide { margin: 4px 0 !important; }
+/* Owner 17/11: shared goals panel (jpath-goals.js) */
+.jp-goals { display: grid; gap: 12px; }
+.jp-goals__title { margin: 0; font-size: 1.15rem; }
+.jp-goals__row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--jp-line, #e6e1f5); }
+.jp-goals__label { margin: 0; font-weight: 700; color: var(--jp-muted, #6b6880); font-size: .9rem; }
+.jp-goals__note { margin: 4px 0 0; font-size: .86rem; color: var(--jp-muted, #6b6880); }
+.jp-goals__none { color: var(--jp-muted, #6b6880); }
+.jp-goals__paused { margin: 0; padding-left: 18px; }
+.jp-goals__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.jp-goals__warn { padding: 12px 14px; border-radius: 12px; border: 1px solid #f0c27a; background: #fff7e8; color: #6b3d00; display: grid; gap: 8px; justify-items: start; }
+.jp-goals__warn p { margin: 0; }
+.jp-goals__rules summary { cursor: pointer; font-weight: 600; color: var(--jp-c-purple-700, #4b1fa6); }
+.jp-goals__rules ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: .9rem; }
+.jp-goals__msg { margin: 0; font-weight: 600; color: var(--jp-c-purple-700, #4b1fa6); }
+@media (max-width: 600px) { .jp-goals__row { grid-template-columns: 1fr; gap: 4px; } }

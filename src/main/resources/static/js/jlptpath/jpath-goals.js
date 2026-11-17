@@ -39,13 +39,18 @@
       return 'Đổi mục tiêu chính?\n\n'
         + (v.main ? '• ' + name(v.main) + ' sẽ TẠM DỪNG. Tiến độ, sổ tay và CP giữ nguyên; chọn lại mục tiêu này là học tiếp.\n' : '')
         + '• Bạn chọn mục tiêu mới ở bước khảo sát. Nếu chọn đúng mục tiêu phụ hiện tại, mục tiêu phụ được nâng lên làm chính và giữ tiến độ.\n'
-        + '• Mục tiêu phụ khác vẫn giữ nguyên.';
+        + '• Chọn JLPT làm mục tiêu chính: lộ trình Giao tiếp (chính và phụ) tạm dừng, tiến độ giữ nguyên.\n'
+        + '• Chọn một mục tiêu Giao tiếp: mục tiêu phụ khác vẫn giữ nguyên.';
     }
     if (action === 'secondary') {
       return (v.secondary ? 'Đổi mục tiêu phụ?\n\n• ' + name(v.secondary) + ' sẽ TẠM DỪNG (tiến độ giữ nguyên).\n' : 'Thêm mục tiêu phụ?\n\n')
         + '• Mục tiêu phụ phải khác mục tiêu chính.\n'
         + '• Mục tiêu phụ học tự do: không giao bài theo ngày, không làm bài tổng kết khi còn là mục tiêu phụ.\n'
         + '• Mỗi lúc chỉ có 1 mục tiêu phụ.';
+    }
+    if (action === 'pause-open') {
+      return 'Tạm dừng ' + (v.leftOpen || []).map(name).join(', ') + '?\n\n'
+        + '• Tiến độ, sổ tay và CP giữ nguyên.\n• Muốn học lại: "Đổi mục tiêu chính" và chọn mục tiêu đó.';
     }
     if (action === 'promote') {
       return 'Nâng ' + name(v.secondary) + ' lên làm mục tiêu chính?\n\n'
@@ -78,6 +83,12 @@
       ? '<ul class="jp-goals__paused">' + paused.map(function (g) { return '<li>' + esc(name(g)) + '</li>'; }).join('') + '</ul>'
       : '<span class="jp-goals__none">Không có</span>';
 
+    var open = (v.leftOpen || []);
+    var openRow = open.length ? '<div class="jp-goals__warn" role="note" data-notice-keep>'
+      + '<p><strong>Còn lộ trình đang mở từ trước khi đổi mục tiêu:</strong> '
+      + open.map(function (g) { return esc(name(g)); }).join(', ') + '. '
+      + 'Mỗi lúc chỉ nên có 1 mục tiêu chính được giao bài; tạm dừng để lộ trình gọn, tiến độ vẫn giữ nguyên.</p>'
+      + '<button type="button" class="jp-btn jp-btn--sm" data-goal-action="pause-open">Tạm dừng các lộ trình này</button></div>' : '';
     var actions = '<div class="jp-goals__actions">'
       + '<a class="jp-btn" href="/survey?edit=goal" data-goal-action="main">Đổi mục tiêu chính</a>'
       + (v.canAddSecondary ? '<a class="jp-btn" href="/learning/comm/survey?secondary=1" data-goal-action="secondary">'
@@ -86,7 +97,7 @@
       + '</div>';
 
     var rules = '<details class="jp-goals__rules"><summary>Khi nào được đổi? Đổi rồi tiến độ ra sao?</summary><ul>'
-      + '<li><b>Đổi mục tiêu chính</b> — lúc nào cũng được. Lộ trình đang học <b>tạm dừng</b>, không mất tiến độ; chọn lại là học tiếp.</li>'
+      + '<li><b>Đổi mục tiêu chính</b> — lúc nào cũng được. Lộ trình đang học <b>tạm dừng</b>, không mất tiến độ; chọn lại là học tiếp. Chọn JLPT thì lộ trình Giao tiếp (cả chính và phụ) tạm dừng.</li>'
       + '<li><b>Thêm / đổi mục tiêu phụ</b> — chỉ khi mục tiêu chính là Giao tiếp; phải khác mục tiêu chính; mục tiêu phụ mới thay mục tiêu phụ cũ (cũ tạm dừng).</li>'
       + '<li><b>Nâng mục tiêu phụ lên chính</b> — giữ tiến độ của mục tiêu phụ; mục tiêu chính cũ tạm dừng.</li>'
       + '<li><b>Đổi cấp JLPT</b> (xuống cấp, quay lại cấp đã đạt, lên cấp sau bài tổng kết) — ở mục "Đổi cấp hoặc mục tiêu" của Cài đặt lộ trình JLPT; không đổi mục tiêu chính.</li>'
@@ -97,6 +108,7 @@
       + '<h2 id="jpGoalsTitle" class="jp-goals__title">Mục tiêu học của bạn</h2>'
       + row('Mục tiêu chính', mainBody, mainNote)
       + row('Mục tiêu phụ', secBody, secNote)
+      + openRow
       + row('Đang tạm dừng', pausedBody, paused.length ? 'Tiến độ giữ nguyên. Chọn lại mục tiêu này ở "Đổi mục tiêu chính" là học tiếp.' : '')
       + actions + rules
       + '<p class="jp-goals__msg" role="status" hidden></p>'
@@ -116,10 +128,17 @@
         var action = t.getAttribute('data-goal-action');
         Promise.resolve(ask(changeText(action, view))).then(function (yes) {
           if (!yes) return;
-          if (action !== 'promote') { root.location.assign(t.getAttribute('href')); return; }
+          if (action !== 'promote' && action !== 'pause-open') { root.location.assign(t.getAttribute('href')); return; }
           var msg = el.querySelector('.jp-goals__msg');
-          Promise.resolve(client.send('POST', '/api/learning/comm/path/promote-secondary')).then(function () {
-            root.location.assign('/learning/comm/path?goalChanged=promote');
+          var jlptOpen = (view.leftOpen || []).some(function (g) { return g.kind === 'JLPT'; });
+          var req = action === 'promote' ? client.send('POST', '/api/learning/comm/path/promote-secondary')
+            : (jlptOpen ? client.send('POST', '/api/learning/jlpt/path/pause') : client.send('POST', '/api/learning/comm/goals/pause-for-jlpt'));
+          Promise.resolve(req).then(function () {
+            if (action === 'promote') { root.location.assign('/learning/comm/path?goalChanged=promote'); return; }
+            mount(el).then(function () {
+              var m2 = el.querySelector('.jp-goals__msg');
+              if (m2) { m2.hidden = false; m2.textContent = 'Đã tạm dừng. Tiến độ được giữ nguyên.'; }
+            });
           }, function (err) {
             if (msg) { msg.hidden = false; msg.textContent = (err && err.message) || 'Chưa nâng được mục tiêu phụ. Thử lại sau.'; }
           });
