@@ -189,6 +189,24 @@
       new root.MutationObserver(watch).observe(doc.body, { childList: true, subtree: true, attributes: true,
         attributeFilter: ['hidden'] });
     }
+    // 17/11: the enlarged card stuck on screen. Close it on a click outside, on Escape and on scroll.
+    var closeCard = function () {
+      var card = doc.querySelector('aside.inline-dict');
+      if (!card || card.hidden) return;
+      card.hidden = true;
+      card.style.top = '';
+      card.style.left = '';
+    };
+    doc.addEventListener('mousedown', function (ev) {
+      var card = doc.querySelector('aside.inline-dict');
+      if (card && !card.hidden && ev.target && !card.contains(ev.target)) closeCard();
+    }, true);
+    doc.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeCard(); });
+    if (root.addEventListener) root.addEventListener('scroll', function (ev) {
+      var card = doc.querySelector('aside.inline-dict');
+      if (card && ev.target && card.contains && card.contains(ev.target)) return;
+      closeCard();
+    }, { passive: true, capture: true });
     doc.addEventListener('click', function (ev) {
       var b = ev.target && ev.target.closest ? ev.target.closest('[data-lu-play]') : null;
       if (!b) return;
