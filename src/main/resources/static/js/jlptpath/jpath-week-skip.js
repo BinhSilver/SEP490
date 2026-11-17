@@ -82,7 +82,18 @@
       var html = cardHtml(offers);
       if (!html) { el.hidden = true; el.innerHTML = ''; return; }
       el.hidden = false;
-      el.innerHTML = html;
+      // owner 17/11: compact — one collapsible line, open state remembered on this device
+      var n = (html.match(/class="jp-warmup jp-week-skip"/g) || []).length;
+      var open = false;
+      try { open = root.localStorage.getItem('jpath-week-skip:open') === '1'; } catch (e) { open = false; }
+      el.innerHTML = '<details class="jp-week-skip-box"' + (open ? ' open' : '') + '>'
+        + '<summary class="jp-week-skip-box__sum"><span class="jp-week-skip-box__title">Đã biết trước? Kiểm tra nhanh để bỏ qua</span>'
+        + '<span class="jp-week-skip-box__count">' + n + ' gợi ý</span></summary>'
+        + '<div class="jp-week-skip-box__body">' + html + '</div></details>';
+      var det = typeof el.querySelector === 'function' ? el.querySelector('details') : null;
+      if (det && det.addEventListener) det.addEventListener('toggle', function () {
+        try { root.localStorage.setItem('jpath-week-skip:open', det.open ? '1' : '0'); } catch (e) { /* private mode */ }
+      });
       el.onclick = function (ev) {
         var t = ev.target;
         if (t.closest && t.closest('[data-week-skip-later]')) {

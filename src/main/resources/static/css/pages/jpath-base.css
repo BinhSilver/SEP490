@@ -606,3 +606,20 @@ html body .jp-path .jp-today .jp-today__top { margin-top: 14px; }
    The circle keeps overflow visible for Kitsu, so the water itself is clipped to the 76px circle (centre = 38px
    above the water's bottom, which sits on the circle's bottom). */
 html body .jp-today .jp-today__cal-water { clip-path: circle(37px at 50% calc(100% - 38px)); }
+/* Owner 17/11: a part's popover slid under the week banner (4% · Tuần 1/9) — while a popover is open the map
+   stage sits above the banner. */
+html body .jp-parts__stage:has(.jp-parts__popover),
+html body .jp-parts:has(.jp-parts__popover) .jp-parts__stage { position: relative; z-index: 40 !important; }
+/* Owner 17/11: "Đã biết tuần tới / Đã thuộc chữ cái" folded into one compact collapsible line. */
+.jp-week-skip-box { border: 1px solid var(--jp-line, #e6e1f5); border-radius: 14px; background: var(--jp-surface, #fff); }
+.jp-week-skip-box__sum { list-style: none; display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+.jp-week-skip-box__sum::-webkit-details-marker { display: none; }
+.jp-week-skip-box__sum::after { content: "▾"; margin-left: auto; transition: transform .2s; color: var(--jp-muted, #6b6880); }
+.jp-week-skip-box[open] > .jp-week-skip-box__sum::after { transform: rotate(180deg); }
+.jp-week-skip-box__count { font-size: .8rem; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+  background: var(--jp-c-purple-50, #f1ecff); color: var(--jp-c-purple-700, #4b1fa6); }
+.jp-week-skip-box__body { display: grid; gap: 8px; padding: 0 10px 10px; }
+.jp-week-skip-box__body .jp-warmup { margin: 0 !important; padding: 10px 12px !important; }
+.jp-week-skip-box__body .jp-warmup__title { font-size: .95rem; margin: 0; }
+.jp-week-skip-box__body .jp-warmup__sub { font-size: .82rem; margin: 2px 0 0; }
+.jp-week-skip-box__body .jp-btn { padding: 6px 12px; min-height: 0; font-size: .88rem; }
