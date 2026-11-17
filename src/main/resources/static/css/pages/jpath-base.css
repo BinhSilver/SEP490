@@ -697,3 +697,21 @@ html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !
 .jp-path__main[data-mode="today"] [data-mode-part="free"],
 .jp-path__main[data-mode="free"] [data-mode-part="today"] { display: none !important; }
 @media (max-width: 560px) { .jp-mode__sub { display: none; } .jp-mode__tab { justify-items: center; text-align: center; padding: 10px 8px; } }
+
+/* owner 17/11: "Xem lại bài đã học" card on the done and day pages (jpath-revisit.js) */
+.jp-revisit { display: grid; gap: 10px; margin: 16px 0; }
+.jp-revisit__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.jp-revisit__title { margin: 0; font-size: 1.1rem; }
+.jp-revisit__history { font-weight: 600; color: var(--jp-accent, #6c4ed9); text-decoration: none; }
+.jp-revisit__history:hover { text-decoration: underline; }
+.jp-revisit__note { margin: 0; font-size: .88rem; color: var(--jp-ink-2, #5b5670); }
+.jp-revisit__rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jp-revisit__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 14px; border: 1px solid var(--jp-line, #e4e0f2); border-radius: 12px; background: var(--jp-surface-2, #f8f7fd); }
+.jp-revisit__name { display: grid; gap: 2px; }
+.jp-revisit__meta { font-size: .86rem; color: var(--jp-ink-2, #5b5670); }
+.jp-revisit__score.is-ok { color: var(--jp-c-mint-700, #1f7a4d); font-weight: 600; }
+.jp-revisit__score.is-miss { color: var(--jp-c-rose-700, #b4234a); font-weight: 600; }
+.jp-revisit__acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.jp-revisit__msg { margin: 0; color: var(--jp-c-rose-700, #b4234a); font-size: .88rem; }
+@media (max-width: 560px) { .jp-revisit__acts { width: 100%; } .jp-revisit__acts .jp-btn { flex: 1; justify-content: center; } }

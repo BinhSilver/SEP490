@@ -73,6 +73,8 @@
           return '<li lang="ja">' + esc(w.expression || w.code) + '</li>';
         }).join('') + '</ul></div>';
     }
+    // owner 17/11: learn the day again / redo a check / history, right here (jpath-revisit.js)
+    if (s.day && s.kind !== 'SKILL') html += '<div data-jpath-revisit="' + esc(s.day) + '"></div>';
     html += '<p class="jp-done__label">Tiếp theo</p><div class="jp-done__actions">'
       + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>'
       + '<a class="jp-btn" href="/learning/jlpt/day' + (s.day ? '?d=' + esc(s.day) : '') + '">Xem chi tiết ngày</a>'
