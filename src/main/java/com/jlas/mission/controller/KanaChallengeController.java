@@ -20,7 +20,7 @@ public class KanaChallengeController {
     @GetMapping("/today")
     public ResponseEntity<ApiResponse<Today>> today(@AuthenticationPrincipal UserPrincipal user,
                                                     @RequestParam(required = false) String level) {
-        return ResponseEntity.ok(ApiResponse.ok("Thử thách hôm nay", service.today(user.userId(), level)));
+        return ResponseEntity.ok(ApiResponse.ok("Thử thách tuần này", service.today(user.userId(), level)));
     }
 
     /** Reveals the kana in the empty slot the learner picked; available every 30 seconds of play. */

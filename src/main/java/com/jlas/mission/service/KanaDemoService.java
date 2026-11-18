@@ -84,11 +84,11 @@ public class KanaDemoService {
         jdbc.update("DELETE FROM daily_kana_challenge WHERE id = ? AND user_id = ?", challenge.id(), userId);
     }
 
-    /** Adds twelve fictional finishers (and two still playing) to today's board of one level. */
+    /** Adds twelve fictional finishers (and two still playing) to this week's board of one level. */
     @Transactional
     public int addDemoPlayers(Long userId, String level) {
         String boardLevel = level == null ? "" : level.trim().toUpperCase(Locale.ROOT);
-        LocalDate day = clock.today(zones.zoneOf(userId));
+        LocalDate day = KanaChallengeService.weekOf(clock.today(zones.zoneOf(userId)));
         Board board = repository.findBoard(day, boardLevel)
                 .orElseThrow(() -> new ApiException(ErrorCode.KANA_CHALLENGE_UNAVAILABLE, "Hãy mở bàn cấp này trước khi thêm người chơi demo."));
         Puzzle puzzle = read(board.puzzleJson(), Puzzle.class);
