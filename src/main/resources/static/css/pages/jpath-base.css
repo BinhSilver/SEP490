@@ -742,8 +742,10 @@ html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !
 .jp-wlist__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; }
 .jp-wlist__actions .jp-btn { white-space: nowrap; }
 @media (max-width: 480px) { .jp-wlist { padding: var(--space-4); } .jp-wlist__actions .jp-btn { flex: 1 1 100%; } }
-.jp-stage__links { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
-.jp-stage__links .jp-btn { white-space: nowrap; }
+.jp-stage__passed { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0 0; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md, 12px);
+  background: var(--color-success-bg, #d6f5e7); color: var(--color-on-surface); font-size: var(--text-sm); font-weight: 500; }
+.jp-stage__passed a { color: var(--color-primary); font-weight: 500; white-space: nowrap; }
 
 /* owner 18/11: the map skeleton has the shape of the real path page (title, subtitle, one wide 'today' card) */
 .jp-skel--map .jp-skel__b--bar { height: 16px; width: min(30%, 220px); border-radius: var(--radius-sm, 6px); }

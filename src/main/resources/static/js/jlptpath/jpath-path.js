@@ -277,10 +277,9 @@
   /** Owner 18/11: a passed mock test shows where its result and the certificate are. */
   function passedLinksHtml(level) {
     var lv = encodeURIComponent(level);
-    return '<div class="jp-stage__links">'
-      + '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/levels/' + lv + '/summary">Kết quả thi thử ' + esc(level) + '</a>'
-      + '<a class="jp-btn jp-btn--sm jp-btn--primary" href="/learning/jlpt/levels/' + lv + '/certificate">Chứng nhận ' + esc(level) + '</a>'
-      + '</div>';
+    return '<p class="jp-stage__passed">Bạn đã đậu thi thử ' + esc(level)
+      + '<a href="/learning/jlpt/levels/' + lv + '/summary">Xem kết quả</a>'
+      + '<a href="/learning/jlpt/levels/' + lv + '/certificate">Xem chứng nhận</a></p>';
   }
 
   function weekday(iso) {
@@ -474,6 +473,17 @@
       // the pace panel is folded; a pace warning (behind, rebalance) opens it so it is not missed
       var pace = part(rootEl, 'pace');
       if (pace && list(p.warnings).length) pace.open = true;
+      // owner 18/11: once the level's lessons are learned the daily-amount slider changes nothing, so it goes
+      var tools = rootEl.querySelector ? rootEl.querySelector('[data-jp-tools]') : null;
+      if (tools) {
+        var learning = !p.stage || p.stage === 'STUDY';
+        var paceChip = tools.querySelector('[data-tool="pace"]');
+        var pacePanel = tools.querySelector('[data-tool-panel="pace"]');
+        if (paceChip) paceChip.hidden = !learning;
+        if (pacePanel && !learning) pacePanel.hidden = true;
+        var skipChip = tools.querySelector('[data-tool="skip"]');
+        tools.hidden = !learning && (!skipChip || skipChip.hidden);
+      }
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
         { skills: state.skills, why: todayReason(p, state.today),
           side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') }));
