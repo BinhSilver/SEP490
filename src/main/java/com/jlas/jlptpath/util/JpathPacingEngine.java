@@ -62,6 +62,15 @@ public final class JpathPacingEngine {
                 JpathSliderBounds.clamp(level, JpathTab.GRAMMAR, g));
     }
 
+    /**
+     * Owner 18/11: kana rows of a kana-stage day follow the chosen minutes — 15→2, 30→4, 60→6, then one more row
+     * per 15 minutes (90→8, 120→10), at most 12.
+     */
+    public static int kanaRowsPerDay(int minutes) {
+        int rows = minutes <= 30 ? (int) Math.round(minutes / 7.5) : 4 + (int) Math.round((minutes - 30) / 15.0);
+        return Math.max(KANA_ROWS_PER_DAY, Math.min(12, rows));
+    }
+
     /** Kana-phase vocabulary per day (policy #26): max(3, round(m/6)). */
     public static int kanaPhaseVocab(int minutes) {
         return Math.max(3, (int) Math.round(minutes / 6.0));
@@ -76,8 +85,8 @@ public final class JpathPacingEngine {
         if (!kanaPhase) {
             return (int) Math.round(VOCAB_MIN * sliders.vocab() + kanjiGrammar);
         }
-        double kana = KANA_ROWS_PER_DAY * KANA_ROW_MIN + VOCAB_MIN * kanaPhaseVocab(minutes);
-        return (int) Math.round(mode == JpathStudyMode.SPLIT ? kana + kanjiGrammar : kana);
+        // owner 18/11: kana stage = kana rows only
+        return (int) Math.round(kanaRowsPerDay(minutes) * KANA_ROW_MIN);
     }
 
     public static void requireMinuteOption(int minutes) {
@@ -207,9 +216,8 @@ public final class JpathPacingEngine {
                 if (kind == JpathDayKind.STUDY) {
                     int[] add;
                     if (kana > 0) {
-                        kana = Math.max(0, kana - KANA_ROWS_PER_DAY);
-                        boolean split = in.mode() == JpathStudyMode.SPLIT;
-                        add = new int[] {kanaPhaseVocab(minutes), split ? s.kanji() : 0, split ? s.grammar() : 0};
+                        kana = Math.max(0, kana - kanaRowsPerDay(minutes));
+                        add = new int[] {0, 0, 0}; // owner 18/11: kana stage teaches no new words
                     } else {
                         add = new int[] {s.vocab(), s.kanji(), s.grammar()};
                     }

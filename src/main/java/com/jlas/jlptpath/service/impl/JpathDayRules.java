@@ -104,11 +104,11 @@ final class JpathDayRules {
         switch (kind) {
             case STUDY -> {
                 if (kanaPhase) {
-                    boolean split = mode == JpathStudyMode.SPLIT;
-                    out.add(tab(JpathTab.VOCAB, JpathPacingEngine.kanaPhaseVocab(minutes), 2 * v));
-                    out.add(tab(JpathTab.KANJI, split ? k : 0, 2 * k));
-                    out.add(tab(JpathTab.GRAMMAR, split ? g : 0, 2 * g));
-                    out.add(tab(JpathTab.KANA, KANA_ROWS_PER_DAY, KANA_REVIEW_CAP));
+                    // owner 18/11: the kana stage comes first and teaches kana only; new words start after it
+                    out.add(tab(JpathTab.VOCAB, 0, 2 * v));
+                    out.add(tab(JpathTab.KANJI, 0, 2 * k));
+                    out.add(tab(JpathTab.GRAMMAR, 0, 2 * g));
+                    out.add(tab(JpathTab.KANA, JpathPacingEngine.kanaRowsPerDay(minutes), KANA_REVIEW_CAP));
                 } else {
                     out.add(tab(JpathTab.VOCAB, v, 2 * v));
                     out.add(tab(JpathTab.KANJI, k, 2 * k));
