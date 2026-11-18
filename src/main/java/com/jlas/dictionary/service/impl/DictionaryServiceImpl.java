@@ -137,6 +137,24 @@ public class DictionaryServiceImpl implements DictionaryService {
 
         List<KanjiResponse> kanjiResults = findKanjiResults(normalizedQuery, mode);
         List<VocabularyEntry> candidates = collectVocabularyCandidates(normalizedQuery, mode, candidatesNeeded);
+        if (mode != DictionaryUtil.SearchMode.KANJI && !candidates.isEmpty()) {
+            Set<String> existingCharacters = kanjiResults.stream()
+                    .map(KanjiResponse::getCharacter).collect(Collectors.toSet());
+            LinkedHashSet<String> candidateCharacters = new LinkedHashSet<>();
+            for (VocabularyEntry candidate : candidates.subList(0, Math.min(3, candidates.size()))) {
+                candidate.getExpression().codePoints().forEach(cp -> {
+                    if (candidateCharacters.size() < KANJI_RESULT_LIMIT && DictionaryUtil.isKanjiCodepoint(cp)) {
+                        String character = new String(Character.toChars(cp));
+                        if (!existingCharacters.contains(character)) candidateCharacters.add(character);
+                    }
+                });
+                if (candidateCharacters.size() == KANJI_RESULT_LIMIT) break;
+            }
+            if (!candidateCharacters.isEmpty()) {
+                kanjiResults = new ArrayList<>(kanjiResults);
+                kanjiResults.addAll(findKanjiByCharacters(candidateCharacters));
+            }
+        }
 
         int fromIndex = Math.min(safePage * safeSize, candidates.size());
         int toIndex = Math.min(fromIndex + safeSize, candidates.size());
@@ -584,6 +602,10 @@ public class DictionaryServiceImpl implements DictionaryService {
                 distinctKanjiChars.add(new String(Character.toChars(cp)));
             }
         });
+        return findKanjiByCharacters(distinctKanjiChars);
+    }
+
+    private List<KanjiResponse> findKanjiByCharacters(LinkedHashSet<String> distinctKanjiChars) {
         if (distinctKanjiChars.isEmpty()) return List.of();
 
         List<Kanji> kanjis = kanjiRepository.findByCharacterIn(new ArrayList<>(distinctKanjiChars));
