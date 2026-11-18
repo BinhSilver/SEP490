@@ -370,7 +370,7 @@
     // Plan 3 Task 19: jpath-skills-tab.js fills the real tab from GET /skills/overview
     if (root.JpathSkillsTab) {
       return '<section class="jp-card jp-skills" data-jpath-skills-tab aria-live="polite">'
-        + '<p class="jp-muted" role="status">Đang tải phần Đọc · Nghe…</p></section>' + days;
+        + '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải phần Đọc · Nghe…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p></section>' + days;
     }
     return '<section class="jp-card jp-skills" aria-labelledby="jp-skills-title">'
       + '<h2 class="jp-section-title" id="jp-skills-title">Đọc · Nghe <span class="jp-tab__soon">Sắp mở</span></h2>'

@@ -1449,7 +1449,7 @@
       });
     }
 
-    partsEl.innerHTML = '<p class="jp-status" role="status">Đang tải phần học…</p>';
+    partsEl.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải phần học…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
     return Promise.resolve(client.get('/api/learning/jlpt/parts?tab=' + TABS[key][0])).then(function (data) {
       if (partsEl.__seq !== mine) return;
       partsEl.__data = data;

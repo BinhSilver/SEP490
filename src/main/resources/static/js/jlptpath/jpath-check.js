@@ -936,7 +936,7 @@
     var reviewOpen = false;
 
     el.setAttribute('aria-busy', 'true');
-    el.innerHTML = '<p class="jp-status" role="status">Đang tải bài kiểm tra…</p>';
+    el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài kiểm tra…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
 
     function saver() {
       if (!env.saver && D()) env.saver = D().createSaver({ send: function (m, u, b) { return env.api.send(m, u, b); } });

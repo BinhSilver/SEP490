@@ -583,7 +583,6 @@ html.dark .cp-page {
 .jp-skel__b--btn { height: 42px; width: 160px; border-radius: 999px; }
 .jp-skel__grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
 @keyframes jp-skel-wave { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-@media (prefers-reduced-motion: reduce) { .jp-skel__b { animation: none; } }
 
 /* [JLAS-W0108] Owner 17/11: the left column (path card + menu) must not slide up and down while the page scrolls.
    It was sticky but taller than the screen, so it scrolled, stuck, then moved again. It now stays put under the
@@ -745,3 +744,11 @@ html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !
 @media (max-width: 480px) { .jp-wlist { padding: var(--space-4); } .jp-wlist__actions .jp-btn { flex: 1 1 100%; } }
 .jp-stage__links { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
 .jp-stage__links .jp-btn { white-space: nowrap; }
+
+/* owner 18/11: the map skeleton has the shape of the real path page (title, subtitle, one wide 'today' card) */
+.jp-skel--map .jp-skel__b--bar { height: 16px; width: min(30%, 220px); border-radius: var(--radius-sm, 6px); }
+.jp-skel--map .jp-skel__grid { grid-template-columns: 1fr; }
+.jp-skel--map .jp-skel__b--card:nth-child(n+2) { display: none; }
+.jp-skel--map .jp-skel__b--card { height: 240px; border-radius: var(--radius-lg, 16px); }
+/* owner 18/11: while the path loads only the skeleton shows (no live tabs, tools or mode switch beside it) */
+.jp-path__grid[aria-busy="true"] .jp-path__main > :not(:has(.jp-skel)) { visibility: hidden; }

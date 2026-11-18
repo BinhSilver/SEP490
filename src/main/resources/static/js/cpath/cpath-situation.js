@@ -859,7 +859,7 @@
     if (!k || !k.open) return '';
     var head = '<div class="cp-known__head"><h2>Tôi biết tình huống này</h2>'
       + '<button type="button" class="cp-btn-ghost" data-cp-known-close>Đóng</button></div>';
-    if (k.loading) return '<section class="cp-known" aria-live="polite">' + head + '<p>Đang tải câu hỏi...</p></section>';
+    if (k.loading) return '<section class="cp-known" aria-live="polite">' + head + '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải câu hỏi…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p></section>';
     if (k.error) return '<section class="cp-known">' + head + '<p class="jp-alert" role="alert">' + esc(k.error) + '</p></section>';
     var d = k.data || {};
     var pass = d.passScore || 90;

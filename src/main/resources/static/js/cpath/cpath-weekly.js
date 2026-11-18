@@ -463,7 +463,7 @@
     }
     function load() {
       state.index = 0; state.answers = {}; state.clips = [];
-      el.innerHTML = '<p class="jp-status" role="status">Đang tải bài nhập vai…</p>';
+      el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài nhập vai…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
       client.get(base).then(function (data) {
         if (!data || !data.open) { error('Bài kiểm tra chưa đến giờ làm lại hoặc đã đạt.'); return; }
         state.questions = data.questions || [];
