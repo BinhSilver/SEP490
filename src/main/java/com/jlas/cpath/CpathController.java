@@ -64,6 +64,22 @@ public class CpathController {
     @Autowired(required = false)
     private PremiumAccess premium;
 
+    @Autowired
+    private CpathFlashcardService flashcardService;
+
+    /** Owner 18/11: the situation's flashcard set ("Đã nhớ x/y"); POST makes it. */
+    @GetMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> flashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, false)));
+    }
+
+    @PostMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> openFlashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, true)));
+    }
+
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
     private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/goals/pause-for-jlpt", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",

@@ -908,6 +908,16 @@
       + '</section>';
   }
 
+  // Owner 18/11: the situation's phrases and words are studied with the team flashcard (one private set per learner)
+  function flashcardBarHtml(state) {
+    var fc = state.flashcard;
+    if (!fc || fc.error) return '';
+    var count = fc.setId ? '<span class="cp-fc-bar__count">Đã nhớ ' + Number(fc.remembered || 0) + '/' + Number(fc.total || 0) + '</span>' : '';
+    return '<div class="cp-fc-bar">' + count
+      + '<button type="button" class="cp-btn-ghost" data-cp-fc-open' + (fc.opening ? ' disabled' : '') + '>'
+      + (fc.opening ? 'Đang mở' : 'Học bằng flashcard') + '</button></div>';
+  }
+
   function situationHtml(sit, state) {
     var s = sit || {};
     var stepsStatus = s.steps || {};
@@ -946,6 +956,7 @@
       mainBody = renderDoneScreen(s, state);
     } else if (state.activeStep === 'WORDS') {
       mainBody = isTravel(s) ? renderStepMeaning(s, state) : renderStepWords(s, state);
+      mainBody = flashcardBarHtml(state) + mainBody;
     } else if (state.activeStep === 'LISTEN') {
       mainBody = renderStepListen(s, state);
     } else if (state.activeStep === 'ROLEPLAY') {
@@ -1260,6 +1271,25 @@
       var t = ev.target;
       if (!t || typeof t.closest !== 'function' || !sitData) return;
 
+      var fcOpen = t.closest('[data-cp-fc-open]');
+      if (fcOpen && state.flashcard && !state.flashcard.opening) {
+        state.flashcard.opening = true;
+        render();
+        root.JpathApi.send('POST', '/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/flashcards', {}).then(function (d) {
+          if (d && d.url) {
+            try { root.sessionStorage.setItem('jlas.path.fcBack.' + d.setId, root.location.pathname + root.location.search); } catch (e) { /* storage off */ }
+            root.location.href = d.url;
+            return;
+          }
+          state.flashcard = d || {};
+          render();
+        }).catch(function () {
+          state.flashcard.opening = false;
+          state.flashcard.failed = true;
+          render();
+        });
+        return;
+      }
       if (t.closest('[data-cp-known-open]')) {
         // F92: the learner may close (or close and reopen) the panel before the answer comes back;
         // only the panel that asked may take the answer
@@ -1539,6 +1569,11 @@
           ((nb && nb.items) || []).forEach(function (x) { if (x && x.id) state.saved[x.id] = true; });
           render();
         }, function () { /* the button still works without the list */ });
+        state.flashcard = {};
+        Promise.resolve(root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/flashcards')).then(function (fc) {
+          state.flashcard = fc || {};
+          render();
+        }, function () { state.flashcard = { error: true }; render(); });
         // F61: open with the display saved in Cài đặt (the buttons on the page still flip it for this visit)
         if (data.display) {
           state.display = { furigana: data.display.furigana !== false, romaji: data.display.romaji === true,
