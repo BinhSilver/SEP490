@@ -1126,12 +1126,16 @@ ALTER TABLE content_item
         REFERENCES grammar_point(id) ON DELETE SET NULL;
 
 -- Bridge noi dung lesson voi tu dien tu vung.
+-- [JLAS2-17] display_order: khoa sap xep tu trong bai (sap theo display_order, NULL xep sau, roi theo id tu vung);
+-- NULL = sap theo id tu vung (mac dinh). Them boi sql/migrations/088_vocab_merge_duplicates.sql (gop muc tu trung):
+-- cac bai bi anh huong duoc ghi display_order = id tu vung GOC (truoc khi tro lai) de giu thu tu cu khi doi id.
 CREATE TABLE content_vocabulary (
     content_item_id BIGINT UNSIGNED NOT NULL,
     vocabulary_id   BIGINT UNSIGNED NOT NULL,
     learning_meaning_vi TEXT NULL,
     learning_example_ja TEXT NULL,
     learning_example_vi TEXT NULL,
+    display_order   INT NULL,
     PRIMARY KEY (content_item_id, vocabulary_id),
     KEY idx_content_vocabulary_vocab (vocabulary_id),
     CONSTRAINT fk_content_vocab_content FOREIGN KEY (content_item_id)
@@ -4034,6 +4038,25 @@ CREATE TABLE IF NOT EXISTS community_report (
     CONSTRAINT chk_community_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-37] Community Hub: bai viet nguoi hoc tu dang (chi text). La "bang goc" cua content_type POST:
+-- trang thai/bo dem/binh luan/bao cao van o community_content + community_comment + community_report.
+-- jlpt_level NULL = Chung. Xoa mem bang deleted_at. Migration: sql/migrations/087_community_post.sql.
+CREATE TABLE IF NOT EXISTS community_post (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    author_id   BIGINT UNSIGNED NOT NULL,
+    body        VARCHAR(5000) NOT NULL,
+    jlpt_level  VARCHAR(4) NULL,
+    edited_at   DATETIME(6) NULL,
+    deleted_at  DATETIME(6) NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_community_post_feed (deleted_at, created_at),
+    KEY idx_community_post_author (author_id),
+    CONSTRAINT fk_community_post_author FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_post_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- [JLAS-KANJI-MAP] Relational source catalog.
 CREATE TABLE IF NOT EXISTS user_kanji_mastery (
     user_id BIGINT UNSIGNED NOT NULL,
@@ -4132,6 +4155,54 @@ CREATE TABLE IF NOT EXISTS kanji_map_stroke (
     path_data TEXT NOT NULL,
     PRIMARY KEY (kanji_character, stroke_order),
     CONSTRAINT fk_kanji_map_stroke_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-17] So tay tu vung (dang cuoi cung cua sql/migrations/038_user_notebooks.sql, 039_notebook_review.sql,
+-- 052_notebook_update.sql; khong kem du lieu khoi tao cua cac migration do). Truoc day file nay chi tham chieu
+-- user_notebook (FK cua user_notebook_kanji ben duoi) ma khong tao, nen chay tren DB trong bi loi 1824.
+CREATE TABLE IF NOT EXISTS user_notebook (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    notebook_type VARCHAR(20) NOT NULL DEFAULT 'CUSTOM',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_notebook_name (user_id, name),
+    KEY idx_user_notebook_user (user_id),
+    CONSTRAINT fk_user_notebook_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_entry (
+    notebook_id BIGINT NOT NULL,
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (notebook_id, vocabulary_id),
+    KEY idx_user_notebook_entry_vocab (vocabulary_id),
+    CONSTRAINT fk_user_notebook_entry_notebook FOREIGN KEY (notebook_id) REFERENCES user_notebook(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_notebook_entry_vocab FOREIGN KEY (vocabulary_id) REFERENCES vocabulary_entry(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_review (
+    notebook_id BIGINT NOT NULL,
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    repetitions INT NOT NULL DEFAULT 0,
+    interval_days INT NOT NULL DEFAULT 0,
+    due_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    first_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_reviewed_at DATETIME NULL,
+    PRIMARY KEY (notebook_id, vocabulary_id),
+    KEY idx_notebook_review_due (notebook_id, due_at),
+    CONSTRAINT fk_notebook_review_entry FOREIGN KEY (notebook_id, vocabulary_id)
+        REFERENCES user_notebook_entry (notebook_id, vocabulary_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_study_setting (
+    notebook_id BIGINT NOT NULL,
+    daily_new_limit INT NOT NULL DEFAULT 30,
+    PRIMARY KEY (notebook_id),
+    CONSTRAINT fk_notebook_study_setting_notebook FOREIGN KEY (notebook_id)
+        REFERENCES user_notebook (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS user_notebook_kanji (
