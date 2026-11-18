@@ -607,8 +607,13 @@ html body .jp-path .jp-today .jp-today__top { margin-top: 14px; }
 html body .jp-today .jp-today__cal-water { clip-path: circle(37px at 50% calc(100% - 38px)); }
 /* Owner 17/11: a part's popover slid under the week banner (4% · Tuần 1/9) — while a popover is open the map
    stage sits above the banner. */
+/* Owner 18/11: lifting the whole stage also lifted the map pictures (house, Kitsu, week signs) over the sticky
+   banner. Now only the open popover's own chain drops its stacking contexts, so the popover (z 70) sits above the
+   banner (z 20) while the pictures stay under it. */
 html body .jp-parts__stage:has(.jp-parts__popover),
-html body .jp-parts:has(.jp-parts__popover) .jp-parts__stage { position: relative; z-index: 40 !important; }
+html body .jp-parts__list:has(.jp-parts__popover),
+html body .jp-parts__step:has(.jp-parts__popover),
+html body .jp-parts__node-row:has(.jp-parts__popover) { z-index: auto !important; }
 /* Owner 17/11: "Đã biết tuần tới / Đã thuộc chữ cái" folded into one compact collapsible line. */
 .jp-week-skip-box { border: 1px solid var(--jp-line, #e6e1f5); border-radius: 14px; background: var(--jp-surface, #fff); }
 .jp-week-skip-box__sum { list-style: none; display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
@@ -754,3 +759,11 @@ html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !
 .jp-skel--map .jp-skel__b--card { height: 240px; border-radius: var(--radius-lg, 16px); }
 /* owner 18/11: while the path loads only the skeleton shows (no live tabs, tools or mode switch beside it) */
 .jp-path__grid[aria-busy="true"] .jp-path__main > :not(:has(.jp-skel)) { visibility: hidden; }
+/* Owner 18/11: the week check's "Từ vựng / Kanji / Ngữ pháp" buttons were oversized and wrapped onto two rows —
+   standard 44px buttons on one row. */
+html body .jp-parts__pop-foot .jp-parts__pop-actions { flex: 1 1 auto; min-width: 0; }
+html body .jp-parts__weekly-btns { display: flex; flex-wrap: nowrap; gap: 8px; margin: 0; }
+html body .jp-parts__weekly-btns .jp-btn { flex: 0 1 auto; min-width: 0; height: 44px; min-height: 44px; padding: 0 14px;
+  font-size: var(--font-size-sm, .9rem); font-weight: 500; line-height: 1; white-space: nowrap; }
+html body .jp-parts__pop-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; }
+html body .jp-parts__pop-foot > svg, html body .jp-parts__pop-foot > .jp-parts__pop-ring { flex: 0 0 auto; align-self: center; margin: 0; }

@@ -1233,7 +1233,7 @@
         var activePartsEl = root.document && root.document.querySelector('[data-slot="parts"]');
         if (activePartsEl && activePartsEl.__selectedKey) adjustPopoverInViewport(activePartsEl);
       };
-      root.addEventListener('scroll', onScrollOrResize, { passive: true });
+      // Owner 18/11: the popover stays beside its node while scrolling — it is only fitted when opened or resized.
       root.addEventListener('resize', onScrollOrResize, { passive: true });
     }
   }
