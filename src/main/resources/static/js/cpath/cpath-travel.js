@@ -62,7 +62,7 @@
     return '<button type="button" class="cp-pb__example" data-pb-play="' + esc(ex.audioUrl || '') + '" data-pb-text="' + esc(ex.ja) + '">'
       + '<span class="cp-pb__ex-label">Ví dụ</span>'
       + '<span class="cp-pb__ex-ja" lang="ja">' + esc(ex.ja) + '</span>'
-      + (romaji ? '<span class="cp-line__romaji">' + esc(romajiOf(ex.ja)) + '</span>' : '')
+      + (romaji && romajiOf(ex.furigana || ex.reading || ex.ja) ? '<span class="cp-line__romaji">' + esc(romajiOf(ex.furigana || ex.reading || ex.ja)) + '</span>' : '')
       + (ex.vi ? '<span class="cp-pb__ex-vi">' + esc(ex.vi) + '</span>' : '') + '</button>';
   }
 

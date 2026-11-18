@@ -239,7 +239,9 @@
       else if (PUNCT[c] != null) out += PUNCT[c];
       else out += c;
     }
-    return out.replace(/\s+/g, ' ').trim();
+    out = out.replace(/\s+/g, ' ').trim();
+    // owner 18/11: a sentence without its reading kept its kanji ("五千円以上noo…"): no romaji beats a wrong one
+    return /[㐀-鿿々]/.test(out) ? '' : out;
   }
 
   function romajiHtml(text, state) {
