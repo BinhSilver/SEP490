@@ -270,6 +270,16 @@
     }).join('');
     return '<div class="jp-stage"><h2 class="jp-sr">Chặng ' + esc(p.openLevel) + '</h2>'
       + '<ol class="jp-stepper jp-stage__steps" aria-label="' + esc('Chặng ' + (p.openLevel || '')) + '">' + marks + '</ol>'
+      + (at > 2 && p.openLevel ? passedLinksHtml(p.openLevel) : '')
+      + '</div>';
+  }
+
+  /** Owner 18/11: a passed mock test shows where its result and the certificate are. */
+  function passedLinksHtml(level) {
+    var lv = encodeURIComponent(level);
+    return '<div class="jp-stage__links">'
+      + '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/levels/' + lv + '/summary">Kết quả thi thử ' + esc(level) + '</a>'
+      + '<a class="jp-btn jp-btn--sm jp-btn--primary" href="/learning/jlpt/levels/' + lv + '/certificate">Chứng nhận ' + esc(level) + '</a>'
       + '</div>';
   }
 
@@ -526,7 +536,7 @@
     function paintAll() {
       var p = state.path;
       if (p.display && rootEl.classList) D().applyDisplay(displayTarget(rootEl), p.display);
-      setHtml(rootEl, 'hero', heroHtml(p, state.today) + menuHtml());
+      setHtml(rootEl, 'hero', heroHtml(p, state.today)); // owner 18/11: the … menu repeated the side links
       // the stage and the week sit in the today panel's footer; this region keeps the week guide
       setHtml(rootEl, 'stage', weekGuideHtml(p, state.today));
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(p));
