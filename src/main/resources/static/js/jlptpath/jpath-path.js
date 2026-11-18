@@ -102,18 +102,18 @@
   }
 
   function tabKeys(path) {
-    var keys = ['vocab', 'kanji', 'grammar', 'skills'];
-    return path && path.kanaTab ? ['kana'].concat(keys) : keys;
+    // owner 18/11: no kana tab — the kana stage is the first nodes of the Từ vựng map
+    return ['vocab', 'kanji', 'grammar', 'skills'];
   }
 
   function defaultTab(path) {
-    return path && path.kanaTab && !path.kanaCompleted ? 'kana' : 'vocab';
+    return 'vocab';
   }
 
   function resolveTab(param, path) {
     var key = typeof param === 'string' ? param.trim().toLowerCase() : '';
     if (!TAB_KEY[key]) return defaultTab(path);
-    if (key === 'kana' && !(path && path.kanaTab)) return 'vocab';
+    if (key === 'kana') return 'vocab';
     return key;
   }
 
@@ -391,10 +391,10 @@
   function lockedTabNoteHtml(path, tab) {
     var info = tabInfo(path, tab);
     var kanaFirst = !!(path && path.kanaTab && !path.kanaCompleted);
-    if (!info || (info.open !== false && !kanaFirst)) return '';
-    var text = info.open === false ? 'Học xong <strong>Chữ cái</strong> để mở tab này.'
-      : 'Lộ trình đang học <strong>Chữ cái</strong> trước; các phần ở đây mở dần sau khi xong Chữ cái.';
-    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=kana">Về tab Chữ cái</a></p>';
+    // owner 18/11: the kana stage sits at the start of the Từ vựng map, so that map needs no note
+    if (!info || tab === 'vocab' || (info.open !== false && !kanaFirst)) return '';
+    var text = 'Học xong <strong>chặng Chữ cái</strong> để mở tab này.';
+    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=vocab">Về chặng Chữ cái</a></p>';
   }
 
   // tab buttons are updated in place so focus stays on the activated tab
@@ -499,6 +499,11 @@
       lists.mountTab(el, state.tab, { level: state.viewLevel || p.openLevel, display: p.display || {},
         skillDay: !!(state.today && state.today.kind === 'SKILL'), api: apiClient, location: loc,
         history: env.history, document: doc });
+      // owner 18/11: the kana stage is the first part of the Từ vựng map (no kana tab)
+      if (root.JpathKanaStage && typeof root.JpathKanaStage.mount === 'function') {
+        root.JpathKanaStage.mount(slot(rootEl, 'kana-stage'), { api: apiClient, tab: state.tab,
+          ownLevel: !state.viewLevel || state.viewLevel === p.openLevel, path: p });
+      }
       // Owner 05/11: V/K/G tabs open on their study parts; the whole list waits behind "Xem toàn bộ"
       if (root.JpathParts && typeof root.JpathParts.mount === 'function') {
         root.JpathParts.mount(slot(rootEl, 'parts'), el, state.tab, {
