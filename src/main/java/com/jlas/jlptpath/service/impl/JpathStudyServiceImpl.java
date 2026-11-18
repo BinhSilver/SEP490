@@ -87,6 +87,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     static final int UPCOMING = 20;
     static final int EXTRA_COUNT = 5;
     static final int LIST_COUNT = 10;
+    static final int EXTRA_BROWSE_DAILY_LIMIT = 20;
     static final int KANA_ROWS_DEFAULT = 1;
     /** Due cards read per tab; hard cards go past the review cap, so more than the cap is read. */
     static final int DUE_PAGE = 500;
@@ -320,10 +321,11 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
         if (t == JpathTab.KANA) {
-            rows = nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count());
+            rows = limitKanaRows(userId, nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count()));
         } else {
+            int count = limitedExtraBrowseCount(userId, r.count() == null ? EXTRA_COUNT : r.count());
             newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                    r.count() == null ? EXTRA_COUNT : r.count(), 0));
+                    count, 0));
         }
         return save(userId, plan.getId(), r.tab(), JpathSessionMode.EXTRA, newsQueue(r, newCodes, rows));
     }
@@ -354,9 +356,12 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
         if (t == JpathTab.KANA) {
-            rows = r.startItemCode() == null ? nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count())
+            List<KanaRowPlan> selected = r.startItemCode() == null
+                    ? nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count())
                     : List.of(kanaRowPlan(userId, kanaRowCode(r.startItemCode())));
+            rows = limitKanaRows(userId, selected);
         } else {
+            count = limitedExtraBrowseCount(userId, count);
             String level = r.level() == null ? open.getLevel() : level(r.level());
             if (level == null) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED);
@@ -368,6 +373,96 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             newCodes.put(t, browseCodes(userId, level, t, r, count));
         }
         return save(userId, null, r.tab(), JpathSessionMode.BROWSE, newsQueue(r, newCodes, rows));
+    }
+
+    /**
+     * F136: BROWSE and EXTRA share a daily allowance. Already learned items in an open round do not reserve another
+     * slot; unfinished NEW cards reserve one so opening another tab/session cannot exceed the account-wide limit.
+     */
+    private int limitedExtraBrowseCount(Long userId, int requested) {
+        int available = Math.max(0, EXTRA_BROWSE_DAILY_LIMIT - extraBrowseItemsInUse(userId));
+        if (available == 0) {
+            throw new ApiException(ErrorCode.JPATH_EXTRA_DAILY_LIMIT_REACHED);
+        }
+        return Math.min(requested, available);
+    }
+
+    private List<KanaRowPlan> limitKanaRows(Long userId, List<KanaRowPlan> requested) {
+        if (requested.isEmpty()) {
+            return requested;
+        }
+        int available = Math.max(0, EXTRA_BROWSE_DAILY_LIMIT - extraBrowseItemsInUse(userId));
+        List<KanaRowPlan> allowed = new ArrayList<>();
+        for (KanaRowPlan row : requested) {
+            int size = row.kanaCodes().size();
+            if (size > available) {
+                if (allowed.isEmpty()) {
+                    throw new ApiException(ErrorCode.JPATH_EXTRA_DAILY_LIMIT_REACHED);
+                }
+                break;
+            }
+            allowed.add(row);
+            available -= size;
+        }
+        return allowed;
+    }
+
+    private int extraBrowseItemsInUse(Long userId) {
+        Set<String> used = new HashSet<>();
+        java.time.LocalDate studyDay = clock.today(userId);
+        if (jdbc != null) {
+            List<Map<String, Object>> started = jdbc.queryForList("""
+                    SELECT DISTINCT e.item_type, e.item_code
+                    FROM jpath_study_event e
+                    JOIN jpath_study_session s ON s.id = e.session_id
+                    WHERE e.user_id = ? AND e.study_day = ? AND e.action = 'FIRST_RATE'
+                      AND s.mode IN ('EXTRA', 'BROWSE')
+                      AND e.id = (
+                        SELECT MIN(first_event.id) FROM jpath_study_event first_event
+                        WHERE first_event.user_id = e.user_id AND first_event.item_type = e.item_type
+                          AND first_event.item_code = e.item_code AND first_event.study_day = e.study_day
+                          AND first_event.action = 'FIRST_RATE'
+                      )
+                    """, userId, studyDay);
+            for (Map<String, Object> row : started) {
+                JpathItemType type = JpathItemType.valueOf(String.valueOf(row.get("item_type")));
+                String code = String.valueOf(row.get("item_code"));
+                userItems.findByUserIdAndItemTypeAndItemCode(userId, type, code).ifPresent(item -> {
+                    if (item.getFirstLearnedAt() != null && studyDay.equals(item.getFirstLearnedAt().toLocalDate())) {
+                        used.add(extraBrowseKey(type, code));
+                    }
+                });
+            }
+        }
+        for (String mode : List.of(JpathSessionMode.EXTRA.name(), JpathSessionMode.BROWSE.name())) {
+            for (JpathStudySession session : sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, OPEN, mode)) {
+                if (session.getStartedAt() == null || !studyDay.equals(session.getStartedAt()
+                        .atZone(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))
+                        .withZoneSameInstant(clock.zone(userId)).toLocalDate())) {
+                    continue;
+                }
+                List<JpathQueueStep> queue = parse(session.getQueueJson());
+                int from = Math.max(0, session.getPosition() == null ? 0 : session.getPosition());
+                for (int i = from; i < queue.size(); i++) {
+                    JpathQueueStep step = queue.get(i);
+                    if (step.kind() != JpathStepKind.NEW || step.repeat() || step.itemType() == null
+                            || step.itemCode() == null) {
+                        continue;
+                    }
+                    Optional<JpathUserItem> row = userItems.findByUserIdAndItemTypeAndItemCode(userId,
+                            step.itemType(), step.itemCode());
+                    if (row.isEmpty() || row.get().getFirstLearnedAt() == null
+                            && row.get().getState() != JpathItemState.KNOWN) {
+                        used.add(extraBrowseKey(step.itemType(), step.itemCode()));
+                    }
+                }
+            }
+        }
+        return used.size();
+    }
+
+    private static String extraBrowseKey(JpathItemType type, String code) {
+        return type.name() + '\u001f' + code;
     }
 
     private JpathStudySession notebook(Long userId, JpathSessionStartRequest r) {
@@ -645,7 +740,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         boolean empty = q.isEmpty();
         return sessions.save(JpathStudySession.builder().userId(userId).planId(planId).tab(tab.name())
                 .mode(mode.name()).status(empty ? COMPLETED : OPEN).queueJson(write(q)).position(0).total(q.size())
-                .completedAt(empty ? clock.now() : null).build());
+                .startedAt(clock.now()).completedAt(empty ? clock.now() : null).build());
     }
 
     private static JpathTab cardTab(JpathSessionTab tab) {

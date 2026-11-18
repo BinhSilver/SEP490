@@ -57,6 +57,10 @@
       if (el.hasAttribute('data-furi')) return;
       if (!onlyText(el)) return;
       if (!KANJI.test(el.textContent || '')) { el.setAttribute('data-furi', 'none'); return; }
+      // F141: JLPT is an academic path. Do not reveal generated readings inside a question until
+      // the learner has answered it; the rerender after an answer removes this gate.
+      var question = el.closest && el.closest('[data-furi-answer-state="pending"]');
+      if (question) return;
       out.push(el);
     });
     return out;

@@ -152,6 +152,11 @@ public class CpathService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> goals() {
+        Map<String, List<Map<String, String>>> topicsByGoal = new LinkedHashMap<>();
+        db.query("SELECT goal_code, code, name_vi FROM cpath_topic ORDER BY goal_code, sort_order", rs -> {
+            topicsByGoal.computeIfAbsent(rs.getString("goal_code"), key -> new ArrayList<>())
+                    .add(Map.of("code", rs.getString("code"), "nameVi", rs.getString("name_vi")));
+        });
         return db.query("SELECT g.code, g.name_vi, g.fields_json, (SELECT COUNT(*) FROM cpath_topic t WHERE t.goal_code = g.code) n "
                 + "FROM cpath_goal g ORDER BY g.sort_order", (rs, i) -> {
             Map<String, Object> m = new LinkedHashMap<>();
@@ -159,6 +164,7 @@ public class CpathService {
             m.put("nameVi", rs.getString("name_vi"));
             m.put("topicCount", rs.getInt("n"));
             m.put("fields", parse(rs.getString("fields_json"), List.of()));
+            m.put("topics", topicsByGoal.getOrDefault(rs.getString("code"), List.of()));
             return m;
         });
     }
@@ -1549,6 +1555,16 @@ public class CpathService {
             }
         }
         return Map.of("scores", scores, "updated", scores.size());
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> reviewPick(Long userId, String questionId, int optionIndex) {
+        WeeklyQ q = reviewQuestions(userId, requirePath(userId)).stream()
+                .filter(item -> item.id().equals(questionId)).findFirst()
+                .orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED, "Câu ôn tập không hợp lệ."));
+        if (optionIndex < 0 || optionIndex >= q.options().size())
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lựa chọn không hợp lệ.");
+        return Map.of("correct", optionIndex == q.answer());
     }
 
     @Transactional

@@ -168,7 +168,8 @@
       + '<p class="cp-settings__desc">Mục tiêu đang học: <strong>' + esc(path.nameVi || 'Giao tiếp') + '</strong>. '
       + 'Đổi mục tiêu chính sẽ giữ tiến độ cũ, chọn lại mục tiêu này là học tiếp. Mục tiêu phụ học xen với mục tiêu chính.</p>'
       + '<div class="cp-settings__actions"><a class="cp-btn-ghost" href="/survey?edit=goal">Đổi mục tiêu chính</a>'
-      + '<a class="cp-btn-ghost" href="/learning/comm/survey?secondary=1">Thêm mục tiêu phụ</a></div></section>';
+      + '<a class="cp-btn-ghost" href="/learning/comm/survey?secondary=1">Thêm mục tiêu phụ</a>'
+      + '<a class="cp-btn-ghost" href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></div></section>';
   }
 
   function manageSection(path, notices) {

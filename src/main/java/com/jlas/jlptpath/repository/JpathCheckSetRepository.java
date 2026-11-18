@@ -62,6 +62,10 @@ public interface JpathCheckSetRepository extends JpaRepository<JpathCheckSet, Lo
     List<JpathCheckSet> findByUserIdAndKindAndStatusAndIssuedAtGreaterThanEqualOrderByIdAsc(Long userId,
             JpathCheckKind kind, String status, LocalDateTime since);
 
+    /** F137: all topic/week-known attempts issued in the learner's study day, including unfinished checks. */
+    long countByUserIdAndKindInAndIssuedAtGreaterThanEqual(Long userId, java.util.Collection<JpathCheckKind> kinds,
+                                                            LocalDateTime since);
+
     List<JpathCheckSet> findTop10ByUserIdAndKindAndStatusOrderBySubmittedAtDescIdDesc(Long userId, JpathCheckKind kind,
                                                                                     String status);
 

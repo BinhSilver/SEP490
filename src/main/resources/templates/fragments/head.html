@@ -48,7 +48,7 @@
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${(pageCss == 'jlpt' or pageCss == 'jlpt-exam' or pageCss == 'jlpt-study' or pageCss == 'jlpt-practice' or pageCss == 'jlpt-practice-admin' or pageCss == 'verb-practice-admin' or pageCss == 'kanji-map' or pageCss == 'kanji-map-admin' or pageCss == 'weakness-notebook' or pageCss == 'jlas-certificates') ? '20261107-plum-portal' : (pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261112-preview-dark' : (pageCss == 'login' ? '20261111-google-face' : (pageCss == 'profile' ? '20261103-auto' : (pageCss == 'onyomi' ? '20261116-next-mobile' : (pageCss == 'textbooks' ? '20261108-plum' : '20261105-plum')))))))}}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${(pageCss == 'jlpt' or pageCss == 'jlpt-exam' or pageCss == 'jlpt-study' or pageCss == 'jlpt-practice' or pageCss == 'jlpt-practice-admin' or pageCss == 'verb-practice-admin' or pageCss == 'kanji-map' or pageCss == 'kanji-map-admin' or pageCss == 'weakness-notebook' or pageCss == 'jlas-certificates') ? '20261107-plum-portal' : (pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261118-kana-snake2' : (pageCss == 'login' ? '20261111-google-face' : (pageCss == 'profile' ? '20261103-auto' : (pageCss == 'onyomi' ? '20261118-unslop' : (pageCss == 'textbooks' ? '20261108-plum' : '20261105-plum')))))))}}" />
     <link th:if="${pageCss == 'kanji-map'}" rel="stylesheet" th:href="@{/css/pages/kanji-map.css(v='20261107-plum-portal')}" />
     <link th:if="${pageCss == 'kanji-map-admin'}" rel="stylesheet" th:href="@{/css/pages/kanji-map-admin.css(v=20261107-plum-portal)}" />
     <link th:if="${pageCss == 'jlpt-study'}" rel="stylesheet" th:href="@{/css/pages/jlpt-study.css?v=20261111-icons}" />
@@ -72,6 +72,10 @@
     <script defer th:src="@{/js/sakura-background.js}"></script>
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
+    <!-- Chatbot gia sư (nút nổi); tự ẩn với khách, trang quản trị, bài kiểm tra, hoặc khi máy chủ chưa bật -->
+    <link rel="stylesheet" th:href="@{/css/components/tutor-widget.css(v=20261117-fox)}" />
+    <script defer th:src="@{/js/pages/home-mascot.js?v=20261115-f129}"></script>
+    <script defer th:src="@{/js/components/tutor-widget.js(v=20261117-fox)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261107-onyomi-mobile" />
     <!-- Shared dropdown for <select data-jl-select> (css/components/select.css, js/components/select.js) -->

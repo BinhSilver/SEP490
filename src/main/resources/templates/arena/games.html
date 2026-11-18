@@ -31,15 +31,16 @@
         <section class="ar-hub-section" aria-labelledby="ar-solo-title">
             <h2 id="ar-solo-title" class="ar-hub-section__title">Chơi một mình</h2>
             <a class="ar-solo-card" th:href="@{/kana-connect}">
-                <span class="ar-solo-card__art" aria-hidden="true">
-                    <span>か</span><span>な</span><span>つ</span>
-                    <span>な</span><span>ぐ</span><span>く</span>
-                    <span>さ</span><span>い</span><span>と</span>
+                <!-- Animated by game-previews.js (scene "kana-connect"); the static tiles show if scripts are off. -->
+                <span class="ar-solo-card__art" data-game-preview="kana-connect" aria-hidden="true">
+                    <span>か</span><span>な</span><span>ほ</span>
+                    <span>ね</span><span>ぐ</span><span>し</span>
+                    <span>こ</span><span>な</span><span>つ</span>
                 </span>
                 <span class="ar-solo-card__body">
-                    <span class="ar-game-card__tag">Thử thách hằng ngày</span>
+                    <span class="ar-game-card__tag">Thử thách hằng tuần</span>
                     <strong class="ar-solo-card__name">Kana Connect</strong>
-                    <span class="ar-solo-card__text">Nối các ô kana liền nhau thành từ, tìm từ 8 từ trở lên và đua top cùng mọi người. Bàn mới mỗi ngày lúc 00:00.</span>
+                    <span class="ar-solo-card__text">Nối các ô kana liền nhau thành từ, tìm từ 8 từ trở lên và đua top cùng mọi người. Bàn mới mỗi tuần, mở lúc 0:00 thứ Hai.</span>
                 </span>
                 <span class="ar-btn ar-btn--primary ar-solo-card__cta">Chơi</span>
             </a>
@@ -90,7 +91,7 @@
 
 <script th:src="@{/arena/js/arena-client.js(v='20261109-kotsu')}"></script>
 <script th:src="@{/arena/js/games-page.js(v='20261111-hub')}"></script>
-<script th:src="@{/arena/js/game-previews.js}"></script>
+<script th:src="@{/arena/js/game-previews.js(v='20261118-kana-snake')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

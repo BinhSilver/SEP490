@@ -68,7 +68,7 @@
     var reading = item.reading && item.reading !== item.ja ? item.reading : '';
     var rom = d.romaji ? (item.romaji || romajiOf(item.reading || item.ja)) : '';
     var ex = item.example;
-    return '<li class="cp-core-card' + (item.done ? ' is-done' : '') + '">'
+    return '<li class="cp-core-card' + (item.done ? ' is-done' : '') + '"><div class="cp-core-card__word">'
       + '<div class="cp-core-card__head">'
       + '<span class="cp-core-card__kind cp-core-card__kind--' + esc(String(item.kind).toLowerCase()) + '">' + esc(KIND_LABEL[item.kind] || 'Mục') + '</span>'
       + (item.done ? '<span class="cp-core-card__done">Đã thuộc</span>' : '')
@@ -81,9 +81,10 @@
       + (rom ? '<div class="cp-line__romaji">' + esc(rom) + '</div>' : '')
       + '<div class="cp-core-card__vi">' + esc(item.meaningVi) + '</div>'
       + (item.note ? '<div class="cp-core-card__note">' + esc(item.note) + '</div>' : '')
+      + '</div>'
       + (ex && ex.ja ? '<div class="cp-core-card__ex">'
-        + '<div class="cp-core-card__ex-ja" lang="ja">' + ruby(ex.furigana || ex.ja, d.furigana !== false)
-        + ' ' + playBtn(ex.audioUrl, ex.ja, 'Nghe câu ví dụ') + '</div>'
+        + '<div class="cp-core-card__ex-ja" lang="ja"><span class="cp-core-card__ex-text">' + ruby(ex.furigana || ex.ja, d.furigana !== false) + '</span>'
+        + playBtn(ex.audioUrl, ex.ja, 'Nghe câu ví dụ') + '</div>'
         + (d.romaji ? '<div class="cp-line__romaji">' + esc(romajiOf(ex.furigana || ex.ja)) + '</div>' : '')
         + (d.translation !== false && ex.vi ? '<div class="cp-core-card__ex-vi">' + esc(ex.vi) + '</div>' : '')
         + '</div>' : '')
@@ -104,7 +105,7 @@
       + '</div></section>';
   }
 
-  function resultHtml(res, items, isCheck) {
+  function resultHtml(res, items, isCheck, answers) {
     var byCode = {};
     (items || []).forEach(function (x) { byCode[x.code] = x; });
     var wrong = (res.results || []).filter(function (r) { return !r.correct; });
@@ -121,7 +122,15 @@
     return '<section class="jp-card cp-core-result" role="status">' + head
       + (wrong.length ? '<ul class="cp-core-wrong">' + wrong.map(function (r) {
         var it = byCode[r.code] || {};
-        return '<li><span lang="ja">' + esc(it.ja || r.code) + '</span> — ' + esc(r.answer) + '</li>';
+        var aiSlot = it.ja && r.answer
+          ? '<div class="jp-ai-slot" data-jpath-ai-explain="' + esc(JSON.stringify({
+            source: 'CPATH_CORE',
+            prompt: 'Chọn nghĩa tiếng Việt đúng cho: ' + it.ja,
+            options: it.options || [],
+            userAnswer: answers && answers[r.code] || '',
+            correctAnswer: r.answer
+          })) + '"></div>' : '';
+        return '<li><span lang="ja">' + esc(it.ja || r.code) + '</span> — ' + esc(r.answer) + aiSlot + '</li>';
       }).join('') + '</ul>' : '')
       + '<div class="cp-settings__actions">'
       + (!isCheck && !res.lessonDone ? '<button type="button" class="cp-btn-primary" data-core-again>Học lại phần sai</button>' : '')
@@ -162,7 +171,7 @@
         return;
       }
       if (phase === 'result' && result) {
-        el.innerHTML = header() + resultHtml(result, items, isCheck);
+        el.innerHTML = header() + resultHtml(result, items, isCheck, answers);
         return;
       }
       var todo = isCheck ? items : pending(items);
