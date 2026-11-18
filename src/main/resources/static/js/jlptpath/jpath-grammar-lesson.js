@@ -179,6 +179,8 @@
     html += '</div>' + exampleCol + '</div>';
     html += lessonPart('Mẫu phụ đi kèm', attached ? '<ul class="jp-attached-list">' + attached + '</ul>' : '');
     html += '</article>';
+    // owner 18/11: units that teach a verb form get an optional "Luyện chia động từ" card
+    if (root.JpathVerbs && root.location) html += root.JpathVerbs.blockHtml(g.level, g.unitNo, root.location.pathname + root.location.search);
     if (g.practiceAvailable || g.extraAvailable) {
       html += '<section class="jp-lesson-practice" data-practice="GRAMMAR_PRACTICE"'
         + ' aria-labelledby="jp-practice-title"><h3 class="jp-lesson-practice__title" id="jp-practice-title">Luyện ngay</h3>';

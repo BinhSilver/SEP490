@@ -38,6 +38,18 @@
     return '<div class="jp-side-tile"><strong>' + esc(value) + '</strong><span>' + esc(label) + '</span></div>';
   }
 
+  // owner 18/11: before the level test, one round of every verb form the level has taught (optional)
+  function verbReview(level, passed) {
+    var V = root && root.JpathVerbs;
+    var forms = V && V.LEVEL_REVIEW[String(level || '').toUpperCase()];
+    if (passed || !forms || !forms.length) return '';
+    var back = root.location ? root.location.pathname + root.location.search : '/learning';
+    return '<section class="jp-card jp-verbs" aria-label="Ôn chia động từ"><div class="jp-verbs__text">'
+      + '<h2 class="jp-verbs__title">Ôn chia động từ trước bài kiểm tra cấp</h2>'
+      + '<p class="jp-verbs__sub">Một vòng trộn mọi thể đã học ở ' + esc(level) + '. Không bắt buộc.</p></div>'
+      + '<a class="jp-btn jp-btn--primary" href="' + esc(V.practiceUrl(level, forms, back, 'Tổng kết ' + level)) + '">Ôn các thể</a></section>';
+  }
+
   function summaryHtml(s) {
     if (!s) return '';
     var lvl = esc(s.level);
@@ -65,6 +77,7 @@
       + tile(s.learned || 0, 'Đã học') + tile(s.known || 0, 'Đã biết') + tile(acc, 'Độ chính xác micro-check')
       + tile((s.studyDays || 0) + ' ngày', 'Ngày học xong') + '</div></section>'
       + weak
+      + verbReview(s.level, passed)
       + '<div class="jp-side__range">' + (passed ? '<a class="jp-btn" href="/learning/jlpt/levels/' + encodeURIComponent(s.level)
         + '/certificate">Xem chứng nhận</a>' : '') + next + '</div>';
   }
