@@ -12,6 +12,9 @@ import com.jlas.community.handler.CommunityContentTypeHandler;
 import com.jlas.community.handler.CommunitySource;
 import com.jlas.community.repository.CommunityCommentRepository;
 import com.jlas.community.repository.CommunityContentRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,7 +32,7 @@ import java.util.Optional;
  *   <li>Công khai (nguồn public + PUBLISHED): mọi user đã đăng nhập.</li>
  *   <li>Nguồn không public hoặc TEMPORARILY_HIDDEN: chỉ owner và MODERATOR/ADMIN (handler có thể siết thêm,
  *       vd. video Shadowing PRIVATE chỉ owner, xem {@code CommunityContentTypeHandler#canViewNonPublic}).</li>
- *   <li>REMOVED: chỉ MODERATOR/ADMIN.</li>
+ *   <li>REMOVED: chỉ MODERATOR/ADMIN; riêng bài viết (POST) thì tác giả cũng xem được để thấy lý do bị gỡ.</li>
  * </ul>
  * Không đủ quyền xem luôn trả 404 (không 403) để không lộ sự tồn tại của nội dung.
  */
@@ -42,6 +45,22 @@ public class CommunityAccessService {
     private final CommunityContentRepository contents;
     private final CommunityCommentRepository comments;
     private final UserRepository users;
+
+    /** Không final (không thuộc constructor): Spring tiêm qua @PersistenceContext; test dựng tay không cần. */
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    /**
+     * Đọc lại thực thể VỪA KHOÁ bằng SELECT ... FOR UPDATE rồi trả lại chính nó. Truy vấn khoá (lockById/lockBySource)
+     * trả về bản đã nằm sẵn trong persistence context khi transaction đã đọc dòng đó trước khi khoá (vd requireViewable
+     * -> load), nên trạng thái có thể cũ hơn bản vừa commit (vd kiểm duyệt viên vừa gỡ) và lần lưu sau sẽ ghi đè trạng
+     * thái cũ lên. Mọi kiểm tra trạng thái và mọi ghi sau khi khoá phải dựa trên bản đọc lại này. Không dùng refresh
+     * thường: ở REPEATABLE READ nó đọc snapshot cũ của transaction, chỉ đọc có khoá mới thấy bản commit mới nhất.
+     */
+    public <T> T fresh(T locked) {
+        entityManager.refresh(locked, LockModeType.PESSIMISTIC_WRITE);
+        return locked;
+    }
 
     /** Nội dung gốc + trạng thái cộng đồng ({@code row} null khi chưa có dòng community_content). */
     public record Target(CommunitySource source, CommunityContent row, String status) {
@@ -91,7 +110,10 @@ public class CommunityAccessService {
     }
 
     public boolean canView(Target target, Long viewerId, boolean moderator) {
-        if (CommunityStatus.REMOVED.name().equals(target.status())) return moderator;
+        if (CommunityStatus.REMOVED.name().equals(target.status())) {
+            return moderator || (target.ownedBy(viewerId) && handler(target.source().contentType())
+                    .map(CommunityContentTypeHandler::ownerSeesRemoved).orElse(false));
+        }
         if (target.publicNow()) return true;
         return handler(target.source().contentType())
                 .map(h -> h.canViewNonPublic(target.source(), viewerId, moderator))
@@ -116,14 +138,15 @@ public class CommunityAccessService {
     }
 
     /**
-     * Khoá dòng trạng thái (tạo nếu chưa có) và kiểm tra lại nội dung còn công khai. Mọi thay đổi bộ đếm đi qua
-     * khoá này nên rating/comment/report đồng thời không làm lệch số liệu.
+     * Khoá dòng trạng thái (tạo nếu chưa có), đọc lại bản mới nhất ({@link #fresh}) và kiểm tra nội dung còn công khai.
+     * Mọi thay đổi bộ đếm đi qua khoá này nên rating/comment/report đồng thời không làm lệch số liệu, và không ghi đè
+     * được trạng thái mà kiểm duyệt viên vừa đổi (vd vừa gỡ bài).
      */
     public Target lockInteractable(Target target) {
         CommunitySource source = target.source();
         contents.ensureRow(source.contentType(), source.contentId());
-        CommunityContent locked = contents.lockBySource(source.contentType(), source.contentId())
-                .orElseThrow(CommunityAccessService::notFound);
+        CommunityContent locked = fresh(contents.lockBySource(source.contentType(), source.contentId())
+                .orElseThrow(CommunityAccessService::notFound));
         Target fresh = target.withRow(locked);
         if (!fresh.publicNow()) {
             throw new ApiException(ErrorCode.CONFLICT,

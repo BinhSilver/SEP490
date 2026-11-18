@@ -41,6 +41,19 @@ public interface CommunityContentTypeHandler {
         return moderator || (viewerId != null && Objects.equals(source.ownerId(), viewerId));
     }
 
+    /**
+     * Chủ nội dung có xem được nội dung đã bị gỡ (REMOVED) không, để thấy trạng thái + lý do. Mặc định không (chỉ
+     * MODERATOR/ADMIN); bài viết POST thì có.
+     */
+    default boolean ownerSeesRemoved() {
+        return false;
+    }
+
+    /** Loại này có đánh giá 1-5 sao không (bài viết POST thì không: chỉ bình luận + chia sẻ). */
+    default boolean supportsRating() {
+        return true;
+    }
+
     /** Banner riêng của nguồn khi nội dung không công khai; null để dùng thông báo chung của Community. */
     default String sourceNotice(CommunitySource source, boolean owner) {
         return null;
