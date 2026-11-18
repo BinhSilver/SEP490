@@ -94,8 +94,35 @@
   }
   async function load() {
     $('vpReload').hidden = true;
-    try { state.data = await api(''); renderDashboard(state.data); $('vpSetupFields').disabled = false; notice(''); }
+    try { state.data = await api(''); renderDashboard(state.data); applyPreset(); $('vpSetupFields').disabled = false; notice(''); }
     catch (e) { notice(e.message); $('vpReload').hidden = false; }
+  }
+  // [JLAS-W0108] learning path link: ?forms=TE,NAI&level=N5&back=/learning/... preselects the forms and level
+  // of the grammar lesson and shows a way back; the practice itself is unchanged
+  var preset = (function () {
+    var q = new URLSearchParams(window.location.search);
+    var back = q.get('back') || '';
+    if (!/^\/learning(\/|\?|$)/.test(back) || back.indexOf('//') >= 0) back = '';
+    return { forms: (q.get('forms') || '').split(',').map(function (f) { return f.trim().toUpperCase(); }).filter(Boolean),
+      level: (q.get('level') || '').toUpperCase(), back: back, label: q.get('from') || '' };
+  })();
+  function backLink() {
+    var a = document.createElement('a');
+    a.className = 'vp-path-back'; a.href = preset.back;
+    a.style.cssText = 'display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:8px 14px;border-radius:999px;border:1px solid currentColor;font-weight:600;text-decoration:none;';
+    a.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về lộ trình' + (preset.label ? ' · ' + esc(preset.label) : '');
+    return a;
+  }
+  function applyPreset() {
+    if (preset.applied) return; preset.applied = true;
+    var known = (state.data.forms || []).map(function (f) { return f.id; });
+    var forms = preset.forms.filter(function (f) { return known.indexOf(f) >= 0; });
+    if (forms.length) { state.forms = forms; renderForms(); }
+    if (preset.level && Array.from($('vpLevel').options).some(function (o) { return o.value === preset.level; })) $('vpLevel').value = preset.level;
+    if (preset.back) {
+      var setup = $('vpSetupForm'); if (setup) setup.parentNode.insertBefore(backLink(), setup);
+      var res = $('vpResultList'); if (res && res.parentNode) res.parentNode.appendChild(backLink());
+    }
   }
   function show(view) {
     state.view = view;
