@@ -584,7 +584,6 @@
     var meta = [];
     if (data.skill) meta.push('<span class="tb-badge tb-badge--level">' + escapeHtml(SKILL_LABELS[data.skill] || data.skill) + '</span>');
     if (data.knowledgeTagName) meta.push('<span class="tb-badge"><i class="fa-solid fa-tag" aria-hidden="true"></i> ' + escapeHtml(data.knowledgeTagName) + '</span>');
-    if (data.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + data.estimatedMinutes + ' phút</span>');
     meta.push(statusToggle('lesson', data.id, data.status));
     document.getElementById('lessonMeta').innerHTML = meta.join('');
     document.title = (data.title || 'Bài học') + ' - KotsuKotsu';
@@ -1122,6 +1121,11 @@
   var QUESTION_PLACEHOLDER = /^\((Nghe|Đọc) và chọn đáp án đúng\)$/;
   var BLANK_MARK = /[（(]\s*[）)]|＿|_{2,}|★|\[\s*\]/;
 
+  /** Đề có thẻ <u>: escape TOÀN BỘ trước, rồi chỉ bật lại cặp <u>…</u> (không thuộc tính) — mọi thẻ khác vẫn là chữ. */
+  function underlineMarkup(text) {
+    return escapeHtml(text).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<u class="practice-q__target">$1</u>');
+  }
+
   /**
    * Dạng "cách đọc chữ Hán": phương án toàn kana và đề có đúng MỘT cụm chữ Hán → gạch chân cụm đó, kéo dài qua
    * phần okurigana khớp với đuôi đáp án (白い ↔ しろい, 作って ↔ つくって). Không chắc (nhiều cụm, phương án có
@@ -1129,6 +1133,8 @@
    */
   function underlineTarget(q) {
     var text = q.questionText || '';
+    // Dữ liệu đã đánh dấu sẵn <u>…</u> (migration 085, lấy từ nguồn hoặc quy tắc) → dùng đúng chỗ đó, không đoán.
+    if (/<u>[\s\S]*?<\/u>/i.test(text)) return underlineMarkup(text);
     // Backend đã đối chiếu từ điển (chữ Hán có cách đọc = đáp án) → gạch đúng cụm đó.
     if (q.targetText && text.indexOf(q.targetText) !== -1) {
       var at = text.indexOf(q.targetText);
@@ -1561,7 +1567,8 @@
 
   /** Khoá so khớp dòng: NFKC + bỏ mọi khoảng trắng ("Ⓜ： ここ" và "Ⓜ：ここ", "１．" và "1." là một). */
   function matchKey(value) {
-    return String(value || '').normalize('NFKC').replace(/\s+/g, '');
+    // Bỏ thẻ gạch chân <u> của đề để vẫn khớp với lời thoại / bài đọc (không có thẻ).
+    return String(value || '').replace(/<\/?u>/gi, '').normalize('NFKC').replace(/\s+/g, '');
   }
 
   var OPTION_LINE = /^(\S{1,3}[:：])?\s*[1-9１-９][.．、]/;
@@ -2713,12 +2720,9 @@
       '</div>';
   }
 
-  function kanjiWord(w) {
-    return '<li class="kanji-word">' +
-      '<span class="kanji-word__ja" lang="ja">' + escapeHtml(w.expression) + '</span>' +
-      (w.reading ? '<span class="kanji-word__reading" lang="ja">' + escapeHtml(w.reading) + '</span>' : '') +
-      (w.meaning ? '<span class="kanji-word__meaning">' + escapeHtml(w.meaning) + '</span>' : '') +
-      '</li>';
+  /** Từ chứa Kanji → mục ví dụ của examplesHtml (từ, cách đọc, nghĩa). */
+  function kanjiWordExamples(words) {
+    return (words || []).map(function (w) { return { ja: w.expression, kana: w.reading, vi: w.meaning }; });
   }
 
   function kanjiItem(k) {
@@ -2742,9 +2746,7 @@
           (readings.length
             ? '<div class="kanji-readings">' + typeOrder.map(function (t) { return readingGroup(t, readings); }).join('') + '</div>'
             : '') +
-          (words.length
-            ? '<div class="kanji-words"><span class="kanji-readings__label">Từ trong bài</span><ul class="kanji-words__list">' + words.map(kanjiWord).join('') + '</ul></div>'
-            : '') +
+          examplesHtml(kanjiWordExamples(words), 'Từ trong bài') +
         '</div>' +
       '</article>';
   }
@@ -2760,19 +2762,37 @@
 
   /* ---------- Từ vựng ---------- */
 
+  /** Ví dụ của chính bài (lessonExamples) trước; bài không có thì dùng ví dụ chung của từ điển (exampleJa). */
+  function vocabExamples(v) {
+    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; })
+      .map(function (e) { return { ja: e.textJa, vi: e.textVi }; });
+    return lessonExamples.length ? lessonExamples : (v.exampleJa ? [{ ja: v.exampleJa, vi: v.exampleVi }] : []);
+  }
+
+  /**
+   * Phần ví dụ DÙNG CHUNG (thẻ từ vựng mọi trang phân trang, thẻ từ ở trang lộ trình, "Từ ví dụ" tab Kanji):
+   * text thường dưới nghĩa, ngăn bằng đường kẻ mảnh, chữ nhỏ màu phụ — câu Nhật (kèm cách đọc nếu có) rồi nghĩa Việt.
+   * items: [{ ja, kana?, vi? }]; không có mục nào thì trả '' để ẩn hẳn, không để khung rỗng. CSS: .lp-exs (textbooks.css).
+   */
+  function examplesHtml(items, label) {
+    var list = (items || []).filter(function (e) { return e && String(e.ja || '').trim(); });
+    if (!list.length) return '';
+    return '<div class="lp-exs">' +
+      (label ? '<span class="lp-exs__label">' + escapeHtml(label) + '</span>' : '') +
+      list.map(function (e) {
+        return '<div class="lp-exs__item">' +
+          '<p class="lp-exs__ja" lang="ja">' + escapeHtml(e.ja) +
+            (e.kana && e.kana !== e.ja ? '<span class="lp-exs__kana" lang="ja">' + escapeHtml(e.kana) + '</span>' : '') + '</p>' +
+          (e.vi ? '<p class="lp-exs__vi">' + escapeHtml(e.vi) + '</p>' : '') +
+        '</div>';
+      }).join('') +
+      '</div>';
+  }
+
   function vocabItem(v) {
     var tags = [];
     if (v.wordType) tags.push('<span class="tb-badge">' + escapeHtml(v.wordType) + '</span>');
-    // Ví dụ của chính bài (lessonExamples) trước; bài không có thì dùng ví dụ chung của từ điển (exampleJa).
-    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; });
-    var example = lessonExamples.length
-      ? lessonExamples.map(function (e) {
-          return '<p class="vocab-item__example"><span class="ja" lang="ja">' + escapeHtml(e.textJa) + '</span>' +
-            escapeHtml(e.textVi || '') + '</p>';
-        }).join('')
-      : (v.exampleJa
-        ? '<p class="vocab-item__example"><span class="ja">' + escapeHtml(v.exampleJa) + '</span>' + escapeHtml(v.exampleVi || '') + '</p>'
-        : '');
+    var example = examplesHtml(vocabExamples(v));
     return '' +
       '<article class="vocab-item">' +
         '<div class="vocab-item__word">' +
@@ -3029,14 +3049,13 @@
     return '<span class="lp-hero__chip"><i class="' + icon + '" aria-hidden="true"></i> ' + escapeHtml(text) + '</span>';
   }
 
-  /** Meta hero: trạng thái thật (nút đổi trạng thái cho CONTENT_CREATOR), thời lượng, loại bài, tổng số mục = tổng các tab. */
+  /**
+   * Meta hero: loại bài, tổng số mục = tổng các tab. Người học không thấy chip "Đã công bố" / thời lượng;
+   * CONTENT_CREATOR vẫn có nút đổi trạng thái, bài chưa duyệt vẫn có nhãn "Chưa duyệt" (statusBadge).
+   */
   function renderHeroMeta(data, counts) {
     var total = Object.keys(counts).reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
-    var published = data.status === 'PUBLISHED';
-    var meta = [isContentCreator ? statusToggle('lesson', data.id, data.status)
-      : '<span class="lp-status ' + (published ? 'lp-status--published' : 'lp-status--draft') + '">' +
-        (published ? 'Đã công bố' : 'Bản nháp') + '</span>'];
-    if (data.estimatedMinutes) meta.push(heroChip('fa-regular fa-clock', data.estimatedMinutes + ' phút'));
+    var meta = [statusToggle('lesson', data.id, data.status)].filter(Boolean);
     if (data.skill) meta.push(heroChip('fa-solid fa-book-open', SKILL_LABELS[data.skill] || data.skill));
     if (data.lessonType === 'REVIEW') meta.push(heroChip('fa-solid fa-rotate', 'Ôn tập'));
     meta.push(heroChip('fa-solid fa-layer-group', total + ' mục'));
@@ -3169,10 +3188,6 @@
   /* ---------- Tab Từ vựng ---------- */
 
   function vocabCard(v) {
-    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; })
-      .map(function (e) { return { ja: e.textJa, vi: e.textVi }; });
-    var examples = lessonExamples.length ? lessonExamples
-      : (v.exampleJa ? [{ ja: v.exampleJa, vi: v.exampleVi }] : []);
     var showKana = v.reading && v.reading !== v.expression;
     return '<article class="lp-vcard lp-anim">' +
       '<div class="lp-vcard__head">' +
@@ -3185,12 +3200,7 @@
       '</div>' +
       (v.meaning ? '<p class="lp-vcard__meaning">' + escapeHtml(v.meaning) + '</p>' : '') +
       (v.wordType ? '<span class="lp-tag">' + escapeHtml(v.wordType) + '</span>' : '') +
-      (examples.length
-        ? '<div class="lp-vcard__example">' + examples.slice(0, 2).map(function (e) {
-            return '<p class="lp-ex__ja" lang="ja">' + escapeHtml(e.ja) + '</p>' +
-              (e.vi ? '<p class="lp-ex__vi">' + escapeHtml(e.vi) + '</p>' : '');
-          }).join('') + '</div>'
-        : '') +
+      examplesHtml(vocabExamples(v).slice(0, 2)) +
       '</article>';
   }
 
@@ -3282,13 +3292,7 @@
       (k.meaning ? '<p class="lp-kdetail__hv">' + escapeHtml(k.meaning) + '</p>' : '') +
       (k.strokeCount != null ? '<p class="lp-muted lp-kdetail__strokes">' + k.strokeCount + ' nét</p>' : '') +
       kanjiReadBox('Âm On', on) + kanjiReadBox('Âm Kun', kun) +
-      (words.length
-        ? '<div class="lp-kwords"><span class="lp-kread__label">Từ ví dụ</span><ul>' + words.map(function (w) {
-            return '<li><span class="lp-kwords__ja" lang="ja">' + escapeHtml(w.expression) + '</span>' +
-              (w.reading ? '<span class="lp-kwords__kana" lang="ja">' + escapeHtml(w.reading) + '</span>' : '') +
-              (w.meaning ? '<span class="lp-kwords__vi">' + escapeHtml(w.meaning) + '</span>' : '') + '</li>';
-          }).join('') + '</ul></div>'
-        : '') +
+      examplesHtml(kanjiWordExamples(words), 'Từ ví dụ') +
       '<button type="button" class="speak-btn lp-keep lp-listen" data-src="" data-text="' + escapeHtml(speakText) + '"' +
         ' aria-label="Nghe cách đọc ' + escapeHtml(k.character) + '">' +
         '<i class="fa-solid fa-volume-high speak-btn__icon" aria-hidden="true"></i>' +
