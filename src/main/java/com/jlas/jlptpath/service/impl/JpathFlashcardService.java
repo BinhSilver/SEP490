@@ -64,7 +64,7 @@ public class JpathFlashcardService {
     /** Sets that already exist for the parts of one tab, with their flashcard progress; makes today's set. */
     @Transactional
     public PartSets sets(Long userId, JpathTab tab) {
-        JpathPartsService.Parts p = parts.parts(userId, requireTab(tab));
+        JpathPartsService.Parts p = partsOf(userId, requireTab(tab));
         List<PartSet> out = new ArrayList<>();
         for (JpathPartsService.Part part : p.parts()) {
             if (part.items().isEmpty()) continue;
@@ -78,7 +78,7 @@ public class JpathFlashcardService {
     /** "Học bằng flashcard" on one part (learned or upcoming): its set, made now if needed. */
     @Transactional
     public PartSet open(Long userId, JpathTab tab, int index) {
-        JpathPartsService.Parts p = parts.parts(userId, requireTab(tab));
+        JpathPartsService.Parts p = partsOf(userId, requireTab(tab));
         JpathPartsService.Part part = p.parts().stream().filter(x -> x.index() == index).findFirst()
                 .orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phần học này."));
         if (part.items().isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Phần này chưa có từ.");
@@ -86,9 +86,26 @@ public class JpathFlashcardService {
     }
 
     private static JpathTab requireTab(JpathTab tab) {
-        if (tab != JpathTab.VOCAB && tab != JpathTab.KANJI)
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chỉ từ vựng và Kanji có flashcard.");
+        if (tab != JpathTab.VOCAB && tab != JpathTab.KANJI && tab != JpathTab.KANA)
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chỉ chữ cái, từ vựng và Kanji có flashcard.");
         return tab;
+    }
+
+    /** Owner 18/11: kana parts are the kana stage's day parts (one private set each), the other tabs their own parts. */
+    private JpathPartsService.Parts partsOf(Long userId, JpathTab tab) {
+        if (tab != JpathTab.KANA) return parts.parts(userId, tab);
+        JpathPartsService.KanaStage stage = parts.kanaStage(userId);
+        if (!stage.on()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lộ trình của bạn không có chặng chữ cái.");
+        List<JpathPartsService.Part> list = stage.parts().stream()
+                .map(k -> new JpathPartsService.Part(k.index(), k.status(), null, k.items())).toList();
+        String level = levelOf(userId);
+        return new JpathPartsService.Parts(tab.name(), level, stage.rowsPerDay(), 0, 0, list);
+    }
+
+    private String levelOf(Long userId) {
+        List<String> l = db.queryForList("SELECT open_level FROM jpath_user_path WHERE user_id = ? AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1",
+                String.class, userId);
+        return l.isEmpty() ? null : l.get(0);
     }
 
     private PartSet view(Long userId, JpathPartsService.Part part, Long setId) {
@@ -131,7 +148,7 @@ public class JpathFlashcardService {
     }
 
     static String title(JpathTab tab, String level, JpathPartsService.Part part) {
-        String what = tab == JpathTab.KANJI ? "Kanji" : "Từ vựng";
+        String what = tab == JpathTab.KANJI ? "Kanji" : (tab == JpathTab.KANA ? "Chữ cái" : "Từ vựng");
         String when = part.day() != null ? " · " + String.format("%02d/%02d", part.day().getDayOfMonth(), part.day().getMonthValue()) : "";
         return what + " " + (level == null ? "" : level) + " · Phần " + part.index() + when;
     }
@@ -141,7 +158,17 @@ public class JpathFlashcardService {
         List<String> codes = part.items().stream().map(JpathPartsService.Item::code).toList();
         List<CardInput> out = new ArrayList<>();
         int pos = 0;
-        if (tab == JpathTab.KANJI) {
+        if (tab == JpathTab.KANA) {
+            // owner 18/11: front the kana, back its romaji
+            for (JpathPartsService.Item it : part.items()) {
+                if (it.label() == null || it.label().isBlank()) continue;
+                CardInput card = new CardInput();
+                card.setFront(it.label());
+                card.setMeaning(cut(it.reading() == null || it.reading().isBlank() ? it.label() : it.reading(), 500));
+                card.setPosition(pos++);
+                out.add(card);
+            }
+        } else if (tab == JpathTab.KANJI) {
             Map<String, JpathKanji> byCode = new LinkedHashMap<>();
             content.kanjis(codes).forEach(k -> byCode.put(k.getCode(), k));
             for (String c : codes) {

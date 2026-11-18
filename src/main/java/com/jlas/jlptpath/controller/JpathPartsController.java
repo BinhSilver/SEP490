@@ -33,6 +33,12 @@ public class JpathPartsController {
         return ResponseEntity.ok(ApiResponse.ok("OK", partsService.entryResult(user.userId())));
     }
 
+    /** Owner 18/11: the kana stage at the start of the Từ vựng map (parts of the day's rows, skip test per table). */
+    @GetMapping("/kana-stage")
+    public ResponseEntity<ApiResponse<JpathPartsService.KanaStage>> kanaStage(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", partsService.kanaStage(user.userId())));
+    }
+
     private final com.jlas.jlptpath.service.JpathCheckService checkService;
 
     /** Owner 06/11 "Tôi biết tuần này" of one tab: offered or not, and how many items the week holds (no codes). */
@@ -41,8 +47,10 @@ public class JpathPartsController {
 
     @GetMapping("/week-skip")
     public ResponseEntity<ApiResponse<WeekSkipView>> weekSkip(@AuthenticationPrincipal UserPrincipal user,
-            @RequestParam String tab, @RequestParam(required = false) Integer rows) {
-        JpathPartsService.WeekSkip w = partsService.weekSkip(user.userId(), JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)), rows);
+            @RequestParam String tab, @RequestParam(required = false) Integer rows,
+            @RequestParam(required = false) String script) {
+        JpathPartsService.WeekSkip w = partsService.weekSkip(user.userId(), JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)), rows,
+                kanaScript(script));
         return ResponseEntity.ok(ApiResponse.ok("OK", new WeekSkipView(w.offer(), w.tab(), w.level(), w.items())));
     }
 
@@ -50,12 +58,19 @@ public class JpathPartsController {
     @org.springframework.web.bind.annotation.PostMapping("/week-skip/{tab}/check")
     public ResponseEntity<ApiResponse<com.jlas.jlptpath.dto.JpathCheckView>> weekSkipCheck(
             @AuthenticationPrincipal UserPrincipal user, @org.springframework.web.bind.annotation.PathVariable String tab,
-            @RequestParam(required = false) Integer rows) {
+            @RequestParam(required = false) Integer rows, @RequestParam(required = false) String script) {
         // rows (KANA): how many kana rows; 0 = the whole table left (F65 "Tôi biết cả bảng chữ")
         com.jlas.jlptpath.dto.JpathCheckIssueRequest request = new com.jlas.jlptpath.dto.JpathCheckIssueRequest(
                 com.jlas.jlptpath.enums.JpathCheckKind.WEEK_KNOWN, JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT)),
-                null, null, null, null, null, rows, null, null, null, null);
+                null, null, kanaScript(script), null, null, rows, null, null, null, null);
         return ResponseEntity.ok(ApiResponse.ok("OK", checkService.issue(user.userId(), request)));
+    }
+
+    /** Owner 18/11 kana stage: the skip test of one table, HIRAGANA or KATAKANA; anything else = none. */
+    static String kanaScript(String script) {
+        if (script == null) return null;
+        String s = script.trim().toUpperCase(Locale.ROOT);
+        return "HIRAGANA".equals(s) || "KATAKANA".equals(s) ? s : null;
     }
 
     private final com.jlas.jlptpath.repository.JpathSkillSetRepository skillSets;

@@ -137,7 +137,8 @@ public class JpathDailyPlanInserter {
             }
             plan.setDayKind(JpathDayKind.REVIEW_ONLY);
             JpathDayRules.applyRows(plan, tabs, JpathDayRules.tabRows(JpathDayKind.REVIEW_ONLY, plan.isKanaPhase(),
-                            path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes()),
+                            path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes(),
+                            JpathDayRules.kanaRows(path, plan.getStudyDay())),
                     EnumSet.noneOf(JpathTab.class), clock.now(), dailyTabs);
             dailyTabs.flush();
             JpathDayCompletion days = completion.getIfAvailable();
@@ -183,7 +184,7 @@ public class JpathDailyPlanInserter {
     private List<JpathDailyTab> freshTabs(JpathDailyPlan plan, JpathDayRules.DayPlan dayPlan, JpathUserPath path,
             JpathUserLevel level, LocalDateTime now) {
         List<JpathDailyTab> tabs = JpathDayRules.tabRows(dayPlan.kind(), dayPlan.kanaPhase(), path.isKanaTab(),
-                path.getStudyMode(), level, path.getDailyMinutes());
+                path.getStudyMode(), level, path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay()));
         for (JpathDailyTab tab : tabs) {
             tab.setPlanId(plan.getId());
             JpathDayRules.markZeroTargetDone(tab, now);

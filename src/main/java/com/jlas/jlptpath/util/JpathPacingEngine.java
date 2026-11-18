@@ -71,6 +71,23 @@ public final class JpathPacingEngine {
         return Math.max(KANA_ROWS_PER_DAY, Math.min(12, rows));
     }
 
+    /** Kana rows of both tables (Hiragana + Katakana, basic, dakuten, yoon): the size the target-date rule plans for. */
+    public static final int KANA_TOTAL_ROWS = 54;
+
+    /**
+     * Owner 18/11 (kana stage): rows per day follow the free time and the target date too. With an exam date the kana
+     * stage should fit in about a tenth of the days left (at least 3 days), so a close date raises the rows; never fewer
+     * than the minutes give, at most 12.
+     */
+    public static int kanaRowsPerDay(int minutes, java.time.LocalDate today, java.time.LocalDate examDate) {
+        int byMinutes = kanaRowsPerDay(minutes);
+        if (today == null || examDate == null || !examDate.isAfter(today)) return byMinutes;
+        long days = java.time.temporal.ChronoUnit.DAYS.between(today, examDate);
+        long kanaDays = Math.max(3, days / 10);
+        int byDate = (int) Math.ceil(KANA_TOTAL_ROWS / (double) kanaDays);
+        return Math.max(byMinutes, Math.min(12, byDate));
+    }
+
     /** Kana-phase vocabulary per day (policy #26): max(3, round(m/6)). */
     public static int kanaPhaseVocab(int minutes) {
         return Math.max(3, (int) Math.round(minutes / 6.0));

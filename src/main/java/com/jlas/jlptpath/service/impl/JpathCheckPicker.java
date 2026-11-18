@@ -159,6 +159,11 @@ public class JpathCheckPicker {
      * order); the items not asked are {@code pending} (TOPIC_PEND rows when the check applies, like a topic check).
      */
     Built week(Long userId, JpathTab tab, String level, List<String> codes, boolean timerOn, long seed) {
+        return week(userId, tab, level, codes, timerOn, seed, false);
+    }
+
+    /** {@code kanaSample}: the kana skip test of one table asks {@link #WEEK_MAX} random kana of it (owner 18/11). */
+    Built week(Long userId, JpathTab tab, String level, List<String> codes, boolean timerOn, long seed, boolean kanaSample) {
         if (codes == null || codes.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Không còn tuần nào để kiểm.");
         }
@@ -166,6 +171,11 @@ public class JpathCheckPicker {
             // AI 1 #11: the quick kana check matches every kana of the offered rows (fast board questions)
             Set<String> wanted = new HashSet<>(codes);
             List<JpathKana> kana = content.kana(null).stream().filter(k -> wanted.contains(k.getCode())).toList();
+            if (kanaSample && kana.size() > WEEK_MAX) {
+                List<JpathKana> shuffled = new ArrayList<>(kana);
+                java.util.Collections.shuffle(shuffled, new java.util.Random(seed));
+                kana = shuffled.subList(0, WEEK_MAX);
+            }
             BuiltCheck kanaCheck = requireQuestions(builder.kanaRowCheck(kana, seed));
             Set<String> askedKana = new HashSet<>(kanaCheck.itemCodes());
             return new Built(kanaCheck, codes.stream().filter(c -> !askedKana.contains(c)).toList());

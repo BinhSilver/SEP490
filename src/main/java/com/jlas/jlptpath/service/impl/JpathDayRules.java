@@ -97,6 +97,17 @@ final class JpathDayRules {
      */
     static List<JpathDailyTab> tabRows(JpathDayKind kind, boolean kanaPhase, boolean kanaTab, JpathStudyMode mode,
             JpathUserLevel level, int minutes) {
+        return tabRows(kind, kanaPhase, kanaTab, mode, level, minutes, JpathPacingEngine.kanaRowsPerDay(minutes));
+    }
+
+    /** Kana rows of a kana-stage day for this path on {@code day}: free time and exam date (owner 18/11). */
+    static int kanaRows(com.jlas.jlptpath.entity.JpathUserPath path, java.time.LocalDate day) {
+        int minutes = path.getDailyMinutes() == null ? 30 : path.getDailyMinutes();
+        return JpathPacingEngine.kanaRowsPerDay(minutes, day, path.getExamDate());
+    }
+
+    static List<JpathDailyTab> tabRows(JpathDayKind kind, boolean kanaPhase, boolean kanaTab, JpathStudyMode mode,
+            JpathUserLevel level, int minutes, int kanaRows) {
         int v = level.getSliderVocab();
         int k = level.getSliderKanji();
         int g = level.getSliderGrammar();
@@ -108,7 +119,7 @@ final class JpathDayRules {
                     out.add(tab(JpathTab.VOCAB, 0, 2 * v));
                     out.add(tab(JpathTab.KANJI, 0, 2 * k));
                     out.add(tab(JpathTab.GRAMMAR, 0, 2 * g));
-                    out.add(tab(JpathTab.KANA, JpathPacingEngine.kanaRowsPerDay(minutes), KANA_REVIEW_CAP));
+                    out.add(tab(JpathTab.KANA, kanaRows, KANA_REVIEW_CAP));
                 } else {
                     out.add(tab(JpathTab.VOCAB, v, 2 * v));
                     out.add(tab(JpathTab.KANJI, k, 2 * k));
