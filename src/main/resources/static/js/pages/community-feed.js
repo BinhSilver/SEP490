@@ -185,11 +185,13 @@
     pending: false,
     open: function (focusBody) {
       el('cmComposerForm').hidden = false;
+      el('cmComposer').classList.add('is-open');   // ẩn nút nhanh ở hàng trên (đã có thanh "Thêm vào bài viết")
       el('cmComposerOpen').setAttribute('aria-expanded', 'true');
       if (focusBody !== false) el('cmComposerBody').focus();
     },
     close: function () {
       el('cmComposerForm').hidden = true;
+      el('cmComposer').classList.remove('is-open');
       el('cmComposerOpen').setAttribute('aria-expanded', 'false');
       el('cmComposerBody').value = '';
       el('cmComposerLevel').value = '';
