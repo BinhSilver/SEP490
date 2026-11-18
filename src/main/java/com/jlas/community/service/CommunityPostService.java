@@ -36,6 +36,12 @@ public class CommunityPostService {
     /** Đăng bài; trả về mục feed để FE chèn ngay đầu danh sách. */
     @Transactional
     public FeedItem create(Long viewerId, String body, String jlptLevel) {
+        return create(viewerId, body, jlptLevel, null);
+    }
+
+    /** Đăng bài; {@code afterSave} (có thể null) chạy trong cùng transaction với id bài mới, vd. gắn ảnh/video. */
+    @Transactional
+    public FeedItem create(Long viewerId, String body, String jlptLevel, java.util.function.LongConsumer afterSave) {
         String text = clean(body);
         String level = level(jlptLevel);
         actionPolicy.assertCanAct(viewerId);
@@ -43,6 +49,7 @@ public class CommunityPostService {
                 .authorId(viewerId).body(text).jlptLevel(level).build());
         // Dòng trạng thái tạo ngay khi đăng (bộ đếm = 0) để bình luận/báo cáo dùng chung cơ chế khoá dòng.
         contents.ensureRow(CommunityContentType.POST, post.getId());
+        if (afterSave != null) afterSave.accept(post.getId());
         return feed.item(access.load(CommunityContentType.POST, post.getId()), viewerId);
     }
 
@@ -100,7 +107,7 @@ public class CommunityPostService {
     }
 
     /** Giữ nguyên xuống dòng (chuẩn hoá về \n), bỏ khoảng trắng hai đầu; 1-5000 ký tự. */
-    static String clean(String body) {
+    public static String clean(String body) {
         String text = body == null ? "" : body.replace("\r\n", "\n").replace('\r', '\n').strip();
         if (text.isEmpty()) throw new ApiException(ErrorCode.BAD_REQUEST, "Nội dung bài viết không được để trống");
         if (text.length() > CommunityPost.MAX_LENGTH) {

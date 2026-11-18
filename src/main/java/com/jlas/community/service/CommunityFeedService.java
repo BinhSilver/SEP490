@@ -5,6 +5,7 @@ import com.jlas.common.exception.ErrorCode;
 import com.jlas.community.dto.CommunityDtos.AuthorDto;
 import com.jlas.community.dto.CommunityDtos.CommentDto;
 import com.jlas.community.dto.CommunityDtos.FeedItem;
+import com.jlas.community.dto.CommunityDtos.MediaDto;
 import com.jlas.community.dto.CommunityDtos.Meta;
 import com.jlas.community.dto.CommunityDtos.Option;
 import com.jlas.community.dto.CommunityDtos.PageResult;
@@ -61,6 +62,7 @@ public class CommunityFeedService {
     private final CommunityPostRepository posts;
     private final ModerationAuditLogRepository moderationAudit;
     private final NamedParameterJdbcTemplate jdbc;
+    private final CommunityPostMediaService postMedia;
 
     public enum Sort {
         NEWEST("Mới nhất", "f.created_at DESC, f.content_id DESC"),
@@ -168,14 +170,17 @@ public class CommunityFeedService {
                     created == null ? null : created.toLocalDateTime(),
                     communityId == null ? null : ((Number) communityId).longValue());
         });
-        // Hai truy vấn gộp cho cả trang (không N+1): cờ "đã chỉnh sửa" của bài viết + vài bình luận mới nhất.
-        Set<Long> editedPosts = editedPosts(rows.stream()
-                .filter(r -> CommunityContentType.POST.equals(r.contentType())).map(Row::contentId).toList());
+        // Truy vấn gộp cho cả trang (không N+1): cờ "đã chỉnh sửa" + ảnh/video của bài viết + vài bình luận mới nhất.
+        List<Long> postIds = rows.stream()
+                .filter(r -> CommunityContentType.POST.equals(r.contentType())).map(Row::contentId).toList();
+        Set<Long> editedPosts = editedPosts(postIds);
+        Map<Long, List<MediaDto>> media = postMedia.forPosts(postIds);
         Map<Long, List<CommentDto>> recent = recentComments(rows.stream().map(Row::communityId)
                 .filter(Objects::nonNull).toList(), viewerId, true);   // feed chỉ có nội dung công khai
         List<FeedItem> items = rows.stream().map(r -> toItem(r, CommunityStatus.PUBLISHED.name(), true,
                 CommunityContentType.POST.equals(r.contentType()) && editedPosts.contains(r.contentId()),
-                viewerId, r.communityId() == null ? List.of() : recent.getOrDefault(r.communityId(), List.of())))
+                viewerId, r.communityId() == null ? List.of() : recent.getOrDefault(r.communityId(), List.of()),
+                media.getOrDefault(r.contentId(), List.of())))
                 .toList();
         int totalPages = (int) ((totalElements + size - 1) / size);
         return new PageResult<>(items, page, size, totalElements, totalPages);
@@ -199,7 +204,9 @@ public class CommunityFeedService {
                 access.author(source.ownerId()), row == null ? 0 : row.getRatingAvg().doubleValue(),
                 row == null ? 0 : row.getRatingCount(), row == null ? 0 : row.getCommentCount(), null,
                 source.createdAt(), row == null ? null : row.getId());
-        FeedItem item = toItem(r, target.status(), target.publicNow(), edited, viewerId, recent);
+        List<MediaDto> media = CommunityContentType.POST.equals(source.contentType())
+                ? postMedia.forPosts(List.of(source.contentId())).getOrDefault(source.contentId(), List.of()) : List.of();
+        FeedItem item = toItem(r, target.status(), target.publicNow(), edited, viewerId, recent, media);
         // Bài đã bị gỡ: chủ bài / kiểm duyệt viên thấy lý do (lần chuyển sang REMOVED gần nhất trong nhật ký kiểm duyệt,
         // gồm cả gỡ trực tiếp lẫn xử lý báo cáo).
         if (row != null && CommunityStatus.REMOVED.name().equals(target.status())) {
@@ -215,7 +222,7 @@ public class CommunityFeedService {
         return new FeedItem(i.contentType(), i.contentTypeLabel(), i.contentId(), i.title(), i.description(),
                 i.thumbnailUrl(), i.jlptLevel(), i.link(), i.author(), i.ratingAvg(), i.ratingCount(), i.commentCount(),
                 i.myRating(), i.createdAt(), i.status(), i.mine(), i.edited(), i.canRate(), i.canComment(),
-                i.canReport(), i.canEdit(), i.recentComments(), i.canModerate(), note);
+                i.canReport(), i.canEdit(), i.recentComments(), i.canModerate(), note, i.media());
     }
 
     /** Một dòng feed trước khi gắn quyền + bình luận. */
@@ -226,7 +233,7 @@ public class CommunityFeedService {
     }
 
     private FeedItem toItem(Row r, String status, boolean active, boolean edited, Long viewerId,
-                            List<CommentDto> recent) {
+                            List<CommentDto> recent, List<MediaDto> media) {
         boolean mine = viewerId != null && Objects.equals(r.ownerId(), viewerId);
         boolean rateable = access.handler(r.contentType()).map(CommunityContentTypeHandler::supportsRating)
                 .orElse(false);
@@ -236,7 +243,7 @@ public class CommunityFeedService {
                 r.ratingCount(), r.commentCount(), r.myRating(), r.createdAt(), status, mine, edited,
                 active && rateable && !mine, active, active && !mine,
                 post && mine && !CommunityStatus.REMOVED.name().equals(status), recent,
-                post && CommunityAccessService.isModerator() && !CommunityStatus.REMOVED.name().equals(status), null);
+                post && CommunityAccessService.isModerator() && !CommunityStatus.REMOVED.name().equals(status), null, media);
     }
 
     private Set<Long> editedPosts(List<Long> postIds) {

@@ -18,11 +18,16 @@ import com.jlas.community.service.CommunityCommentService;
 import com.jlas.community.service.CommunityContentService;
 import com.jlas.community.service.CommunityFeedService;
 import com.jlas.community.service.CommunityModerationService;
+import com.jlas.community.service.CommunityPostMediaService;
 import com.jlas.community.service.CommunityPostService;
 import com.jlas.community.service.CommunityReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +45,7 @@ public class CommunityController {
     private final CommunityReportService reports;
     private final CommunityPostService posts;
     private final CommunityModerationService moderation;
+    private final CommunityPostMediaService postMedia;
 
     @GetMapping("/meta")
     public ResponseEntity<ApiResponse<Meta>> meta() {
@@ -116,6 +122,24 @@ public class CommunityController {
     public ResponseEntity<ApiResponse<FeedItem>> createPost(@Valid @RequestBody PostRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Đã đăng bài viết",
                 posts.create(CurrentUser.requireUserId(), request.body(), request.jlptLevel())));
+    }
+
+    /**
+     * Đăng bài kèm ảnh (≤ 4, JPG/PNG/WebP ≤ 5MB) và/hoặc một video (MP4/WebM ≤ 50MB hoặc link YouTube). Cùng đường dẫn
+     * với bản JSON, phân biệt bằng Content-Type. Kiểm tra chữ + tệp rồi mới tải tệp lên, sau đó lưu bài và gắn media.
+     */
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<FeedItem>> createPostWithMedia(
+            @RequestParam("body") String body,
+            @RequestParam(value = "jlptLevel", required = false) String jlptLevel,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "youtubeUrl", required = false) String youtubeUrl) {
+        Long userId = CurrentUser.requireUserId();
+        CommunityPostService.clean(body);
+        List<CommunityPostMediaService.Stored> stored = postMedia.prepare(images, video, youtubeUrl);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Đã đăng bài viết",
+                posts.create(userId, body, jlptLevel, postId -> postMedia.attach(postId, stored))));
     }
 
     @GetMapping("/posts/{postId}")

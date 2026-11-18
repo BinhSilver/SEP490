@@ -34,11 +34,16 @@
       try { await global.JlasAuth.ready; } catch (ignored) { /* vẫn gọi API, server tự trả 401 */ }
     }
     var response;
+    // options.form (FormData, vd. bài viết kèm ảnh/video): bỏ Content-Type để trình duyệt tự đặt multipart boundary.
+    var requestHeaders = Object.assign({}, headers());
+    if (options.form) {
+      Object.keys(requestHeaders).forEach(function (k) { if (k.toLowerCase() === 'content-type') delete requestHeaders[k]; });
+    }
     try {
       response = await fetch(path, {
         method: options.method || 'GET',
-        headers: headers(),
-        body: options.body === undefined ? undefined : JSON.stringify(options.body)
+        headers: requestHeaders,
+        body: options.form || (options.body === undefined ? undefined : JSON.stringify(options.body))
       });
     } catch (networkError) {
       var offline = new Error('Không kết nối được máy chủ, vui lòng kiểm tra mạng.');

@@ -223,6 +223,32 @@
     return '<p class="cm-banner' + (removed ? ' cm-banner--danger' : '') + '" role="status">' + text + reason + '</p>';
   }
 
+  /**
+   * Ảnh / video của bài viết: ảnh xếp lưới (1–4, bấm mở ảnh gốc ở tab mới), video tải lên dùng trình phát của trình
+   * duyệt (preload=metadata, không tải cả tệp), YouTube nhúng bản youtube-nocookie, lazy.
+   */
+  function mediaHtml(media) {
+    if (!media || !media.length) return '';
+    var images = media.filter(function (m) { return m.kind === 'IMAGE'; });
+    var html = '';
+    if (images.length) {
+      html += '<div class="cm-media-grid cm-media-grid--' + Math.min(images.length, 4) + '">' + images.map(function (m, i) {
+        return '<a class="cm-media-grid__item" href="' + UI.esc(m.url) + '" target="_blank" rel="noopener">' +
+          '<img src="' + UI.esc(m.url) + '" alt="Ảnh ' + (i + 1) + ' trong bài viết" loading="lazy" decoding="async"></a>';
+      }).join('') + '</div>';
+    }
+    media.forEach(function (m) {
+      if (m.kind === 'VIDEO') {
+        html += '<video class="cm-media-video" src="' + UI.esc(m.url) + '" controls preload="metadata" playsinline></video>';
+      } else if (m.kind === 'YOUTUBE') {
+        html += '<div class="cm-media-youtube"><iframe src="' + UI.esc(m.url) + '" title="Video YouTube" loading="lazy"' +
+          ' allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen' +
+          ' referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+      }
+    });
+    return '<div class="cm-media">' + html + '</div>';
+  }
+
   function previewHtml(item) {
     var thumb = item.thumbnailUrl
       ? '<img src="' + UI.esc(UI.safeUrl(item.thumbnailUrl)) + '" alt="" loading="lazy">'
@@ -279,8 +305,8 @@
       (item.edited ? ' · <span class="cm-muted">(đã chỉnh sửa)</span>' : '');
     var body = post
       ? '<div class="cm-post__text" data-role="text">' + UI.esc(item.description) + '</div>' +
-        '<button type="button" class="cm-more" data-act="expand" hidden>Xem thêm</button>'
-      : (item.description ? '<div class="cm-post__text cm-post__text--short" data-role="text">' + UI.esc(item.description) + '</div>' : '') +
+        '<button type="button" class="cm-more" data-act="expand" hidden>Xem thêm</button>' + mediaHtml(item.media)
+      :(item.description ? '<div class="cm-post__text cm-post__text--short" data-role="text">' + UI.esc(item.description) + '</div>' : '') +
         previewHtml(item);
     var count = Number(item.commentCount || 0);
     var actions =

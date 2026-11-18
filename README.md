@@ -257,7 +257,7 @@ it recreates the JLPT tables) followed by `sql/migrations/053_jlpt_admin_update.
 `sql/seeds/jlpt_exam_study_lists.sql` (it needs the JLPT exams above; see `sql/JLPT_STUDY.md`),
 the Learning flow schema and data (`sql/learning/README.md`), then LAST the data migrations
 `sql/migrations/085_question_underline_and_vocab_romaji.sql`, `086_vocab_reading_fix_and_romaji.sql`,
-`087_community_post.sql` and `088_vocab_merge_duplicates.sql` (they update rows the steps above insert;
+`087_community_post.sql`, `088_vocab_merge_duplicates.sql` and `089_community_post_media.sql` (they update rows the steps above insert;
 re-run 085 → 086 → 088 after re-running any seed or learning data file), and `demo_system_admin.sql`.
 On a database built from older seeds, also run `sql/migrations/029_merge_admin_roles.sql`.
 

@@ -36,7 +36,14 @@ public final class CommunityDtos {
                            Integer myRating, LocalDateTime createdAt, String status, boolean mine,
                            boolean edited, boolean canRate, boolean canComment, boolean canReport,
                            boolean canEdit, List<CommentDto> recentComments, boolean canModerate,
-                           String moderationNote) {
+                           String moderationNote, List<MediaDto> media) {
+    }
+
+    /**
+     * Ảnh / video của bài viết. {@code kind}: IMAGE | VIDEO | YOUTUBE. IMAGE/VIDEO: {@code url} là link đọc có chữ ký
+     * (cố định trong một giờ); YOUTUBE: {@code url} là link nhúng youtube-nocookie, {@code youtubeId} là mã video.
+     */
+    public record MediaDto(String kind, String url, String contentType, String youtubeId) {
     }
 
     /** Kiểm duyệt viên gỡ trực tiếp bài viết / bình luận: lý do bắt buộc, 1-500 ký tự. */

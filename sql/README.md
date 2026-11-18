@@ -26,7 +26,7 @@ seed, task/team-specific seeds, dev-only demo seed if needed, and the vnjpclub
 seed last, then the JLPT exams (`jlpt_full_setup.sql`, then migrations `053` → `041` → `054`;
 `041` creates the `jlpt_attempt_history` table that `054` writes to), then the Learning flow
 schema and data (below), followed LAST by the data
-migrations `085` → `086` → `087` → `088` (they update rows the seeds and the learning data
+migrations `085` → `086` → `087` → `088` → `089` (they update rows the seeds and the learning data
 insert; they find vocabulary by its normalized key and learning-data questions by
 `source_code`, never by DB-specific ids). Re-run `085` → `086` → `088` after re-running any
 seed or learning data file. Inspect each file's header before execution. Never use a force mode
@@ -45,7 +45,7 @@ FK and CHECK; re-runnable, upgrades older Learning tables in place), and six dat
 `learning/learning_data_N5.sql` (common data, then N5), `_N4`, `_N3`, `_N2`, `_N1` and
 `_comm` (communication path); all re-runnable and stored with Git LFS (run `git lfs pull`
 after pulling). Run the schema, then the data files in that order, after the normal
-base seeds and migrations and before the data migrations `085` → `086` → `087` → `088`
+base seeds and migrations and before the data migrations `085` → `086` → `087` → `088` → `089`
 (run those again after reloading a learning data file). They replace the former Learning
 migrations 004-015, 022 and seeds `learning_owned.sql` /
 `learning_owned_part2.sql`. New Learning tables and data go into these files, not

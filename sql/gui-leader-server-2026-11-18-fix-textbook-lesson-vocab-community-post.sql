@@ -1,13 +1,14 @@
--- KotsuKotsu / Giáo trình, Community, Từ vựng — 4 migration chạy trên DB server (chạy lại nhiều lần vẫn an toàn). 18/11/2026
--- Nhánh fix/textbook-lesson-vocab-community-post. File này chép NGUYÊN VĂN 4 file sql/migrations/ sau, theo đúng thứ tự:
+-- KotsuKotsu / Giáo trình, Community, Từ vựng — 5 migration chạy trên DB server (chạy lại nhiều lần vẫn an toàn). 18/11/2026
+-- Nhánh fix/textbook-lesson-vocab-community-post. File này chép NGUYÊN VĂN 5 file sql/migrations/ sau, theo đúng thứ tự:
 --   1) 085_question_underline_and_vocab_romaji.sql — gạch chân từ cần hỏi trong câu trắc nghiệm + romaji từ vựng của bài
 --   2) 086_vocab_reading_fix_and_romaji.sql       — sửa cách đọc từ vựng đang chứa chữ Hán + romaji cho từ vừa sửa
 --   3) 087_community_post.sql                     — bảng community_post (Community: bài viết người học tự đăng)
 --   4) 088_vocab_merge_duplicates.sql             — gộp mục từ trùng + cột content_vocabulary.display_order
+--   5) 089_community_post_media.sql               — bảng community_post_media (ảnh/video đính kèm bài viết)
 -- CHẠY SAU: mọi seed, Learning data (sql/learning/learning_data_*.sql) và các migration 076–084 của develop/deploy đã có
 --   trên server — 085/086/088 UPDATE đúng các dòng những file đó chèn; 088 trỏ lại cả tutor_antonym_suggestion (083) nếu
 --   bảng đã có. Không đụng chung bảng với sql/gui-leader-server-2026-11-11.sql, chạy trước hay sau file đó đều được.
--- CHẠY TRƯỚC khi deploy jar có nhánh này: ddl-auto=validate cần community_post (087) và content_vocabulary.display_order (088),
+-- CHẠY TRƯỚC khi deploy jar có nhánh này: ddl-auto=validate cần community_post (087), community_post_media (089) và display_order (088),
 --   thiếu thì app không khởi động.
 -- Chạy lại an toàn: mỗi bước chỉ ghi khi dữ liệu còn đúng bản gốc, bảng/cột chưa có; chạy lần 2 không đổi gì. Sau này nạp lại
 --   seed hoặc Learning data thì chạy lại cả file này.
@@ -21933,3 +21934,30 @@ DROP TEMPORARY TABLE IF EXISTS tmp_vocab_merge_lesson;
 DROP TEMPORARY TABLE IF EXISTS tmp_vocab_merge;
 COMMIT;
 -- END sql/migrations/088_vocab_merge_duplicates.sql
+
+-- 5) 089_community_post_media
+-- BEGIN sql/migrations/089_community_post_media.sql SHA256 85c0e2fa9c7ffe1b3605581e1bfe442f4cb5ed2fea4da5c59c9def9337ae16ca
+-- [JLAS2-37] Community Hub: ảnh / video đính kèm bài viết (community_post).
+--   kind IMAGE   : ảnh đã thu nhỏ (cạnh dài ≤ 1600px), lưu trong container media của Azure Blob; storage_key = tên blob.
+--   kind VIDEO   : video người dùng tải lên (MP4/WebM ≤ 50MB), cũng nằm trên Azure Blob; storage_key = tên blob.
+--   kind YOUTUBE : video YouTube nhúng; storage_key = mã video 11 ký tự (không lưu tệp).
+-- Mỗi bài tối đa 4 ảnh + 1 video (tải lên HOẶC YouTube). Trình duyệt nhận link đọc có chữ ký (không public container).
+-- Xoá bài là xoá mềm (community_post.deleted_at) nên dòng media giữ nguyên; ON DELETE CASCADE chỉ cho xoá cứng.
+-- Chạy SAU 087_community_post.sql. Chạy lại an toàn.
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS community_post_media (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    post_id      BIGINT UNSIGNED NOT NULL,
+    kind         VARCHAR(10)     NOT NULL,
+    storage_key  VARCHAR(300)    NOT NULL,
+    content_type VARCHAR(60)     NULL,
+    size_bytes   BIGINT UNSIGNED NULL,
+    sort_order   INT             NOT NULL DEFAULT 0,
+    created_at   DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_community_post_media_post (post_id, sort_order),
+    CONSTRAINT fk_community_post_media_post FOREIGN KEY (post_id) REFERENCES community_post(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_post_media_kind CHECK (kind IN ('IMAGE', 'VIDEO', 'YOUTUBE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- END sql/migrations/089_community_post_media.sql

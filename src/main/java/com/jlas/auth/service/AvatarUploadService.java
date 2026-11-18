@@ -131,20 +131,23 @@ public class AvatarUploadService implements ModerationTargetHandler {
 
     /** Avatars show at 150px at most; 512px stays sharp on 2x/3x screens. */
     static final int MAX_EDGE = 512;
-    record Shrunk(byte[] bytes, String extension) {}
+    public record Shrunk(byte[] bytes, String extension) {}
 
     /**
      * Scales JPEG/PNG avatars down to MAX_EDGE (PNG with transparency stays PNG, the rest becomes JPEG) and
      * drops their metadata. Keeps the original for WebP (ImageIO cannot read it), small images, JPEGs that
      * rely on an EXIF rotation, and whenever re-encoding fails or would not make the file smaller.
      */
-    static Shrunk shrink(byte[] bytes, String extension) {
+    static Shrunk shrink(byte[] bytes, String extension) { return shrink(bytes, extension, MAX_EDGE); }
+
+    /** Same as {@link #shrink(byte[], String)} with a caller-chosen longest edge (Community post images use 1600px). */
+    public static Shrunk shrink(byte[] bytes, String extension, int maxEdge) {
         Shrunk original = new Shrunk(bytes, extension);
         if ("webp".equals(extension) || hasExifRotation(bytes)) return original;
         try {
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
-            if (image == null || Math.max(image.getWidth(), image.getHeight()) <= MAX_EDGE) return original;
-            double scale = (double) MAX_EDGE / Math.max(image.getWidth(), image.getHeight());
+            if (image == null || Math.max(image.getWidth(), image.getHeight()) <= maxEdge) return original;
+            double scale = (double) maxEdge / Math.max(image.getWidth(), image.getHeight());
             int width = Math.max(1, (int) Math.round(image.getWidth() * scale));
             int height = Math.max(1, (int) Math.round(image.getHeight() * scale));
             boolean alpha = image.getColorModel().hasAlpha();

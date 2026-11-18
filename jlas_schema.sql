@@ -4057,6 +4057,23 @@ CREATE TABLE IF NOT EXISTS community_post (
     CONSTRAINT chk_community_post_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-37] Anh / video dinh kem bai viet Cong dong: IMAGE/VIDEO nam tren Azure Blob (storage_key = ten blob),
+-- YOUTUBE chi luu ma video. Moi bai toi da 4 anh + 1 video. Migration: sql/migrations/089_community_post_media.sql.
+CREATE TABLE IF NOT EXISTS community_post_media (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    post_id      BIGINT UNSIGNED NOT NULL,
+    kind         VARCHAR(10)     NOT NULL,
+    storage_key  VARCHAR(300)    NOT NULL,
+    content_type VARCHAR(60)     NULL,
+    size_bytes   BIGINT UNSIGNED NULL,
+    sort_order   INT             NOT NULL DEFAULT 0,
+    created_at   DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_community_post_media_post (post_id, sort_order),
+    CONSTRAINT fk_community_post_media_post FOREIGN KEY (post_id) REFERENCES community_post(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_post_media_kind CHECK (kind IN ('IMAGE', 'VIDEO', 'YOUTUBE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- [JLAS-KANJI-MAP] Relational source catalog.
 CREATE TABLE IF NOT EXISTS user_kanji_mastery (
     user_id BIGINT UNSIGNED NOT NULL,

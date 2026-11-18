@@ -22,70 +22,91 @@
 <main id="jlabBaseContent">
     <div class="cm-page cm-page--feed">
         <header class="cm-hero cm-hero--compact">
-            <div>
-                <h1 class="cm-title">Cộng đồng</h1>
-                <p class="cm-subtitle">Chia sẻ kinh nghiệm học tiếng Nhật, hỏi đáp và khám phá nội dung người học chia sẻ.</p>
-            </div>
-            <button type="button" class="btn btn--secondary btn--sm cm-filter-toggle" id="cmFilterToggle"
-                    aria-controls="cmSide" aria-expanded="false">
-                <i class="fa-solid fa-sliders" aria-hidden="true"></i> Bộ lọc
-            </button>
+            <h1 class="cm-title">Cộng đồng</h1>
+            <p class="cm-subtitle">Chia sẻ kinh nghiệm học tiếng Nhật, hỏi đáp và khám phá nội dung người học chia sẻ.</p>
         </header>
 
         <div class="cm-layout">
-            <aside class="cm-side" id="cmSide" aria-label="Bộ lọc nội dung">
-                <div class="cm-side__head">
-                    <h2>Bộ lọc</h2>
-                    <button type="button" class="cm-icon-btn" id="cmFilterClose" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-                </div>
-                <form class="cm-filters cm-filters--side" id="cmFilters" role="search" aria-label="Tìm kiếm nội dung cộng đồng">
+            <section class="cm-feed" aria-label="Bảng tin cộng đồng">
+
+                <!-- Thanh công cụ: tìm kiếm (debounce) · nút Bộ lọc (popover pill) · Sắp xếp (áp dụng ngay). -->
+                <div class="cm-toolbar" role="search" aria-label="Tìm kiếm và lọc nội dung cộng đồng">
                     <label class="cm-search">
                         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                         <span class="cm-visually-hidden">Từ khoá</span>
-                        <input type="search" name="keyword" id="cmKeyword" maxlength="100" placeholder="Tìm bài viết, nội dung…" autocomplete="off">
+                        <input type="search" id="cmKeyword" maxlength="100" placeholder="Tìm bài viết, nội dung…" autocomplete="off">
                     </label>
-                    <label class="cm-field">
-                        <span>Loại nội dung</span>
-                        <select name="contentType" id="cmType"><option value="">Tất cả</option></select>
-                    </label>
-                    <label class="cm-field">
-                        <span>Cấp độ</span>
-                        <select name="jlptLevel" id="cmLevel"><option value="">Tất cả</option></select>
-                    </label>
-                    <label class="cm-field">
-                        <span>Đánh giá</span>
-                        <select name="minRating" id="cmRating">
-                            <option value="">Tất cả</option>
-                            <option value="4">Từ 4 sao</option>
-                            <option value="3">Từ 3 sao</option>
-                            <option value="2">Từ 2 sao</option>
-                            <option value="1">Từ 1 sao</option>
-                        </select>
-                    </label>
-                    <label class="cm-field">
-                        <span>Sắp xếp</span>
-                        <select name="sort" id="cmSort"><option value="newest">Mới nhất</option></select>
-                    </label>
-                    <div class="cm-filters__actions">
-                        <button type="submit" class="btn btn--primary btn--sm">Tìm kiếm</button>
-                        <button type="button" class="btn btn--secondary btn--sm" id="cmReset">Xoá lọc</button>
+                    <div class="cm-filter-wrap" id="cmFilterWrap">
+                        <button type="button" class="cm-filter-btn" id="cmFilterToggle" aria-haspopup="dialog" aria-controls="cmSide" aria-expanded="false">
+                            <i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="cm-filter-btn__text">Bộ lọc</span>
+                            <span class="cm-filter-btn__count" id="cmFilterCount" hidden></span>
+                        </button>
+                        <div class="cm-filter-panel" id="cmSide" role="dialog" aria-labelledby="cmFilterTitle">
+                            <div class="cm-side__head">
+                                <h2 id="cmFilterTitle">Bộ lọc</h2>
+                                <button type="button" class="cm-icon-btn" id="cmFilterClose" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="cm-pill-group">
+                                <span class="cm-pill-group__label" id="cmTypeLabel">Loại nội dung</span>
+                                <div class="cm-pills" id="cmTypePills" role="radiogroup" aria-labelledby="cmTypeLabel"></div>
+                            </div>
+                            <div class="cm-pill-group">
+                                <span class="cm-pill-group__label" id="cmLevelLabel">Cấp độ</span>
+                                <div class="cm-pills" id="cmLevelPills" role="radiogroup" aria-labelledby="cmLevelLabel"></div>
+                            </div>
+                            <div class="cm-pill-group">
+                                <span class="cm-pill-group__label" id="cmRatingLabel">Đánh giá</span>
+                                <div class="cm-pills" id="cmRatingPills" role="radiogroup" aria-labelledby="cmRatingLabel"></div>
+                            </div>
+                            <div class="cm-filter-panel__foot">
+                                <button type="button" class="cm-link-btn" id="cmReset">Xoá lọc</button>
+                                <button type="button" class="btn btn--primary btn--sm" id="cmApply">Áp dụng</button>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </aside>
-            <div class="cm-drawer-backdrop" id="cmDrawerBackdrop" hidden></div>
+                    <label class="cm-sort">
+                        <span class="cm-visually-hidden">Sắp xếp</span>
+                        <select id="cmSort"><option value="newest">Mới nhất</option></select>
+                    </label>
+                </div>
+                <div class="cm-drawer-backdrop" id="cmDrawerBackdrop" hidden></div>
+                <div class="cm-active-chips" id="cmChips" aria-label="Bộ lọc đang dùng" hidden></div>
 
-            <section class="cm-feed" aria-label="Bảng tin cộng đồng">
+                <!-- Ô soạn bài (dưới thanh tìm kiếm): chữ + tối đa 4 ảnh + 1 video (tải lên hoặc YouTube). -->
                 <div class="cm-composer" id="cmComposer">
                     <div class="cm-composer__row">
                         <span id="cmComposerAvatar"></span>
                         <button type="button" class="cm-composer__open" id="cmComposerOpen" aria-controls="cmComposerForm" aria-expanded="false">
-                            Bạn muốn chia sẻ gì về việc học tiếng Nhật?
+                            <span id="cmComposerPrompt">Bạn đang nghĩ gì thế?</span>
                         </button>
+                        <div class="cm-composer__quick">
+                            <button type="button" class="cm-quick cm-quick--video" id="cmQuickVideo" title="Video" aria-label="Thêm video">
+                                <i class="fa-solid fa-video" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--photo" id="cmQuickPhoto" title="Ảnh" aria-label="Thêm ảnh">
+                                <i class="fa-solid fa-images" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--youtube" id="cmQuickYoutube" title="Link YouTube" aria-label="Thêm link YouTube">
+                                <i class="fa-brands fa-youtube" aria-hidden="true"></i></button>
+                        </div>
                     </div>
                     <form class="cm-composer__form" id="cmComposerForm" hidden>
                         <label class="cm-visually-hidden" for="cmComposerBody">Nội dung bài viết</label>
                         <textarea id="cmComposerBody" class="cm-composer__input" rows="4" maxlength="5000"
-                                  placeholder="Bạn muốn chia sẻ gì về việc học tiếng Nhật?"></textarea>
+                                  placeholder="Chia sẻ kinh nghiệm, câu hỏi hoặc tài liệu học tiếng Nhật…"></textarea>
+                        <div class="cm-attach-list" id="cmAttachList" hidden></div>
+                        <div class="cm-youtube-row" id="cmYoutubeRow" hidden>
+                            <i class="fa-brands fa-youtube" aria-hidden="true"></i>
+                            <label class="cm-visually-hidden" for="cmYoutubeInput">Link YouTube</label>
+                            <input type="url" id="cmYoutubeInput" placeholder="Dán link YouTube (youtube.com/watch?v=… hoặc youtu.be/…)" autocomplete="off">
+                            <button type="button" class="cm-icon-btn" id="cmYoutubeClear" aria-label="Bỏ link YouTube"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                        </div>
+                        <input type="file" id="cmPickImage" accept="image/jpeg,image/png,image/webp" multiple hidden>
+                        <input type="file" id="cmPickVideo" accept="video/mp4,video/webm" hidden>
+                        <div class="cm-composer__tools">
+                            <span class="cm-composer__tools-label">Thêm vào bài viết</span>
+                            <button type="button" class="cm-quick cm-quick--photo" id="cmToolPhoto" aria-label="Thêm ảnh (tối đa 4, mỗi ảnh ≤ 5MB)" title="Ảnh (tối đa 4, ≤ 5MB/ảnh)"><i class="fa-solid fa-images" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--video" id="cmToolVideo" aria-label="Thêm video (MP4/WebM ≤ 50MB)" title="Video MP4/WebM ≤ 50MB"><i class="fa-solid fa-video" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--youtube" id="cmToolYoutube" aria-label="Thêm link YouTube" title="Link YouTube"><i class="fa-brands fa-youtube" aria-hidden="true"></i></button>
+                        </div>
                         <div class="cm-composer__foot">
                             <label class="cm-composer__level">
                                 <span>Cấp độ</span>
