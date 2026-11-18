@@ -1,23 +1,42 @@
-/** Community Hub: trang feed (/community). Bộ lọc được giữ trên URL để chia sẻ/quay lại. */
+/**
+ * Community Hub: bảng tin /community. Ô soạn bài ở đầu feed, bộ lọc (giữ trên URL để chia sẻ/quay lại) ở cột trái
+ * (drawer trên mobile), feed trộn bài viết + nội dung chia sẻ, tải thêm khi cuộn (IntersectionObserver; trình duyệt
+ * không hỗ trợ thì dùng nút "Xem thêm"). Thẻ và tương tác: community-cards.js.
+ */
 (function () {
   'use strict';
 
   var UI = window.CommunityUI;
-  var PAGE_SIZE = 12;
-  var form = document.getElementById('cmFilters');
-  var grid = document.getElementById('cmGrid');
-  var summary = document.getElementById('cmSummary');
-  var pager = document.getElementById('cmPager');
-  var pageInfo = document.getElementById('cmPageInfo');
-  var fields = {
-    keyword: document.getElementById('cmKeyword'),
-    contentType: document.getElementById('cmType'),
-    jlptLevel: document.getElementById('cmLevel'),
-    minRating: document.getElementById('cmRating'),
-    sort: document.getElementById('cmSort')
-  };
-  var state = { page: 0, totalPages: 0, loading: false };
+  var Cards = window.CommunityCards;
+  var PAGE_SIZE = 10;
+  var MOBILE = window.matchMedia('(max-width: 640px)');          // ô soạn bài mở dạng modal
+  var DRAWER = window.matchMedia('(max-width: 900px)');          // bộ lọc nằm trong drawer (cùng mốc với community.css)
+  var el = function (id) { return document.getElementById(id); };
 
+  var form = el('cmFilters');
+  var feedEl = el('cmFeed');
+  var stateEl = el('cmFeedState');
+  var summary = el('cmSummary');
+  var loadMoreBtn = el('cmLoadMore');
+  var fields = {
+    keyword: el('cmKeyword'),
+    contentType: el('cmType'),
+    jlptLevel: el('cmLevel'),
+    minRating: el('cmRating'),
+    sort: el('cmSort')
+  };
+  // removed: số thẻ đã bỏ khỏi feed (xoá / gỡ / bị ẩn do báo cáo) từ lần tải trang gần nhất — feed phân trang theo
+  // offset nên trang sau phải lùi lại đúng số đó, không thì bỏ sót bài. failed: lần tải trang sau gần nhất bị lỗi →
+  // không tự tải lại khi cuộn (tránh gọi API liên tục), chờ người dùng bấm "Xem thêm".
+  var state = { page: -1, totalPages: 0, loading: false, done: false, failed: false, removed: 0, generation: 0 };
+  var cards = Cards.create(feedEl, {
+    onRemoved: function () {
+      state.removed += 1;
+      if (!cards.count() && state.done) showEmpty();
+    }
+  });
+
+  // ── Bộ lọc ───────────────────────────────────────────────────────────────
   function fillSelect(select, options, keepFirst) {
     var first = keepFirst ? select.options[0].outerHTML : '';
     select.innerHTML = first + options.map(function (o) {
@@ -29,98 +48,205 @@
     var params = new URLSearchParams(window.location.search);
     Object.keys(fields).forEach(function (key) {
       var value = params.get(key);
-      if (value !== null && Array.prototype.some.call(fields[key].options || [{ value: value }], function (o) { return o.value === value; })) {
-        fields[key].value = value;
-      } else if (key === 'keyword' && value !== null) {
-        fields.keyword.value = value;
-      }
+      if (value === null) return;
+      if (key === 'keyword') { fields.keyword.value = value; return; }
+      if (Array.prototype.some.call(fields[key].options, function (o) { return o.value === value; })) fields[key].value = value;
     });
-    state.page = Math.max(0, parseInt(params.get('page') || '0', 10) || 0);
   }
 
-  function query() {
+  function filterParams() {
     var params = new URLSearchParams();
     Object.keys(fields).forEach(function (key) {
       var value = (fields[key].value || '').trim();
       if (value && !(key === 'sort' && value === 'newest')) params.set(key, value);
     });
-    if (state.page > 0) params.set('page', String(state.page));
     return params;
   }
 
-  function card(item) {
-    var thumb = item.thumbnailUrl
-      ? '<img src="' + UI.esc(UI.safeUrl(item.thumbnailUrl)) + '" alt="" loading="lazy">'
-      : '<i class="fa-solid ' + (item.contentType === 'SHADOWING_VIDEO' ? 'fa-film' : 'fa-layer-group') + '" aria-hidden="true"></i>';
-    var author = item.author ? UI.esc(item.author.displayName) : 'Ẩn danh';
-    return '<article class="cm-card">' +
-      '<a class="cm-card__link" href="' + UI.detailUrl(item.contentType, item.contentId) + '">' +
-        '<div class="cm-card__thumb">' + thumb + '</div>' +
-        '<div class="cm-card__body">' +
-          '<div class="cm-badges">' +
-            '<span class="cm-badge">' + UI.esc(item.contentTypeLabel) + '</span>' +
-            (item.jlptLevel ? '<span class="cm-badge cm-badge--level">' + UI.esc(item.jlptLevel) + '</span>' : '') +
-          '</div>' +
-          '<h2 class="cm-card__title">' + UI.esc(item.title) + '</h2>' +
-          (item.description ? '<p class="cm-card__desc">' + UI.esc(item.description) + '</p>' : '') +
-          '<div class="cm-card__meta">' +
-            '<span>' + UI.stars(item.ratingAvg) + ' <b>' + Number(item.ratingAvg || 0).toFixed(1) + '</b> (' + Number(item.ratingCount || 0) + ')</span>' +
-            '<span><i class="fa-regular fa-comment" aria-hidden="true"></i> ' + Number(item.commentCount || 0) + '</span>' +
-          '</div>' +
-          '<p class="cm-card__author"><i class="fa-regular fa-user" aria-hidden="true"></i> ' + author +
-            (item.myRating ? ' · <span class="cm-mine">Bạn đã chấm ' + Number(item.myRating) + '★</span>' : '') + '</p>' +
-        '</div>' +
-      '</a>' +
-    '</article>';
+  function hasFilter() {
+    return Array.from(filterParams().keys()).length > 0;
   }
 
-  function renderState(html) {
-    grid.innerHTML = '<div class="cm-state">' + html + '</div>';
+  // ── Trạng thái ───────────────────────────────────────────────────────────
+  function skeleton() {
+    var one = '<div class="cm-post cm-skeleton" aria-hidden="true"><div class="cm-post__head"><span class="cm-sk cm-sk--avatar"></span>' +
+      '<div class="cm-post__who"><span class="cm-sk cm-sk--line" style="width:40%"></span><span class="cm-sk cm-sk--line" style="width:25%"></span></div></div>' +
+      '<span class="cm-sk cm-sk--line"></span><span class="cm-sk cm-sk--line"></span><span class="cm-sk cm-sk--line" style="width:60%"></span></div>';
+    stateEl.innerHTML = '<span class="cm-visually-hidden">Đang tải bảng tin…</span>' + one + one + one;
   }
 
-  async function load(pushUrl) {
-    if (state.loading) return;
+  function showEmpty() {
+    stateEl.innerHTML = '<div class="cm-state"><i class="fa-regular fa-comments" aria-hidden="true"></i>' +
+      (hasFilter()
+        ? '<p><b>Chưa có nội dung phù hợp</b></p><p class="cm-muted">Thử đổi từ khoá hoặc bỏ bớt bộ lọc.</p>'
+        : '<p><b>Bảng tin còn trống</b></p><p class="cm-muted">Hãy là người đầu tiên chia sẻ kinh nghiệm học tiếng Nhật!</p>') +
+      '</div>';
+  }
+
+  function showError(message) {
+    stateEl.innerHTML = '<div class="cm-state"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>' + UI.esc(message) + '</p>' +
+      '<button type="button" class="btn btn--secondary btn--sm" id="cmRetry">Thử lại</button></div>';
+    el('cmRetry').addEventListener('click', function () { state.failed = false; loadNext(); });
+  }
+
+  // ── Tải feed ─────────────────────────────────────────────────────────────
+  async function loadNext() {
+    if (state.loading || state.done) return;
     state.loading = true;
-    grid.setAttribute('aria-busy', 'true');
-    renderState('<span class="cm-spinner" aria-hidden="true"></span> Đang tải nội dung…');
-    pager.hidden = true;
-    var params = query();
-    if (pushUrl) {
-      var url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-      window.history.replaceState(null, '', url);
-    }
+    var generation = state.generation;
+    // Lùi offset theo số thẻ đã bỏ: tải lại phần trùng (bỏ qua nhờ cards.add) thay vì bỏ sót bài.
+    var page = state.page < 0 ? 0 : Math.floor(Math.max(0, (state.page + 1) * PAGE_SIZE - state.removed) / PAGE_SIZE);
+    if (page === 0 && state.page < 0) skeleton();
+    feedEl.setAttribute('aria-busy', 'true');
+    loadMoreBtn.hidden = true;
+    var params = filterParams();
+    params.set('page', String(page));
     params.set('size', String(PAGE_SIZE));
-    params.set('page', String(state.page));
     try {
       var data = await UI.api('/api/community/contents?' + params.toString());
+      if (generation !== state.generation) return;
+      state.page = page;
+      state.removed = 0;
+      state.failed = false;
       state.totalPages = data.totalPages;
-      if (!data.items.length) {
-        summary.textContent = '';
-        renderState('<i class="fa-regular fa-folder-open" aria-hidden="true"></i>' +
-          '<p><b>Chưa có nội dung phù hợp</b></p><p class="cm-muted">Thử đổi từ khoá hoặc bỏ bớt bộ lọc.</p>');
-      } else {
-        summary.textContent = 'Tìm thấy ' + data.totalElements + ' nội dung';
-        grid.innerHTML = data.items.map(card).join('');
-        if (data.totalPages > 1) {
-          pager.hidden = false;
-          pageInfo.textContent = 'Trang ' + (data.page + 1) + '/' + data.totalPages;
-          pager.querySelector('[data-step="-1"]').disabled = data.page <= 0;
-          pager.querySelector('[data-step="1"]').disabled = data.page + 1 >= data.totalPages;
-        }
-      }
+      state.done = page + 1 >= data.totalPages;
+      stateEl.innerHTML = '';
+      cards.add(data.items);
+      summary.textContent = hasFilter() ? 'Tìm thấy ' + data.totalElements + ' mục' : '';
+      if (!cards.count()) showEmpty();
+      else if (!state.done && !('IntersectionObserver' in window)) loadMoreBtn.hidden = false;
     } catch (error) {
-      summary.textContent = '';
-      renderState('<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><p>' + UI.esc(error.message) + '</p>' +
-        '<button type="button" class="btn btn--secondary btn--sm" id="cmRetry">Thử lại</button>');
-      var retry = document.getElementById('cmRetry');
-      if (retry) retry.addEventListener('click', function () { load(false); });
+      if (generation !== state.generation) return;
+      if (state.page < 0) showError(error.message);
+      else { state.failed = true; UI.toast(error.message, 'error'); loadMoreBtn.hidden = false; }
     } finally {
-      state.loading = false;
-      grid.setAttribute('aria-busy', 'false');
+      if (generation === state.generation) {
+        state.loading = false;
+        feedEl.setAttribute('aria-busy', 'false');
+        // Sentinel vẫn trong khung nhìn (trang ngắn) thì quan sát lại để tải tiếp, không gọi API thừa. Vừa lỗi thì
+        // KHÔNG quan sát lại (sentinel vẫn trong khung nhìn sẽ gọi lại ngay, thành vòng lặp) — chờ bấm "Xem thêm".
+        if (observer && !state.done && !state.failed) { observer.unobserve(el('cmSentinel')); observer.observe(el('cmSentinel')); }
+      }
     }
   }
 
+  function reload() {
+    state.generation += 1;
+    state.page = -1;
+    state.done = false;
+    state.failed = false;
+    state.removed = 0;
+    state.loading = false;
+    cards.clear();
+    var params = filterParams();
+    window.history.replaceState(null, '', window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+    closeDrawer();
+    loadNext();
+  }
+
+  var observer = null;
+  if ('IntersectionObserver' in window) {
+    observer = new IntersectionObserver(function (entries) {
+      if (entries.some(function (e) { return e.isIntersecting; }) && state.page >= 0 && !state.failed) loadNext();
+    }, { rootMargin: '600px 0px' });
+    observer.observe(el('cmSentinel'));
+  }
+  loadMoreBtn.addEventListener('click', function () { state.failed = false; loadNext(); });
+
+  // ── Ô soạn bài ───────────────────────────────────────────────────────────
+  var composer = {
+    pending: false,
+    open: function () {
+      if (MOBILE.matches) {
+        Cards.editor.open({ title: 'Tạo bài viết', submitLabel: 'Đăng', body: '', level: '', onSubmit: publish });
+        return;
+      }
+      el('cmComposerForm').hidden = false;
+      el('cmComposerOpen').setAttribute('aria-expanded', 'true');
+      el('cmComposerBody').focus();
+    },
+    close: function () {
+      el('cmComposerForm').hidden = true;
+      el('cmComposerOpen').setAttribute('aria-expanded', 'false');
+      el('cmComposerBody').value = '';
+      el('cmComposerLevel').value = '';
+      this.update();
+    },
+    update: function () {
+      var value = el('cmComposerBody').value;
+      var counter = el('cmComposerCount');
+      counter.textContent = value.length + '/' + Cards.MAX_POST;
+      counter.classList.toggle('is-over', value.length > Cards.MAX_POST);
+      el('cmComposerSubmit').disabled = this.pending || !value.trim() || value.length > Cards.MAX_POST;
+    }
+  };
+
+  /** Đăng bài (dùng cho cả ô soạn trên desktop lẫn modal trên mobile); bài mới chèn đầu feed, không tải lại trang. */
+  async function publish(body, level) {
+    var item = await UI.api('/api/community/posts', { method: 'POST', body: { body: body, jlptLevel: level || null } });
+    stateEl.innerHTML = '';
+    cards.prepend(item);
+    UI.toast('Đã đăng bài viết', 'success');
+  }
+
+  el('cmComposerOpen').addEventListener('click', function () { composer.open(); });
+  el('cmComposerCancel').addEventListener('click', function () { composer.close(); });
+  el('cmComposerBody').addEventListener('input', function () { composer.update(); });
+  el('cmComposerForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    if (composer.pending) return;   // chống bấm Đăng 2 lần
+    var body = el('cmComposerBody').value;
+    if (!body.trim()) { UI.toast('Nội dung bài viết không được để trống', 'warning'); return; }
+    if (body.length > Cards.MAX_POST) { UI.toast('Bài viết tối đa 5000 ký tự', 'warning'); return; }
+    composer.pending = true;
+    composer.update();
+    try {
+      await publish(body, el('cmComposerLevel').value);
+      composer.pending = false;
+      composer.close();
+    } catch (error) {
+      UI.toast(error.message, 'error');
+    } finally {
+      composer.pending = false;
+      composer.update();
+    }
+  });
+
+  // ── Drawer bộ lọc (mobile) ───────────────────────────────────────────────
+  function openDrawer() {
+    el('cmSide').classList.add('is-open');
+    el('cmDrawerBackdrop').hidden = false;
+    el('cmFilterToggle').setAttribute('aria-expanded', 'true');
+    fields.keyword.focus();
+  }
+
+  function closeDrawer() {
+    if (!el('cmSide').classList.contains('is-open')) return;
+    el('cmSide').classList.remove('is-open');
+    el('cmDrawerBackdrop').hidden = true;
+    el('cmFilterToggle').setAttribute('aria-expanded', 'false');
+  }
+
+  el('cmFilterToggle').addEventListener('click', openDrawer);
+  el('cmFilterClose').addEventListener('click', closeDrawer);
+  el('cmDrawerBackdrop').addEventListener('click', closeDrawer);
+  // Escape khi đang có hộp thoại: hộp thoại tự đóng (CommunityUI), drawer giữ nguyên.
+  document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !UI.hasOpenModal()) closeDrawer(); });
+
+  form.addEventListener('submit', function (event) { event.preventDefault(); reload(); });
+  // Bộ lọc nằm trong drawer (≤ 900px, cùng mốc với CSS): chờ bấm "Tìm kiếm" để kết hợp nhiều điều kiện, không tải lại
+  // và đóng drawer sau mỗi lần đổi một ô.
+  ['contentType', 'jlptLevel', 'minRating', 'sort'].forEach(function (key) {
+    fields[key].addEventListener('change', function () { if (!DRAWER.matches) reload(); });
+  });
+  el('cmReset').addEventListener('click', function () {
+    form.reset();
+    fields.sort.value = 'newest';
+    reload();
+  });
+
   async function init() {
+    el('cmComposerAvatar').innerHTML = UI.avatar(UI.currentAuthor());
     try {
       var meta = await UI.api('/api/community/meta');
       fillSelect(fields.contentType, meta.contentTypes, true);
@@ -130,30 +256,8 @@
       UI.toast(error.message, 'error');
     }
     readUrl();
-    load(false);
+    loadNext();
   }
-
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    state.page = 0;
-    load(true);
-  });
-  ['contentType', 'jlptLevel', 'minRating', 'sort'].forEach(function (key) {
-    fields[key].addEventListener('change', function () { state.page = 0; load(true); });
-  });
-  document.getElementById('cmReset').addEventListener('click', function () {
-    form.reset();
-    fields.sort.value = 'newest';
-    state.page = 0;
-    load(true);
-  });
-  pager.addEventListener('click', function (event) {
-    var button = event.target.closest('[data-step]');
-    if (!button || button.disabled) return;
-    state.page = Math.min(Math.max(0, state.page + Number(button.dataset.step)), Math.max(0, state.totalPages - 1));
-    load(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
 
   init();
 })();

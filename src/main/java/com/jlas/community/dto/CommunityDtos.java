@@ -1,6 +1,7 @@
 package com.jlas.community.dto;
 
 import com.jlas.community.entity.CommunityComment;
+import com.jlas.community.entity.CommunityPost;
 import com.jlas.community.enums.ReportReason;
 import com.jlas.community.enums.ReportTargetType;
 import jakarta.validation.constraints.Max;
@@ -24,10 +25,34 @@ public final class CommunityDtos {
     public record PageResult<T>(List<T> items, int page, int size, long totalElements, int totalPages) {
     }
 
+    /**
+     * Một mục trên feed (bài viết POST hoặc nội dung chia sẻ). Bài viết: {@code description} là toàn bộ nội dung,
+     * {@code title} chỉ là đoạn trích. Các cờ can* đã tính theo quyền người xem; {@code recentComments} là vài bình
+     * luận mới nhất (cũ → mới) hiện ngay dưới bài, nạp một lần cho cả trang.
+     */
     public record FeedItem(String contentType, String contentTypeLabel, Long contentId, String title,
                            String description, String thumbnailUrl, String jlptLevel, String link,
                            AuthorDto author, double ratingAvg, int ratingCount, int commentCount,
-                           Integer myRating, LocalDateTime createdAt) {
+                           Integer myRating, LocalDateTime createdAt, String status, boolean mine,
+                           boolean edited, boolean canRate, boolean canComment, boolean canReport,
+                           boolean canEdit, List<CommentDto> recentComments, boolean canModerate,
+                           String moderationNote) {
+    }
+
+    /** Kiểm duyệt viên gỡ trực tiếp bài viết / bình luận: lý do bắt buộc, 1-500 ký tự. */
+    public record RemoveRequest(
+            @NotBlank(message = "Vui lòng nhập lý do gỡ")
+            @Size(max = 500, message = "Lý do tối đa 500 ký tự")
+            String reason) {
+    }
+
+    /** Đăng/sửa bài viết. {@code jlptLevel}: N5..N1, rỗng = Chung. Độ dài kiểm tra lại ở service (sau khi trim). */
+    public record PostRequest(
+            @NotBlank(message = "Nội dung bài viết không được để trống")
+            @Size(max = CommunityPost.MAX_LENGTH, message = "Bài viết tối đa 5000 ký tự")
+            String body,
+            @Size(max = 10, message = "Cấp độ không hợp lệ")
+            String jlptLevel) {
     }
 
     /**
@@ -59,9 +84,10 @@ public final class CommunityDtos {
             String body) {
     }
 
+    /** {@code canRemove}: người xem là MODERATOR/ADMIN và bình luận chưa bị gỡ (nút "Gỡ" trực tiếp). */
     public record CommentDto(Long id, AuthorDto author, String body, String status, boolean hidden,
                              boolean mine, boolean canEdit, boolean canDelete, boolean canReport,
-                             boolean edited, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                             boolean edited, LocalDateTime createdAt, LocalDateTime updatedAt, boolean canRemove) {
     }
 
     /**

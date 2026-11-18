@@ -11,8 +11,8 @@
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261108-plum)}"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
+    <link rel="stylesheet" th:href="@{/css/pages/community.css}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -20,62 +20,109 @@
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent">
-    <div class="cm-page">
-        <header class="cm-hero">
+    <div class="cm-page cm-page--feed">
+        <header class="cm-hero cm-hero--compact">
             <div>
                 <h1 class="cm-title">Cộng đồng</h1>
-                <p class="cm-subtitle">Khám phá nội dung học do người học chia sẻ công khai: đánh giá, bình luận và báo cáo nội dung không phù hợp.</p>
+                <p class="cm-subtitle">Chia sẻ kinh nghiệm học tiếng Nhật, hỏi đáp và khám phá nội dung người học chia sẻ.</p>
             </div>
+            <button type="button" class="btn btn--secondary btn--sm cm-filter-toggle" id="cmFilterToggle"
+                    aria-controls="cmSide" aria-expanded="false">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i> Bộ lọc
+            </button>
         </header>
 
-        <form class="cm-filters" id="cmFilters" role="search" aria-label="Tìm kiếm nội dung cộng đồng">
-            <label class="cm-search">
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <span class="cm-visually-hidden">Từ khoá</span>
-                <input type="search" name="keyword" id="cmKeyword" maxlength="100" placeholder="Tìm theo tên hoặc mô tả…" autocomplete="off">
-            </label>
-            <label class="cm-field">
-                <span>Loại nội dung</span>
-                <select name="contentType" id="cmType"><option value="">Tất cả</option></select>
-            </label>
-            <label class="cm-field">
-                <span>Cấp độ</span>
-                <select name="jlptLevel" id="cmLevel"><option value="">Tất cả</option></select>
-            </label>
-            <label class="cm-field">
-                <span>Đánh giá</span>
-                <select name="minRating" id="cmRating">
-                    <option value="">Tất cả</option>
-                    <option value="4">Từ 4 sao</option>
-                    <option value="3">Từ 3 sao</option>
-                    <option value="2">Từ 2 sao</option>
-                    <option value="1">Từ 1 sao</option>
-                </select>
-            </label>
-            <label class="cm-field">
-                <span>Sắp xếp</span>
-                <select name="sort" id="cmSort"><option value="newest">Mới nhất</option></select>
-            </label>
-            <div class="cm-filters__actions">
-                <button type="submit" class="btn btn--primary btn--sm">Tìm kiếm</button>
-                <button type="button" class="btn btn--secondary btn--sm" id="cmReset">Xoá lọc</button>
-            </div>
-        </form>
+        <div class="cm-layout">
+            <aside class="cm-side" id="cmSide" aria-label="Bộ lọc nội dung">
+                <div class="cm-side__head">
+                    <h2>Bộ lọc</h2>
+                    <button type="button" class="cm-icon-btn" id="cmFilterClose" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+                <form class="cm-filters cm-filters--side" id="cmFilters" role="search" aria-label="Tìm kiếm nội dung cộng đồng">
+                    <label class="cm-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span class="cm-visually-hidden">Từ khoá</span>
+                        <input type="search" name="keyword" id="cmKeyword" maxlength="100" placeholder="Tìm bài viết, nội dung…" autocomplete="off">
+                    </label>
+                    <label class="cm-field">
+                        <span>Loại nội dung</span>
+                        <select name="contentType" id="cmType"><option value="">Tất cả</option></select>
+                    </label>
+                    <label class="cm-field">
+                        <span>Cấp độ</span>
+                        <select name="jlptLevel" id="cmLevel"><option value="">Tất cả</option></select>
+                    </label>
+                    <label class="cm-field">
+                        <span>Đánh giá</span>
+                        <select name="minRating" id="cmRating">
+                            <option value="">Tất cả</option>
+                            <option value="4">Từ 4 sao</option>
+                            <option value="3">Từ 3 sao</option>
+                            <option value="2">Từ 2 sao</option>
+                            <option value="1">Từ 1 sao</option>
+                        </select>
+                    </label>
+                    <label class="cm-field">
+                        <span>Sắp xếp</span>
+                        <select name="sort" id="cmSort"><option value="newest">Mới nhất</option></select>
+                    </label>
+                    <div class="cm-filters__actions">
+                        <button type="submit" class="btn btn--primary btn--sm">Tìm kiếm</button>
+                        <button type="button" class="btn btn--secondary btn--sm" id="cmReset">Xoá lọc</button>
+                    </div>
+                </form>
+            </aside>
+            <div class="cm-drawer-backdrop" id="cmDrawerBackdrop" hidden></div>
 
-        <p class="cm-summary" id="cmSummary" aria-live="polite"></p>
-        <section class="cm-grid" id="cmGrid" aria-live="polite" aria-busy="true"></section>
+            <section class="cm-feed" aria-label="Bảng tin cộng đồng">
+                <div class="cm-composer" id="cmComposer">
+                    <div class="cm-composer__row">
+                        <span id="cmComposerAvatar"></span>
+                        <button type="button" class="cm-composer__open" id="cmComposerOpen" aria-controls="cmComposerForm" aria-expanded="false">
+                            Bạn muốn chia sẻ gì về việc học tiếng Nhật?
+                        </button>
+                    </div>
+                    <form class="cm-composer__form" id="cmComposerForm" hidden>
+                        <label class="cm-visually-hidden" for="cmComposerBody">Nội dung bài viết</label>
+                        <textarea id="cmComposerBody" class="cm-composer__input" rows="4" maxlength="5000"
+                                  placeholder="Bạn muốn chia sẻ gì về việc học tiếng Nhật?"></textarea>
+                        <div class="cm-composer__foot">
+                            <label class="cm-composer__level">
+                                <span>Cấp độ</span>
+                                <select id="cmComposerLevel">
+                                    <option value="">Chung</option>
+                                    <option value="N5">N5</option>
+                                    <option value="N4">N4</option>
+                                    <option value="N3">N3</option>
+                                    <option value="N2">N2</option>
+                                    <option value="N1">N1</option>
+                                </select>
+                            </label>
+                            <span class="cm-composer__count" id="cmComposerCount">0/5000</span>
+                            <button type="button" class="btn btn--secondary btn--sm" id="cmComposerCancel">Huỷ</button>
+                            <button type="submit" class="btn btn--primary btn--sm" id="cmComposerSubmit" disabled>Đăng</button>
+                        </div>
+                    </form>
+                </div>
 
-        <nav class="cm-pager" id="cmPager" aria-label="Phân trang" hidden>
-            <button type="button" class="btn btn--secondary btn--sm" data-step="-1">Trang trước</button>
-            <span id="cmPageInfo"></span>
-            <button type="button" class="btn btn--secondary btn--sm" data-step="1">Trang sau</button>
-        </nav>
+                <p class="cm-summary" id="cmSummary" aria-live="polite"></p>
+                <div class="cm-feed__list" id="cmFeed" aria-live="polite" aria-busy="true"></div>
+                <div id="cmFeedState"></div>
+                <div class="cm-feed__sentinel" id="cmSentinel" aria-hidden="true"></div>
+                <div class="cm-feed__more">
+                    <button type="button" class="btn btn--secondary btn--sm" id="cmLoadMore" hidden>Xem thêm</button>
+                </div>
+            </section>
+        </div>
     </div>
+
+    <th:block th:replace="~{community/modals :: modals}"></th:block>
 </main>
 
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/community-common.js(v=20261102)}"></script>
-<script th:src="@{/js/pages/community-feed.js(v=20261102)}"></script>
+<script th:src="@{/js/pages/community-common.js}"></script>
+<script th:src="@{/js/pages/community-cards.js}"></script>
+<script th:src="@{/js/pages/community-feed.js}"></script>
 </body>
 </html>
