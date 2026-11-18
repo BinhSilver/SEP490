@@ -540,7 +540,7 @@ public class JpathAiExplainService {
         if (raw == null || raw.isBlank()) return "JPATH_CHECK";
         String up = raw.trim().toUpperCase();
         return switch (up) {
-            case "JPATH_CHECK", "JPATH_SKILL", "CPATH_ROLEPLAY", "CPATH_WEEKLY" -> up;
+            case "JPATH_CHECK", "JPATH_SKILL", "CPATH_ROLEPLAY", "CPATH_WEEKLY", "CPATH_CORE" -> up;
             default -> "JPATH_CHECK";
         };
     }

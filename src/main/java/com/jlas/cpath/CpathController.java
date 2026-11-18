@@ -194,6 +194,13 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", roleplay.get(user.userId(), scope, code)));
     }
 
+    @PostMapping("/roleplay/pick")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> quickRoleplayPick(
+            @AuthenticationPrincipal UserPrincipal user, @RequestParam String code,
+            @RequestParam String questionId, @RequestParam int optionIndex) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", roleplay.quickPick(user.userId(), code, questionId, optionIndex)));
+    }
+
     @PostMapping(value = "/roleplay", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Map<String, Object>>> submitRoleplay(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam String scope, @RequestParam(required = false) String code,
@@ -278,6 +285,12 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> submitReview(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitReview(user.userId(), body)));
+    }
+
+    @PostMapping("/review/pick")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> reviewPick(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam String questionId, @RequestParam int optionIndex) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewPick(user.userId(), questionId, optionIndex)));
     }
 
     /** The slider: 1 or 2 situations a day. */

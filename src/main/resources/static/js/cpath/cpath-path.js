@@ -742,10 +742,6 @@
       + '</div>'
       + '</div>'
       + '<div class="jp-parts__banner-sub">'
-      + '<details class="cp-goal-switch" data-tour="cp-goal"><summary class="jp-btn">Đổi / thêm mục tiêu</summary>'
-      + '<a href="/survey?edit=goal">Đổi mục tiêu chính</a> · '
-      + '<a href="/learning/comm/survey?secondary=1">Thêm mục tiêu phụ</a> · '
-      + '<a href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></details>'
       + '<div class="jp-parts__legend" aria-label="Chú giải bản đồ">'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--done"><span class="jp-parts__legend-ic">' + svgMedal('jp-parts__legend-svg') + '</span>Đã học</span>'
       + '<span class="jp-parts__legend-pill jp-parts__legend-pill--today"><span class="jp-parts__legend-ic">' + svgStar() + '</span>Hôm nay</span>'
@@ -830,15 +826,16 @@
       + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
       + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
-      + '<span>Mỗi ngày</span>'
+      + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
+      + '<span class="cp-goal-card__pace-options">'
       + [1, 2].map(function (n) {
         return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
           + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
       }).join('')
-      + '<span>tình huống</span></div>'
-      + '<a class="cp-goal-card__link" href="/learning/comm/settings">Cài đặt nhịp học và ngày nghỉ</a>'
+      + '</span></div>'
+      + '<a class="cp-goal-card__link" data-tour="cp-goal" href="/learning/comm/settings">Cài đặt lộ trình</a>'
       + (sec
-        ? '<div class="cp-goal-card__sec"><span class="cp-goal-card__tag">Lộ trình phụ · học tự do</span>'
+        ? '<div class="cp-goal-card__sec"><span class="cp-goal-card__tag">Học tự do · lộ trình phụ</span>'
           + '<strong class="cp-goal-card__name">' + esc(sec.nameVi) + '</strong>'
           + (sec.totalSituations ? '<span class="cp-goal-card__meta">' + esc(sec.doneSituations || 0) + '/' + esc(sec.totalSituations) + ' tình huống</span>' : '')
           + (sec.next ? '<a class="cp-goal-card__link" href="' + esc(pageUrl('situation', { id: sec.next.id })) + '">Học tiếp: ' + esc(sec.next.titleVi) + '</a>' : '')
@@ -1017,7 +1014,7 @@
       { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–2 tình huống giao tiếp. Bấm Học tiếp để vào tình huống kế tiếp.' },
       { target: '[data-tour="cp-map"]', text: 'Bản đồ theo tuần: mỗi tình huống có 4 bước, cuối tuần có bài kiểm tra để mở tuần sau.' },
       { target: '[data-tour="cp-pace"]', text: 'Chọn học 1 hay 2 tình huống mỗi ngày; đổi lúc nào cũng được.' },
-      { target: '[data-tour="cp-goal"]', text: 'Đổi mục tiêu chính hoặc thêm mục tiêu phụ ở đây; tiến độ đã học vẫn được giữ.' }
+      { target: '[data-tour="cp-goal"]', text: 'Vào Cài đặt lộ trình để đổi mục tiêu chính hoặc thêm mục tiêu phụ; tiến độ đã học vẫn được giữ.' }
     ];
     function startTour() {
       var tour = root.JpathTour;

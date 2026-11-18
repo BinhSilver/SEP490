@@ -129,6 +129,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final int SKILL_QUIZ_SIZE = 10;
     /** Grammar reviews outside a TODAY round (no plan cap). */
     static final int REVIEW_ROOM_DEFAULT = 10;
+    /** F137: topic/week-known checks allowed per learner study day. */
+    static final int KNOWN_CHECKS_PER_DAY = 3;
     /** Grace on top of the question timer for network latency. */
     static final long TIMER_GRACE_MS = 2000;
 
@@ -138,6 +140,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private static final Set<JpathCheckKind> FREE_KINDS = EnumSet.of(JpathCheckKind.SKIP_ONE,
             JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.WEEK_KNOWN);
+    private static final Set<JpathCheckKind> RETRY_PRACTICE_KINDS = EnumSet.of(JpathCheckKind.MICRO_CHECK,
+            JpathCheckKind.GROUP_EXERCISE, JpathCheckKind.CONFUSABLE, JpathCheckKind.GRAMMAR_PRACTICE,
+            JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.GRAMMAR_REVIEW, JpathCheckKind.SKILL_LESSON,
+            JpathCheckKind.SKILL_PRACTICE, JpathCheckKind.SKILL_DICTATION);
     /** Plan 3 skill checks: no item rows, no plan, their own session page. */
     static final Set<JpathCheckKind> SKILL_KINDS = EnumSet.of(JpathCheckKind.SKILL_PRACTICE,
             JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
@@ -183,7 +189,18 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
     }
 
-    record Answer(String value, boolean correct, Long elapsedMs) {
+    /**
+     * resolved (F147): a practice question first answered wrong and then answered right. The first miss stays the
+     * stored answer — it is what scores, rates and sends the item to the notebook; resolved only lets the page move on.
+     */
+    record Answer(String value, boolean correct, Long elapsedMs, Boolean resolved) {
+        Answer(String value, boolean correct, Long elapsedMs) {
+            this(value, correct, elapsedMs, null);
+        }
+
+        boolean isResolved() {
+            return Boolean.TRUE.equals(resolved);
+        }
     }
 
     /** matched / wrongLeft: left ids; errors = wrong picks. */
@@ -292,6 +309,15 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         if (spec.skip()) {
             return skipStep(userId, spec);
+        }
+
+        if (free && (spec.kind() == JpathCheckKind.TOPIC_KNOWN || spec.kind() == JpathCheckKind.WEEK_KNOWN)) {
+            long usedToday = checks.countByUserIdAndKindInAndIssuedAtGreaterThanEqual(userId,
+                    List.of(JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.WEEK_KNOWN), serverStartOfToday(userId));
+            if (usedToday >= KNOWN_CHECKS_PER_DAY) {
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Bạn đã dùng đủ 3 lượt 'Tôi biết chủ đề/tuần này' hôm nay. Ngày mai thử lại nhé.");
+            }
         }
 
         JpathCheckSet previous = null;
@@ -750,13 +776,18 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 continue;
             }
             Answer a = p.answers().get(qv.id());
+            if (a != null && retryOpen(set, a)) {
+                continue; // F147: an open practice miss is drawn again as a question, not as an answer
+            }
             if (a != null) {
-                answered.add(new JpathAnsweredView(qv.id(), a.value(), a.correct(), correctValue(qv, key),
+                // A resolved practice miss is complete in the learner's view; retain the first miss for scoring.
+                answered.add(new JpathAnsweredView(qv.id(), a.isResolved() ? correctValue(qv, key) : a.value(),
+                        a.isResolved() || a.correct(), correctValue(qv, key),
                         key.explanation(), null, 0, report(key, keys.questionCode(qv.id()))));
             }
         }
         JpathSkillCheckView skill = SKILL_KINDS.contains(set.getKind())
-                ? skillPractice.getObject().view(set, answeredValues(p)) : null;
+                ? skillPractice.getObject().view(set, answeredValues(set, p, questions, keys)) : null;
         return new JpathCheckView(set.getToken(), set.getKind(), set.getTab(), set.getAttemptNo(), set.isTimerOn(),
                 set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered, null,
                 skill);
@@ -853,7 +884,14 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         String questionCode = keys.questionCode(qv.id());
         Progress p = readProgress(set);
         Answer done = p.answers().get(qv.id());
-        if (done != null) {
+        // F147: a practice question answered wrong stays open for a retry until it is answered right.
+        boolean retry = done != null && retryOpen(set, done);
+        if (done != null && done.isResolved()) {
+            String right = correctValue(qv, key);
+            return new JpathAnswerResult(true, right, key.explanation(), null, report(key, questionCode),
+                    right == null ? "" : right, !ISSUED.equals(set.getStatus()));
+        }
+        if (done != null && !retry) {
             // probe L2: a replay (e.g. from another tab) says which answer is kept and whether the check is closed
             JpathAnswerResult kept = result(set, qv, key, questionCode, done);
             return new JpathAnswerResult(kept.correct(), kept.correctValue(), kept.explanation(), kept.compare(),
@@ -876,14 +914,37 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         boolean timedOut = r.value() == null || r.value().isBlank()
                 || (qv.timerSec() != null && elapsed > qv.timerSec() * 1000L + TIMER_GRACE_MS);
         boolean correct = !timedOut && correct(qv, key, r.value());
+        set.setLastAnswerAt(now);
+        if (retry) {
+            // A retry never scores again: the first miss is kept; a right retry only marks it resolved.
+            if (!correct) {
+                return retryResult(key, questionCode);
+            }
+            p.answers().put(qv.id(), new Answer(done.value(), false, done.elapsedMs(), true));
+            set.setProgressJson(json(p));
+            return new JpathAnswerResult(true, correctValue(qv, key), key.explanation(), null,
+                    report(key, questionCode));
+        }
         Answer a = new Answer(r.value(), correct, elapsed);
         p.answers().put(qv.id(), a);
         set.setProgressJson(json(p));
-        set.setLastAnswerAt(now);
         if (key.itemCode() != null) {
             event(set, "c" + set.getId() + "-" + qv.id(), key.itemType(), key.itemCode(), correct, elapsed);
         }
+        if (!correct && RETRY_PRACTICE_KINDS.contains(set.getKind())) {
+            return retryResult(key, questionCode); // the right answer stays hidden until the learner finds it
+        }
         return result(set, qv, key, questionCode, a);
+    }
+
+    /** F147: a practice miss still open for a retry (the set is open and the question not yet answered right). */
+    private static boolean retryOpen(JpathCheckSet set, Answer a) {
+        return !a.correct() && !a.isResolved() && RETRY_PRACTICE_KINDS.contains(set.getKind())
+                && ISSUED.equals(set.getStatus());
+    }
+
+    private JpathAnswerResult retryResult(AnswerKey key, String questionCode) {
+        return new JpathAnswerResult(false, null, null, null, report(key, questionCode));
     }
 
     private JpathAnswerResult result(JpathCheckSet set, JpathQuestionView qv, AnswerKey key, String questionCode,
@@ -993,7 +1054,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         StoredKeys keys = readKeys(set);
         Progress p = readProgress(set);
         // a timed section may be handed in unfinished once its time is up: what is not answered counts wrong
-        if (!complete(questions, keys, p) && !pastDeadline(set, clock.now())) {
+        if (!complete(set, questions, keys, p) && !pastDeadline(set, clock.now())) {
             throw new ApiException(ErrorCode.JPATH_CHECK_INCOMPLETE);
         }
         if (path == null) {
@@ -1014,7 +1075,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 Board b = p.boards().get(qv.board().boardId());
                 int pairs = key.pairs().size();
                 total += pairs;
-                correct += Math.max(0, pairs - b.errors());
+                // F147: a pair missed once costs one unit, however many wrong picks it took (wrongLeft is distinct).
+                correct += Math.max(0, pairs - b.wrongLeft().size());
                 b.wrongLeft().forEach(l -> wrong.add(key.pairItems().get(l)));
                 continue;
             }
@@ -1127,9 +1189,20 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     }
 
     /** Locked question id → the value given (insertion order kept). */
-    private static Map<String, String> answeredValues(Progress p) {
+    private static Map<String, String> answeredValues(JpathCheckSet set, Progress p,
+                                                       List<JpathQuestionView> questions, StoredKeys keys) {
         Map<String, String> out = new LinkedHashMap<>();
-        p.answers().forEach((id, a) -> out.put(id, a.value()));
+        for (JpathQuestionView q : questions) {
+            Answer a = p.answers().get(q.id());
+            if (a == null || retryOpen(set, a)) continue;
+            AnswerKey key = keys.keys().get(q.id());
+            String resolvedValue = key == null ? a.value() : correctValue(q, key);
+            if (a.isResolved() && key != null && JpathSkillCheckBuilder.DICTATION.equals(q.type())) {
+                resolvedValue = json(JpathSkillCheckBuilder.blanks(key.text()).stream()
+                        .map(JpathSkillCheckBuilder.Blank::answer).toList());
+            }
+            out.put(q.id(), a.isResolved() ? resolvedValue : a.value());
+        }
         return out;
     }
 
@@ -1137,7 +1210,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         return JpathSrsPolicy.quality(a) <= JpathSrsPolicy.quality(b) ? a : b;
     }
 
-    private static boolean complete(List<JpathQuestionView> questions, StoredKeys keys, Progress p) {
+    private static boolean complete(JpathCheckSet set, List<JpathQuestionView> questions, StoredKeys keys, Progress p) {
         for (JpathQuestionView qv : questions) {
             AnswerKey key = keys.keys().get(qv.id());
             if (key == null) {
@@ -1148,7 +1221,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 if (b == null || b.matched().size() < key.pairs().size()) {
                     return false;
                 }
-            } else if (!p.answers().containsKey(qv.id())) {
+            } else if (!p.answers().containsKey(qv.id()) || retryOpen(set, p.answers().get(qv.id()))) {
                 return false;
             }
         }

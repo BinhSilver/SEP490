@@ -326,6 +326,7 @@
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
+                '<a id="jlabBaseTutorReviewAdminLink" class="dropdown__item" href="/admin/tutor-review" role="menuitem"><span aria-hidden="true">AI</span><span>Duyệt câu trả lời AI</span></a>' +
                 '<a id="jlabBaseKanjiMapAdminLink" class="dropdown__item" href="/admin/kanji-map" role="menuitem"><span aria-hidden="true">字</span><span>Lược đồ Kanji</span></a>' +
               '</div>' +
             '</div>' +

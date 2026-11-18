@@ -16,9 +16,11 @@ import com.jlas.mission.repository.KanaChallengeRepository.Word;
 import com.jlas.mission.util.KanaPuzzle;
 import com.jlas.mission.util.MultiWordPuzzleGenerator;
 import com.jlas.mission.util.MultiWordPuzzleGenerator.*;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Kana Connect: every learner plays the same board for a given local day and level
- * (N5..N1 or MIX). Progress and the timer are per learner; finishers are ranked per board.
+ * Kana Connect: every learner plays the same board for a given week and level (N5..N1 or MIX). A week runs
+ * Monday to Sunday in the learner's time zone and the board's date is that Monday, so the board and its Top 5
+ * last a whole week instead of one day. Progress and the timer are per learner; finishers are ranked per board.
  */
 @Service
 @RequiredArgsConstructor
@@ -49,6 +52,15 @@ public class KanaChallengeService {
     private final ObjectMapper json;
     private final AvatarFrameService frames;
     public record Reveal(long wordId, int index) {}
+
+    /** The Monday that starts the week of {@code day}: the date a week's boards are stored under. */
+    public static LocalDate weekOf(LocalDate day) {
+        return day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    }
+
+    private LocalDate currentWeek(Long userId) {
+        return weekOf(clock.today(zones.zoneOf(userId)));
+    }
     /**
      * Stored in solution_json. Play time is counted per board only while that board is on screen:
      * activeMs is the time already played, resumedAt (epoch millis) is set while the board runs and
@@ -90,7 +102,7 @@ public class KanaChallengeService {
         repository.lockUser(userId);
         String defaultLevel = defaultLevel(userId);
         String level = requestedLevel == null || requestedLevel.isBlank() ? defaultLevel : normalize(requestedLevel);
-        LocalDate day = clock.today(zones.zoneOf(userId));
+        LocalDate day = currentWeek(userId);
         Board board = board(day, level);
         Challenge challenge = repository.find(userId, board.id()).orElse(null);
         if (challenge == null) {
@@ -105,7 +117,7 @@ public class KanaChallengeService {
         return view(challenge, defaultLevel);
     }
 
-    /** Starts (or resumes) this board's clock and pauses the learner's other boards of the day. */
+    /** Starts (or resumes) this board's clock and pauses the learner's other boards of the week. */
     @Transactional
     public Today start(Long userId, Long challengeId) {
         repository.lockUser(userId);
@@ -207,11 +219,11 @@ public class KanaChallengeService {
                 && progress.reveals().stream().filter(r -> r.wordId() == w.id()).count() < w.tokens().size());
     }
 
-    /** Today's ranking for one board; an untouched board simply has no finishers yet. */
+    /** This week's ranking for one board; an untouched board simply has no finishers yet. */
     @Transactional(readOnly = true)
     public Leaderboard leaderboard(Long userId, String requestedLevel) {
         String level = requestedLevel == null || requestedLevel.isBlank() ? defaultLevel(userId) : normalize(requestedLevel);
-        LocalDate day = clock.today(zones.zoneOf(userId));
+        LocalDate day = currentWeek(userId);
         Board board = repository.findBoard(day, level).orElse(null);
         if (board == null) return new Leaderboard(level, day, 0, List.of(), null);
         List<RankRow> rows = repository.topFinishers(board.id(), LEADERBOARD_SIZE);
@@ -245,7 +257,7 @@ public class KanaChallengeService {
         return value;
     }
 
-    /** The first player of the day creates the shared board; everyone else reuses the stored copy. */
+    /** The first player of the week creates the shared board; everyone else reuses the stored copy. */
     private Board board(LocalDate day, String level) {
         Board existing = repository.findBoard(day, level).orElse(null);
         if (existing != null) return existing;
@@ -262,7 +274,7 @@ public class KanaChallengeService {
         boolean mixed = MIX.equals(level);
         List<Entry> words = repository.words(mixed ? null : level).stream().map(w -> new Entry(w.id(), w.expression(),
                 w.reading(), w.meaning(), w.level(), KanaPuzzle.tokenize(w.reading()))).toList();
-        // Deterministic per day and level, independent of who opens it first.
+        // Deterministic per week (its Monday) and level, independent of who opens it first.
         long seed = day.toEpochDay() * 1_000_003L + LEVELS.indexOf(level);
         Puzzle puzzle = null;
         // Daily play always contains at least eight words. Grow the grid for longer readings,
@@ -279,7 +291,7 @@ public class KanaChallengeService {
     private Challenge current(Long userId, Long id) {
         Challenge challenge = repository.findById(userId, id)
                 .orElseThrow(() -> new ApiException(ErrorCode.KANA_CHALLENGE_EXPIRED));
-        if (!challenge.board().date().equals(clock.today(zones.zoneOf(userId)))) {
+        if (!challenge.board().date().equals(currentWeek(userId))) {
             throw new ApiException(ErrorCode.KANA_CHALLENGE_EXPIRED);
         }
         return challenge;
@@ -306,7 +318,8 @@ public class KanaChallengeService {
                 : clock.toWallClock(now.plusMillis(progress.hintWaitMs(now)));
         String level = c.board().level();
         return new Today(c.id(), puzzle.version(), c.board().date(),
-                clock.toWallClock(c.board().date().plusDays(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant()),
+                // The board is replaced at 0:00 on the next Monday.
+                clock.toWallClock(c.board().date().plusWeeks(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant()),
                 c.startedAt(),
                 level, defaultLevel, MIX.equals(level), puzzle.gridSize(), visibleCells(puzzle, progress, c),
                 puzzle.cells().stream().filter(cell -> cell.kana() == null).map(KanaPuzzle.Cell::id).toList(),
