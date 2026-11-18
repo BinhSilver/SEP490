@@ -616,6 +616,11 @@
     } else {
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
     }
+    // owner 18/11: every vocab/kanji part can be studied with the team's flashcard (upcoming: set made on press)
+    if (/^(vocab|kanji)$/i.test(String(tabKey || '')) && items.length) {
+      actions += '<button type="button" class="jp-btn jp-btn--sm" data-parts-fc="' + esc(p.index) + '">Học bằng flashcard</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-fc-error></span>';
+    }
 
     return '<div class="jp-parts__popover jp-parts__popover--' + tone + ' jp-parts__popover--side-' + popSide + '"'
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
@@ -1383,6 +1388,29 @@
                 });
               }
             });
+          return;
+        }
+
+        var fcBtn = t.closest('[data-parts-fc]');
+        if (fcBtn) {
+          fcBtn.disabled = true;
+          fcBtn.setAttribute('aria-busy', 'true');
+          fcBtn.textContent = 'Đang mở';
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/flashcards/open?tab=' + encodeURIComponent(TABS[partsEl.__tab][0])
+            + '&part=' + encodeURIComponent(fcBtn.getAttribute('data-parts-fc')))).then(function (set) {
+            if (set && set.url) {
+              root.location.assign(set.url + '&back=' + encodeURIComponent(root.location.pathname + root.location.search));
+              return;
+            }
+            throw new Error('Chưa mở được bộ thẻ, thử lại sau ít phút');
+          }).catch(function (error) {
+            fcBtn.disabled = false;
+            fcBtn.removeAttribute('aria-busy');
+            fcBtn.textContent = 'Thử lại';
+            var pop = fcBtn.closest('[data-parts-popover]');
+            var box = pop && pop.querySelector('[data-parts-fc-error]');
+            if (box) box.textContent = (error && error.message) || 'Chưa mở được bộ thẻ, thử lại sau ít phút';
+          });
           return;
         }
 

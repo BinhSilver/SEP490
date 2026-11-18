@@ -727,3 +727,21 @@ html body .jp-path .jp-today .jp-today__top > .jp-today__kitsu { display: none !
 .jp-verbs { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin: 16px 0; }
 .jp-verbs__title { margin: 0 0 4px; font-size: 1.05rem; }
 .jp-verbs__sub { margin: 0; color: var(--jp-muted, #64748b); }
+
+/* [JLAS-W0108] owner 18/11: today's new words/kanji as a list + the team's flashcard (team UI standard tokens) */
+.jp-wlist { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5); }
+.jp-wlist__top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.jp-wlist__title { margin: 0; font-size: var(--text-lg); font-weight: 600; color: var(--color-on-surface); }
+.jp-wlist__progress { font-size: var(--text-sm); font-weight: 500; color: var(--color-on-surface-variant); font-variant-numeric: tabular-nums; }
+.jp-wlist__list { list-style: none; margin: 0; padding: 0; }
+.jp-wlist__row { display: flex; align-items: center; gap: var(--space-4); min-height: 64px; padding: var(--space-2) 0; border-top: 1px solid var(--color-outline-variant); }
+.jp-wlist__row:first-child { border-top: 0; }
+.jp-wlist__head { display: flex; flex-direction: column; min-width: 7.5rem; }
+.jp-wlist__word { font-family: var(--font-jp, var(--font-body)); font-size: var(--text-xl); font-weight: 500; color: var(--color-on-surface); }
+.jp-wlist__reading, .jp-wlist__hv { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
+.jp-wlist__meaning { flex: 1; font-size: var(--text-sm); color: var(--color-on-surface); }
+.jp-wlist__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; }
+.jp-wlist__actions .jp-btn { white-space: nowrap; }
+@media (max-width: 480px) { .jp-wlist { padding: var(--space-4); } .jp-wlist__actions .jp-btn { flex: 1 1 100%; } }
+.jp-stage__links { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
+.jp-stage__links .jp-btn { white-space: nowrap; }
