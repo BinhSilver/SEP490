@@ -233,7 +233,162 @@
     return { loop: new Loop(steps) };
   }
 
-  var SCENES = { neko: neko, memory: memory, 'air-defense': air };
+  // ------------------------------------------------------------ Kana Connect
+  /**
+   * The card's board plays like the real game: a 3×3 board in its beige frame where every kana belongs to one word.
+   * A finger drags a purple "snake" with reading-direction chevrons under the letters; a right word turns the snake
+   * lime and fills that word's row of slots beside the board; when all four are found the board resets.
+   */
+  function kanaConnect(root) {
+    var KANA = ['か', 'な', 'ほ', 'ね', 'ぐ', 'し', 'こ', 'な', 'つ'];
+    var SIZE = 3;
+    var WORDS = [
+      { cells: [0, 1], kana: 'かな', meaning: 'chữ kana' },
+      { cells: [2, 5], kana: 'ほし', meaning: 'ngôi sao' },
+      { cells: [8, 7, 4], kana: 'つなぐ', meaning: 'nối' },
+      { cells: [3, 6], kana: 'ねこ', meaning: 'con mèo' }
+    ];
+    var svgNs = 'http://www.w3.org/2000/svg';
+
+    var frame = el('div', 'pv-kc-frame', root);
+    var board = el('div', 'pv-kc-board', frame);
+    var tiles = KANA.map(function (kana) {
+      var tile = el('span', 'pv-kc-tile', board);
+      el('b', '', tile).textContent = kana;
+      return tile;
+    });
+    var svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('class', 'pv-kc-snakes');
+    svg.setAttribute('viewBox', '0 0 ' + SIZE * 100 + ' ' + SIZE * 100);
+    board.appendChild(svg);
+    var finger = el('span', 'pv-kc-finger', board);
+
+    var side = el('div', 'pv-kc-side', root);
+    var status = el('div', 'pv-kc-status', side);
+    var list = el('div', 'pv-kc-words', side);
+    var rows = WORDS.map(function (word) {
+      var row = el('div', 'pv-kc-word', list);
+      return Array.prototype.map.call(word.kana, function () { return el('span', 'pv-kc-slot', row); });
+    });
+    var gloss = el('div', 'pv-kc-gloss', side);
+
+    /** Cell centre in board units: each cell is 100×100, so the snake scales with the board. */
+    function point(cell) {
+      return [(cell % SIZE) * 100 + 50, Math.floor(cell / SIZE) * 100 + 50];
+    }
+
+    function polyline(className, cells) {
+      var line = document.createElementNS(svgNs, 'polyline');
+      line.setAttribute('class', className);
+      line.setAttribute('points', cells.map(function (c) { return point(c).join(','); }).join(' '));
+      return line;
+    }
+
+    /** A snake as in the game: edge, fill, and a chevron between each pair of cells in reading order. */
+    function snake(cells, state) {
+      var group = document.createElementNS(svgNs, 'g');
+      group.setAttribute('class', 'pv-kc-snake pv-kc-snake--' + state);
+      group.appendChild(polyline('pv-kc-snake__edge', cells));
+      group.appendChild(polyline('pv-kc-snake__fill', cells));
+      for (var i = 1; i < cells.length; i++) {
+        var a = point(cells[i - 1]), b = point(cells[i]);
+        var dx = Math.sign(b[0] - a[0]), dy = Math.sign(b[1] - a[1]);
+        var mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+        var arrow = document.createElementNS(svgNs, 'polyline');
+        arrow.setAttribute('class', 'pv-kc-snake__arrow');
+        arrow.setAttribute('points', [
+          [mx - dx * 6 - dy * 9, my - dy * 6 - dx * 9],
+          [mx + dx * 6, my + dy * 6],
+          [mx - dx * 6 + dy * 9, my - dy * 6 + dx * 9]
+        ].map(function (p) { return p.join(','); }).join(' '));
+        group.appendChild(arrow);
+      }
+      return group;
+    }
+
+    var foundSnakes = [];
+    var active = null;
+    var found = 0;
+
+    function setActive(cells) {
+      if (active) active.remove();
+      active = cells.length ? snake(cells, 'active') : null;
+      if (active) svg.appendChild(active);
+    }
+
+    function moveFinger(cell) {
+      var p = point(cell);
+      finger.style.left = (p[0] / (SIZE * 100)) * 100 + '%';
+      finger.style.top = (p[1] / (SIZE * 100)) * 100 + '%';
+    }
+
+    function showStatus() {
+      status.className = 'pv-kc-status';
+      status.textContent = found + '/' + WORDS.length + ' từ';
+    }
+
+    var steps = [];
+    WORDS.forEach(function (word, w) {
+      word.cells.forEach(function (cell, n) {
+        steps.push(function drag() {
+          var picked = word.cells.slice(0, n + 1);
+          finger.classList.add('is-on');
+          moveFinger(cell);
+          setActive(n === 0 ? [] : picked);
+          tiles[cell].classList.add('is-picked');
+          // The kana picked so far, in purple, as in the game's selection line.
+          status.className = 'pv-kc-status is-selecting';
+          status.textContent = picked.map(function (c) { return KANA[c]; }).join('');
+          return n === 0 ? 450 : 380;
+        });
+      });
+      steps.push(function release() {
+        setActive([]);
+        var done = snake(word.cells, 'found');
+        svg.appendChild(done);
+        foundSnakes.push(done);
+        word.cells.forEach(function (cell) {
+          tiles[cell].classList.remove('is-picked');
+          tiles[cell].classList.add('is-found');
+        });
+        rows[w].forEach(function (slot, i) {
+          slot.textContent = word.kana.charAt(i);
+          slot.classList.add('is-found');
+        });
+        finger.classList.remove('is-on');
+        found = w + 1;
+        showStatus();
+        gloss.innerHTML = '';
+        el('b', '', gloss).textContent = word.kana;
+        gloss.appendChild(document.createTextNode(' ' + word.meaning));
+        replay(gloss, 'is-on');
+        return 1000;
+      });
+    });
+    steps.push(function complete() {
+      root.classList.add('is-complete');
+      status.className = 'pv-kc-status is-done';
+      status.textContent = 'Hoàn thành!';
+      gloss.classList.remove('is-on');
+      return 1600;
+    });
+    steps.push(function reset() {
+      root.classList.remove('is-complete');
+      foundSnakes.forEach(function (g) { g.remove(); });
+      foundSnakes = [];
+      setActive([]);
+      tiles.forEach(function (tile) { tile.classList.remove('is-picked', 'is-found'); });
+      rows.forEach(function (row) { row.forEach(function (slot) { slot.textContent = ''; slot.classList.remove('is-found'); }); });
+      found = 0;
+      showStatus();
+      return 700;
+    });
+
+    showStatus();
+    return { loop: new Loop(steps) };
+  }
+
+  var SCENES = { neko: neko, memory: memory, 'air-defense': air, 'kana-connect': kanaConnect };
 
   function mount(root) {
     var build = SCENES[root.dataset.gamePreview];
