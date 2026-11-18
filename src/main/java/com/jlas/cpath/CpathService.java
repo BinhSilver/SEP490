@@ -179,7 +179,8 @@ public class CpathService {
         if (goal == null || exists == null || exists == 0) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu không hợp lệ.");
         String level = str(req.getOrDefault("selfLevel", "BEGINNER"));
         if (!List.of("BEGINNER", "ELEMENTARY", "INTERMEDIATE").contains(level)) level = "BEGINNER";
-        int daily = num(req.get("dailySituations")) == 2 ? 2 : 1;
+        // owner 18/11: situations per day follow the survey's free time unless the learner picked a number
+        int daily = req.get("dailySituations") != null ? dailyOf(req.get("dailySituations")) : dailyFromSurvey(userId);
         List<Object> rest = req.get("restDays") instanceof List<?> l ? (List<Object>) l : List.of();
         Object finish = req.get("finishDate");
         Long main = mainPathId(userId);
@@ -1626,14 +1627,38 @@ public class CpathService {
         return m;
     }
 
-    /** Owner 06/11 slider: 1 or 2 situations a day, changed after the survey; today's plan keeps what it holds. */
+    /** Owner 18/11: 1–4 situations a day (about 15 minutes each; 60 minutes is the most a day plans). */
+    static final int MAX_DAILY = 4;
+
+    static int dailyOf(Object v) {
+        int n = v instanceof Number x ? x.intValue() : num(v);
+        return Math.max(1, Math.min(MAX_DAILY, n));
+    }
+
+    /** Free time from the learning survey → situations: 15→1, 30→2, 45→3, 60 and more→4 (an estimate, not a must). */
+    static int dailyForMinutes(Integer minutes) {
+        if (minutes == null || minutes <= 0) return 1;
+        return Math.max(1, Math.min(MAX_DAILY, (int) Math.round(minutes / 15.0)));
+    }
+
+    private int dailyFromSurvey(Long userId) {
+        try {
+            List<Integer> m = db.queryForList("SELECT daily_study_minutes FROM user_learning_survey WHERE user_id = ?", Integer.class, userId);
+            return dailyForMinutes(m.isEmpty() ? null : m.get(0));
+        } catch (org.springframework.dao.DataAccessException e) {
+            return 1; // survey table missing: keep the old default of 1 a day
+        }
+    }
+
+    /** Owner 06/11 slider, owner 18/11 1–4: situations a day, changed after the survey; today's plan keeps what it holds. */
     @Transactional
     public Map<String, Object> setPace(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
         if (body == null || !(body.get("restDays") instanceof List<?> rest))
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn lịch học hợp lệ.");
-        if (num(body.get("dailySituations")) != 1 && num(body.get("dailySituations")) != 2)
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn 1 hoặc 2 tình huống mỗi ngày.");
+        int wanted = num(body.get("dailySituations"));
+        if (wanted < 1 || wanted > MAX_DAILY)
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn từ 1 đến " + MAX_DAILY + " tình huống mỗi ngày.");
         List<String> days = rest.stream().map(String::valueOf).map(x -> x.toUpperCase(Locale.ROOT)).toList();
         // F118: each bad list gets its own reason (an unknown day used to say "keep one study day")
         if (!Set.of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN").containsAll(days))
@@ -1660,7 +1685,7 @@ public class CpathService {
     @Transactional
     public Map<String, Object> setDaily(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
-        int daily = body != null && num(body.get("dailySituations")) == 2 ? 2 : 1;
+        int daily = body == null ? 1 : dailyOf(body.get("dailySituations"));
         Long pathId = ((Number) path.get("id")).longValue();
         db.update("UPDATE cpath_user_path SET daily_situations = ? WHERE id = ?", daily, pathId);
         // today's plan follows the new pace: fewer drops only situations not started yet, more adds the next ones

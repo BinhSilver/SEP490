@@ -34,7 +34,7 @@
     return String(text == null ? '' : text).trim().normalize('NFC').toLocaleUpperCase('vi') === RESTART_TEXT;
   }
   function payload(path) {
-    return { dailySituations: Number(path.dailySituations) === 2 ? 2 : 1,
+    return { dailySituations: Math.min(4, Math.max(1, Number(path.dailySituations) || 1)),
       restDays: Array.isArray(path.restDays) ? path.restDays.slice() : [],
       finishDate: path.finishDate || '' };
   }
@@ -75,7 +75,7 @@
       + '<p class="cp-settings__desc">Chỉnh số tình huống, ngày nghỉ và ngày muốn hoàn thành. Bài đã học được giữ nguyên; '
       + 'lịch hôm nay chỉ đổi phần bạn chưa bắt đầu.</p>'
       + '<fieldset><legend>Tình huống mỗi ngày</legend><div class="cp-settings__options">'
-      + [1, 2].map(function (n) { return '<label><input type="radio" name="cp-daily" value="' + n + '"'
+      + [1, 2, 3, 4].map(function (n) { return '<label><input type="radio" name="cp-daily" value="' + n + '"'
         + (draft.dailySituations === n ? ' checked' : '') + '> ' + n + ' tình huống (khoảng ' + (n * 15) + ' phút)</label>'; }).join('')
       + '</div></fieldset>'
       + '<fieldset><legend>Ngày nghỉ</legend><div class="cp-settings__options">'

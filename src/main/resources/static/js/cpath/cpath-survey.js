@@ -269,7 +269,7 @@
       fields: fields,
       priorityTopics: (state.priorityTopics || []).slice(),
       selfLevel: state.selfLevel || 'BEGINNER',
-      dailySituations: Number(state.dailySituations) === 1 ? 1 : 2,
+      dailySituations: Math.min(4, Math.max(1, Number(state.dailySituations) || 2)),
       restDays: (state.restDays || []).slice()
     };
     if (state.finishDate) payload.finishDate = state.finishDate;
@@ -382,8 +382,9 @@
       bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>'
         + kanaQuestionHtml(state);
     } else {
-      var pace1 = Number(state.dailySituations) === 1;
-      var pace2 = Number(state.dailySituations) !== 1;
+      // owner 18/11: 15 phút = 1 tình huống, tối đa 60 phút = 4 (chỉ là ước lượng)
+      var paceN = Math.min(4, Math.max(1, Number(state.dailySituations) || 2));
+      var PACES = [{ n: 1, d: 'Nhẹ nhàng, đều đặn' }, { n: 2, d: 'Vừa sức' }, { n: 3, d: 'Tiến bộ nhanh' }, { n: 4, d: 'Học dồn' }];
       var restChips = DAYS_OF_WEEK.map(function (d) {
         var isRest = state.restDays.indexOf(d.code) >= 0;
         return '<button type="button" class="cp-rest-chip" data-cp-rest="' + d.code + '" aria-pressed="' + (isRest ? 'true' : 'false') + '" title="' + esc(d.full) + '">'
@@ -394,14 +395,12 @@
       bodyHtml = '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Số tình huống học mỗi ngày</span>'
         + '<div class="cp-pace-grid">'
-        + '<button type="button" class="cp-pill' + (pace1 ? ' is-selected' : '') + '" data-cp-daily="1" aria-pressed="' + (pace1 ? 'true' : 'false') + '">'
-        + '<span class="cp-pill__body"><span class="cp-pill__label">1 tình huống / ngày</span><span class="cp-pill__desc">Khoảng 15 phút · Nhẹ nhàng, đều đặn</span></span>'
-        + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-        + '</button>'
-        + '<button type="button" class="cp-pill' + (pace2 ? ' is-selected' : '') + '" data-cp-daily="2" aria-pressed="' + (pace2 ? 'true' : 'false') + '">'
-        + '<span class="cp-pill__body"><span class="cp-pill__label">2 tình huống / ngày</span><span class="cp-pill__desc">Khoảng 30 phút · Tiến bộ nhanh</span></span>'
-        + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-        + '</button>'
+        + PACES.map(function (pc) {
+          var on = paceN === pc.n;
+          return '<button type="button" class="cp-pill' + (on ? ' is-selected' : '') + '" data-cp-daily="' + pc.n + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+            + '<span class="cp-pill__body"><span class="cp-pill__label">' + pc.n + ' tình huống / ngày</span><span class="cp-pill__desc">Khoảng ' + (pc.n * 15) + ' phút · ' + pc.d + '</span></span>'
+            + '<span class="cp-pill__check">' + svgCheck() + '</span></button>';
+        }).join('')
         + '</div>'
         + '</div>'
         + '<div class="cp-survey__row">'
@@ -592,7 +591,7 @@
 
       var dailyBtn = t.closest('[data-cp-daily]');
       if (dailyBtn) {
-        state.dailySituations = Number(dailyBtn.getAttribute('data-cp-daily')) === 1 ? 1 : 2;
+        state.dailySituations = Math.min(4, Math.max(1, Number(dailyBtn.getAttribute('data-cp-daily')) || 2));
         render();
         return;
       }

@@ -851,7 +851,7 @@
       + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
       + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
       + '<span class="cp-goal-card__pace-options">'
-      + [1, 2].map(function (n) {
+      + [1, 2, 3, 4].map(function (n) {
         return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
           + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
       }).join('')
@@ -1034,9 +1034,9 @@
     // [JLAS-W0108] C5: first visit (or ?tour=1) gets a 4-step guide; "seen" is a per-browser convenience
     var TOUR_KEY = 'cpath.tourDone';
     var TOUR_STEPS = [
-      { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–2 tình huống giao tiếp. Bấm Học tiếp để vào tình huống kế tiếp.' },
+      { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–4 tình huống giao tiếp (theo thời gian rảnh bạn chọn). Bấm Học tiếp để vào tình huống kế tiếp.' },
       { target: '[data-tour="cp-map"]', text: 'Bản đồ theo tuần: mỗi tình huống có 4 bước, cuối tuần có bài kiểm tra để mở tuần sau.' },
-      { target: '[data-tour="cp-pace"]', text: 'Chọn học 1 hay 2 tình huống mỗi ngày; đổi lúc nào cũng được.' },
+      { target: '[data-tour="cp-pace"]', text: 'Chọn học 1–4 tình huống mỗi ngày (mỗi tình huống khoảng 15 phút); đổi lúc nào cũng được.' },
       { target: '[data-tour="cp-goal"]', text: 'Vào Cài đặt lộ trình để đổi mục tiêu chính hoặc thêm mục tiêu phụ; tiến độ đã học vẫn được giữ.' }
     ];
     function startTour() {
