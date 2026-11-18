@@ -28,7 +28,8 @@ public enum AiFeature {
     LEARNING_AI_EXPLAIN("Lộ trình: AI giải thích câu hỏi"),
     FLASHCARD_HAN_VIET("Flashcard: âm Hán Việt"),
     FLASHCARD_AI_LOOKUP("Flashcard: tra từ bằng AI"),
-    MODERATION_IMAGE("Kiểm duyệt ảnh");
+    MODERATION_IMAGE("Kiểm duyệt ảnh"),
+    TUTOR_SEARCH("Gia sư AI: tìm nội dung giáo trình");
 
     private final String label;
 

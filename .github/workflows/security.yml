@@ -102,6 +102,7 @@ jobs:
           -DdataDirectory="$RUNNER_TOOL_CACHE/dependency-check"
           -DknownExploitedUrl=https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json
           -DfailBuildOnCVSS=7
+          -DsuppressionFile=config/security/dependency-check-suppressions.xml
           -Dformats=HTML,JSON
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()

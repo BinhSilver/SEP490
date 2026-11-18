@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-head :: head('Duyệt câu trả lời AI - KotsuKotsu', 'jpath-admin')}"></head>
+<body id="jlabBasePage" class="admin-portal jpa-body">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="jpa" hidden>
+    <header class="jpa-hero">
+        <div>
+            <span class="jpa-eyebrow">NGƯỜI BIÊN SOẠN</span>
+            <h1>Duyệt câu trả lời AI</h1>
+            <p>Kiểm tra nội dung gia sư AI tự tổng hợp khi tài liệu J-LAS chưa có: sửa, duyệt hoặc từ chối.
+                Mục đã duyệt hiện cho người học với nhãn "đã duyệt"; mục bị từ chối không hiện nữa.</p>
+        </div>
+    </header>
+    <form id="trvFilters" class="jpa-filters" aria-label="Lọc mục chờ duyệt">
+        <label><span>Loại</span>
+            <select id="trvKind">
+                <option value="ANSWER">Câu trả lời AI</option>
+                <option value="ANTONYM">Gợi ý từ trái nghĩa</option>
+            </select>
+        </label>
+        <label><span>Trạng thái</span>
+            <select id="trvStatus">
+                <option value="PENDING">Chờ duyệt</option>
+                <option value="APPROVED">Đã duyệt</option>
+                <option value="REJECTED">Từ chối</option>
+            </select>
+        </label>
+        <label><span>Tìm</span>
+            <input id="trvSearch" type="search" placeholder="Từ hoặc chữ trong câu hỏi" lang="ja" autocomplete="off"/>
+        </label>
+    </form>
+    <div class="jpa-layout">
+        <section class="jpa-list" aria-label="Danh sách mục chờ duyệt">
+            <p id="trvListStatus" class="jpa-muted" role="status" aria-live="polite"></p>
+            <ul id="trvItems" class="jpa-groups"></ul>
+            <nav class="jpa-pager" aria-label="Trang">
+                <button id="trvPrev" class="jpa-btn is-secondary" type="button">Trước</button>
+                <span id="trvPageInfo" class="jpa-muted"></span>
+                <button id="trvNext" class="jpa-btn is-secondary" type="button">Sau</button>
+            </nav>
+        </section>
+        <section id="trvDetail" class="jpa-detail" aria-label="Chi tiết mục" aria-live="polite">
+            <p class="jpa-muted">Chọn một mục ở danh sách để xem và duyệt.</p>
+        </section>
+    </div>
+</main>
+<script th:src="@{/js/pages/admin-core.js(v=20261117-tutor-review)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261109-kotsu)}"></script>
+<script th:src="@{/js/pages/admin-tutor-review.js(v=20261117)}"></script>
+</body></html>

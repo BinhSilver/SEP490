@@ -87,6 +87,8 @@ public enum ErrorCode {
             "Hôm nay bạn đã bắt đầu học mới, chỉ đổi sang ngày ôn được khi chưa học mục mới nào."),
     JPATH_EXTRA_NOT_READY(HttpStatus.CONFLICT, "Xong phần hôm nay của tab này trước khi học thêm."),
     JPATH_EXTRA_CHECK_REQUIRED(HttpStatus.CONFLICT, "Bạn đã học vượt khá nhiều. Làm bài kiểm tra tuần (đạt từ 80%) để học thêm tiếp."),
+    JPATH_EXTRA_DAILY_LIMIT_REACHED(HttpStatus.CONFLICT,
+            "Bạn đã đạt giới hạn 20 mục học thêm hôm nay. Hạn mức chung giữa Học thêm và tự chọn JLPT sẽ làm mới vào ngày học tiếp theo."),
     JPATH_CONTENT_NOT_LEARNABLE(HttpStatus.CONFLICT, "Mục này chưa sẵn sàng để học."),
     // [JLAS-W0108] Kế hoạch 3: Đọc · Nghe, Thi thử.
     JPATH_SKILL_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy dạng câu này."),

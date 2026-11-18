@@ -610,7 +610,8 @@
       var first = items[0];
       var firstCode = (first && first.code) || p.firstItemCode || '';
       actions = (firstCode ? '<button type="button" class="jp-btn jp-btn--primary jp-parts__pop-main-btn" data-parts-relearn="' + esc(firstCode)
-        + '" data-parts-count="' + n + '">Học lại phần này</button>' : '')
+        + '" data-parts-count="' + n + '">Học lại phần này</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-relearn-error></span>' : '')
         + (p.day ? '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/day?d=' + esc(p.day) + '">Kết quả lần trước</a>' : '');
     } else {
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
@@ -1398,7 +1399,12 @@
           })).then(function (view) {
             if (view && view.sessionId != null) root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
             else re.disabled = false;
-          }, function () { re.disabled = false; });
+          }, function (error) {
+            re.disabled = false;
+            var popover = re.closest('[data-parts-popover]');
+            var errorBox = popover && popover.querySelector('[data-parts-relearn-error]');
+            if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được phần học này. Thử lại sau.';
+          });
           return;
         }
 
