@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Nội dung ôn tập JLPT - KotsuKotsu', 'jlpt-study')}"></head>
-<body id="jlabBasePage" class="app-body">
+<body id="jlabBasePage" class="app-body jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main class="js-study-page" id="jlptStudyApp" data-inline-dictionary>
     <header class="js-study-heading"><a id="studyBack" href="/jlpt" aria-label="Quay lại">←</a><div><h1 id="studyTitle">Đang tải đề JLPT…</h1><p id="studySubtitle"></p></div></header>
@@ -20,7 +20,7 @@
         <div id="studyEntries" class="js-study-panel" aria-live="polite"></div>
     </section>
 </main>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav}"></script>
 <script th:src="@{/js/pages/jlpt-study.js?v=20261111-ui-sql}"></script>
 </body>
 </html>

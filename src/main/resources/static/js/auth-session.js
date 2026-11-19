@@ -464,6 +464,8 @@
         var staffRoles = ['ADMIN', 'MODERATOR', 'CONTENT_CREATOR'];
         if (!user || authPages.indexOf(path) >= 0 || path.indexOf('/admin') === 0 || path.indexOf('/premium') === 0 || path.indexOf('/credits') === 0
             || staffRoles.indexOf(user.role) >= 0) return;
+        // The personal notebook is independent of learning-path onboarding.
+        if (path === '/learning/notebook') return;
         // [JLAS-W0108] A8: only the learning path needs the survey; other pages stay open.
         if (path !== '/learning' && path.indexOf('/learning/') !== 0) return;
         try {

@@ -161,7 +161,9 @@
     return '<article class="dict-kanji-mini"><div class="dict-kanji-mini__glyph" data-stroke-for="' + esc(kanji.character) +
       '">' + esc(kanji.character) + '</div><div><h3>' + esc(kanji.character) + ' <small>' + esc(kanji.hanViet || '') +
       '</small></h3><p>On: ' + esc(on || '—') + '</p><p>Kun: ' + esc(kun || '—') + '</p>' +
-      '<button type="button" class="dict-text-button" data-kanji="' + esc(kanji.character) + '">Xem chi tiết</button></div></article>';
+      '<div class="dict-kanji-mini__actions"><button type="button" class="dict-text-button" data-kanji="' + esc(kanji.character) + '">Xem chi tiết</button>' +
+      '<a class="dict-text-button" href="/dictionary/kanji-map?kanji=' + encodeURIComponent(kanji.character) +
+      '" aria-label="Xem lược đồ chữ ' + esc(kanji.character) + '">Xem lược đồ</a></div></div></article>';
   }
   async function fillWordKanji(word, token) {
     var composition = word.kanjiComposition || [];

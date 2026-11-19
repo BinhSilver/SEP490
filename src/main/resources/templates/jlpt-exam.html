@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('JLPT - KotsuKotsu', 'jlpt-exam')}"></head>
-<body id="jlabBasePage" class="app-body jlpt-exam-body">
+<body id="jlabBasePage" class="app-body jlpt-exam-body jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main id="jlptApp" class="jlpt-exam-page" data-inline-dictionary>
     <div id="jlptNotice" class="jlpt-exam-notice">Đang tải dữ liệu đề…</div>
@@ -23,9 +23,9 @@
             <aside class="jlpt-exam-sidebar">
                 <div><strong id="jlptProgress">0/0</strong><span>Đã trả lời</span></div>
                 <section id="jlptFilters" class="jlpt-exam-filters" aria-label="Lọc câu hỏi">
-                    <button type="button" data-filter="all" class="is-active">Tất cả</button>
-                    <button type="button" data-filter="unanswered">Chưa làm</button>
-                    <button type="button" data-filter="marked">Đánh dấu</button>
+                    <button type="button" data-filter="all" aria-pressed="true" class="is-active">Tất cả</button>
+                    <button type="button" data-filter="unanswered" aria-pressed="false">Chưa làm</button>
+                    <button type="button" data-filter="marked" aria-pressed="false">Đánh dấu</button>
                 </section>
                 <nav id="jlptPalette" aria-label="Danh sách câu hỏi"></nav>
             </aside>
@@ -55,10 +55,10 @@
             <summary>Xem lại đáp án đã làm</summary>
             <div class="jlpt-review-filters" aria-label="Lọc câu trả lời">
                 <label>Phần thi
-                    <select id="jlptReviewPartFilter"><option value="all">Tất cả các phần</option></select>
+                    <select data-jl-select id="jlptReviewPartFilter"><option value="all">Tất cả các phần</option></select>
                 </label>
                 <label>Kết quả
-                    <select id="jlptReviewStatusFilter">
+                    <select data-jl-select id="jlptReviewStatusFilter">
                         <option value="all">Tất cả câu</option>
                         <option value="correct">Trả lời đúng</option>
                         <option value="wrong">Trả lời sai</option>
@@ -73,7 +73,7 @@
     </section>
 </main>
 <dialog id="jlptSubmitDialog" class="jlpt-submit-dialog" aria-labelledby="jlptSubmitDialogTitle">
-    <img src="/images/mascots/kitsu/kitsu-crying-30.webp" alt="Linh vật Kitsu">
+    <img src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="Kitsu nhắc kiểm tra bài trước khi nộp">
     <div>
         <span>KIỂM TRA TRƯỚC KHI NỘP</span>
         <h2 id="jlptSubmitDialogTitle">Nộp phần thi?</h2>
@@ -81,8 +81,8 @@
         <footer><button id="jlptSubmitCancel" type="button">Tiếp tục làm</button><button id="jlptSubmitConfirm" type="button">Nộp phần thi</button></footer>
     </div>
 </dialog>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav}"></script>
 <script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
-<script th:src="@{/js/pages/jlpt-exam.js?v=35}"></script>
+<script th:src="@{/js/pages/jlpt-exam.js?v=20261119-scroll}"></script>
 </body>
 </html>
