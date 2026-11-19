@@ -41,6 +41,19 @@
   align-items: flex-end;
 }
 
+/* Create page: "Hướng dẫn" sits on the title row; the weekly quota line stays under the title. */
+#jlabBasePage.page-shadowing-create .section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+#jlabBasePage.page-shadowing-create .section-header > .create-quota {
+  flex: 1 0 100%;
+}
+
 #jlabBasePage.page-shadowing .section-header--with-action .hero-display {
   font-size: clamp(38px, 5vw, 48px);
   line-height: 1.2;
@@ -725,10 +738,12 @@
   max-width: 100%;
 }
 
-#jlabBasePage.page-shadowing-editor .editor-toolbar-actions .editor-icon-btn {
+/* controls.css gives every .btn-sm "padding: 6px 14px !important" behind html:not(#_)×3; this selector has to outweigh
+   it, or a 36px button keeps only 6px inside and its 14px icon spills 4px to the right. */
+html:not(#_):not(#_):not(#_) #jlabBasePage.page-shadowing-editor .editor-toolbar-actions .editor-icon-btn {
   flex: none;
   width: 36px;
-  padding: 0 !important; /* .btn-sm sets its padding with !important */
+  padding: 0 !important;
   display: inline-grid;
   place-items: center;
 }
@@ -1167,6 +1182,22 @@
   opacity: .7;
 }
 
+/* A take waiting to be checked: "Chấm" is the next step, so it reads as the main action, not a score box. */
+#jlabBasePage.page-shadowing-player .sub-pron-score-badge:not(:disabled):not([data-grade]) {
+  display: inline-flex; align-items: center; gap: 6px; min-width: 0; height: 36px; padding: 0 16px;
+  border-color: var(--color-primary, #5b3f99); border-radius: 999px; background: var(--color-primary, #5b3f99);
+  color: var(--color-on-primary, #fff); font-size: 13px; box-shadow: 0 6px 14px rgba(91, 63, 153, .25);
+}
+#jlabBasePage.page-shadowing-player .sub-pron-score-badge:not(:disabled):not([data-grade])::before {
+  content: "\f78c"; font: var(--fa-font-solid, 900 1em "Font Awesome 6 Free"); /* fa-chart-simple, as on "Chấm phát âm" */
+}
+#jlabBasePage.page-shadowing-player .sub-pron-score-badge:focus-visible { outline: 3px solid var(--color-focus, #8e6ff0); outline-offset: 2px; }
+@media (max-width: 640px) {
+  #jlabBasePage.page-shadowing-player .sub-pron-score-badge:not(:disabled):not([data-grade]) { height: 44px; padding: 0 22px; font-size: 15px; }
+}
+html[data-theme="dark"] #jlabBasePage.page-shadowing-player .sub-pron-score-badge:not(:disabled):not([data-grade]) {
+  border-color: var(--dark-button); background: var(--dark-button); color: var(--dark-on-button); box-shadow: none;
+}
 #jlabBasePage.page-shadowing-player .sub-pron-score-badge[data-grade="good"] { color: #087443; }
 #jlabBasePage.page-shadowing-player .sub-pron-score-badge[data-grade="fair"] { color: #9a5b00; }
 #jlabBasePage.page-shadowing-player .sub-pron-score-badge[data-grade="weak"] { color: #ba1a1a; }

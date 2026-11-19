@@ -178,3 +178,9 @@
   .journey-ui #jlabBaseContent .lesson-tab { flex:1 1 auto; padding:10px; }
   .journey-ui #jlabBaseContent :is(.textbooks-hero__title,.lp-day__summary,.grammar-item__pattern) { overflow-wrap:anywhere; }
 }
+
+/* [JLAS-W0108] F86: "Quay về" pill on the older Learning pages (grammar, lesson, quiz) instead of a breadcrumb. */
+a.jp-back:not(.jp-ws__crumbs){display:inline-flex;align-items:center;gap:6px;max-width:100%;margin:0 0 16px;padding:6px 14px 6px 10px;border:1px solid var(--color-outline-variant,#ddd6e8);border-radius:999px;background:var(--color-surface-lowest,#fff);color:inherit;font-size:14px;font-weight:600;line-height:1.3;text-decoration:none}
+a.jp-back:not(.jp-ws__crumbs):hover{border-color:var(--color-primary,#7c3aed);color:var(--color-primary,#7c3aed)}
+a.jp-back:not(.jp-ws__crumbs) .jp-back__icon{flex:none;width:18px;height:18px}
+a.jp-back:not(.jp-ws__crumbs) span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

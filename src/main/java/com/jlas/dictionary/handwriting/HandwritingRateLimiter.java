@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Giới hạn số lần nhận diện mỗi phút theo user (cùng cách làm với PronunciationRateLimitService).
+ * Giới hạn số lần nhận diện mỗi phút theo user hoặc IP của khách (cùng cách làm với PronunciationRateLimitService).
  * FE đã debounce nên người dùng thật chỉ gửi ~1-2 request/giây; giới hạn này chặn client độc hại
  * hoặc script gọi liên tục để đốt CPU. Mặc định 180/phút, chỉnh bằng
  * {@code dictionary.handwriting.requests-per-minute} (<= 0 nghĩa là tắt).
@@ -23,7 +23,7 @@ public class HandwritingRateLimiter {
 
     private static final long WINDOW_MILLIS = 60_000L;
 
-    private final Map<Long, Deque<Long>> windows = new ConcurrentHashMap<>();
+    private final Map<String, Deque<Long>> windows = new ConcurrentHashMap<>();
     private final int limit;
     private final Clock clock;
 
@@ -37,10 +37,10 @@ public class HandwritingRateLimiter {
         this.clock = clock;
     }
 
-    public void check(Long userId) {
-        if (limit <= 0 || userId == null) return;
+    public void check(String clientKey) {
+        if (limit <= 0) return;
         long now = clock.millis();
-        Deque<Long> requests = windows.computeIfAbsent(userId, ignored -> new ArrayDeque<>());
+        Deque<Long> requests = windows.computeIfAbsent(clientKey, ignored -> new ArrayDeque<>());
         synchronized (requests) {
             while (!requests.isEmpty() && now - requests.peekFirst() >= WINDOW_MILLIS) {
                 requests.removeFirst();

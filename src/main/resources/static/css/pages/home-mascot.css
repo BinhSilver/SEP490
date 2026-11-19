@@ -1,0 +1,102 @@
+/* [JLAS-W0108] F129 the fox on the word-card menu button (home-mascot.js). Loaded after home-word-deck.css and
+   only overrides the menu button's size; the sprite sheets are 3x3, so background-size 300% steps cell by cell. */
+.hwd {
+  --hm-size: 88px;
+  --hm-inside: 20px; /* how far the fox sits down into the frame, as the old Kitsu did */
+}
+
+.hwd .hwd-bar:has(.hm-mascot-btn) { top: calc(var(--hm-inside) - var(--hm-size)); }
+/* F169 (chủ dự án 15/11): on a wide screen the frame sits ~48px under the sticky header, so a fox poking up 68px lost its ears behind it */
+@media (min-width: 641px) {
+  .hwd .hwd-bar:has(.hm-mascot-btn) { top: max(calc(var(--hm-inside) - var(--hm-size)), -42px); }
+}
+
+.hwd .hwd-more.hm-mascot-btn {
+  width: var(--hm-size);
+  height: var(--hm-size);
+  /* the head turns in place, so no tilt on hover: only a small lift */
+  transition: transform .2s ease;
+}
+.hwd .hwd-more.hm-mascot-btn:hover,
+.hwd .hwd-more.hm-mascot-btn[aria-expanded="true"] { transform: translateY(-2px); }
+.hwd .hwd-more.hm-mascot-btn:focus-visible { border-radius: 24px; }
+
+.hm-mascot,
+.hm-mascot__squash { position: relative; display: block; width: 100%; height: 100%; }
+.hm-mascot__squash { transform-origin: 50% 78%; }
+.hm-mascot {
+  /* the fox is drawn on a transparent sheet: a soft shadow keeps it readable on the photo, day or night */
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / .22));
+}
+
+.hm-mascot__layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: 300% 300%;
+}
+.hm-mascot__react { opacity: 0; }
+.hm-mascot-btn.is-reacting .hm-mascot__dir { opacity: 0; }
+.hm-mascot-btn.is-reacting .hm-mascot__react { opacity: 1; }
+
+html.home-html[data-theme="dark"] .hm-mascot,
+.home-hero:has([data-home-lighting="night"]) .hm-mascot {
+  filter: drop-shadow(0 0 10px rgb(255 214 170 / .28)) drop-shadow(0 6px 10px rgb(0 0 0 / .4));
+}
+
+/* [JLAS-W0108] F162: màn nhỏ như điện thoại lược khung kính (.hwd-photo), chỉ giữ ô lướt từ theo % màn hình */
+@media (max-width: 640px) {
+  .hwd {
+    --hm-size: clamp(3.4rem, 15vw, 4.1rem);
+    --hm-inside: clamp(0.75rem, 2dvh, 1rem);
+    /* F165 (chủ dự án 15/11): 82vw was too big for a phone; ~64% of the width, about a third of the height */
+    width: min(64vw, 16.5rem);
+    margin: clamp(2.25rem, 5dvh, 3.25rem) auto clamp(1.25rem, 3dvh, 2rem);
+    padding-left: 0;
+  }
+  .hwd .hwd-photo { display: none; }
+  .hwd .hwd-stage { aspect-ratio: auto; width: 100%; }
+  .hwd .hwd-deck {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    aspect-ratio: 1 / 1.05;
+    max-height: 36dvh;
+    margin: 0 auto;
+  }
+  .hwd .hwd-bar { right: 2%; }
+  .hwd .hwd-menu { max-width: 84vw; }
+  .hwd .hwd-card { padding: 6% 7% 5%; transform: rotate(-1deg); }
+  .hwd .hwd-card .hwd-card__eyebrow { font-size: clamp(0.64rem, 2.8vw, 0.74rem); padding-right: 18%; }
+  .hwd .hwd-card .hwd-card__word { font-size: clamp(1.35rem, 6.2vw, 1.9rem); line-height: 1.2; }
+  .hwd .hwd-card .hwd-card__reading { font-size: clamp(0.88rem, 3.6vw, 1.02rem); }
+  .hwd .hwd-card .hwd-card__meaning { font-size: clamp(0.88rem, 3.6vw, 1.02rem); }
+  .hwd .hwd-card .hwd-card__hint { font-size: clamp(0.68rem, 2.9vw, 0.78rem); }
+}
+
+/* [JLAS-W0108] F166: the card says at once that a new word source is loading, and shows where you are in the list */
+.hwd .hwd-card.is-loading .hwd-card__face,
+.hwd .hwd-card.is-loading .hwd-card__hint,
+.hwd .hwd-card.is-loading .hwd-card__foot { opacity: .35; transition: opacity .2s ease; }
+.hwd .hwd-card.is-loading .hwd-card__eyebrow { opacity: 1; animation: hwdLoadingPulse 1.1s ease-in-out infinite; }
+.hwd .hwd-card .hwd-card__count { font-weight: 600; letter-spacing: .02em; text-transform: none; opacity: .85; white-space: nowrap; }
+.hwd .hwd-card .hwd-card__note { margin: 0 0 4px; font-size: .72rem; line-height: 1.35; text-align: center; opacity: .7; }
+@keyframes hwdLoadingPulse { 50% { opacity: .45; } }
+
+@media (max-width: 640px) {
+  /* F166: on a phone the glass card sits over the darkest part of the scene; a denser card keeps the foot readable */
+  .hwd .hwd-card { background: color-mix(in srgb, var(--hwd-paper) 92%, transparent); }
+  .hwd .hwd-card .hwd-card__learn { font-weight: 700; opacity: 1; padding: 6px 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hwd .hwd-card.is-loading .hwd-card__eyebrow { animation: none; }
+  .hwd .hwd-more.hm-mascot-btn,
+  .hwd .hwd-more.hm-mascot-btn.is-waking { transition: none; animation: none; }
+  .hwd .hwd-more.hm-mascot-btn:hover,
+  .hwd .hwd-more.hm-mascot-btn[aria-expanded="true"] { transform: none; }
+}
+
+/* home-word-deck.css pins the button to 56px with !important inside the site shell; the fox needs its own size */
+#jlabBaseContent .hwd .hwd-more.hm-mascot-btn { height: var(--hm-size) !important; }

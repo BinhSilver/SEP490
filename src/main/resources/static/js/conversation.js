@@ -744,17 +744,28 @@
       const rec = new SR();
       rec.lang = 'ja-JP';
       rec.interimResults = false;
+      // Một lần nói tối đa voiceMaxSeconds giây và chữ nhận được không vượt maxlength của ô nhập (kế hoạch Pro/CP).
+      const voiceMaxMs = (Number(input.dataset.voiceMaxSeconds) || 30) * 1000;
+      const maxChars = Number(input.getAttribute('maxlength')) || 0;
+      let voiceTimer = null;
+      const stopVoiceTimer = function () {
+        if (voiceTimer) clearTimeout(voiceTimer);
+        voiceTimer = null;
+        btnMic.classList.remove('recording');
+      };
       btnMic.addEventListener('click', function () {
         try {
           rec.start();
           btnMic.classList.add('recording');
+          voiceTimer = setTimeout(function () { try { rec.stop(); } catch (e) {} }, voiceMaxMs);
         } catch (e) {}
       });
       rec.onresult = function (ev) {
-        input.value = (ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || input.value;
+        const heard = (ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || input.value;
+        input.value = maxChars > 0 ? Array.from(heard).slice(0, maxChars).join('') : heard;
       };
-      rec.onend = function () { btnMic.classList.remove('recording'); };
-      rec.onerror = function () { btnMic.classList.remove('recording'); };
+      rec.onend = stopVoiceTimer;
+      rec.onerror = stopVoiceTimer;
     } else if (btnMic) {
       btnMic.title = 'Trình duyệt không hỗ trợ nhận giọng nói';
       btnMic.disabled = true;
@@ -868,7 +879,7 @@
         return;
       }
 
-      if (!res.ok && data.code === 'AICALL_JAPANESE_REQUIRED') {
+      if (!res.ok && (data.code === 'AICALL_JAPANESE_REQUIRED' || data.code === 'AICALL_MESSAGE_TOO_LONG')) {
         if (learnerRow) learnerRow.remove();
         if (!input.value) input.value = text;
         showComposeError(data.message || 'AI Call chỉ nhận tiếng Nhật.');

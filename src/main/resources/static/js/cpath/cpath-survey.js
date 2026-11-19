@@ -58,6 +58,26 @@
     'SERVICE-BOOKING': 'Đặt bàn & đặt phòng'
   };
 
+  // First published situation of each topic in communication-compiled/*.json (owner 11/11, F55).
+  var TOPIC_EXAMPLES = {
+    AIR: 'Làm thủ tục ở sân bay', TRAIN: 'Đổi tàu', HOTEL: 'Nhận phòng khách sạn',
+    FOOD: 'Gọi món ở nhà hàng', SHOP: 'Mua sắm và miễn thuế', TROUBLE: 'Khi bị lạc đường',
+    HOME: 'Thuê phòng', MARKET: 'Đi siêu thị', PUBLIC: 'Làm thủ tục ngân hàng',
+    HEALTH: 'Khám bệnh', SCHOOL: 'Báo nghỉ học', SOCIAL: 'Chuyện hàng xóm',
+    TIME: 'Hỏi giờ mở cửa', PM: 'Báo cáo tiến độ trong họp định kỳ',
+    COM: 'Chào hỏi lần đầu gặp khách hàng', REQ: 'Xác nhận điểm chưa rõ trong đặc tả',
+    DEV: 'Tiếp nhận góp ý code review', TEST: 'Báo cáo kết quả kiểm thử',
+    BUG: 'Tiếp nhận báo lỗi từ khách hàng', OPS: 'Báo cáo sơ bộ sự cố production',
+    'OFFICE-GREETING': 'Chào buổi sáng', 'OFFICE-REPORT': 'Báo cáo tiến độ',
+    'OFFICE-LEAVE': 'Xin nghỉ phép', 'OFFICE-PHONE': 'Nhận điện thoại',
+    'OFFICE-MEETING': 'Chuẩn bị họp', 'FACTORY-SAFETY': 'Đeo đồ bảo hộ',
+    'FACTORY-SHIFT': 'Xác nhận ca làm', 'FACTORY-INSTRUCTION': 'Xác nhận quy trình',
+    'FACTORY-ERROR': 'Báo máy hỏng', 'FACTORY-5S': 'Chỉ thị sắp xếp gọn gàng',
+    'SERVICE-RECEPTION': 'Đón khách đến cửa hàng', 'SERVICE-PRODUCT': 'Giới thiệu sản phẩm mới',
+    'SERVICE-PAYMENT': 'Phương thức thanh toán', 'SERVICE-COMPLAINT': 'Phàn nàn hàng lỗi',
+    'SERVICE-BOOKING': 'Đặt phòng'
+  };
+
   var STEP_META = {
     goal: {
       kitsu: 'kitsu-cheer-30.webp',
@@ -91,6 +111,12 @@
   var IT_FIELD = 'IT_BRSE';
   var BA_TOPICS = ['PM', 'COM', 'REQ', 'DEV', 'TEST', 'BUG', 'OPS'];
   function isJob(goal) { return goal === 'BA' || goal === 'WORK' || goal === JOB; }
+  /** True when {@code goal} (a card code, JOB covers BA/WORK) is the learner's current main comm goal. */
+  function isMainGoal(state, goal) {
+    var main = state && state.secondaryPath ? state.mainGoal : null;
+    if (!main) return false;
+    return goal === JOB || isJob(goal) ? isJob(main) : goal === main;
+  }
   function isOffice(code) { return /OFFICE$/.test(String(code || '')); }
 
   /** The goal cards: Du lịch, Đời sống and one "Công việc" card standing for BA + WORK. */
@@ -137,6 +163,21 @@
       descVi: 'Đã giao tiếp được câu cơ bản, muốn luyện phản xạ tự nhiên và lịch sự hơn.'
     }
   ];
+
+  /** F70: "Mới bắt đầu" also says whether they can read Hiragana/Katakana; not yet = Kana suggestion + full romaji. */
+  function kanaQuestionHtml(state) {
+    if ((state.selfLevel || 'BEGINNER') !== 'BEGINNER') return '';
+    var yes = state.knowsKana === true, no = state.knowsKana === false;
+    return '<fieldset class="cp-survey__kana"><legend>Bạn đã đọc được chữ cái tiếng Nhật (Hiragana, Katakana) chưa?</legend>'
+      + '<div class="cp-survey__kana-opts">'
+      + '<button type="button" class="cp-rest-chip" data-cp-kana="yes" aria-pressed="' + (yes ? 'true' : 'false') + '"><span>Đã đọc được</span></button>'
+      + '<button type="button" class="cp-rest-chip" data-cp-kana="no" aria-pressed="' + (no ? 'true' : 'false') + '"><span>Chưa đọc được</span></button>'
+      + '</div>'
+      + (no ? '<p class="cp-survey__kana-tip">Nên học bảng chữ cái trước, khoảng 1–2 tuần. '
+        + '<a href="/kana-connect" target="_blank" rel="noopener">Mở trò chơi chữ cái</a>. '
+        + 'Nếu bỏ qua, cả lộ trình sẽ hiện <strong>romaji đầy đủ</strong> dưới mọi câu và mọi từ; tắt được trong Cài đặt khi bạn đã đọc được chữ.</p>' : '')
+      + '</fieldset>';
+  }
 
   var DAYS_OF_WEEK = [
     { code: 'MON', label: 'T2', full: 'Thứ hai' },
@@ -187,7 +228,13 @@
       + '</svg>';
   }
 
-  function topicLabel(code) {
+  function topicLabel(code, goals) {
+    for (var i = 0; i < (goals || []).length; i++) {
+      var topics = goals[i].topics || [];
+      for (var j = 0; j < topics.length; j++) {
+        if (topics[j].code === code && topics[j].nameVi) return topics[j].nameVi;
+      }
+    }
     return TOPIC_LABELS_FALLBACK[code] || code;
   }
 
@@ -207,7 +254,7 @@
       add(['HOME', 'MARKET', 'PUBLIC', 'HEALTH', 'SCHOOL', 'SOCIAL', 'TIME']);
     }
     return codes.map(function (c) {
-      return { code: c, labelVi: topicLabel(c) };
+      return { code: c, labelVi: topicLabel(c, goals), exampleVi: TOPIC_EXAMPLES[c] || '' };
     });
   }
 
@@ -221,11 +268,13 @@
       role: state.secondaryPath ? 'SECONDARY' : 'MAIN',
       fields: fields,
       priorityTopics: (state.priorityTopics || []).slice(),
-      selfLevel: state.selfLevel || 'ELEMENTARY',
+      selfLevel: state.selfLevel || 'BEGINNER',
       dailySituations: Number(state.dailySituations) === 1 ? 1 : 2,
       restDays: (state.restDays || []).slice()
     };
     if (state.finishDate) payload.finishDate = state.finishDate;
+    // F70 (owner 12/11): a beginner who cannot read Kana yet gets full romaji on the whole path
+    if ((state.selfLevel || 'BEGINNER') === 'BEGINNER' && state.knowsKana === false) payload.knowsKana = false;
     return payload;
   }
 
@@ -235,6 +284,14 @@
     var kind = list[step - 1];
     var total = list.length;
     var meta = STEP_META[kind];
+    if (kind === 'goal' && state.secondaryPath) {
+      meta = {
+        kitsu: STEP_META.goal.kitsu,
+        title: 'Thêm mục tiêu phụ để học tự do',
+        sub: 'Lộ trình chính (' + (state.mainNameVi || state.mainGoal || 'Giao tiếp') + ') vẫn giữ nguyên lịch học hằng ngày. '
+          + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.'
+      };
+    }
     var pct = Math.round((step / total) * 100);
 
     var dotsHtml = list.map(function (k, i) {
@@ -248,13 +305,18 @@
     if (kind === 'goal') {
       var goalCards = displayGoals(goals).map(function (g) {
         var sel = g.goal === JOB ? isJob(state.goal) : state.goal === g.goal;
+        // secondary goal: the main goal cannot be picked again (mentor 11/11)
+        var isMain = isMainGoal(state, g.goal);
+        if (isMain) sel = false;
         var desc = g.goal === 'TRAVEL'
           ? (g.topicCount + ' chủ đề · Sân bay, tàu điện, khách sạn, ăn uống, mua sắm')
           : (g.goal === 'DAILY_LIFE'
             ? (g.topicCount + ' chủ đề · Nhà cửa, siêu thị, hành chính, bệnh viện, trường học')
             : (g.topicCount + ' chủ đề · IT / BrSE, Văn phòng, Nhà máy, Dịch vụ'));
+        if (isMain) desc = 'Đang là lộ trình chính · ' + desc;
         return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
-          + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '">'
+          + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '"'
+          + (isMain ? ' disabled title="Đây là lộ trình chính của bạn"' : '') + '>'
           + '<span class="cp-pill__icon">' + svgGoalIcon(g.goal) + '</span>'
           + '<span class="cp-pill__body">'
           + '<span class="cp-pill__label">' + esc(g.nameVi) + '</span>'
@@ -292,7 +354,7 @@
           + '<span class="cp-pill__icon">' + svgTopicIcon() + '</span>'
           + '<span class="cp-pill__body">'
           + '<span class="cp-pill__label">' + esc(t.labelVi) + '</span>'
-          + '<span class="cp-pill__desc">3 tình huống hội thoại</span>'
+          + '<span class="cp-pill__desc">' + esc(t.exampleVi ? 'Ví dụ: ' + t.exampleVi : 'Tình huống hội thoại') + '</span>'
           + '</span>'
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
           + '</button>';
@@ -317,7 +379,8 @@
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
           + '</button>';
       }).join('');
-      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>';
+      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>'
+        + kanaQuestionHtml(state);
     } else {
       var pace1 = Number(state.dailySituations) === 1;
       var pace2 = Number(state.dailySituations) !== 1;
@@ -353,11 +416,13 @@
 
     var prevBtn = step > 1
       ? '<button type="button" class="cp-btn-ghost" data-cp-prev>‹ Quay lại</button>'
-      : '<span></span>';
+      // step 1 still goes back: a secondary goal returns to the path, otherwise to the general survey (owner 11/11)
+      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey') + '">‹ Quay lại</a>';
     var nextBtn = step < total
       ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
-        + (state.submitting ? 'Đang tạo lộ trình…' : 'Bắt đầu lộ trình giao tiếp') + '</button>';
+        + (state.submitting ? (state.secondaryPath ? 'Đang thêm mục tiêu phụ…' : 'Đang tạo lộ trình…')
+          : (state.secondaryPath ? 'Thêm mục tiêu phụ' : 'Bắt đầu lộ trình giao tiếp')) + '</button>';
 
     return '<section class="cp-survey__card" aria-labelledby="cpSurveyTitle">'
       + '<div class="cp-survey__top">'
@@ -391,7 +456,7 @@
       presetGoal: false,
       fields: [],
       priorityTopics: [],
-      selfLevel: 'ELEMENTARY',
+      selfLevel: 'BEGINNER',
       dailySituations: 2,
       restDays: ['SUN'],
       finishDate: '',
@@ -409,7 +474,32 @@
       }
     }
 
+    function syncSecondaryGoal() {
+      // F170: changing the secondary goal starts on the one the learner has now (it used to preselect the first other goal)
+      var cur = state.currentSecondary;
+      if (cur && !state.secondaryPicked && !isMainGoal(state, cur)
+          && goalsData.some(function (g) { return g.goal === cur || (isJob(cur) && g.goal === JOB); })) {
+        state.secondaryPicked = true;
+        if (state.goal !== cur) { state.goal = cur; state.fields = []; state.priorityTopics = []; }
+      }
+      if (isMainGoal(state, isJob(state.goal) ? JOB : state.goal)) {
+        var other = displayGoals(goalsData).filter(function (g) { return !isMainGoal(state, g.goal); })[0];
+        if (other) {
+          state.goal = other.goal === JOB ? 'WORK' : other.goal;
+          state.fields = [];
+          state.priorityTopics = [];
+        }
+      }
+      syncDefaultTopics();
+    }
+
+    // [JLAS-W0108] F155: wait for both /comm/goals and /comm/path so neither main-goal flash nor empty goal grid renders
+    var goalsLoaded = false;
+    var pathChecked = false;
+    var loadFailed = false;
+    var redirected = false;
     function render() {
+      if (!goalsLoaded || !pathChecked || loadFailed || redirected) return;
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = surveyHtml(goalsData, state);
     }
@@ -427,7 +517,7 @@
       }
 
       var goalBtn = t.closest('[data-cp-goal]');
-      if (goalBtn) {
+      if (goalBtn && !goalBtn.disabled && !(goalBtn.hasAttribute && goalBtn.hasAttribute('disabled'))) {
         var picked = goalBtn.getAttribute('data-cp-goal') || 'TRAVEL';
         // "Công việc" starts on WORK (office only); the field step picks IT / BrSE or the industries
         if (picked === JOB) { if (!isJob(state.goal)) { state.goal = 'WORK'; state.fields = []; } }
@@ -479,9 +569,16 @@
         return;
       }
 
+      var kanaBtn = t.closest('[data-cp-kana]');
+      if (kanaBtn) {
+        state.knowsKana = kanaBtn.getAttribute('data-cp-kana') === 'yes';
+        render();
+        return;
+      }
+
       var lvBtn = t.closest('[data-cp-level]');
       if (lvBtn) {
-        state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'ELEMENTARY';
+        state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'BEGINNER';
         render();
         return;
       }
@@ -546,6 +643,7 @@
     });
 
     function failLoad() {
+      loadFailed = true;
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = '<section class="cp-survey__card"><p class="jp-alert" role="alert">Chưa tải được danh sách mục tiêu.</p>'
         + '<p><button type="button" class="cp-btn-primary" data-cp-reload>Thử lại</button></p></section>';
@@ -554,26 +652,39 @@
       if (ev.target && ev.target.closest && ev.target.closest('[data-cp-reload]') && root.location) root.location.reload();
     });
 
+    var urlGoal = null;
+    var forceSecondary = false;
+    try {
+      var params = new (root.URLSearchParams || URLSearchParams)(String((root.location && root.location.search) || ''));
+      urlGoal = params.get('goal');
+      forceSecondary = params.get('secondary') === '1';
+    } catch (e) {
+      urlGoal = null;
+      forceSecondary = false;
+    }
+
     root.JpathApi.get('/api/learning/comm/goals').then(function (data) {
       goalsData = Array.isArray(data) ? data : [];
       if (!goalsData.length) { failLoad(); return; }
+      goalsLoaded = true;
       // ?goal= from the general survey (BA = "Công việc", TRAVEL, DAILY_LIFE): that goal is not asked again
-      var want = null;
-      try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
+      var want = urlGoal;
       var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
       function applyPresetGoal() {
-      if (want && isJob(want) && (has('WORK') || has('BA'))) {
-        state.goal = has('WORK') ? 'WORK' : 'BA';
-        state.presetGoal = true;
-      } else if (want && has(want)) {
-        state.goal = want;
-        state.presetGoal = true;
-      }
-      syncDefaultTopics();
-      render();
+        // adding a secondary goal always starts on the goal step; the saved survey goal is the main one
+        if (state.secondaryPath) { syncSecondaryGoal(); render(); return; }
+        if (want && isJob(want) && (has('WORK') || has('BA'))) {
+          state.goal = has('WORK') ? 'WORK' : 'BA';
+          state.presetGoal = true;
+        } else if (want && has(want)) {
+          state.goal = want;
+          state.presetGoal = true;
+        }
+        syncDefaultTopics();
+        render();
       }
       applyPresetGoal();
-      if (!want) {
+      if (!want && !forceSecondary) {
         Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
           var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
           var saved = savedSurvey && savedSurvey.goal;
@@ -584,16 +695,48 @@
       }
     }, failLoad);
 
-    // a learner who already has a main goal adds a secondary one here (free study, no daily plan)
+    // [JLAS-W0108] F152/F155: distinguish secondary-goal add (?secondary=1 or plain /survey with existing path)
+    // from main-goal edit (/survey?edit=goal -> /learning/comm/survey?goal=...)
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
-      if (!p || !p.goal) return;
+      if (!p || !p.goal) {
+        pathChecked = true;
+        render();
+        return;
+      }
+      if (!forceSecondary && urlGoal) {
+        if (urlGoal === p.goal || (urlGoal === 'BA' && isJob(p.goal))) {
+          redirected = true;
+          if (root.location) {
+            if (typeof root.location.replace === 'function') root.location.replace('/learning/comm/path');
+            else root.location.href = '/learning/comm/path';
+          }
+          return;
+        }
+        pathChecked = true;
+        render();
+        return;
+      }
       state.secondaryPath = true;
       state.presetGoal = false;
-      STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
-      STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
-        + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.';
+      state.mainGoal = p.goal;
+      state.mainNameVi = p.nameVi || p.goal;
+      state.currentSecondary = p.secondary && p.secondary.goal ? p.secondary.goal : null;
+      if (p.selfLevel === 'BEGINNER' || p.selfLevel === 'ELEMENTARY' || p.selfLevel === 'INTERMEDIATE') {
+        state.selfLevel = p.selfLevel;
+      }
+      if (p.display && typeof p.display.fullRomaji === 'boolean') {
+        state.knowsKana = !p.display.fullRomaji;
+      }
+      state.step = 1;
+      state.errorMsg = '';
+      if (goalsData.length) syncSecondaryGoal();
+      pathChecked = true;
       render();
-    }, function () { /* no main goal yet: this survey makes it */ });
+    }).catch(function () { /* no main goal yet: this survey makes it */ }).then(function () {
+      if (pathChecked || redirected) return;
+      pathChecked = true;
+      render();
+    });
   }
 
   return {

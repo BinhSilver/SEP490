@@ -51,6 +51,7 @@ public class JpathSkillController {
     @PostMapping("/sections")
     public ResponseEntity<ApiResponse<JpathCheckView>> startSection(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSectionStartRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId()); // F133: same gate as a skill session
         return ResponseEntity.ok(ApiResponse.ok("OK", sections.start(user.userId(), request.skill())));
     }
 
@@ -77,6 +78,7 @@ public class JpathSkillController {
     public ResponseEntity<ApiResponse<JpathSkillLessonCheckResult>> checkLesson(
             @AuthenticationPrincipal UserPrincipal user, @PathVariable String typeCode,
             @Valid @RequestBody JpathSkillLessonCheckRequest request) {
+        if (premiumGate != null) premiumGate.require(user.userId()); // F133: the theory step of a skill session
         return ResponseEntity.ok(ApiResponse.ok("OK",
                 lessons.check(user.userId(), typeCode, request.option(), request.sessionId())));
     }

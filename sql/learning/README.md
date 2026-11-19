@@ -88,3 +88,13 @@ CHECK change to Part B through its guarded helper so that a second run changes n
   chính sách đó. Nhưng AUTO_INCREMENT của `grammar_point`, `content_item`, `lesson`… trên DB thật đang nằm trong dải N3, nên
   hàng mới của bất kỳ nhóm nào cũng nhận id trong dải đó; nếu bản dựng lại sách N3 có thêm ô mới thì ô đó có thể trùng id
   hàng của nhóm khác. Khi gộp: nâng AUTO_INCREMENT các bảng này lên trên 8e9 hoặc chuyển dải id của sách tổng hợp.
+
+## Sửa liên kết từ điển (F35, 11/11)
+
+`jpath_vocabulary.dictionary_entry_id` từng được nướng cứng theo id của một bản DB, nên trên DB khác có thể trỏ
+sai từ (重い → 台所) hoặc id không tồn tại. Từ 11/11 mỗi file `learning_data_N*.sql` tự tra lại id theo
+(normalized_expression, normalized_reading) ngay khi nạp. Với DB **đã nạp từ trước** thì chạy một lần:
+
+    mysql <db> < sql/learning/fix_jpath_dictionary_links.sql
+
+Chạy lại nhiều lần vẫn an toàn. Từ không tra ra mục từ điển sẽ để NULL và web báo rõ khi lưu sổ tay.

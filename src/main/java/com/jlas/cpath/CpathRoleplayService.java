@@ -26,16 +26,21 @@ public class CpathRoleplayService {
     }
 
     record Question(String id, String promptJa, String promptVi, String promptAudio,
-                    String replyJa, List<String> options, int answer, boolean speaking) {
+                    String replyJa, List<String> options, int answer, boolean speaking,
+                    String promptFurigana, List<String> optionsFurigana) {
         Map<String, Object> publicView() {
             Map<String, Object> out = new LinkedHashMap<>();
             out.put("id", id);
             out.put("promptJa", promptJa);
+            out.put("promptFurigana", promptFurigana == null ? "" : promptFurigana); // F195 (L11): furigana on quick practice
             out.put("promptVi", promptVi);
             out.put("promptAudioUrl", promptAudio);
             out.put("speaking", speaking);
             if (speaking) out.put("replyJa", replyJa);
-            else out.put("options", options);
+            else {
+                out.put("options", options);
+                out.put("optionsFurigana", optionsFurigana);
+            }
             return out;
         }
     }
@@ -60,7 +65,14 @@ public class CpathRoleplayService {
         } else {
             paths = db.queryForList("SELECT id, goal_code FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1", userId);
         }
-        if (paths.isEmpty()) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
+        if (paths.isEmpty()) {
+            // F95 (13/11): a learner who has a path but opens an unknown / other-goal code gets the content message,
+            // not "no path"
+            Integer active = "goal".equals(scope) ? Integer.valueOf(0)
+                    : db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+            throw new ApiException(ErrorCode.NOT_FOUND, active != null && active > 0
+                    ? "Nội dung không thuộc lộ trình hiện tại." : "Bạn chưa có lộ trình giao tiếp.");
+        }
         long id = ((Number) paths.get(0).get("id")).longValue();
         String goal = String.valueOf(paths.get(0).get("goal_code"));
         if (!"goal".equals(scope)) {
@@ -85,13 +97,19 @@ public class CpathRoleplayService {
     }
 
     private List<Question> questions(Context ctx) {
-        List<Map<String, Object>> rows = db.queryForList("SELECT l.situation_code, l.line_order, l.learner, l.ja, l.vi, l.audio_path, s.topic_code "
+        List<Map<String, Object>> rows = db.queryForList("SELECT l.situation_code, l.line_order, l.learner, l.ja, l.furigana, l.vi, l.audio_path, s.topic_code "
                 + "FROM cpath_line l JOIN cpath_situation s ON s.code = l.situation_code "
                 + "JOIN cpath_topic t ON t.code = s.topic_code WHERE t.goal_code = ? "
                 + "ORDER BY s.sort_order, l.situation_code, l.line_order", ctx.goal());
+        // F204: a WORK learner gets lines (and wrong answers) only from the fields they chose, like the situation list
+        Set<String> allowed = path.allowedTopics(db.queryForMap("SELECT * FROM cpath_user_path WHERE id = ?", ctx.pathId()));
+        if (allowed != null) rows = rows.stream().filter(r -> allowed.contains(String.valueOf(r.get("topic_code")))).toList();
         Set<String> replies = new LinkedHashSet<>();
-        for (Map<String, Object> row : rows) if (learner(row))
+        Map<String, String> furiByJa = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) if (learner(row)) {
             replies.add(String.valueOf(row.get("ja")));
+            if (row.get("furigana") != null) furiByJa.putIfAbsent(String.valueOf(row.get("ja")), String.valueOf(row.get("furigana")));
+        }
         if (replies.size() < 4) throw new ApiException(ErrorCode.CONFLICT, "Mục tiêu chưa đủ câu đáp để tạo bài nhập vai.");
         List<Map<String, Object>> candidates = new ArrayList<>();
         Map<String, Object> previous = null;
@@ -136,8 +154,10 @@ public class CpathRoleplayService {
                 Collections.shuffle(options, new Random(ctx.pathId() + id.hashCode()));
                 answer = options.indexOf(right);
             }
+            List<String> optFuri = options.stream().map(o -> furiByJa.getOrDefault(o, "")).toList();
             out.add(new Question(id, String.valueOf(prompt.get("ja")), String.valueOf(prompt.getOrDefault("vi", "")),
-                    audio(prompt.get("audio_path")), right, List.copyOf(options), answer, speaking));
+                    audio(prompt.get("audio_path")), right, List.copyOf(options), answer, speaking,
+                    prompt.get("furigana") == null ? "" : String.valueOf(prompt.get("furigana")), optFuri));
         }
         return out;
     }
@@ -152,11 +172,24 @@ public class CpathRoleplayService {
         out.put("passScore", "topic".equals(scope) ? 80 : 70);
         out.put("open", !"goal".equals(scope) || path.goalRetryOpen(userId));
         out.put("questions", questions(ctx).stream().map(Question::publicView).toList());
+        out.put("display", CpathService.displayOf(db.queryForMap("SELECT * FROM cpath_user_path WHERE id = ?", ctx.pathId())));
         return out;
     }
 
     List<Question> gradingQuestions(Long userId, String scope, String code) {
         return questions(context(userId, scope, code));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> quickPick(Long userId, String code, String questionId, int optionIndex) {
+        Question q = questions(context(userId, "situation", code)).stream()
+                .filter(candidate -> candidate.id().equals(questionId) && !candidate.speaking())
+                .findFirst().orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED,
+                        "Câu luyện nhanh không hợp lệ."));
+        if (optionIndex < 0 || optionIndex >= q.options().size()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lựa chọn không hợp lệ.");
+        }
+        return Map.of("correct", optionIndex == q.answer());
     }
 
     @Transactional

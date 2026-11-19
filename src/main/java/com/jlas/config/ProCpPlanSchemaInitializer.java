@@ -8,8 +8,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Applies the tables of migration 066 (gói Pro và CP) for databases that have not run it: quick lookup
- * allowance, daily pronunciation checks and the AI usage log. The reward and price updates stay in the migration.
+ * Applies the tables of migrations 066 and 079 (gói Pro và CP) for databases that have not run them: quick lookup
+ * allowance, daily pronunciation checks, the AI usage log, weekly Shadowing video creation and "Không hỏi lại hôm nay".
+ * The reward and price updates stay in the migration.
  */
 @Component
 @Profile("!test")
@@ -46,6 +47,23 @@ public class ProCpPlanSchemaInitializer implements ApplicationRunner {
                 + "created_at DATETIME(6) NOT NULL, PRIMARY KEY (id), "
                 + "KEY idx_ai_usage_feature_created (feature, created_at), KEY idx_ai_usage_user_created (user_id, created_at), "
                 + "CONSTRAINT fk_ai_usage_log_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL"
+                + TABLE_OPTIONS);
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_minutes_weekly ("
+                + "user_id BIGINT UNSIGNED NOT NULL, week_start DATE NOT NULL, minutes_used INT UNSIGNED NOT NULL DEFAULT 0, "
+                + "PRIMARY KEY (user_id, week_start), "
+                + "CONSTRAINT fk_shadowing_minutes_weekly_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+                + TABLE_OPTIONS);
+        jdbc.execute("CREATE TABLE IF NOT EXISTS shadowing_create_charge ("
+                + "video_id BIGINT UNSIGNED NOT NULL, user_id BIGINT UNSIGNED NOT NULL, week_start DATE NOT NULL, "
+                + "quota_minutes INT UNSIGNED NOT NULL, credit_paid INT UNSIGNED NOT NULL, refunded_at DATETIME(6) NULL, "
+                + "created_at DATETIME(6) NOT NULL, PRIMARY KEY (video_id), "
+                + "KEY idx_shadowing_create_charge_user (user_id, created_at), "
+                + "CONSTRAINT fk_shadowing_create_charge_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+                + TABLE_OPTIONS);
+        jdbc.execute("CREATE TABLE IF NOT EXISTS cp_auto_pay ("
+                + "user_id BIGINT UNSIGNED NOT NULL, feature VARCHAR(30) NOT NULL, pay_date DATE NOT NULL, "
+                + "unit_cost INT UNSIGNED NOT NULL, enabled_at DATETIME(6) NOT NULL, PRIMARY KEY (user_id, feature, pay_date), "
+                + "CONSTRAINT fk_cp_auto_pay_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
                 + TABLE_OPTIONS);
     }
 }

@@ -59,6 +59,7 @@
 
     var btnSettings = document.getElementById('btn-settings');
     if (btnSettings) btnSettings.addEventListener('click', openSettings);
+    bindCardListPager();
     var trackInput = document.getElementById('track-progress');
     trackInput.checked = trackProgress;
     trackInput.addEventListener('change', function () {
@@ -821,6 +822,7 @@
     count.textContent = setCards.length + ' thẻ';
     setCards.forEach(function (card, cardIndex) {
       var item = document.createElement('tr');
+      item.dataset.cardPage = String(Math.floor(cardIndex / CARD_LIST_PAGE) + 1);
       var number = document.createElement('th');
       number.scope = 'row';
       number.className = 'study-card-list__number';
@@ -833,6 +835,45 @@
         item.appendChild(cell);
       });
       container.appendChild(item);
+    });
+    cardListPages = Math.max(1, Math.ceil(setCards.length / CARD_LIST_PAGE));
+    cardListTotal = setCards.length;
+    document.getElementById('study-card-list-pager').hidden = cardListPages < 2;
+    showCardListPage(1, 0);
+  }
+
+  // ---- Card list paging: 10 rows a page, the new page slides in from the side the learner moved to. ----
+  var CARD_LIST_PAGE = 10;
+  var cardListPage = 1, cardListPages = 1, cardListTotal = 0;
+
+  function showCardListPage(page, direction) {
+    cardListPage = Math.max(1, Math.min(cardListPages, page));
+    var body = document.getElementById('study-card-list-items');
+    Array.prototype.forEach.call(body.rows, function (row) { row.hidden = Number(row.dataset.cardPage) !== cardListPage; });
+    var first = (cardListPage - 1) * CARD_LIST_PAGE + 1, last = Math.min(cardListTotal, cardListPage * CARD_LIST_PAGE);
+    document.getElementById('study-cards-page').textContent = 'Trang ' + cardListPage + '/' + cardListPages + ' · thẻ ' + first + '–' + last;
+    document.getElementById('study-cards-prev').disabled = cardListPage === 1;
+    document.getElementById('study-cards-next').disabled = cardListPage === cardListPages;
+    if (direction) {
+      body.classList.remove('is-slide-next', 'is-slide-prev');
+      void body.offsetWidth; // restart the animation on every turn
+      body.classList.add(direction > 0 ? 'is-slide-next' : 'is-slide-prev');
+    }
+  }
+
+  function turnCardListPage(step) {
+    if (cardListPage + step < 1 || cardListPage + step > cardListPages) return;
+    showCardListPage(cardListPage + step, step);
+  }
+
+  function bindCardListPager() {
+    document.getElementById('study-cards-prev').addEventListener('click', function () { turnCardListPage(-1); });
+    document.getElementById('study-cards-next').addEventListener('click', function () { turnCardListPage(1); });
+    document.querySelector('.study-card-list__table-wrap').addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        turnCardListPage(event.key === 'ArrowRight' ? 1 : -1);
+      }
     });
   }
 

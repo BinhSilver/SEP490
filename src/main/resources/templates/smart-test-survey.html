@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Khảo sát học tập - KotsuKotsu', 'smart-test')}"></head>
-<body id="jlabBasePage" class="app-body smart-test-body journey-ui"><link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css?v=20261106-r6}" /><div id="jlabBaseShellMount"></div>
+<body id="jlabBasePage" class="app-body smart-test-body"><link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css?v=20261106-r6}" /><div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="survey-page">
     <div id="surveyWizard" class="survey-wizard">
         <header class="survey-progress-header">
@@ -12,6 +12,7 @@
             <a id="surveyLater" class="survey-later" href="/">Để sau</a>
         </header>
         <div id="surveyNotice" class="smart-test-notice" role="alert" hidden></div>
+        <p id="surveyLoading" class="st-note" role="status">Đang tải khảo sát…</p>
         <section id="surveyInvitation" class="survey-invitation" hidden aria-live="polite">
             <div class="survey-invitation__mascot"><img class="survey-fox" src="/images/mascots/kitsu/kitsu-celebrate-30.webp" alt="" width="112" height="112" aria-hidden="true"></div>
             <div class="survey-invitation__content">
@@ -25,7 +26,7 @@
                 <button id="surveyEdit" class="survey-edit-link" type="button">Chỉnh lại khảo sát</button>
             </div>
         </section>
-        <form id="smartTestSurveyForm" novalidate>
+        <form id="smartTestSurveyForm" novalidate hidden>
             <div class="survey-shared-mascot" aria-hidden="true">
                 <img class="survey-fox survey-fox--goal" src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="64" height="64">
                 <img class="survey-fox survey-fox--studied" src="/images/mascots/kitsu/kitsu-waving.svg?v=20261009-native-mascots" alt="" width="64" height="64">
@@ -124,5 +125,5 @@
         </form>
     </div>
 </main>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script><script th:src="@{/js/pages/smart-test-survey-targets.js?v=20261021-od34}"></script><script th:src="@{/js/jlptpath/jpath-day-picker.js?v=20261102-jpath2}"></script><script th:src="@{/js/jlptpath/jpath-survey-flow.js?v=20261107-r9}"></script><script th:src="@{/js/pages/smart-test-survey.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav}"></script><script th:src="@{/js/pages/smart-test-survey-targets.js?v=20261021-od34}"></script><script th:src="@{/js/jlptpath/jpath-day-picker.js?v=20261102-jpath2}"></script><script th:src="@{/js/jlptpath/jpath-survey-flow.js?v=20261107-r9}"></script><script th:src="@{/js/pages/smart-test-survey.js?v=20261109-kotsu}"></script>
 </body></html>

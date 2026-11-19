@@ -29,10 +29,10 @@ select option {
   color: var(--color-outline) !important;
 }
 
-.input:focus,
-.select:focus,
-.textarea:focus,
-select:focus {
+html:not(:has(body.jlas-ui-owned)) .input:focus,
+html:not(:has(body.jlas-ui-owned)) .select:focus,
+html:not(:has(body.jlas-ui-owned)) .textarea:focus,
+html:not(:has(body.jlas-ui-owned)) select:focus {
   outline-color: var(--color-focus) !important;
   background: var(--color-surface-low) !important;
   border-color: var(--color-primary) !important;

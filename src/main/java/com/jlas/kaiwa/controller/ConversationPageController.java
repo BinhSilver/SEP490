@@ -1,5 +1,6 @@
 package com.jlas.kaiwa.controller;
 
+import com.jlas.kaiwa.config.AiCallTurnLimits;
 import com.jlas.kaiwa.model.*;
 import com.jlas.kaiwa.repository.*;
 import com.jlas.kaiwa.dto.FuriganaTokenDto;
@@ -41,6 +42,7 @@ public class ConversationPageController {
     private final ObjectMapper objectMapper;
     private final ConversationSpeakerService speakers;
     private final FreeChatSessionService freeChatSessions;
+    private final AiCallTurnLimits turnLimits;
 
     public ConversationPageController(
             AIConversationService conversationService,
@@ -53,7 +55,9 @@ public class ConversationPageController {
             AnnotationService annotationService,
             SuggestedReplyService suggestedReplyService,
             SceneTransitionService sceneTransitionService,
-            ObjectMapper objectMapper, ConversationSpeakerService speakers, FreeChatSessionService freeChatSessions) {
+            ObjectMapper objectMapper, ConversationSpeakerService speakers, FreeChatSessionService freeChatSessions,
+            AiCallTurnLimits turnLimits) {
+        this.turnLimits = turnLimits;
         this.conversationService = conversationService;
         this.freeChatSessions = freeChatSessions;
         this.sessionRepository = sessionRepository;
@@ -238,6 +242,8 @@ public class ConversationPageController {
             backgroundUrl = "/images/scenarios/" + scenario.getSlug() + ".webp";
         }
         model.addAttribute("scenarioBackgroundUrl", freeChat ? "" : backgroundUrl);
+        model.addAttribute("messageMaxChars", turnLimits.messageMaxChars());
+        model.addAttribute("voiceMaxSeconds", turnLimits.voiceMaxSeconds());
         return "aicall/conversation";
     }
 

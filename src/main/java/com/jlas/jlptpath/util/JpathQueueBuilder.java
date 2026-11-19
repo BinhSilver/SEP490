@@ -170,6 +170,31 @@ public final class JpathQueueBuilder {
         return renumber(out);
     }
 
+    /**
+     * [JLAS-W0108] F149: Inserts a repeat of {@code of} immediately before the first {@code MICRO_CHECK} of
+     * {@code of.tab()} after {@code fromPos} (or at the end when none follows), capped at {@code maxRepeats} repeats.
+     */
+    public static List<JpathQueueStep> insertRepeatBeforeCheck(List<JpathQueueStep> queue, int fromPos,
+            JpathQueueStep of, int maxRepeats) {
+        long repeats = queue.stream()
+                .filter(s -> s.repeat() && s.itemType() == of.itemType() && Objects.equals(s.itemCode(), of.itemCode()))
+                .count();
+        if (repeats >= maxRepeats) {
+            return renumber(new ArrayList<>(queue));
+        }
+        int insertAt = queue.size();
+        for (int i = Math.max(0, fromPos + 1); i < queue.size(); i++) {
+            JpathQueueStep s = queue.get(i);
+            if (s.kind() == JpathStepKind.MICRO_CHECK && s.tab() == of.tab()) {
+                insertAt = i;
+                break;
+            }
+        }
+        List<JpathQueueStep> out = new ArrayList<>(queue);
+        out.add(insertAt, of.asRepeat(0));
+        return renumber(out);
+    }
+
     /** Inserts {@code steps} right after index {@code position} (−1 = at the front). */
     public static List<JpathQueueStep> insertAfter(List<JpathQueueStep> q, int position, List<JpathQueueStep> steps) {
         List<JpathQueueStep> out = new ArrayList<>(q);

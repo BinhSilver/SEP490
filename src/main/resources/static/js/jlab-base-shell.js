@@ -309,7 +309,6 @@
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
                 '<a id="' + ids.onyomiItem + '" class="dropdown__item" href="/learning/onyomi" role="menuitem"><i id="' + ids.onyomiIcon + '" aria-hidden="true"></i><span>Onyomi</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
-                '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
                 '<a id="jlabBaseVerbPracticeLink" class="dropdown__item" href="/practice/verbs" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseKanjiMapLink" class="dropdown__item" href="/dictionary/kanji-map" role="menuitem"><span aria-hidden="true">木</span><span>Lược đồ Kanji</span></a>' +
               '</div>' +
@@ -326,6 +325,7 @@
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
+                '<a id="jlabBaseTutorReviewAdminLink" class="dropdown__item" href="/admin/tutor-review" role="menuitem"><span aria-hidden="true">AI</span><span>Duyệt câu trả lời AI</span></a>' +
                 '<a id="jlabBaseKanjiMapAdminLink" class="dropdown__item" href="/admin/kanji-map" role="menuitem"><span aria-hidden="true">字</span><span>Lược đồ Kanji</span></a>' +
               '</div>' +
             '</div>' +
@@ -479,7 +479,7 @@
       path.indexOf('/flashcard/study/') === 0;
     var isShadowing = path === '/shadowing' || path.indexOf('/shadowing/') === 0;
     var isSmartTest = path === '/smart-test' || path === '/survey';
-    var isJlpt = path === '/jlpt' || (path.indexOf('/jlpt/') === 0 && path !== '/jlpt/practice');
+    var isJlpt = path === '/jlpt' || path.indexOf('/jlpt/') === 0;
     var isJlptPractice = path === '/jlpt/practice';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
 

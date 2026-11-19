@@ -2,7 +2,10 @@ package com.jlas.kaiwa.memory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jlas.common.ai.AiFeature;
+import com.jlas.common.ai.AiUsageRecorder;
 import com.jlas.common.exception.ApiException;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.jlas.common.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -30,6 +33,7 @@ public class MemoryAiClient {
     @Value("${openrouter.api.key:}") private String apiKey;
     @Value("${openrouter.api.url:https://openrouter.ai/api/v1}") private String apiUrl;
     @Value("${kaiwa.memory.model:${openrouter.model:openai/gpt-4o-mini}}") private String model;
+    @Autowired(required = false) private AiUsageRecorder usage;
 
     public MemoryAiClient(ObjectMapper json, MemoryProperties properties) {
         this.json = json;
@@ -58,13 +62,14 @@ public class MemoryAiClient {
         return apiUrl.replaceAll("/+$", "").replaceAll("/chat/completions$", "") + path;
     }
 
-    private JsonNode post(RestTemplate http, String path, Map<String, Object> body) {
+    private JsonNode post(AiFeature feature, RestTemplate http, String path, Map<String, Object> body) {
         if (!available()) throw new ApiException(ErrorCode.SERVICE_UNAVAILABLE, "Chưa cấu hình OPENROUTER_API_KEY.");
         var headers = new HttpHeaders();
-        headers.setBearerAuth(apiKey.strip());
+        headers.setBearerAuth(feature.apiKey(apiKey));
         headers.setContentType(MediaType.APPLICATION_JSON);
         try {
             String response = http.postForObject(endpoint(path), new HttpEntity<>(body, headers), String.class);
+            if (usage != null) usage.recordOpenRouter(feature, String.valueOf(body.get("model")), response);
             return json.readTree(response);
         } catch (Exception e) {
             // Do not surface provider bodies: they may contain user conversation or credentials.
@@ -73,7 +78,7 @@ public class MemoryAiClient {
     }
 
     public double[] embed(String text) {
-        JsonNode vector = post(embeddingHttp, "/embeddings", Map.of("model", properties.embeddingModel(),
+        JsonNode vector = post(AiFeature.AI_CALL_MEMORY_EMBED, embeddingHttp, "/embeddings", Map.of("model", properties.embeddingModel(),
                 "input", text, "encoding_format", "float")).path("data").path(0).path("embedding");
         if (!vector.isArray() || vector.isEmpty() || vector.size() > 8192)
             throw new IllegalStateException("Invalid embedding response");
@@ -90,7 +95,7 @@ public class MemoryAiClient {
     }
 
     public String reply(List<Map<String, String>> messages) {
-        String reply = post(chatHttp, "/chat/completions", Map.of("model", model, "messages", messages,
+        String reply = post(AiFeature.AI_CALL_MEMORY_CHAT, chatHttp, "/chat/completions", Map.of("model", model, "messages", messages,
                 "temperature", 0.5, "max_tokens", 900)).path("choices").path(0).path("message").path("content").asText("").strip();
         if (reply.isBlank() || reply.length() > 6000)
             throw new ApiException(ErrorCode.EXTERNAL_SERVICE_ERROR, "AI trả về nội dung không hợp lệ.");
@@ -102,7 +107,7 @@ public class MemoryAiClient {
             var data = Map.of("now", LocalDateTime.now().toString(), "previousSummary", session.summary(),
                     "turns", session.turns().stream().filter(t -> t.id() > session.processedRevision()).toList(),
                     "knownMemories", known.stream().map(m -> Map.of("key", m.key(), "content", m.content(), "kind", m.kind(), "status", m.status())).toList());
-            JsonNode response = post(chatHttp, "/chat/completions", Map.of("model", model, "temperature", 0,
+            JsonNode response = post(AiFeature.AI_CALL_MEMORY_EXTRACT, chatHttp, "/chat/completions", Map.of("model", model, "temperature", 0,
                     "max_tokens", 2400, "reasoning", Map.of("effort", "low", "exclude", true),
                     "response_format", Map.of("type", "json_object"), "messages", List.of(
                     Map.of("role", "system", "content", extractionPrompt),

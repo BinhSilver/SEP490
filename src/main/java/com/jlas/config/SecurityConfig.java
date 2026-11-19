@@ -72,11 +72,16 @@ public class SecurityConfig {
                         // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
                         .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        // Duyệt nội dung do gia sư AI tạo ra: hàng chờ người biên soạn.
+                        .requestMatchers("/admin/tutor-review", "/admin/tutor-review/**", "/api/admin/tutor-review/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
+                        .requestMatchers("/search", "/search/**", "/dictionary/index.html",
+                                "/dictionary/css/**", "/dictionary/js/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
@@ -85,6 +90,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
                                 "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/dictionary/handwriting/recognize").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learning/lessons/*/quiz").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/premium/plans", "/api/credits/packages", "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",

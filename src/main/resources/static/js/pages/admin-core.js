@@ -22,6 +22,7 @@
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
+      { key: 'content-tutor-review', label: 'Duyệt câu trả lời AI', icon: 'fa-robot', href: '/admin/tutor-review', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-verb-practice', label: 'Luyện chia động từ', icon: 'fa-language', href: '/admin/verb-practice', roles: ['CONTENT_CREATOR'] },
       { key: 'content-kanji-map', label: 'Lược đồ Kanji', icon: 'fa-diagram-project', href: '/admin/kanji-map', roles: ['CONTENT_CREATOR'] }
     ] },
@@ -37,6 +38,7 @@
       { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
       { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
       { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
+      { key: 'system-ai-cost', label: 'Chi phí AI', icon: 'fa-calculator', href: '/admin/system/ai-cost', roles: SYSTEM },
       { key: 'system-payments', label: 'Thanh toán', icon: 'fa-receipt', href: '/admin/system/payments', roles: SYSTEM }
     ] },
     { title: 'Trò chơi', items: [

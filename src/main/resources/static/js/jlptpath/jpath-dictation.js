@@ -6,6 +6,7 @@
  *   - A locked line shows every blank: EXACT green, MINOR yellow with the expected text, WRONG red with the expected
  *     text, then the whole sentence and "Luyện nói theo" (window.JpathShadowFollow).
  *   - Every line locked → "Nộp phần chép" (POST /checks/{token}/submit) → opts.onSubmitted().
+ *   - F139: a failed submit/advance or line check says so in [data-dict-status] and gives the button back.
  */
 (function (root, factory) {
   'use strict';
@@ -17,6 +18,8 @@
 
   var BASE = '/api/learning/jlpt/checks/';
   var MASK = '＿＿';
+  var MSG_SUBMIT_FAILED = 'Chưa nộp được phần chép. Kiểm tra kết nối rồi bấm lại.';
+  var MSG_CHECK_FAILED = 'Chưa kiểm được dòng này. Kiểm tra kết nối rồi thử lại.';
   var VERDICT = { EXACT: ['is-exact', 'Đúng'], MINOR: ['is-minor', 'Gần đúng'], WRONG: ['is-wrong', 'Sai'] };
 
   function esc(s) {
@@ -38,7 +41,7 @@
     parts.forEach(function (p, i) {
       out += '<span lang="ja">' + esc(p) + '</span>';
       if (i < parts.length - 1) {
-        out += '<input type="text" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false" size="6"'
+        out += '<input type="text" lang="ja" autocomplete="off" autocapitalize="off" spellcheck="false" size="6" maxlength="40"'
           + ' data-blank="' + i + '" aria-label="Ô trống ' + (i + 1) + '" data-line="' + esc(qid) + '">';
       }
     });
@@ -55,7 +58,8 @@
         var v = VERDICT[list(line.verdicts)[i]] || VERDICT.WRONG;
         var typed = list(line.typed)[i];
         var expected = list(line.expected)[i];
-        out += '<strong class="' + v[0] + '" lang="ja" title="' + esc(v[1]) + '">' + esc(typed || '—') + '</strong>'
+        var shown = typed && String(typed).length > 40 ? String(typed).slice(0, 40) + '…' : typed;
+        out += '<strong class="' + v[0] + '" lang="ja" title="' + esc(v[1]) + '">' + esc(shown || '—') + '</strong>'
           + (list(line.verdicts)[i] === 'EXACT' ? '' : ' <span class="' + v[0] + '">(' + esc(v[1]) + ': ' + esc(expected) + ')</span>');
       }
     });
@@ -81,7 +85,8 @@
       + 'hoặc chữ Hán đều được; sai nhẹ (ん, っ, trường âm) vẫn tính đúng.</p>'
       + lines.map(function (l) { return lineHtml(l, view.token); }).join('')
       + (view.status === 'ISSUED' ? '<button type="button" class="jp-btn jp-btn--primary" data-dict-submit'
-        + (all ? '' : ' disabled') + '>Nộp phần chép</button>' : '') + '</section>';
+        + (all ? '' : ' disabled') + '>Nộp phần chép</button>' : '')
+      + '<p class="jp-status" role="alert" data-dict-status></p></section>';
   }
 
   function uuid() {
@@ -105,13 +110,31 @@
       });
     }
 
+    function say(msg) {
+      var p = el.querySelector('[data-dict-status]');
+      if (p) p.textContent = msg;
+    }
+
+    /** The server's own message when it sent one (e.g. INCOMPLETE), else the fallback. */
+    function errText(err, fallback) {
+      var m = err && err.code !== 'NETWORK' && err.message ? String(err.message).trim() : '';
+      return m || fallback;
+    }
+
     function check(qid) {
       var inputs = el.querySelectorAll('input[data-line="' + qid + '"]');
       var values = [];
-      inputs.forEach(function (i) { values.push(i.value); });
+      inputs.forEach(function (i) { values.push(String(i.value).slice(0, 40)); });
       if (!values.some(function (x) { return String(x).trim(); })) return;
       api.send('POST', BASE + encodeURIComponent(o.token) + '/answers', { questionId: qid, value: JSON.stringify(values),
-        elapsedMs: Date.now() - shownAt }).then(function () { shownAt = Date.now(); return draw(); });
+        elapsedMs: Date.now() - shownAt }).then(function (result) {
+        shownAt = Date.now();
+        return Promise.resolve(draw()).then(function () {
+          if (result && !result.correct && result.correctValue == null && !result.checkClosed)
+            say('Chưa đúng. Hãy nghe và viết lại câu này.');
+        });
+      })
+        .catch(function (err) { say(errText(err, MSG_CHECK_FAILED)); });
     }
 
     if (!el.getAttribute('data-dict-bound')) {
@@ -133,10 +156,16 @@
           }
           return;
         }
-        if (t.closest('[data-dict-submit]')) {
-          t.disabled = true;
+        var btn = t.closest('[data-dict-submit]');
+        if (btn) {
+          if (btn.disabled) return;
+          btn.disabled = true;
+          say('');
           api.send('POST', BASE + encodeURIComponent(o.token) + '/submit', { submitKey: uuid() }).then(function () {
             return o.onSubmitted ? o.onSubmitted() : draw();
+          }).catch(function (err) {
+            btn.disabled = false;
+            say(errText(err, MSG_SUBMIT_FAILED));
           });
         }
       });

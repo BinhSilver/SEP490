@@ -48,6 +48,12 @@
     return BASE + '/checks/' + encodeURIComponent(token) + '/audio/' + encodeURIComponent(slot);
   }
 
+  function stepLockTitle(code) {
+    if (code === 'PRACTICE') return 'Hoàn thành bước Lý thuyết trước để mở phần Luyện.';
+    if (code === 'DICTATION') return 'Hoàn thành phần Luyện trước để mở Chép chính tả.';
+    return 'Hoàn thành bước hiện tại trước để mở bước này.';
+  }
+
   /** The step bar; a Reading session has no dictation step. */
   function stepsHtml(s) {
     var steps = s && s.skill === 'READING' ? STEPS.slice(0, 2) : STEPS;
@@ -56,7 +62,9 @@
     return steps.map(function (st, i) {
       var done = i < at;
       var state = done ? 'done' : (i === at ? 'now' : 'todo');
+      var lockMsg = state === 'todo' ? stepLockTitle(st[0]) : '';
       return '<li class="jp-step jp-step--' + state + (done ? ' is-done' : '') + '"' + (i === at ? ' aria-current="step"' : '')
+        + (lockMsg ? ' data-step-locked="' + esc(lockMsg) + '" title="' + esc(lockMsg) + '"' : '')
         + '><span class="jp-step__mark" aria-hidden="true">' + (done ? icon('check') : (i + 1)) + '</span>'
         + '<span class="jp-sr">' + (i + 1) + '. </span><span class="jp-step__body"><span class="jp-step__label">'
         + esc(st[1]) + '</span>' + (done ? '<span class="jp-step__sub">Đã xong</span>' : '') + '</span></li>';
@@ -222,11 +230,20 @@
    * cached per set; null while not loaded or when the set has none (the page then falls back to the old split).
    */
   var TR = {};
-  function trOf(set) { return set && TR[set.code] ? TR[set.code] : null; }
+  /** F106: the check shuffles the options, so the cache (and the request) is per set and check token. */
+  function trKey(set, token) { return set.code + '|' + (token || ''); }
+  function trUrl(set, token) {
+    var url = BASE + '/skills/sets/' + encodeURIComponent(set.code) + '/translation';
+    var ids = list(set.questionIds).map(String);
+    return token && ids.length
+      ? url + '?token=' + encodeURIComponent(String(token)) + '&q=' + ids.map(encodeURIComponent).join(',')
+      : url;
+  }
+  function trOf(set, token) { var k = set && set.code ? trKey(set, token) : null; return k && TR[k] ? TR[k] : null; }
 
   /** The source to study: the reading passage, or the Listening player + the dialogue once it is revealed. */
   function setSource(set, graded, viOn, token) {
-    var tr = trOf(set);
+    var tr = trOf(set, token);
     if (set.skill === 'LISTENING') {
       var player = set.audioSlot != null
         ? '<div data-skill-player data-src="' + esc(audioUrl(token, set.audioSlot)) + '"></div>' : '';
@@ -253,7 +270,7 @@
   /** The 4 buttons under the questions: Kết quả / Làm lại / Đáp án / Dịch nghĩa. */
   function toolbarHtml(set, ctx) {
     var allPicked = list(set.questionIds).length > 0
-      && list(set.questionIds).every(function (id) { return !!ctx.picks[id]; });
+      && list(set.questionIds).every(function (id) { return !!ctx.answered[id] || !!ctx.picks[id]; });
     var btn = function (data, cls, label, disabled, pressed) {
       return '<button type="button" class="jp-btn' + (cls ? ' ' + cls : '') + '" data-skill-tool="' + data + '"'
         + (disabled ? ' disabled' : '') + (pressed == null ? '' : ' aria-pressed="' + pressed + '"') + '>'
@@ -270,20 +287,21 @@
   /** One exam-style question (問1 …) with its four choices. */
   function questionHtml(q, no, ctx) {
     var a = ctx.answered[q.id];
+    var locked = ctx.graded || (ctx.practice && !!a);
     var picked = !ctx.graded ? ctx.picks[q.id] : null;
     var opts = list(q.options).map(function (o) {
       var cls = '';
-      if (ctx.graded && a) {
+      if (locked && a) {
         if (o.id === a.correctValue) cls = ' class="is-right"';
         else if (o.id === a.value) cls = ' class="is-wrong"';
       } else if (picked === o.id) {
         cls = ' class="is-picked"';
       }
-      return '<button type="button"' + cls + (ctx.graded ? ' disabled' : '') + ' data-answer-option="'
+      return '<button type="button"' + cls + (locked ? ' disabled' : '') + ' data-answer-option="'
         + esc(o.id) + '"><span lang="ja">' + esc(o.label) + '</span><!--opt' + list(q.options).indexOf(o) + '--></button>';
     }).join('');
     var verdict = '';
-    if (ctx.graded && a) {
+    if (locked && a) {
       var pickedOpt = list(q.options).filter(function (o) { return o && o.id === a.value; })[0];
       var rightOpt = list(q.options).filter(function (o) { return o && o.id === a.correctValue; })[0];
       var pickedLbl = pickedOpt ? pickedOpt.label : 'Chưa chọn';
@@ -291,10 +309,13 @@
       verdict = '<div class="jp-skill-explain" role="status">' + (a.correct
         ? '<span class="jp-side-ok">' + icon('circle-check') + ' Đúng.</span>'
         : '<div class="jp-review__rows">'
-          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
-          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn: </span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án: </span><span class="jp-review__val" lang="ja">' + esc(rightLbl) + '</span>' + icon('circle-check') + '</div>'
           + '</div>')
-        + (ctx.showExplain && a.explanation ? '<p class="jp-skill-explain__note">' + esc(a.explanation) + '</p>' : '') + '</div>';
+        + (ctx.showExplain && a.explanation ? '<p class="jp-skill-explain__note">' + esc(a.explanation) + '</p>' : '')
+        + (ctx.token && q.id ? '<div class="jp-ai-slot" data-jpath-ai-explain="'
+          + attrJson({ source: 'JPATH_SKILL', checkToken: String(ctx.token), questionId: String(q.id) }) + '"></div>' : '')
+        + '</div>';
     }
     var qv = ctx.viOn && ctx.qvi ? ctx.qvi[q.id] : null;
     if (qv && Array.isArray(qv.options_vi)) {
@@ -345,8 +366,8 @@
     var graded = setDone(set, st.answered);
     var report = attrJson({ targetType: 'SKILL_SET', targetCode: set.code, pageContext: 'SKILL_SESSION' });
     var ctx = { token: view.token, questions: st.questions, answered: st.answered, picks: st.picks || {},
-      graded: graded, showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
-    var trq = trOf(set);
+      graded: graded, practice: view.kind === 'SKILL_PRACTICE', showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
+    var trq = trOf(set, view.token);
     if (trq && Array.isArray(trq.questions_vi)) {
       list(set.questionIds).forEach(function (qid, k) { if (trq.questions_vi[k]) ctx.qvi[qid] = trq.questions_vi[k]; });
     }
@@ -365,9 +386,18 @@
   }
 
   function doneHtml(s) {
+    var qCount = (s && s.questionCount) || 0;
+    var prac = s && s.practiceCorrect != null
+      ? ('đúng ' + esc(s.practiceCorrect) + '/' + esc(qCount) + ' câu')
+      : (esc(qCount) + ' câu');
+    var dict = '';
+    if (s && s.dictationCount) {
+      dict = s.dictationCorrect != null
+        ? (' · chép đúng ' + esc(s.dictationCorrect) + '/' + esc(s.dictationCount) + ' câu')
+        : (' · ' + esc(s.dictationCount) + ' câu chép');
+    }
     return '<section class="jp-skill-block"><h2>Xong buổi ' + esc(s && s.skill === 'LISTENING' ? 'Nghe' : 'Đọc') + ' ' + icon('check') + '</h2>'
-      + '<p>' + esc((s && s.setCount) || 0) + ' bài · ' + esc((s && s.questionCount) || 0) + ' câu'
-      + (s && s.dictationCount ? ' · ' + esc(s.dictationCount) + ' câu chép' : '') + '</p>'
+      + '<p>' + esc((s && s.setCount) || 0) + ' bài · ' + prac + dict + '</p>'
       + doneActions(s) + '</section>';
   }
 
@@ -458,10 +488,11 @@
       var ps = practiceState(state.view);
       var set = ps.sets[state.current];
       if (!set) { return submitPractice(); }
-      if (set.code && !(set.code in TR)) {
-        TR[set.code] = null;
-        Promise.resolve(api.get(BASE + '/skills/sets/' + encodeURIComponent(set.code) + '/translation')).then(function (t) {
-          TR[set.code] = t || null;
+      var trk = set.code ? trKey(set, ps.token) : null;
+      if (trk && !(trk in TR)) {
+        TR[trk] = null;
+        Promise.resolve(api.get(trUrl(set, ps.token))).then(function (t) {
+          TR[trk] = t || null;
           if (t) renderPractice();
         }, function () { /* keep the old split */ });
       }
@@ -476,7 +507,7 @@
       var set = ps.sets[state.current];
       if (!set) return;
       var allPicked = list(set.questionIds).length > 0
-        && list(set.questionIds).every(function (qid) { return !!state.picks[qid]; });
+        && list(set.questionIds).every(function (qid) { return !!ps.answered[qid] || !!state.picks[qid]; });
       var resultBtn = body.querySelector('[data-skill-tool="result"]');
       if (resultBtn) resultBtn.disabled = !allPicked;
       var redoBtn = body.querySelector('[data-skill-tool="redo"]');
@@ -484,32 +515,59 @@
     }
 
     function lockSet(values, showExplain) {
+      // probe L1: one lock run at a time — repeated "Kết quả" taps while it is sending are ignored
+      if (state.locking) return state.locking;
       var ps = practiceState(state.view);
       var set = ps.sets[state.current];
+      var lockBtn = body && body.querySelector && body.querySelector('[data-skill-tool="result"]');
+      if (lockBtn) lockBtn.disabled = true;
       var seq = Promise.resolve();
       list(set.questionIds).forEach(function (qid) {
+        if (ps.answered[qid]) return;
         seq = seq.then(function () {
           return api.send('POST', BASE + '/checks/' + encodeURIComponent(ps.token) + '/answers',
             { questionId: qid, value: values[qid] || '', elapsedMs: Date.now() - state.shownAt });
         });
       });
-      return seq.then(function () {
+      state.locking = seq.then(function () {
         state.showExplain = showExplain;
         state.shownAt = Date.now();
         return api.get(BASE + '/checks/' + encodeURIComponent(ps.token)).then(function (v) {
           state.view = v;
+          if (v.kind === 'SKILL_PRACTICE') state.picks = {};
           renderPractice();
+          // probe L2: a question locked from another window keeps that answer — say so instead of a silent "wrong"
+          var got = answeredMap(v);
+          var elsewhere = list(set.questionIds).some(function (qid) {
+            return got[qid] && values[qid] && got[qid].value != null && String(got[qid].value) !== String(values[qid]);
+          });
+          if (elsewhere && status) status.textContent = 'Có câu đã được trả lời ở cửa sổ khác — kết quả theo đáp án đã khóa.';
           return v;
         });
-      }, fail);
+      }, fail).then(function (v) { state.locking = null; refreshToolbar(); return v; },
+        function (e) { state.locking = null; refreshToolbar(); fail(e); });
+      return state.locking;
     }
 
-    function submitPractice() {
+    function submitPractice(btn) {
+      var nextBtn = btn || (body && body.querySelector && body.querySelector('[data-skill-next]'));
+      var prevLabel = nextBtn ? nextBtn.textContent : '';
+      if (nextBtn) {
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Đang tải…';
+      }
+      if (status) status.textContent = 'Đang tải bước tiếp theo…';
       return api.send('POST', BASE + '/checks/' + encodeURIComponent(state.view.token) + '/submit', { submitKey: uuid() })
-        .then(load, fail);
+        .then(load, function (e) {
+          if (nextBtn) {
+            nextBtn.disabled = false;
+            if (prevLabel) nextBtn.textContent = prevLabel;
+          }
+          fail(e);
+        });
     }
 
-    function nextSet() {
+    function nextSet(btn) {
       var ps = practiceState(state.view);
       if (state.current < ps.sets.length - 1) {
         state.current += 1;
@@ -518,7 +576,7 @@
         state.showExplain = false;
         renderPractice();
       } else {
-        submitPractice();
+        submitPractice(btn);
       }
     }
 
@@ -594,7 +652,7 @@
       var tool = t.closest('[data-skill-tool]');
       if (tool && !tool.disabled && state.view) { handleTool(tool.getAttribute('data-skill-tool')); return; }
       var next = t.closest('[data-skill-next]');
-      if (next && state.view) { nextSet(); return; }
+      if (next && !next.disabled && state.view) { nextSet(next); return; }
       var answer = t.closest('[data-answer-option]');
       if (answer && !answer.disabled && state.view) {
         var q = answer.closest('[data-question]');
@@ -619,6 +677,16 @@
           .then(function () { save.textContent = 'Đã lưu'; }, function (e) { save.disabled = false; fail(e); });
       }
     });
+    if (steps && typeof steps.addEventListener === 'function') {
+      steps.addEventListener('click', function (ev) {
+        var t = ev.target && typeof ev.target.closest === 'function' ? ev.target.closest('[data-step-locked]') : null;
+        if (!t) return;
+        var msg = t.getAttribute('data-step-locked');
+        if (!msg) return;
+        if (status) status.textContent = msg;
+        if (root && root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg, 'info');
+      });
+    }
     load();
   }
 

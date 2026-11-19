@@ -24,8 +24,7 @@ window.KanjiMapNotebook = {
         icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 3h13a1 1 0 0 1 1 1v17H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 17h16M8 3v14M11 7h5M11 10h4"/></svg>';
         var text = document.createElement('span'); text.className = 'km-notebook-option-text';
         var title = document.createElement('strong'); title.textContent = book.name;
-        var meta = document.createElement('small'); meta.textContent = (book.wordCount || 0) + ' từ vựng · ' + (book.kanjiCount || 0) + ' Kanji';
-        text.append(title, meta);
+        text.append(title);
         var check = document.createElement('span'); check.className = 'km-notebook-option-check'; check.textContent = '✓'; check.setAttribute('aria-hidden', 'true');
         option.append(radio, icon, text, check); select.appendChild(option);
       });
@@ -38,7 +37,6 @@ window.KanjiMapNotebook = {
       $('characters').hidden = !pending.length;
       $('save').hidden = !pending.length;
       $('save').disabled = busy || !selected || !ready;
-      $('context').textContent = busy ? 'Đang xử lý…' : selected && ready ? 'Sổ nhận: ' + selected.name : 'Chọn sổ tay để lưu Kanji.';
       $('create').disabled = busy; $('name').disabled = busy; $('close').disabled = busy;
       updateLink();
     }

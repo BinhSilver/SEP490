@@ -4,7 +4,8 @@
  *   RESTART_TEXT                   'BẮT ĐẦU LẠI'
  *   restartTextOk(text)            same rule as the server: outer whitespace trimmed, NFC, upper-cased
  *   stateFromView(view)            flat editable state from GET /settings (auto third day = '', no exam = '')
- *   pick(state, block)             the fields of one block: 'target' | 'schedule' | 'display'
+ *   pick(state, block)             the fields of one block: 'target' | 'schedule' | 'display' | 'sound'
+ *                                  (display and sound save on every change, F61)
  *   diff(original, current)        only the changed fields; day lists compare as sets; a removed exam date
  *                                  becomes {clearExamDate:true}
  *   thirdDayOptions(skill, rest)   days left for the 3rd skill day
@@ -35,14 +36,17 @@
   var DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy',
     SUN: 'Chủ nhật' };
-  // the server re-plans today only when nothing was learned on it yet (JpathTodayTargetsPort.replanUntouchedToday)
-  var MSG_DAYS_SAVED = 'Đã lưu. Hôm nay đổi theo lịch mới nếu bạn chưa học gì hôm nay; nếu đã học, lịch mới áp dụng từ ngày mai.';
+  // the server re-plans today only when nothing was learned on it yet and today becomes a study day; a rest or
+  // skill day moved onto today waits for tomorrow (JpathTodayTargetsPort.replanUntouchedToday, F130)
+  var MSG_DAYS_SAVED = 'Đã lưu. Ngày nghỉ và ngày kỹ năng mới áp dụng từ ngày mai. Nếu hôm nay bạn bỏ ngày nghỉ và chưa học gì, hôm nay thành ngày học ngay.';
   var BLOCKS = {
     target: ['targetLevel', 'examDate'],
-    schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay', 'reminderTime'],
-    display: ['studyMode', 'furiganaHiddenAll', 'romajiMode', 'fontSize', 'soundOn', 'autoplayAudio', 'quizTimerOn',
-      'grammarTimerOn', 'reminderWeb', 'reminderEmail']
+    schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay'],
+    display: ['studyMode', 'furiganaHiddenAll', 'romajiMode', 'fontSize'],
+    sound: ['soundOn', 'autoplayAudio', 'quizTimerOn', 'grammarTimerOn', 'reminderWeb', 'reminderEmail', 'reminderTime']
   };
+  // F61: these blocks save as soon as a field changes (no Lưu button); their fields lock while the PUT runs
+  var INSTANT = { display: true, sound: true };
   var TABS = [['vocab', 'Từ vựng'], ['kanji', 'Kanji'], ['grammar', 'Ngữ pháp']];
   var KIND_LABELS = { INITIAL: 'Ban đầu', CONFIRM: 'Xác nhận', FIRST_DRAG: 'Lần kéo đầu', REBALANCE: 'Cân lại',
     TARGET_CHANGE: 'Đổi đích' };
@@ -50,7 +54,7 @@
   var SPACE_CLASS = "[\t\n\u000B\f\r\u001C-\u001F \u1680\u2000-\u2006\u2008-\u200A\u2028\u2029\u205F\u3000]";
   var OUTER_SPACE = new RegExp("^" + SPACE_CLASS + "+|" + SPACE_CLASS + "+$", "g");
   var SETTINGS_URL = '/api/learning/jlpt/settings';
-  var DEBOUNCE_MS = 300;
+  var DEBOUNCE_MS = 120;
   var MSG_LOAD_FAILED = 'Không tải được cài đặt. Thử tải lại trang.';
   var MSG_FAILED = 'Không lưu được. Thử lại sau.';
 
@@ -143,7 +147,7 @@
   function previewBody(view, state) {
     return {
       openLevel: view.openLevel, targetLevel: state.targetLevel, examDate: state.examDate || null,
-      dailyMinutes: view.dailyMinutes, skillDays: list(view.skillDays), restDays: list(view.restDays),
+      dailyMinutes: state.dailyMinutes, skillDays: list(state.skillDays), restDays: list(state.restDays),
       sliders: null, kanaTab: false, mode: view.studyMode || 'COMBINED'
     };
   }
@@ -204,6 +208,7 @@
     var view = null;
     var original = null;
     var current = null;
+    var scheduleUndo = null;
     var picker = null;
     var timer = null;
     var seq = 0;
@@ -222,9 +227,10 @@
       node.value = value;
       return node;
     }
-    function message(scope, role, text) {
+    function message(scope, role, text, toastFlag) {
       var box = part(role, scope);
-      if (text && /saved$/.test(role) && root && root.JlasToast && root.JlasToast.show(text, 'success')) text = '';
+      var toast = d.toast || (root && root.JlasToast) || (typeof globalThis !== 'undefined' && globalThis.JlasToast);
+      if (toastFlag !== false && text && /saved$/.test(role) && toast && toast.show(text, 'success')) text = '';
       if (!box) return;
       box.textContent = text || '';
       box.hidden = !text;
@@ -299,6 +305,19 @@
         if (w && w.messageVi && w.messageVi !== pace.messageVi) warnings.appendChild(make('li', null, w.messageVi));
       });
       warnings.hidden = !warnings.firstChild;
+      var scheduleText = part('schedule-preview');
+      if (scheduleText) {
+        scheduleText.textContent = (preview ? 'Xem trước: ' : '') + (pace && pace.messageVi ? pace.messageVi : '');
+        scheduleText.dataset.tone = paceTone(pace);
+      }
+      var scheduleWarnings = part('schedule-warnings');
+      if (scheduleWarnings) {
+        scheduleWarnings.textContent = '';
+        (pace && Array.isArray(pace.warnings) ? pace.warnings : []).forEach(function (w) {
+          if (w && w.messageVi) scheduleWarnings.appendChild(make('li', null, w.messageVi));
+        });
+        scheduleWarnings.hidden = !scheduleWarnings.firstChild;
+      }
     }
 
     function drawSliders(history) {
@@ -352,11 +371,29 @@
         var changes = diff(pick(original, name), pick(current, name));
         var dirty = Object.keys(changes).length > 0;
         var daysOk = name !== 'schedule' || current.skillDays.length === 2;
+        if (INSTANT[name]) {
+          block(name).querySelectorAll('[data-field]').forEach(function (input) {
+            input.disabled = !!busy[name] || (input.dataset.field === 'reminderEmail' && !view.emailAvailable);
+          });
+          return;
+        }
         var save = part('save', block(name));
         save.disabled = !dirty || !daysOk || !!busy[name];
         save.setAttribute('aria-disabled', save.disabled ? 'true' : 'false');
         if (name === 'schedule') message(block(name), 'days-hint', daysOk ? '' : 'Chọn đủ 2 ngày kỹ năng để lưu.');
       });
+      var undoBtn = part('undo-schedule');
+      if (undoBtn) undoBtn.disabled = !!busy.schedule;
+      var daysBox = part('days');
+      if (daysBox && typeof daysBox.querySelectorAll === 'function') {
+        daysBox.querySelectorAll('button').forEach(function (b) { b.disabled = !!busy.schedule; });
+      }
+      var scheduleScope = block('schedule');
+      if (scheduleScope && typeof scheduleScope.querySelectorAll === 'function') {
+        scheduleScope.querySelectorAll('[data-field]').forEach(function (input) {
+          input.disabled = !!busy.schedule;
+        });
+      }
       part('exam-clear').hidden = !current.examDate;
       var restart = part('restart');
       restart.disabled = !restartTextOk(part('restart-text').value) || !!busy.change;
@@ -370,42 +407,85 @@
       message(block(blockName), 'block-error', '');
       if (blockName === 'schedule') drawThirdDay();
       refreshButtons();
-      if (blockName === 'target') schedulePreview();
+      if (blockName === 'target' || blockName === 'schedule') schedulePreview();
+    }
+
+    function showPreviewLoading() {
+      var previewBox = part('preview') || part('schedule-preview');
+      if (previewBox) previewBox.textContent = 'Đang tính ngày hoàn thành…';
+      var paceBox = part('pace-text');
+      if (paceBox) paceBox.textContent = 'Đang tính ngày hoàn thành…';
+    }
+
+    function previewPayload() {
+      var base = previewBody(view, current);
+      base.pace = current.dailyMinutes;
+      base.thirdSkillDay = current.thirdSkillDay || '';
+      // F151 review: the server reads examDate null as "keep the saved date"; a cleared date must say so, as save does
+      if (!current.examDate && original && original.examDate) base.clearExamDate = true;
+      return base;
+    }
+
+    function requestPreview() {
+      return api.send('POST', SETTINGS_URL + '/preview', previewPayload()).then(function (res) {
+        return res && res.pace && typeof res.pace === 'object' ? res.pace : res;
+      }, function (err) {
+        if (err && (err.status === 404 || err.status === 405 || err.code === 'HTTP_404' || err.code === 'HTTP_405')) {
+          return api.send('POST', '/api/learning/jlpt/estimate', previewBody(view, current));
+        }
+        throw err;
+      });
     }
 
     function schedulePreview() {
       if (timer) cancel(timer);
       timer = null;
       var mine = ++seq;
-      if (!Object.keys(diff(pick(original, 'target'), pick(current, 'target'))).length) {
+      if (!Object.keys(diff(pick(original, 'target'), pick(current, 'target'))).length
+          && !Object.keys(diff(pick(original, 'schedule'), pick(current, 'schedule'))).length) {
         drawPace(view.pace, false);
         return;
       }
+      showPreviewLoading();
       timer = later(function () {
         timer = null;
-        api.send('POST', '/api/learning/jlpt/estimate', previewBody(view, current)).then(function (pace) {
+        requestPreview().then(function (pace) {
           if (mine === seq) drawPace(pace, true);
         }, function (error) {
-          if (mine === seq) message(block('target'), 'block-error', errorText(error));
+          if (mine === seq) {
+            drawPace(view.pace, false);
+            message(block('schedule'), 'block-error', errorText(error));
+          }
         });
       }, DEBOUNCE_MS);
     }
 
-    function save(blockName) {
-      var body = diff(pick(original, blockName), pick(current, blockName));
+    function save(blockName, forcedBody) {
+      var body = forcedBody || diff(pick(original, blockName), pick(current, blockName));
       if (!Object.keys(body).length || busy[blockName]) return;
+      var isUndo = blockName === 'schedule' && !!forcedBody;
+      if (blockName === 'target' || blockName === 'schedule') {
+        if (timer) cancel(timer);
+        timer = null;
+        seq++;
+      }
       var scope = block(blockName);
+      var previousSchedule = blockName === 'schedule' ? pick(original, 'schedule') : null;
       busy[blockName] = true;
       message(scope, 'block-error', '');
-      message(scope, 'saved', 'Đang lưu…');
+      message(scope, 'saved', isUndo ? 'Đang hoàn tác…' : 'Đang lưu…', false);
       refreshButtons();
       api.send('PUT', SETTINGS_URL, body).then(function (next) {
         busy[blockName] = false;
         applyView(next, blockName);
+        if (blockName === 'schedule') {
+          scheduleUndo = forcedBody ? null : previousSchedule;
+          part('undo-schedule').hidden = !scheduleUndo;
+        }
         var daysMoved = blockName === 'schedule' && ['skillDays', 'restDays', 'thirdSkillDay'].some(function (k) {
           return Object.prototype.hasOwnProperty.call(body, k);
         });
-        message(scope, 'saved', daysMoved ? MSG_DAYS_SAVED : 'Đã lưu.');
+        message(scope, 'saved', isUndo ? 'Đã hoàn tác lịch tuần.' : (daysMoved ? MSG_DAYS_SAVED : 'Đã lưu.'));
         loadHistory();
       }, function (error) {
         busy[blockName] = false;
@@ -483,8 +563,13 @@
           if (input.type === 'radio' && !input.checked) return;
           current[input.dataset.field] = readField(input);
           changed(name);
+          if (INSTANT[name]) save(name);
         });
-        part('save', scope).addEventListener('click', function () { save(name); });
+        var saveButton = part('save', scope);
+        if (saveButton) saveButton.addEventListener('click', function () { save(name); });
+      });
+      part('undo-schedule').addEventListener('click', function () {
+        if (scheduleUndo) save('schedule', scheduleUndo);
       });
       part('exam-clear').addEventListener('click', function () {
         current.examDate = '';
