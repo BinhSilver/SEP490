@@ -195,7 +195,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     @Override
     public SmartTestResponse answerSmartTest(Long userId, Long attemptId, SmartTestAnswerRequest request) {
-        SmartTestSession session = ownedSession(userId, attemptId);
+        SmartTestSession session = ownedSession(userId, attemptId, true);
         if (!"IN_PROGRESS".equals(session.getAttempt().getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Bài Smart Test này đã hoàn thành.");
         }
@@ -247,7 +247,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     @Override
     public SmartTestResponse finishSmartTest(Long userId, Long attemptId) {
-        SmartTestSession session = ownedSession(userId, attemptId);
+        SmartTestSession session = ownedSession(userId, attemptId, true);
         if (!"IN_PROGRESS".equals(session.getAttempt().getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Bài Smart Test này đã hoàn thành.");
         }
@@ -416,7 +416,14 @@ public class AssessmentServiceImpl implements AssessmentService {
     }
 
     private SmartTestSession ownedSession(Long userId, Long attemptId) {
-        AssessmentAttempt attempt = attemptRepository.findByIdAndUserId(attemptId, userId)
+        return ownedSession(userId, attemptId, false);
+    }
+
+    /** {@code forUpdate}: a write (answer, finish) locks the attempt row first, so a double submit sees IN_PROGRESS once. */
+    private SmartTestSession ownedSession(Long userId, Long attemptId, boolean forUpdate) {
+        AssessmentAttempt attempt = (forUpdate
+                ? attemptRepository.findByIdAndUserIdForUpdate(attemptId, userId)
+                : attemptRepository.findByIdAndUserId(attemptId, userId))
                 .filter(item -> "SMART_TEST".equals(item.getAttemptType()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Không tìm thấy bài Smart Test."));
