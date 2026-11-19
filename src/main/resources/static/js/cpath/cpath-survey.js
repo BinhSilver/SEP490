@@ -406,6 +406,7 @@
         + '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Chọn ngày nghỉ trong tuần (bấm để bật/tắt ngày nghỉ)</span>'
         + '<div class="cp-rest-days" role="group" aria-label="Ngày nghỉ trong tuần">' + restChips + '</div>'
+        + (state.restNote ? '<p class="cp-survey__hint" role="status">' + esc(state.restNote) + '</p>' : '')
         + '</div>'
         + '<div class="cp-survey__row">'
         + '<label class="cp-survey__label" for="cpFinishDateInput">Hạn muốn hoàn thành (tùy chọn)</label>'
@@ -602,6 +603,8 @@
         var rIdx = state.restDays.indexOf(dCode);
         if (rIdx >= 0) state.restDays.splice(rIdx, 1);
         else if (state.restDays.length < 6) state.restDays.push(dCode);
+        // bug 17: the 7th day stays a study day; say why instead of ignoring the click
+        state.restNote = rIdx < 0 && state.restDays.indexOf(dCode) < 0 ? 'Cần giữ ít nhất một ngày học trong tuần.' : '';
         render();
         return;
       }

@@ -301,6 +301,13 @@
       else if (t.hasAttribute('data-cp-rest')) {
         var code = t.getAttribute('data-cp-rest');
         draft.restDays = draft.restDays.filter(function (x) { return x !== code; });
+        // bug 17: the server keeps one study day; a 7th rest day is undone with a reason
+        if (t.checked && draft.restDays.length >= 6) {
+          t.checked = false;
+          notices = { pace: 'Cần giữ ít nhất một ngày học trong tuần.', paceError: true };
+          render();
+          return;
+        }
         if (t.checked) draft.restDays.push(code);
       } else if (t.hasAttribute('data-cp-finish')) draft.finishDate = t.value;
       else return;
