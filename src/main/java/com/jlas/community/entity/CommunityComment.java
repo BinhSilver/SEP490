@@ -45,15 +45,16 @@ public class CommunityComment {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * updated_at = lần SỬA NỘI DUNG gần nhất (cờ "đã sửa"): chỉ CommunityCommentService.update gán. Không còn @PreUpdate
+     * tự đổi mỗi lần lưu, vì báo cáo (report_count), tạm ẩn, gỡ, khôi phục đều UPDATE dòng và làm bình luận chưa sửa
+     * hiện "đã sửa". Cột có ON UPDATE CURRENT_TIMESTAMP nhưng Hibernate luôn ghi lại updated_at bằng giá trị hiện có
+     * (không @DynamicUpdate) nên MySQL không tự cập nhật.
+     */
     @PrePersist
     void onCreate() {
         LocalDateTime now = LocalDateTime.now();
         if (createdAt == null) createdAt = now;
         updatedAt = now;
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

@@ -2,6 +2,7 @@
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Quản lý dạng luyện JLPT - KotsuKotsu', 'jlpt-practice-admin')}"></head>
 <body id="jlabBasePage" class="app-body jpta-body jlas-ui-owned">
+<link rel="stylesheet" th:href="@{/css/admin-shell.css(v=20261118-flat-admin)}"/>
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jpta">
     <a class="jpta__back" href="/admin/jlpt"><span class="material-symbols-outlined">arrow_back</span>Quản lý đề JLPT</a>
@@ -32,5 +33,5 @@
     <footer class="jpta-dialog__footer"><span id="questionsPageLabel"></span><div><button id="questionsPrev" type="button">← Trước</button><button id="questionsNext" type="button">Tiếp →</button></div></footer>
 </dialog>
 <div id="adminToast" class="jpta-toast" role="status" aria-live="polite" hidden></div>
-<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav}"></script><script th:src="@{/js/pages/jlpt-practice-admin.js?v=2}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script><script th:src="@{/js/pages/jlpt-practice-admin.js?v=2}"></script>
 </body></html>

@@ -835,7 +835,8 @@
   // Icon per notification type; unknown types fall back to the bell.
   var NOTIFICATION_ICONS = {
     MODERATION_CONTENT: 'shield', MODERATION_SANCTION: 'shield', MODERATION_APPEAL: 'shield',
-    SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message',
+    SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message', COMMUNITY_COMMENT: 'message',
+    COMMUNITY_REMOVED: 'shield',
     SHADOWING_COMMENT: 'message', SHADOWING_VIDEO_READY: 'headphones', SHADOWING_VIDEO_FAILED: 'info',
     WELCOME: 'home'
   };

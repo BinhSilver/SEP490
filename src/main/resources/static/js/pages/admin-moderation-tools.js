@@ -274,6 +274,7 @@
   // ── Audit trail ────────────────────────────────────────────────────────
   var AUDIT_ACTIONS = {
     REPORT_VALID: 'Báo cáo đúng, gỡ nội dung', REPORT_INVALID: 'Báo cáo sai, khôi phục',
+    COMMUNITY_REMOVE: 'Gỡ trực tiếp (Cộng đồng)',
     QUEUE_APPROVE: 'Hàng đợi: cho phép', QUEUE_REJECT: 'Hàng đợi: ẩn nội dung',
     DICTIONARY_APPROVE: 'Duyệt đóng góp từ điển', DICTIONARY_REJECT: 'Từ chối đóng góp từ điển',
     APPEAL_APPROVE: 'Chấp nhận kháng nghị', APPEAL_REJECT: 'Từ chối kháng nghị',

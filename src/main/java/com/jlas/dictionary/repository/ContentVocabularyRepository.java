@@ -7,25 +7,38 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Repository cho {@link ContentVocabulary}. */
 @Repository
 public interface ContentVocabularyRepository extends JpaRepository<ContentVocabulary, ContentVocabulary.ContentVocabularyId> {
 
     /**
-     * Toàn bộ từ vựng thuộc một lesson (đi qua content_item → lesson_section), 1 query.
+     * Toàn bộ từ vựng thuộc một lesson (đi qua content_item → lesson_section), 1 query, không trùng.
+     * Thứ tự: display_order (bài đã gộp mục trùng — migration 088) rồi id từ vựng; bài chưa có display_order sắp theo
+     * id như trước. Một từ gắn ở nhiều mục của bài lấy vị trí sớm nhất.
      * JOIN chỉ theo khoá số, không đụng cột normalized_* (collation utf8mb4_0900_as_cs).
      */
+    default List<VocabularyEntry> findVocabularyByLessonId(Long lessonId) {
+        Map<Long, VocabularyEntry> unique = new LinkedHashMap<>();
+        for (ContentVocabulary link : findLinksByLessonIdOrdered(lessonId)) {
+            unique.putIfAbsent(link.getVocabularyEntry().getId(), link.getVocabularyEntry());
+        }
+        return new ArrayList<>(unique.values());
+    }
+
     @Query("""
-            select distinct v from ContentVocabulary cv
-              join cv.vocabularyEntry v
+            select cv from ContentVocabulary cv
+              join fetch cv.vocabularyEntry v
               join cv.contentItem ci
               join ci.section s
             where s.lesson.id = :lessonId
-            order by v.id
+            order by case when cv.displayOrder is null then 1 else 0 end, cv.displayOrder, v.id
             """)
-    List<VocabularyEntry> findVocabularyByLessonId(@Param("lessonId") Long lessonId);
+    List<ContentVocabulary> findLinksByLessonIdOrdered(@Param("lessonId") Long lessonId);
 
     @Query("""
             select cv from ContentVocabulary cv
