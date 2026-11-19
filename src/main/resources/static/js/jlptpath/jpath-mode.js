@@ -20,6 +20,14 @@
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
+  /** Bug 58: per-user storage key, so a shared computer never hands one learner's state to another. */
+  function uidPart() {
+    try {
+      var auth = root && root.JlasAuth;
+      var u = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+      return u && (u.id || u.userId) ? String(u.id || u.userId) : 'me';
+    } catch (e) { return 'me'; }
+  }
   var KEY = 'jpath-mode';
   var MODES = [
     { code: 'today', label: 'Học hôm nay', sub: 'Bài được giao theo ngày' },
@@ -45,8 +53,8 @@
     }).join('') + '</div>';
   }
 
-  function read() { try { return root.localStorage.getItem(KEY); } catch (e) { return null; } }
-  function save(m) { try { root.localStorage.setItem(KEY, m); } catch (e) { /* private window */ } }
+  function read() { try { return root.localStorage.getItem(KEY + ':' + uidPart()); } catch (e) { return null; } }
+  function save(m) { try { root.localStorage.setItem(KEY + ':' + uidPart(), m); } catch (e) { /* private window */ } }
 
   function inFree(doc, hash) {
     if (!hash || hash.length < 2 || hash.charAt(0) !== '#') return false;

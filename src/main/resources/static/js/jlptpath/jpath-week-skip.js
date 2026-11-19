@@ -31,7 +31,15 @@
     });
   }
   function today() { return new Date().toISOString().slice(0, 10); }
-  function hiddenKey() { return 'jpath-week-skip:hidden'; }
+  /** Bug 58: per-user storage key, so a shared computer never hands one learner's state to another. */
+  function uidPart() {
+    try {
+      var auth = root && root.JlasAuth;
+      var u = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+      return u && (u.id || u.userId) ? String(u.id || u.userId) : 'me';
+    } catch (e) { return 'me'; }
+  }
+  function hiddenKey() { return 'jpath-week-skip:hidden:' + uidPart(); }
   function isHidden() {
     try { return root.localStorage.getItem(hiddenKey()) === today(); } catch (e) { return false; }
   }
@@ -70,7 +78,7 @@
         var panel = box.querySelector('[data-tool-panel="' + chips[i].getAttribute('data-tool') + '"]');
         if (panel) panel.hidden = !on;
       }
-      try { root.localStorage.setItem('jpath-tools:open', name || ''); } catch (e) { /* private mode */ }
+      try { root.localStorage.setItem('jpath-tools:open:' + uidPart(), name || ''); } catch (e) { /* private mode */ }
     }
     box.addEventListener('click', function (ev) {
       var chip = ev.target.closest && ev.target.closest('[data-tool]');
@@ -78,7 +86,7 @@
       set(chip.getAttribute('aria-expanded') === 'true' ? '' : chip.getAttribute('data-tool'));
     });
     var saved = '';
-    try { saved = root.localStorage.getItem('jpath-tools:open') || ''; } catch (e) { saved = ''; }
+    try { saved = root.localStorage.getItem('jpath-tools:open:' + uidPart()) || ''; } catch (e) { saved = ''; }
     if (saved === 'pace') set('pace');
   }
 

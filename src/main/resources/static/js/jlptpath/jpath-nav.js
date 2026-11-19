@@ -381,9 +381,17 @@
   'use strict';
   if (!root || !root.document) return;
   var doc = root.document;
+  /** Bug 58: per-user storage key, so a shared computer never hands one learner's state to another. */
+  function uidPart() {
+    try {
+      var auth = root && root.JlasAuth;
+      var u = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+      return u && (u.id || u.userId) ? String(u.id || u.userId) : 'me';
+    } catch (e) { return 'me'; }
+  }
   var KEY = 'jpathNoticesSeen';
-  function load() { try { return JSON.parse(root.localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; } }
-  function save(map) { try { root.localStorage.setItem(KEY, JSON.stringify(map)); } catch (e) { /* storage off */ } }
+  function load() { try { return JSON.parse(root.localStorage.getItem(KEY + ':' + uidPart()) || '{}') || {}; } catch (e) { return {}; } }
+  function save(map) { try { root.localStorage.setItem(KEY + ':' + uidPart(), JSON.stringify(map)); } catch (e) { /* storage off */ } }
   function idOf(el) {
     if (el.getAttribute('data-notice-id')) return el.getAttribute('data-notice-id');
     var s = (el.textContent || '').replace(/\s+/g, ' ').trim();
