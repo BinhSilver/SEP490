@@ -222,8 +222,8 @@
           return optionHtml(u.unitNo, 'Bài ' + u.unitNo, String(u.unitNo) === String(c.unit));
         }).join('') + '</select></label>';
     }
-    var sources = grammar ? [['LEARNED', 'Đã học'], ['ALL', 'Tất cả']]
-      : [['LEARNED', 'Đã học'], ['NOTEBOOK', 'Sổ tay'], ['ALL', 'Tất cả']];
+    // owner 20/11: grammar from a Smart Test sits in the notebook too, so every tab can quiz it
+    var sources = [['LEARNED', 'Đã học'], ['NOTEBOOK', 'Sổ tay'], ['ALL', 'Tất cả']];
     html += '<fieldset class="jp-fieldset"><legend>Nguồn câu hỏi</legend><div class="jp-choices">'
       + sources.map(function (s, i) { return radio('source', s[0], s[1], i === 0); }).join('') + '</div></fieldset>';
     if (!grammar) {
