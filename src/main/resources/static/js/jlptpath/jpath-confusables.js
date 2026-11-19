@@ -87,12 +87,19 @@
     var shown = [];
     var page = 0;
 
+    // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
+    function foldSearch(v) {
+      var s = String(v == null ? '' : v);
+      if (typeof s.normalize === 'function') s = s.normalize('NFKC');
+      return s.trim().toLocaleLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    }
+
     function draw() {
-      var term = (search.value || '').trim().toLocaleLowerCase();
+      var term = foldSearch(search.value);
       var filtered = pairs.filter(function (p) {
         return !term || [p.a, p.b].some(function (s) {
           return s && [s.expression, s.reading, s.meaning].some(function (v) {
-            return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+            return foldSearch(v).indexOf(term) >= 0;
           });
         });
       });
