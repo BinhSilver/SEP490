@@ -161,7 +161,7 @@
             }, function () { /* the message stays */ });
             return;
           }
-          status((err && err.message) || MSG_EXTRA_FAILED);
+          status((err && (err.code || err.status) && err.message) || MSG_EXTRA_FAILED);
         });
         return;
       }

@@ -606,7 +606,7 @@
     function failInto(name, btn) {
       return function (e) {
         if (btn) btn.disabled = false;
-        showError(part(rootEl, name), e && e.message);
+        showError(part(rootEl, name), e && (e.code || e.status) && e.message);
       };
     }
 
@@ -677,7 +677,7 @@
         apiClient.get(PREVIEW_URL + encodeURIComponent(lv) + '/preview').then(function (pv) {
           openDialog(C.levelPreviewHtml(pv, state.path.openLevel), el);
         }, function (e) {
-          openDialog('<p id="jp-dialog-title">' + esc((e && e.message) || 'Không tải được.') + '</p>', el);
+          openDialog('<p id="jp-dialog-title">' + esc((e && (e.code || e.status) && e.message) || 'Không tải được.') + '</p>', el);
         });
       },
       'coming-soon': function (el) { openDialog(C.comingSoonHtml(el.getAttribute('data-coming-soon')), el); },

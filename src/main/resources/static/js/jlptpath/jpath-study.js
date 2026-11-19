@@ -818,7 +818,7 @@
 
   function fail(page, err) {
     page.el.setAttribute('aria-busy', 'false');
-    page.el.innerHTML = '<p class="jp-alert" role="alert">' + esc((err && err.message) || 'Không tải được lượt học.')
+    page.el.innerHTML = '<p class="jp-alert" role="alert">' + esc((err && (err.code || err.status) && err.message) || 'Không tải được lượt học.')
       + '</p><a class="jp-btn" href="/learning">Về lộ trình</a>';
   }
 
@@ -831,7 +831,7 @@
 
   function reload(page) {
     return root.JpathApi.get(BASE + '/sessions/' + page.sessionId).then(function (s) { start(page, s); },
-      function (err) { setNotice(page, (err && err.message) || NEED_NETWORK_TEXT); });
+      function (err) { setNotice(page, (err && (err.code || err.status) && err.message) || NEED_NETWORK_TEXT); });
   }
 
   function setNotice(page, text) {
@@ -945,7 +945,7 @@
       return reload(page).then(function () { setNotice(page, message); });
     }).catch(function (err) {
       page.busy = false;
-      setNotice(page, (err && err.message) || NEED_NETWORK_TEXT);
+      setNotice(page, (err && (err.code || err.status) && err.message) || NEED_NETWORK_TEXT);
     });
   }
 

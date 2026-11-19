@@ -1151,7 +1151,7 @@
           render();
         }, function (error) {
           state.savingStep = false;
-          state.missingNote = error && error.message || 'Chưa lưu được bước học. Hãy thử lại.';
+          state.missingNote = error && (error.code || error.status) && error.message || 'Chưa lưu được bước học. Hãy thử lại.';
           render();
         });
     }
@@ -1188,9 +1188,9 @@
         state.scoring = false;
         if (err && (err.status === 429 || (err.code && String(err.code).indexOf('LIMIT') >= 0))) {
           state.attemptsLeft = 0;
-          state.micError = (err && err.message) || 'Đã hết lượt chấm phát âm hôm nay (0 lần còn lại). Hãy bấm "Bỏ qua" để tiếp tục.';
+          state.micError = (err && (err.code || err.status) && err.message) || 'Đã hết lượt chấm phát âm hôm nay (0 lần còn lại). Hãy bấm "Bỏ qua" để tiếp tục.';
         } else {
-          state.micError = (err && err.message) || 'Chưa chấm được phát âm lúc này. Bạn có thể ghi âm lại hoặc bấm "Bỏ qua".';
+          state.micError = (err && (err.code || err.status) && err.message) || 'Chưa chấm được phát âm lúc này. Bạn có thể ghi âm lại hoặc bấm "Bỏ qua".';
         }
         render();
       });
@@ -1304,7 +1304,7 @@
         }).catch(function (error) {
           if (state.known !== panel) return;
           panel.loading = false;
-          panel.error = (error && error.message) || 'Không mở được bài kiểm tra.';
+          panel.error = (error && (error.code || error.status) && error.message) || 'Không mở được bài kiểm tra.';
           render();
         });
         return;
@@ -1334,7 +1334,7 @@
           render();
         }).catch(function (error) {
           if (state.known !== sent) return;
-          sent.error = (error && error.message) || 'Chưa nộp được bài. Thử lại sau.';
+          sent.error = (error && (error.code || error.status) && error.message) || 'Chưa nộp được bài. Thử lại sau.';
           render();
         });
         return;
@@ -1592,7 +1592,7 @@
             + ' <a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></p>';
           return;
         }
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Không tải được tình huống.')
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Không tải được tình huống.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         el.querySelector('[data-cp-retry]').addEventListener('click', load);
       });

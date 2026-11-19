@@ -199,7 +199,7 @@
         if (h && h.focus) h.focus();
       }, function (e) {
         // F110: keep the answers; show the server's reason and let the learner send the same answers again
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa chấm được bài. Thử lại sau.') + '</p>'
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa chấm được bài. Thử lại sau.') + '</p>'
           + '<p><button type="button" class="jp-btn" data-weekly-resubmit>Gửi lại bài</button> '
           + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></p>';
       });
@@ -226,7 +226,7 @@
           + '<p>Phần Nói đã chấm ' + esc(r.updated) + ' câu. Câu dưới 70 vào Sổ tay; câu đạt từ 70 được bỏ khỏi Sổ tay.</p>';
       }).catch(function (e) {
         el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result, state.data && state.data.questions, state.answers))
-          + '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Không chấm được phần Nói.') + '</p>';
+          + '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Không chấm được phần Nói.') + '</p>';
       });
     }
     function load() {
@@ -264,7 +264,7 @@
         }
         show();
       }, function (e) {
-        el.innerHTML = infoHtml(e && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
+        el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
       });
     }
 
@@ -330,7 +330,7 @@
           else el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
         }, function (e) {
           state.picking = false;
-          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
         });
     });
     return load();
@@ -459,7 +459,7 @@
           + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></div></section>';
         var head = el.querySelector('#cpRoleplayResult');
         if (head && head.focus) head.focus();
-      }).catch(function (e) { state.busy = false; error(e && e.message || 'Chưa chấm được bài.'); });
+      }).catch(function (e) { state.busy = false; error(e && (e.code || e.status) && e.message || 'Chưa chấm được bài.'); });
     }
     function load() {
       state.index = 0; state.answers = {}; state.clips = [];
@@ -472,7 +472,7 @@
         SHOW_RO = !!(data.display && (data.display.romaji || data.display.fullRomaji));
         if (!state.questions.length) { error('Chưa có câu thoại để luyện nhập vai.'); return; }
         render();
-      }).catch(function (e) { error(e && e.message || 'Chưa tải được bài nhập vai.'); });
+      }).catch(function (e) { error(e && (e.code || e.status) && e.message || 'Chưa tải được bài nhập vai.'); });
     }
     el.addEventListener('click', function (ev) {
       var target = ev.target;
@@ -506,7 +506,7 @@
         }, function (err) {
           state.picking = false;
           render();
-          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && (err.code || err.status) && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
         });
         return;
       }

@@ -1194,7 +1194,7 @@
       var name = tab === 'KANJI' ? 'Kanji' : tab === 'GRAMMAR' ? 'ngữ pháp' : 'từ vựng';
       if (box) {
         box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
-          : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+          : ((e && (e.code || e.status) && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
       }
     });
   }
@@ -1374,7 +1374,7 @@
               root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
             }).catch(function (error) {
               extra.disabled = false;
-              if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
+              if (errorBox) errorBox.textContent = error && (error.code || error.status) && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
               if (error && error.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
                 Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', {
                   kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
@@ -1409,7 +1409,7 @@
             fcBtn.textContent = 'Thử lại';
             var pop = fcBtn.closest('[data-parts-popover]');
             var box = pop && pop.querySelector('[data-parts-fc-error]');
-            if (box) box.textContent = (error && error.message) || 'Chưa mở được bộ thẻ, thử lại sau ít phút';
+            if (box) box.textContent = (error && (error.code || error.status) && error.message) || 'Chưa mở được bộ thẻ, thử lại sau ít phút';
           });
           return;
         }
@@ -1431,7 +1431,7 @@
             re.disabled = false;
             var popover = re.closest('[data-parts-popover]');
             var errorBox = popover && popover.querySelector('[data-parts-relearn-error]');
-            if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được phần học này. Thử lại sau.';
+            if (errorBox) errorBox.textContent = error && (error.code || error.status) && error.message || 'Chưa mở được phần học này. Thử lại sau.';
           });
           return;
         }

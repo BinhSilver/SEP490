@@ -162,7 +162,7 @@
     var api = root.JpathApi;
     var status = main.querySelector('[data-role="status"]');
     var part = function (name) { return main.querySelector('[data-role="' + name + '"]'); };
-    var fail = function (err) { status.textContent = (err && err.message) || 'Không tải được thống kê.'; };
+    var fail = function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được thống kê.'; };
     var heatmap = null;
     var monthIndex = 0;
     main.querySelector('[data-month-step="-1"]').innerHTML = icon('chevron-left');

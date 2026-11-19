@@ -166,7 +166,7 @@
         days = (h && Array.isArray(h.days)) ? h.days : [];
         page = 0;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được lịch sử.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được lịch sử.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -184,7 +184,7 @@
             else redo.disabled = false;
           }, function (err) {
             redo.disabled = false;
-            status.textContent = (err && err.message) || 'Chưa làm lại được bài này.';
+            status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa làm lại được bài này.';
           });
         return;
       }
@@ -201,7 +201,7 @@
     load(14).then(function () {
       if (!wanted) return;
       api.get(BASE + '/history/' + wanted[1]).then(show, function (err) {
-        status.textContent = (err && err.message) || 'Không tải được ngày này.';
+        status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được ngày này.';
       });
     });
   }

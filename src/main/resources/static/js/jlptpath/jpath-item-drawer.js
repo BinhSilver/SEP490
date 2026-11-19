@@ -58,7 +58,7 @@
 
   function messageOf(e, fallback, scope) {
     if (e && (e.status === 400 || e.code === 'BAD_REQUEST')) return scope === 'list' ? MSG_BAD_FILTER : MSG_ACTION;
-    return (e && e.message) || fallback || MSG_ACTION;
+    return (e && (e.code || e.status) && e.message) || fallback || MSG_ACTION;
   }
 
   function safeReturn(v) {

@@ -439,7 +439,7 @@
     var state = { session: null, lesson: null, view: null, shownAt: Date.now(),
       current: 0, picks: {}, feedback: {}, viOn: false, showExplain: false };
 
-    function fail(e) { status.textContent = (e && e.message) || 'Có lỗi, hãy thử lại.'; }
+    function fail(e) { status.textContent = (e && (e.code || e.status) && e.message) || 'Có lỗi, hãy thử lại.'; }
 
     function players() {
       body.querySelectorAll('[data-skill-player]').forEach(function (el) {

@@ -251,7 +251,7 @@
         }
       }).catch(function (error) {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Chưa tải được chi tiết ngày.')
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Chưa tải được chi tiết ngày.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         var retry = el.querySelector('[data-cp-retry]');
         if (retry) retry.addEventListener('click', load);

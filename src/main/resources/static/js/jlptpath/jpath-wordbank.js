@@ -114,7 +114,7 @@
         pager.querySelector('[data-page="next"]').disabled = !ps.hasNext;
         pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (ps.page + 1) + '/' + ps.pages;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được danh sách.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được danh sách.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -132,7 +132,7 @@
           return load();
         }, function (err) {
           rm.disabled = false;
-          status.textContent = (err && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
+          status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
         });
       }
     });

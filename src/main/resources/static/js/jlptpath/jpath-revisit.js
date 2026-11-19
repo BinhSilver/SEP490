@@ -110,7 +110,7 @@
         }, function (err) {
           b.disabled = false;
           var msg = el.querySelector('.jp-revisit__msg');
-          if (msg) { msg.hidden = false; msg.textContent = (err && err.message) || 'Chưa mở được. Thử lại sau.'; }
+          if (msg) { msg.hidden = false; msg.textContent = (err && (err.code || err.status) && err.message) || 'Chưa mở được. Thử lại sau.'; }
         });
       };
     }, function () { el.hidden = true; });

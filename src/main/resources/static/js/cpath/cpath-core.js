@@ -226,7 +226,7 @@
         busy = false; result = r || {}; phase = 'result'; render();
       }).catch(function (e) {
         busy = false; render();
-        el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa nộp được bài.') + '</p>');
+        el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa nộp được bài.') + '</p>');
       });
     }
 
@@ -238,7 +238,7 @@
         if (A) A.fromDisplay(data.display);
         render();
       }).catch(function (e) {
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa tải được bài nền.')
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được bài nền.')
           + ' <a class="cp-btn-ghost" href="/learning/comm/path">Về lộ trình</a></p>';
       });
     }

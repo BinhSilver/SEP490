@@ -549,7 +549,7 @@
         if (mine !== seq) return;
         state = with_(state, { pending: false, estimateFailed: true });
         update();
-        showError(error && error.message ? error.message : MSG_LOAD_FAILED);
+        showError(error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
       });
     }
 
@@ -561,7 +561,7 @@
         go('/learning');
       }, function (error) {
         if (error && error.code === 'JPATH_ACTIVE_PATH_EXISTS') { go('/learning'); return; }
-        var message = error && error.message ? error.message : MSG_LOAD_FAILED;
+        var message = error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED;
         state = with_(state, { saving: false });
         if (error && error.code === 'JPATH_TARGET_TOO_SOON') change(state); // re-estimate: pace and lock catch up
         else update();
@@ -586,7 +586,7 @@
     var attempt = el.getAttribute('data-attempt-id');
     return api.get(confirmationUrl(source, attempt || null)).then(start, function (error) {
       part('loading').hidden = true;
-      showError(error && error.message ? error.message : MSG_LOAD_FAILED);
+      showError(error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
     });
   }
 

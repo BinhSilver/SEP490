@@ -225,7 +225,7 @@
         if (again) again.focus();
       }
     }
-    function fail(e, fallback) { return e && e.message || fallback; }
+    function fail(e, fallback) { return e && (e.code || e.status) && e.message || fallback; }
     function savePace(next, undoValue) {
       busy = true;
       el.querySelector('[data-cp-save-pace]').disabled = true;

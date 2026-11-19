@@ -131,7 +131,7 @@
         start.hidden = tab === 'GRAMMAR' || mode === 'preview';
         start.disabled = !pairs.length;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được các cặp dễ nhầm.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được các cặp dễ nhầm.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -161,7 +161,7 @@
           else start.disabled = false;
         }, function (err) {
           start.disabled = false;
-          status.textContent = (err && err.message) || 'Chưa mở được bài luyện.';
+          status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa mở được bài luyện.';
         });
       }
     });

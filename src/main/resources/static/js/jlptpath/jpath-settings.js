@@ -239,7 +239,7 @@
         box.scrollIntoView({ block: 'nearest' });
       }
     }
-    function errorText(error) { return error && error.message ? error.message : MSG_FAILED; }
+    function errorText(error) { return error && (error.code || error.status) && error.message ? error.message : MSG_FAILED; }
 
     // ---- fields ----------------------------------------------------------------------------------
 
@@ -656,7 +656,7 @@
       return historyRequest.then(function (history) { start(next, history); });
     }, function (error) {
       part('loading').hidden = true;
-      message(el, 'error', error && error.message ? error.message : MSG_LOAD_FAILED);
+      message(el, 'error', error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
     });
   }
 

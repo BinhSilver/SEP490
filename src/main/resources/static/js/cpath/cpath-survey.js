@@ -635,7 +635,7 @@
           if (root.location) root.location.href = '/learning/comm/path';
         }, function (err) {
           state.submitting = false;
-          state.errorMsg = (err && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
+          state.errorMsg = (err && (err.code || err.status) && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
           render();
         });
       }
