@@ -10,7 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/pages/jpath-print.css(v=${jpathAssetVersion})}" />
 </head>
 <body class="jp-print" data-inline-dictionary>
-<div class="jp-print-toolbar" role="toolbar" aria-label="Công cụ in">
+<div class="jp-print-toolbar" role="toolbar" aria-label="Công cụ in" th:if="${printError == null}">
     <button type="button" class="jp-print-toolbar__btn jp-print-toolbar__btn--primary" data-jpath-print-now
             th:disabled="${sheet == null or #lists.isEmpty(sheet.pages())}">In bảng này</button>
     <button type="button" class="jp-print-toolbar__btn" data-jpath-print-close>Đóng</button>
@@ -23,7 +23,13 @@
     <span class="jp-print-toolbar__hint">Khổ A4 dọc · chữ mờ để tô, ô trống để tự viết</span>
 </div>
 
-<p class="jp-print-notice" th:if="${printError != null}" th:text="${printError}" role="alert">Lỗi</p>
+<main class="jp-print-error" th:if="${printError != null}" role="alert">
+    <img class="jp-print-error__pic" src="/images/mascots/kitsu/kitsu-thinking-30-128.webp" alt="" width="120" height="120"
+         onerror="this.remove()" />
+    <h1 class="jp-print-error__title">Chưa chọn bảng để in</h1>
+    <p class="jp-print-error__text">Hãy mở trang In từ nút "In" trong danh sách Từ vựng, Kanji hoặc bảng chữ cái của lộ trình.</p>
+    <a class="jp-print-toolbar__btn jp-print-toolbar__btn--primary jp-print-error__btn" href="/learning">Về lộ trình</a>
+</main>
 
 <th:block th:if="${sheet != null}">
     <p class="jp-print-notice" th:if="${sheet.notice() != null and !#lists.isEmpty(sheet.pages())}"
