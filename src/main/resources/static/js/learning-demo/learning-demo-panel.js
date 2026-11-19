@@ -51,6 +51,29 @@
     return text;
   }
 
+  var STEP_NAMES = { WORDS: 'Từ vựng', LISTEN: 'Nghe hội thoại', ROLEPLAY: 'Nhập vai', SPEAK: 'Luyện nói' };
+
+  function stepText(d) {
+    var text = 'Đã xong bước ' + (STEP_NAMES[d.stepDone] || d.stepDone) + '.';
+    if (d.situationDone) text += ' Tình huống đã xong cả 4 bước.';
+    if (d.cp) text += ' +' + d.cp + ' CP.';
+    if (d.stepDone === 'SPEAK') text += ' Điểm nói không được điền thay: muốn đạt chủ đề phải ghi âm thật.';
+    return text;
+  }
+
+  /** Study session id (study page) and situation code (/learning/comm/situation/{code}) of the open page. */
+  function pageContext(doc, path) {
+    var out = { sessionId: null, situation: null };
+    var el = doc && doc.querySelector ? doc.querySelector('[data-session-id]') : null;
+    var id = el ? Number(el.getAttribute('data-session-id')) : NaN;
+    if (id > 0) out.sessionId = id;
+    var m = /^\/learning\/comm\/situation\/([^/?#]+)/.exec(path || '');
+    if (m) out.situation = decodeURIComponent(m[1]);
+    var q = /^\/learning\/comm\/situation\/?\?(?:.*&)?id=([^&#]+)/.exec(path || '');
+    if (!m && q) out.situation = decodeURIComponent(q[1]);
+    return out;
+  }
+
   function build(state) {
     var style = document.createElement('style');
     style.textContent = CSS;
@@ -94,11 +117,39 @@
     }
 
     var check = state.openCheck;
+    var page = pageContext(root.document, root.location.pathname + root.location.search);
     if (state.protectedAccount) {
       status.textContent = 'Đây là tài khoản chính: nút demo bị khoá. Hãy mở profile Chrome của tài khoản demo.';
       body.append(status);
-    } else if (!check) {
-      status.textContent = 'Chưa có bài kiểm tra nào đang mở. Mở bài (kiểm tra nhanh, kiểm tra tuần, Đọc/Nghe…) rồi tải lại trang.';
+      panel.append(summary, body);
+      document.body.appendChild(panel);
+      return panel;
+    }
+    if (page.sessionId) {
+      body.append(label('Buổi học đang mở'), button('Học hết thẻ tới bài kiểm tra', function () {
+        return call('POST', '/api/dev/learning/sessions/' + page.sessionId + '/finish-cards').then(function (json) {
+          var o = json.data;
+          return 'Đã học ' + o.cardsDone + ' thẻ (' + o.position + '/' + o.total + ').'
+            + (o.atCheck ? ' Tới bài kiểm tra: trang sẽ mở bài, rồi dùng nút "Trả lời đúng/sai hết".' : '')
+            + (o.status === 'COMPLETED' ? ' Buổi học đã xong.' : '');
+        });
+      }));
+    }
+    if (page.situation) {
+      var step = function (right) {
+        return function () {
+          return call('POST', '/api/dev/learning/comm/situations/' + encodeURIComponent(page.situation) + '/next-step',
+            { roleplayRight: right }).then(function (json) { return stepText(json.data); });
+        };
+      };
+      var commGroup = document.createElement('div');
+      commGroup.className = 'mission-demo__group';
+      commGroup.append(button('Hoàn tất bước tiếp theo', step(true)), button('Bước tiếp, nhập vai sai hết', step(false)));
+      body.append(label('Tình huống giao tiếp'), commGroup);
+    }
+    if (!check) {
+      status.textContent = page.sessionId || page.situation ? 'Chấm điểm, tiến độ và CP do hệ thống tự tính.'
+        : 'Chưa có bài kiểm tra nào đang mở. Mở bài (kiểm tra nhanh, kiểm tra tuần, Đọc/Nghe…) rồi tải lại trang.';
       body.append(status);
     } else {
       var finish = function (mode) {
@@ -127,6 +178,6 @@
       .catch(function () { return null; /* demo tools disabled */ });
   }
 
-  if (typeof module !== 'undefined' && module.exports) module.exports = { resultText: resultText, start: start };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { resultText: resultText, stepText: stepText, pageContext: pageContext, start: start };
   else start();
 })(typeof window !== 'undefined' ? window : globalThis);
