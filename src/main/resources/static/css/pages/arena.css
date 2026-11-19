@@ -3316,3 +3316,307 @@ html[data-theme="dark"] .ar-shop-item__art--frames {
     min-height: 64px;
   }
 }
+
+/* Kana Connect card: the board plays itself like the real game (game-previews.js, scene "kana-connect").
+   Same look as /kana-connect: white cells in a beige frame, a purple snake with chevrons while dragging, a lime
+   snake and filled word slots once a word is found. Colours mirror the --kc-* tokens of kana-connect.css. */
+.ar-solo-card__art.ar-preview--kana-connect {
+  --pv-kc-wall: #d8d3cb;
+  --pv-kc-frame-edge: #8e8981;
+  --pv-kc-cell: #ffffff;
+  --pv-kc-grid: #e6e2dc;
+  --pv-kc-ink: #1d1a24;
+  --pv-kc-accent: #6544cf;
+  --pv-kc-active: #e4dafd;
+  --pv-kc-active-edge: #8e6ff0;
+  --pv-kc-found: #b5d33f;
+  --pv-kc-found-edge: #8cad22;
+  --pv-kc-found-ink: #26330a;
+  --pv-kc-slot: #e9e5df;
+  --pv-kc-cell-size: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .ar-solo-card__art.ar-preview--kana-connect {
+  --pv-kc-wall: var(--dark-raised, #3a2f45);
+  --pv-kc-frame-edge: var(--dark-line, #5a4a66);
+  --pv-kc-cell: var(--dark-surface, #2b2233);
+  --pv-kc-grid: rgba(255, 255, 255, .09);
+  --pv-kc-ink: var(--dark-ink, #f3ecf7);
+  --pv-kc-accent: var(--dark-accent, #dcaee8);
+  --pv-kc-active: rgb(220 174 232 / 30%);
+  --pv-kc-active-edge: var(--dark-accent, #dcaee8);
+  --pv-kc-found: #9cbd2c;
+  --pv-kc-found-edge: #c4e05a;
+  --pv-kc-found-ink: #172005;
+  --pv-kc-slot: rgba(255, 255, 255, .1);
+}
+
+.pv-kc-frame {
+  flex: none;
+  padding: 5px;
+  border: 2px solid var(--pv-kc-frame-edge);
+  border-radius: 10px;
+  background: var(--pv-kc-wall);
+}
+
+.pv-kc-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, var(--pv-kc-cell-size));
+  grid-template-rows: repeat(3, var(--pv-kc-cell-size));
+}
+
+/* Cells touch, with thin grid lines, as on the real board. The letter sits above the snake, the white cell below. */
+.ar-solo-card__art .pv-kc-tile,
+.ar-solo-card__art .pv-kc-tile:nth-child(-n+2) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: var(--pv-kc-cell);
+  box-shadow: inset 0 0 0 .5px var(--pv-kc-grid), 0 0 0 .5px var(--pv-kc-grid);
+  color: var(--pv-kc-ink);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.pv-kc-tile b {
+  position: relative;
+  z-index: 3;
+  font-weight: inherit;
+}
+
+.pv-kc-tile.is-picked {
+  color: var(--pv-kc-ink);
+}
+
+/* Dark mode: the dragged snake is light lavender, so its letters go dark to stay readable. */
+html[data-theme="dark"] .pv-kc-tile.is-picked {
+  color: #1d1a24;
+}
+
+.pv-kc-tile.is-found {
+  color: var(--pv-kc-found-ink);
+}
+
+.pv-kc-snakes {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pv-kc-snakes polyline {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pv-kc-snake__edge { stroke-width: 80; }
+.pv-kc-snake__fill { stroke-width: 72; }
+.pv-kc-snake--active .pv-kc-snake__edge { stroke: var(--pv-kc-active-edge); }
+.pv-kc-snake--active .pv-kc-snake__fill { stroke: var(--pv-kc-active); }
+.pv-kc-snake--found .pv-kc-snake__edge { stroke: var(--pv-kc-found-edge); }
+.pv-kc-snake--found .pv-kc-snake__fill { stroke: var(--pv-kc-found); }
+
+.pv-kc-snake__arrow {
+  stroke: var(--pv-kc-found-ink);
+  stroke-width: 5;
+  opacity: .7;
+}
+
+.pv-kc-snake--active .pv-kc-snake__arrow {
+  stroke: var(--pv-kc-accent);
+}
+
+.pv-kc-snake--found {
+  animation: pv-kc-found 360ms ease-out;
+}
+
+@keyframes pv-kc-found {
+  0% { opacity: .4; }
+  100% { opacity: 1; }
+}
+
+.ar-preview--kana-connect.is-complete .pv-kc-board {
+  animation: pv-kc-cheer 600ms ease-out;
+}
+
+@keyframes pv-kc-cheer {
+  0%, 100% { transform: none; }
+  40% { transform: scale(1.04); }
+}
+
+/* The finger: a soft dot that follows the drag. (The card styles every span of the art as a tile; reset that.) */
+.ar-solo-card__art .pv-kc-finger {
+  display: block;
+  aspect-ratio: auto;
+  font-size: 0;
+  position: absolute;
+  z-index: 4;
+  width: 20px;
+  height: 20px;
+  margin: 4px 0 0 4px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: rgba(30, 20, 50, .45);
+  box-shadow: 0 3px 10px rgba(30, 20, 50, .35);
+  opacity: 0;
+  pointer-events: none;
+  transition: left 280ms ease, top 280ms ease, opacity 200ms ease;
+}
+
+.pv-kc-finger.is-on {
+  opacity: 1;
+}
+
+.ar-preview--kana-connect.is-paused .pv-kc-finger {
+  opacity: 0;
+}
+
+/* Beside the board: progress or the kana being dragged, the word slots, and the meaning of the last word. */
+.pv-kc-side {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  min-width: 78px;
+}
+
+.pv-kc-status {
+  color: var(--ar-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.pv-kc-status.is-selecting {
+  color: var(--pv-kc-accent);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 15px;
+  letter-spacing: .06em;
+}
+
+.pv-kc-status.is-done {
+  color: var(--pv-kc-found-edge);
+}
+
+.pv-kc-words {
+  display: grid;
+  gap: 5px;
+}
+
+.pv-kc-word {
+  display: flex;
+  gap: 3px;
+}
+
+.ar-solo-card__art .pv-kc-slot,
+.ar-solo-card__art .pv-kc-slot:nth-child(-n+2) {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  aspect-ratio: auto;
+  border-radius: 5px;
+  background: var(--pv-kc-slot);
+  color: var(--pv-kc-found-ink);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ar-solo-card__art .pv-kc-slot.is-found {
+  background: var(--pv-kc-found);
+  box-shadow: inset 0 0 0 1.5px var(--pv-kc-found-edge);
+}
+
+.pv-kc-gloss {
+  min-height: 15px;
+  color: var(--ar-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.pv-kc-gloss b {
+  color: var(--ar-ink);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 12px;
+}
+
+.pv-kc-gloss.is-on {
+  animation: pv-kc-gloss 1000ms ease-out forwards;
+}
+
+@keyframes pv-kc-gloss {
+  0% { opacity: 0; transform: translateY(3px); }
+  20%, 100% { opacity: 1; transform: none; }
+}
+
+@media (max-width: 640px) {
+  .ar-solo-card__art.ar-preview--kana-connect {
+    --pv-kc-cell-size: 28px;
+    gap: 8px;
+    padding: 6px 8px 6px 6px;
+  }
+
+  .ar-solo-card__art .pv-kc-tile,
+  .ar-solo-card__art .pv-kc-tile:nth-child(-n+2) {
+    font-size: 14px;
+  }
+
+  .pv-kc-frame {
+    padding: 3px;
+    border-radius: 8px;
+  }
+
+  .ar-solo-card__art .pv-kc-finger {
+    width: 14px;
+    height: 14px;
+    margin: 2px 0 0 2px;
+    border-width: 2px;
+  }
+
+  .pv-kc-side {
+    gap: 4px;
+    min-width: 46px;
+  }
+
+  .pv-kc-status {
+    font-size: 10px;
+  }
+
+  .pv-kc-status.is-selecting {
+    font-size: 12px;
+  }
+
+  .ar-solo-card__art .pv-kc-slot,
+  .ar-solo-card__art .pv-kc-slot:nth-child(-n+2) {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    font-size: 8px;
+  }
+
+  .pv-kc-words {
+    gap: 3px;
+  }
+
+  .pv-kc-gloss {
+    display: none;
+  }
+}

@@ -240,10 +240,10 @@
     /* ---------- the five steps ---------- */
     var STEPS = [
         { title: 'Chào mừng đến Kana Connect', render: function () {
-            return [el('p', 'kc-tut-lead', 'Mỗi ngày có một bàn chữ kana chung cho mọi người. Nhiệm vụ của bạn: tìm hết các từ tiếng Nhật đang ẩn trên bàn.'),
+            return [el('p', 'kc-tut-lead', 'Mỗi tuần có một bàn chữ kana chung cho mọi người. Nhiệm vụ của bạn: tìm hết các từ tiếng Nhật đang ẩn trên bàn.'),
                 list([['fa-solid fa-table-cells', 'Mỗi bàn có <b>ít nhất 8 từ</b>, mỗi ô kana thuộc đúng <b>một</b> từ.'],
                     ['fa-solid fa-hand-pointer', 'Nối các ô liền nhau để ghép thành từ; từ đúng sẽ hiện kanji và nghĩa.'],
-                    ['fa-solid fa-trophy', 'Giải càng nhanh, thứ hạng trong <b>Top 5 hôm nay</b> càng cao.']])];
+                    ['fa-solid fa-trophy', 'Giải càng nhanh, thứ hạng trong <b>Top 5 tuần này</b> càng cao.']])];
         } },
         { title: 'Đường nối có thể rẽ', render: function () {
             return [el('p', 'kc-tut-lead', 'Một từ không nhất thiết nằm trên một hàng hay một cột. Đường nối được rẽ góc nhiều lần, miễn là mỗi bước đi sang ô ngay cạnh.'),
@@ -272,7 +272,7 @@
             return [list([['fa-solid fa-layer-group', 'Chọn bàn <b>N5 → N1</b> hoặc <b>Trộn</b>. Game mở trước cấp theo lộ trình của bạn (nút có chấm xanh).'],
                 ['fa-regular fa-clock', 'Mỗi cấp có đồng hồ riêng và <b>chỉ chạy khi bạn đang chơi cấp đó</b>; rời trang là tạm dừng.'],
                 ['fa-solid fa-crown', 'Top 5 mỗi bàn nhận danh hiệu: <b>Chí tôn</b>, Vô thượng cường giả, Tuyệt thế cường giả, Đỉnh cấp cường giả, Cường giả.'],
-                ['fa-solid fa-calendar-day', 'Bàn mới mở lúc 0:00 mỗi ngày. Mở lại hướng dẫn này bằng nút <b>Cách chơi</b>.']])];
+                ['fa-solid fa-calendar-day', 'Bàn mới mở lúc 0:00 thứ Hai hằng tuần. Mở lại hướng dẫn này bằng nút <b>Cách chơi</b>.']])];
         } }
     ];
 

@@ -30,6 +30,12 @@ public class RagTutorService {
     /** Không có nguồn nào: trả lời cố định, không gọi model để model không tự bịa. */
     static final String NO_SOURCE = "Tài liệu J-LAS chưa có nội dung cho câu hỏi này, nên mình không trả lời để tránh nói sai. "
             + "Bạn thử hỏi về bài đang học, hoặc viết từ hay mẫu ngữ pháp bằng chữ Nhật nhé.";
+    /** Câu từ chối duy nhất cho câu hỏi ngoài phạm vi, dùng chung cho câu đáp cố định, tầng 1 và tầng 2. */
+    public static final String OUT_OF_SCOPE_REPLY = "Câu này nằm ngoài phần mình hỗ trợ. Mình là gia sư tiếng Nhật của J-LAS: mình giúp"
+            + " giải thích từ vựng, kanji, ngữ pháp, đặt câu, dịch câu Nhật–Việt và mẹo học tiếng Nhật."
+            + " Cần hỗ trợ về tài khoản, thanh toán hay lỗi trang web thì bạn liên hệ quản trị viên J-LAS nhé.";
+    /** Câu đầu của {@link #OUT_OF_SCOPE_REPLY}; prompt tầng 1 bắt model viết đúng câu này khi từ chối. */
+    static final String OUT_OF_SCOPE_MARK = "Câu này nằm ngoài phần mình hỗ trợ";
     static final String SEE_A_DOCTOR = " Nếu bạn đang không khỏe, hãy hỏi bác sĩ hoặc dược sĩ nhé.";
 
     private final RagRetriever retriever;
@@ -111,8 +117,12 @@ public class RagTutorService {
         String answer = stripRomaji(onDelta == null ? llm.chat(system, history, question, MAX_ANSWER_TOKENS)
                 : llm.chatStream(system, history, question, MAX_ANSWER_TOKENS, onDelta));
         long done = System.nanoTime();
-        return new Answer(answer, context.passages(), context.lexicon(), RagPromptComposer.citations(context),
-                retrievalMs, (done - retrieved) / 1_000_000).eligible(answer.contains(MISSING_MARK) && fallbackAllowed(question));
+        // Model tầng 1 hay từ chối nhầm câu về tiếng Nhật (đếm đồ vật, mẹo học): để tầng 2 xét lại, tầng 2 cũng từ chối thì mới từ chối.
+        boolean refused = answer.startsWith(OUT_OF_SCOPE_MARK);
+        return new Answer(refused ? OUT_OF_SCOPE_REPLY : answer, context.passages(), context.lexicon(),
+                RagPromptComposer.citations(context), retrievalMs, (done - retrieved) / 1_000_000)
+                .eligible((refused || MISSING.matcher(answer).find()) && fallbackAllowed(question)
+                        && !HEALTH_QUESTION.matcher(plain(question)).find());
     }
 
     // ---------------------------------------------------------------------
@@ -124,6 +134,9 @@ public class RagTutorService {
 
     /** Câu model tầng 1 dùng khi nguồn không có thông tin (prompt bắt viết đúng câu này). */
     static final String MISSING_MARK = "Tài liệu J-LAS chưa có";
+    /** Model không luôn chép đúng câu đó (viết thường, "không có trong NGUỒN"): bắt cả các biến thể. */
+    private static final Pattern MISSING = Pattern.compile(
+            "(?iu)tài liệu j-las chưa có|không có trong (nguồn|tài liệu)|nguồn không có|chưa có thông tin");
     /** Cách đọc, âm Hán Việt, cấp JLPT: chỉ lấy từ dữ liệu J-LAS, không bao giờ để AI tự nói. */
     private static final Pattern DATA_ONLY_QUESTION = Pattern.compile(
             "\\b(doc la|doc the nao|doc sao|cach doc|phat am|han viet|am on|am kun|onyomi|kunyomi|cap jlpt|cap do|trinh do|n[1-5] hay)\\b");
@@ -135,16 +148,33 @@ public class RagTutorService {
     static final String FALLBACK_PROMPT = """
             Bạn là gia sư tiếng Nhật cho người Việt. Tài liệu J-LAS chưa có nội dung cho câu hỏi này, nên hãy trả lời bằng
             kiến thức tiếng Nhật chuẩn mà bạn chắc chắn đúng.
-            - Chỉ trả lời về tiếng Nhật. Câu hỏi không phải về học tiếng Nhật thì chỉ viết: なし
+            - Mọi câu liên quan tới tiếng Nhật đều trả lời: từ, câu chào, cách đếm đồ vật, kính ngữ, văn hoá khi dùng tiếng Nhật,
+              mẹo học, cách nói một từ tiếng Việt bằng tiếng Nhật. Chỉ khi câu hỏi hoàn toàn không liên quan tới tiếng Nhật
+              (ngôn ngữ khác, lập trình, toán, tin tức...) thì chỉ viết: なし
+            - Câu hỏi nhắc tới lượt trước ("chữ đó", "câu đó") thì dựa vào các lượt trước trong cuộc trò chuyện.
+            - Kính ngữ: tôn kính ngữ (尊敬語) nâng hành động của người khác, ví dụ いらっしゃる, 召し上がる, おっしゃる, ご覧になる;
+              khiêm nhường ngữ (謙譲語) hạ hành động của mình, ví dụ 伺う, 参る, いただく, 申す, 拝見する. Không nhầm hai loại.
             - KHÔNG viết cách đọc, furigana, romaji, âm Hán Việt hay cấp JLPT: hệ thống tự thêm những thứ này từ từ điển J-LAS.
             - Câu ví dụ tiếng Nhật ngắn, đơn giản, đúng ngữ pháp, mỗi câu kèm nghĩa tiếng Việt.
             - Điều gì không chắc thì nói rõ là không chắc; không bịa nguồn, sách hay số liệu.
             - Trả lời bằng tiếng Việt, ngắn gọn (dưới 150 chữ), dùng gạch đầu dòng nếu cần; không tiêu đề, không bảng.
             """;
 
-    /** Câu hỏi có chữ Nhật (tự đủ nghĩa, lưu lại được) và không hỏi thứ chỉ được lấy từ dữ liệu. */
+    /**
+     * Không hỏi cách đọc, Hán Việt hay cấp JLPT của một chữ Nhật cụ thể: những thứ đó chỉ lấy từ dữ liệu.
+     * Câu không có chữ Nhật ("người Việt Nam tiếng Nhật nói thế nào, đọc thế nào") thì được: cách đọc khi đó do hệ thống
+     * thêm từ từ điển J-LAS ({@link #withDictionary}), AI không tự viết.
+     */
     static boolean fallbackAllowed(String question) {
-        return JAPANESE_IN_QUESTION.matcher(question).find() && !DATA_ONLY_QUESTION.matcher(plain(question)).find();
+        return !(JAPANESE_IN_QUESTION.matcher(question).find() && DATA_ONLY_QUESTION.matcher(plain(question)).find());
+    }
+
+    /** Câu nhắc lại lượt trước ("chữ đó", "câu trên", "thêm ví dụ"): không tự đủ nghĩa, nên không lưu và không dùng bản đã lưu. */
+    private static final Pattern REFERS_BACK = Pattern.compile(
+            "\\b(cau|chu|tu|mau|vi du|cai|doan|phan|y|nghia) (do|nay|tren|kia|vua roi|vua nay|ay|truoc)\\b|\\b(tiep|them|nua|lai)\\b");
+
+    static boolean refersBack(String question) {
+        return REFERS_BACK.matcher(plain(question)).find();
     }
 
     /**
@@ -156,10 +186,12 @@ public class RagTutorService {
      * @param mayCallModel gọi ngay trước khi hỏi AI (kiểm hạn mức); false thì không hỏi
      * @return câu trả lời tầng 2, hoặc null khi bản đã lưu bị người duyệt từ chối, hết hạn mức, hoặc AI không trả lời được
      */
-    public Answer aiFallback(String question, boolean standalone, java.util.function.Consumer<String> onDelta,
-                             java.util.function.BooleanSupplier mayCallModel) {
+    public Answer aiFallback(String question, List<Map<String, String>> history, boolean standalone,
+                             java.util.function.Consumer<String> onDelta, java.util.function.BooleanSupplier mayCallModel) {
         long started = System.nanoTime();
-        TutorAiAnswerStore.Saved saved = aiAnswers.find(question).orElse(null);
+        // Câu tự đủ nghĩa được lưu và dùng lại, nên hỏi AI không kèm lịch sử; câu nhắc lượt trước thì kèm lịch sử, không lưu.
+        boolean cacheable = history.isEmpty() || !refersBack(question);
+        TutorAiAnswerStore.Saved saved = cacheable ? aiAnswers.find(question).orElse(null) : null;
         String body;
         boolean reviewed;
         if (saved != null) {
@@ -169,15 +201,23 @@ public class RagTutorService {
         } else {
             if (!mayCallModel.getAsBoolean()) return null;
             if (onDelta != null) onDelta.accept((standalone ? NOT_IN_JLAS : "\n\n") + AI_PART + "\n\n");
-            String raw = stripRomaji(onDelta == null ? llm.chat(FALLBACK_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS)
-                    : llm.chatStream(FALLBACK_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS, onDelta)).strip();
-            if (raw.isEmpty() || raw.equals("なし") || raw.startsWith("なし")) return null;
+            List<Map<String, String>> context = cacheable ? List.of() : history;
+            String raw = stripRomaji(onDelta == null ? llm.chat(FALLBACK_PROMPT, context, question, MAX_FALLBACK_TOKENS)
+                    : llm.chatStream(FALLBACK_PROMPT, context, question, MAX_FALLBACK_TOKENS, onDelta)).strip();
+            if (raw.isEmpty()) return null;
+            if (raw.startsWith("なし")) return outOfScope(started);
             body = raw;
             reviewed = false;
-            aiAnswers.save(question, body, llm.model());
+            if (cacheable) aiAnswers.save(question, body, llm.model());
         }
         return withDictionary((standalone ? NOT_IN_JLAS : "") + (reviewed ? AI_REVIEWED_PART : AI_PART), body, question,
                 reviewed ? TIER_AI_REVIEWED : TIER_AI, started);
+    }
+
+    /** AI xác nhận câu hỏi không liên quan tới tiếng Nhật: trả câu từ chối chung, thay cho mọi phần đã hiện. */
+    private static Answer outOfScope(long started) {
+        return new Answer(OUT_OF_SCOPE_REPLY, List.of(), new RagLexiconLookup.Result(List.of(), List.of()), List.of(), 0,
+                (System.nanoTime() - started) / 1_000_000, TIER_JLAS, false);
     }
 
     /** Câu trả lời tầng 2 kèm danh sách từ tiếng Nhật có trong từ điển: cách đọc và nghĩa luôn là của J-LAS. */
@@ -202,21 +242,31 @@ public class RagTutorService {
     // ---------------------------------------------------------------------
 
     public static final String TIER_AI_TRANSLATION = "AI_TRANSLATION";
-    private static final Pattern TRANSLATION_QUESTION = Pattern.compile("\\b(dich|translate|phien dich)\\b");
-    static final String TRANSLATION_PART = "Bản dịch do AI thực hiện, chưa được người duyệt, bạn nên đối chiếu thêm với giáo viên hoặc từ điển:";
+    private static final Pattern TRANSLATION_QUESTION = Pattern.compile("\\b(dich|translate|phien dich)\\b"
+            // đặt câu, viết câu, chuyển câu sang thể khác
+            + "|\\b(dat|viet|tao|lam) (\\d+ |mot |vai |cac |nhung )?(cau|vi du|doan)\\b"
+            + "|\\b(chuyen|doi|sua|viet lai)\\b.*\\bsang\\b");
+    /** "X tiếng Nhật là gì / nói thế nào": hỏi cách nói một từ tiếng Việt, câu không có chữ Nhật nào. */
+    private static final Pattern HOW_TO_SAY = Pattern.compile(
+            "\\btieng nhat\\b.*\\b(la gi|the nao|nhu nao|ra sao|sao)\\b|\\b(noi|goi|viet)\\b.*\\bbang tieng nhat\\b");
+    static final String TRANSLATION_PART = "Phần dưới do AI viết, chưa được người duyệt, bạn nên đối chiếu thêm với giáo viên hoặc từ điển:";
     static final String TRANSLATE_PROMPT = """
-            Bạn là gia sư tiếng Nhật cho người Việt. Người học nhờ dịch một câu hoặc đoạn ngắn giữa tiếng Nhật và tiếng Việt.
+            Bạn là gia sư tiếng Nhật cho người Việt. Người học nhờ dịch một câu giữa tiếng Nhật và tiếng Việt, hỏi một từ tiếng Việt
+            nói bằng tiếng Nhật thế nào, nhờ đặt câu với một từ, hoặc chuyển một câu sang thể khác (lịch sự, thường, kính ngữ).
             - Câu tiếng Nhật thì dịch sang tiếng Việt tự nhiên; câu tiếng Việt thì dịch sang tiếng Nhật chuẩn, lịch sự (thể です/ます)
-              trừ khi người học yêu cầu thể thường.
-            - Viết bản dịch trước, sau đó tối đa 3 gạch đầu dòng giải thích ngắn các từ hoặc mẫu ngữ pháp chính.
+              trừ khi người học yêu cầu thể thường. Câu đặt mới thì ngắn, đơn giản, kèm nghĩa tiếng Việt.
+            - Người học nói "chữ đó", "câu đó", "câu trên" thì lấy từ hoặc câu ở các lượt trước trong cuộc trò chuyện.
+            - Viết kết quả trước, sau đó tối đa 3 gạch đầu dòng giải thích ngắn các từ hoặc mẫu ngữ pháp chính.
             - KHÔNG viết cách đọc, furigana, romaji, âm Hán Việt hay cấp JLPT: hệ thống tự thêm từ từ điển J-LAS.
-            - Không dịch sang hay từ ngôn ngữ khác ngoài tiếng Nhật và tiếng Việt; không phải yêu cầu dịch như vậy thì chỉ viết: なし
+            - Không dịch sang hay từ ngôn ngữ khác ngoài tiếng Nhật và tiếng Việt; yêu cầu không liên quan tới tiếng Nhật thì chỉ viết: なし
             - Chỗ nào không chắc thì nói rõ là không chắc. Không tiêu đề, không bảng.
             """;
 
-    /** Người học nhờ dịch một câu (Nhật → Việt hoặc Việt → Nhật). */
+    /** Người học nhờ dịch, đặt câu, chuyển thể câu, hoặc hỏi một từ tiếng Việt nói bằng tiếng Nhật thế nào. */
     public static boolean isTranslationRequest(String question) {
-        return TRANSLATION_QUESTION.matcher(plain(question)).find();
+        String p = plain(question);
+        return TRANSLATION_QUESTION.matcher(p).find()
+                || (!JAPANESE_IN_QUESTION.matcher(question).find() && HOW_TO_SAY.matcher(p).find() && !p.contains("hoc tieng nhat"));
     }
 
     /**
@@ -226,13 +276,15 @@ public class RagTutorService {
      * @param mayCallModel gọi ngay trước khi hỏi AI (kiểm hạn mức); false thì không dịch
      * @return bản dịch, hoặc null khi hết hạn mức hay AI cho rằng đây không phải yêu cầu dịch tiếng Nhật
      */
-    public Answer aiTranslate(String question, java.util.function.Consumer<String> onDelta, java.util.function.BooleanSupplier mayCallModel) {
+    public Answer aiTranslate(String question, List<Map<String, String>> history, java.util.function.Consumer<String> onDelta,
+                              java.util.function.BooleanSupplier mayCallModel) {
         long started = System.nanoTime();
         if (!mayCallModel.getAsBoolean()) return null;
         if (onDelta != null) onDelta.accept(TRANSLATION_PART + "\n\n");
-        String raw = stripRomaji(onDelta == null ? llm.chat(TRANSLATE_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS)
-                : llm.chatStream(TRANSLATE_PROMPT, List.of(), question, MAX_FALLBACK_TOKENS, onDelta)).strip();
-        if (raw.isEmpty() || raw.startsWith("なし")) return null;
+        String raw = stripRomaji(onDelta == null ? llm.chat(TRANSLATE_PROMPT, history, question, MAX_FALLBACK_TOKENS)
+                : llm.chatStream(TRANSLATE_PROMPT, history, question, MAX_FALLBACK_TOKENS, onDelta)).strip();
+        if (raw.isEmpty()) return null;
+        if (raw.startsWith("なし")) return outOfScope(started);
         return withDictionary(TRANSLATION_PART, raw, question, TIER_AI_TRANSLATION, started);
     }
 

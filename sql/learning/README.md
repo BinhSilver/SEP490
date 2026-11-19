@@ -37,6 +37,10 @@ for F in N5 N4 N3 N2 N1 comm; do mysql -u root -p --default-character-set=utf8mb
   the goal catalogue) and the levels run from N5 up to N1 (a level may read rows that a lower level inserted, never a
   higher one).
 - Every file is re-runnable (upserts by stable keys); a second run changes nothing. Never use `--force`.
+- **Then the data migrations**: `sql/migrations/085` → `086` → `087` → `088` run AFTER the learning data (they
+  underline questions the data inserts, fix one reading and merge duplicate vocabulary entries that compiled lessons
+  link to). Re-running a learning data file resets those rows (question text, compiled word links), so run
+  085 → 086 → 088 again afterwards (see `AGENTS.md`).
 - If a file starts with `version https://git-lfs.github.com/spec/v1`, LFS has not downloaded it: run `git lfs pull`.
 
 ## Rebuilding generated blocks

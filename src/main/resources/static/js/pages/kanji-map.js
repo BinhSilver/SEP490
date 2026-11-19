@@ -12,6 +12,7 @@
   var pronunciation = null, pronunciationButton = null, pronunciationTimer = null;
   var diagramMotion = null;
   var compareDiagramMotions = [];
+  var lastViewKey = null, lastViewReady = false, lastViewTimer = null;
   var notebook = window.KanjiMapNotebook.create({request:request, headers:headers, loggedIn:loggedIn, notice:notice, onChange:updateNotebookButton});
   function updateNotebookButton() {
     var button = detail.querySelector('[data-action="notebook"]');
@@ -91,15 +92,72 @@
     if (!response.ok || body.success === false) throw new Error(body.message || 'Chưa thể hoàn tất. Vui lòng thử lại.');
     return body.data === undefined ? body : body.data;
   }
-  function notice(message, login) {
-    $('notice').textContent = message;
-    $('notice').hidden = !message;
-    if (login) {
-      var link = document.createElement('a');
-      link.href = '/login?redirect=' + encodeURIComponent(location.pathname + location.search);
-      link.textContent = ' Đăng nhập →'; $('notice').appendChild(link);
-    }
+  function viewStorageKey() {
+    var user = loggedIn() && window.JlasAuth.getUser();
+    var identity = user && (user.id || user.userId || user.email);
+    return 'jlas-kanji-map:last-view:v1:' + (identity ? 'user:' + identity : 'guest');
   }
+  function saveLastView() {
+    window.clearTimeout(lastViewTimer); lastViewTimer = null;
+    if (!lastViewReady || !lastViewKey || !state.graph) return;
+    try {
+      localStorage.setItem(lastViewKey, JSON.stringify({
+        version: 1, branch: $('branch').value, level: $('level').value, status: $('status').value,
+        selected: state.selected, collapsed: Array.from(state.collapsed), limits: Array.from(state.limits), expanded: state.expanded
+      }));
+    } catch (_) { /* The map remains usable when browser storage is unavailable. */ }
+  }
+  function rememberView() {
+    if (!lastViewReady) return;
+    window.clearTimeout(lastViewTimer);
+    lastViewTimer = window.setTimeout(saveLastView, 200);
+  }
+  function restoreLastView() {
+    var saved;
+    try { saved = JSON.parse(localStorage.getItem(lastViewKey)); } catch (_) { return false; }
+    if (!saved || saved.version !== 1 || typeof saved.branch !== 'string' || (saved.branch && !state.graph.nodes.has(saved.branch))) return false;
+    ['level', 'status'].forEach(function (id) {
+      $(id).value = Array.from($(id).options).some(function (option) { return option.value === saved[id]; }) ? saved[id] : '';
+    });
+    refreshBranches(); chooseBranch(saved.branch); initialBranches();
+    var graph = activeGraph();
+    if (Array.isArray(saved.collapsed)) state.collapsed = new Set(saved.collapsed.filter(function (ch) { return graph.nodes.has(ch); }));
+    if (Array.isArray(saved.limits)) state.limits = new Map(saved.limits.filter(function (entry) {
+      return Array.isArray(entry) && entry.length === 2 && graph.nodes.has(entry[0]) && Number.isInteger(entry[1]) && entry[1] > 0 && entry[1] <= 10000;
+    }));
+    state.expanded = saved.expanded === true;
+    if (typeof saved.selected === 'string' && state.graph.nodes.has(saved.selected)) {
+      revealPath(saved.selected);
+      // A catalog/progress update may have moved the last character outside its old filters.
+      if (!model.filter(activeGraph(), options()).included.has(saved.selected)) { $('level').value = ''; $('status').value = ''; }
+      $('search').value = saved.selected;
+      select(saved.selected);
+      requestAnimationFrame(function () { center(saved.selected); });
+    } else render(true);
+    return true;
+  }
+  function positionToastHost() {
+    var host = document.getElementById('toast-host');
+    var target = document.fullscreenElement || document.body;
+    if (host && host.parentElement !== target) target.appendChild(host);
+  }
+  function notice(message, login, type) {
+    if (!message) return;
+    var toast = window.JlasUI.toast(message, login ? 'info' : (type || 'success'));
+    if (login && !toast.querySelector('[data-km-toast-login]')) {
+      var link = document.createElement('a');
+      link.className = 'km-toast-login';
+      link.dataset.kmToastLogin = 'true';
+      link.href = '/login?redirect=' + encodeURIComponent(location.pathname + location.search);
+      link.textContent = 'Đăng nhập →';
+      var text = toast.querySelector('span:not(.material-symbols-outlined)');
+      text.appendChild(document.createTextNode(' '));
+      text.appendChild(link);
+    }
+    positionToastHost();
+    return toast;
+  }
+  document.addEventListener('fullscreenchange', positionToastHost);
   function typeLabel(node) { return node.isRadicalVariant ? 'Dạng bộ thủ' : node.isKanji && node.isRadical ? 'Kanji · Bộ thủ' : node.isKanji ? 'Kanji' : node.isRadical ? 'Bộ thủ' : 'Thành phần'; }
   function nameOf(node) { return model.displayName(node); }
   function meaning(node) { return model.vietnameseMeaning(node); }
@@ -251,10 +309,9 @@
       var count = Array.from(f.included).filter(function (ch) { return state.graph.nodes.get(ch).level === level; }).length;
       return '<span><b class="km-level-badge km-level-' + level + '">' + level + '</b> ' + count + '</span>';
     }).join('');
-    var expandLabel = state.expanded ? 'Thu gọn các nhánh' : 'Mở rộng các nhánh';
-    $('expand').setAttribute('aria-label', expandLabel); $('expand').title = expandLabel; $('expand').setAttribute('aria-pressed', String(state.expanded));
     board.setAttribute('aria-busy', 'false');
     if (refit) requestAnimationFrame(home);
+    rememberView();
   }
   function cancelAnimation() { state.animations.forEach(function (animation) { animation.cancel(); }); state.animations = []; }
   function animateStrokes() {
@@ -278,7 +335,6 @@
       '</div></section>';
   }
   function detailHtml(n) {
-    var positions = { left: 'trái', right: 'phải', top: 'trên', bottom: 'dưới', kamae: 'bao quanh', nyo: 'trái / dưới', tare: 'trái / trên' };
     var linked = (state.graph.outgoing.get(n.character) || []).map(function (r) { return state.graph.nodes.get(r.child); });
     var hasExtra = n.on.length || n.kun.length || n.memoryHint || n.meaningsEn.length;
     var path = model.ancestors(state.activeGraph, n.character).reverse().filter(function (ch) { return state.filtered.included.has(ch); });
@@ -294,7 +350,7 @@
         return '<button class="km-button" type="button" data-part="' + esc(child.character) + '" title="' + esc(nameOf(child)) + '">' + esc(child.character) + '</button>';
       }).join('') + '</div>' : '') +
       '<h3>Thành phần trực tiếp</h3><div class="km-parts">' + (n.components.length ? n.components.map(function (part) {
-        return '<button type="button" class="km-button' + (part.character.startsWith('CDP-') ? ' is-cdp' : '') + '" data-part="' + esc(part.character) + '"><span lang="ja">' + esc(part.character) + '</span><small>' + (part.character.startsWith('CDP-') ? 'Mã thành phần KanjiVG' : esc(componentName(part))) + '</small><small>' + esc(positions[part.position] || '') + (part.partial ? ' · một phần' : '') + '</small></button>';
+        return '<button type="button" class="km-button' + (part.character.startsWith('CDP-') ? ' is-cdp' : '') + '" data-part="' + esc(part.character) + '"><span lang="ja">' + esc(part.character) + '</span><small>' + (part.character.startsWith('CDP-') ? 'Mã thành phần' : esc(componentName(part))) + '</small>' + (part.partial ? '<small>một phần</small>' : '') + '</button>';
       }).join('') : '<p class="km-caption">Chưa tách thành phần nhỏ hơn trong nguồn dữ liệu.</p>') + '</div>' +
       (n.components.some(function (p) { return p.original && p.original !== p.character; }) ? '<p class="km-caption">' + n.components.filter(function (p) { return p.original && p.original !== p.character; }).map(function (p) { return esc(p.character) + ' là dạng của ' + esc(p.original); }).join(' · ') + '</p>' : '') +
       (hasExtra ? '<details class="km-detail-extra"><summary>Âm đọc &amp; nghĩa tham khảo</summary>' : '') +
@@ -303,7 +359,7 @@
       (n.memoryHint ? '<h3>Gợi ý ghi nhớ</h3><p class="km-detail-note">' + esc(n.memoryHint) + '</p>' : '') +
       (n.meaningsEn.length ? '<h3>Nghĩa gốc · tiếng Anh</h3><p class="km-detail-note" lang="en">' + n.meaningsEn.map(esc).join('; ') + '</p>' : '') +
       (hasExtra ? '</details>' : '') +
-      (n.strokes.length ? '<h3>Thứ tự nét · KanjiVG</h3><div class="km-stroke-wrap"><svg viewBox="0 0 109 109" role="img" aria-label="Thứ tự nét chữ ' + esc(n.character) + '">' + n.strokes.map(function (d) { return '<path d="' + esc(d) + '"/>'; }).join('') + '</svg><div><button type="button" class="km-text-button" data-action="replay">↻ Phát lại nét viết</button></div></div>' : '') +
+      (n.strokes.length ? '<h3>Thứ tự nét</h3><div class="km-stroke-wrap"><svg viewBox="0 0 109 109" role="img" aria-label="Thứ tự nét chữ ' + esc(n.character) + '">' + n.strokes.map(function (d) { return '<path d="' + esc(d) + '"/>'; }).join('') + '</svg><div><button type="button" class="km-text-button" data-action="replay">↻ Phát lại nét viết</button></div></div>' : '') +
       (n.isKanji ? '<div class="km-detail-actions"><button type="button" class="km-button" id="km-master" data-action="master" aria-pressed="' + state.mastered.has(n.character) + '">' + (state.mastered.has(n.character) ? '✓ Đã thành thạo' : 'Đánh dấu thành thạo') + '</button>' +
         '<button type="button" class="km-button km-primary" data-action="notebook">' + (notebook.has(n.character) ? '✓ Đã lưu · Chọn sổ' : 'Lưu vào sổ tay') + '</button>' +
         '<a class="km-button" href="/dictionary/index.html?q=' + encodeURIComponent(n.character) + '" target="_blank" rel="noopener">Tra từ điển đầy đủ ↗</a></div><div id="km-related"></div>' : '<p class="km-caption">Đây là thành phần cấu tạo, không phải thẻ Kanji để lưu tiến độ.</p>');
@@ -333,7 +389,6 @@
     }
   }
   function closeDetail() { stopPronunciation(); stopDiagramMotion(); state.selected = null; state.detailVersion++; cancelAnimation(); detail.hidden = true; $('workspace').classList.remove('has-detail'); render(false); }
-  var partPositions = { left: 'trái', right: 'phải', top: 'trên', bottom: 'dưới', kamae: 'bao quanh', nyo: 'trái / dưới', tare: 'trái / trên' };
   function componentName(part) {
     var node = state.graph.catalog.get(part.character), original = state.graph.catalog.get(part.original);
     if (node && node.isRadicalVariant && node.radicalBase === part.original) return node.radicalNameVi;
@@ -341,7 +396,7 @@
     return node && node.radicalNameVi || '';
   }
   function componentChips(parts) {
-    return parts.length ? parts.map(function (part) { var name = componentName(part); return '<span class="km-component-chip"><b lang="ja">' + esc(part.character) + '</b>' + (name ? '<small>' + esc(name) + '</small>' : '') + '<small>' + (part.count ? '×' + part.count : esc(partPositions[part.position] || '')) + '</small></span>'; }).join('') : '<span class="km-caption">Không có</span>';
+    return parts.length ? parts.map(function (part) { var name = componentName(part); return '<span class="km-component-chip"><b lang="ja">' + esc(part.character) + '</b>' + (name ? '<small>' + esc(name) + '</small>' : '') + (part.count ? '<small>×' + part.count + '</small>' : '') + '</span>'; }).join('') : '<span class="km-caption">Không có</span>';
   }
   function compareWith(character) {
     stopCompareDiagrams();
@@ -403,19 +458,21 @@
     $('study-feedback').innerHTML = '<p class="' + (correct ? 'km-answer-correct' : 'km-answer-wrong') + '">' + (correct ? 'Đúng rồi! ' : 'Chưa đúng. Đáp án: ') + '<b lang="ja">' + esc(q.character) + '</b> · ' + esc(node.hanViet || '') + ' · ' + esc(meaning(node)) + '</p>';
     $('study-next').hidden = false; $('study-next').focus();
   }
-  function focus(character) {
-    resetHint();
+  function revealPath(character) {
     var graph = activeGraph();
     if (!graph.nodes.has(character)) {
       var originalPath = model.ancestors(state.graph, character); chooseBranch(originalPath[originalPath.length - 1]); graph = activeGraph();
     }
     var path = model.ancestors(graph, character);
-    $('level').value = ''; $('status').value = '';
     path.forEach(function (ch) {
       state.collapsed.delete(ch);
       var parent = graph.nodes.get(ch).parent, siblings = graph.children.get(parent) || [], position = siblings.findIndex(function (n) { return n.character === ch; });
       if (parent) state.limits.set(parent, Math.max(state.limits.get(parent) || 12, position + 1));
     });
+  }
+  function focus(character) {
+    resetHint(); revealPath(character);
+    $('level').value = ''; $('status').value = '';
     $('search-results').hidden = true; $('filters').classList.remove('is-open'); $('filters-toggle').setAttribute('aria-expanded', 'false');
     select(character);
     requestAnimationFrame(function () { center(character); });
@@ -447,7 +504,7 @@
       notice(mastered ? 'Đã lưu chữ ' + character + ' là thành thạo.' : 'Đã đưa chữ ' + character + ' về danh sách cần học.');
       if (state.selected === character) { button.textContent = mastered ? '✓ Đã thành thạo' : 'Đánh dấu thành thạo'; button.setAttribute('aria-pressed', String(mastered)); }
       $('progress-state').textContent = 'Tiến độ được lưu theo tài khoản của bạn.'; render(false);
-    } catch (error) { notice('Chưa lưu được tiến độ: ' + error.message); }
+    } catch (error) { notice('Chưa lưu được tiến độ: ' + error.message, false, 'error'); }
     finally { button.disabled = false; }
   }
   // Board gestures are bound once; rendering only replaces nodes and connectors.
@@ -513,6 +570,8 @@
   window.addEventListener('pagehide', stopPronunciation);
   window.addEventListener('pagehide', stopDiagramMotion);
   window.addEventListener('pagehide', stopCompareDiagrams);
+  window.addEventListener('pagehide', saveLastView);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveLastView(); });
   if (window.speechSynthesis) window.speechSynthesis.getVoices();
   $('search').addEventListener('input', searchResults);
   $('search-form').addEventListener('submit', function (event) { event.preventDefault(); var rows = searchResults(); if (rows.length) focus(rows[0].character); });
@@ -525,17 +584,9 @@
   $('clear-filters').addEventListener('click', function () { resetHint(); $('level').value = ''; $('branch').value = ''; $('status').value = ''; $('search').value = ''; $('search-results').hidden = true; closeDetail(); initialBranches(); render(true); });
   $('filters-toggle').addEventListener('click', function () { var open = $('filters').classList.toggle('is-open'); if (open) closeDetail(); $('filters-toggle').setAttribute('aria-expanded', String(open)); });
   $('filters-close').addEventListener('click', function () { $('filters').classList.remove('is-open'); $('filters-toggle').setAttribute('aria-expanded', 'false'); $('filters-toggle').focus(); });
-  $('theme').addEventListener('click', function () { var light = $('workspace').classList.toggle('is-map-light'); $('theme').textContent = light ? 'Sáng' : 'Tối'; $('theme').setAttribute('aria-pressed', String(!light)); });
   $('home').addEventListener('click', home);
-  $('zoom-in').addEventListener('click', function () { zoom(1.2); }); $('zoom-out').addEventListener('click', function () { zoom(1 / 1.2); }); $('fit').addEventListener('click', fit);
-  $('expand').addEventListener('click', function () {
-    if (!state.graph) return;
-    state.expanded = !state.expanded; state.collapsed.clear(); state.limits.clear();
-    if (!state.expanded) activeGraph().children.forEach(function (_, ch) { state.collapsed.add(ch); });
-    else activeGraph().children.forEach(function (_, ch) { state.limits.set(ch, 10000); });
-    render(false); fit();
-  });
-  $('fullscreen').addEventListener('click', async function () { try { if (document.fullscreenElement) await document.exitFullscreen(); else await $('workspace').requestFullscreen(); } catch (error) { notice('Trình duyệt hiện tại chưa hỗ trợ toàn màn hình.'); } });
+  $('zoom-in').addEventListener('click', function () { zoom(1.2); }); $('zoom-out').addEventListener('click', function () { zoom(1 / 1.2); });
+  $('fullscreen').addEventListener('click', async function () { try { if (document.fullscreenElement) await document.exitFullscreen(); else await $('workspace').requestFullscreen(); } catch (error) { notice('Trình duyệt hiện tại chưa hỗ trợ toàn màn hình.', false, 'info'); } });
   $('compare-close').addEventListener('click', function () { $('compare-dialog').close(); });
   $('compare-dialog').addEventListener('close', stopCompareDiagrams);
   $('compare-result').addEventListener('click', function (event) {
@@ -556,12 +607,18 @@
   new ResizeObserver(function () { if (state.selected) center(state.selected); else home(); }).observe(board);
   async function load() {
     try {
+      lastViewReady = false;
+      if (window.JlasAuth && window.JlasAuth.ready) await window.JlasAuth.ready;
+      lastViewKey = viewStorageKey();
       state.data = await request('/api/dictionary/kanji-map/catalog'); state.graph = model.index(state.data);
       refreshBranches();
       chooseBranch('一'); $('level').value = ''; initialBranches();
-      render(true); if ($('search').value.trim()) searchResults(); await loadProgress();
+      render(true); await loadProgress();
+      var initial = new URLSearchParams(location.search).get('kanji');
+      if (initial && state.graph.nodes.has(initial)) { $('search').value = initial; focus(initial); }
+      else if (!restoreLastView() && $('search').value.trim()) searchResults();
+      lastViewReady = true; rememberView();
       try { await notebook.load(); } catch (_) { /* The picker retries loading on demand. */ }
-      var initial = new URLSearchParams(location.search).get('kanji'); if (initial && state.graph.nodes.has(initial)) { $('search').value = initial; focus(initial); }
     } catch (error) {
       board.setAttribute('aria-busy', 'false'); $('empty').hidden = false;
       $('empty').innerHTML = '<span lang="ja">木</span><h2>Chưa tải được lược đồ</h2><p>' + esc(error.message) + '</p><button type="button" class="km-button" id="km-retry">Thử lại</button>';

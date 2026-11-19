@@ -229,7 +229,8 @@
   }
 
   async function deleteComment(item) {
-    if (!window.confirm('Xoá bình luận này?')) return;
+    var ok = await UI.confirmDialog({ title: 'Xoá bình luận', message: 'Bình luận sẽ bị xoá và không khôi phục được.', confirmLabel: 'Xoá' });
+    if (!ok) return;
     var id = Number(item.dataset.id);
     try {
       await UI.api('/api/community/comments/' + id, { method: 'DELETE' });

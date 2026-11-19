@@ -61,11 +61,9 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--oy-accent);
+  color: var(--oy-muted);
   font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .oy-panel {
@@ -130,7 +128,8 @@
   background: var(--color-surface-mid);
   color: var(--oy-muted);
   font-size: var(--text-xs);
-  font-weight: 700;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
@@ -146,12 +145,12 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-5);
-  padding: 14px 18px;
+  padding: 12px 16px;
   border: 1px solid var(--color-tertiary-fixed-dim);
   border-radius: var(--radius-lg);
   background: var(--oy-gold-soft);
   color: var(--color-on-tertiary-container);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .oy-progress {
@@ -258,13 +257,17 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   gap: var(--space-3);
   height: 100%;
   padding: var(--space-5);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
 }
 
 .oy-lesson-card:not(.is-locked):hover {
   border-color: var(--oy-accent);
-  box-shadow: var(--shadow-2);
-  transform: translateY(-3px);
+}
+
+/* The lesson to study next: the one card on the path that carries the accent. */
+.oy-lesson-card.is-current {
+  border-color: var(--oy-accent);
+  box-shadow: inset 0 0 0 1px var(--oy-accent), var(--shadow-1);
 }
 
 .oy-lesson-card.is-locked {
@@ -287,35 +290,35 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-lesson-card__number {
   color: var(--oy-muted);
   font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .oy-lesson-card__title {
   margin: 0;
   font-size: var(--text-lg);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.35;
 }
 
 .oy-sounds {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .oy-sounds li {
-  padding: 3px 10px;
+  padding: 4px 8px;
+  border: 1px solid var(--oy-line);
   border-radius: var(--radius-sm);
-  background: var(--oy-accent-soft);
-  color: var(--oy-accent);
+  background: var(--color-surface-low);
+  color: var(--color-on-surface);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .oy-lesson-card__examples {
@@ -335,6 +338,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-lesson-card__score {
   color: var(--oy-muted);
   font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
 }
 
 .oy-lesson-card__locked {
@@ -388,6 +392,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-final-card h3 {
   margin: 0 0 4px;
   font-size: var(--text-lg);
+  font-weight: 600;
 }
 
 .oy-final-card p {

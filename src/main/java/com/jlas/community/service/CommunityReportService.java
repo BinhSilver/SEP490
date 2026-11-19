@@ -93,14 +93,16 @@ public class CommunityReportService {
         if (request.targetId() == null) throw new ApiException(ErrorCode.BAD_REQUEST, "Thiếu mã bình luận cần báo cáo");
         CommunityComment existing = comments.findById(request.targetId())
                 .filter(c -> c.getDeletedAt() == null).orElseThrow(CommunityAccessService::notFound);
-        // Khoá nội dung trước rồi tới bình luận (cùng thứ tự với xoá bình luận).
-        CommunityContent row = contents.lockById(existing.getCommunityContentId())
-                .orElseThrow(CommunityAccessService::notFound);
+        // Khoá nội dung trước rồi tới bình luận (cùng thứ tự với xoá bình luận); kiểm tra + ghi trên bản đọc lại sau khi
+        // khoá để không ghi đè trạng thái kiểm duyệt viên vừa đổi (vd vừa gỡ bình luận / bài).
+        CommunityContent row = access.fresh(contents.lockById(existing.getCommunityContentId())
+                .orElseThrow(CommunityAccessService::notFound));
         Target target = access.requireViewable(row, viewerId);
-        CommunityComment comment = comments.lockById(existing.getId())
-                .filter(c -> c.getDeletedAt() == null
-                        && CommunityStatus.PUBLISHED.name().equals(c.getStatus()))
-                .orElseThrow(CommunityAccessService::notFound);
+        CommunityComment comment = access.fresh(comments.lockById(existing.getId())
+                .orElseThrow(CommunityAccessService::notFound));
+        if (comment.getDeletedAt() != null || !CommunityStatus.PUBLISHED.name().equals(comment.getStatus())) {
+            throw CommunityAccessService.notFound();
+        }
         if (Objects.equals(comment.getUserId(), viewerId)) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không thể báo cáo bình luận của chính mình");
         }

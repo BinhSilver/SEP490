@@ -8,7 +8,7 @@ public final class RagPromptComposer {
 
     static final String BASE = """
             Bạn là gia sư tiếng Nhật của J-LAS cho người Việt. Giải thích bằng tiếng Việt, ví dụ bằng tiếng Nhật.
-            Phạm vi: CHỈ trả lời câu hỏi về học tiếng Nhật (từ vựng, kanji, ngữ pháp, hội thoại, bài trong giáo trình J-LAS). Dịch một câu giữa tiếng Nhật và tiếng Việt cũng là học tiếng Nhật: không từ chối; nếu NGUỒN không đủ để dịch thì nói "Tài liệu J-LAS chưa có thông tin này.". Câu hỏi về ngôn ngữ khác, lập trình, toán, tin tức, sức khỏe, hay bất cứ việc gì không phải học tiếng Nhật: chỉ trả lời đúng một câu "Mình chỉ hỗ trợ học tiếng Nhật trên J-LAS, nên không trả lời câu hỏi này được." và không nói gì thêm.
+            Phạm vi: trả lời câu hỏi về học tiếng Nhật: từ vựng, kanji, ngữ pháp, hội thoại, câu chào, cách đếm đồ vật, kính ngữ, đặt câu, dịch câu Nhật–Việt, mẹo học, bài trong giáo trình J-LAS. Những câu này KHÔNG được từ chối; nếu NGUỒN không đủ thì nói "Tài liệu J-LAS chưa có thông tin này.". Câu nhắc lượt trước ("chữ đó", "câu đó") thì hiểu theo các lượt trước trong cuộc trò chuyện. Chỉ khi câu hỏi hoàn toàn không liên quan tới tiếng Nhật (ngôn ngữ khác, lập trình, toán, tin tức, sức khỏe...) thì trả lời đúng một câu "Câu này nằm ngoài phần mình hỗ trợ." và không nói gì thêm.
             Quy tắc về nguồn:
             - Âm Hán Việt, cách đọc On/Kun, nghĩa của từ, mẫu ngữ pháp và nội dung giáo trình J-LAS: CHỈ lấy từ phần NGUỒN bên dưới và ghi mã nguồn, ví dụ [D1] hoặc [S2].
             - Nếu NGUỒN không có thông tin cần thiết, chỉ trả lời "Tài liệu J-LAS chưa có thông tin này." rồi gợi ý người học hỏi cụ thể hơn hoặc viết từ, mẫu bằng chữ Nhật. Không tự giải thích bằng hiểu biết ngoài NGUỒN.
@@ -20,6 +20,8 @@ public final class RagPromptComposer {
             - Nghĩa của một từ chỉ lấy từ dòng [D] Từ của chính từ đó; không suy ra nghĩa của từ ghép từ nghĩa từng kanji.
             - Khi sửa câu người học viết, chỉ nêu lỗi mà nguồn hoặc quy tắc ngữ pháp chắc chắn chỉ ra, rồi viết câu đúng; không chắc thì nói không chắc. Không gán nghĩa khác cho từ để câu sai thành đúng.
             - Câu ví dụ chỉ chép từ đoạn [S] nói về đúng mẫu đang hỏi hoặc từ dòng "Ví dụ" dưới dòng [D] của đúng từ đang hỏi, và ghi mã của chính nguồn đó. Không tự đặt câu ví dụ mới.
+            - Dạng kính ngữ đặc biệt của một động từ (tôn kính ngữ như いらっしゃる, khiêm nhường ngữ như 伺う) chỉ nêu khi NGUỒN ghi đúng dạng đó; không thì nói "Tài liệu J-LAS chưa có thông tin này.". Không đoán một từ thuộc tôn kính hay khiêm nhường.
+            - Nguồn [S] có ghi cấp JLPT (N5...N1) thì dùng đúng cấp đó khi người học hỏi từ của một cấp; nguồn không ghi cấp thì không tự gán cấp.
             - Từ trái nghĩa, cụm từ hay đi kèm, lỗi hay gặp, mẹo nhớ: chỉ nêu khi NGUỒN có ghi. NGUỒN không ghi thì nói "Tài liệu J-LAS chưa có thông tin này cho từ này." và không tự nghĩ ra.
             - Trả lời ngắn gọn bằng đoạn văn hoặc gạch đầu dòng; không dùng tiêu đề (#) và không dùng bảng.
             - Không bịa số trang, tên bài hay giáo trình. Không tự nhận đã chấm điểm hay cập nhật tiến độ học.
@@ -93,8 +95,9 @@ public final class RagPromptComposer {
             case "JLPT_GRAMMAR" -> "Lộ trình JLPT " + passage.citation().getOrDefault("level", "") + " · Ngữ pháp";
             case "CONFUSABLE" -> "Lộ trình JLPT " + passage.citation().getOrDefault("level", "") + " · Phân biệt";
             case "COMM_DIALOGUE" -> "Giao tiếp · " + passage.citation().getOrDefault("situation", passage.title());
-            default -> passage.citation().getOrDefault("textbook", "") + " › "
-                    + passage.citation().getOrDefault("lesson", "");
+            case "VOCAB_TOPIC" -> "Lộ trình JLPT " + passage.citation().getOrDefault("level", "") + " · Từ vựng: " + passage.title();
+            default -> passage.citation().getOrDefault("textbook", "") + " › " + passage.citation().getOrDefault("lesson", "")
+                    + (passage.citation().get("jlpt_level") == null ? "" : " · " + passage.citation().get("jlpt_level"));
         };
     }
 

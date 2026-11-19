@@ -8,17 +8,26 @@ import com.jlas.community.dto.CommunityDtos.ContentDetail;
 import com.jlas.community.dto.CommunityDtos.FeedItem;
 import com.jlas.community.dto.CommunityDtos.Meta;
 import com.jlas.community.dto.CommunityDtos.PageResult;
+import com.jlas.community.dto.CommunityDtos.PostRequest;
 import com.jlas.community.dto.CommunityDtos.RatingRequest;
 import com.jlas.community.dto.CommunityDtos.RatingResult;
 import com.jlas.community.dto.CommunityDtos.ReportRequest;
+import com.jlas.community.dto.CommunityDtos.RemoveRequest;
 import com.jlas.community.dto.CommunityDtos.ReportResult;
 import com.jlas.community.service.CommunityCommentService;
 import com.jlas.community.service.CommunityContentService;
 import com.jlas.community.service.CommunityFeedService;
+import com.jlas.community.service.CommunityModerationService;
+import com.jlas.community.service.CommunityPostMediaService;
+import com.jlas.community.service.CommunityPostService;
 import com.jlas.community.service.CommunityReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +43,9 @@ public class CommunityController {
     private final CommunityContentService contents;
     private final CommunityCommentService comments;
     private final CommunityReportService reports;
+    private final CommunityPostService posts;
+    private final CommunityModerationService moderation;
+    private final CommunityPostMediaService postMedia;
 
     @GetMapping("/meta")
     public ResponseEntity<ApiResponse<Meta>> meta() {
@@ -103,6 +115,64 @@ public class CommunityController {
     public ResponseEntity<ApiResponse<Void>> deleteComment(@PathVariable Long commentId) {
         comments.delete(commentId, CurrentUser.requireUserId());
         return ResponseEntity.ok(ApiResponse.ok("Đã xoá bình luận"));
+    }
+
+    // ── Bài viết (POST). Bình luận / báo cáo bài viết dùng chung endpoint ở trên với contentType = POST. ──
+    @PostMapping("/posts")
+    public ResponseEntity<ApiResponse<FeedItem>> createPost(@Valid @RequestBody PostRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Đã đăng bài viết",
+                posts.create(CurrentUser.requireUserId(), request.body(), request.jlptLevel())));
+    }
+
+    /**
+     * Đăng bài kèm ảnh (≤ 4, JPG/PNG/WebP ≤ 5MB) và/hoặc một video (MP4/WebM ≤ 50MB hoặc link YouTube). Cùng đường dẫn
+     * với bản JSON, phân biệt bằng Content-Type. Kiểm tra chữ + tệp rồi mới tải tệp lên, sau đó lưu bài và gắn media.
+     */
+    @PostMapping(value = "/posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<FeedItem>> createPostWithMedia(
+            @RequestParam("body") String body,
+            @RequestParam(value = "jlptLevel", required = false) String jlptLevel,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images,
+            @RequestParam(value = "video", required = false) MultipartFile video,
+            @RequestParam(value = "youtubeUrl", required = false) String youtubeUrl) {
+        Long userId = CurrentUser.requireUserId();
+        CommunityPostService.clean(body);
+        List<CommunityPostMediaService.Stored> stored = postMedia.prepare(images, video, youtubeUrl);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Đã đăng bài viết",
+                posts.create(userId, body, jlptLevel, postId -> postMedia.attach(postId, stored))));
+    }
+
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<FeedItem>> post(@PathVariable Long postId) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", posts.view(postId, CurrentUser.requireUserId())));
+    }
+
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<FeedItem>> editPost(@PathVariable Long postId,
+                                                          @Valid @RequestBody PostRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật bài viết",
+                posts.update(postId, CurrentUser.requireUserId(), request.body(), request.jlptLevel())));
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
+        posts.delete(postId, CurrentUser.requireUserId());
+        return ResponseEntity.ok(ApiResponse.ok("Đã xoá bài viết"));
+    }
+
+    // ── Gỡ trực tiếp (MODERATOR/ADMIN; người khác 403, kiểm tra ở service) ──
+    @PostMapping("/posts/{postId}/remove")
+    public ResponseEntity<ApiResponse<FeedItem>> removePost(@PathVariable Long postId,
+                                                            @Valid @RequestBody RemoveRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã gỡ bài viết",
+                moderation.removePost(postId, CurrentUser.requireUserId(), request.reason())));
+    }
+
+    @PostMapping("/comments/{commentId}/remove")
+    public ResponseEntity<ApiResponse<Void>> removeComment(@PathVariable Long commentId,
+                                                           @Valid @RequestBody RemoveRequest request) {
+        moderation.removeComment(commentId, CurrentUser.requireUserId(), request.reason());
+        return ResponseEntity.ok(ApiResponse.ok("Đã gỡ bình luận"));
     }
 
     @PostMapping("/reports")

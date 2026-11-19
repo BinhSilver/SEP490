@@ -46,8 +46,14 @@ public class RagRetriever {
         float[] vector = embedder.embed(List.of(question)).getFirst();
         String collection = properties.collection(embedder.model());
         if (store.dimension(collection).isEmpty()) return new Context(List.of(), lexicon.lookup(question));
-        // Mẫu ngữ pháp khớp đúng chữ đứng trước, rồi tới các đoạn gần nghĩa.
+        // Từ theo chủ đề của lộ trình, rồi mẫu ngữ pháp khớp đúng chữ, rồi các đoạn gần nghĩa.
         Map<String, Passage> passages = new java.util.LinkedHashMap<>();
+        RagLexiconLookup.Topic topic = lexicon.topic(plain(question));
+        if (topic != null) {
+            passages.put("topic", new Passage("topic", 1.0, "VOCAB_TOPIC", topic.title(),
+                    "Từ vựng " + topic.level() + " chủ đề " + topic.title() + ":\n" + String.join("\n", topic.lines()),
+                    Map.of("level", topic.level())));
+        }
         exactPatterns(collection, question).forEach(hit -> passages.putIfAbsent(hit.id(), passage(hit)));
         store.search(collection, vector, k, threshold).forEach(hit -> passages.putIfAbsent(hit.id(), passage(hit)));
         return new Context(List.copyOf(passages.values()), lexicon.lookup(question));
@@ -75,8 +81,18 @@ public class RagRetriever {
     @SuppressWarnings("unchecked")
     private static Passage passage(RagVectorStore.Hit hit) {
         Map<String, Object> payload = hit.payload();
-        Object citation = payload.get("citation");
+        Map<String, Object> citation = new java.util.LinkedHashMap<>(
+                payload.get("citation") instanceof Map<?, ?> map ? (Map<String, Object>) map : Map.of());
+        // Cấp JLPT của giáo trình, để gia sư trả lời được "từ N5 nào..." và nguồn hiển thị ghi cấp.
+        if (payload.get("jlpt_level") != null && !citation.containsKey("level")) citation.put("jlpt_level", payload.get("jlpt_level"));
+        String text = String.valueOf(payload.get("text"));
+        if (citation.get("jlpt_level") != null) text = "(Cấp " + citation.get("jlpt_level") + ") " + text;
         return new Passage(hit.id(), hit.score(), String.valueOf(payload.get("source_type")), String.valueOf(payload.get("title")),
-                String.valueOf(payload.get("text")), citation instanceof Map<?, ?> map ? (Map<String, Object>) map : Map.of());
+                text, citation);
+    }
+
+    private static String plain(String text) {
+        return java.text.Normalizer.normalize(text.toLowerCase(java.util.Locale.ROOT), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").replace('đ', 'd');
     }
 }

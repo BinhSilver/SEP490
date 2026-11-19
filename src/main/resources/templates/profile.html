@@ -120,7 +120,7 @@
                                         <span class="material-symbols-outlined" aria-hidden="true">upload</span>
                                         Tải ảnh lên
                                     </button>
-                                    <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn">Gỡ ảnh</button>
+                                    <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn" hidden style="display:none">Gỡ ảnh</button>
                                 </div>
                             </div>
                         </div>
@@ -590,6 +590,15 @@
         return Math.round((filled / fields.length) * 100);
     }
 
+    /** "Gỡ ảnh" only shows while there is an avatar to remove. */
+    function syncRemoveAvatar() {
+        var btn = document.getElementById('removeAvatarBtn');
+        if (!btn) return;
+        var has = !!document.getElementById('avatarUrl').value.trim();
+        btn.hidden = !has;
+        btn.style.display = has ? '' : 'none';
+    }
+
     function fillUser(user) {
         JlasAuth.applyNav();
         document.getElementById('ovCreated').textContent = user.createdAt
@@ -621,6 +630,7 @@
         document.getElementById('jlptSealLevel').textContent = user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN'
             ? user.japaneseLevel : '—';
         document.getElementById('avatarUrl').value = user.avatar || '';
+        syncRemoveAvatar();
         document.getElementById('emailReadonly').value = user.email || '';
 
         var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
@@ -758,7 +768,10 @@
     }
 
     document.getElementById('removeAvatarBtn').addEventListener('click', function () {
+        // Nothing to remove without an avatar (the button is hidden then; this guards a stale click).
+        if (!document.getElementById('avatarUrl').value.trim()) return;
         document.getElementById('avatarUrl').value = '';
+        syncRemoveAvatar();
         if (window.JlasUI) JlasUI.toast('Đã gỡ ảnh đại diện (nhấn Lưu thay đổi để xác nhận)', 'info');
     });
 
@@ -876,6 +889,6 @@
 <script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
 <script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
 <script th:src="@{/js/pages/profile-cosmetics.js?v=20261031-popup}"></script>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
 </body>
 </html>

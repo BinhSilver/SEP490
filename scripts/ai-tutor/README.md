@@ -23,7 +23,7 @@ trả lời và trang duyệt: [RAG.md](RAG.md).
    # mặc định đã là Deploy + DeepSeek V4.1 Flash; chỉ đặt khi đổi nhà cung cấp hoặc model:
    # TUTOR_LLM_BASE_URL=https://api-cdn.deploy.com/api/v1
    # TUTOR_LLM_MODEL=deepseek-ai/deepseek-v4.1-flash-1017
-   TUTOR_AI_FALLBACK=true          # tầng 2: AI tổng hợp có nhãn khi J-LAS chưa có nội dung (tuỳ chọn)
+   # TUTOR_AI_FALLBACK=false       # tắt tầng 2 (AI tổng hợp có nhãn khi J-LAS chưa có nội dung); mặc định bật
    ```
 
    Key OpenRouter (`OPENROUTER_API_KEY`) đã có sẵn cho AI Call; phần embedding dùng chung key đó.

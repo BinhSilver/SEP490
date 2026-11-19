@@ -77,6 +77,10 @@ public class SecurityConfig {
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
+                        // [JLAS2-37] Gỡ trực tiếp bài viết / bình luận cộng đồng: chặn theo vai trò TRƯỚC khi đọc và kiểm
+                        // tra body, để người không phải MODERATOR/ADMIN luôn nhận 403 (không phải 400 vì thiếu lý do).
+                        .requestMatchers(HttpMethod.POST, "/api/community/posts/*/remove", "/api/community/comments/*/remove")
+                        .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()

@@ -26,7 +26,9 @@ import java.util.Set;
  * Sách chủ đề = không cấp JLPT và có bài gắn tag chủ đề, HOẶC sách giao tiếp của lộ trình ({@code LP-OWNED-COMM-*}).
  * <p>Ngoại lệ API ({@link #requireApiAccess}): sách nguồn lộ trình ({@code is_learning_path_source} hoặc
  * {@code LP-OWNED-}/{@code LP-REVIEWED-}) KHÔNG bị chặn ở API vì trang /learning/lesson/{id} dùng chung API nội dung bài;
- * route TRANG giáo trình vẫn khóa các sách này ({@link #canStudy}).
+ * route TRANG giáo trình vẫn khóa các sách này ({@link #canStudy}). Từ 09/11/2026 lộ trình chỉ đọc sách
+ * LP-OWNED-/LP-REVIEWED- và chỉ các sách đó còn cờ; sách của Giáo trình (Sekai, Tiếng Nhật N3…) không còn cờ nên API
+ * khóa giống trang.
  */
 @Component
 @RequiredArgsConstructor
@@ -140,8 +142,8 @@ public class TextbookAccessPolicy {
 
     /**
      * Sách của RIÊNG lộ trình (source_code {@code LP-OWNED-*} / {@code LP-REVIEWED-*}): dữ liệu theo kiểu lộ trình nên
-     * trang Giáo trình không hiển thị đúng → route trang Giáo trình chuyển sang trang lộ trình. Khác sách NGUỒN lộ trình
-     * (cờ is_learning_path_source, vd. Sekai N5) — loại đó vẫn là giáo trình bình thường.
+     * trang Giáo trình không hiển thị đúng → route trang Giáo trình chuyển sang trang lộ trình. Sách của Giáo trình
+     * (vd. Sekai N5, Bảng chữ cái) không thuộc loại này và từ 09/11/2026 cũng không còn cờ is_learning_path_source.
      */
     public static boolean isLearningPathBook(Textbook textbook) {
         String code = textbook.getSourceCode();
