@@ -108,8 +108,8 @@ html[data-theme="dark"] {
   outline: none;
 }
 
-.jl-select__trigger:focus-visible,
-.jl-select.is-open .jl-select__trigger {
+.jl-select__trigger:focus-visible:not(:where(body.jlas-ui-owned *)),
+.jl-select.is-open .jl-select__trigger:not(:where(body.jlas-ui-owned *)) {
   border-color: var(--jls-accent);
   box-shadow: 0 0 0 3px var(--jls-ring);
 }

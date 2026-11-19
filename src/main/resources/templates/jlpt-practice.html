@@ -1,55 +1,76 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Luyện JLPT theo dạng - KotsuKotsu', 'jlpt-practice')}"></head>
-<body id="jlabBasePage" class="app-body jlpt-practice-body">
+<body id="jlabBasePage" class="app-body jlpt-practice-body jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main class="jlpt-practice-page" data-inline-dictionary>
-    <header class="jlpt-practice-hero">
-        <div class="jp-hero-copy"><a class="jp-back" href="/jlpt">← Thư viện JLPT</a><span class="jp-eyebrow">MỖI NGÀY, VỮNG THÊM MỘT CHÚT</span><h1>Từng dạng nhỏ.<br /><em>Tiến bộ lớn.</em></h1></div>
-        <div class="jp-hero-art" aria-hidden="true"><div class="jp-paper-back"></div><div class="jp-paper"><small>今日も、少しずつ。</small><b>練習</b><span>LUYỆN TẬP THEO DẠNG</span><div class="jp-paper-progress"><i></i></div><footer>✓ Mỗi câu, một bước tiến</footer></div><span class="jp-art-star">✧</span></div>
+    <header class="jlpt-practice-hero jp-compact-heading">
+        <div class="jp-hero-copy"><h1>Luyện JLPT theo dạng</h1><p>Chọn cấp độ và dạng câu hỏi để bắt đầu.</p></div>
     </header>
 
-    <section id="practiceSetup" class="jlpt-practice-setup">
-        <div class="jlpt-filter-block"><strong><span class="jp-step">01</span> Cấp độ của bạn</strong><nav id="practiceLevels" aria-label="Cấp độ JLPT"></nav></div>
-        <div class="jlpt-filter-block"><strong><span class="jp-step">02</span> Hôm nay, mình luyện gì?</strong><nav id="practiceSections" aria-label="Nhóm kỹ năng"></nav></div>
-        <div class="jlpt-filter-block jp-types-block"><strong><span class="jp-step">03</span> Chọn dạng cần củng cố</strong><div id="practiceTypes" class="jlpt-practice-types" aria-live="polite"></div></div>
-        <aside class="jp-session-card"><span class="jp-eyebrow">PHIÊN LUYỆN CỦA BẠN</span><div class="jp-session-level" id="practiceSummaryLevel">N3</div><h2 id="practiceSummaryType">Chọn dạng câu hỏi</h2></aside>
-        <footer>
-            <fieldset class="jp-question-count" id="practiceLimit">
-                <legend>Số câu</legend>
-                <div class="jp-question-count__options">
+    <section id="practiceSetup" class="jlpt-practice-setup jp-setup-v2" aria-label="Thiết lập bài luyện">
+        <div class="jp-setup-intro">
+        <div class="jp-setup-filters">
+            <section class="jlpt-filter-block" aria-labelledby="practiceLevelHeading"><strong id="practiceLevelHeading">Cấp độ JLPT</strong><nav id="practiceLevels" aria-label="Cấp độ JLPT"></nav></section>
+            <section class="jlpt-filter-block" aria-labelledby="practiceSectionHeading"><strong id="practiceSectionHeading">Nhóm kỹ năng</strong><nav id="practiceSections" aria-label="Nhóm kỹ năng"></nav></section>
+        </div>
+            <aside class="jp-study-illustration" aria-hidden="true">
+                <svg class="jp-study-book" viewBox="0 0 168 126" fill="none" focusable="false">
+                    <path class="jp-study-book-shadow" d="M14 35Q46 24 82 36Q114 24 150 35V114Q115 103 82 114Q47 103 14 114Z" />
+                    <path class="jp-study-book-page" d="M14 25Q46 14 82 26V104Q47 93 14 104Z" />
+                    <path class="jp-study-book-page" d="M82 26Q114 14 150 25V104Q115 93 82 104Z" />
+                    <path class="jp-study-book-fold" d="M82 27V103" />
+                    <text x="48" y="66" text-anchor="middle" class="jp-study-book-glyph">あ</text>
+                    <text x="116" y="66" text-anchor="middle" class="jp-study-book-glyph">漢</text>
+                    <path class="jp-study-book-lines" d="M29 80H65M29 88H57M99 80H135M99 88H126" />
+                </svg>
+                <img class="jp-study-kitsu" src="/images/mascots/kitsu/kitsu-preparing-128.webp" width="112" height="112" alt="" decoding="async" />
+            </aside>
+        </div>
+        <section class="jlpt-filter-block jp-types-block" aria-labelledby="practiceTypesHeading">
+            <div class="jp-types-heading"><strong id="practiceTypesHeading">Dạng câu hỏi</strong><span id="practiceTypeCount" aria-live="polite"></span></div>
+            <div id="practiceTypes" class="jlpt-practice-types" aria-live="polite"></div>
+        </section>
+        <footer class="jp-session-footer">
+            <div class="jp-session-overview" hidden><span>Bài luyện đã chọn</span><p><b id="practiceSummaryLevel">N3</b><strong id="practiceSummaryType">Chọn dạng câu hỏi</strong><span id="practiceSummaryCount">20 câu</span></p></div>
+            <div class="jp-session-actions">
+                <fieldset class="jp-question-count" id="practiceLimit"><legend>Số câu</legend><div class="jp-question-count__options">
                     <label><input type="radio" name="practiceLimit" value="10" /><span>10</span></label>
                     <label><input type="radio" name="practiceLimit" value="20" checked /><span>20</span></label>
                     <label><input type="radio" name="practiceLimit" value="30" /><span>30</span></label>
                     <label><input type="radio" name="practiceLimit" value="50" /><span>50</span></label>
-                </div>
-            </fieldset>
-            <button id="practiceStart" type="button" disabled>Bắt đầu luyện →</button>
+                </div></fieldset>
+                <button id="practiceStart" type="button" disabled>Bắt đầu luyện</button>
+            </div>
         </footer>
         <p id="practiceSetupNotice" class="jlpt-practice-notice" role="alert" hidden></p>
     </section>
 
-    <section id="practiceRunner" class="jlpt-practice-runner" hidden>
-        <header><button id="practiceExit" type="button" aria-label="Về chọn dạng câu">←</button><div><span id="practiceTypeLabel"></span><strong id="practiceProgress"></strong></div><button id="practiceFurigana" class="jp-furigana-switch" type="button" aria-label="Bật Furigana" aria-pressed="false"><span>Furigana</span><i aria-hidden="true"><b></b></i></button><div class="jlpt-practice-progress" role="progressbar" aria-label="Tiến độ câu hỏi" aria-valuemin="0" aria-valuemax="100" id="practiceProgressTrack"><i id="practiceProgressBar"></i></div></header>
-        <article class="jlpt-practice-question">
-            <div class="jlpt-practice-meta"><span id="practiceSource"></span><span id="practiceClipBadge" hidden>Clip ước lượng</span></div>
+    <section id="practiceRunner" class="jlpt-practice-runner jp-player" hidden>
+        <header class="jp-player-header"><div><span id="practiceTypeLabel"></span><h1>Luyện tập theo dạng</h1></div><div class="jp-player-tools"><button id="practiceFurigana" class="jp-furigana-switch" type="button" aria-label="Bật Furigana" aria-pressed="false"><span>Furigana</span><i aria-hidden="true"><b></b></i></button></div></header>
+        <div class="jp-player-workspace">
+            <aside class="jp-player-sidebar"><div><strong id="practiceAnswered">0</strong><span>Đã kiểm tra</span></div><div id="practicePaletteFilters" class="jp-player-filters" role="group" aria-label="Lọc câu hỏi"><button type="button" data-practice-filter="all" aria-pressed="true">Tất cả</button><button type="button" data-practice-filter="unanswered" aria-pressed="false">Chưa làm</button><button type="button" data-practice-filter="marked" aria-pressed="false">Đánh dấu</button></div><nav id="practicePalette" aria-label="Danh sách câu luyện"></nav></aside>
+            <article class="jlpt-practice-question">
+            <header class="jlpt-practice-meta"><span id="practiceSource"></span><strong id="practiceProgress"></strong><span id="practiceClipBadge" hidden>Clip ước lượng</span></header>
             <div id="practiceInstruction" class="jlpt-practice-instruction" lang="ja"></div>
             <section id="practicePassage" class="jlpt-practice-passage" lang="ja" hidden></section>
             <section id="practiceAudio" class="jlpt-practice-audio" hidden></section>
+            <div class="jp-question-tools"><button id="practiceMark" type="button" aria-pressed="false"><svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor" aria-hidden="true"><path d="M2 1h12v16L8 13l-6 4Z"/></svg><span>Đánh dấu</span></button></div>
             <h2 id="practicePrompt" lang="ja"></h2>
             <div id="practiceChoices" class="jlpt-practice-choices"></div>
             <div class="jlpt-practice-actions"><span id="practiceFeedback" role="status"></span><button id="practiceExplain" type="button" hidden>✦ Giải thích AI</button><button id="practiceCheck" type="button">Kiểm tra</button></div>
             <section id="practiceExplanation" class="jlpt-practice-explanation" hidden></section>
             <footer><button id="practicePrevious" type="button">Câu trước</button><button id="practiceNext" type="button">Câu tiếp</button></footer>
-        </article>
+            </article>
+        </div>
     </section>
 
     <section id="practiceResult" class="jlpt-practice-result" hidden>
         <span class="jp-result-symbol" aria-hidden="true">✦</span><span class="jp-eyebrow">THÊM MỘT PHIÊN, THÊM TỰ TIN</span><h2>Bạn vừa tiến thêm một bước!</h2><div class="jp-score-ring"><strong id="practiceScore"></strong><small>câu trả lời đúng</small></div><p id="practiceResultText"></p><p id="practiceResultDetail"></p><div><button id="practiceRetry" type="button">Luyện bộ câu khác →</button><button id="practiceBackSetup" type="button">Đổi dạng câu</button></div>
     </section>
 </main>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
 <script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
-<script th:src="@{/js/pages/jlpt-practice.js?v=20261111-ui}"></script>
+<script th:src="@{/js/pages/jlpt-practice.js?v=20261119-instant-mark}"></script>
 </body>
 </html>

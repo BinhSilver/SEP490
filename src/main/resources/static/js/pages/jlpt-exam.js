@@ -23,7 +23,6 @@
   var scriptOpen = false;
   var translationOpen = false;
   var furiganaOn = false;
-  var pendingFocus = null;
   var completedParts = {};
   var deadline = null;
   var timerHandle = null;
@@ -289,7 +288,7 @@
       var requested = requestedId ? allQuestionRows().find(function(row){return String(row.question.id) === requestedId;}) : null;
       var requestedPart = requested ? requested.partIndex : exam.parts.findIndex(function(part){return part.code === params.get('part');});
       if (requestedPart >= 0) partIndex = requestedPart;
-      if (requested) { pageIndex = Math.max(0, pageIndexForQuestion(requestedId)); pendingFocus = requestedId; }
+      if (requested) { pageIndex = Math.max(0, pageIndexForQuestion(requestedId)); }
       if (practiceFinished) { finishExam(true); return; }
     }
     renderTabs();
@@ -312,7 +311,6 @@
       var button = event.target.closest('[data-page-index]');
       if (!button || button.disabled) return;
       pageIndex = Number(button.dataset.pageIndex);
-      pendingFocus = button.dataset.questionId;
       scriptOpen = false;
       if (!isExamMode) savePracticeSession();
       render();
@@ -368,7 +366,7 @@
       var button = event.target.closest('[data-filter]');
       if (!button) return;
       filterMode = button.dataset.filter;
-      Array.from(this.querySelectorAll('[data-filter]')).forEach(function (item) { item.classList.toggle('is-active', item === button); });
+      Array.from(this.querySelectorAll('[data-filter]')).forEach(function (item) { item.classList.toggle('is-active', item === button); item.setAttribute('aria-pressed', String(item === button)); });
       renderPalette();
     });
     $('jlptAudio').addEventListener('click', handleAudioClick);
@@ -429,14 +427,8 @@
       $('jlptSubmitMondai').textContent = partIndex === exam.parts.length - 1 ? 'Nộp bài thi' : 'Nộp phần ' + partShortName(currentPart());
       $('jlptExamStep').textContent = 'PHẦN ' + (partIndex + 1) + '/' + exam.parts.length;
     } else $('jlptSubmitMondai').textContent = 'Nộp bài luyện tập';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (pendingFocus) {
-      pendingFocus = null;
-      requestAnimationFrame(function () {
-        var card = document.querySelector('.jlpt-exam-card');
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
+    // All question navigation lands at the same position, without competing animations.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 
   function passageHtml(passage, override) {
