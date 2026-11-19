@@ -279,9 +279,9 @@
     return '<div class="jp-skill-toolbar" role="toolbar" aria-label="Thao tác với bài">'
       + btn('result', 'jp-btn--primary', 'Kết quả', ctx.graded || !allPicked)
       + btn('redo', '', 'Làm lại', ctx.graded || !hasPicks(ctx.picks))
-      + btn('answer', '', 'Đáp án', false)
+      + btn('answer', '', 'Đáp án', !ctx.graded)
       + btn('translate', '', 'Dịch nghĩa', !ctx.graded, ctx.viOn)
-      + '</div>';
+      + '</div>' + (!ctx.graded ? '<p class="jp-muted">Chọn đáp án trước</p>' : '');
   }
 
   /** One exam-style question (問1 …) with its four choices. */
@@ -289,11 +289,14 @@
     var a = ctx.answered[q.id];
     var locked = ctx.graded || (ctx.practice && !!a);
     var picked = !ctx.graded ? ctx.picks[q.id] : null;
+    var missed = !locked && ctx.feedback && ctx.feedback[q.id];
     var opts = list(q.options).map(function (o) {
       var cls = '';
       if (locked && a) {
         if (o.id === a.correctValue) cls = ' class="is-right"';
         else if (o.id === a.value) cls = ' class="is-wrong"';
+      } else if (missed && missed.value === o.id) {
+        cls = ' class="is-wrong"';
       } else if (picked === o.id) {
         cls = ' class="is-picked"';
       }
@@ -329,7 +332,9 @@
       + '<p class="jp-skill-q__no">問' + esc(no) + '</p>'
       + '<p lang="ja">' + esc(q.prompt) + '</p>'
       + (qv && qv.question_vi ? '<p class="jp-skill-q__vi">' + esc(qv.question_vi) + '</p>' : '')
-      + '<div class="jp-skill-q__options">' + opts + '</div>' + verdict + '</div>';
+      + '<div class="jp-skill-q__options">' + opts + '</div>'
+      + (missed ? '<p class="jp-skill-feedback" role="status">Chưa đúng, hãy chọn lại.</p>' : '')
+      + verdict + '</div>';
   }
 
   /** New words of a revealed set (Lưu vào sổ tay / Tra từ), kept from the previous design. */
@@ -366,6 +371,7 @@
     var graded = setDone(set, st.answered);
     var report = attrJson({ targetType: 'SKILL_SET', targetCode: set.code, pageContext: 'SKILL_SESSION' });
     var ctx = { token: view.token, questions: st.questions, answered: st.answered, picks: st.picks || {},
+      feedback: st.feedback || {},
       graded: graded, practice: view.kind === 'SKILL_PRACTICE', showExplain: !!st.showExplain, viOn: !!st.viOn, qvi: {} };
     var trq = trOf(set, view.token);
     if (trq && Array.isArray(trq.questions_vi)) {
@@ -431,7 +437,7 @@
     var body = main.querySelector('[data-role="body"]');
     var steps = main.querySelector('[data-role="steps"]');
     var state = { session: null, lesson: null, view: null, shownAt: Date.now(),
-      current: 0, picks: {}, viOn: false, showExplain: false };
+      current: 0, picks: {}, feedback: {}, viOn: false, showExplain: false };
 
     function fail(e) { status.textContent = (e && e.message) || 'Có lỗi, hãy thử lại.'; }
 
@@ -498,7 +504,7 @@
       }
       body.innerHTML = practiceHtml(set, state.view, state.current, {
         token: ps.token, questions: ps.questions, answered: ps.answered,
-        picks: state.picks, showExplain: state.showExplain, viOn: state.viOn });
+        picks: state.picks, feedback: state.feedback, showExplain: state.showExplain, viOn: state.viOn });
       players();
     }
 
@@ -509,7 +515,7 @@
       var allPicked = list(set.questionIds).length > 0
         && list(set.questionIds).every(function (qid) { return !!ps.answered[qid] || !!state.picks[qid]; });
       var resultBtn = body.querySelector('[data-skill-tool="result"]');
-      if (resultBtn) resultBtn.disabled = !allPicked;
+      if (resultBtn) resultBtn.disabled = setDone(set, ps.answered) || !allPicked;
       var redoBtn = body.querySelector('[data-skill-tool="redo"]');
       if (redoBtn) redoBtn.disabled = !hasPicks(state.picks);
     }
@@ -522,11 +528,15 @@
       var lockBtn = body && body.querySelector && body.querySelector('[data-skill-tool="result"]');
       if (lockBtn) lockBtn.disabled = true;
       var seq = Promise.resolve();
+      var feedback = {};
       list(set.questionIds).forEach(function (qid) {
         if (ps.answered[qid]) return;
         seq = seq.then(function () {
           return api.send('POST', BASE + '/checks/' + encodeURIComponent(ps.token) + '/answers',
-            { questionId: qid, value: values[qid] || '', elapsedMs: Date.now() - state.shownAt });
+            { questionId: qid, value: values[qid] || '', elapsedMs: Date.now() - state.shownAt })
+            .then(function (result) {
+              if (result && result.correct === false) feedback[qid] = { value: values[qid] };
+            });
         });
       });
       state.locking = seq.then(function () {
@@ -534,6 +544,7 @@
         state.shownAt = Date.now();
         return api.get(BASE + '/checks/' + encodeURIComponent(ps.token)).then(function (v) {
           state.view = v;
+          state.feedback = feedback;
           if (v.kind === 'SKILL_PRACTICE') state.picks = {};
           renderPractice();
           // probe L2: a question locked from another window keeps that answer — say so instead of a silent "wrong"
@@ -572,6 +583,7 @@
       if (state.current < ps.sets.length - 1) {
         state.current += 1;
         state.picks = {};
+        state.feedback = {};
         state.viOn = false;
         state.showExplain = false;
         renderPractice();
@@ -591,19 +603,16 @@
       }
       if (which === 'redo') {
         state.picks = {};
+        state.feedback = {};
         body.querySelectorAll('[data-answer-option]').forEach(function (b) { b.classList.remove('is-picked'); });
         refreshToolbar();
         return;
       }
       if (which === 'answer') {
-        if (setDone(set, ps.answered)) {
-          state.showExplain = true;
-          renderPractice();
-          return;
-        }
-        var vals2 = {};
-        list(set.questionIds).forEach(function (qid) { vals2[qid] = state.picks[qid] || ''; });
-        return lockSet(vals2, true);
+        if (!setDone(set, ps.answered)) return;
+        state.showExplain = true;
+        renderPractice();
+        return;
       }
       if (which === 'translate') {
         state.viOn = !state.viOn;
@@ -658,10 +667,14 @@
         var q = answer.closest('[data-question]');
         var qid = q.getAttribute('data-question');
         var oid = answer.getAttribute('data-answer-option');
-        state.picks[qid] = (state.picks[qid] === oid ? '' : oid);
+        state.picks[qid] = oid;
+        delete state.feedback[qid];
         q.querySelectorAll('[data-answer-option]').forEach(function (b) {
+          b.classList.remove('is-wrong');
           b.classList.toggle('is-picked', state.picks[qid] === b.getAttribute('data-answer-option'));
         });
+        var note = q.querySelector('.jp-skill-feedback');
+        if (note) note.remove();
         refreshToolbar();
         return;
       }
