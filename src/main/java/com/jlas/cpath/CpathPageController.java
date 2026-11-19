@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @ConditionalOnProperty(name = "learning.comm-path.enabled", havingValue = "true")
 public class CpathPageController {
 
+    /** I21: guests go to sign in (SecurityConfig does the same; kept here so no page renders without a user). */
+    static final String LOGIN = "redirect:/login";
+
     private final CpathService service;
 
     public CpathPageController(CpathService service) {
@@ -25,7 +28,7 @@ public class CpathPageController {
     public String certificate(@org.springframework.security.core.annotation.AuthenticationPrincipal
                               com.jlas.auth.security.UserPrincipal user, Model model,
                               @RequestParam(name = "goal", required = false) String goal) {
-        if (user == null) return "redirect:/login";
+        if (user == null) return LOGIN;
         // F125: ?goal= picks one finished path (a paused one after a promotion or a goal change); else the newest
         java.util.Optional<java.util.Map<String, Object>> c = service.certificate(user.userId(), goal);
         if (c.isPresent()) {
@@ -51,8 +54,8 @@ public class CpathPageController {
     }
 
     @GetMapping("/learning/comm/survey")
-    public String survey() {
-        return "cpath/survey";
+    public String survey(@AuthenticationPrincipal UserPrincipal user) {
+        return user == null ? LOGIN : "cpath/survey";
     }
 
     @GetMapping("/learning/comm/settings")
@@ -125,7 +128,8 @@ public class CpathPageController {
 
     /** QA 19/11: no path goes to the survey; a paused-only path shows one card with "Học tiếp" on every page. */
     private String gate(UserPrincipal user, Model model) {
-        if (user == null) return null;
+        // I21: a guest never gets a page whose script calls the learner APIs
+        if (user == null) return LOGIN;
         String state = service.pathState(user.userId());
         if ("NONE".equals(state)) return "redirect:/learning/comm/survey";
         if ("PAUSED".equals(state)) {

@@ -22,6 +22,9 @@ public class JpathSettingsPageController {
 
     @GetMapping("/learning/jlpt/settings")
     public String settings(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            return "redirect:/login"; // I21: no page for a guest
+        }
         if (pathService.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
             return "redirect:/learning/jlpt/start";
         }
