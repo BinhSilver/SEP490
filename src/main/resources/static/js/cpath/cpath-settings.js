@@ -225,19 +225,27 @@
         if (again) again.focus();
       }
     }
-    function fail(e, fallback) { return e && e.message || fallback; }
+    function fail(e, fallback) { return e && (e.code || e.status) && e.message || fallback; }
+    // I20/I29: a save shows one toast like the JLPT settings page; the inline note stays only when no toast is drawn
+    function saved(key, text) {
+      var toast = root.JlasToast;
+      var o = {};
+      if (toast && typeof toast.show === 'function' && toast.show(text, 'success')) return o;
+      o[key] = text;
+      return o;
+    }
     function savePace(next, undoValue) {
       busy = true;
       el.querySelector('[data-cp-save-pace]').disabled = true;
       Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/pace', next)).then(function (p) {
         busy = false; path = p; draft = payload(p); undo = undoValue;
-        notices = { pace: undoValue ? 'Đã lưu nhịp học.' : 'Đã hoàn tác về nhịp học trước.' }; render();
+        notices = saved('pace', undoValue ? 'Đã lưu nhịp học.' : 'Đã hoàn tác về nhịp học trước.'); render();
       }).catch(function (e) { busy = false; notices = { pace: fail(e, 'Chưa lưu được nhịp học.'), paceError: true }; render(); });
     }
     function saveDisplay(body) {
       busy = true;
       Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/display', body)).then(function (p) {
-        busy = false; path = p; notices = { display: body.reset ? 'Đã về mặc định theo trình độ.' : 'Đã lưu cách hiển thị.' }; render();
+        busy = false; path = p; notices = saved('display', body.reset ? 'Đã về mặc định theo trình độ.' : 'Đã lưu cách hiển thị.'); render();
       }).catch(function (e) { busy = false; notices = { display: fail(e, 'Chưa lưu được cách hiển thị.'), displayError: true }; render(); });
     }
     function danger(message, opts, request, fallbackUrl) {
@@ -253,7 +261,7 @@
     function saveDepth(depth) {
       busy = true;
       Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/depth', { depth: depth })).then(function (c) {
-        busy = false; core = c; notices = { depth: 'Đã đổi độ sâu sang ' + (c && c.depthLabel || '') + '.' };
+        busy = false; core = c; notices = saved('depth', 'Đã đổi độ sâu sang ' + (c && c.depthLabel || '') + '.');
         return Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) { path = p; render(); });
       }).catch(function (e) { busy = false; notices = { depth: fail(e, 'Chưa đổi được độ sâu.'), depthError: true }; render(); });
     }
@@ -330,7 +338,7 @@
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
       path = p; draft = payload(p); render();
       return Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (c) { core = c; render(); }, function () { /* no base set */ });
-    }).catch(function (e) { el.innerHTML = '<p class="jp-alert" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
+    }).catch(function (e) { el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
   }
   return { RESTART_TEXT: RESTART_TEXT, restartTextOk: restartTextOk, payload: payload, displayOf: displayOf,
     estimate: estimate, view: view, mount: mount };

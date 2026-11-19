@@ -800,3 +800,33 @@ html body .jp-parts__pop-foot > svg, html body .jp-parts__pop-foot > .jp-parts__
 .jp-kstage__romaji { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
 .jp-kstage__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 @media (max-width: 480px) { .jp-kstage { padding: var(--space-4); } .jp-kstage__actions .jp-btn, .jp-kstage__tools .jp-btn { flex: 1 1 100%; } }
+
+/* [JLAS-W0108] I19: a page that could not load shows the shared Kitsu card (like print.html and cpath/paused.html),
+   not a bare red line. Add jp-alert--page to the one alert that replaces a whole page slot. */
+.jp-alert.jp-alert--page {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  max-width: 480px;
+  margin: 8vh auto 0;
+  padding: 28px 20px;
+  text-align: center;
+  line-height: 1.5;
+  border-radius: 12px;
+  border: 1px solid var(--jp-line);
+  background: var(--jp-surface);
+  color: var(--jp-ink);
+}
+.jp-alert.jp-alert--page::before {
+  content: "";
+  width: 120px;
+  height: 120px;
+  background: url("/images/mascots/kitsu/kitsu-thinking-30-128.webp") center / contain no-repeat;
+}
+.jp-alert.jp-alert--page .jp-btn,
+.jp-alert.jp-alert--page .cp-btn-ghost { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+@media (max-width: 480px) {
+  .jp-alert.jp-alert--page { margin: 24px 16px; }
+  .jp-alert.jp-alert--page .jp-btn,
+  .jp-alert.jp-alert--page .cp-btn-ghost { width: 100%; }
+}

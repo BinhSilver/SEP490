@@ -1001,7 +1001,7 @@
       var alert = doc.createElement('p');
       alert.className = 'jp-alert';
       alert.setAttribute('role', 'alert');
-      alert.textContent = error && error.message || 'Không thực hiện được thao tác.';
+      alert.textContent = error && (error.code || error.status) && error.message || 'Không thực hiện được thao tác.';
       var code = error && error.code;
       var button;
       if (code === 'CPATH_PREMIUM_REQUIRED') {
@@ -1233,7 +1233,7 @@
         return;
       }
       if (mapSlot) {
-        mapSlot.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Không tải được lộ trình giao tiếp.')
+        mapSlot.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Không tải được lộ trình giao tiếp.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         mapSlot.querySelector('[data-cp-retry]').addEventListener('click', function () { root.location.reload(); });
       }

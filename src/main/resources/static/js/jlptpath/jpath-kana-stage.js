@@ -169,7 +169,7 @@
         Promise.resolve(call).catch(function (e) {
           btn.disabled = false;
           btn.removeAttribute('aria-busy');
-          if (errBox) errBox.textContent = (e && e.message) || 'Chưa làm được, thử lại sau.';
+          if (errBox) errBox.textContent = (e && (e.code || e.status) && e.message) || 'Chưa làm được, thử lại sau.';
         });
       });
     }

@@ -75,11 +75,18 @@
     var state = { tab: 'VOCAB', page: 0 };
     var items = [];
 
+    // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
+    function foldSearch(v) {
+      var s = String(v == null ? '' : v);
+      if (typeof s.normalize === 'function') s = s.normalize('NFKC');
+      return s.trim().toLocaleLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    }
+
     function draw() {
-      var term = (search.value || '').trim().toLocaleLowerCase();
+      var term = foldSearch(search.value);
       var visible = items.filter(function (r) {
         return !term || [r.expression, r.reading, r.meaning].some(function (v) {
-          return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+          return foldSearch(v).indexOf(term) >= 0;
         });
       });
       list.innerHTML = visible.map(function (r) { return rowMarkup(r, kind); }).join('');
@@ -107,7 +114,7 @@
         pager.querySelector('[data-page="next"]').disabled = !ps.hasNext;
         pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (ps.page + 1) + '/' + ps.pages;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được danh sách.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được danh sách.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -125,7 +132,7 @@
           return load();
         }, function (err) {
           rm.disabled = false;
-          status.textContent = (err && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
+          status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
         });
       }
     });

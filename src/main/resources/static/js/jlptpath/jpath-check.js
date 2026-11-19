@@ -1279,7 +1279,7 @@
       }).catch(function (err) {
         if (button) button.disabled = false;
         var p = el.querySelector && el.querySelector('[data-part="result-status"]');
-        if (p) p.textContent = (err && err.message) || MSG_LOAD_FAILED;
+        if (p) p.textContent = (err && (err.code || err.status) && err.message) || MSG_LOAD_FAILED;
       });
     }
 

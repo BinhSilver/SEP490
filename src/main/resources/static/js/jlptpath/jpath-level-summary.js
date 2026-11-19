@@ -95,7 +95,7 @@
     root.JpathApi.get(BASE + encodeURIComponent(level) + '/summary').then(function (s) {
       status.textContent = '';
       main.querySelector('[data-role="body"]').innerHTML = summaryHtml(s);
-    }, function (e) { status.textContent = (e && e.message) || 'Không tải được tổng kết.'; });
+    }, function (e) { status.textContent = (e && (e.code || e.status) && e.message) || 'Không tải được tổng kết.'; });
   }
 
   return { summaryHtml: summaryHtml, mount: mount };

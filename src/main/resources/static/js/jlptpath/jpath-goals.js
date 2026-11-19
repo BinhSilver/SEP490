@@ -140,7 +140,7 @@
               if (m2) { m2.hidden = false; m2.textContent = 'Đã tạm dừng. Tiến độ được giữ nguyên.'; }
             });
           }, function (err) {
-            if (msg) { msg.hidden = false; msg.textContent = (err && err.message) || 'Chưa nâng được mục tiêu phụ. Thử lại sau.'; }
+            if (msg) { msg.hidden = false; msg.textContent = (err && (err.code || err.status) && err.message) || 'Chưa nâng được mục tiêu phụ. Thử lại sau.'; }
           });
         });
       };
