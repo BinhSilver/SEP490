@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class JpathDemoController {
 
     private final JpathCheckDemoService checkDemo;
+    private final JpathStudyDemoService studyDemo;
 
     public record FinishRequest(@NotNull JpathCheckDemoService.Mode mode) {
     }
@@ -51,5 +52,12 @@ public class JpathDemoController {
             case TIMEOUT -> "Đã để hết giờ mọi câu và nộp bài";
         };
         return ApiResponse.ok(message, checkDemo.finish(user.userId(), token, request.mode()));
+    }
+
+    /** Goes through the card steps of the caller's study session up to its next check (or its end). */
+    @PostMapping("/sessions/{sessionId}/finish-cards")
+    public ApiResponse<JpathStudyDemoService.Outcome> finishCards(@PathVariable("sessionId") Long sessionId,
+                                                                  @AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("Đã học hết các thẻ", studyDemo.finishCards(user.userId(), sessionId));
     }
 }
