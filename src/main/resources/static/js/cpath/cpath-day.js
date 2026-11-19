@@ -234,9 +234,18 @@
       }
     }
 
+
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+    }
+
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
-      root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : '')).then(function (data) {
+      (day ? Promise.resolve(null) : planToday()).then(function () {
+        return root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : ''));
+      }).then(function (data) {
         if (!data) throw new Error('Chưa tải được dữ liệu ngày học.');
         var today = String(data.today || data.day || '').slice(0, 10);
         if (!day || day > today) {

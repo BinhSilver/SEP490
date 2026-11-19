@@ -1055,6 +1055,12 @@
       tour.create({ doc: root.document, steps: steps, onFinish: function () {} }).start();
     }
 
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+    }
+
     function renderAll() {
       rootEl.setAttribute('aria-busy', 'false');
       if (sideSlot && pathData) sideSlot.innerHTML = sideGoalHtml(pathData);
@@ -1137,7 +1143,7 @@
         var n = Number(dailyBtn.getAttribute('data-cp-daily'));
         Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/daily', { dailySituations: n })).then(function () {
           // today's plan and the map both change with the pace: reload both
-          return Promise.all([root.JpathApi.get('/api/learning/comm/path'), root.JpathApi.get('/api/learning/comm/map')])
+          return planToday().then(function () { return Promise.all([root.JpathApi.get('/api/learning/comm/path'), root.JpathApi.get('/api/learning/comm/map')]); })
             .then(function (res) {
               pathData = res[0] || pathData;
               lastPathData = pathData;
@@ -1174,11 +1180,11 @@
       }
     });
 
-    Promise.all([
+    planToday().then(function () { return Promise.all([
       root.JpathApi.get('/api/learning/comm/path'),
       root.JpathApi.get('/api/learning/comm/map'),
       root.JpathApi.get('/api/learning/comm/goal-test').catch(function () { return null; })
-    ]).then(function (res) {
+    ]); }).then(function (res) {
       if (!res[0] || !res[1]) throw new Error('Dữ liệu lộ trình chưa đầy đủ.');
       pathData = res[0];
       lastPathData = pathData;

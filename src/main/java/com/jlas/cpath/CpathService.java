@@ -400,6 +400,20 @@ public class CpathService {
     /** Today's situations: the ones planned today, else the next not-done ones (planned now). */
     @Transactional
     public List<Map<String, Object>> today(Long userId, Map<String, Object> path) {
+        return today(userId, path, true);
+    }
+
+    /**
+     * Bug 108 (I4): plans today's situations (POST /today/plan, sent by the page before it reads the path);
+     * GET /path only reads.
+     */
+    @Transactional
+    public Map<String, Object> planToday(Long userId) {
+        return Map.of("situations", today(userId, requirePath(userId), true));
+    }
+
+    /** {@code write} = store the plan; false = the same list worked out without writing (GET). */
+    private List<Map<String, Object>> today(Long userId, Map<String, Object> path, boolean write) {
         Long pathId = ((Number) path.get("id")).longValue();
         LocalDate day = clock.today(userId);
         List<Map<String, Object>> order = orderedSituations(path);
@@ -421,7 +435,7 @@ public class CpathService {
                 Map<String, Object> p = prog.get(s.get("code"));
                 LocalDate planDay = p == null ? null : toDate(p.get("study_day"));
                 if (p != null && !done(p) && planDay != null && planDay.isBefore(day)) {
-                    db.update("UPDATE cpath_user_situation SET study_day = ? WHERE path_id = ? AND situation_code = ?", day, pathId, s.get("code"));
+                    if (write) db.update("UPDATE cpath_user_situation SET study_day = ? WHERE path_id = ? AND situation_code = ?", day, pathId, s.get("code"));
                     planned.add((String) s.get("code"));
                 }
             }
@@ -430,11 +444,11 @@ public class CpathService {
                 if (fresh >= want || planned.size() >= cap) break;
                 if (!prog.containsKey(s.get("code"))) {
                     fresh++;
-                    db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
+                    if (write) db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
                     planned.add((String) s.get("code"));
                 }
             }
-            prog = progressOf(pathId);
+            if (write) prog = progressOf(pathId);
         }
         List<Map<String, Object>> out = new ArrayList<>();
         for (Map<String, Object> s : order) {
@@ -510,7 +524,7 @@ public class CpathService {
         Map<String, Object> todayMap = new LinkedHashMap<>();
         todayMap.put("date", learnerToday.toString());
         todayMap.put("restDay", isRest(p, learnerToday));
-        todayMap.put("situations", today(userId, p));
+        todayMap.put("situations", today(userId, p, false)); // bug 108: GET never plans
         String testDay = weeklyTestDay(userId, p);
         todayMap.put("weeklyTestDay", testDay);
         todayMap.put("weeklyOpen", weeklyOpen(userId, p, learnerToday, testDay)); // F44: the path page shows the same rule

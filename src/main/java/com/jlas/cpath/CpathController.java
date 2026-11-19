@@ -83,7 +83,7 @@ public class CpathController {
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
     private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/goals/pause-for-jlpt", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
-            "/notebook", "/day");
+            "/notebook", "/day", "/today/plan");
 
     private boolean locked(Long userId) {
         if (premium == null || userId == null || ContentReviewAccess.allowed(userId)) return false;
@@ -387,6 +387,18 @@ public class CpathController {
     // ------------------------------------------------------------------------------------- F70 base set
 
     /** The base-set block of the path page and Settings (enabled false when the goal or the DB has none). */
+    /** Bug 108 (I4): plans today (situations, base lesson); the pages send it before reading, GETs never write. */
+    @PostMapping("/today/plan")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> planToday(@AuthenticationPrincipal UserPrincipal user) {
+        Map<String, Object> out = service.planToday(user.userId());
+        try {
+            core.planDay(user.userId());
+        } catch (ApiException e) {
+            // no MAIN communication path (secondary only): the situations are planned, there is no base lesson
+        }
+        return ResponseEntity.ok(ApiResponse.ok("OK", out));
+    }
+
     @GetMapping("/core")
     public ResponseEntity<ApiResponse<Map<String, Object>>> core(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", core.overview(user.userId())));
