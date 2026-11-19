@@ -104,6 +104,7 @@ public class JpathSettingsWriter {
         // ---- schedule: lock, check, then write ----
         ScheduleChange change = r.changesSchedule() ? checkSchedule(userId, r) : null;
         Set<JpathTab> fromTomorrow = change == null ? null : writeSchedule(change);
+        JpathUserLevel openRow = change == null ? null : openNextAfterPassed(change.path(), change.level());
 
         JpathUserSettings row = null;
         if (changesDisplay(r)) {
@@ -151,7 +152,8 @@ public class JpathSettingsWriter {
             row = settings.saveAndFlush(row);
         }
         return change == null ? new Result(null, null, null, null, row)
-                : new Result(change.path, change.level, change.pacing, fromTomorrow, row);
+                : openRow == change.level() ? new Result(change.path, change.level, change.pacing, fromTomorrow, row)
+                : new Result(change.path, openRow, views.pacing(change.path, openRow), fromTomorrow, row);
     }
 
     /** Checked new values of the schedule with the pace they give (the target enforced when it changed). */
@@ -362,5 +364,51 @@ public class JpathSettingsWriter {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Giờ nhắc học phải theo dạng HH:mm, bước 5 phút.");
         }
         return LocalTime.parse(time);
+    }
+
+    /**
+     * [JLAS-W0108] QA 19/11 #79: the open level is already PASSED and the target was raised above it: open the next
+     * released level now (as a passed mock does in JpathLevelUpServiceImpl#openNextLevel), else the learner stays on a
+     * finished level for good. Returns the open level row after the call.
+     */
+    private JpathUserLevel openNextAfterPassed(JpathUserPath path, JpathUserLevel level) {
+        if (level == null || level.getStage() != com.jlas.jlptpath.enums.JpathStage.PASSED) {
+            return level;
+        }
+        List<String> order = JpathPathRules.LEVELS;
+        int open = order.indexOf(path.getOpenLevel());
+        int target = order.indexOf(path.getTargetLevel());
+        if (open < 0 || target <= open || open + 1 >= order.size()) {
+            return level;
+        }
+        String next = order.get(open + 1);
+        if (!catalog.isReleased(next)) {
+            return level;
+        }
+        JpathUserLevel row = userLevels.findForUpdate(path.getId(), next).orElse(null);
+        if (row == null) {
+            JpathSliderValues recommended = JpathPacingEngine.recommend(next, path.getDailyMinutes());
+            row = userLevels.save(JpathUserLevel.builder()
+                    .pathId(path.getId())
+                    .level(next)
+                    .stage(com.jlas.jlptpath.enums.JpathStage.STUDY)
+                    .sliderVocab(recommended.vocab())
+                    .sliderKanji(recommended.kanji())
+                    .sliderGrammar(recommended.grammar())
+                    .adjustmentsUsed(0)
+                    .firstDragUsed(false)
+                    .openedAt(clock.now())
+                    .build());
+            adjustments.save(JpathPathRules.adjustment(path.getId(), next, JpathSliderKind.LEVEL_START, false, null,
+                    recommended, path.getDailyMinutes()));
+        }
+        path.setOpenLevel(next);
+        paths.flush();
+        JpathTodayTargetsPort port = todayTargets.getIfAvailable();
+        if (port != null) {
+            port.replanUntouchedToday(path.getUserId());
+        }
+        JpathPathRules.refreshToday(todayTargets, path.getUserId());
+        return row;
     }
 }

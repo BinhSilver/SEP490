@@ -212,17 +212,19 @@ public class JpathDailyPlanInserter {
      */
     boolean rebuildForSchedule(JpathUserPath path, JpathUserLevel level, JpathDailyPlan plan, List<JpathDailyTab> tabs) {
         JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, plan.getStudyDay());
-        if (dayPlan.kind() == plan.getDayKind() && dayPlan.skillMakeup() == plan.isSkillMakeup()) {
+        boolean levelChanged = !java.util.Objects.equals(level.getLevel(), plan.getLevel());
+        if (!levelChanged && dayPlan.kind() == plan.getDayKind() && dayPlan.skillMakeup() == plan.isSkillMakeup()) {
             return false;
         }
         // F130: a rest or skill day moved onto today applies from tomorrow (as JpathRestDayStreakJob expects), so
         // the learner cannot turn an untouched study day into a rest day that keeps the streak without studying.
-        // Giving up a rest or skill day (today becomes a study day) still applies at once.
-        if (dayPlan.kind() == JpathDayKind.REST || dayPlan.kind() == JpathDayKind.SKILL) {
+        // Giving up a rest or skill day (today becomes a study day), or opening a new level (#79/#86), applies at once.
+        if (!levelChanged && (dayPlan.kind() == JpathDayKind.REST || dayPlan.kind() == JpathDayKind.SKILL)) {
             return false;
         }
         dailyTabs.deleteAll(tabs);
         dailyTabs.flush();
+        plan.setLevel(level.getLevel());
         plan.setDayKind(dayPlan.kind());
         plan.setSkillMakeup(dayPlan.skillMakeup());
         plan.setKanaPhase(dayPlan.kanaPhase());

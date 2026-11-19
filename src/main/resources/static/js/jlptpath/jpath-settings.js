@@ -34,6 +34,7 @@
 
   var RESTART_TEXT = 'BẮT ĐẦU LẠI';
   var DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  var JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
   var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy',
     SUN: 'Chủ nhật' };
   // the server re-plans today only when nothing was learned on it yet and today becomes a study day; a rest or
@@ -566,7 +567,17 @@
           if (INSTANT[name]) save(name);
         });
         var saveButton = part('save', scope);
-        if (saveButton) saveButton.addEventListener('click', function () { save(name); });
+        if (saveButton) saveButton.addEventListener('click', function () {
+          if (name === 'target' && view.stage === 'PASSED'
+              && JLPT_LEVELS.indexOf(current.targetLevel) > JLPT_LEVELS.indexOf(view.openLevel)) {
+            var nextLevel = JLPT_LEVELS[JLPT_LEVELS.indexOf(view.openLevel) + 1];
+            Promise.resolve(ask('Bạn đã đỗ ' + view.openLevel + '. Mở ' + nextLevel + ' ngay hôm nay?',
+              { confirmText: 'Mở ' + nextLevel, cancelText: 'Hủy', label: 'Mở cấp tiếp theo' }))
+              .then(function (confirmed) { if (confirmed) save(name); });
+            return;
+          }
+          save(name);
+        });
       });
       part('undo-schedule').addEventListener('click', function () {
         if (scheduleUndo) save('schedule', scheduleUndo);
