@@ -255,7 +255,19 @@
         if (input.type === 'checkbox') input.checked = !!value;
         else if (input.type === 'radio') input.checked = input.value === value;
         else input.value = value == null ? '' : String(value);
+        // bug 41: the server takes only an exam date after today and within 3 years; the picker offers the same range
+        if (input.dataset.field === 'examDate') {
+          input.min = isoDay(1, 0);
+          input.max = isoDay(0, 3);
+        }
       });
+    }
+
+    function isoDay(addDays, addYears) {
+      var d = new Date();
+      d.setFullYear(d.getFullYear() + addYears);
+      d.setDate(d.getDate() + addDays);
+      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     }
 
     function drawOptions() {

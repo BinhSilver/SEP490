@@ -18,6 +18,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Long> {
 
+    /**
+     * Bug 113: the tab counts of one level in one query; rows = [itemType, counted, known, notebook] per type.
+     */
+    @Query("""
+            select i.itemType, sum(case when i.countedAt is not null then 1 else 0 end),
+                   sum(case when i.state = com.jlas.jlptpath.enums.JpathItemState.KNOWN then 1 else 0 end),
+                   sum(case when i.state = com.jlas.jlptpath.enums.JpathItemState.NOTEBOOK then 1 else 0 end)
+            from JpathUserItem i where i.userId = :userId and i.level = :level group by i.itemType
+            """)
+    List<Object[]> tabCountsByType(@Param("userId") Long userId, @Param("level") String level);
+
     Optional<JpathUserItem> findByUserIdAndItemTypeAndItemCode(Long userId, JpathItemType itemType, String itemCode);
 
     /** Items of a level counted towards progress (countedAt set). */

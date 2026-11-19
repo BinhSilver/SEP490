@@ -89,7 +89,8 @@ public class CpathFlashcardService {
         if (cards.isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tình huống này chưa có câu để làm thẻ.");
         String goal = str(s.get("goal_name")).isBlank() ? str(s.get("goal_code")) : str(s.get("goal_name"));
         SetRequest req = new SetRequest();
-        req.setTitle(cut(str(s.get("code")) + " · " + str(s.get("title_vi")), 100));
+        // bug 28: the learner sees the situation title only, never the internal code (TRV-01)
+        req.setTitle(cut(str(s.get("title_vi")).isBlank() ? "Tình huống giao tiếp" : str(s.get("title_vi")), 100));
         req.setDescription("Bộ thẻ của lộ trình giao tiếp, tạo tự động theo tình huống.");
         req.setVisibility("PRIVATE");
         req.setFolderId(folder(userId, cut("Lộ trình giao tiếp · " + goal, 100)));

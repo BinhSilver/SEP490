@@ -1,7 +1,6 @@
 package com.jlas.jlptpath.service.impl;
 
 import com.jlas.jlptpath.dto.JpathTabCount;
-import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathKanaRowRepository;
@@ -34,10 +33,19 @@ public class JpathTabCountsReader {
     /** VOCAB, KANJI, GRAMMAR of {@code level} in that order; total = learnable visible items. */
     @Transactional(readOnly = true)
     public Map<JpathTab, JpathTabCount> read(Long userId, String level) {
+        // Bug 113: one grouped query per level instead of three counts per tab
+        Map<JpathItemType, long[]> rows = new EnumMap<>(JpathItemType.class);
+        for (Object[] row : userItems.tabCountsByType(userId, level)) {
+            if (row[0] instanceof JpathItemType type) {
+                rows.put(type, new long[] {num(row[1]), num(row[2]), num(row[3])});
+            }
+        }
         Map<JpathTab, JpathTabCount> out = new EnumMap<>(JpathTab.class);
-        out.put(JpathTab.VOCAB, count(userId, level, JpathItemType.VOCAB));
-        out.put(JpathTab.KANJI, count(userId, level, JpathItemType.KANJI));
-        out.put(JpathTab.GRAMMAR, count(userId, level, JpathItemType.GRAMMAR));
+        for (JpathTab tab : new JpathTab[] {JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR}) {
+            JpathItemType type = JpathItemType.valueOf(tab.name());
+            long[] r = rows.getOrDefault(type, new long[3]);
+            out.put(tab, new JpathTabCount(r[0], r[1], r[2], content.learnableCount(level, type)));
+        }
         return Collections.unmodifiableMap(out);
     }
 
@@ -63,11 +71,7 @@ public class JpathTabCountsReader {
         return new JpathTabCount(kanaRows.countCompletedRows(userId), 0, 0, KANA_ROWS);
     }
 
-    private JpathTabCount count(Long userId, String level, JpathItemType type) {
-        return new JpathTabCount(
-                userItems.countByUserIdAndLevelAndItemTypeAndCountedAtIsNotNull(userId, level, type),
-                userItems.countByUserIdAndLevelAndItemTypeAndState(userId, level, type, JpathItemState.KNOWN),
-                userItems.countByUserIdAndLevelAndItemTypeAndState(userId, level, type, JpathItemState.NOTEBOOK),
-                content.learnableCount(level, type));
+    private static long num(Object value) {
+        return value instanceof Number n ? n.longValue() : 0L;
     }
 }
