@@ -446,7 +446,8 @@ public class JpathListServiceImpl implements JpathListService {
     @Override
     public JpathPage<JpathVocabRowView> notebook(Long userId, String tab, int page) {
         JpathItemType type = tabType(tab);
-        if (type != JpathItemType.VOCAB && type != JpathItemType.KANJI) {
+        // owner 20/11: grammar rows reach the notebook from a Smart Test import, so the Ngữ pháp tab lists them too
+        if (type == JpathItemType.KANA) {
             return page(List.of(), page, Map.of());
         }
         return store(userId, type, JpathItemState.NOTEBOOK, JpathUserItem::getNotebookSince, page);
@@ -507,7 +508,9 @@ public class JpathListServiceImpl implements JpathListService {
             }
             case KANA -> i -> null;
         };
-        List<JpathVocabRowView> all = held.stream().map(toRow).filter(Objects::nonNull).toList();
+        List<JpathVocabRowView> all = held.stream()
+                .map(i -> Optional.ofNullable(toRow.apply(i)).map(r -> withSource(r, i)).orElse(null))
+                .filter(Objects::nonNull).toList();
         return page(all, page, Map.of());
     }
 
@@ -523,6 +526,15 @@ public class JpathListServiceImpl implements JpathListService {
 
     private static List<String> codes(List<JpathUserItem> held) {
         return held.stream().map(JpathUserItem::getItemCode).distinct().toList();
+    }
+
+    private static JpathVocabRowView withSource(JpathVocabRowView r, JpathUserItem i) {
+        if (i.getState() != JpathItemState.NOTEBOOK || i.getNotebookSource() == null) {
+            return r;
+        }
+        return new JpathVocabRowView(r.code(), r.itemType(), r.expression(), r.reading(), r.romaji(), r.meaning(),
+                r.wordType(), r.topicKey(), r.state(), r.hard(), r.learnable(), r.dictionaryEntryId(), r.audioUrl(),
+                i.getNotebookSource().name());
     }
 
     private JpathVocabRowView kanjiStoreRow(JpathKanji k, JpathUserItem row) {
