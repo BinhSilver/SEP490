@@ -1002,7 +1002,7 @@
     if (!sitId) sitId = el.getAttribute('data-situation-id');
     if (!sitId) {
       if (root.location && typeof root.location.replace === 'function') { root.location.replace('/learning/comm'); return; }
-      el.innerHTML = '<p class="jp-alert" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
       return;
     }
 
@@ -1588,11 +1588,11 @@
       }).catch(function (error) {
         if (error && error.code === 'CPATH_PREMIUM_REQUIRED') {
           // owner 11/11: the communication path is Premium
-          el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error.message)
+          el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error.message)
             + ' <a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></p>';
           return;
         }
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Không tải được tình huống.')
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Không tải được tình huống.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         el.querySelector('[data-cp-retry]').addEventListener('click', load);
       });

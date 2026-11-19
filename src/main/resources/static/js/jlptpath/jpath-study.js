@@ -818,7 +818,7 @@
 
   function fail(page, err) {
     page.el.setAttribute('aria-busy', 'false');
-    page.el.innerHTML = '<p class="jp-alert" role="alert">' + esc((err && (err.code || err.status) && err.message) || 'Không tải được lượt học.')
+    page.el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc((err && (err.code || err.status) && err.message) || 'Không tải được lượt học.')
       + '</p><a class="jp-btn" href="/learning">Về lộ trình</a>';
   }
 

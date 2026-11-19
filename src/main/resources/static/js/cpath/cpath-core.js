@@ -238,7 +238,7 @@
         if (A) A.fromDisplay(data.display);
         render();
       }).catch(function (e) {
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được bài nền.')
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được bài nền.')
           + ' <a class="cp-btn-ghost" href="/learning/comm/path">Về lộ trình</a></p>';
       });
     }

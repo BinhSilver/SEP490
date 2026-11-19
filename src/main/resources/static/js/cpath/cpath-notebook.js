@@ -75,7 +75,7 @@
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = e && e.status === 404
           ? '<p class="jp-side__note">Bạn chưa có lộ trình giao tiếp. <a href="/learning/comm/survey">Làm khảo sát</a> để bắt đầu.</p>'
-          : '<p class="jp-alert" role="alert">Chưa tải được sổ tay. <button type="button" class="jp-btn" data-note-retry>Thử lại</button></p>';
+          : '<p class="jp-alert jp-alert--page" role="alert">Chưa tải được sổ tay. <button type="button" class="jp-btn" data-note-retry>Thử lại</button></p>';
       });
     }
     return load();

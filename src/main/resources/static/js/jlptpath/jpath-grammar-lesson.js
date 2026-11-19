@@ -318,7 +318,7 @@
       if (doc && has(lesson.pattern)) doc.title = lesson.pattern + ' - KotsuKotsu';
       rendered(el);
     }, function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
       el.setAttribute('aria-busy', 'false');
     });
   }

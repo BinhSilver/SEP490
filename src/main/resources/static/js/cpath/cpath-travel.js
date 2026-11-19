@@ -117,7 +117,7 @@
       if (root.CpathAudio) root.CpathAudio.fromDisplay(data.display);
       render();
     }).catch(function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được sổ câu.') + '</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được sổ câu.') + '</p>';
     });
   }
 
@@ -296,7 +296,7 @@
         if (root.CpathAudio) root.CpathAudio.fromDisplay(data.display);
         render();
       }).catch(function (e) {
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được trò chơi.') + '</p>';
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được trò chơi.') + '</p>';
       });
     }
     load();

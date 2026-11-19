@@ -244,7 +244,7 @@
       rendered(doc, el);
       return o;
     }, function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc((e && (e.code || e.status) && e.message) || 'Không tải được phần Đọc · Nghe.') + '</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc((e && (e.code || e.status) && e.message) || 'Không tải được phần Đọc · Nghe.') + '</p>';
       return null;
     });
   }

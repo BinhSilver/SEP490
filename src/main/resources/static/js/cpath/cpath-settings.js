@@ -338,7 +338,7 @@
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
       path = p; draft = payload(p); render();
       return Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (c) { core = c; render(); }, function () { /* no base set */ });
-    }).catch(function (e) { el.innerHTML = '<p class="jp-alert" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
+    }).catch(function (e) { el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
   }
   return { RESTART_TEXT: RESTART_TEXT, restartTextOk: restartTextOk, payload: payload, displayOf: displayOf,
     estimate: estimate, view: view, mount: mount };
