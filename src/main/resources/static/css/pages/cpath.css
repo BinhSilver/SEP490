@@ -2324,3 +2324,20 @@ html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
 /* [JLAS-W0108] Owner 18/11: situation flashcard bar on the words step */
 .cp-fc-bar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 0 12px; }
 .cp-fc-bar__count { color: var(--color-on-surface-variant); font-weight: 500; }
+
+/* QA 19/11 (bugs 71-74, 101): one card on every communication page while the only path is paused */
+.cp-paused-card {
+  max-width: 480px;
+  margin: 10vh auto 0;
+  padding: 32px 24px;
+  text-align: center;
+}
+.cp-paused-card__pic { display: block; margin: 0 auto 12px; }
+.cp-paused-card__title { margin: 0 0 8px; font-size: 1.25rem; font-weight: 600; }
+.cp-paused-card__text { margin: 0 0 20px; color: var(--text-secondary, inherit); line-height: 1.5; }
+.cp-paused-card__actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.cp-paused-card__actions .jp-btn { min-height: 44px; display: inline-flex; align-items: center; }
+@media (max-width: 480px) {
+  .cp-paused-card { margin: 24px 16px 96px; }
+  .cp-paused-card__actions .jp-btn { flex: 1 1 100%; justify-content: center; }
+}

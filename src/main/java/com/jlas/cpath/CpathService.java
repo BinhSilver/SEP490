@@ -49,6 +49,27 @@ public class CpathService {
         this.clock = clock;
     }
 
+    /**
+     * QA 19/11 (bugs 71-74, 101): what the communication pages show — "ACTIVE" (a path to study), "PAUSED" (only a
+     * paused path: a card with "Học tiếp", never "chưa có" or raw JSON) or "NONE" (no path: the survey makes one).
+     */
+    @Transactional(readOnly = true)
+    public String pathState(Long userId) {
+        List<String> states = db.queryForList(
+                "SELECT status FROM cpath_user_path WHERE user_id = ? AND status IN ('ACTIVE', 'PAUSED')",
+                String.class, userId);
+        if (states.contains("ACTIVE")) return "ACTIVE";
+        return states.isEmpty() ? "NONE" : "PAUSED";
+    }
+
+    /** The newest paused path's goal name, for the paused card. */
+    @Transactional(readOnly = true)
+    public String pausedGoalName(Long userId) {
+        return db.queryForList("SELECT g.name_vi FROM cpath_user_path p JOIN cpath_goal g ON g.code = p.goal_code "
+                + "WHERE p.user_id = ? AND p.status = 'PAUSED' ORDER BY p.id DESC LIMIT 1", String.class, userId)
+                .stream().findFirst().orElse(null);
+    }
+
     /** Owner 19/10: 2 CP once per situation, on the first time all 4 steps are done. */
     static final int SITUATION_CP = 2;
     static final String REF_SITUATION = "CPATH_SITUATION";
