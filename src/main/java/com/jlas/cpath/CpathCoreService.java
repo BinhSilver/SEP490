@@ -269,10 +269,12 @@ public class CpathCoreService {
         Set<String> inSet = new HashSet<>();
         all.forEach(i -> inSet.add(i.code()));
         int count = 0;
+        // I16 (owner 19/11): make-up lessons pile up to at most twice a normal day; the rest moves to later days
+        int cap = 2 * want;
         // an unfinished lesson of an earlier day comes back first
         for (Map<String, Object> r : db.queryForList("SELECT ref_code FROM cpath_user_core WHERE path_id = ? AND done_at IS NULL "
                 + "AND study_day < ? ORDER BY study_day", pathId, day)) {
-            if (count >= want) break;
+            if (count >= cap) break;
             if (!inSet.contains(r.get("ref_code"))) continue; // hidden by a lower depth
             db.update("UPDATE cpath_user_core SET study_day = ? WHERE path_id = ? AND ref_code = ?", day, pathId, r.get("ref_code"));
             count++;
@@ -290,10 +292,10 @@ public class CpathCoreService {
         List<Item> pick = new ArrayList<>();
         for (Item it : open) {
             String b = baseForm(it.ja());
-            if (pick.size() + count < want && "VOCAB".equals(it.refType()) && b.length() >= 2 && text.contains(b)) pick.add(it);
+            if (pick.size() < want && pick.size() + count < cap && "VOCAB".equals(it.refType()) && b.length() >= 2 && text.contains(b)) pick.add(it);
         }
         for (Item it : open) {
-            if (pick.size() + count >= want) break;
+            if (pick.size() >= want || pick.size() + count >= cap) break;
             if (!pick.contains(it)) pick.add(it);
         }
         for (Item it : pick) {

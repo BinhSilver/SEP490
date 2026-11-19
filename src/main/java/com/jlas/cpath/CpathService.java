@@ -406,8 +406,10 @@ public class CpathService {
             int want = ((Number) path.get("daily_situations")).intValue();
             // F74 (12/11): a situation planned on an earlier day and not finished comes back first (a missed day carries
             // over), so the map order and "Hôm nay" stay the same instead of jumping to the next topic
+            // I16 (owner 19/11): make-up work piles up to at most twice a normal day; the rest moves to later days
+            int cap = 2 * want;
             for (Map<String, Object> s : order) {
-                if (planned.size() >= want) break;
+                if (planned.size() >= cap) break;
                 Map<String, Object> p = prog.get(s.get("code"));
                 LocalDate planDay = p == null ? null : toDate(p.get("study_day"));
                 if (p != null && !done(p) && planDay != null && planDay.isBefore(day)) {
@@ -415,9 +417,11 @@ public class CpathService {
                     planned.add((String) s.get("code"));
                 }
             }
+            int fresh = 0;
             for (Map<String, Object> s : order) {
-                if (planned.size() >= want) break;
+                if (fresh >= want || planned.size() >= cap) break;
                 if (!prog.containsKey(s.get("code"))) {
+                    fresh++;
                     db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
                     planned.add((String) s.get("code"));
                 }
