@@ -902,8 +902,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         if (r.value() != null && r.value().length() > 1000) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời quá dài.");
         }
+        // a timed check sends a blank answer when the question's timer runs out: that one counts wrong (bug 91 only
+        // refuses blanks the learner could still answer)
         if (("MCQ".equals(qv.type()) || "AUDIO_MCQ".equals(qv.type()))
-                && (r.value() == null || r.value().isBlank())) {
+                && (r.value() == null || r.value().isBlank()) && !set.isTimerOn()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn đáp án trước khi nộp.");
         }
         requireOpen(set);
