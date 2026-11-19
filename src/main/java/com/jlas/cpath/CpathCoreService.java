@@ -205,9 +205,8 @@ public class CpathCoreService {
             List<Item> all = items(goal, depthRank(depth));
             if (all.isEmpty()) return m;
             Map<String, Map<String, Object>> prog = progress(pathId);
-            absorb(userId, pathId, all, prog);
-            prog = progress(pathId);
-            List<Map<String, Object>> today = planToday(userId, path, all, prog);
+            // bug 108: GET reads only; POST /today/plan (planDay) absorbs JLPT items and plans the lesson
+            List<Map<String, Object>> today = plannedToday(userId, pathId);
             String shared = sharedLevel(userId);
             Map<String, Map<String, Object>> fp = prog;
             long belowOpen = all.stream().filter(i -> below(i.level(), shared) && !isDone(fp.get(i.code()))).count();
@@ -258,6 +257,31 @@ public class CpathCoreService {
     }
 
     // ---------------------------------------------------------------------------------------------- today
+
+    /** Bug 108: today's stored lesson rows (read only). */
+    private List<Map<String, Object>> plannedToday(Long userId, long pathId) {
+        return db.queryForList("SELECT * FROM cpath_user_core WHERE path_id = ? AND study_day = ?", pathId, clock.today(userId));
+    }
+
+    /**
+     * Bug 108: what the GETs used to write: marks the JLPT-learned items done and plans today's lesson. Sent once by the
+     * page (POST /today/plan) before it reads; a path without base lessons does nothing.
+     */
+    @Transactional
+    public void planDay(Long userId) {
+        Map<String, Object> path = mainPath(userId);
+        String goal = (String) path.get("goal_code");
+        if (!hasCore(goal)) return;
+        try {
+            long pathId = ((Number) path.get("id")).longValue();
+            List<Item> all = items(goal, depthRank(depthCode(path)));
+            if (all.isEmpty()) return;
+            absorb(userId, pathId, all, progress(pathId));
+            planToday(userId, path, all, progress(pathId));
+        } catch (DataAccessException e) {
+            // base lessons unavailable: the overview already reports enabled=false
+        }
+    }
 
     /** Today's lesson rows: kept if planned, else carried over from an earlier day, else the next items (planned now). */
     List<Map<String, Object>> planToday(Long userId, Map<String, Object> path, List<Item> all, Map<String, Map<String, Object>> prog) {
@@ -326,9 +350,7 @@ public class CpathCoreService {
             throw new ApiException(ErrorCode.CPATH_CORE_UNAVAILABLE);
         }
         Map<String, Map<String, Object>> prog = progress(pathId);
-        absorb(userId, pathId, all, prog);
-        prog = progress(pathId);
-        List<Map<String, Object>> today = planToday(userId, path, all, prog);
+        List<Map<String, Object>> today = plannedToday(userId, pathId); // bug 108: planned by POST /today/plan
         Map<String, Item> byCode = new HashMap<>();
         for (Item it : all) byCode.put(it.code(), it);
         List<Item> lessonItems = new ArrayList<>();

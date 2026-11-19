@@ -230,9 +230,16 @@
       });
     }
 
+
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+    }
+
     function load() {
       var url = isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson';
-      Promise.resolve(root.JpathApi.get(url)).then(function (x) {
+      (isCheck ? Promise.resolve(null) : planToday()).then(function () { return root.JpathApi.get(url); }).then(function (x) {
         data = x || {}; phase = isCheck ? 'quiz' : 'learn'; qi = 0; answers = {}; result = null;
         quiz = isCheck ? quizOrder(data.questions) : null;
         if (A) A.fromDisplay(data.display);
