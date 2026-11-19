@@ -61,15 +61,17 @@ public class JpathFlashcardService {
         this.content = content;
     }
 
-    /** Sets that already exist for the parts of one tab, with their flashcard progress; makes today's set. */
+    /**
+     * Sets that already exist for the parts of one tab, with their flashcard progress. I4: this backs a GET, so it
+     * never makes a set; "Học bằng flashcard" (POST {@link #open}) makes the part's set when the learner asks for it.
+     */
     @Transactional
     public PartSets sets(Long userId, JpathTab tab) {
         JpathPartsService.Parts p = partsOf(userId, requireTab(tab));
         List<PartSet> out = new ArrayList<>();
         for (JpathPartsService.Part part : p.parts()) {
             if (part.items().isEmpty()) continue;
-            boolean today = part.status().startsWith("TODAY");
-            Long setId = today ? ensure(userId, tab, p.level(), part) : existing(userId, hash(part));
+            Long setId = existing(userId, hash(part));
             out.add(view(userId, part, setId));
         }
         return new PartSets(tab.name(), p.level(), out);

@@ -114,10 +114,16 @@ public class CpathService {
         return null;
     }
 
+    /** I10: the study clock (Vietnam time); a bare service in unit tests falls back to the same zone. */
+    private java.time.LocalDateTime vnNow() {
+        java.time.LocalDateTime t = clock == null ? null : clock.now();
+        return t != null ? t : java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+    }
+
     static java.time.LocalDateTime dateTimeOf(Object v) {
         if (v instanceof java.time.LocalDateTime t) return t;
         if (v instanceof java.sql.Timestamp t) return t.toLocalDateTime();
-        return java.time.LocalDateTime.now();
+        return null; // I10: a missing taken_at means "not taken", never "taken just now"
     }
 
     /** Stable numeric reference of a situation code for the CP ledger (its unique key drops a repeat award). */
@@ -400,8 +406,10 @@ public class CpathService {
             int want = ((Number) path.get("daily_situations")).intValue();
             // F74 (12/11): a situation planned on an earlier day and not finished comes back first (a missed day carries
             // over), so the map order and "Hôm nay" stay the same instead of jumping to the next topic
+            // I16 (owner 19/11): make-up work piles up to at most twice a normal day; the rest moves to later days
+            int cap = 2 * want;
             for (Map<String, Object> s : order) {
-                if (planned.size() >= want) break;
+                if (planned.size() >= cap) break;
                 Map<String, Object> p = prog.get(s.get("code"));
                 LocalDate planDay = p == null ? null : toDate(p.get("study_day"));
                 if (p != null && !done(p) && planDay != null && planDay.isBefore(day)) {
@@ -409,9 +417,11 @@ public class CpathService {
                     planned.add((String) s.get("code"));
                 }
             }
+            int fresh = 0;
             for (Map<String, Object> s : order) {
-                if (planned.size() >= want) break;
+                if (fresh >= want || planned.size() >= cap) break;
                 if (!prog.containsKey(s.get("code"))) {
+                    fresh++;
                     db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
                     planned.add((String) s.get("code"));
                 }
@@ -1001,7 +1011,7 @@ public class CpathService {
                 cp = awardSituation(userId, code, title);
             }
             boolean first = row.get("done_at") == null;
-            db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?", pathId, code);
+            db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, ?) WHERE path_id = ? AND situation_code = ?", vnNow(), pathId, code);
             String passedTopic = updateTopic(pathId, code);
             if (passedTopic != null)
                 cp += award(userId, TOPIC_CP, REF_TOPIC, situationRef(passedTopic), "Đạt chủ đề giao tiếp " + passedTopic);
@@ -1062,7 +1072,7 @@ public class CpathService {
         boolean pass = allDone && speak != null && speak >= SPEAK_PASS
                 && state.get("roleplay_test_best") != null && num(state.get("roleplay_test_best")) >= ROLEPLAY_PASS;
         if (pass && state.get("passed_at") == null) {
-            db.update("UPDATE cpath_user_topic SET passed_at = CURRENT_TIMESTAMP(6) WHERE path_id = ? AND topic_code = ? AND passed_at IS NULL", pathId, topic);
+            db.update("UPDATE cpath_user_topic SET passed_at = ? WHERE path_id = ? AND topic_code = ? AND passed_at IS NULL", vnNow(), pathId, topic);
             return true;
         }
         return false;
@@ -1399,8 +1409,8 @@ public class CpathService {
         if (pass) {
             // counted as learned: every step ticked, no situation CP (the CP is for studying it)
             db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
-            db.update("UPDATE cpath_user_situation SET steps_done = ?, done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?",
-                    String.join(",", STEPS), pathId, code);
+            db.update("UPDATE cpath_user_situation SET steps_done = ?, done_at = COALESCE(done_at, ?) WHERE path_id = ? AND situation_code = ?",
+                    String.join(",", STEPS), vnNow(), pathId, code);
             updateTopic(pathId, code);
             refreshDailyGoalAfterCommit(userId); // F128
         }
@@ -2067,7 +2077,8 @@ public class CpathService {
         Map<String, Object> last = lastGoalTest(((Number) p.get("id")).longValue());
         if (last == null) return true;
         if (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed"))) return false;
-        return !clock.now().isBefore(dateTimeOf(last.get("taken_at")).plusHours(24));
+        java.time.LocalDateTime takenAt = dateTimeOf(last.get("taken_at"));
+        return takenAt == null || !clock.now().isBefore(takenAt.plusHours(24));
     }
 
     @Transactional
@@ -2076,8 +2087,8 @@ public class CpathService {
         Map<String, Object> p = requirePath(userId);
         Long pathId = ((Number) p.get("id")).longValue();
         boolean pass = score >= GOAL_TEST_PASS;
-        db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed) VALUES (?,NULL,?,?)",
-                pathId, score, pass);
+        db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed, taken_at) VALUES (?,NULL,?,?,?)",
+                pathId, score, pass, vnNow());
         return pass ? award(userId, GOAL_CP, REF_GOAL, pathId, "Đạt bài kiểm tra giao tiếp") : 0;
     }
 
@@ -2123,8 +2134,8 @@ public class CpathService {
                 Integer.class, pathId, session);
         if (seen == null || seen == 0) {
             int score = ((Number) rows.get(0).get("overall_score")).intValue();
-            db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed) VALUES (?,?,?,?)",
-                    pathId, session, score, score >= GOAL_TEST_PASS);
+            db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed, taken_at) VALUES (?,?,?,?,?)",
+                    pathId, session, score, score >= GOAL_TEST_PASS, vnNow());
             // the path stays open (map, review, certificate); the pass gives the goal's big reward once
             if (score >= GOAL_TEST_PASS) {
                 award(userId, GOAL_CP, REF_GOAL, pathId, "Đạt bài test giao tiếp với AI");
