@@ -298,7 +298,7 @@
   function renderStepMeaning(sit, state) {
     var items = meaningItems(sit);
     var saving = !!(state && state.savingStep);
-    var nextLabel = saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›';
+    var nextLabel = saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại';
     if (!items.length) {
       return '<div class="cp-sit-stage"><p>Tình huống chưa có câu để nghe và chọn nghĩa. Bạn sang nghe hội thoại nhé.</p></div>'
         + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>' + nextLabel + '</button></footer>';
@@ -332,9 +332,9 @@
         + '<div class="cp-line__vi">' + esc(item.vi) + '</div>'
         + '</div>'
       : '<p class="cp-survey__sub">Bấm nghe rồi chọn nghĩa đúng. Chữ Nhật hiện sau khi bạn chọn.</p>';
-    var foot = '<button type="button" class="cp-btn-ghost" data-cp-meaning-prev' + (idx <= 0 ? ' disabled' : '') + '>‹ Câu trước</button>'
+    var foot = '<button type="button" class="cp-btn-ghost" data-cp-meaning-prev' + (idx <= 0 ? ' disabled' : '') + '>Câu trước</button>'
       + (!answered ? '<span class="cp-survey__sub">Chọn một nghĩa để tiếp tục</span>'
-        : (idx + 1 < items.length ? '<button type="button" class="cp-btn-primary" data-cp-meaning-next>Câu tiếp ›</button>'
+        : (idx + 1 < items.length ? '<button type="button" class="cp-btn-primary" data-cp-meaning-next>Câu tiếp</button>'
           : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>' + nextLabel + '</button>'));
     return '<div class="cp-sit-stage cp-sit-stage--meaning">'
       + '<div class="cp-deck-switch"><strong>' + (item.kind === 'PHRASE' ? 'Mẫu câu' : 'Từ') + ' · ' + (idx + 1) + '/' + items.length + '</strong>'
@@ -474,12 +474,12 @@
       + '</div></div>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + ' aria-label="Thẻ trước">‹<span class="cp-wide-only"> Thẻ trước</span></button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + '>Thẻ trước</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-flip-btn>' + (flipped ? 'Xem mặt trước' : 'Lật xem nghĩa') + '<span class="cp-wide-only"> (Space)</span>' + '</button>'
       + (idx + 1 < deck.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp ›</button>'
+        ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp</button>'
         : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›') + '</button>')
+          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại') + '</button>')
       + '</footer>';
   }
 
@@ -523,9 +523,9 @@
       + '<ol class="' + listCls + '">' + rowsHtml + '</ol>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">‹ Quay lại ' + esc(stepTitle('WORDS', sit)) + '</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">Quay lại ' + esc(stepTitle('WORDS', sit)) + '</button>'
       + '<button type="button" class="cp-btn-primary" data-cp-finish-step="LISTEN"' + (state.savingStep ? ' disabled' : '') + '>'
-      + (state.savingStep ? 'Đang lưu…' : 'Hoàn thành Bước 2 · Sang Nhập vai ›') + '</button>'
+      + (state.savingStep ? 'Đang lưu…' : 'Hoàn thành Bước 2 · Sang Nhập vai') + '</button>'
       + '</footer>';
   }
 
@@ -554,7 +554,7 @@
     if (!turns.length) {
       return '<div class="cp-sit-stage"><p>Không có lượt nhập vai cho tình huống này.</p></div>'
         + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
-        + (saving ? 'Đang lưu…' : 'Sang Bước 4 ›') + '</button></footer>';
+        + (saving ? 'Đang lưu…' : 'Sang Bước 4') + '</button></footer>';
     }
     var tIdx = Math.max(0, Math.min(turns.length - 1, state.turnIdx || 0));
     var turn = turns[tIdx];
@@ -633,13 +633,13 @@
       + whyHtml
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="LISTEN">‹ Quay lại Nghe</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="LISTEN">Quay lại Nghe</button>'
       + (tIdx + 1 < turns.length
-        ? (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo ›</button>'
+        ? (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo</button>'
           : isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-retry>Chọn lại</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>')
         : (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 3 · Sang Luyện nói ›') + '</button>'
+          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 3 · Sang Luyện nói') + '</button>'
           : isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-retry>Chọn lại</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>'))
       + '</footer>';
@@ -808,11 +808,11 @@
       + scoreHtml
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="ROLEPLAY">‹ Quay lại Nhập vai</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="ROLEPLAY">Quay lại Nhập vai</button>'
       + (sIdx + 1 < lLines.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-speak-next' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Câu tiếp theo ›</button>'
+        ? '<button type="button" class="cp-btn-primary" data-cp-speak-next' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Câu tiếp theo</button>'
         : '<button type="button" class="cp-btn-primary" data-cp-finish-step="SPEAK"' + ((!isPass && !state.speakSkipped[sIdx]) || saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành 4 bước ›') + '</button>')
+          + (saving ? 'Đang lưu…' : 'Hoàn thành 4 bước') + '</button>')
       + '</footer>';
   }
 

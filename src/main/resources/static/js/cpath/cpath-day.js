@@ -137,8 +137,8 @@
 
     var strip = weekStripHtml(day, today, allDone, x.weekStatus);
     var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác">'
-      + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">‹ Hôm trước</a>'
-      + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau ›</a>' : '')
+      + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">Hôm trước</a>'
+      + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau</a>' : '')
       + '</nav>';
 
     var restEmpty = !situations.length && x.restDay === true; // F116

@@ -79,7 +79,7 @@
     }).join('');
     return '<section class="jp-card jp-revisit" aria-labelledby="jpRevisitTitle">'
       + '<div class="jp-revisit__head"><h2 class="jp-revisit__title" id="jpRevisitTitle">Xem lại bài đã học</h2>'
-      + '<a class="jp-revisit__history" href="/learning/jlpt/history' + (day ? '?day=' + esc(day) : '') + '">Lịch sử học ›</a></div>'
+      + '<a class="jp-revisit__history" href="/learning/jlpt/history' + (day ? '?day=' + esc(day) : '') + '">Lịch sử học</a></div>'
       + '<p class="jp-revisit__note">' + (detail && detail.done ? 'Ngày này vẫn tính là đã xong. ' : '')
       + 'Học lại hay làm lại chỉ là luyện thêm, điểm cũ vẫn được lưu.</p>'
       + '<ul class="jp-revisit__rows">' + rows + '</ul>'

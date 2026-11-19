@@ -78,7 +78,7 @@
       + (q.audioUrl ? '<button type="button" class="jp-speak-btn" data-weekly-play aria-label="Nghe phát âm" title="Nghe phát âm">' + SPEAKER + '</button>' : '')
       + '</div>'
       + '<div class="jp-check__opts">' + opts + '</div>'
-      + (i > 0 ? '<p><button type="button" class="jp-btn" data-weekly-prev>‹ Câu trước</button></p>' : '')
+      + (i > 0 ? '<p><button type="button" class="jp-btn" data-weekly-prev>Câu trước</button></p>' : '')
       + '</section>';
   }
 
