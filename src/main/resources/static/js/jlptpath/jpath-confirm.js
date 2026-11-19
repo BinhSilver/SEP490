@@ -301,7 +301,10 @@
       var st = view.smartTest;
       box.hidden = !(view.source === 'SMART_TEST' && st);
       if (box.hidden) return;
-      part('smart-level').textContent = st.abilityBand || 'Chưa xác định';
+      // Owner 20/11: the path opens at the estimated overall level; the band is shown only to explain it.
+      var levelText = st.estimatedLevel || st.abilityBand || 'Chưa xác định';
+      if (st.estimatedLevel && st.abilityBand && st.abilityBand !== st.estimatedLevel) levelText += ' (mức ' + st.abilityBand + ')';
+      part('smart-level').textContent = levelText;
       part('smart-partial').hidden = !st.partial;
       var scores = part('smart-scores');
       scores.textContent = '';
