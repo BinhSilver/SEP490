@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Bug 55: "Học tiếp" screen for a paused JLPT path (GET /learning/jlpt/resume). Opening it changes
+     nothing; only the button (POST /learning/jlpt/resume) makes the path active again. -->
+<head th:replace="~{fragments/head :: standard('Học tiếp lộ trình JLPT - KotsuKotsu', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page jp-check-page" data-inline-dictionary>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Học tiếp lộ trình JLPT')}"></th:block>
+    <section class="jp-card">
+        <h1>Học tiếp lộ trình JLPT</h1>
+        <p>Lộ trình JLPT của bạn đang tạm dừng. Bấm Học tiếp để quay lại đúng chỗ đã dừng.</p>
+        <form method="post" th:action="@{/learning/jlpt/resume}">
+            <button type="submit" class="jp-btn jp-btn--primary">Học tiếp</button>
+            <a class="jp-btn" th:href="@{/learning}">Để sau</a>
+        </form>
+    </section>
+</main>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

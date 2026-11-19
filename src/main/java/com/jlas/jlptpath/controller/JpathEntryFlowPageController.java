@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -42,8 +43,20 @@ public class JpathEntryFlowPageController {
         return "redirect:" + JpathStartRedirect.resolve(startState(pathService.entryStatus(user.userId())));
     }
 
-    /** Resumes the paused path; without one, /learning decides where the learner belongs. */
+    /**
+     * I4 (bug 55): opening the link only shows a "Học tiếp" screen; it never changes the path, so a prefetch or a link
+     * from another page cannot make the path ACTIVE. Without a paused path, /learning decides where the learner belongs.
+     */
     @GetMapping("/learning/jlpt/resume")
+    public String resumePage(@AuthenticationPrincipal UserPrincipal user) {
+        if (pathService.entryStatus(user.userId()).pathStatus() != JpathPathStatus.PAUSED) {
+            return LEARNING;
+        }
+        return "jlptpath/resume";
+    }
+
+    /** Resumes the paused path (button on the resume screen). */
+    @PostMapping("/learning/jlpt/resume")
     public String resume(@AuthenticationPrincipal UserPrincipal user) {
         try {
             pathService.resumePaused(user.userId());
