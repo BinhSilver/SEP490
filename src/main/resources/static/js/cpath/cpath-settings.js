@@ -82,7 +82,7 @@
       + DAYS.map(function (d) { return '<label><input type="checkbox" data-cp-rest="' + d[0] + '"'
         + (draft.restDays.indexOf(d[0]) >= 0 ? ' checked' : '') + '> ' + d[1] + '</label>'; }).join('')
       + '</div></fieldset>'
-      + '<label class="cp-settings__date">Muốn hoàn thành trước ngày <input type="date" data-cp-finish value="' + esc(draft.finishDate) + '"></label>'
+      + '<label class="cp-settings__date">Muốn hoàn thành trước ngày <input type="date" data-cp-finish min="' + (function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() + '" value="' + esc(draft.finishDate) + '"></label>'
       + (calc.remaining > 0
         ? '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến học xong các tình huống '
           + shortDate(calc.date) + ' (' + draft.dailySituations + ' tình huống/ngày học).</p>'

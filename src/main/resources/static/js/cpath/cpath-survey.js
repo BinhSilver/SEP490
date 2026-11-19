@@ -409,7 +409,7 @@
         + '</div>'
         + '<div class="cp-survey__row">'
         + '<label class="cp-survey__label" for="cpFinishDateInput">Hạn muốn hoàn thành (tùy chọn)</label>'
-        + '<input id="cpFinishDateInput" type="date" class="cp-survey__date-input" data-cp-finish-date value="' + esc(state.finishDate || '') + '" />'
+        + '<input id="cpFinishDateInput" type="date" class="cp-survey__date-input" data-cp-finish-date min="' + (function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() + '" value="' + esc(state.finishDate || '') + '" />'
         + '</div>';
     }
 

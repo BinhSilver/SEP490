@@ -209,7 +209,15 @@ public class CpathService {
         // owner 18/11: situations per day follow the survey's free time unless the learner picked a number
         int daily = req.get("dailySituations") != null ? dailyOf(req.get("dailySituations")) : dailyFromSurvey(userId);
         List<Object> rest = req.get("restDays") instanceof List<?> l ? (List<Object>) l : List.of();
+        // bug 12: a finish date before today was stored when the path was created (settings already refused it)
         Object finish = req.get("finishDate");
+        if (finish != null && !finish.toString().isBlank()) {
+            LocalDate wanted;
+            try { wanted = LocalDate.parse(finish.toString()); }
+            catch (RuntimeException e) { throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành không hợp lệ."); }
+            if (wanted.isBefore(clock == null ? LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")) : clock.today(userId)))
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành phải từ hôm nay trở đi.");
+        }
         Long main = mainPathId(userId);
         String requestedRole = str(req.get("role"));
         boolean secondary = "SECONDARY".equals(requestedRole) && main != null;
