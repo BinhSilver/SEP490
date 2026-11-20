@@ -380,6 +380,8 @@ body:has(.jp-tour) .jp-report-fab { display: none; }
   border: 1px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line)); border-radius: var(--jp-radius-panel, 14px);
   background: color-mix(in srgb, var(--jp-primary) 8%, var(--jp-surface));
 }
+/* a grid page (.jp-ws 3 columns) puts the box in its first cell and leaves the rest of the row empty: span the whole row */
+.jp-premium-box { grid-column: 1 / -1; }
 .jp-premium-box > div { flex: 1 1 240px; }
 .jp-premium-box__title { margin: 0 0 4px; font-weight: 700; }
 .jp-premium-box__text { margin: 0; color: var(--jp-muted); }
