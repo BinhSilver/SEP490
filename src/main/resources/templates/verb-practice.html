@@ -7,6 +7,10 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}" /><link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
     <link rel="stylesheet" th:href="@{/css/base.css(v=20261119-compact)}" /><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}" />
     <link rel="stylesheet" th:href="@{/css/pages/verb-practice.css?v=20261119-compact}" />
+    <link rel="stylesheet" th:href="@{/css/components/toast.css(v=20261011-mobile-toast)}" />
+    <link rel="stylesheet" th:href="@{/css/components/learning-report.css(v=20261120-report-fix)}" />
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/components/learning-report.js(v=20261120-report-fix)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
     <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261119-compact)}" />
@@ -57,7 +61,7 @@
         <div class="vp-play-top"><button type="button" id="vpExit" class="vp-back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kết thúc vòng</button><span id="vpPlayTitle" class="vp-soft-label">Tự nhập đáp án</span><span id="vpTimer" class="vp-timer" hidden><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> <b>60</b>s</span></div>
         <div class="vp-session-progress"><div><span id="vpQuestionCount">Lượt 1 / 10</span><span id="vpSessionCorrect">0 đúng</span></div><div class="vp-progress-track"><i id="vpProgressBar"></i></div></div>
         <article class="vp-card vp-question-card">
-            <div class="vp-question-meta"><span id="vpQuestionGroup" class="vp-soft-label"></span><span id="vpChainHint" class="vp-muted"></span></div>
+            <div class="vp-question-meta"><span id="vpQuestionGroup" class="vp-soft-label"></span><span id="vpChainHint" class="vp-muted"></span><span id="vpReport"></span></div>
             <div class="vp-question-center"><p class="vp-question-instruction">Chia động từ sang <strong id="vpTargetForm"></strong></p><h2 id="vpWord" lang="ja" tabindex="-1"></h2><p id="vpReading" class="vp-reading" lang="ja"></p><p id="vpMeaning" class="vp-meaning"></p></div>
             <div id="vpContext" class="vp-context" hidden><p id="vpSentence" lang="ja"></p><small id="vpTranslation"></small></div>
             <form id="vpAnswerForm" autocomplete="off"><div id="vpChoices" class="vp-choices" role="group" aria-label="Các đáp án" hidden></div><div id="vpTyped"><label class="vp-sr-only" for="vpAnswer">Đáp án bằng tiếng Nhật</label><input id="vpAnswer" type="text" lang="ja" placeholder="Nhập đáp án bằng tiếng Nhật…" maxlength="120" spellcheck="false" autocapitalize="off" /></div><div id="vpAnswerActions" class="vp-answer-actions"><button type="button" id="vpSkip" class="vp-text-button">Bỏ qua câu này</button><button type="submit" id="vpCheck" class="vp-button primary">Kiểm tra <span class="vp-key" aria-hidden="true">↵</span></button></div></form>
@@ -89,6 +93,6 @@
 <dialog id="vpExitDialog" class="vp-dialog" aria-labelledby="vpExitTitle"><figure class="vp-dialog-mascot"><img src="/images/mascots/kitsu/kitsu-resting-30.webp" alt="Kitsu nghỉ một chút" width="112" height="112" /></figure><h2 id="vpExitTitle">Dừng ở đây một chút?</h2><p>Các câu đã trả lời sẽ được lưu vào tiến độ của bạn.</p><div><button type="button" id="vpStay" class="vp-button secondary">Luyện tiếp</button><button type="button" id="vpFinish" class="vp-button primary">Kết thúc &amp; xem kết quả</button></div></dialog>
 </div>
 </main>
-<script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script><script th:src="@{/js/pages/verb-practice.js?v=20261119-compact}"></script>
+<script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script><script th:src="@{/js/pages/verb-practice.js?v=20261120-reports}"></script>
 </body>
 </html>

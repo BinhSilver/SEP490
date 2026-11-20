@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  function reportButton(provider,id,label){return window.LearningReport?window.LearningReport.buttonHtml(provider,id,label):'';}
   var $ = function (id) { return document.getElementById('km-' + id); };
   if (!$('board')) return;
   var model = window.KanjiMapModel;
@@ -344,6 +345,7 @@
       '<p class="km-detail-meaning" id="km-detail-meaning" lang="vi">' + esc(meaning(n)) + '</p>' +
       '<div class="km-detail-badges"><span>' + esc(n.level || 'Chưa xếp cấp') + '</span><span>' + (n.strokeCount || '—') + ' nét</span></div>' +
       (n.radicalNameVi ? '<p class="km-radical-label">Bộ ' + esc(n.radicalNameVi) + ' · số ' + n.radicalNumber + (n.isRadicalVariant ? ' · dạng của <span lang="ja">' + esc(n.radicalBase) + '</span>' : '') + ((n.radicalAliases || []).length ? '<br>Tên khác: ' + n.radicalAliases.map(esc).join(' · ') : '') + '</p>' : '') +
+      '<div class="learning-report-footer">'+reportButton('map-content',n.character,'Báo cáo thông tin chữ')+'</div>'+
       componentDiagramHtml(n.character) +
       (n.isKanji ? '<button type="button" class="km-button km-compare-open" data-action="compare">So sánh với chữ khác</button>' : '') +
       (linked.length ? '<h3>Chữ phát triển từ ' + esc(n.character) + ' · ' + linked.length + ' liên kết</h3><div class="km-linked">' + linked.slice(0, 12).map(function (child) {
@@ -626,4 +628,5 @@
     }
   }
   load();
+  if(window.LearningReport)window.LearningReport.register('map-content',function(character){return state.graph&&state.graph.nodes.has(character)?{targetType:'KANJI_MAP',page:'KANJI_MAP',character:character,label:character+' · '+nameOf(state.graph.nodes.get(character))}:null;});
 })();
