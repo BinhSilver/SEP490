@@ -82,3 +82,7 @@ recovery backups are ignored by Git and must be managed separately from seeds.
 ### Báo lỗi nội dung học [JLAS2-270]
 
 Chạy `sql/migrations/090_learning_content_reports.sql` trước khi dùng nút báo cáo ở JLPT, luyện chia thể và Lược đồ. Script chỉ tạo hàng đợi báo cáo, không sửa hoặc ẩn nội dung học.
+
+### Dictionary contribution comment reports [JLAS-W0250]
+
+Run `sql/migrations/091_dictionary_comment_reports.sql` on existing databases before starting the updated application. Fresh databases receive the same table from `jlas_schema.sql`. Earlier dictionary reports have no per-reporter records to backfill.
