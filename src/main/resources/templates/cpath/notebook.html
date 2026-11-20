@@ -22,8 +22,11 @@
                 <a class="jp-sidenav__link" th:href="@{/learning/comm/day}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
                 </a>
-                <a class="jp-sidenav__link" th:href="@{/learning/comm/survey}">
-                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Thêm mục tiêu phụ
+                <a class="jp-sidenav__link" href="/learning/comm/settings" th:href="@{/learning/comm/settings}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Cài đặt lộ trình
+                </a>
+                <a class="jp-sidenav__link" href="/learning/comm/path?tour=1" th:href="@{/learning/comm/path(tour=1)}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-lightbulb"/></svg> Xem hướng dẫn
                 </a>
                 <a class="jp-sidenav__link" th:href="@{/learning/comm/notebook}" aria-current="page">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
@@ -37,13 +40,14 @@
             <p class="jp-side__note">Các từ có trong từ điển cũng được lưu vào sổ <strong>Lộ trình học</strong> trong
                 <a href="/learning/notebook">Sổ tay của tôi</a>, chung với từ của lộ trình JLPT.</p>
             <div id="cpathNotebookRoot" aria-live="polite">
-                <p class="jp-status" role="status">Đang tải sổ tay…</p>
+                <p class="jp-status jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải sổ tay…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
         </div>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/cpath/cpath-audio.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-situation.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/cpath/cpath-notebook.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

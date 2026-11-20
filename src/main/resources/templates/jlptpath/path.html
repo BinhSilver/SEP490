@@ -23,25 +23,33 @@
                 <a class="jp-sidenav__link" href="/learning/jlpt/notebook"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay</a>
                 <a class="jp-sidenav__link" href="/learning/jlpt/confusables"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-git-compare-arrows"/></svg> Phân biệt dễ nhầm</a>
                 <a class="jp-sidenav__link" href="/learning/jlpt/settings"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Cài đặt lộ trình</a>
+                <a class="jp-sidenav__link" href="/learning?tour=1"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-lightbulb"/></svg> Xem hướng dẫn</a>
             </nav>
             <div data-jpath-extra-links class="jp-path__extra"></div>
         </aside>
         <div class="jp-ws__main jp-path__main">
             <div class="jp-path__hero" data-region="hero">
-                <p class="jp-path__loading" role="status">Đang tải lộ trình…</p>
+                <p class="jp-path__loading jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải lộ trình…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
-            <section class="jp-path__today" data-slot="today"></section>
-            <a class="jp-btn" style="justify-self:start" href="/learning/jlpt/settings#jp-settings-schedule-title">Đổi nhịp học và ngày nghỉ</a>
-            <section class="jp-path__warmup" data-slot="warmup" hidden></section>
-            <section class="jp-path__warmup" data-slot="week-skip" hidden></section>
-            <div class="jp-path__stage" data-region="stage"></div>
-            <details class="jp-path__pace" data-part="pace">
-                <summary class="jp-path__pace-head">Điều chỉnh nhịp học</summary>
-                <div class="jp-path__slider" data-slot="slider"></div>
-            </details>
-            <div class="jp-path__tabpart">
+            <section class="jp-path__today" data-slot="today" data-mode-part="today"></section>
+            <section class="jp-path__warmup" data-slot="warmup" data-mode-part="today" hidden></section>
+            <!-- owner 17/11: one row of tool buttons; a button opens its one full-width panel below (the other closes) -->
+            <div class="jp-tools" data-jp-tools data-mode-part="today">
+                <div class="jp-tools__bar" role="group" aria-label="Công cụ lộ trình">
+                    <button type="button" class="jp-tools__chip" data-tool="pace" aria-expanded="false" aria-controls="jpToolPace">Nhịp học và ngày nghỉ</button>
+                    <button type="button" class="jp-tools__chip" data-tool="skip" aria-expanded="false" aria-controls="jpToolSkip" hidden>Đã biết trước? Kiểm tra để bỏ qua <span class="jp-tools__count" data-tool-count></span></button>
+                </div>
+                <div class="jp-tools__panel" id="jpToolPace" data-tool-panel="pace" hidden>
+                    <div class="jp-path__slider" data-slot="slider"></div>
+                    <p class="jp-tools__more"><a href="/learning/jlpt/settings#jp-settings-schedule-title">Đổi ngày học, ngày nghỉ và ngày thi trong Cài đặt lộ trình</a></p>
+                </div>
+                <section class="jp-tools__panel jp-path__warmup" id="jpToolSkip" data-tool-panel="skip" data-slot="week-skip" hidden></section>
+            </div>
+            <div class="jp-path__stage" data-region="stage" data-mode-part="free"></div>
+            <div class="jp-path__tabpart" data-mode-part="free">
                 <div class="jp-path__tabs" data-region="tabs"></div>
                 <div class="jp-path__numbers" id="jp-tab-panel" role="tabpanel" data-region="numbers"></div>
+                <section class="jp-path__kstage" data-slot="kana-stage" hidden></section>
                 <section class="jp-path__parts" data-slot="parts" aria-live="polite"></section>
                 <section class="jp-path__list" data-slot="list"></section>
             </div>
@@ -51,6 +59,7 @@
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-path-controls.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-mode.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
@@ -59,6 +68,7 @@
 <script th:src="@{/js/jlptpath/jpath-kana-table.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-lists.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-parts.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-kana-stage.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-warmup.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-week-skip.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-tour.js(v=${jpathAssetVersion})}"></script>

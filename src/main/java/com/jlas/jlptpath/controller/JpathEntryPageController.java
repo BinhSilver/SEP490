@@ -30,7 +30,10 @@ public class JpathEntryPageController {
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String q,
             Model model) {
-        switch (router.route(user == null ? null : user.userId())) {
+        if (user == null) {
+            return "redirect:/login"; // I21: no learning page for a guest
+        }
+        switch (router.route(user.userId())) {
             case JPATH_START:
                 return "redirect:/learning/jlpt/start";
             case COMM:

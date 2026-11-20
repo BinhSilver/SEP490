@@ -4,7 +4,8 @@
  *   - <main data-jpath-wordbank="KNOWN|NOTEBOOK">: tabs Từ vựng / Kanji; GET /api/learning/jlpt/known|notebook?tab=&page=
  *     (0-based pages of the server's size). Each row has Báo sai (data-jpath-report, pageContext KNOWN_LIST /
  *     NOTEBOOK_LIST) and Luyện viết (data-jpath-writing); the notebook adds "Bỏ khỏi sổ tay" → DELETE
- *     /items/{type}/{code}/notebook. 'jpath:rendered' is sent after each draw so the report and writing modules bind.
+ *     /items/{type}/{code}/notebook; a row imported from a Smart Test says so (notebookSource SMART_TEST). The notebook's
+ *     "Ôn sổ tay" button starts POST /checks FREE_QUIZ (source NOTEBOOK) on the open tab. 'jpath:rendered' is sent after each draw so the report and writing modules bind.
  */
 (function (root, factory) {
   'use strict';
@@ -20,6 +21,7 @@
 
   var BASE = '/api/learning/jlpt';
   var CONTEXT = { KNOWN: 'KNOWN_LIST', NOTEBOOK: 'NOTEBOOK_LIST' };
+  var SOURCE_LABEL = { SMART_TEST: 'Từ Smart Test' };
   var EMPTY = { KNOWN: 'Chưa có mục nào bạn đã biết ở tab này.', NOTEBOOK: 'Sổ tay đang trống ở tab này.' };
 
   function esc(s) {
@@ -50,13 +52,22 @@
     return '<li class="jp-bank-row" data-jpath-report="' + attrJson(report) + '">'
       + '<span class="jp-bank-row__word"><strong lang="ja"' + (type === 'KANJI' ? ' class="jp-kanji"' : '') + '>'
       + esc(r.expression) + '</strong>' + (r.reading ? ' <span lang="ja">' + esc(r.reading) + '</span>' : '') + '</span>'
-      + '<span class="jp-bank-row__meaning">' + esc(r.meaning) + '</span>'
+      + '<span class="jp-bank-row__meaning">' + esc(r.meaning)
+      + (page === 'NOTEBOOK' && SOURCE_LABEL[r.notebookSource] ? ' <span class="jp-side__note">· '
+        + esc(SOURCE_LABEL[r.notebookSource]) + '</span>' : '') + '</span>'
       + '<span class="jp-bank-row__actions">'
       + (writable ? '<button type="button" class="jp-side-btn jp-side-btn--small" data-jpath-writing="'
         + attrJson({ itemType: type, code: r.code }) + '">Luyện viết</button>' : '')
       + (page === 'NOTEBOOK' ? '<button type="button" class="jp-side-btn jp-side-btn--small" data-remove="'
         + esc(r.code) + '" data-type="' + esc(type) + '">Bỏ khỏi sổ tay</button>' : '')
       + '</span></li>';
+  }
+
+  /** FREE_QUIZ request on the notebook rows of {@code tab} (grammar has no direction). */
+  function reviewRequest(tab) {
+    var grammar = tab === 'GRAMMAR';
+    return { kind: 'FREE_QUIZ', tab: tab, level: null, topicKey: null, source: 'NOTEBOOK', count: 10,
+      direction: grammar ? null : 'MIXED', timerOn: false };
   }
 
   var mounted = false;
@@ -75,11 +86,18 @@
     var state = { tab: 'VOCAB', page: 0 };
     var items = [];
 
+    // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
+    function foldSearch(v) {
+      var s = String(v == null ? '' : v);
+      if (typeof s.normalize === 'function') s = s.normalize('NFKC');
+      return s.trim().toLocaleLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    }
+
     function draw() {
-      var term = (search.value || '').trim().toLocaleLowerCase();
+      var term = foldSearch(search.value);
       var visible = items.filter(function (r) {
         return !term || [r.expression, r.reading, r.meaning].some(function (v) {
-          return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+          return foldSearch(v).indexOf(term) >= 0;
         });
       });
       list.innerHTML = visible.map(function (r) { return rowMarkup(r, kind); }).join('');
@@ -102,12 +120,14 @@
         status.textContent = items.length ? (Number(p.total) || items.length) + ' mục' : EMPTY[kind];
         var summary = main.querySelector('[data-role="summary"]');
         if (summary) summary.textContent = (Number(p.total) || items.length) + (kind === 'NOTEBOOK' ? ' mục trong sổ tay' : ' mục đã biết');
+        var review = main.querySelector('[data-role="review"]');
+        if (review) { review.hidden = !items.length; review.disabled = false; }
         pager.hidden = ps.pages <= 1;
         pager.querySelector('[data-page="prev"]').disabled = !ps.hasPrev;
         pager.querySelector('[data-page="next"]').disabled = !ps.hasNext;
         pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (ps.page + 1) + '/' + ps.pages;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được danh sách.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được danh sách.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -116,6 +136,20 @@
       if (tab) { state.tab = tab.getAttribute('data-tab'); state.page = 0; search.value = ''; load(); return; }
       var pg = t.closest('[data-page]');
       if (pg) { state.page += pg.getAttribute('data-page') === 'next' ? 1 : -1; state.page = Math.max(0, state.page); load(); return; }
+      var rv = t.closest('[data-role="review"]');
+      if (rv) {
+        rv.disabled = true;
+        api.send('POST', BASE + '/checks', reviewRequest(state.tab)).then(function (res) {
+          var token = res && res.checkToken;
+          if (token && root.location) root.location.href = '/learning/jlpt/check/' + encodeURIComponent(token)
+            + '?return=' + encodeURIComponent('/learning/jlpt/notebook');
+          else rv.disabled = false;
+        }, function (err) {
+          rv.disabled = false;
+          status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa tạo được bài ôn.';
+        });
+        return;
+      }
       var rm = t.closest('[data-remove]');
       if (rm) {
         rm.disabled = true;
@@ -125,7 +159,7 @@
           return load();
         }, function (err) {
           rm.disabled = false;
-          status.textContent = (err && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
+          status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa bỏ được mục này khỏi sổ tay.';
         });
       }
     });
@@ -133,5 +167,5 @@
     load();
   }
 
-  return { rowMarkup: rowMarkup, pagerState: pagerState, mount: mount };
+  return { rowMarkup: rowMarkup, pagerState: pagerState, reviewRequest: reviewRequest, mount: mount };
 });

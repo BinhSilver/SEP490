@@ -64,10 +64,26 @@ public class CpathController {
     @Autowired(required = false)
     private PremiumAccess premium;
 
+    @Autowired
+    private CpathFlashcardService flashcardService;
+
+    /** Owner 18/11: the situation's flashcard set ("Đã nhớ x/y"); POST makes it. */
+    @GetMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> flashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, false)));
+    }
+
+    @PostMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> openFlashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, true)));
+    }
+
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
-    private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
+    private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/goals/pause-for-jlpt", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
-            "/notebook", "/day");
+            "/notebook", "/day", "/today/plan");
 
     private boolean locked(Long userId) {
         if (premium == null || userId == null || ContentReviewAccess.allowed(userId)) return false;
@@ -97,6 +113,18 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> create(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", service.createPath(user.userId(), body)));
+    }
+
+    /** Owner 17/11: main goal, secondary goal and paused paths of both paths, for every goal panel and message. */
+    @GetMapping("/goals/overview")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> goalsOverview(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.goalsOverview(user.userId())));
+    }
+
+    /** Owner 17/11: main goal switched to JLPT → communication paths pause (progress kept). */
+    @PostMapping("/goals/pause-for-jlpt")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> pauseForJlpt(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp. Tiến độ được giữ nguyên.", service.pauseForJlptMain(user.userId())));
     }
 
     @GetMapping("/path")
@@ -359,6 +387,18 @@ public class CpathController {
     // ------------------------------------------------------------------------------------- F70 base set
 
     /** The base-set block of the path page and Settings (enabled false when the goal or the DB has none). */
+    /** Bug 108 (I4): plans today (situations, base lesson); the pages send it before reading, GETs never write. */
+    @PostMapping("/today/plan")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> planToday(@AuthenticationPrincipal UserPrincipal user) {
+        Map<String, Object> out = service.planToday(user.userId());
+        try {
+            core.planDay(user.userId());
+        } catch (ApiException e) {
+            // no MAIN communication path (secondary only): the situations are planned, there is no base lesson
+        }
+        return ResponseEntity.ok(ApiResponse.ok("OK", out));
+    }
+
     @GetMapping("/core")
     public ResponseEntity<ApiResponse<Map<String, Object>>> core(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", core.overview(user.userId())));

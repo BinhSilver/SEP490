@@ -14,11 +14,12 @@
         <th:block th:replace="~{jlptpath/fragments/jpath :: sidenav('/learning/jlpt/history')}"></th:block>
     </aside>
     <div class="jp-ws__main">
-        <div id="jpathDayRoot" aria-live="polite"><p class="jp-status" role="status">Đang tải…</p></div>
+        <div id="jpathDayRoot" aria-live="polite"><p class="jp-status jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p></div>
     </div>
 </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlptpath/jpath-revisit.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-day.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

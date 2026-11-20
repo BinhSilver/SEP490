@@ -20,7 +20,7 @@
         </header>
 
         <p class="jp-settings__alert" role="alert" data-role="error" hidden></p>
-        <p class="jp-settings__loading" role="status" data-role="loading">Đang tải cài đặt…</p>
+        <p class="jp-settings__loading jp-skel jp-skel--form" role="status" data-role="loading" aria-busy="true"><span class="jp-skel__sr">Đang tải cài đặt…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
 
         <div class="jp-settings__content" data-role="content" hidden>
             <section class="jp-card" data-block="target" aria-labelledby="jp-settings-target-title">
@@ -150,6 +150,7 @@
                 </div>
             </section>
 
+            <div data-jpath-goals></div>
             <section class="jp-card jp-settings-change" data-block="change" aria-labelledby="jp-settings-change-title">
                 <h2 class="jp-settings-card__title" id="jp-settings-change-title">Mục tiêu và quản lý lộ trình</h2>
                 <p class="jp-settings-muted">Đổi cấp, đổi mục tiêu (tạm dừng JLPT, giữ tiến độ) hoặc bắt đầu lại từ đầu.</p>
@@ -191,6 +192,7 @@
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-day-picker.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-goals.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-settings.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

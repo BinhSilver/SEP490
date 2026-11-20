@@ -15,13 +15,14 @@
         <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
         <div class="jp-ws__main">
             <div id="cpathWeeklyRoot" class="jp-check-page" aria-live="polite">
-                <p class="jp-status" role="status">Đang tải bài kiểm tra tuần…</p>
+                <p class="jp-status jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài kiểm tra tuần…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
             </div>
         </div>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/cpath/cpath-audio.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-situation.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/cpath/cpath-weekly.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>

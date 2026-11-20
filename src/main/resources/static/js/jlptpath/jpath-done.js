@@ -73,6 +73,8 @@
           return '<li lang="ja">' + esc(w.expression || w.code) + '</li>';
         }).join('') + '</ul></div>';
     }
+    // owner 17/11: learn the day again / redo a check / history, right here (jpath-revisit.js)
+    if (s.day && s.kind !== 'SKILL') html += '<div data-jpath-revisit="' + esc(s.day) + '"></div>';
     html += '<p class="jp-done__label">Tiếp theo</p><div class="jp-done__actions">'
       + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>'
       + '<a class="jp-btn" href="/learning/jlpt/day' + (s.day ? '?d=' + esc(s.day) : '') + '">Xem chi tiết ngày</a>'
@@ -123,7 +125,7 @@
 
     function load() {
       el.setAttribute('aria-busy', 'true');
-      el.innerHTML = '<p class="jp-status" role="status">Đang tải…</p>';
+      el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
       return api.get(BASE + '/today/summary').then(function (summary) {
         el.innerHTML = summaryHtml(summary);
         el.setAttribute('aria-busy', 'false');
@@ -159,7 +161,7 @@
             }, function () { /* the message stays */ });
             return;
           }
-          status((err && err.message) || MSG_EXTRA_FAILED);
+          status((err && (err.code || err.status) && err.message) || MSG_EXTRA_FAILED);
         });
         return;
       }

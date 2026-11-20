@@ -25,6 +25,9 @@
                 <a class="jp-sidenav__link" th:href="@{/learning/comm/day}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
                 </a>
+                <a class="jp-sidenav__link" href="/learning/comm/path?tour=1" th:href="@{/learning/comm/path(tour=1)}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-lightbulb"/></svg> Xem hướng dẫn
+                </a>
                 <a class="jp-sidenav__link" th:href="@{/learning/comm/notebook}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
                 </a>
@@ -32,7 +35,7 @@
         </aside>
         <div class="jp-ws__main">
             <div id="cpathCoreRoot" aria-live="polite">
-                <p class="jp-status" role="status">Đang tải bài nền…</p>
+                <p class="jp-status jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài nền…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
         </div>
     </div>

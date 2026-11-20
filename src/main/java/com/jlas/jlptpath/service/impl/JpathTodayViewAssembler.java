@@ -159,7 +159,7 @@ public class JpathTodayViewAssembler {
         JpathUserLevel open = openLevel(path);
         JpathDayRules.DayPlan day = JpathDayRules.dayPlan(content, calendar, plans, path, open, today);
         List<JpathDailyTab> tabRows = JpathDayRules.tabRows(day.kind(), day.kanaPhase(), path.isKanaTab(),
-                path.getStudyMode(), open, path.getDailyMinutes());
+                path.getStudyMode(), open, path.getDailyMinutes(), JpathDayRules.kanaRows(path, today));
         int remaining = tabRows.stream()
                 .filter(t -> t.getTab() == tab).findFirst().map(JpathDailyTab::getNewTarget).orElse(0);
         int kanaRemaining = day.kanaPhase() && tab == JpathTab.VOCAB

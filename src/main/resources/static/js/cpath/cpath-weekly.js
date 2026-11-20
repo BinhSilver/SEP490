@@ -74,10 +74,11 @@
       + '<p class="jp-check__dir">Chọn nghĩa đúng</p>'
       + '<div class="jp-check__prompt"><p id="cpWeeklyQ" class="jp-check__text--mid" lang="ja">' + esc(q.ja) + '</p>'
       + (q.reading && q.reading !== q.ja ? '<p class="jp-check__furi" lang="ja">' + esc(q.reading) + '</p>' : '')
+      + (SHOW_RO ? ro(q.reading || q.ja) : '')
       + (q.audioUrl ? '<button type="button" class="jp-speak-btn" data-weekly-play aria-label="Nghe phát âm" title="Nghe phát âm">' + SPEAKER + '</button>' : '')
       + '</div>'
       + '<div class="jp-check__opts">' + opts + '</div>'
-      + (i > 0 ? '<p><button type="button" class="jp-btn" data-weekly-prev>‹ Câu trước</button></p>' : '')
+      + (i > 0 ? '<p><button type="button" class="jp-btn" data-weekly-prev>Câu trước</button></p>' : '')
       + '</section>';
   }
 
@@ -122,7 +123,7 @@
       var picked = !x.correct && opts && pickedIdx != null && opts[pickedIdx] != null
         ? '<div class="jp-review__picked">Bạn chọn: <span class="jp-bad">' + esc(opts[pickedIdx]) + '</span></div>' : '';
       return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '"><div><span lang="ja">' + esc(x.ja)
-        + '</span> · ' + esc(x.answer) + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>' + picked + aiSlot + '</li>';
+        + '</span> · ' + esc(x.answer) + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>' + ro(x.reading || x.ja) + picked + aiSlot + '</li>';
     }).join('');
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
@@ -198,7 +199,7 @@
         if (h && h.focus) h.focus();
       }, function (e) {
         // F110: keep the answers; show the server's reason and let the learner send the same answers again
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa chấm được bài. Thử lại sau.') + '</p>'
+        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa chấm được bài. Thử lại sau.') + '</p>'
           + '<p><button type="button" class="jp-btn" data-weekly-resubmit>Gửi lại bài</button> '
           + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></p>';
       });
@@ -225,13 +226,14 @@
           + '<p>Phần Nói đã chấm ' + esc(r.updated) + ' câu. Câu dưới 70 vào Sổ tay; câu đạt từ 70 được bỏ khỏi Sổ tay.</p>';
       }).catch(function (e) {
         el.innerHTML = (state.speechOnly ? '<h2>Ôn câu nói</h2>' : resultHtml(state.result, state.data && state.data.questions, state.answers))
-          + '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Không chấm được phần Nói.') + '</p>';
+          + '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Không chấm được phần Nói.') + '</p>';
       });
     }
     function load() {
       return Promise.resolve(client.get(BASE)).then(function (d) {
         state.data = d || {};
         if (root.CpathAudio) root.CpathAudio.fromDisplay(state.data.display); // F70: listening speed
+        SHOW_RO = !!(state.data.display && (state.data.display.romaji || state.data.display.fullRomaji));
         state.i = 0;
         state.answers = {};
         state.speechOnly = false;
@@ -262,7 +264,7 @@
         }
         show();
       }, function (e) {
-        el.innerHTML = infoHtml(e && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
+        el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
       });
     }
 
@@ -328,11 +330,20 @@
           else el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
         }, function (e) {
           state.picking = false;
-          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
         });
     });
     return load();
   }
+
+
+  // owner 17/11: romaji wherever Japanese is shown (Hepburn from the reading, same converter as the situation page)
+  function ro(text) {
+    var S = root && root.CpathSituation;
+    var r = S && typeof S.toRomaji === 'function' ? S.toRomaji(text || '') : '';
+    return r ? '<span class="cp-romaji">' + esc(r) + '</span>' : '';
+  }
+  var SHOW_RO = false;
 
   // F195 (L11): furigana text "{漢字|かんじ}" or "漢字(かんじ)" → ruby when the learner shows furigana, plain text otherwise
   function ruby(text, show) {
@@ -369,7 +380,7 @@
           correctAnswer: x.answer
         })) + '"></div>' : '';
       return '<li class="jp-review__row' + (x.correct ? '' : ' jp-review__row--picked') + '">'
-        + '<div><span lang="ja">' + esc(x.ja) + '</span>' + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>'
+        + '<div><span lang="ja">' + esc(x.ja) + '</span>' + (x.correct ? '' : ' <strong>(sai)</strong>') + '</div>' + ro(x.ja)
         + (x.correct ? '<div class="jp-review__picked">Đáp: <span lang="ja">' + esc(x.answer) + '</span></div>'
           : (picked ? '<div class="jp-review__picked">Bạn chọn: <span class="jp-bad" lang="ja">' + esc(picked) + '</span></div>' : '')
             + '<div class="jp-review__picked">Đáp án: <strong lang="ja">' + esc(x.answer) + '</strong></div>')
@@ -448,19 +459,20 @@
           + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></div></section>';
         var head = el.querySelector('#cpRoleplayResult');
         if (head && head.focus) head.focus();
-      }).catch(function (e) { state.busy = false; error(e && e.message || 'Chưa chấm được bài.'); });
+      }).catch(function (e) { state.busy = false; error(e && (e.code || e.status) && e.message || 'Chưa chấm được bài.'); });
     }
     function load() {
       state.index = 0; state.answers = {}; state.clips = [];
-      el.innerHTML = '<p class="jp-status" role="status">Đang tải bài nhập vai…</p>';
+      el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài nhập vai…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
       client.get(base).then(function (data) {
         if (!data || !data.open) { error('Bài kiểm tra chưa đến giờ làm lại hoặc đã đạt.'); return; }
         state.questions = data.questions || [];
         state.goal = data.goal || '';
         state.furigana = !data.display || data.display.furigana !== false;
+        SHOW_RO = !!(data.display && (data.display.romaji || data.display.fullRomaji));
         if (!state.questions.length) { error('Chưa có câu thoại để luyện nhập vai.'); return; }
         render();
-      }).catch(function (e) { error(e && e.message || 'Chưa tải được bài nhập vai.'); });
+      }).catch(function (e) { error(e && (e.code || e.status) && e.message || 'Chưa tải được bài nhập vai.'); });
     }
     el.addEventListener('click', function (ev) {
       var target = ev.target;
@@ -494,7 +506,7 @@
         }, function (err) {
           state.picking = false;
           render();
-          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
+          el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && (err.code || err.status) && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
         });
         return;
       }

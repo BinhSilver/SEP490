@@ -151,6 +151,9 @@ public class JpathCheckEffects {
                     advance = true;
                 } else {
                     rows.forEach(items::count);
+                    // owner 18/11: a kana answered wrong goes to the daily review (due today, streak 0), not the notebook
+                    rows.stream().filter(r -> s.wrongCodes().contains(r.getItemCode()))
+                            .forEach(r -> items.wrongInCheck(r, JpathNotebookSource.QUIZ));
                     boolean deferKana = hasRemainingKanaSteps(session, set.getToken());
                     cp = kanaRowDone(userId, today, tabs, s.tooFast(), deferKana);
                     credit = today != null && !deferKana;
@@ -262,6 +265,23 @@ public class JpathCheckEffects {
                 items.markKnown(row, TOPIC_CHECK);
                 items.count(row);
             }
+        }
+        if (type == JpathItemType.KANA) {
+            for (String code : s.wrongCodes()) {
+                // the table is skipped, so the kana counts; the wrong one still comes back in the daily review
+                JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                items.count(row);
+                items.wrongInCheck(row, JpathNotebookSource.QUIZ);
+            }
+            // owner 18/11: passing the skip test of a table skips the whole table — the kana not asked count as known
+            for (String code : s.pendingCodes()) {
+                JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                if (row.getCountedAt() == null) {
+                    items.markKnown(row, TOPIC_CHECK);
+                    items.count(row);
+                }
+            }
+            return;
         }
         for (String code : s.pendingCodes()) {
             if (userItems.findByUserIdAndItemTypeAndItemCode(userId, type, code).isPresent()) {

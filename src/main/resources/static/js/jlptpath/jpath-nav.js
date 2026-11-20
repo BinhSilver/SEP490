@@ -373,3 +373,68 @@
     carouselHtml: carouselHtml, mount: mount
   };
 });
+
+/* [JLAS-W0108] Owner 17/11: an information notice (.jp-band or role="note") shows once and has a close button, on
+ * every JLPT and communication path page. Seen/closed notices are remembered per browser (a convenience only, so a
+ * blocked storage just shows them again). Alerts (role="alert") and errors are never touched. */
+(function (root) {
+  'use strict';
+  if (!root || !root.document) return;
+  var doc = root.document;
+  /** Bug 58: per-user storage key, so a shared computer never hands one learner's state to another. */
+  function uidPart() {
+    try {
+      var auth = root && root.JlasAuth;
+      var u = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+      return u && (u.id || u.userId) ? String(u.id || u.userId) : 'me';
+    } catch (e) { return 'me'; }
+  }
+  var KEY = 'jpathNoticesSeen';
+  function load() { try { return JSON.parse(root.localStorage.getItem(KEY + ':' + uidPart()) || '{}') || {}; } catch (e) { return {}; } }
+  function save(map) { try { root.localStorage.setItem(KEY + ':' + uidPart(), JSON.stringify(map)); } catch (e) { /* storage off */ } }
+  function idOf(el) {
+    if (el.getAttribute('data-notice-id')) return el.getAttribute('data-notice-id');
+    var s = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    var h = 0;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return 'n' + (h >>> 0).toString(36);
+  }
+  function enhance(scope) {
+    var seen = load();
+    var changed = false;
+    var base = scope || doc;
+    if (!base || typeof base.querySelectorAll !== 'function') return;
+    var list = base.querySelectorAll('.jp-band, [role="note"]');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (el.hasAttribute('data-notice-ready') || el.closest('[role="alert"], .jp-alert, [data-notice-keep]')) continue;
+      if (!(el.textContent || '').trim()) continue;
+      el.setAttribute('data-notice-ready', '');
+      var id = idOf(el);
+      if (seen[id]) { el.hidden = true; continue; }
+      seen[id] = 1; changed = true; // shown once: next visit it stays hidden
+      el.classList.add('jp-notice--closable');
+      var btn = doc.createElement('button');
+      btn.type = 'button';
+      btn.className = 'jp-notice__close';
+      btn.setAttribute('aria-label', 'Tắt thông báo');
+      btn.textContent = '×';
+      btn.addEventListener('click', function (ev) { var box = ev.currentTarget.parentNode; if (box) box.hidden = true; });
+      el.appendChild(btn);
+    }
+    if (changed) save(seen);
+  }
+  function start() {
+    enhance(doc);
+    if (root.MutationObserver && doc.body) {
+      var pending = false;
+      new root.MutationObserver(function () {
+        if (pending) return;
+        pending = true;
+        root.requestAnimationFrame(function () { pending = false; enhance(doc); });
+      }).observe(doc.body || doc, { childList: true, subtree: true });
+    }
+  }
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start); else start();
+  root.JpathNotices = { enhance: enhance };
+})(typeof window !== 'undefined' ? window : null);

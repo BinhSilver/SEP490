@@ -616,6 +616,11 @@
     } else {
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
     }
+    // owner 18/11: every vocab/kanji part can be studied with the team's flashcard (upcoming: set made on press)
+    if (/^(vocab|kanji)$/i.test(String(tabKey || '')) && items.length) {
+      actions += '<button type="button" class="jp-btn jp-btn--sm" data-parts-fc="' + esc(p.index) + '">Học bằng flashcard</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-fc-error></span>';
+    }
 
     return '<div class="jp-parts__popover jp-parts__popover--' + tone + ' jp-parts__popover--side-' + popSide + '"'
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
@@ -1189,7 +1194,7 @@
       var name = tab === 'KANJI' ? 'Kanji' : tab === 'GRAMMAR' ? 'ngữ pháp' : 'từ vựng';
       if (box) {
         box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
-          : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+          : ((e && (e.code || e.status) && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
       }
     });
   }
@@ -1228,7 +1233,7 @@
         var activePartsEl = root.document && root.document.querySelector('[data-slot="parts"]');
         if (activePartsEl && activePartsEl.__selectedKey) adjustPopoverInViewport(activePartsEl);
       };
-      root.addEventListener('scroll', onScrollOrResize, { passive: true });
+      // Owner 18/11: the popover stays beside its node while scrolling — it is only fitted when opened or resized.
       root.addEventListener('resize', onScrollOrResize, { passive: true });
     }
   }
@@ -1369,7 +1374,7 @@
               root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
             }).catch(function (error) {
               extra.disabled = false;
-              if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
+              if (errorBox) errorBox.textContent = error && (error.code || error.status) && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
               if (error && error.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
                 Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', {
                   kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
@@ -1383,6 +1388,29 @@
                 });
               }
             });
+          return;
+        }
+
+        var fcBtn = t.closest('[data-parts-fc]');
+        if (fcBtn) {
+          fcBtn.disabled = true;
+          fcBtn.setAttribute('aria-busy', 'true');
+          fcBtn.textContent = 'Đang mở';
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/flashcards/open?tab=' + encodeURIComponent(TABS[partsEl.__tab][0])
+            + '&part=' + encodeURIComponent(fcBtn.getAttribute('data-parts-fc')))).then(function (set) {
+            if (set && set.url) {
+              root.location.assign(set.url + '&back=' + encodeURIComponent(root.location.pathname + root.location.search));
+              return;
+            }
+            throw new Error('Chưa mở được bộ thẻ, thử lại sau ít phút');
+          }).catch(function (error) {
+            fcBtn.disabled = false;
+            fcBtn.removeAttribute('aria-busy');
+            fcBtn.textContent = 'Thử lại';
+            var pop = fcBtn.closest('[data-parts-popover]');
+            var box = pop && pop.querySelector('[data-parts-fc-error]');
+            if (box) box.textContent = (error && (error.code || error.status) && error.message) || 'Chưa mở được bộ thẻ, thử lại sau ít phút';
+          });
           return;
         }
 
@@ -1403,7 +1431,7 @@
             re.disabled = false;
             var popover = re.closest('[data-parts-popover]');
             var errorBox = popover && popover.querySelector('[data-parts-relearn-error]');
-            if (errorBox) errorBox.textContent = error && error.message || 'Chưa mở được phần học này. Thử lại sau.';
+            if (errorBox) errorBox.textContent = error && (error.code || error.status) && error.message || 'Chưa mở được phần học này. Thử lại sau.';
           });
           return;
         }
@@ -1421,7 +1449,7 @@
       });
     }
 
-    partsEl.innerHTML = '<p class="jp-status" role="status">Đang tải phần học…</p>';
+    partsEl.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải phần học…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
     return Promise.resolve(client.get('/api/learning/jlpt/parts?tab=' + TABS[key][0])).then(function (data) {
       if (partsEl.__seq !== mine) return;
       partsEl.__data = data;

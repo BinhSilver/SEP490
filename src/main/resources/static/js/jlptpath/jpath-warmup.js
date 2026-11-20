@@ -27,7 +27,15 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function key(w) { return 'jpath-warmup:' + w.level + ':' + w.openedOn; }
+  /** Bug 58: per-user storage key, so a shared computer never hands one learner's state to another. */
+  function uidPart() {
+    try {
+      var auth = root && root.JlasAuth;
+      var u = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+      return u && (u.id || u.userId) ? String(u.id || u.userId) : 'me';
+    } catch (e) { return 'me'; }
+  }
+  function key(w) { return 'jpath-warmup:' + uidPart() + ':' + w.level + ':' + w.openedOn; }
   function read(w) {
     try { return JSON.parse(root.localStorage.getItem(key(w)) || '{}') || {}; } catch (e) { return {}; }
   }

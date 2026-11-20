@@ -34,6 +34,7 @@
 
   var RESTART_TEXT = 'BẮT ĐẦU LẠI';
   var DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  var JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
   var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy',
     SUN: 'Chủ nhật' };
   // the server re-plans today only when nothing was learned on it yet and today becomes a study day; a rest or
@@ -238,7 +239,7 @@
         box.scrollIntoView({ block: 'nearest' });
       }
     }
-    function errorText(error) { return error && error.message ? error.message : MSG_FAILED; }
+    function errorText(error) { return error && (error.code || error.status) && error.message ? error.message : MSG_FAILED; }
 
     // ---- fields ----------------------------------------------------------------------------------
 
@@ -254,7 +255,19 @@
         if (input.type === 'checkbox') input.checked = !!value;
         else if (input.type === 'radio') input.checked = input.value === value;
         else input.value = value == null ? '' : String(value);
+        // bug 41: the server takes only an exam date after today and within 3 years; the picker offers the same range
+        if (input.dataset.field === 'examDate') {
+          input.min = isoDay(1, 0);
+          input.max = isoDay(0, 3);
+        }
       });
+    }
+
+    function isoDay(addDays, addYears) {
+      var d = new Date();
+      d.setFullYear(d.getFullYear() + addYears);
+      d.setDate(d.getDate() + addDays);
+      return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     }
 
     function drawOptions() {
@@ -566,7 +579,17 @@
           if (INSTANT[name]) save(name);
         });
         var saveButton = part('save', scope);
-        if (saveButton) saveButton.addEventListener('click', function () { save(name); });
+        if (saveButton) saveButton.addEventListener('click', function () {
+          if (name === 'target' && view.stage === 'PASSED'
+              && JLPT_LEVELS.indexOf(current.targetLevel) > JLPT_LEVELS.indexOf(view.openLevel)) {
+            var nextLevel = JLPT_LEVELS[JLPT_LEVELS.indexOf(view.openLevel) + 1];
+            Promise.resolve(ask('Bạn đã đỗ ' + view.openLevel + '. Mở ' + nextLevel + ' ngay hôm nay?',
+              { confirmText: 'Mở ' + nextLevel, cancelText: 'Hủy', label: 'Mở cấp tiếp theo' }))
+              .then(function (confirmed) { if (confirmed) save(name); });
+            return;
+          }
+          save(name);
+        });
       });
       part('undo-schedule').addEventListener('click', function () {
         if (scheduleUndo) save('schedule', scheduleUndo);
@@ -645,7 +668,7 @@
       return historyRequest.then(function (history) { start(next, history); });
     }, function (error) {
       part('loading').hidden = true;
-      message(el, 'error', error && error.message ? error.message : MSG_LOAD_FAILED);
+      message(el, 'error', error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
     });
   }
 

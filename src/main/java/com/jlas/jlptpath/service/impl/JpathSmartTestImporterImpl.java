@@ -1,5 +1,9 @@
 package com.jlas.jlptpath.service.impl;
 
+import com.jlas.dictionary.entity.GrammarPoint;
+import com.jlas.dictionary.repository.GrammarPointRepository;
+import com.jlas.jlptpath.service.JpathLevelInfo;
+import com.jlas.jlptpath.entity.JpathGrammar;
 import com.jlas.jlptpath.entity.JpathKanji;
 import com.jlas.jlptpath.entity.JpathUserItem;
 import com.jlas.jlptpath.entity.JpathVocabulary;
@@ -11,11 +15,16 @@ import com.jlas.jlptpath.repository.JpathUserItemRepository;
 import com.jlas.jlptpath.repository.JpathVocabularyRepository;
 import com.jlas.jlptpath.service.JpathCatalogService;
 import com.jlas.jlptpath.service.JpathSmartTestImporter;
+import com.jlas.jlptpath.util.JpathGrammarKey;
 import com.jlas.jlptpath.util.JpathKanaText;
 import com.jlas.learning.dto.WeaknessEvidence;
 import com.jlas.learning.service.LearningProfileSource;
 import java.util.ArrayList;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,10 +37,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * [JLAS-W0108] Wrong VOCABULARY / KANJI items of a submitted Smart Test → path notebook (source SMART_TEST).
+ * [JLAS-W0108] Wrong VOCABULARY / KANJI / GRAMMAR items of a submitted Smart Test → path notebook (source SMART_TEST).
  * A word maps by its dictionary entry id (smallest code when several), else by the normalized lexeme against
  * {@code normalized_expression} then {@code normalized_reading}, only when exactly one visible word matches. A kanji
- * lexeme must be one codepoint. Only visible, learnable content (catalog statuses, not report-hidden, level released,
+ * lexeme must be one codepoint. A grammar point (owner 20/11) maps by {@link JpathGrammarKey} of its pattern against the
+ * pattern, family key and variants of the learnable main patterns: the question's own level first, else any released
+ * level, only when exactly one pattern matches. Only visible, learnable content (catalog statuses, not report-hidden, level released,
  * {@link JpathContentReader#learnable}) counts;
  * items the learner already has a row for are left alone. A non-SUBMITTED attempt keeps the source's CONFLICT.
  */
@@ -49,11 +60,13 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
     private final JpathCatalogService catalog;
     private final JpathItemStateMachine stateMachine;
     private final JpathContentReader content;
+    private final GrammarPointRepository grammarPoints;
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     public JpathSmartTestImporterImpl(LearningProfileSource profiles, JpathVocabularyRepository vocabulary,
                                       JpathKanjiRepository kanji, JpathUserItemRepository items,
                                       JpathCatalogService catalog, JpathItemStateMachine stateMachine,
-                                      JpathContentReader content) {
+                                      JpathContentReader content, GrammarPointRepository grammarPoints) {
         this.profiles = profiles;
         this.vocabulary = vocabulary;
         this.kanji = kanji;
@@ -61,6 +74,7 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
         this.catalog = catalog;
         this.stateMachine = stateMachine;
         this.content = content;
+        this.grammarPoints = grammarPoints;
     }
 
     @Override
@@ -89,6 +103,7 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
         Set<String> vocabLexemes = new LinkedHashSet<>();
         Set<String> kanjiChars = new LinkedHashSet<>();
         List<VocabMiss> vocabMisses = new ArrayList<>();
+        Map<Long, String> grammarMisses = new LinkedHashMap<>();
         for (WeaknessEvidence w : profiles.loadForUser(userId, attemptId).weaknesses()) {
             if (w.wrongCount() < 1 || w.canonicalId() == null || w.canonicalId().contains(UNMAPPED)) {
                 continue;
@@ -104,6 +119,10 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
                     entryIds.add(w.vocabularyEntryId());
                 }
                 vocabLexemes.add(normalized);
+            } else if (WeaknessEvidence.SKILL_GRAMMAR.equals(w.skill())) {
+                if (w.grammarPointId() != null) {
+                    grammarMisses.putIfAbsent(w.grammarPointId(), w.jlptLevel());
+                }
             } else if (WeaknessEvidence.SKILL_KANJI.equals(w.skill())) {
                 String lexeme = strip(w.canonicalId(), List.of(KANJI_PREFIX));
                 if (lexeme != null && lexeme.codePointCount(0, lexeme.length()) == 1) {
@@ -115,6 +134,7 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
         Map<JpathItemType, Map<String, String>> out = new LinkedHashMap<>();
         out.put(JpathItemType.VOCAB, mapVocab(vocabMisses, entryIds, vocabLexemes));
         out.put(JpathItemType.KANJI, mapKanji(kanjiChars));
+        out.put(JpathItemType.GRAMMAR, mapGrammar(grammarMisses));
         for (Map.Entry<JpathItemType, Map<String, String>> e : out.entrySet()) {
             if (e.getValue().isEmpty()) {
                 continue;
@@ -171,6 +191,63 @@ public class JpathSmartTestImporterImpl implements JpathSmartTestImporter {
             }
         }
         return out;
+    }
+
+    /** grammar point id → question level of the wrong points; code → level of the patterns they map onto. */
+    private Map<String, String> mapGrammar(Map<Long, String> misses) {
+        Map<String, String> out = new LinkedHashMap<>();
+        if (misses.isEmpty()) {
+            return out;
+        }
+        Map<Long, String> patterns = new HashMap<>();
+        for (GrammarPoint point : grammarPoints.findAllById(misses.keySet())) {
+            patterns.put(point.getId(), point.getPattern());
+        }
+        // key → learnable main patterns (all released levels) carrying that key
+        Map<String, Map<String, JpathGrammar>> byKey = new HashMap<>();
+        for (JpathLevelInfo info : catalog.levels()) {
+            List<JpathGrammar> visible = content.visibleGrammar(info.level());
+            if (visible.isEmpty()) {
+                continue;
+            }
+            Map<String, Integer> checks = content.visibleCheckCounts(info.level());
+            for (JpathGrammar g : visible) {
+                if (!content.learnable(g, checks.getOrDefault(g.getCode(), 0))) {
+                    continue;
+                }
+                for (String key : keys(g)) {
+                    byKey.computeIfAbsent(key, k -> new LinkedHashMap<>()).put(g.getCode(), g);
+                }
+            }
+        }
+        for (Map.Entry<Long, String> miss : misses.entrySet()) {
+            String key = JpathGrammarKey.of(patterns.get(miss.getKey()));
+            Collection<JpathGrammar> found = key.isEmpty() ? List.of() : byKey.getOrDefault(key, Map.of()).values();
+            List<JpathGrammar> sameLevel = found.stream().filter(g -> g.getLevel().equals(miss.getValue())).toList();
+            Collection<JpathGrammar> pick = sameLevel.isEmpty() ? found : sameLevel;
+            if (pick.size() == 1) {
+                JpathGrammar g = pick.iterator().next();
+                out.put(g.getCode(), g.getLevel());
+            }
+        }
+        return out;
+    }
+
+    private static Set<String> keys(JpathGrammar g) {
+        Set<String> keys = new LinkedHashSet<>();
+        keys.add(JpathGrammarKey.of(g.getPattern()));
+        keys.add(JpathGrammarKey.of(g.getFamilyKey()));
+        if (g.getPatternVariantsJson() != null && !g.getPatternVariantsJson().isBlank()) {
+            try {
+                for (String variant : JSON.readValue(g.getPatternVariantsJson(), new TypeReference<List<String>>() { })) {
+                    keys.add(JpathGrammarKey.of(variant));
+                }
+            } catch (Exception ignored) {
+                // malformed variants: match on pattern and family key only
+            }
+        }
+        keys.remove("");
+        return keys;
     }
 
     private List<JpathVocabulary> visible(List<JpathVocabulary> rows) {

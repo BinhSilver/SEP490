@@ -27,6 +27,7 @@
     <script th:src="@{/dictionary/js/stroke-order.js}"></script>
     <script th:src="@{/dictionary/js/handwriting-core.js(v=20260920-1)}"></script>
     <script th:src="@{/js/jlptpath/jpath-writing.js(v=${jpathAssetVersion})}"></script>
+    <script th:src="@{/js/learning-demo/learning-demo-panel.js(v=${jpathAssetVersion})}"></script>
     <!-- Print: every [data-jpath-print] control opens /learning/jlpt/print in a new tab. -->
     <script th:src="@{/js/jlptpath/jpath-print.js(v=${jpathAssetVersion})}"></script>
     <!-- Look up: a selected grammar pattern shows its card under the dictionary popup (inline-dictionary.js). -->
@@ -54,6 +55,7 @@
         <a class="jp-sidenav__link" href="/learning/jlpt/notebook" th:attr="aria-current=${current == '/learning/jlpt/notebook'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg>Sổ tay</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/confusables" th:attr="aria-current=${current == '/learning/jlpt/confusables'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-git-compare-arrows"/></svg>Phân biệt dễ nhầm</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/settings" th:attr="aria-current=${current == '/learning/jlpt/settings'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg>Cài đặt lộ trình</a>
+        <a class="jp-sidenav__link" href="/learning?tour=1"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-lightbulb"/></svg>Xem hướng dẫn</a>
         </details>
         <script>
             (function () {

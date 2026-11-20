@@ -60,7 +60,7 @@
   var RETRY_PRACTICE_KINDS = Object.freeze({ MICRO_CHECK: true, GROUP_EXERCISE: true, CONFUSABLE: true,
     GRAMMAR_PRACTICE: true, GRAMMAR_EXTRA: true, GRAMMAR_REVIEW: true, SKILL_LESSON: true,
     SKILL_PRACTICE: true, SKILL_DICTATION: true });
-  var DIRECTION_LABEL = { JA_VI: 'NHẬT → VIỆT · CHỌN NGHĨA ĐÚNG', VI_JA: 'VIỆT → NHẬT · CHỌN TỪ ĐÚNG' };
+  var DIRECTION_LABEL = { JA_VI: 'Nhật sang Việt · Chọn nghĩa đúng', VI_JA: 'Việt sang Nhật · Chọn từ đúng' };
   var MSG_NOT_FOUND = 'Không tìm thấy bài kiểm tra này.';
   var MSG_LOAD_FAILED = 'Chưa tải được bài kiểm tra. Thử lại sau.';
   var MSG_SEND_FAILED = 'Chưa gửi được câu trả lời. Hãy thử lại.';
@@ -458,7 +458,7 @@
       + (a.correct ? 'Đúng rồi!' : (a.value === null ? 'Hết giờ.' : 'Chưa đúng.')) + (extra || '') + '</div>';
     if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
     html += compareHtml(a.compare);
-    return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp ' + icon('arrow-right') + '</button>';
+    return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp</button>';
   }
 
   function cleanDirectionLabel(q) {
@@ -698,8 +698,8 @@
     if (kind !== 'GROUP_EXERCISE' && kind !== 'TOPIC_KNOWN' && kind !== 'WEEK_KNOWN') {
       var vk = items.some(function (w) { return w.itemType === 'VOCAB' || w.itemType === 'KANJI'; });
       var review = items.some(function (w) { return w.itemType !== 'KANA'; });
-      if (vk) suffix = ' → đã vào Ôn lại và Sổ tay';
-      else if (review) suffix = ' → đã vào Ôn lại';
+      if (vk) suffix = ' · đã vào Ôn lại và Sổ tay';
+      else if (review) suffix = ' · đã vào Ôn lại';
     }
     // probe L9: misses are items (a word missed both ways counts once), not questions
     return '<p class="jp-result__wrong">' + items.length + ' mục sai: <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
@@ -793,7 +793,7 @@
     // The server decides: RETRY = a new set is offered; every other next (also a wrong SKIP_ONE kept on its card) continues.
     var failed = !!(n && n.action === 'RETRY');
     if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
-      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' ' + icon('arrow-right') + '</button>';
+      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + '</button>';
     }
     if (failed && !o.embedded) {
       html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
@@ -936,7 +936,7 @@
     var reviewOpen = false;
 
     el.setAttribute('aria-busy', 'true');
-    el.innerHTML = '<p class="jp-status" role="status">Đang tải bài kiểm tra…</p>';
+    el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài kiểm tra…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
 
     function saver() {
       if (!env.saver && D()) env.saver = D().createSaver({ send: function (m, u, b) { return env.api.send(m, u, b); } });
@@ -1152,6 +1152,7 @@
 
     function onKey(ev) {
       if (!state || state.index >= state.questions.length) return;
+      if (ev.isComposing || ev.keyCode === 229) return;
       if (env.inline && env.doc && el.contains && !el.contains(env.doc.activeElement)) return;
       var t = ev.target;
       var tag = t && t.tagName ? String(t.tagName).toUpperCase() : '';
@@ -1211,7 +1212,7 @@
       submitting = true;
       if (retryTimer !== null) { env.clearTimeout(retryTimer); retryTimer = null; }
       el.setAttribute('aria-busy', 'true');
-      el.innerHTML = '<p class="jp-status" role="status">Đang nộp bài…</p>';
+      el.innerHTML = '<div class="jp-card jp-check__submitting" role="status"><p class="jp-status">Đang nộp bài…</p></div>';
       var body = { submitKey: submitKey(token, env.storage, env.uuid) };
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/submit', body).then(function (res) {
         if (!alive) return;
@@ -1278,7 +1279,7 @@
       }).catch(function (err) {
         if (button) button.disabled = false;
         var p = el.querySelector && el.querySelector('[data-part="result-status"]');
-        if (p) p.textContent = (err && err.message) || MSG_LOAD_FAILED;
+        if (p) p.textContent = (err && (err.code || err.status) && err.message) || MSG_LOAD_FAILED;
       });
     }
 

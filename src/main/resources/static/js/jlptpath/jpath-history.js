@@ -110,11 +110,18 @@
     var days = [];
     var page = 0;
 
+    // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
+    function foldSearch(v) {
+      var s = String(v == null ? '' : v);
+      if (typeof s.normalize === 'function') s = s.normalize('NFKC');
+      return s.trim().toLocaleLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    }
+
     function draw() {
-      var term = (search.value || '').trim().toLocaleLowerCase();
+      var term = foldSearch(search.value);
       var filtered = days.filter(function (d) {
         return !term || [d.day, dayLabel(d.day), DAY_KIND[d.kind]].some(function (v) {
-          return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+          return foldSearch(v).indexOf(term) >= 0;
         });
       });
       var pages = Math.max(1, Math.ceil(filtered.length / 20));
@@ -159,7 +166,7 @@
         days = (h && Array.isArray(h.days)) ? h.days : [];
         page = 0;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được lịch sử.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được lịch sử.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -177,7 +184,7 @@
             else redo.disabled = false;
           }, function (err) {
             redo.disabled = false;
-            status.textContent = (err && err.message) || 'Chưa làm lại được bài này.';
+            status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa làm lại được bài này.';
           });
         return;
       }
@@ -194,7 +201,7 @@
     load(14).then(function () {
       if (!wanted) return;
       api.get(BASE + '/history/' + wanted[1]).then(show, function (err) {
-        status.textContent = (err && err.message) || 'Không tải được ngày này.';
+        status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được ngày này.';
       });
     });
   }
