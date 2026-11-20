@@ -236,8 +236,14 @@ public class JpathStudyServiceImpl implements JpathStudyService {
                         remaining, kanaRemaining));
             }
         }
-        // Plan 3 Task 16: the skill-day quiz (#25) is gone; skill days are done by skill sessions
-        boolean skillQuizNeeded = false;
+        // Plan 3 Task 16: Reading and Listening are skill sessions. QA 20/11: the day completion still waits for the
+        // skill-day quiz (#25, bug 95) whenever the path has a quiz source, so the review round must offer it, else the
+        // day can never be finished ("Ôn và quiz" opened an empty round)
+        JpathDailyTab skillTab = tabs.get(JpathTab.SKILL);
+        boolean skillQuizNeeded = skillDay && skillTab != null && skillTab.getCheckPassedAt() == null
+                && (st == JpathSessionTab.COMBINED || st == JpathSessionTab.SKILL)
+                && JpathPathRules.skillQuizSource(userItems, kanaRows, userId, plan.getLevel(), plan.isKanaPhase())
+                        .isPresent();
         List<JpathQueueStep> q = JpathQueueBuilder.build(new JpathQueueInput(st, JpathSessionMode.TODAY,
                 plan.getDayKind(), plan.isKanaPhase(), due, room, grammarDue, newCodes,
                 practiceCodes(newCodes.getOrDefault(JpathTab.GRAMMAR, List.of())), rows, skillQuizNeeded));
