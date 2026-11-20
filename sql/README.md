@@ -77,3 +77,8 @@ source snapshots from runtime-ready paths.
 Generated drafts and review packets live under `outputs/` and are catalogued
 in `outputs/README.md`; they are not part of the normal web seed chain. Local
 recovery backups are ignored by Git and must be managed separately from seeds.
+
+
+### Báo lỗi nội dung học [JLAS2-270]
+
+Chạy `sql/migrations/090_learning_content_reports.sql` trước khi dùng nút báo cáo ở JLPT, luyện chia thể và Lược đồ. Script chỉ tạo hàng đợi báo cáo, không sửa hoặc ẩn nội dung học.

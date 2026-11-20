@@ -155,6 +155,7 @@
     $('vpSessionCorrect').textContent = s.correct + ' đúng';
     $('vpProgressBar').style.width = (s.mode === 'SPEED' ? Math.min(100,s.answered/20*100) : s.answered/s.total*100) + '%';
     $('vpQuestionGroup').textContent = 'Nhóm ' + q.group + ' · ' + q.level;
+    if(window.LearningReport)$('vpReport').innerHTML=window.LearningReport.buttonHtml('verb-question',q.id,'Báo cáo câu luyện chia thể');
     $('vpChainHint').textContent = s.mode === 'CHAIN' ? 'Chia lần lượt từng thể' : '';
     $('vpTargetForm').textContent = q.formLabel;
     $('vpWord').textContent = q.word; $('vpReading').textContent = q.reading; $('vpReading').hidden = !$('vpShowReading').checked;
@@ -236,4 +237,5 @@
   document.addEventListener('keydown',function(e){if(state.view!=='play'||state.sending||e.isComposing||$('vpExitDialog').open)return;if(state.feedback&&e.key==='Enter'&&e.target!==$('vpNext')){e.preventDefault();$('vpNext').click();}else if(!state.feedback&&state.session.mode==='CHOICE'&&/^[1-4]$/.test(e.key)){var b=$('vpChoices').children[Number(e.key)-1];if(b)b.click();}});
   window.addEventListener('pagehide',clearTimer);
   renderIcons($('verbApp'));renderModes();load();
+  if(window.LearningReport)window.LearningReport.register('verb-question',function(id){return state.view==='play'&&state.session&&state.question&&state.question.id===id?{targetType:'VERB_QUESTION',page:'VERB_PRACTICE',sessionId:state.session.id,questionId:id,label:state.question.word+' → '+state.question.formLabel}:null;});
 })();
