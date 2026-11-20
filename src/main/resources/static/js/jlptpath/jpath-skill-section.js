@@ -156,7 +156,7 @@
           var tries = skill && skill.skill === 'LISTENING' ? rd && rd.lastListening : rd && rd.lastReading;
           body.innerHTML = resultHtml(r, tries);
         }, function () { body.innerHTML = resultHtml(r, []); });
-      }, function (e) { state.submitted = false; status.textContent = (e && e.message) || 'Chưa nộp được bài.'; });
+      }, function (e) { state.submitted = false; status.textContent = (e && (e.code || e.status) && e.message) || 'Chưa nộp được bài.'; });
     }
 
     function startClock() {
@@ -206,7 +206,7 @@
       draw();
       startClock();
       return v;
-    }, function (e) { status.textContent = (e && e.message) || 'Không tải được bài.'; });
+    }, function (e) { status.textContent = (e && (e.code || e.status) && e.message) || 'Không tải được bài.'; });
 
     function submitDone(v) {
       body.innerHTML = '<p>Bài này đã nộp.</p><a class="jp-link-btn" href="/learning/jlpt/check/' + encodeURIComponent(v.token)

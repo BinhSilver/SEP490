@@ -301,7 +301,7 @@ public class JpathPathServiceImpl implements JpathPathService {
     private JpathSmartTestSummary summary(Long userId, JpathSmartTestSnapshot snapshot) {
         JpathSmartTestImporter wrongItems = importer.getIfAvailable();
         int notebook = wrongItems == null ? 0 : wrongItems.previewWrongItemCount(userId, snapshot.attemptId());
-        return new JpathSmartTestSummary(snapshot.abilityBand(), snapshot.vocabScore(), snapshot.kanjiScore(),
+        return new JpathSmartTestSummary(snapshot.abilityBand(), snapshot.estimatedLevel(), snapshot.vocabScore(), snapshot.kanjiScore(),
                 snapshot.grammarScore(), notebook, snapshot.partial());
     }
 

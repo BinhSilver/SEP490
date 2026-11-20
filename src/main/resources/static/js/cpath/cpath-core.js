@@ -94,13 +94,14 @@
   function quizHtml(q, index, total, picked, display) {
     var d = display || {};
     return '<section class="jp-card cp-core-quiz" aria-labelledby="cpCoreQ">'
-      + '<p class="cp-core-quiz__count">Câu ' + (index + 1) + '/' + total + ' · chọn nghĩa đúng</p>'
+      + '<div class="cp-core-quiz__top"><p class="cp-core-quiz__count">Câu <b>' + (index + 1) + '</b>/' + total + ' · chọn nghĩa đúng</p>'
+      + '<div class="cp-core-quiz__bar" aria-hidden="true"><span style="width:' + Math.round((index + 1) * 100 / Math.max(1, total)) + '%"></span></div></div>'
       + '<div class="cp-core-card__main"><div id="cpCoreQ" class="cp-core-card__ja" lang="ja">' + ruby(q.ja, d.furigana !== false) + '</div>'
       + playBtn(q.audioUrl, spoken(q), 'Nghe') + '</div>'
       + (d.romaji ? '<div class="cp-line__romaji">' + esc(q.romaji || romajiOf(q.reading || q.ja)) + '</div>' : '')
       + '<div class="cp-core-quiz__opts" role="group" aria-label="Các nghĩa">'
       + (q.options || []).map(function (o, i) {
-        return '<button type="button" class="cp-core-opt' + (picked === o ? ' is-picked' : '') + '" data-core-pick="' + i + '">' + esc(o) + '</button>';
+        return '<button type="button" class="cp-core-opt' + (picked === o ? ' is-picked' : '') + '" data-core-pick="' + i + '"><span class="cp-core-opt__key" aria-hidden="true">' + 'ABCDEF'.charAt(i) + '</span><span class="cp-core-opt__text">' + esc(o) + '</span></button>';
       }).join('')
       + '</div></section>';
   }
@@ -119,7 +120,12 @@
         ? '<h2>Xong bài nền hôm nay</h2><p>Đúng ' + res.correct + '/' + res.total + '. Các mục này cũng được tính bên lộ trình JLPT.</p>'
         : '<h2>Đúng ' + res.correct + '/' + res.total + '</h2><p>Còn ' + wrong.length + ' mục chưa thuộc. Xem lại rồi kiểm tra lại nhé.</p>';
     }
-    return '<section class="jp-card cp-core-result" role="status">' + head
+    var pct = res.total ? Math.round((res.correct || 0) * 100 / res.total) : (res.score || 0);
+    var good = isCheck ? !!res.passed : (res.lessonDone || !wrong.length);
+    return '<section class="jp-card cp-core-result' + (good ? ' is-good' : ' is-retry') + '" role="status">'
+      + '<div class="cp-core-result__head"><div class="cp-core-result__ring" style="--p:' + (isCheck ? res.score : pct) + '" aria-hidden="true"><span>'
+      + (isCheck ? res.score : pct) + '%</span></div><div class="cp-core-result__text">' + head + '</div></div>'
+      + (wrong.length ? '<p class="cp-core-result__sub">Mục cần xem lại</p>' : '')
       + (wrong.length ? '<ul class="cp-core-wrong">' + wrong.map(function (r) {
         var it = byCode[r.code] || {};
         var aiSlot = it.ja && r.answer
@@ -130,9 +136,10 @@
             userAnswer: answers && answers[r.code] || '',
             correctAnswer: r.answer
           })) + '"></div>' : '';
-        return '<li><span lang="ja">' + esc(it.ja || r.code) + '</span> — ' + esc(r.answer) + aiSlot + '</li>';
+        return '<li class="cp-core-wrong__item"><div class="cp-core-wrong__row"><span class="cp-core-wrong__ja" lang="ja">' + esc(it.ja || r.code) + '</span>'
+          + '<span class="cp-core-wrong__vi">' + esc(r.answer) + '</span></div>' + aiSlot + '</li>';
       }).join('') + '</ul>' : '')
-      + '<div class="cp-settings__actions">'
+      + '<div class="cp-settings__actions cp-core-result__actions">'
       + (!isCheck && !res.lessonDone ? '<button type="button" class="cp-btn-primary" data-core-again>Học lại phần sai</button>' : '')
       + '<a class="' + (isCheck || res.lessonDone ? 'cp-btn-primary' : 'cp-btn-ghost') + '" href="/learning/comm/path">Về lộ trình — học tình huống hôm nay</a>'
       + '</div></section>';
@@ -141,12 +148,28 @@
   /** Items still to check: not done yet (all of them in the known check). */
   function pending(items) { return (items || []).filter(function (x) { return !x.done; }); }
 
+  /** Owner 17/11: every quiz attempt asks in a new random order, options shuffled too. Answers stay keyed by item
+   *  code and checked by meaning, so grading and progress do not depend on the order. */
+  function shuffled(list, rnd) {
+    var a = (list || []).slice();
+    var r = rnd || Math.random;
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function quizOrder(list, rnd) {
+    return shuffled(list, rnd).map(function (q) {
+      var c = {}; for (var k in q) if (Object.prototype.hasOwnProperty.call(q, k)) c[k] = q[k];
+      if (Array.isArray(q.options)) c.options = shuffled(q.options, rnd);
+      return c;
+    });
+  }
+
   function mount(el, deps) {
     if (!el || !root.JpathApi) return;
     var d = deps || {};
     var search = d.search != null ? d.search : String(root.location && root.location.search || '');
     var isCheck = /[?&]check=1/.test(search);
-    var data = null, phase = 'learn', qi = 0, answers = {}, result = null, busy = false;
+    var data = null, phase = 'learn', qi = 0, answers = {}, result = null, busy = false, quiz = null;
     var A = root.CpathAudio;
 
     function header() {
@@ -174,7 +197,7 @@
         el.innerHTML = header() + resultHtml(result, items, isCheck, answers);
         return;
       }
-      var todo = isCheck ? items : pending(items);
+      var todo = phase === 'quiz' && quiz ? quiz : (isCheck ? items : pending(items));
       if (!isCheck && data.done) {
         el.innerHTML = header() + '<section class="jp-card cp-core-result" role="status"><h2>Bài nền hôm nay đã xong</h2>'
           + '<p>Bạn có thể xem lại thẻ bên dưới hoặc vào tình huống hôm nay.</p>'
@@ -189,7 +212,7 @@
       }
       var q = todo[qi];
       el.innerHTML = header() + quizHtml(q, qi, todo.length, answers[q.code], display)
-        + '<div class="cp-settings__actions">'
+        + '<div class="cp-settings__actions cp-core-quiz__actions">'
         + (qi > 0 ? '<button type="button" class="cp-btn-ghost" data-core-prev>Câu trước</button>' : '')
         + (!isCheck ? '<button type="button" class="cp-btn-ghost" data-core-back>Xem lại thẻ</button>' : '')
         + '<button type="button" class="cp-btn-primary" data-core-next' + (answers[q.code] == null || busy ? ' disabled' : '') + '>'
@@ -203,18 +226,26 @@
         busy = false; result = r || {}; phase = 'result'; render();
       }).catch(function (e) {
         busy = false; render();
-        el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa nộp được bài.') + '</p>');
+        el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa nộp được bài.') + '</p>');
       });
+    }
+
+
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
     }
 
     function load() {
       var url = isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson';
-      Promise.resolve(root.JpathApi.get(url)).then(function (x) {
+      (isCheck ? Promise.resolve(null) : planToday()).then(function () { return root.JpathApi.get(url); }).then(function (x) {
         data = x || {}; phase = isCheck ? 'quiz' : 'learn'; qi = 0; answers = {}; result = null;
+        quiz = isCheck ? quizOrder(data.questions) : null;
         if (A) A.fromDisplay(data.display);
         render();
       }).catch(function (e) {
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Chưa tải được bài nền.')
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được bài nền.')
           + ' <a class="cp-btn-ghost" href="/learning/comm/path">Về lộ trình</a></p>';
       });
     }
@@ -227,8 +258,8 @@
         if (A) A.play(play.getAttribute('data-core-play'), play.getAttribute('data-core-text'));
         return;
       }
-      var items = isCheck ? (data && data.questions || []) : pending(data && data.items);
-      if (t.closest('[data-core-quiz]')) { phase = 'quiz'; qi = 0; answers = {}; render(); return; }
+      var items = quiz || (isCheck ? (data && data.questions || []) : pending(data && data.items));
+      if (t.closest('[data-core-quiz]')) { phase = 'quiz'; qi = 0; answers = {}; quiz = quizOrder(pending(data && data.items)); render(); return; }
       if (t.closest('[data-core-back]')) { phase = 'learn'; render(); return; }
       if (t.closest('[data-core-prev]')) { qi = Math.max(0, qi - 1); render(); return; }
       var pick = t.closest('[data-core-pick]');
@@ -247,5 +278,5 @@
     load();
   }
 
-  return { ruby: ruby, cardHtml: cardHtml, quizHtml: quizHtml, resultHtml: resultHtml, pending: pending, spoken: spoken, mount: mount };
+  return { shuffled: shuffled, quizOrder: quizOrder, ruby: ruby, cardHtml: cardHtml, quizHtml: quizHtml, resultHtml: resultHtml, pending: pending, spoken: spoken, mount: mount };
 });

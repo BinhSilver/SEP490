@@ -776,6 +776,8 @@ html.dark .cp-page {
 }
 .cp-flashcard__example { display: grid; gap: 3px; margin: 2px 0 0; color: var(--cp-ink); font-size: .88rem; }
 .cp-flashcard__example small { color: var(--cp-muted); font-size: .75rem; }
+.cp-flashcard__ex-vi { color: var(--cp-muted); font-size: .82rem; }
+.cp-flashcard__ja ruby rt { font-size: .45em; font-weight: 500; }
 .cp-flashcard__tag {
   font-size: .74rem;
   font-weight: 500;
@@ -2179,3 +2181,166 @@ button.jp-sidenav__link {
   .cp-page .cp-step-tab .cp-step-stamp__seal { background: var(--cp-surface, #fff); font-size: .62rem; border-width: 1.5px; }
   .cp-page .cp-sit-steps { overflow: visible; padding-top: 10px; }
 }
+
+/* Owner 17/11: flipping or moving to the next card made the page scrollbar flash. The 3D turn grows the card past
+   the stage for a moment; clip that overflow and keep the scrollbar gutter so the layout does not jump. */
+html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
+.cp-sit-stage { overflow-x: clip; overflow-clip-margin: 0; }
+/* The stage scrolls (overflow-y: auto) and the 3D turn, replayed on every render, grew the card past it for 0.25 s,
+   so the stage's own scrollbar flashed on each flip or action. The card's box clips that projection instead. */
+.cp-flashcard-clip { overflow: clip; overflow-clip-margin: 0; border-radius: 16px; perspective: 1100px; }
+
+/* Owner 17/11: Bài nền quiz redesign — one centred card, progress bar, word centred, 2-column lettered options. */
+.cp-core-quiz { max-width: 760px; margin: 8px auto 0; padding: 22px 26px 26px; gap: 18px;
+  background: var(--cp-surface, #fff); border: 1px solid var(--cp-line); border-radius: 18px; box-shadow: 0 6px 24px rgba(40, 30, 90, .06); }
+.cp-core-quiz__top { display: grid; gap: 8px; }
+.cp-core-quiz__count b { color: var(--cp-primary-ink); }
+.cp-core-quiz__bar { height: 6px; border-radius: 99px; background: var(--cp-surface-soft); overflow: hidden; }
+.cp-core-quiz__bar span { display: block; height: 100%; border-radius: inherit; background: var(--cp-primary); transition: width .25s; }
+.cp-core-quiz .cp-core-card__main { justify-content: center; padding: 18px 0 6px; }
+.cp-core-quiz .cp-core-card__ja { font-size: 2rem; }
+.cp-core-quiz__opts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cp-core-opt { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; min-height: 58px;
+  transition: border-color .15s, background .15s, transform .1s; }
+.cp-core-opt:active { transform: scale(.99); }
+.cp-core-opt__key { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--cp-line); font-size: .85rem; font-weight: 700; color: var(--cp-muted); background: var(--cp-surface, #fff); }
+.cp-core-opt.is-picked .cp-core-opt__key { background: var(--cp-primary); border-color: var(--cp-primary); color: #fff; }
+.cp-core-opt__text { min-width: 0; line-height: 1.4; }
+.cp-core-quiz__actions { max-width: 760px; margin: 16px auto 0; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 600px) {
+  .cp-core-quiz { padding: 16px; }
+  .cp-core-quiz__opts { grid-template-columns: 1fr; }
+  .cp-core-quiz__actions { justify-content: stretch; }
+  .cp-core-quiz__actions > * { flex: 1 1 auto; }
+}
+
+/* Owner 17/11: Bài nền result card — score ring, wrong items as rows, actions at the bottom. */
+.cp-core-result { max-width: 760px; margin: 8px auto 0; padding: 24px 26px; display: grid; gap: 16px;
+  background: var(--cp-surface, #fff); border: 1px solid var(--cp-line); border-radius: 18px; box-shadow: 0 6px 24px rgba(40, 30, 90, .06); }
+.cp-core-result__head { display: flex; align-items: center; gap: 20px; }
+.cp-core-result__ring { --c: var(--cp-primary); flex: none; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--c) calc(var(--p) * 1%), var(--cp-surface-soft) 0); }
+.cp-core-result.is-good .cp-core-result__ring { --c: #1f9d63; }
+.cp-core-result.is-retry .cp-core-result__ring { --c: #e08a1e; }
+.cp-core-result__ring span { width: 66px; height: 66px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--cp-surface, #fff); font-weight: 800; font-size: 1.1rem; color: var(--cp-ink); }
+.cp-core-result__text h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.cp-core-result__text p { margin: 0; color: var(--cp-muted); }
+.cp-core-result__sub { margin: 4px 0 0; font-size: .85rem; font-weight: 700; color: var(--cp-muted); text-transform: uppercase; letter-spacing: .04em; }
+.cp-core-result .cp-core-wrong { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cp-core-wrong__item { padding: 12px 14px; border: 1px solid var(--cp-line); border-left: 4px solid #e08a1e; border-radius: 12px; background: var(--cp-surface-soft); display: grid; gap: 8px; }
+.cp-core-wrong__row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.cp-core-wrong__ja { font-size: 1.25rem; font-weight: 700; }
+.cp-core-wrong__vi { color: var(--cp-ink); }
+.cp-core-wrong__item .jp-ai-slot { justify-self: start; }
+.cp-core-result__actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding-top: 4px; border-top: 1px solid var(--cp-line); }
+@media (max-width: 600px) {
+  .cp-core-result { padding: 18px 16px; }
+  .cp-core-result__head { gap: 14px; }
+  .cp-core-result__ring { width: 68px; height: 68px; } .cp-core-result__ring span { width: 54px; height: 54px; font-size: .95rem; }
+  .cp-core-result__actions > * { flex: 1 1 100%; text-align: center; }
+}
+/* owner 17/11: Sổ câu cấp tốc shows one ready sentence under each phrase */
+.cp-pb__list > li { display: grid; gap: 4px; }
+.cp-pb__example { display: grid; gap: 2px; width: 100%; margin-left: 30px; width: calc(100% - 30px); text-align: left; padding: 8px 12px;
+  border: 0; border-left: 3px solid var(--cp-primary); border-radius: 0 10px 10px 0; background: var(--cp-surface, #fff);
+  color: var(--cp-ink); font: inherit; cursor: pointer; }
+.cp-pb__example:hover, .cp-pb__example:focus-visible { background: var(--cp-surface-soft); }
+.cp-pb__ex-label { font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--cp-primary); }
+.cp-pb__ex-ja { font-size: 1rem; }
+.cp-pb__ex-vi { font-size: .88rem; color: var(--cp-muted); }
+
+/* owner 17/11: listening game — wide screens, Japanese/romaji on demand, review list */
+#cpathGameRoot { width: 100%; max-width: 980px; }
+.cp-game { display: grid; gap: 16px; padding: 24px; }
+.cp-game__head { max-width: none; }
+.cp-game__tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cp-game__tiles li { display: grid; gap: 2px; padding: 14px 16px; border-radius: 14px; background: var(--cp-surface-soft); border: 1px solid var(--cp-line); }
+.cp-game__tiles strong { font-size: 1.5rem; color: var(--cp-primary); }
+.cp-game__tiles span { font-size: .86rem; color: var(--cp-muted); }
+.cp-game__setup { display: grid; gap: 14px; padding: 16px; border-radius: 14px; border: 1px dashed var(--cp-line); }
+.cp-game__setup-row { display: grid; grid-template-columns: 120px 1fr; gap: 6px 14px; align-items: center; }
+.cp-game__setup-row > *:nth-child(n+3) { grid-column: 2; }
+.cp-game__setup-label { font-weight: 700; }
+.cp-game__setup-hint { font-size: .84rem; color: var(--cp-muted); }
+.cp-game__setup .cp-speed, .cp-game__setup [class*="speed"] { max-width: 100%; }
+.cp-game__toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-game__go { justify-self: start; min-width: 200px; padding: 14px 28px; font-size: 1.05rem; }
+.cp-game__bar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.cp-game__stat { padding: 10px 12px; border-radius: 12px; background: var(--cp-surface-soft); text-align: center; font-size: .95rem; }
+.cp-game__stat strong { font-size: 1.15rem; }
+.cp-game__time { font-weight: 700; color: var(--cp-primary); }
+.cp-game__timebar { height: 8px; border-radius: 99px; background: var(--cp-line); overflow: hidden; }
+.cp-game__timebar span { display: block; height: 100%; background: var(--cp-primary); border-radius: 99px; transition: width 1s linear; }
+.cp-game__prompt { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 18px 20px;
+  border-radius: 16px; background: var(--cp-primary-soft); }
+.cp-game__play { width: 64px; height: 64px; border-radius: 50%; border: 0; background: var(--cp-primary); color: #fff; cursor: pointer;
+  display: grid; place-items: center; box-shadow: 0 4px 12px rgba(80,40,180,.25); }
+.cp-game__play svg { width: 28px; height: 28px; }
+.cp-game__play:focus-visible { outline: 3px solid var(--cp-primary-ink); outline-offset: 3px; }
+.cp-game__prompt-body { display: grid; gap: 4px; }
+.cp-game__ask { font-size: .86rem; color: var(--cp-primary-ink); font-weight: 600; }
+.cp-game__text { display: grid; gap: 2px; }
+.cp-game__ja { font-size: 1.45rem; font-weight: 600; color: var(--cp-ink); }
+.cp-game__romaji, .cp-game__fb-ro { font-size: .92rem; color: var(--cp-muted); font-style: italic; }
+.cp-game__fb { display: grid; gap: 4px; margin: 0; padding: 10px 14px; border-radius: 12px; font-size: .95rem; }
+.cp-game__fb-line { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.cp-game__fb-line [lang="ja"] { font-size: 1.05rem; font-weight: 600; }
+.cp-game__opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cp-game__opt { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 14px 18px; text-align: left; font: inherit; font-size: 1.05rem;
+  border: 1.5px solid var(--cp-line); border-radius: 14px; background: var(--cp-surface, #fff); color: var(--cp-ink); cursor: pointer; }
+.cp-game__opt:hover, .cp-game__opt:focus-visible { border-color: var(--cp-primary); background: var(--cp-primary-soft); }
+.cp-game__opt-key { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .9rem;
+  background: var(--cp-surface-soft); color: var(--cp-primary); }
+.cp-game__end-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cp-game__end-head h2 { margin: 0; font-size: 1.6rem; }
+.cp-game__best { color: var(--cp-muted); }
+.cp-game__review { display: grid; gap: 8px; }
+.cp-game__review-title { margin: 0; font-weight: 700; }
+.cp-game__review ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.cp-game__review-item { width: 100%; display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 10px 12px; font: inherit;
+  border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface-soft); color: var(--cp-ink); cursor: pointer; }
+.cp-game__review-item:hover { border-color: var(--cp-primary); }
+.cp-game__review-body { display: grid; gap: 2px; }
+.cp-game__review-body [lang="ja"] { font-weight: 600; }
+.cp-game__review-vi { font-size: .9rem; }
+.cp-game__perfect { margin: 0; font-weight: 600; color: var(--cp-primary); }
+.cp-game__end-acts { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .cp-game { padding: 16px; }
+  .cp-game__tiles, .cp-game__bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cp-game__opts, .cp-game__review ul { grid-template-columns: 1fr; }
+  .cp-game__prompt { grid-template-columns: auto 1fr; }
+  .cp-game__prompt .cp-game__toggles { grid-column: 1 / -1; }
+  .cp-game__setup-row { grid-template-columns: 1fr; }
+  .cp-game__setup-row > *:nth-child(n+3) { grid-column: 1; }
+}
+
+/* owner 17/11: romaji line and roomier result/quiz cards on the communication pages */
+.cp-romaji { display: block; font-size: .88rem; font-style: italic; color: var(--cp-muted); }
+.cp-core-quiz, .cp-core-quiz__actions, .cp-core-result, .cp-page .jp-result .jp-review { max-width: 980px; }
+
+/* [JLAS-W0108] Owner 18/11: situation flashcard bar on the words step */
+.cp-fc-bar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin: 0 0 12px; }
+.cp-fc-bar__count { color: var(--color-on-surface-variant); font-weight: 500; }
+
+/* QA 19/11 (bugs 71-74, 101): one card on every communication page while the only path is paused */
+.cp-paused-card {
+  max-width: 480px;
+  margin: 10vh auto 0;
+  padding: 32px 24px;
+  text-align: center;
+}
+.cp-paused-card__pic { display: block; margin: 0 auto 12px; }
+.cp-paused-card__title { margin: 0 0 8px; font-size: 1.25rem; font-weight: 600; }
+.cp-paused-card__text { margin: 0 0 20px; color: var(--jp-muted); line-height: 1.5; }
+.cp-paused-card__actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.cp-paused-card__actions .jp-btn { min-height: 44px; display: inline-flex; align-items: center; }
+@media (max-width: 480px) {
+  .cp-paused-card { margin: 24px 16px 96px; }
+  .cp-paused-card__actions .jp-btn { flex: 1 1 100%; justify-content: center; }
+}
+
+/* bug 17: why the 7th rest day did not turn on */
+.cp-survey__hint { margin: 6px 0 0; font-size: 13px; font-weight: 400; color: var(--jp-muted, inherit); }

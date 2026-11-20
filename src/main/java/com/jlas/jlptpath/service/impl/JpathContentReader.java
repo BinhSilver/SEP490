@@ -91,6 +91,23 @@ public class JpathContentReader {
         this.confusables = confusables;
     }
 
+    /**
+     * Bug 113: learnable items of a level change only when content is edited, but every path view read them whole
+     * for each tab and level (14–35 s on Azure). They are kept for this many seconds; 0 = no cache.
+     */
+    private volatile long candidateCacheNanos;
+    private final Map<String, CachedCandidates> candidateCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private record CachedCandidates(List<Candidate> candidates, long loadedAt) {
+    }
+
+    @Autowired
+    void setCandidateCacheSeconds(
+            @org.springframework.beans.factory.annotation.Value("${jlas.jpath.content-cache-seconds:60}") long seconds) {
+        this.candidateCacheNanos = Math.max(0, seconds) * 1_000_000_000L;
+        candidateCache.clear();
+    }
+
     void setKanaRows(JpathKanaRowRepository kanaRows) {
         this.kanaRows = kanaRows;
     }
@@ -457,6 +474,22 @@ public class JpathContentReader {
         if (type == null) {
             throw new IllegalArgumentException("Item type is required");
         }
+        long ttl = candidateCacheNanos;
+        if (ttl <= 0 || type == JpathItemType.KANA) {
+            return loadCandidates(level, type);
+        }
+        String key = level + "|" + type;
+        long now = System.nanoTime();
+        CachedCandidates hit = candidateCache.get(key);
+        if (hit != null && now - hit.loadedAt() < ttl) {
+            return hit.candidates();
+        }
+        List<Candidate> loaded = List.copyOf(loadCandidates(level, type));
+        candidateCache.put(key, new CachedCandidates(loaded, now));
+        return loaded;
+    }
+
+    private List<Candidate> loadCandidates(String level, JpathItemType type) {
         return switch (type) {
             case VOCAB -> candidates(visibleVocabulary(level).stream().filter(this::learnable).toList(),
                     JpathVocabulary::getCode, JpathVocabulary::getSortOrder, JpathVocabulary::getPriority);

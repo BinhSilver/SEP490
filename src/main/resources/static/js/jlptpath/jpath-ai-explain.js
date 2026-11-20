@@ -308,7 +308,7 @@
           fetchAllowance(false);
           return;
         }
-        entry.error = (err && err.message) || 'AI giải thích tạm thời chưa phản hồi. Lượt của bạn không bị trừ.';
+        entry.error = (err && (err.code || err.status) && err.message) || 'AI giải thích tạm thời chưa phản hồi. Lượt của bạn không bị trừ.';
         renderSlotState(host, entry);
       });
     }
@@ -349,7 +349,7 @@
           fetchAllowance(true);
           return;
         }
-        entry.chatError = (err && err.message) || 'Chưa nhận được phản hồi AI. Lượt của bạn không bị trừ.';
+        entry.chatError = (err && (err.code || err.status) && err.message) || 'Chưa nhận được phản hồi AI. Lượt của bạn không bị trừ.';
         renderSlotState(host, entry);
       });
     }
@@ -370,7 +370,7 @@
         }
       }, function (err) {
         if (triggerBtn) triggerBtn.disabled = false;
-        if (payStatus) payStatus.textContent = (err && err.message) || 'Không thể mua lượt lúc này.';
+        if (payStatus) payStatus.textContent = (err && (err.code || err.status) && err.message) || 'Không thể mua lượt lúc này.';
       });
     }
 

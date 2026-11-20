@@ -105,7 +105,7 @@
           if (out) out.innerHTML = scoreHtml(r);
           b.disabled = false;
         }, function (e) {
-          if (out) out.innerHTML = '<p class="jp-alert" role="alert">' + esc((e && e.message) || 'Chưa chấm được phát âm.') + '</p>';
+          if (out) out.innerHTML = '<p class="jp-alert" role="alert">' + esc((e && (e.code || e.status) && e.message) || 'Chưa chấm được phát âm.') + '</p>';
           b.disabled = !(e && e.status === 429) ? false : true;
         });
         return;

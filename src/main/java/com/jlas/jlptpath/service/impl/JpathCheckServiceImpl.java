@@ -604,11 +604,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
             case WEEK_KNOWN -> {
                 JpathPartsService parts = partsService == null ? null : partsService.getIfAvailable();
-                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count());
+                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count(),
+                        spec.tab() == JpathTab.KANA ? r.topicKey() : null);
                 if (w == null || !w.offer()) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra bỏ qua tuần chưa mở cho bạn.");
                 }
-                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed);
+                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed,
+                        spec.tab() == JpathTab.KANA && r.topicKey() != null);
             }
             case FREE_QUIZ -> picker.freeQuiz(userId, spec.tab(), spec.level(), open, e.topicKey(), e.unitNo(),
                     e.source(), e.count(), e.direction(), timerOn, seed);
@@ -900,6 +902,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         if (r.value() != null && r.value().length() > 1000) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời quá dài.");
         }
+        // a timed check sends a blank answer when the question's timer runs out: that one counts wrong (bug 91 only
+        // refuses blanks the learner could still answer)
+        if (("MCQ".equals(qv.type()) || "AUDIO_MCQ".equals(qv.type()))
+                && (r.value() == null || r.value().isBlank()) && !set.isTimerOn()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn đáp án trước khi nộp.");
+        }
         requireOpen(set);
         LocalDateTime now = clock.now();
         if (pastDeadline(set, now)) {
@@ -1097,7 +1105,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
         int percent = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
-        Boolean passed = passed(set.getKind(), correct, total);
+        // owner 18/11 kana stage: the kana skip test passes at 80% like the kana row check
+        Boolean passed = set.getKind() == JpathCheckKind.WEEK_KNOWN && set.getTab() == JpathTab.KANA
+                ? passed(JpathCheckKind.KANA_ROW, correct, total) : passed(set.getKind(), correct, total);
         LocalDateTime last = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : now;
         long spentMs = Duration.between(set.getIssuedAt(), last).toMillis();
         boolean tooFast = total > 0 && spentMs < (long) JpathCheckSizing.TOO_FAST_MS_PER_UNIT * total;

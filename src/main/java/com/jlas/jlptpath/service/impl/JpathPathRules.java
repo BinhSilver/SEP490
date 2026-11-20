@@ -73,15 +73,14 @@ final class JpathPathRules {
     }
 
     /**
-     * Wanted open level before capping to the released levels (policy #28): from the band (else the estimated level)
-     * of a usable result, N5 without one.
+     * Wanted open level before capping to the released levels: the estimated overall level of a usable result (its
+     * band's level when missing), N5 without one. Owner 20/11: the band never lifts it.
      */
     static String openLevelFor(JpathSmartTestSnapshot usableResult) {
         if (usableResult == null) {
             return "N5";
         }
-        return JpathOpenLevelRule.openLevel(usableResult.abilityBand() != null ? usableResult.abilityBand()
-                : usableResult.estimatedLevel());
+        return JpathOpenLevelRule.openLevel(usableResult.estimatedLevel(), usableResult.abilityBand());
     }
 
     /** An attempt whose goal is set and not JLPT → VALIDATION_FAILED. */

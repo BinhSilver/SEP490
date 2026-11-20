@@ -66,7 +66,7 @@ public class JpathMockResult {
     @PrePersist
     void fillAppliedAt() {
         if (appliedAt == null) {
-            appliedAt = LocalDateTime.now();
+            appliedAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         }
     }
 }

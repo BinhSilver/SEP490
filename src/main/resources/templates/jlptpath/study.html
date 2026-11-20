@@ -15,7 +15,7 @@
         <a class="jp-link-btn" href="/learning">Tạm dừng</a>
     </div>
     <div id="jpathStudyRoot" class="jp-study-root" aria-busy="true" th:attr="data-session-id=${sessionId}">
-        <p class="jp-study-muted" role="status">Đang tải thẻ học…</p>
+        <p class="jp-study-muted jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải thẻ học…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>

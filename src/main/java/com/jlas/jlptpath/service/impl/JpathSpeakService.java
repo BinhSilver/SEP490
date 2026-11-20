@@ -57,8 +57,8 @@ public class JpathSpeakService {
     private final ObjectMapper json;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     private final Map<String, Integer> used = new ConcurrentHashMap<>();
-    /** E2E-002: the daily limit follows the learner's study day by the app clock (LocalDate.now() only without one). */
-    private Function<Long, LocalDate> today = userId -> LocalDate.now();
+    /** E2E-002: the daily limit follows the learner's study day by the app clock (Asia/Ho_Chi_Minh when built without one). */
+    private Function<Long, LocalDate> today = userId -> LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
 
     public JpathSpeakService(AzureSpeechPronunciationConfig config, FfmpegService ffmpeg, ObjectMapper json) {
         this.config = config;

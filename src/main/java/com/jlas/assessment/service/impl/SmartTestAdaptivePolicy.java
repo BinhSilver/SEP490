@@ -10,6 +10,16 @@ final class SmartTestAdaptivePolicy {
     static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
 
     Decision decide(List<BatchScore> history) {
+        return decide(history, "N1");
+    }
+
+    /**
+     * [JLAS-W0108] Owner 19/11: a skill never moves above {@code ceilingLevel} (the learner's self-reported level);
+     * passing a batch at the ceiling closes the skill there with {@code LEVEL_BOUNDARY_REACHED}.
+     */
+    Decision decide(List<BatchScore> history, String ceilingLevel) {
+        int ceiling = LEVELS.indexOf(ceilingLevel);
+        if (ceiling < 0) throw new IllegalArgumentException("Unknown JLPT level: " + ceilingLevel);
         if (history.isEmpty()) throw new IllegalArgumentException("Batch history must not be empty");
 
         BatchScore current = history.get(history.size() - 1);
@@ -46,7 +56,7 @@ final class SmartTestAdaptivePolicy {
             return Decision.continueAt(current.level(), "NEEDS_SAME_LEVEL_CONFIRMATION");
         }
 
-        String targetLevel = shift(current.level(), direction);
+        String targetLevel = shift(current.level(), direction, ceiling);
         if (targetLevel.equals(current.level())) {
             return Decision.finish(current.level(), "LEVEL_BOUNDARY_REACHED");
         }
@@ -79,10 +89,11 @@ final class SmartTestAdaptivePolicy {
         return -1;
     }
 
-    private static String shift(String level, int direction) {
+    private static String shift(String level, int direction, int ceiling) {
         int index = LEVELS.indexOf(level);
         if (index < 0) throw new IllegalArgumentException("Unknown JLPT level: " + level);
-        return LEVELS.get(Math.max(0, Math.min(LEVELS.size() - 1, index + direction)));
+        int top = Math.max(index, Math.min(LEVELS.size() - 1, ceiling));
+        return LEVELS.get(Math.max(0, Math.min(top, index + direction)));
     }
 
     private static String easierOf(String first, String second) {

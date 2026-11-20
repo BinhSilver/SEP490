@@ -4271,3 +4271,16 @@ CREATE TABLE IF NOT EXISTS learning_content_report (
     CONSTRAINT chk_learning_report_target CHECK (target_type IN ('JLPT_QUESTION','VERB_QUESTION','KANJI_MAP','AI_EXPLANATION')),
     CONSTRAINT chk_learning_report_reason CHECK (reason IN ('CONTENT','ANSWER','AUDIO','AI','OTHER'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] owner 18/11: one private flashcard set per learner per JLPT part (team flashcard feature)
+CREATE TABLE IF NOT EXISTS learning_path_flashcard_set (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  path_kind VARCHAR(8) NOT NULL,
+  tab VARCHAR(16) NOT NULL,
+  level VARCHAR(8) NULL,
+  codes_hash CHAR(64) NOT NULL,
+  set_id BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_lp_fc_set UNIQUE (user_id, path_kind, codes_hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

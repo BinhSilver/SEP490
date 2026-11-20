@@ -129,7 +129,7 @@ public class JpathCheckSet {
     @PrePersist
     void fillIssuedAt() {
         if (issuedAt == null) {
-            issuedAt = LocalDateTime.now();
+            issuedAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         }
     }
 }

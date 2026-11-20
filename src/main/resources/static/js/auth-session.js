@@ -467,7 +467,8 @@
         // The personal notebook is independent of learning-path onboarding.
         if (path === '/learning/notebook') return;
         // [JLAS-W0108] A8: only the learning path needs the survey; other pages stay open.
-        if (path !== '/learning' && path.indexOf('/learning/') !== 0) return;
+        // Owner 19/11: only the two path pages; /learning/onyomi and other study modules never send to the survey
+        if (path !== '/learning' && path.indexOf('/learning/jlpt') !== 0 && path.indexOf('/learning/comm') !== 0) return;
         try {
           var response = await fetch('/api/assessment/survey', { headers: JlasAuth.authHeaders() });
           if (!response.ok) return;

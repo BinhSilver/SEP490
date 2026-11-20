@@ -499,3 +499,20 @@ body:has(.jp-tour) .jp-report-fab { display: none; }
   .jp-ws__main .jp-side__range::-webkit-scrollbar { display: none; }
   .jp-ws__main .jp-side__range .jp-side-btn { flex: 0 0 auto; padding: 8px 14px; white-space: nowrap; }
 }
+
+/* Bug 102: on a phone the Day page action row is not sticky, so it never covers the word and kanji lists.
+   body + class outranks the page sheet (jpath-side.css) that loads after this file. */
+@media (max-width: 640px) {
+  body .jp-dayd__actions {
+    position: static;
+    backdrop-filter: none;
+    background: transparent;
+    padding: 12px 0 0;
+    gap: 8px;
+  }
+  body .jp-dayd__actions .jp-btn {
+    flex: 1 1 calc(50% - 4px);
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+}

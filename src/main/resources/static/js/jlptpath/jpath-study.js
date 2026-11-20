@@ -818,7 +818,7 @@
 
   function fail(page, err) {
     page.el.setAttribute('aria-busy', 'false');
-    page.el.innerHTML = '<p class="jp-alert" role="alert">' + esc((err && err.message) || 'Không tải được lượt học.')
+    page.el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc((err && (err.code || err.status) && err.message) || 'Không tải được lượt học.')
       + '</p><a class="jp-btn" href="/learning">Về lộ trình</a>';
   }
 
@@ -831,7 +831,7 @@
 
   function reload(page) {
     return root.JpathApi.get(BASE + '/sessions/' + page.sessionId).then(function (s) { start(page, s); },
-      function (err) { setNotice(page, (err && err.message) || NEED_NETWORK_TEXT); });
+      function (err) { setNotice(page, (err && (err.code || err.status) && err.message) || NEED_NETWORK_TEXT); });
   }
 
   function setNotice(page, text) {
@@ -945,13 +945,89 @@
       return reload(page).then(function () { setNotice(page, message); });
     }).catch(function (err) {
       page.busy = false;
-      setNotice(page, (err && err.message) || NEED_NETWORK_TEXT);
+      setNotice(page, (err && (err.code || err.status) && err.message) || NEED_NETWORK_TEXT);
     });
   }
 
   function unavailable(c) {
     return !!c && !isCheck(c) && !has(c.expression) && !(c.kana && has(c.kana.kana))
       && !(c.grammar && has(c.grammar.pattern));
+  }
+
+  // ---- owner 18/11: new words/kanji as a list + the team's flashcard ---------------------------------------
+  /** The new VOCAB/KANJI cards in a row from the current one (no repeats); [] when the card is not one. */
+  function newRun(flow) {
+    var cards = (flow && flow.cards) || [];
+    var c = cards[0];
+    if (!c || c.kind !== 'NEW' || c.repeat || (c.itemType !== 'VOCAB' && c.itemType !== 'KANJI')) return [];
+    var out = [];
+    for (var i = 0; i < cards.length; i++) {
+      var k = cards[i];
+      if (k.kind !== 'NEW' || k.repeat || k.itemType !== c.itemType) break;
+      out.push(k);
+    }
+    return out;
+  }
+
+  function listRowHtml(c) {
+    var k = c.kanji || {};
+    var head = c.itemType === 'KANJI'
+      ? '<span class="jp-wlist__word" lang="ja">' + esc(c.expression || k.character || '') + '</span>'
+        + (has(k.hanViet || c.hanViet) ? '<span class="jp-wlist__hv">' + esc(String(k.hanViet || c.hanViet).toUpperCase()) + '</span>' : '')
+      : '<span class="jp-wlist__word" lang="ja">' + esc(c.expression || '') + '</span>'
+        + (has(c.reading) && c.reading !== c.expression ? '<span class="jp-wlist__reading" lang="ja">' + esc(c.reading) + '</span>' : '');
+    var meaning = c.meaning || c.meaningVi || k.meaningsVi || '';
+    return '<li class="jp-wlist__row"><div class="jp-wlist__head">' + head + '</div>'
+      + '<span class="jp-wlist__meaning">' + esc(meaning) + '</span>'
+      + (c.audioUrl ? '<button type="button" class="jp-icon-btn" data-jp-list-audio="' + esc(c.audioUrl) + '" aria-label="Nghe">'
+        + '<i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>' : '')
+      + '</li>';
+  }
+
+  function listHtml(run, fc) {
+    var kanji = run[0].itemType === 'KANJI';
+    var what = kanji ? 'chữ Kanji' : 'từ mới';
+    var progress = fc && fc.total ? '<span class="jp-wlist__progress">Đã nhớ ' + fc.remembered + '/' + fc.total + '</span>' : '';
+    return '<section class="jp-card jp-wlist" aria-label="Danh sách ' + what + '">'
+      + '<div class="jp-wlist__top"><h2 class="jp-wlist__title">' + run.length + ' ' + what + ' hôm nay</h2>' + progress + '</div>'
+      + '<ul class="jp-wlist__list">' + run.map(listRowHtml).join('') + '</ul>'
+      + '<div class="jp-wlist__actions">'
+      + '<button type="button" class="jp-btn" data-jp-list-fc' + (fc && fc.loading ? ' aria-busy="true" disabled' : '') + '>'
+      + (fc && fc.loading ? 'Đang mở' : 'Học bằng flashcard') + '</button>'
+      + '<button type="button" class="jp-btn jp-btn--primary" data-jp-list-done>Làm bài kiểm tra</button>'
+      + '</div></section>';
+  }
+
+  /** Today's flashcard set of this tab (made by the server without a button) and its "Đã nhớ x/y". */
+  function loadListSet(page, tab) {
+    if (page.fc && page.fc.tab === tab) return;
+    page.fc = { tab: tab, remembered: 0, total: 0, url: null };
+    Promise.resolve(root.JpathApi.send('GET', BASE + '/flashcards?tab=' + encodeURIComponent(tab))).then(function (res) {
+      var parts = (res && res.parts) || [];
+      var today = parts.filter(function (x) { return x && /^TODAY/.test(x.status) && x.setId; })[0];
+      if (!today || !page.fc || page.fc.tab !== tab) return;
+      page.fc.remembered = today.remembered; page.fc.total = today.total; page.fc.url = today.url;
+      draw(page);
+    }, function () { /* the list still works without flashcards */ });
+  }
+
+  function openListSet(page) {
+    var fc = page.fc;
+    var back = root.location.pathname + root.location.search;
+    var go = function (url) { root.location.assign(url + '&back=' + encodeURIComponent(back)); };
+    if (fc && fc.url) { go(fc.url); return; }
+    setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút');
+  }
+
+  /** "Làm bài kiểm tra": the list counts as seen (FIRST_RATE REMEMBERED each); the path's check decides. */
+  function finishList(page) {
+    if (page.blocked) return;
+    var run = newRun(page.flow);
+    run.forEach(function (c) {
+      var cur = current(page);
+      if (!cur || cur.code !== c.code) return;
+      dispatch(page, { type: 'RATE', rating: 'REMEMBERED', code: c.code, elapsedMs: elapsed(page) });
+    });
   }
 
   function draw(page) {
@@ -974,6 +1050,17 @@
       return;
     }
     var body;
+    var run = !f.retype ? newRun(f) : [];
+    if (run.length) {
+      loadListSet(page, run[0].itemType);
+      el.innerHTML = banner + stepsHtml(liveSteps(s, f.position, f.total).steps, liveSteps(s, f.position, f.total).minutesLeft, s.tab)
+        + '<div class="jp-study-main">' + listHtml(run, page.fc) + '</div>'
+        + '<p class="jp-study-status" role="status" aria-live="polite" data-jp-status>' + esc(page.notice) + '</p>';
+      D().applyDisplay(el, page.display);
+      D().rendered(el, page.doc);
+      if (fresh) page.notice = '';
+      return;
+    }
     if (isCheck(c) && page.checkFailed) {
       body = '<div class="jp-study-card jp-study-card--check"><p class="jp-alert" role="alert">'
         + esc(CHECK_NEEDS_NETWORK_TEXT) + '</p><button type="button" class="jp-btn jp-btn--primary" data-jp-retry-check>'
@@ -1069,6 +1156,10 @@
     var t = ev.target;
     if (!t || typeof t.closest !== 'function') return;
     if (t.closest('[data-jp-audio]')) { playCurrent(page); return; }
+    var la = t.closest('[data-jp-list-audio]');
+    if (la) { D().playAudio(la.getAttribute('data-jp-list-audio')); return; }
+    if (t.closest('[data-jp-list-fc]')) { openListSet(page); return; }
+    if (t.closest('[data-jp-list-done]')) { finishList(page); return; }
     if (t.closest('[data-jp-save]')) { ev.stopPropagation(); toggleSaved(page); return; }
     if (t.closest('[data-jp-flip]')) { flip(page); return; }
     var btn = t.closest('[data-jp-rate]');
@@ -1141,7 +1232,7 @@
     else if (act.type === 'SUBMIT') next(page);
   }
 
-  return { afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
+  return { newRun: newRun, listHtml: listHtml, afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
     cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, keyAction: keyAction,
     controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,
