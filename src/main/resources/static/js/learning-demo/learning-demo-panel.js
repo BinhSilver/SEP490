@@ -82,7 +82,7 @@
     panel.className = 'mission-demo';
     panel.setAttribute('data-learning-demo', '');
     var summary = document.createElement('summary');
-    summary.textContent = '🧪 Demo Learning';
+    summary.textContent = 'Demo Learning';
     var body = document.createElement('div');
     body.className = 'mission-demo__body';
     var status = document.createElement('div');
@@ -147,8 +147,43 @@
       commGroup.append(button('Hoàn tất bước tiếp theo', step(true)), button('Bước tiếp, nhập vai sai hết', step(false)));
       body.append(label('Tình huống giao tiếp'), commGroup);
     }
+    var onPath = /^\/learning(\/jlpt|\/?$|\/?\?)/.test(root.location.pathname + root.location.search);
+    if (onPath && !page.sessionId) {
+      var jp = document.createElement('div');
+      jp.className = 'mission-demo__group';
+      jp.append(button('Học xong hôm nay', function () {
+        return call('POST', '/api/dev/learning/jlpt/finish-today').then(function (json) {
+          var d = json.data || {};
+          return 'Ngày ' + d.day + ': ' + d.cards + ' thẻ, ' + d.checks + ' bài kiểm tra.' + (d.allDone ? ' Đã xong ngày.' : '') + (d.note ? ' ' + d.note : '');
+        });
+      }), button('Sang ngày mai', function () {
+        return call('POST', '/api/dev/learning/jlpt/next-day').then(function (json) { return 'Hôm nay là ' + json.data.today + '.'; });
+      }), button('Học hết lộ trình', function () {
+        return call('POST', '/api/dev/learning/jlpt/finish-path').then(function (json) {
+          var d = json.data || {};
+          return 'Đã học ' + d.days + ' ngày (' + d.from + ' → ' + d.to + '), ' + d.cards + ' thẻ, ' + d.checks + ' bài kiểm tra.'
+            + (d.finished ? ' Đã học hết bài của lộ trình: có thể thi JLPT.' : '') + (d.note ? ' ' + d.note : '');
+        });
+      }));
+      body.append(label('Lộ trình JLPT'), jp);
+    }
+    if (state.openSmartTest) {
+      var answerAll = function (right) {
+        return function () {
+          return call('POST', '/api/dev/learning/smart-test/answer-all', { correct: right }).then(function (json) {
+            var r = json.data || {};
+            var res = r.result || {};
+            return 'Đã trả lời ' + (r.answeredCount || 0) + ' câu.' + (res.estimatedOverallLevel ? ' Kết quả: ' + res.estimatedOverallLevel + '.' : '');
+          });
+        };
+      };
+      var stGroup = document.createElement('div');
+      stGroup.className = 'mission-demo__group';
+      stGroup.append(button('Trả lời đúng hết', answerAll(true)), button('Trả lời sai hết', answerAll(false)));
+      body.append(label('Smart Test đang làm'), stGroup);
+    }
     if (!check) {
-      status.textContent = page.sessionId || page.situation ? 'Chấm điểm, tiến độ và CP do hệ thống tự tính.'
+      status.textContent = page.sessionId || page.situation || state.openSmartTest || onPath ? 'Chấm điểm, tiến độ và CP do hệ thống tự tính.'
         : 'Chưa có bài kiểm tra nào đang mở. Mở bài (kiểm tra nhanh, kiểm tra tuần, Đọc/Nghe…) rồi tải lại trang.';
       body.append(status);
     } else {
