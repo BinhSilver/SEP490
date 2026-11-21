@@ -4,6 +4,6 @@ package com.jlas.notification.service;
 public interface UserNotificationPort {
     void notifyUser(Long userId, String type, String title, String message, String targetUrl, String eventKey);
 
-    /** Once-a-day greeting sent after a successful login. */
-    void greetDaily(Long userId, String fullName);
+    /** Once-a-day greeting sent after a successful login; a brand-new account is welcomed instead of welcomed back. */
+    void greetDaily(Long userId, String fullName, boolean firstLogin);
 }
