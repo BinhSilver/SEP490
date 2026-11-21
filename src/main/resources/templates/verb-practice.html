@@ -3,77 +3,68 @@
 <head>
     <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Luyện chia động từ · J-LAB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" th:href="@{/css/tokens.css}" /><link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
-    <link rel="stylesheet" th:href="@{/css/base.css}" /><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}" />
-    <link rel="stylesheet" th:href="@{/css/pages/verb-practice.css?v=20261111-setup}" />
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261119-compact)}" /><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}" />
+    <link rel="stylesheet" th:href="@{/css/pages/verb-practice.css?v=20261119-compact}" />
+    <link rel="stylesheet" th:href="@{/css/components/toast.css(v=20261011-mobile-toast)}" />
+    <link rel="stylesheet" th:href="@{/css/components/learning-report.css(v=20261120-report-fix)}" />
+    <script th:src="@{/js/components.js}"></script>
+    <script th:src="@{/js/components/learning-report.js(v=20261120-report-fix)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
+    <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261119-compact)}" />
+    <link rel="stylesheet" th:href="@{/css/components/select.css}" />
+    <link rel="stylesheet" th:href="@{/css/controls.css(v=20261119-compact)}" />
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261119-compact)}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script defer th:src="@{/js/components/select.js(v=20261119-compact)}"></script>
+    <script defer th:src="@{/js/components/owned-ui.js(v=20261119-compact)}"></script>
 </head>
-<body id="jlabBasePage" class="verb-page">
+<body id="jlabBasePage" class="verb-page jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" data-inline-dictionary>
 <div id="verbApp" class="vp">
     <div id="vpNotice" class="vp-notice" role="alert" hidden></div>
     <div id="vpHome">
-        <section class="vp-hero" aria-labelledby="vpTitle">
+        <section class="vp-hero vp-hero--compact" aria-labelledby="vpTitle">
             <div class="vp-hero-copy">
-                <h1 id="vpTitle">Luyện một chút.<br /><em>Chia chuẩn hơn.</em></h1>
-            </div>
-            <div class="vp-illustration" aria-hidden="true">
-                <span class="vp-spark vp-spark-one">✦</span><span class="vp-spark vp-spark-two">✧</span>
-                <div class="vp-paper vp-paper-back"></div>
-                <div class="vp-paper vp-paper-front"><small>THỂ TỪ ĐIỂN → THỂ て</small><div lang="ja">書く <span>→</span> <b>書いて</b></div><footer><span class="vp-check">✓</span> Thêm một điều đã nhớ!</footer></div>
-                <span class="vp-floating-pill"><i class="fa-solid fa-seedling"></i> Từng bước, thật chắc</span>
+                <div><h1 id="vpTitle">Luyện chia động từ</h1><p>Chọn thể và chế độ để bắt đầu luyện.</p></div>
+                <button id="vpOpenRules" type="button" class="btn btn--secondary vp-open-rules" aria-haspopup="dialog" aria-controls="vpRulesDialog">Quy tắc chia thể</button>
             </div>
         </section>
         <div id="vpResume" class="vp-resume" hidden><span><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bạn còn một vòng luyện đang dở.</span><button type="button" id="vpResumeButton">Tiếp tục <span aria-hidden="true">→</span></button></div>
         <div class="vp-workspace">
             <form id="vpSetupForm" class="vp-setup-form">
-                <fieldset id="vpSetupFields" class="vp-setup-fields" disabled>
+                <fieldset id="vpSetupFields" class="vp-setup-fields">
                     <section class="vp-card vp-forms" aria-labelledby="vpFormsTitle">
                         <div class="vp-section-heading"><h2 id="vpFormsTitle">Thể muốn luyện</h2><button type="button" id="vpSelectAll" class="vp-select-all">Chọn tất cả</button></div>
-                        <div class="vp-form-category">NỀN TẢNG</div><div id="vpBasicForms" class="vp-form-chips"></div>
-                        <div class="vp-form-category">MỞ RỘNG</div><div id="vpAdvancedForms" class="vp-form-chips"></div>
+                        <div class="vp-form-category">NỀN TẢNG</div><div id="vpBasicForms" class="vp-form-chips"><label th:each="form : ${initialBasicForms}" th:title="${form.description}"><input type="checkbox" th:value="${form.name()}" th:checked="${form.name() != 'NAKATTA'}" /><span th:text="${form.label}"></span></label></div>
+                        <div class="vp-form-category">MỞ RỘNG</div><div id="vpAdvancedForms" class="vp-form-chips"><label th:each="form : ${initialAdvancedForms}" th:title="${form.description}"><input type="checkbox" th:value="${form.name()}" /><span th:text="${form.label}"></span></label></div>
 
-                        <div class="vp-launch"><div><b id="vpModeName">Tự nhập đáp án</b><small id="vpModeHint">Tự nhớ, tự chia, nhớ lâu hơn.</small></div><button id="vpStart" type="submit" class="vp-button primary">Bắt đầu luyện <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>
+                        <div class="vp-launch"><div><b id="vpModeName">Tự nhập đáp án</b><small id="vpModeHint">Tự nhớ, tự chia, nhớ lâu hơn.</small></div><button id="vpStart" type="submit" class="vp-button primary" disabled>Đang chuẩn bị…</button></div>
                     </section>
                     <section class="vp-card vp-settings" aria-labelledby="vpSetupTitle">
                         <div class="vp-section-heading"><h2 id="vpSetupTitle">Thiết kế vòng luyện của bạn</h2><span class="vp-soft-label"><i class="fa-solid fa-sliders" aria-hidden="true"></i> Tùy chọn</span></div>
-                        <div class="vp-mode-field"><label for="vpModes">Chế độ luyện</label><select id="vpModes" aria-describedby="vpModeHint"></select></div>
-                        <div class="vp-filter-row"><label>Nhóm động từ<select id="vpGroup"><option value="0">Tất cả các nhóm</option><option value="1">Nhóm 1 · Godan</option><option value="2">Nhóm 2 · Ichidan</option><option value="3">Nhóm 3 · Bất quy tắc</option></select></label><label>Bộ từ<select id="vpLevel"><option value="ALL">Tất cả cấp độ</option><option value="N5">N5 · Nền tảng</option><option value="N4">N4 · Mở rộng</option><option value="N3">N3 · Trung cấp</option><option value="N2">N2 · Trung cao cấp</option><option value="N1">N1 · Cao cấp</option></select></label><label>Số lượt<select id="vpCount"><option value="10">10 lượt</option><option value="20">20 lượt</option><option value="30">30 lượt</option></select></label></div>
+                        <div class="vp-mode-field"><label for="vpModes">Chế độ luyện</label><select data-jl-select id="vpModes" aria-describedby="vpModeHint"><option value="INPUT">Tự nhập đáp án</option></select></div>
+                        <div class="vp-filter-row"><label>Nhóm động từ<select data-jl-select id="vpGroup"><option value="0">Tất cả các nhóm</option><option value="1">Nhóm 1 · Godan</option><option value="2">Nhóm 2 · Ichidan</option><option value="3">Nhóm 3 · Bất quy tắc</option></select></label><label>Bộ từ<select data-jl-select id="vpLevel"><option value="ALL">Tất cả cấp độ</option><option value="N5">N5 · Nền tảng</option><option value="N4">N4 · Mở rộng</option><option value="N3">N3 · Trung cấp</option><option value="N2">N2 · Trung cao cấp</option><option value="N1">N1 · Cao cấp</option></select></label><label>Số lượt<select data-jl-select id="vpCount"><option value="10">10 lượt</option><option value="20">20 lượt</option><option value="30">30 lượt</option></select></label></div>
                         <label class="vp-reading-toggle"><input type="checkbox" id="vpShowReading" checked /><span>Hiện cách đọc khi luyện</span><span class="vp-toggle-track" aria-hidden="true"></span></label>
                     </section>
                 </fieldset>
                 <button type="button" id="vpReload" class="vp-button secondary" hidden>Thử tải lại</button>
             </form>
         </div>
-        <section class="vp-card vp-rulebook"><div class="vp-side-heading"><span class="vp-icon green"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i></span><div><h2>Một chút nhắc nhớ</h2><p class="vp-rule-intro">Nhận biết nhóm động từ trước khi chọn cách chia.</p></div></div><div class="vp-rule-columns">
-            <details><summary><span>Nhóm 1 <small>Godan · đổi âm cuối</small></span><b lang="ja">五段</b></summary><div class="vp-rule-content"><p class="vp-rule-lead">Động từ kết thúc bằng う・く・ぐ・す・つ・ぬ・ぶ・む・る thường thuộc nhóm 1. Ví dụ: <span lang="ja">書く</span>; đổi âm cuối theo thể rồi thêm đuôi.</p><div class="vp-rule-form-columns"><div><h3>Thể nền tảng</h3><table><tbody>
-                <tr><th scope="row">ます</th><td lang="ja">書きます <small>く → き + ます</small></td></tr><tr><th scope="row">て</th><td lang="ja">書いて <small>く → いて</small></td></tr><tr><th scope="row">ない</th><td lang="ja">書かない <small>く → か + ない</small></td></tr><tr><th scope="row">た</th><td lang="ja">書いた <small>く → いた</small></td></tr><tr><th scope="row">なかった</th><td lang="ja">書かなかった <small>ない → なかった</small></td></tr>
-            </tbody></table></div><div><h3>Thể mở rộng</h3><table><tbody>
-                <tr><th scope="row">Khả năng</th><td lang="ja">書ける <small>く → け + る</small></td></tr><tr><th scope="row">Ý chí</th><td lang="ja">書こう <small>く → こ + う</small></td></tr><tr><th scope="row">Điều kiện ば</th><td lang="ja">書けば <small>く → け + ば</small></td></tr><tr><th scope="row">Điều kiện たら</th><td lang="ja">書いたら <small>thể た + ら</small></td></tr><tr><th scope="row">Bị động</th><td lang="ja">書かれる <small>く → か + れる</small></td></tr><tr><th scope="row">Sai khiến</th><td lang="ja">書かせる <small>く → か + せる</small></td></tr><tr><th scope="row">Sai khiến bị động</th><td lang="ja">書かせられる <small>cũng có dạng rút gọn 書かされる</small></td></tr>
-            </tbody></table></div></div><div class="vp-rule-note"><b>Quy tắc て／た của nhóm 1:</b> う・つ・る → って／った; む・ぶ・ぬ → んで／んだ; く → いて／いた; ぐ → いで／いだ; す → して／した. Ngoại lệ: <span lang="ja">行く → 行って・行った</span>.</div><small>Động từ kết thúc bằng る chưa chắc thuộc nhóm 2: <span lang="ja">帰る・入る・走る・切る</span> là nhóm 1.</small></div></details>
-            <details><summary><span>Nhóm 2 <small>Ichidan · bỏ る</small></span><b lang="ja">一段</b></summary><div class="vp-rule-content"><p class="vp-rule-lead">Nhiều động từ kết thúc bằng いる／える thuộc nhóm 2. Ví dụ: <span lang="ja">食べる</span>; bỏ る rồi thêm đuôi thể.</p><div class="vp-rule-form-columns"><div><h3>Thể nền tảng</h3><table><tbody>
-                <tr><th scope="row">ます</th><td lang="ja">食べます <small>bỏ る + ます</small></td></tr><tr><th scope="row">て</th><td lang="ja">食べて <small>bỏ る + て</small></td></tr><tr><th scope="row">ない</th><td lang="ja">食べない <small>bỏ る + ない</small></td></tr><tr><th scope="row">た</th><td lang="ja">食べた <small>bỏ る + た</small></td></tr><tr><th scope="row">なかった</th><td lang="ja">食べなかった <small>ない → なかった</small></td></tr>
-            </tbody></table></div><div><h3>Thể mở rộng</h3><table><tbody>
-                <tr><th scope="row">Khả năng</th><td lang="ja">食べられる <small>bỏ る + られる</small></td></tr><tr><th scope="row">Ý chí</th><td lang="ja">食べよう <small>bỏ る + よう</small></td></tr><tr><th scope="row">Điều kiện ば</th><td lang="ja">食べれば <small>bỏ る + れば</small></td></tr><tr><th scope="row">Điều kiện たら</th><td lang="ja">食べたら <small>thể た + ら</small></td></tr><tr><th scope="row">Bị động</th><td lang="ja">食べられる <small>giống thể khả năng</small></td></tr><tr><th scope="row">Sai khiến</th><td lang="ja">食べさせる <small>bỏ る + させる</small></td></tr><tr><th scope="row">Sai khiến bị động</th><td lang="ja">食べさせられる <small>bỏ る + させられる</small></td></tr>
-            </tbody></table></div></div><div class="vp-rule-note"><b>Mẹo nhận biết:</b> nhiều động từ nhóm 2 kết thúc bằng <span lang="ja">いる／える</span>, nhưng có ngoại lệ. <span lang="ja">着る（mặc）</span> là nhóm 2; <span lang="ja">切る（cắt）</span> là nhóm 1.</div></div></details>
-            <details><summary><span>Nhóm 3 <small>Bất quy tắc</small></span><b lang="ja">不規則</b></summary><div class="vp-rule-content"><p class="vp-rule-lead">Không áp dụng một quy tắc đổi đuôi chung; cần nhớ riêng từng dạng.</p><div class="vp-rule-form-columns"><div><h3>Thể nền tảng</h3><table><tbody>
-                <tr><th scope="row">ます</th><td lang="ja">する → します<br>来る → 来ます（きます）</td></tr><tr><th scope="row">て</th><td lang="ja">する → して<br>来る → 来て（きて）</td></tr><tr><th scope="row">ない</th><td lang="ja">する → しない<br>来る → 来ない（こない）</td></tr><tr><th scope="row">た</th><td lang="ja">する → した<br>来る → 来た（きた）</td></tr><tr><th scope="row">なかった</th><td lang="ja">する → しなかった<br>来る → 来なかった（こなかった）</td></tr>
-            </tbody></table></div><div><h3>Thể mở rộng</h3><table><tbody>
-                <tr><th scope="row">Khả năng</th><td lang="ja">する → できる<br>来る → 来られる（こられる）</td></tr><tr><th scope="row">Ý chí</th><td lang="ja">する → しよう<br>来る → 来よう（こよう）</td></tr><tr><th scope="row">Điều kiện ば</th><td lang="ja">する → すれば<br>来る → 来れば（くれば）</td></tr><tr><th scope="row">Điều kiện たら</th><td lang="ja">する → したら<br>来る → 来たら（きたら）</td></tr><tr><th scope="row">Bị động</th><td lang="ja">する → される<br>来る → 来られる（こられる）</td></tr><tr><th scope="row">Sai khiến</th><td lang="ja">する → させる<br>来る → 来させる（こさせる）</td></tr><tr><th scope="row">Sai khiến bị động</th><td lang="ja">する → させられる<br>来る → 来させられる（こさせられる）</td></tr>
-            </tbody></table></div></div><div class="vp-rule-note"><b>Lưu ý:</b> <span lang="ja">来る</span> đọc là <i>くる</i> ở dạng từ điển, nhưng cách đọc đổi theo thể: <i>き</i>ます・<i>こ</i>ない・<i>こ</i>られる.</div></div></details>
-        </div></section>
+
     </div>
 
     <section id="vpPlay" class="vp-play" hidden aria-labelledby="vpPlayTitle">
         <div class="vp-play-top"><button type="button" id="vpExit" class="vp-back"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kết thúc vòng</button><span id="vpPlayTitle" class="vp-soft-label">Tự nhập đáp án</span><span id="vpTimer" class="vp-timer" hidden><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> <b>60</b>s</span></div>
         <div class="vp-session-progress"><div><span id="vpQuestionCount">Lượt 1 / 10</span><span id="vpSessionCorrect">0 đúng</span></div><div class="vp-progress-track"><i id="vpProgressBar"></i></div></div>
         <article class="vp-card vp-question-card">
-            <div class="vp-question-meta"><span id="vpQuestionGroup" class="vp-soft-label"></span><span id="vpChainHint" class="vp-muted"></span></div>
+            <div class="vp-question-meta"><span id="vpQuestionGroup" class="vp-soft-label"></span><span id="vpChainHint" class="vp-muted"></span><span id="vpReport"></span></div>
             <div class="vp-question-center"><p class="vp-question-instruction">Chia động từ sang <strong id="vpTargetForm"></strong></p><h2 id="vpWord" lang="ja" tabindex="-1"></h2><p id="vpReading" class="vp-reading" lang="ja"></p><p id="vpMeaning" class="vp-meaning"></p></div>
             <div id="vpContext" class="vp-context" hidden><p id="vpSentence" lang="ja"></p><small id="vpTranslation"></small></div>
-            <form id="vpAnswerForm" autocomplete="off"><div id="vpChoices" class="vp-choices" role="group" aria-label="Các đáp án" hidden></div><div id="vpTyped"><label class="vp-sr-only" for="vpAnswer">Đáp án bằng tiếng Nhật</label><input id="vpAnswer" type="text" lang="ja" placeholder="Nhập đáp án bằng tiếng Nhật…" maxlength="120" spellcheck="false" autocapitalize="off" /><p class="vp-input-hint">Chấp nhận kanji, kana hoặc romaji (ví dụ: wasurenai) · Dùng cách chia chuẩn</p></div><div id="vpAnswerActions" class="vp-answer-actions"><button type="button" id="vpSkip" class="vp-text-button">Bỏ qua câu này</button><button type="submit" id="vpCheck" class="vp-button primary">Kiểm tra <span class="vp-key" aria-hidden="true">↵</span></button></div></form>
+            <form id="vpAnswerForm" autocomplete="off"><div id="vpChoices" class="vp-choices" role="group" aria-label="Các đáp án" hidden></div><div id="vpTyped"><label class="vp-sr-only" for="vpAnswer">Đáp án bằng tiếng Nhật</label><input id="vpAnswer" type="text" lang="ja" placeholder="Nhập đáp án bằng tiếng Nhật…" maxlength="120" spellcheck="false" autocapitalize="off" /></div><div id="vpAnswerActions" class="vp-answer-actions"><button type="button" id="vpSkip" class="vp-text-button">Bỏ qua câu này</button><button type="submit" id="vpCheck" class="vp-button primary">Kiểm tra <span class="vp-key" aria-hidden="true">↵</span></button></div></form>
             <div id="vpFeedback" class="vp-feedback" role="status" hidden><span id="vpFeedbackIcon" class="vp-feedback-icon" aria-hidden="true"></span><div><strong id="vpFeedbackTitle"></strong><p id="vpCorrectAnswer" lang="ja"></p><small id="vpExplanation"></small></div></div>
             <button type="button" id="vpNext" class="vp-button primary vp-next" hidden>Câu tiếp theo <span aria-hidden="true">→</span></button>
         </article>
@@ -86,9 +77,22 @@
         <div class="vp-result-actions"><button type="button" id="vpAgain" class="vp-button primary">Luyện thêm một vòng <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button><button type="button" id="vpReviewMistakes" class="vp-button secondary">Ôn lại lỗi sai</button><button type="button" id="vpHomeButton" class="vp-text-button">Về góc luyện tập</button></div>
         <section class="vp-card vp-result-detail"><div class="vp-side-heading"><span class="vp-icon violet"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span><h2>Nhìn lại vòng luyện</h2></div><div id="vpResultList"></div></section>
     </section>
-    <dialog id="vpExitDialog" class="vp-dialog" aria-labelledby="vpExitTitle"><figure class="vp-dialog-mascot"><div th:replace="~{fragments/components/fox-mascot :: foxMascot}"></div></figure><h2 id="vpExitTitle">Dừng ở đây một chút?</h2><p>Các câu đã trả lời sẽ được lưu vào tiến độ của bạn.</p><div><button type="button" id="vpStay" class="vp-button secondary">Luyện tiếp</button><button type="button" id="vpFinish" class="vp-button primary">Kết thúc &amp; xem kết quả</button></div></dialog>
+    <dialog id="vpRulesDialog" class="vp-rules-dialog" aria-labelledby="vpRulesTitle"><header class="vp-rules-heading"><div><h2 id="vpRulesTitle">Quy tắc chia thể</h2><p>Chọn nhóm động từ để tra cách chia và ví dụ.</p></div><form method="dialog"><button type="submit" class="btn btn--secondary">Đóng</button></form></header><div class="vp-rules-tabs" role="tablist" aria-label="Nhóm động từ"><button id="vpRulesTab1" type="button" role="tab" aria-controls="vpRulesGroup1" aria-selected="true" tabindex="0">Nhóm 1<small>Godan</small></button><button id="vpRulesTab2" type="button" role="tab" aria-controls="vpRulesGroup2" aria-selected="false" tabindex="-1">Nhóm 2<small>Ichidan</small></button><button id="vpRulesTab3" type="button" role="tab" aria-controls="vpRulesGroup3" aria-selected="false" tabindex="-1">Nhóm 3<small>Bất quy tắc</small></button></div><div class="vp-rules-body"><section id="vpRulesGroup1" class="vp-rules-panel" role="tabpanel" aria-labelledby="vpRulesTab1"><header class="vp-rules-group-title"><span>Nhóm 1 <small>Godan · đổi âm cuối</small></span><b lang="ja">五段</b></header><div class="vp-rule-content"><p class="vp-rule-lead">Động từ kết thúc bằng う・く・ぐ・す・つ・ぬ・ぶ・む・る thường thuộc nhóm 1. Ví dụ: <span lang="ja">書く</span>; đổi âm cuối theo thể rồi thêm đuôi.</p><div class="vp-rule-form-columns"><div><h3>Thể nền tảng</h3><table><tbody>
+                <tr><th scope="row">ます</th><td lang="ja">書きます <small>く → き + ます</small></td></tr><tr><th scope="row">て</th><td lang="ja">書いて <small>く → いて</small></td></tr><tr><th scope="row">ない</th><td lang="ja">書かない <small>く → か + ない</small></td></tr><tr><th scope="row">た</th><td lang="ja">書いた <small>く → いた</small></td></tr><tr><th scope="row">なかった</th><td lang="ja">書かなかった <small>ない → なかった</small></td></tr>
+            </tbody></table></div><div><h3>Thể mở rộng</h3><table><tbody>
+                <tr><th scope="row">Khả năng</th><td lang="ja">書ける <small>く → け + る</small></td></tr><tr><th scope="row">Ý chí</th><td lang="ja">書こう <small>く → こ + う</small></td></tr><tr><th scope="row">Điều kiện ば</th><td lang="ja">書けば <small>く → け + ば</small></td></tr><tr><th scope="row">Điều kiện たら</th><td lang="ja">書いたら <small>thể た + ら</small></td></tr><tr><th scope="row">Bị động</th><td lang="ja">書かれる <small>く → か + れる</small></td></tr><tr><th scope="row">Sai khiến</th><td lang="ja">書かせる <small>く → か + せる</small></td></tr><tr><th scope="row">Sai khiến bị động</th><td lang="ja">書かせられる <small>cũng có dạng rút gọn 書かされる</small></td></tr>
+            </tbody></table></div></div><div class="vp-rule-note"><b>Quy tắc て／た của nhóm 1:</b> う・つ・る → って／った; む・ぶ・ぬ → んで／んだ; く → いて／いた; ぐ → いで／いだ; す → して／した. Ngoại lệ: <span lang="ja">行く → 行って・行った</span>.</div><small>Động từ kết thúc bằng る chưa chắc thuộc nhóm 2: <span lang="ja">帰る・入る・走る・切る</span> là nhóm 1.</small></div></section><section id="vpRulesGroup2" class="vp-rules-panel" role="tabpanel" aria-labelledby="vpRulesTab2" hidden><header class="vp-rules-group-title"><span>Nhóm 2 <small>Ichidan · bỏ る</small></span><b lang="ja">一段</b></header><div class="vp-rule-content"><p class="vp-rule-lead">Nhiều động từ kết thúc bằng いる／える thuộc nhóm 2. Ví dụ: <span lang="ja">食べる</span>; bỏ る rồi thêm đuôi thể.</p><div class="vp-rule-form-columns"><div><h3>Thể nền tảng</h3><table><tbody>
+                <tr><th scope="row">ます</th><td lang="ja">食べます <small>bỏ る + ます</small></td></tr><tr><th scope="row">て</th><td lang="ja">食べて <small>bỏ る + て</small></td></tr><tr><th scope="row">ない</th><td lang="ja">食べない <small>bỏ る + ない</small></td></tr><tr><th scope="row">た</th><td lang="ja">食べた <small>bỏ る + た</small></td></tr><tr><th scope="row">なかった</th><td lang="ja">食べなかった <small>ない → なかった</small></td></tr>
+            </tbody></table></div><div><h3>Thể mở rộng</h3><table><tbody>
+                <tr><th scope="row">Khả năng</th><td lang="ja">食べられる <small>bỏ る + られる</small></td></tr><tr><th scope="row">Ý chí</th><td lang="ja">食べよう <small>bỏ る + よう</small></td></tr><tr><th scope="row">Điều kiện ば</th><td lang="ja">食べれば <small>bỏ る + れば</small></td></tr><tr><th scope="row">Điều kiện たら</th><td lang="ja">食べたら <small>thể た + ら</small></td></tr><tr><th scope="row">Bị động</th><td lang="ja">食べられる <small>giống thể khả năng</small></td></tr><tr><th scope="row">Sai khiến</th><td lang="ja">食べさせる <small>bỏ る + させる</small></td></tr><tr><th scope="row">Sai khiến bị động</th><td lang="ja">食べさせられる <small>bỏ る + させられる</small></td></tr>
+            </tbody></table></div></div><div class="vp-rule-note"><b>Mẹo nhận biết:</b> nhiều động từ nhóm 2 kết thúc bằng <span lang="ja">いる／える</span>, nhưng có ngoại lệ. <span lang="ja">着る（mặc）</span> là nhóm 2; <span lang="ja">切る（cắt）</span> là nhóm 1.</div></div></section><section id="vpRulesGroup3" class="vp-rules-panel" role="tabpanel" aria-labelledby="vpRulesTab3" hidden><header class="vp-rules-group-title"><span>Nhóm 3 <small>Bất quy tắc</small></span><b lang="ja">不規則</b></header><div class="vp-rule-content"><p class="vp-rule-lead">Không áp dụng một quy tắc đổi đuôi chung; cần nhớ riêng từng dạng.</p><div class="vp-rule-form-columns"><div><h3>Thể nền tảng</h3><table><tbody>
+                <tr><th scope="row">ます</th><td lang="ja">する → します<br>来る → 来ます（きます）</td></tr><tr><th scope="row">て</th><td lang="ja">する → して<br>来る → 来て（きて）</td></tr><tr><th scope="row">ない</th><td lang="ja">する → しない<br>来る → 来ない（こない）</td></tr><tr><th scope="row">た</th><td lang="ja">する → した<br>来る → 来た（きた）</td></tr><tr><th scope="row">なかった</th><td lang="ja">する → しなかった<br>来る → 来なかった（こなかった）</td></tr>
+            </tbody></table></div><div><h3>Thể mở rộng</h3><table><tbody>
+                <tr><th scope="row">Khả năng</th><td lang="ja">する → できる<br>来る → 来られる（こられる）</td></tr><tr><th scope="row">Ý chí</th><td lang="ja">する → しよう<br>来る → 来よう（こよう）</td></tr><tr><th scope="row">Điều kiện ば</th><td lang="ja">する → すれば<br>来る → 来れば（くれば）</td></tr><tr><th scope="row">Điều kiện たら</th><td lang="ja">する → したら<br>来る → 来たら（きたら）</td></tr><tr><th scope="row">Bị động</th><td lang="ja">する → される<br>来る → 来られる（こられる）</td></tr><tr><th scope="row">Sai khiến</th><td lang="ja">する → させる<br>来る → 来させる（こさせる）</td></tr><tr><th scope="row">Sai khiến bị động</th><td lang="ja">する → させられる<br>来る → 来させられる（こさせられる）</td></tr>
+            </tbody></table></div></div><div class="vp-rule-note"><b>Lưu ý:</b> <span lang="ja">来る</span> đọc là <i>くる</i> ở dạng từ điển, nhưng cách đọc đổi theo thể: <i>き</i>ます・<i>こ</i>ない・<i>こ</i>られる.</div></div></section></div></dialog>
+<dialog id="vpExitDialog" class="vp-dialog" aria-labelledby="vpExitTitle"><figure class="vp-dialog-mascot"><img src="/images/mascots/kitsu/kitsu-resting-30.webp" alt="Kitsu nghỉ một chút" width="112" height="112" /></figure><h2 id="vpExitTitle">Dừng ở đây một chút?</h2><p>Các câu đã trả lời sẽ được lưu vào tiến độ của bạn.</p><div><button type="button" id="vpStay" class="vp-button secondary">Luyện tiếp</button><button type="button" id="vpFinish" class="vp-button primary">Kết thúc &amp; xem kết quả</button></div></dialog>
 </div>
 </main>
-<script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js}"></script><script th:src="@{/js/pages/verb-practice.js?v=20261111-setup}"></script>
+<script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script><script th:src="@{/js/pages/verb-practice.js?v=20261120-reports}"></script>
 </body>
 </html>

@@ -24,6 +24,11 @@
       .replace(/'/g, '&#039;');
   }
 
+  /** Đề câu hỏi: escape toàn bộ, chỉ bật lại cặp <u>…</u> (từ cần hỏi được gạch chân); mọi thẻ khác vẫn là chữ. */
+  function questionHtml(value) {
+    return escapeHtml(value).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<u class="lq-target">$1</u>');
+  }
+
   function icon(name) {
     return '<span class="material-symbols-outlined" aria-hidden="true">' + name + '</span>';
   }
@@ -98,7 +103,7 @@
       '<span class="lq-question__type">' + escapeHtml(questionTypeLabel(question.questionType)) + '</span>' +
       '</legend>' +
       passage + image +
-      '<p class="lq-question__text">' + escapeHtml(question.questionText) + '</p>' +
+      '<p class="lq-question__text">' + questionHtml(question.questionText) + '</p>' +
       '<div class="lq-options">' + answer + '</div></fieldset>';
   }
 
@@ -145,7 +150,7 @@
 
     return '<article class="lq-answer ' + (answer.isCorrect === true ? 'is-correct' : 'is-wrong') + '">' +
       '<header class="lq-answer__head">' + badge +
-      '<h3 class="lq-answer__text">' + escapeHtml(answer.questionText) + '</h3></header>' +
+      '<h3 class="lq-answer__text">' + questionHtml(answer.questionText) + '</h3></header>' +
       '<div class="lq-answer__body">' + userLine + correctLine + explanation + '</div></article>';
   }
 

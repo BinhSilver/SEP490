@@ -49,6 +49,27 @@ public class CpathService {
         this.clock = clock;
     }
 
+    /**
+     * QA 19/11 (bugs 71-74, 101): what the communication pages show — "ACTIVE" (a path to study), "PAUSED" (only a
+     * paused path: a card with "Học tiếp", never "chưa có" or raw JSON) or "NONE" (no path: the survey makes one).
+     */
+    @Transactional(readOnly = true)
+    public String pathState(Long userId) {
+        List<String> states = db.queryForList(
+                "SELECT status FROM cpath_user_path WHERE user_id = ? AND status IN ('ACTIVE', 'PAUSED')",
+                String.class, userId);
+        if (states.contains("ACTIVE")) return "ACTIVE";
+        return states.isEmpty() ? "NONE" : "PAUSED";
+    }
+
+    /** The newest paused path's goal name, for the paused card. */
+    @Transactional(readOnly = true)
+    public String pausedGoalName(Long userId) {
+        return db.queryForList("SELECT g.name_vi FROM cpath_user_path p JOIN cpath_goal g ON g.code = p.goal_code "
+                + "WHERE p.user_id = ? AND p.status = 'PAUSED' ORDER BY p.id DESC LIMIT 1", String.class, userId)
+                .stream().findFirst().orElse(null);
+    }
+
     /** Owner 19/10: 2 CP once per situation, on the first time all 4 steps are done. */
     static final int SITUATION_CP = 2;
     static final String REF_SITUATION = "CPATH_SITUATION";
@@ -93,10 +114,16 @@ public class CpathService {
         return null;
     }
 
+    /** I10: the study clock (Vietnam time); a bare service in unit tests falls back to the same zone. */
+    private java.time.LocalDateTime vnNow() {
+        java.time.LocalDateTime t = clock == null ? null : clock.now();
+        return t != null ? t : java.time.LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+    }
+
     static java.time.LocalDateTime dateTimeOf(Object v) {
         if (v instanceof java.time.LocalDateTime t) return t;
         if (v instanceof java.sql.Timestamp t) return t.toLocalDateTime();
-        return java.time.LocalDateTime.now();
+        return null; // I10: a missing taken_at means "not taken", never "taken just now"
     }
 
     /** Stable numeric reference of a situation code for the CP ledger (its unique key drops a repeat award). */
@@ -179,14 +206,28 @@ public class CpathService {
         if (goal == null || exists == null || exists == 0) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu không hợp lệ.");
         String level = str(req.getOrDefault("selfLevel", "BEGINNER"));
         if (!List.of("BEGINNER", "ELEMENTARY", "INTERMEDIATE").contains(level)) level = "BEGINNER";
-        int daily = num(req.get("dailySituations")) == 2 ? 2 : 1;
+        // owner 18/11: situations per day follow the survey's free time unless the learner picked a number
+        int daily = req.get("dailySituations") != null ? dailyOf(req.get("dailySituations")) : dailyFromSurvey(userId);
         List<Object> rest = req.get("restDays") instanceof List<?> l ? (List<Object>) l : List.of();
+        // bug 12: a finish date before today was stored when the path was created (settings already refused it)
         Object finish = req.get("finishDate");
+        if (finish != null && !finish.toString().isBlank()) {
+            LocalDate wanted;
+            try { wanted = LocalDate.parse(finish.toString()); }
+            catch (RuntimeException e) { throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành không hợp lệ."); }
+            if (wanted.isBefore(clock == null ? LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")) : clock.today(userId)))
+                throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành phải từ hôm nay trở đi.");
+        }
         Long main = mainPathId(userId);
         String requestedRole = str(req.get("role"));
         boolean secondary = "SECONDARY".equals(requestedRole) && main != null;
         if (secondary && goal.equals(db.queryForObject("SELECT goal_code FROM cpath_user_path WHERE id = ?", String.class, main))) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu phụ phải khác mục tiêu chính.");
+        }
+        if (!secondary) {
+            // owner 17/11 (mentor review): one main goal — a communication goal as the main goal pauses an ACTIVE
+            // JLPT path (progress kept; choosing JLPT again resumes it), the mirror of JLPT pausing communication
+            db.update("UPDATE jpath_user_path SET status = 'PAUSED', active_flag = NULL WHERE user_id = ? AND status = 'ACTIVE'", userId);
         }
         List<Long> resumable = secondary ? List.of() : db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
         // F118 (owner 14/11): the new main goal is the learner's secondary goal → that row becomes the main path, so
@@ -359,6 +400,20 @@ public class CpathService {
     /** Today's situations: the ones planned today, else the next not-done ones (planned now). */
     @Transactional
     public List<Map<String, Object>> today(Long userId, Map<String, Object> path) {
+        return today(userId, path, true);
+    }
+
+    /**
+     * Bug 108 (I4): plans today's situations (POST /today/plan, sent by the page before it reads the path);
+     * GET /path only reads.
+     */
+    @Transactional
+    public Map<String, Object> planToday(Long userId) {
+        return Map.of("situations", today(userId, requirePath(userId), true));
+    }
+
+    /** {@code write} = store the plan; false = the same list worked out without writing (GET). */
+    private List<Map<String, Object>> today(Long userId, Map<String, Object> path, boolean write) {
         Long pathId = ((Number) path.get("id")).longValue();
         LocalDate day = clock.today(userId);
         List<Map<String, Object>> order = orderedSituations(path);
@@ -373,23 +428,27 @@ public class CpathService {
             int want = ((Number) path.get("daily_situations")).intValue();
             // F74 (12/11): a situation planned on an earlier day and not finished comes back first (a missed day carries
             // over), so the map order and "Hôm nay" stay the same instead of jumping to the next topic
+            // I16 (owner 19/11): make-up work piles up to at most twice a normal day; the rest moves to later days
+            int cap = 2 * want;
             for (Map<String, Object> s : order) {
-                if (planned.size() >= want) break;
+                if (planned.size() >= cap) break;
                 Map<String, Object> p = prog.get(s.get("code"));
                 LocalDate planDay = p == null ? null : toDate(p.get("study_day"));
                 if (p != null && !done(p) && planDay != null && planDay.isBefore(day)) {
-                    db.update("UPDATE cpath_user_situation SET study_day = ? WHERE path_id = ? AND situation_code = ?", day, pathId, s.get("code"));
+                    if (write) db.update("UPDATE cpath_user_situation SET study_day = ? WHERE path_id = ? AND situation_code = ?", day, pathId, s.get("code"));
                     planned.add((String) s.get("code"));
                 }
             }
+            int fresh = 0;
             for (Map<String, Object> s : order) {
-                if (planned.size() >= want) break;
+                if (fresh >= want || planned.size() >= cap) break;
                 if (!prog.containsKey(s.get("code"))) {
-                    db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
+                    fresh++;
+                    if (write) db.update("INSERT INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, s.get("code"), day);
                     planned.add((String) s.get("code"));
                 }
             }
-            prog = progressOf(pathId);
+            if (write) prog = progressOf(pathId);
         }
         List<Map<String, Object>> out = new ArrayList<>();
         for (Map<String, Object> s : order) {
@@ -465,10 +524,12 @@ public class CpathService {
         Map<String, Object> todayMap = new LinkedHashMap<>();
         todayMap.put("date", learnerToday.toString());
         todayMap.put("restDay", isRest(p, learnerToday));
-        todayMap.put("situations", today(userId, p));
+        todayMap.put("situations", today(userId, p, false)); // bug 108: GET never plans
         String testDay = weeklyTestDay(userId, p);
         todayMap.put("weeklyTestDay", testDay);
         todayMap.put("weeklyOpen", weeklyOpen(userId, p, learnerToday, testDay)); // F44: the path page shows the same rule
+        // owner 17/11: the path page offers "Ôn tập hôm nay" only when something is due (Sổ tay or 1/3/7/14/30-day items)
+        todayMap.put("reviewDue", reviewQuestions(userId, p).size());
         m.put("today", todayMap);
         Map<String, Object> sec = pathRow(userId, "SECONDARY");
         if (sec == null) {
@@ -678,7 +739,11 @@ public class CpathService {
             Map<String, Object> pr = prog.get(s.get("code"));
             String status = done(pr) ? (today.equals(toDate(pr.get("study_day"))) ? "TODAY_DONE" : "DONE")
                     : pr != null && today.equals(toDate(pr.get("study_day"))) ? "TODAY" : "NEXT";
-            items.add(item("SITUATION", s.get("code"), s.get("title_vi"), s.get("title_ja"), s.get("topic_code"), s.get("topic_name"), status, null));
+            Map<String, Object> sitNode = item("SITUATION", s.get("code"), s.get("title_vi"), s.get("title_ja"), s.get("topic_code"), s.get("topic_name"), status, null);
+            // owner 17/11: a past study day left unlearned is "missed", not a brand-new lesson
+            LocalDate planned = pr == null ? null : toDate(pr.get("study_day"));
+            sitNode.put("missed", !done(pr) && planned != null && planned.isBefore(today));
+            items.add(sitNode);
             boolean lastOfTopic = i == order.size() - 1 || !s.get("topic_code").equals(order.get(i + 1).get("topic_code"));
             if (lastOfTopic) {
                 Map<String, Object> t = topicRows.get(s.get("topic_code"));
@@ -840,6 +905,15 @@ public class CpathService {
             w.put("vi", rs.getString("vi"));
             w.put("note", rs.getString("note_vi"));
             w.put("audioUrl", url(rs.getString("audio_path")));
+            // owner 17/11: own example when no dialogue line shows the phrase (column added 17/11, absent on old DBs)
+            String exJa = optColumn(rs, "example_ja");
+            if (exJa != null && !exJa.isBlank()) {
+                Map<String, Object> ex = new LinkedHashMap<>();
+                ex.put("ja", exJa);
+                ex.put("furigana", optColumn(rs, "example_furigana"));
+                ex.put("vi", optColumn(rs, "example_vi"));
+                w.put("example", ex);
+            }
             return w;
         }, code));
         m.put("lines", db.query("SELECT * FROM cpath_line WHERE situation_code = ? ORDER BY line_order", (rs, i) -> {
@@ -959,7 +1033,7 @@ public class CpathService {
                 cp = awardSituation(userId, code, title);
             }
             boolean first = row.get("done_at") == null;
-            db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?", pathId, code);
+            db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, ?) WHERE path_id = ? AND situation_code = ?", vnNow(), pathId, code);
             String passedTopic = updateTopic(pathId, code);
             if (passedTopic != null)
                 cp += award(userId, TOPIC_CP, REF_TOPIC, situationRef(passedTopic), "Đạt chủ đề giao tiếp " + passedTopic);
@@ -1020,7 +1094,7 @@ public class CpathService {
         boolean pass = allDone && speak != null && speak >= SPEAK_PASS
                 && state.get("roleplay_test_best") != null && num(state.get("roleplay_test_best")) >= ROLEPLAY_PASS;
         if (pass && state.get("passed_at") == null) {
-            db.update("UPDATE cpath_user_topic SET passed_at = CURRENT_TIMESTAMP(6) WHERE path_id = ? AND topic_code = ? AND passed_at IS NULL", pathId, topic);
+            db.update("UPDATE cpath_user_topic SET passed_at = ? WHERE path_id = ? AND topic_code = ? AND passed_at IS NULL", vnNow(), pathId, topic);
             return true;
         }
         return false;
@@ -1357,8 +1431,8 @@ public class CpathService {
         if (pass) {
             // counted as learned: every step ticked, no situation CP (the CP is for studying it)
             db.update("INSERT IGNORE INTO cpath_user_situation (path_id, situation_code, study_day) VALUES (?,?,?)", pathId, code, clock.today(userId));
-            db.update("UPDATE cpath_user_situation SET steps_done = ?, done_at = COALESCE(done_at, CURRENT_TIMESTAMP(6)) WHERE path_id = ? AND situation_code = ?",
-                    String.join(",", STEPS), pathId, code);
+            db.update("UPDATE cpath_user_situation SET steps_done = ?, done_at = COALESCE(done_at, ?) WHERE path_id = ? AND situation_code = ?",
+                    String.join(",", STEPS), vnNow(), pathId, code);
             updateTopic(pathId, code);
             refreshDailyGoalAfterCommit(userId); // F128
         }
@@ -1606,14 +1680,38 @@ public class CpathService {
         return m;
     }
 
-    /** Owner 06/11 slider: 1 or 2 situations a day, changed after the survey; today's plan keeps what it holds. */
+    /** Owner 18/11: 1–4 situations a day (about 15 minutes each; 60 minutes is the most a day plans). */
+    static final int MAX_DAILY = 4;
+
+    static int dailyOf(Object v) {
+        int n = v instanceof Number x ? x.intValue() : num(v);
+        return Math.max(1, Math.min(MAX_DAILY, n));
+    }
+
+    /** Free time from the learning survey → situations: 15→1, 30→2, 45→3, 60 and more→4 (an estimate, not a must). */
+    static int dailyForMinutes(Integer minutes) {
+        if (minutes == null || minutes <= 0) return 1;
+        return Math.max(1, Math.min(MAX_DAILY, (int) Math.round(minutes / 15.0)));
+    }
+
+    private int dailyFromSurvey(Long userId) {
+        try {
+            List<Integer> m = db.queryForList("SELECT daily_study_minutes FROM user_learning_survey WHERE user_id = ?", Integer.class, userId);
+            return dailyForMinutes(m.isEmpty() ? null : m.get(0));
+        } catch (org.springframework.dao.DataAccessException e) {
+            return 1; // survey table missing: keep the old default of 1 a day
+        }
+    }
+
+    /** Owner 06/11 slider, owner 18/11 1–4: situations a day, changed after the survey; today's plan keeps what it holds. */
     @Transactional
     public Map<String, Object> setPace(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
         if (body == null || !(body.get("restDays") instanceof List<?> rest))
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn lịch học hợp lệ.");
-        if (num(body.get("dailySituations")) != 1 && num(body.get("dailySituations")) != 2)
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn 1 hoặc 2 tình huống mỗi ngày.");
+        int wanted = num(body.get("dailySituations"));
+        if (wanted < 1 || wanted > MAX_DAILY)
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn từ 1 đến " + MAX_DAILY + " tình huống mỗi ngày.");
         List<String> days = rest.stream().map(String::valueOf).map(x -> x.toUpperCase(Locale.ROOT)).toList();
         // F118: each bad list gets its own reason (an unknown day used to say "keep one study day")
         if (!Set.of("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN").containsAll(days))
@@ -1640,7 +1738,7 @@ public class CpathService {
     @Transactional
     public Map<String, Object> setDaily(Long userId, Map<String, Object> body) {
         Map<String, Object> path = requirePath(userId);
-        int daily = body != null && num(body.get("dailySituations")) == 2 ? 2 : 1;
+        int daily = body == null ? 1 : dailyOf(body.get("dailySituations"));
         Long pathId = ((Number) path.get("id")).longValue();
         db.update("UPDATE cpath_user_path SET daily_situations = ? WHERE id = ?", daily, pathId);
         // today's plan follows the new pace: fewer drops only situations not started yet, more adds the next ones
@@ -1778,6 +1876,78 @@ public class CpathService {
             throw new ApiException(ErrorCode.CPATH_DISPLAY_UNAVAILABLE);
         }
         return path(userId);
+    }
+
+    /**
+     * Owner 17/11 (mentor review): one clear picture of the learner's goals for both paths — the main goal (the
+     * survey goal: JLPT or a communication goal), the secondary goal (communication only) and the paused paths that
+     * choosing their goal again resumes. Every goal panel and message reads this, so both paths say the same thing.
+     */
+    public Map<String, Object> goalsOverview(Long userId) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        String surveyGoal = db.queryForList("SELECT goal FROM user_learning_survey WHERE user_id = ?", String.class, userId)
+                .stream().findFirst().orElse(null);
+        List<Map<String, Object>> jlpt = db.queryForList("SELECT status, open_level FROM jpath_user_path WHERE user_id = ? "
+                + "AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", userId);
+        Map<String, Object> cMain = pathRow(userId, "MAIN");
+        Map<String, Object> cSec = pathRow(userId, "SECONDARY");
+        Map<String, Object> main = null;
+        boolean jlptActive = !jlpt.isEmpty() && "ACTIVE".equals(jlpt.get(0).get("status"));
+        // the survey goal decides the main goal; a communication path still open from before a switch to JLPT is
+        // shown as "still open" with a one-click pause, never as a second main goal
+        boolean jlptMain = jlptActive && ("JLPT".equals(surveyGoal) || cMain == null);
+        List<Map<String, Object>> leftOpen = new ArrayList<>();
+        if (jlptMain) {
+            main = goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning");
+            if (cMain != null) leftOpen.add(goalMap("COMM", (String) cMain.get("goal_code"), (String) cMain.get("name_vi"), "/learning/comm/path"));
+            if (cSec != null) leftOpen.add(goalMap("COMM", (String) cSec.get("goal_code"), (String) cSec.get("name_vi"), "/learning/comm/path"));
+        } else if (cMain != null) {
+            main = goalMap("COMM", (String) cMain.get("goal_code"), (String) cMain.get("name_vi"), "/learning/comm/path");
+            if (jlptActive) leftOpen.add(goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning"));
+        }
+        m.put("surveyGoal", surveyGoal);
+        m.put("main", main);
+        m.put("secondary", jlptMain || cSec == null ? null : goalMap("COMM", (String) cSec.get("goal_code"), (String) cSec.get("name_vi"), "/learning/comm/path"));
+        m.put("leftOpen", leftOpen);
+        List<Map<String, Object>> paused = new ArrayList<>();
+        if (!jlpt.isEmpty() && "PAUSED".equals(jlpt.get(0).get("status"))) {
+            paused.add(goalMap("JLPT", "JLPT", "JLPT " + jlpt.get(0).get("open_level"), "/learning/jlpt/resume"));
+        }
+        for (Map<String, Object> r : db.queryForList("SELECT p.goal_code, g.name_vi, p.role FROM cpath_user_path p JOIN cpath_goal g "
+                + "ON g.code = p.goal_code WHERE p.user_id = ? AND p.status = 'PAUSED' ORDER BY p.id DESC", userId)) {
+            String code = (String) r.get("goal_code");
+            boolean shown = paused.stream().anyMatch(x -> code.equals(x.get("goal")))
+                    || (main != null && code.equals(main.get("goal"))) || (cSec != null && code.equals(cSec.get("goal_code")));
+            if (!shown) paused.add(goalMap("COMM", code, (String) r.get("name_vi"), "/survey?edit=goal"));
+        }
+        m.put("paused", paused);
+        // a secondary goal studies alongside a communication main path only (it has no daily schedule of its own)
+        m.put("canAddSecondary", cMain != null && !jlptMain);
+        return m;
+    }
+
+    /**
+     * Owner 17/11: the main goal became JLPT — the communication main and secondary paths step aside (PAUSED,
+     * progress kept; choosing a communication goal again resumes it). Also the "Tạm dừng" button for paths left
+     * open by an earlier switch.
+     */
+    @Transactional
+    public Map<String, Object> pauseForJlptMain(Long userId) {
+        int n = db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND status = 'ACTIVE'", userId);
+        return Map.of("paused", n);
+    }
+
+    private static String optColumn(java.sql.ResultSet rs, String column) {
+        try { return rs.getString(column); } catch (java.sql.SQLException e) { return null; }
+    }
+
+    private static Map<String, Object> goalMap(String kind, String goal, String nameVi, String url) {
+        Map<String, Object> g = new LinkedHashMap<>();
+        g.put("kind", kind);
+        g.put("goal", goal);
+        g.put("nameVi", nameVi);
+        g.put("url", url);
+        return g;
     }
 
     /** F61: pauses the main path; progress is kept and choosing the same goal again in the survey resumes it. */
@@ -1929,7 +2099,8 @@ public class CpathService {
         Map<String, Object> last = lastGoalTest(((Number) p.get("id")).longValue());
         if (last == null) return true;
         if (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed"))) return false;
-        return !clock.now().isBefore(dateTimeOf(last.get("taken_at")).plusHours(24));
+        java.time.LocalDateTime takenAt = dateTimeOf(last.get("taken_at"));
+        return takenAt == null || !clock.now().isBefore(takenAt.plusHours(24));
     }
 
     @Transactional
@@ -1938,8 +2109,8 @@ public class CpathService {
         Map<String, Object> p = requirePath(userId);
         Long pathId = ((Number) p.get("id")).longValue();
         boolean pass = score >= GOAL_TEST_PASS;
-        db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed) VALUES (?,NULL,?,?)",
-                pathId, score, pass);
+        db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed, taken_at) VALUES (?,NULL,?,?,?)",
+                pathId, score, pass, vnNow());
         return pass ? award(userId, GOAL_CP, REF_GOAL, pathId, "Đạt bài kiểm tra giao tiếp") : 0;
     }
 
@@ -1985,8 +2156,8 @@ public class CpathService {
                 Integer.class, pathId, session);
         if (seen == null || seen == 0) {
             int score = ((Number) rows.get(0).get("overall_score")).intValue();
-            db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed) VALUES (?,?,?,?)",
-                    pathId, session, score, score >= GOAL_TEST_PASS);
+            db.update("INSERT INTO cpath_user_goal_test (path_id, conversation_session_id, score, passed, taken_at) VALUES (?,?,?,?,?)",
+                    pathId, session, score, score >= GOAL_TEST_PASS, vnNow());
             // the path stays open (map, review, certificate); the pass gives the goal's big reward once
             if (score >= GOAL_TEST_PASS) {
                 award(userId, GOAL_CP, REF_GOAL, pathId, "Đạt bài test giao tiếp với AI");

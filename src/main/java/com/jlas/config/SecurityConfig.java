@@ -69,6 +69,9 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
                         .hasRole("ADMIN")
+                        // [JLAS2-270] Learners submit; only content creators/admins review learning error reports.
+                        .requestMatchers("/admin/learning-content-reports", "/api/admin/learning-content-reports", "/api/admin/learning-content-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
                         .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
@@ -76,6 +79,10 @@ public class SecurityConfig {
                         .requestMatchers("/admin/tutor-review", "/admin/tutor-review/**", "/api/admin/tutor-review/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
+                        .hasAnyRole("MODERATOR", "ADMIN")
+                        // [JLAS2-37] Gỡ trực tiếp bài viết / bình luận cộng đồng: chặn theo vai trò TRƯỚC khi đọc và kiểm
+                        // tra body, để người không phải MODERATOR/ADMIN luôn nhận 403 (không phải 400 vì thiếu lý do).
+                        .requestMatchers(HttpMethod.POST, "/api/community/posts/*/remove", "/api/community/comments/*/remove")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()

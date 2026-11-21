@@ -158,6 +158,7 @@
         reading: p.reading || '',
         vi: p.vi || '',
         note: p.note || 'Mẫu câu giao tiếp quan trọng.',
+        example: p.example || null,
         audioUrl: p.audioUrl || ''
       };
     });
@@ -238,7 +239,9 @@
       else if (PUNCT[c] != null) out += PUNCT[c];
       else out += c;
     }
-    return out.replace(/\s+/g, ' ').trim();
+    out = out.replace(/\s+/g, ' ').trim();
+    // owner 18/11: a sentence without its reading kept its kanji ("五千円以上noo…"): no romaji beats a wrong one
+    return /[㐀-鿿々]/.test(out) ? '' : out;
   }
 
   function romajiHtml(text, state) {
@@ -295,7 +298,7 @@
   function renderStepMeaning(sit, state) {
     var items = meaningItems(sit);
     var saving = !!(state && state.savingStep);
-    var nextLabel = saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›';
+    var nextLabel = saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại';
     if (!items.length) {
       return '<div class="cp-sit-stage"><p>Tình huống chưa có câu để nghe và chọn nghĩa. Bạn sang nghe hội thoại nhé.</p></div>'
         + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>' + nextLabel + '</button></footer>';
@@ -329,9 +332,9 @@
         + '<div class="cp-line__vi">' + esc(item.vi) + '</div>'
         + '</div>'
       : '<p class="cp-survey__sub">Bấm nghe rồi chọn nghĩa đúng. Chữ Nhật hiện sau khi bạn chọn.</p>';
-    var foot = '<button type="button" class="cp-btn-ghost" data-cp-meaning-prev' + (idx <= 0 ? ' disabled' : '') + '>‹ Câu trước</button>'
+    var foot = '<button type="button" class="cp-btn-ghost" data-cp-meaning-prev' + (idx <= 0 ? ' disabled' : '') + '>Câu trước</button>'
       + (!answered ? '<span class="cp-survey__sub">Chọn một nghĩa để tiếp tục</span>'
-        : (idx + 1 < items.length ? '<button type="button" class="cp-btn-primary" data-cp-meaning-next>Câu tiếp ›</button>'
+        : (idx + 1 < items.length ? '<button type="button" class="cp-btn-primary" data-cp-meaning-next>Câu tiếp</button>'
           : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>' + nextLabel + '</button>'));
     return '<div class="cp-sit-stage cp-sit-stage--meaning">'
       + '<div class="cp-deck-switch"><strong>' + (item.kind === 'PHRASE' ? 'Mẫu câu' : 'Từ') + ' · ' + (idx + 1) + '/' + items.length + '</strong>'
@@ -386,6 +389,29 @@
       + 'stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="var(--jp-save-fill, none)"/></svg>';
   }
 
+
+  /** Owner 17/11: the dialogue line that shows this card in use. A pattern like 「～程度にとどまっております」 has a
+   *  placeholder (～) and is conjugated in the dialogue, so match its fixed pieces and, failing that, a shorter stem. */
+  function exampleLineFor(card, lines) {
+    var ls = list(lines).filter(function (l) { return l && l.ja; });
+    var ja = String(card && card.ja || '');
+    if (!ja) return null;
+    var whole = ls.filter(function (l) { return String(l.ja).indexOf(ja) >= 0; })[0];
+    if (whole) return whole;
+    if (card.example && card.example.ja) return card.example;
+    var pieces = ja.split(/[～〜~…・／\/（）()「」]+/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length >= 2; });
+    if (!pieces.length) return null;
+    var all = ls.filter(function (l) { return pieces.every(function (pc) { return String(l.ja).indexOf(pc) >= 0; }); })[0];
+    if (all) return all;
+    var longest = pieces.slice().sort(function (a, b) { return b.length - a.length; })[0];
+    for (var n = longest.length - 1; n >= Math.min(3, longest.length); n--) {
+      var stem = longest.slice(0, n);
+      var hit = ls.filter(function (l) { return String(l.ja).indexOf(stem) >= 0; })[0];
+      if (hit) return hit;
+    }
+    return null;
+  }
+
   function renderStepWords(sit, state) {
     var deck = buildDeck(sit);
     if (!deck.length) {
@@ -397,26 +423,36 @@
     var wordCount = list(sit.words).length;
     var tabCount = card.kind === 'WORD' ? wordCount : deck.length - wordCount;
     var tabIndex = card.kind === 'WORD' ? idx + 1 : idx - wordCount + 1;
-    var example = list(sit.lines).filter(function (line) {
-      return line && line.ja && card.ja && String(line.ja).indexOf(String(card.ja)) >= 0;
-    })[0];
+    var example = exampleLineFor(card, sit.lines);
 
     var saving = !!(state && state.savingStep);
     var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
+    // Owner 17/11: Furigana puts the reading above the Japanese (word and example), Bản dịch shows the meanings.
+    var sameLine = example && example.furigana && String(example.ja) === String(card.ja);
+    function headHtml(furi) {
+      if (furi && hasDistinctReading && card.kind === 'WORD') {
+        return '<div class="cp-flashcard__ja" lang="ja"><ruby>' + esc(card.ja) + '<rt>' + esc(card.reading) + '</rt></ruby></div>';
+      }
+      if (furi && sameLine) return '<div class="cp-flashcard__ja" lang="ja">' + toRubyHtml(example.furigana, true) + '</div>';
+      return '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
+        + (furi && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '');
+    }
+    var exampleHtml = example && !sameLine ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">'
+      + toRubyHtml(example.furigana || example.ja, state.display.furigana) + '</span>'
+      + (state.display.translation && example.vi ? '<span class="cp-flashcard__ex-vi">' + esc(example.vi) + '</span>' : '') + '</p>' : '';
     var cardBody = !flipped
-      ? '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (state.display.furigana && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+      ? headHtml(!!state.display.furigana)
         + romajiHtml(card.reading || card.ja, state)
-        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
+        + (state.display.translation && card.vi ? '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>' : '')
+        + exampleHtml
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + svgSpeaker() + '</button>'
         + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn' + (state.saved && state.saved[card.id] ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + (state.saved && state.saved[card.id] ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (state.saved && state.saved[card.id] ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
         + ''
-      : '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '')
+      : headHtml(true)
         + romajiHtml(card.reading || card.ja, state)
         + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
-        + (example ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">' + esc(example.ja) + '</span></p>' : '')
+        + exampleHtml
         + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
         + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
@@ -433,17 +469,17 @@
       + '</div>'
       // F194: a thin bar that fills card by card replaces the "Từ vựng · 1/25" chip on the card
       + '<div class="cp-deck-progress" aria-hidden="true"><span style="width:' + Math.round(100 * tabIndex / Math.max(1, tabCount)) + '%"></span></div>'
-      + '<div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
+      + '<div class="cp-flashcard-clip"><div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
       + cardBody
-      + '</div>'
+      + '</div></div>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + ' aria-label="Thẻ trước">‹<span class="cp-wide-only"> Thẻ trước</span></button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + '>Thẻ trước</button>'
       + '<button type="button" class="cp-btn-ghost" data-cp-flip-btn>' + (flipped ? 'Xem mặt trước' : 'Lật xem nghĩa') + '<span class="cp-wide-only"> (Space)</span>' + '</button>'
       + (idx + 1 < deck.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp ›</button>'
+        ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp</button>'
         : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại ›') + '</button>')
+          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại') + '</button>')
       + '</footer>';
   }
 
@@ -487,9 +523,9 @@
       + '<ol class="' + listCls + '">' + rowsHtml + '</ol>'
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">‹ Quay lại ' + esc(stepTitle('WORDS', sit)) + '</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="WORDS">Quay lại ' + esc(stepTitle('WORDS', sit)) + '</button>'
       + '<button type="button" class="cp-btn-primary" data-cp-finish-step="LISTEN"' + (state.savingStep ? ' disabled' : '') + '>'
-      + (state.savingStep ? 'Đang lưu…' : 'Hoàn thành Bước 2 · Sang Nhập vai ›') + '</button>'
+      + (state.savingStep ? 'Đang lưu…' : 'Hoàn thành Bước 2 · Sang Nhập vai') + '</button>'
       + '</footer>';
   }
 
@@ -518,7 +554,7 @@
     if (!turns.length) {
       return '<div class="cp-sit-stage"><p>Không có lượt nhập vai cho tình huống này.</p></div>'
         + '<footer class="cp-sit-foot"><button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
-        + (saving ? 'Đang lưu…' : 'Sang Bước 4 ›') + '</button></footer>';
+        + (saving ? 'Đang lưu…' : 'Sang Bước 4') + '</button></footer>';
     }
     var tIdx = Math.max(0, Math.min(turns.length - 1, state.turnIdx || 0));
     var turn = turns[tIdx];
@@ -597,13 +633,13 @@
       + whyHtml
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="LISTEN">‹ Quay lại Nghe</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="LISTEN">Quay lại Nghe</button>'
       + (tIdx + 1 < turns.length
-        ? (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo ›</button>'
+        ? (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-next>Lượt tiếp theo</button>'
           : isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-retry>Chọn lại</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>')
         : (ansCorrect ? '<button type="button" class="cp-btn-primary" data-cp-finish-step="ROLEPLAY"' + (saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 3 · Sang Luyện nói ›') + '</button>'
+          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 3 · Sang Luyện nói') + '</button>'
           : isAnswered ? '<button type="button" class="cp-btn-primary" data-cp-roleplay-retry>Chọn lại</button>'
           : '<span class="cp-survey__sub">Chọn một câu để tiếp tục</span>'))
       + '</footer>';
@@ -772,11 +808,11 @@
       + scoreHtml
       + '</div>'
       + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="ROLEPLAY">‹ Quay lại Nhập vai</button>'
+      + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="ROLEPLAY">Quay lại Nhập vai</button>'
       + (sIdx + 1 < lLines.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-speak-next' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Câu tiếp theo ›</button>'
+        ? '<button type="button" class="cp-btn-primary" data-cp-speak-next' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Câu tiếp theo</button>'
         : '<button type="button" class="cp-btn-primary" data-cp-finish-step="SPEAK"' + ((!isPass && !state.speakSkipped[sIdx]) || saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành 4 bước ›') + '</button>')
+          + (saving ? 'Đang lưu…' : 'Hoàn thành 4 bước') + '</button>')
       + '</footer>';
   }
 
@@ -823,7 +859,7 @@
     if (!k || !k.open) return '';
     var head = '<div class="cp-known__head"><h2>Tôi biết tình huống này</h2>'
       + '<button type="button" class="cp-btn-ghost" data-cp-known-close>Đóng</button></div>';
-    if (k.loading) return '<section class="cp-known" aria-live="polite">' + head + '<p>Đang tải câu hỏi...</p></section>';
+    if (k.loading) return '<section class="cp-known" aria-live="polite">' + head + '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải câu hỏi…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p></section>';
     if (k.error) return '<section class="cp-known">' + head + '<p class="jp-alert" role="alert">' + esc(k.error) + '</p></section>';
     var d = k.data || {};
     var pass = d.passScore || 90;
@@ -872,6 +908,16 @@
       + '</section>';
   }
 
+  // Owner 18/11: the situation's phrases and words are studied with the team flashcard (one private set per learner)
+  function flashcardBarHtml(state) {
+    var fc = state.flashcard;
+    if (!fc || fc.error) return '';
+    var count = fc.setId ? '<span class="cp-fc-bar__count">Đã nhớ ' + Number(fc.remembered || 0) + '/' + Number(fc.total || 0) + '</span>' : '';
+    return '<div class="cp-fc-bar">' + count
+      + '<button type="button" class="cp-btn-ghost" data-cp-fc-open' + (fc.opening ? ' disabled' : '') + '>'
+      + (fc.opening ? 'Đang mở' : 'Học bằng flashcard') + '</button></div>';
+  }
+
   function situationHtml(sit, state) {
     var s = sit || {};
     var stepsStatus = s.steps || {};
@@ -910,6 +956,7 @@
       mainBody = renderDoneScreen(s, state);
     } else if (state.activeStep === 'WORDS') {
       mainBody = isTravel(s) ? renderStepMeaning(s, state) : renderStepWords(s, state);
+      mainBody = flashcardBarHtml(state) + mainBody;
     } else if (state.activeStep === 'LISTEN') {
       mainBody = renderStepListen(s, state);
     } else if (state.activeStep === 'ROLEPLAY') {
@@ -954,7 +1001,8 @@
     if (mId) { try { sitId = decodeURIComponent(mId[1]); } catch (e) { sitId = null; } }
     if (!sitId) sitId = el.getAttribute('data-situation-id');
     if (!sitId) {
-      el.innerHTML = '<p class="jp-alert" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
+      if (root.location && typeof root.location.replace === 'function') { root.location.replace('/learning/comm'); return; }
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">Thiếu mã tình huống. Vui lòng quay lại lộ trình.</p>';
       return;
     }
 
@@ -1103,7 +1151,7 @@
           render();
         }, function (error) {
           state.savingStep = false;
-          state.missingNote = error && error.message || 'Chưa lưu được bước học. Hãy thử lại.';
+          state.missingNote = error && (error.code || error.status) && error.message || 'Chưa lưu được bước học. Hãy thử lại.';
           render();
         });
     }
@@ -1140,9 +1188,9 @@
         state.scoring = false;
         if (err && (err.status === 429 || (err.code && String(err.code).indexOf('LIMIT') >= 0))) {
           state.attemptsLeft = 0;
-          state.micError = (err && err.message) || 'Đã hết lượt chấm phát âm hôm nay (0 lần còn lại). Hãy bấm "Bỏ qua" để tiếp tục.';
+          state.micError = (err && (err.code || err.status) && err.message) || 'Đã hết lượt chấm phát âm hôm nay (0 lần còn lại). Hãy bấm "Bỏ qua" để tiếp tục.';
         } else {
-          state.micError = (err && err.message) || 'Chưa chấm được phát âm lúc này. Bạn có thể ghi âm lại hoặc bấm "Bỏ qua".';
+          state.micError = (err && (err.code || err.status) && err.message) || 'Chưa chấm được phát âm lúc này. Bạn có thể ghi âm lại hoặc bấm "Bỏ qua".';
         }
         render();
       });
@@ -1223,6 +1271,25 @@
       var t = ev.target;
       if (!t || typeof t.closest !== 'function' || !sitData) return;
 
+      var fcOpen = t.closest('[data-cp-fc-open]');
+      if (fcOpen && state.flashcard && !state.flashcard.opening) {
+        state.flashcard.opening = true;
+        render();
+        root.JpathApi.send('POST', '/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/flashcards', {}).then(function (d) {
+          if (d && d.url) {
+            try { root.sessionStorage.setItem('jlas.path.fcBack.' + d.setId, root.location.pathname + root.location.search); } catch (e) { /* storage off */ }
+            root.location.href = d.url;
+            return;
+          }
+          state.flashcard = d || {};
+          render();
+        }).catch(function () {
+          state.flashcard.opening = false;
+          state.flashcard.failed = true;
+          render();
+        });
+        return;
+      }
       if (t.closest('[data-cp-known-open]')) {
         // F92: the learner may close (or close and reopen) the panel before the answer comes back;
         // only the panel that asked may take the answer
@@ -1237,7 +1304,7 @@
         }).catch(function (error) {
           if (state.known !== panel) return;
           panel.loading = false;
-          panel.error = (error && error.message) || 'Không mở được bài kiểm tra.';
+          panel.error = (error && (error.code || error.status) && error.message) || 'Không mở được bài kiểm tra.';
           render();
         });
         return;
@@ -1267,7 +1334,7 @@
           render();
         }).catch(function (error) {
           if (state.known !== sent) return;
-          sent.error = (error && error.message) || 'Chưa nộp được bài. Thử lại sau.';
+          sent.error = (error && (error.code || error.status) && error.message) || 'Chưa nộp được bài. Thử lại sau.';
           render();
         });
         return;
@@ -1502,6 +1569,11 @@
           ((nb && nb.items) || []).forEach(function (x) { if (x && x.id) state.saved[x.id] = true; });
           render();
         }, function () { /* the button still works without the list */ });
+        state.flashcard = {};
+        Promise.resolve(root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/flashcards')).then(function (fc) {
+          state.flashcard = fc || {};
+          render();
+        }, function () { state.flashcard = { error: true }; render(); });
         // F61: open with the display saved in Cài đặt (the buttons on the page still flip it for this visit)
         if (data.display) {
           state.display = { furigana: data.display.furigana !== false, romaji: data.display.romaji === true,
@@ -1516,11 +1588,11 @@
       }).catch(function (error) {
         if (error && error.code === 'CPATH_PREMIUM_REQUIRED') {
           // owner 11/11: the communication path is Premium
-          el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error.message)
+          el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error.message)
             + ' <a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></p>';
           return;
         }
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Không tải được tình huống.')
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Không tải được tình huống.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         el.querySelector('[data-cp-retry]').addEventListener('click', load);
       });
@@ -1529,6 +1601,7 @@
   }
 
   return {
+    exampleLineFor: exampleLineFor,
     situationHtml: situationHtml,
     knownPanelHtml: knownPanelHtml,
     toRubyHtml: toRubyHtml,

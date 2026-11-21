@@ -172,9 +172,12 @@ public class JpathItemStateMachine {
         }
     }
 
-    /** Puts a VOCAB/KANJI item in the notebook, due no later than the start of today. */
+    /**
+     * Puts a VOCAB/KANJI item in the notebook, due no later than the start of today. Owner 20/11: a GRAMMAR pattern
+     * only enters it from a Smart Test import (source SMART_TEST); it then leaves after the usual hits.
+     */
     public void toNotebook(JpathUserItem i, JpathNotebookSource src) {
-        if (!notebookType(i)) {
+        if (!notebookType(i) && !(i.getItemType() == JpathItemType.GRAMMAR && src == JpathNotebookSource.SMART_TEST)) {
             throw new ApiException(ErrorCode.JPATH_GRAMMAR_NO_NOTEBOOK);
         }
         Long userId = i.getUserId();

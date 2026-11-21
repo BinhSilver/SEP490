@@ -1965,6 +1965,20 @@ html:not([data-theme="dark"]) .dict-tab:focus-visible {
 .dict-vocab-row__head {
   display: flex;
 }
+.dict-kanji-result-row__glyph {
+  color: var(--dict-accent);
+  font-family: var(--font-headline);
+  font-size: 2rem;
+  line-height: 1.1;
+}
+.dict-kanji-result-row__han-viet {
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-sm);
+}
+.dict-kanji-result-row.is-selected {
+  border-color: var(--dict-accent);
+  background: var(--dict-accent-soft);
+}
 .dict-home-panel {
   padding: var(--space-5);
   border-color: var(--color-outline-variant);
@@ -2271,6 +2285,19 @@ html:not([data-theme="dark"]) .dict-contribution-form button:hover:not(:disabled
   border: 1px solid #e6dcf3;
   border-radius: 12px;
 }
+.dict-kanji-mini__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+.dict-kanji-mini__actions a { text-decoration: none; }
+.dict-kanji-mini__actions a:hover { text-decoration: underline; }
+.dict-kanji-mini__actions a:focus-visible {
+  outline: 2px solid var(--dict-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 .dict-kanji-mini__glyph {
   display: grid;
   place-items: center;
@@ -2422,6 +2449,9 @@ html[data-theme="dark"] .dict-home-panel,
 html[data-theme="dark"] .dict-detail-pane > .dict-empty-state,
 html[data-theme="dark"] .dict-side-kanji { border-color: var(--dark-line); }
 html[data-theme="dark"] .dict-kanji-mini { border-color: var(--dark-line); box-shadow: 0 3px 16px var(--dark-shadow); }
+html[data-theme="dark"] .dict-kanji-result-row { border-color: var(--dark-line); }
+html[data-theme="dark"] .dict-kanji-result-row.is-selected { border-color: var(--dark-accent); }
+html[data-theme="dark"] .dict-kanji-result-row__han-viet { color: var(--dark-muted); }
 html[data-theme="dark"] .dict-search-bar__input,
 html[data-theme="dark"] .dict-contribution-form textarea { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
 html[data-theme="dark"] .dict-search-bar__input:focus { border-color: var(--dark-focus); box-shadow: 0 0 0 3px var(--dark-focus-ring); }

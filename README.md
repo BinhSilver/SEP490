@@ -248,8 +248,17 @@ and learner/creator/moderator accounts in different Premium and lock states.
 A fresh database that starts cleanly was built in this order: `jlas_schema.sql`,
 `sql/jlas_migrations_all.sql`, the seeds `seed_data_jlas.sql`, `jlas_seed_all.sql`,
 `questionbank.sql`, `ai_call_scoring_rules.sql`, `demo_content_creator.sql`,
-`seed_data_vnjpclub.sql`, then `src/main/resources/db/migrations/jlpt_full_setup.sql`
-(required: the JLPT entities validate against it) and `demo_system_admin.sql`.
+`seed_data_vnjpclub.sql` (and `seed_data_minna.sql` when loaded),
+`src/main/resources/db/migrations/jlpt_full_setup.sql` (required: the JLPT entities validate against it;
+it recreates the JLPT tables) followed by `sql/migrations/053_jlpt_admin_update.sql`,
+`sql/migrations/041_jlpt_attempt_history.sql` (creates the table `054` writes to) and
+`sql/migrations/054_jlpt_update.sql` (053/054 add `jlpt_question.target_vocabulary_id`, used by the JLPT services),
+`sql/migrations/074_speed_recall_time_limit.sql`, `075_jlpt_exam_study_lists.sql` and the seed
+`sql/seeds/jlpt_exam_study_lists.sql` (it needs the JLPT exams above; see `sql/JLPT_STUDY.md`),
+the Learning flow schema and data (`sql/learning/README.md`), then LAST the data migrations
+`sql/migrations/085_question_underline_and_vocab_romaji.sql`, `086_vocab_reading_fix_and_romaji.sql`,
+`087_community_post.sql`, `088_vocab_merge_duplicates.sql` and `089_community_post_media.sql` (they update rows the steps above insert;
+re-run 085 → 086 → 088 after re-running any seed or learning data file), and `demo_system_admin.sql`.
 On a database built from older seeds, also run `sql/migrations/029_merge_admin_roles.sql`.
 
 ### Premium checkout with PayOS (JLAS2-49)

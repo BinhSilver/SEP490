@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-head :: head('Quản lý lược đồ Kanji · KotsuKotsu', 'kanji-map-admin')}"></head>
-<body id="jlabBasePage" class="admin-portal kma-body">
+<body id="jlabBasePage" class="admin-portal kma-body jlas-ui-owned">
 <div id="adminShellMount"></div>
 <main id="jlabBaseContent" class="kma" hidden>
   <header class="kma-heading"><div><span class="kma-eyebrow">KHO NỘI DUNG · CONTENT CREATOR</span><h1>Lược đồ Kanji</h1><p>Chăm chút từng chữ, làm rõ từng ý nghĩa.</p></div><div class="kma-actions"><a class="kma-button" href="/dictionary/kanji-map" target="_blank" rel="noopener">Xem trang học ↗</a><button id="kma-reload" class="kma-button" type="button">Tải lại</button></div></header>
@@ -9,7 +9,7 @@
   <section class="kma-stats" aria-label="Tổng quan kho chữ"><article><span>TỔNG DANH MỤC</span><strong id="kma-total">—</strong><small>Kanji và thành phần cấu tạo</small></article><article><span>CHỮ KANJI</span><strong id="kma-kanji">—</strong><small>Phục vụ tìm kiếm và luyện tập</small></article><article><span>ĐÃ BIÊN TẬP</span><strong id="kma-edited">—</strong><small>Nội dung được lưu trong hệ thống</small></article></section>
   <section class="kma-catalog" aria-labelledby="kma-catalog-title">
     <header class="kma-catalog-head"><div><h2 id="kma-catalog-title">Danh mục chữ &amp; bộ thủ</h2><p>Tìm chữ để xem nguồn, biên tập và kiểm tra trước khi lưu.</p></div><span id="kma-match-count" class="kma-count"></span></header>
-    <div class="kma-filters"><label class="kma-search"><span class="kma-sr">Tìm trong lược đồ</span><input id="kma-search" type="search" placeholder="Tìm Kanji, Hán Việt, nghĩa hoặc tên bộ thủ…" maxlength="120"/></label><select id="kma-level" aria-label="Cấp độ"><option value="">Tất cả cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option><option value="UNCLASSIFIED">Chưa xếp cấp</option></select><select id="kma-type" aria-label="Loại chữ"><option value="">Tất cả loại chữ</option><option value="kanji">Kanji</option><option value="radical">Bộ thủ / biến thể</option><option value="component">Thành phần khác</option></select><select id="kma-status" aria-label="Trạng thái biên tập"><option value="">Mọi trạng thái</option><option value="edited">Đã biên tập</option><option value="source">Theo nguồn</option></select></div>
+    <div class="kma-filters"><label class="kma-search"><span class="kma-sr">Tìm trong lược đồ</span><input id="kma-search" type="search" placeholder="Tìm Kanji, Hán Việt, nghĩa hoặc tên bộ thủ…" maxlength="120"/></label><select data-jl-select id="kma-level" aria-label="Cấp độ"><option value="">Tất cả cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option><option value="UNCLASSIFIED">Chưa xếp cấp</option></select><select data-jl-select id="kma-type" aria-label="Loại chữ"><option value="">Tất cả loại chữ</option><option value="kanji">Kanji</option><option value="radical">Bộ thủ / biến thể</option><option value="component">Thành phần khác</option></select><select data-jl-select id="kma-status" aria-label="Trạng thái biên tập"><option value="">Mọi trạng thái</option><option value="edited">Đã biên tập</option><option value="source">Theo nguồn</option></select></div>
     <div class="kma-table-wrap"><table><thead><tr><th>Chữ</th><th>Hán Việt / tên bộ thủ</th><th>Nghĩa tiếng Việt</th><th>Cấp độ</th><th>Trạng thái</th><th><span class="kma-sr">Thao tác</span></th></tr></thead><tbody id="kma-rows"></tbody></table><div id="kma-empty" class="kma-empty" hidden>Không tìm thấy chữ phù hợp. Thử thay đổi từ khóa hoặc bộ lọc.</div><p id="kma-loading" class="kma-empty">Đang tải kho nội dung…</p></div>
     <footer class="kma-pagination"><span id="kma-range"></span><div><button id="kma-prev" class="kma-button" type="button" aria-label="Trang trước">←</button><span id="kma-page">—</span><button id="kma-next" class="kma-button" type="button" aria-label="Trang sau">→</button></div></footer>
   </section>
@@ -21,7 +21,7 @@
       <div class="kma-fields">
         <p id="kma-version" class="kma-muted"></p>
         <div id="kma-editor-error" class="kma-notice is-error" role="alert" hidden></div>
-        <div class="kma-two"><label>Hán Việt<input name="hanViet" maxlength="180" autocomplete="off"/></label><label>Cấp độ tham khảo<select name="level"><option value="">Chưa xếp cấp</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select></label></div>
+        <div class="kma-two"><label>Hán Việt<input name="hanViet" maxlength="180" autocomplete="off"/></label><label>Cấp độ tham khảo<select data-jl-select name="level"><option value="">Chưa xếp cấp</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select></label></div>
         <label>Nghĩa tiếng Việt<textarea name="meaningVi" rows="3" maxlength="1500"></textarea></label>
         <div class="kma-two"><label>Âm On <small>Mỗi dòng một cách đọc</small><textarea name="on" rows="3" lang="ja" maxlength="3240"></textarea></label><label>Âm Kun <small>Mỗi dòng một cách đọc</small><textarea name="kun" rows="3" lang="ja" maxlength="3240"></textarea></label></div>
         <fieldset id="kma-radical-fields"><legend>Tên bộ thủ</legend><label>Tên tiếng Việt<input name="radicalNameVi" maxlength="100"/></label><label>Tên gọi khác <small>Mỗi dòng một tên</small><textarea name="radicalAliases" rows="2" maxlength="2020"></textarea></label></fieldset>
@@ -34,5 +34,5 @@
   </form>
 </dialog>
 <dialog id="kma-confirm" class="kma-confirm" aria-labelledby="kma-confirm-title"><form method="dialog"><h2 id="kma-confirm-title">Xác nhận thay đổi</h2><p id="kma-confirm-message"></p><div class="kma-actions"><button class="kma-button" value="cancel">Quay lại</button><button class="kma-button is-primary" value="ok">Tiếp tục</button></div></form></dialog>
-<script th:src="@{/js/pages/admin-core.js(v=20261107-system-admin)}"></script><script th:src="@{/js/admin-shell.js(v=20261109-kotsu)}"></script><script th:src="@{/js/pages/kanji-map-model.js}"></script><script th:src="@{/js/pages/kanji-map-admin.js}"></script>
+<script th:src="@{/js/pages/admin-core.js(v=20261120-reports)}"></script><script th:src="@{/js/admin-shell.js(v=20261109-kotsu)}"></script><script th:src="@{/js/pages/kanji-map-model.js}"></script><script th:src="@{/js/pages/kanji-map-admin.js}"></script>
 </body></html>

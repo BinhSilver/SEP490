@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Hộp thoại dùng chung của Community Hub, điều khiển bởi js/pages/community-cards.js và CommunityUI.confirmDialog
+     (community-common.js). "modals" = đủ bộ cho feed + trang bài viết; trang nội dung chia sẻ cũ (detail.html) có hộp báo
+     cáo riêng nên chỉ dùng "confirm". -->
+<th:block th:fragment="modals">
+    <th:block th:replace="~{community/modals :: report}"></th:block>
+    <th:block th:replace="~{community/modals :: editor}"></th:block>
+    <th:block th:replace="~{community/modals :: remove}"></th:block>
+    <th:block th:replace="~{community/modals :: confirm}"></th:block>
+</th:block>
+
+<th:block th:fragment="report">
+    <div class="cm-modal" id="cmReportModal" role="dialog" aria-modal="true" aria-labelledby="cmReportTitle" hidden>
+        <div class="cm-modal__backdrop" data-cm-close></div>
+        <form class="cm-modal__box" id="cmReportForm">
+            <h2 id="cmReportTitle">Báo cáo nội dung</h2>
+            <p class="cm-muted cm-modal__target" id="cmReportTarget"></p>
+            <label class="cm-field cm-field--block">
+                <span>Lý do</span>
+                <select id="cmReportReason" required></select>
+            </label>
+            <label class="cm-field cm-field--block">
+                <span>Ghi chú (không bắt buộc)</span>
+                <textarea id="cmReportNote" rows="3" maxlength="500" placeholder="Mô tả thêm để kiểm duyệt viên xử lý nhanh hơn"></textarea>
+            </label>
+            <div class="cm-modal__actions">
+                <button type="button" class="btn btn--secondary btn--sm" data-cm-close>Huỷ</button>
+                <button type="submit" class="btn btn--primary btn--sm" id="cmReportSubmit">Gửi báo cáo</button>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<th:block th:fragment="editor">
+    <div class="cm-modal" id="cmEditor" role="dialog" aria-modal="true" aria-labelledby="cmEditorTitle" hidden>
+        <div class="cm-modal__backdrop" data-cm-close></div>
+        <form class="cm-modal__box cm-modal__box--wide" id="cmEditorForm">
+            <div class="cm-modal__head">
+                <h2 id="cmEditorTitle">Tạo bài viết</h2>
+                <button type="button" class="cm-icon-btn" data-cm-close aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <label class="cm-visually-hidden" for="cmEditorBody">Nội dung bài viết</label>
+            <textarea id="cmEditorBody" class="cm-composer__input" rows="7" maxlength="5000"
+                      placeholder="Bạn muốn chia sẻ gì về việc học tiếng Nhật?"></textarea>
+            <div class="cm-composer__foot">
+                <label class="cm-composer__level">
+                    <span>Cấp độ</span>
+                    <select id="cmEditorLevel">
+                        <option value="">Chung</option>
+                        <option value="N5">N5</option>
+                        <option value="N4">N4</option>
+                        <option value="N3">N3</option>
+                        <option value="N2">N2</option>
+                        <option value="N1">N1</option>
+                    </select>
+                </label>
+                <span class="cm-composer__count" id="cmEditorCount">0/5000</span>
+                <button type="submit" class="btn btn--primary btn--sm" id="cmEditorSubmit" disabled>Đăng</button>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<th:block th:fragment="remove">
+    <!-- MODERATOR/ADMIN gỡ trực tiếp bài viết / bình luận: lý do bắt buộc 1-500 ký tự (BE kiểm tra lại quyền + độ dài). -->
+    <div class="cm-modal" id="cmRemoveModal" role="dialog" aria-modal="true" aria-labelledby="cmRemoveTitle" hidden>
+        <div class="cm-modal__backdrop" data-cm-close></div>
+        <form class="cm-modal__box" id="cmRemoveForm">
+            <h2 id="cmRemoveTitle">Gỡ bài viết</h2>
+            <p class="cm-muted cm-modal__target" id="cmRemoveTarget"></p>
+            <label class="cm-field cm-field--block">
+                <span>Lý do gỡ (bắt buộc, tác giả sẽ nhận được)</span>
+                <textarea id="cmRemoveReason" rows="3" maxlength="500" required
+                          placeholder="Ví dụ: Quảng cáo, nội dung không liên quan đến việc học tiếng Nhật"></textarea>
+            </label>
+            <span class="cm-composer__count" id="cmRemoveCount">0/500</span>
+            <div class="cm-modal__actions">
+                <button type="button" class="btn btn--secondary btn--sm" data-cm-close>Huỷ</button>
+                <button type="submit" class="btn btn--primary btn--sm cm-btn-danger" id="cmRemoveSubmit" disabled>Gỡ</button>
+            </div>
+        </form>
+    </div>
+</th:block>
+
+<th:block th:fragment="confirm">
+    <div class="cm-modal" id="cmConfirm" role="alertdialog" aria-modal="true" aria-labelledby="cmConfirmTitle"
+         aria-describedby="cmConfirmMessage" hidden>
+        <div class="cm-modal__backdrop" data-cm-close></div>
+        <div class="cm-modal__box">
+            <h2 id="cmConfirmTitle">Xác nhận</h2>
+            <p class="cm-muted" id="cmConfirmMessage"></p>
+            <div class="cm-modal__actions">
+                <button type="button" class="btn btn--secondary btn--sm" data-cm-close>Huỷ</button>
+                <button type="button" class="btn btn--primary btn--sm cm-btn-danger" id="cmConfirmOk">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

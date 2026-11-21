@@ -1704,3 +1704,7 @@ html.dark .cp-page {
   --cp-done: #b37cf5 !important;
   --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
 }
+
+/* Owner 17/11: same scrollbar flash on the JLPT study cards — clip the 3D turn and keep the gutter. */
+html:has(.jp-study) { scrollbar-gutter: stable; }
+.jp-study-main { overflow-x: clip; }

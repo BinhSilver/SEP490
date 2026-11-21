@@ -21,6 +21,7 @@
     { title: 'Quản lý nội dung', items: [
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
+      { key: 'content-learning-reports', label: 'Báo lỗi học tập', icon: 'fa-flag', href: '/admin/learning-content-reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-tutor-review', label: 'Duyệt câu trả lời AI', icon: 'fa-robot', href: '/admin/tutor-review', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-verb-practice', label: 'Luyện chia động từ', icon: 'fa-language', href: '/admin/verb-practice', roles: ['CONTENT_CREATOR'] },
@@ -63,7 +64,8 @@
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
     APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
-    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống'
+    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống',
+    COMMUNITY_CONTENT: 'Nội dung cộng đồng', COMMUNITY_COMMENT: 'Bình luận cộng đồng'
   };
 
   // ── Auth & API ─────────────────────────────────────────────────────────

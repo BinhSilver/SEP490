@@ -11,6 +11,8 @@
   font-family: var(--font-body, system-ui, sans-serif);
 }
 
+body.page-guide-active .tutor-widget { display: none; }
+
 .tutor-toggle {
   display: inline-flex;
   align-items: center;
@@ -225,28 +227,59 @@
 
 .tutor-send:disabled { opacity: 0.5; cursor: wait; }
 
+html[data-theme="dark"] .tutor-widget { color-scheme: dark; }
+html[data-theme="dark"] .tutor-toggle:not(.tutor-toggle--fox),
+html[data-theme="dark"] .tutor-send {
+  color: var(--dark-on-button);
+  background: var(--dark-button);
+}
+html[data-theme="dark"] .tutor-toggle:not(.tutor-toggle--fox):hover { background: var(--dark-button-hover); }
 html[data-theme="dark"] .tutor-panel,
+html[data-theme="dark"] .tutor-form {
+  color: var(--dark-ink);
+  background: var(--dark-surface);
+  border-color: var(--dark-line);
+}
+html[data-theme="dark"] .tutor-panel__head,
+html[data-theme="dark"] .tutor-msg--user {
+  color: var(--dark-ink);
+  background: var(--dark-soft);
+}
+html[data-theme="dark"] .tutor-log { background: var(--dark-bg); }
 html[data-theme="dark"] .tutor-msg--bot,
-html[data-theme="dark"] .tutor-form,
 html[data-theme="dark"] .tutor-examples button {
-  color: #e6e1e9;
-  background: #1f2226;
-  border-color: #3b3f45;
+  color: var(--dark-ink);
+  background: var(--dark-raised);
+  border-color: var(--dark-line);
 }
-
-html[data-theme="dark"] .tutor-log,
+html[data-theme="dark"] .tutor-examples button { color: var(--dark-accent); }
 html[data-theme="dark"] .tutor-form textarea {
-  color: #e6e1e9;
-  background: #16181b;
-  border-color: #3b3f45;
+  color: var(--dark-ink);
+  background: var(--dark-input);
+  border-color: var(--dark-input-line);
 }
-
-html[data-theme="dark"] .tutor-examples button { color: #cfbcff; }
-html[data-theme="dark"] .tutor-msg__text code { background: #2c3036; }
+html[data-theme="dark"] .tutor-form textarea::placeholder { color: var(--dark-faint); }
+html[data-theme="dark"] .tutor-form textarea:focus-visible,
+html[data-theme="dark"] .tutor-toggle:focus-visible,
+html[data-theme="dark"] .tutor-icon-btn:focus-visible,
+html[data-theme="dark"] .tutor-send:focus-visible,
+html[data-theme="dark"] .tutor-examples button:focus-visible { outline-color: var(--dark-focus); }
+html[data-theme="dark"] .tutor-msg__text code { background: var(--dark-soft); }
+html[data-theme="dark"] .tutor-msg--ai { border-left-color: var(--dark-warning); }
+html[data-theme="dark"] .tutor-tier { color: var(--dark-warning); background: var(--dark-warning-bg); }
+html[data-theme="dark"] .tutor-msg--error { color: var(--dark-danger); background: var(--dark-danger-bg); }
+html[data-theme="dark"] .tutor-cite { color: var(--dark-accent); background: var(--dark-soft); }
 html[data-theme="dark"] .tutor-intro p,
 html[data-theme="dark"] .tutor-note,
 html[data-theme="dark"] .tutor-sources summary,
-html[data-theme="dark"] .tutor-sources small { color: #b8b3c0; }
+html[data-theme="dark"] .tutor-sources small { color: var(--dark-muted); }
+html[data-theme="dark"] .tutor-counter { color: var(--dark-faint); }
+html[data-theme="dark"] .tutor-typing span { background: var(--dark-faint); }
+html[data-theme="dark"] .tutor-bubble {
+  color: var(--dark-ink);
+  background: var(--dark-surface);
+  border-color: var(--dark-line);
+}
 
 /* Trên điện thoại, đứng trên thanh điều hướng dưới đáy (khoảng 72px). */
 @media (max-width: 560px) {

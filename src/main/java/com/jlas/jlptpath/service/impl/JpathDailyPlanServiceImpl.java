@@ -170,7 +170,8 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
             }
         }
         JpathDayRules.applyRows(plan, tabs, JpathDayRules.tabRows(plan.getDayKind(), plan.isKanaPhase(),
-                path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes()), kept, clock.now(), dailyTabs);
+                path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes(),
+                JpathDayRules.kanaRows(path, plan.getStudyDay())), kept, clock.now(), dailyTabs);
         dailyTabs.flush();
         return kept;
     }

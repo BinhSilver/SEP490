@@ -45,9 +45,9 @@
       el.className = 'jp-net-notice';
       el.setAttribute('role', 'alert');
       el.innerHTML = '<span class="jp-net-notice__text"></span>'
-        + '<button type="button" class="jp-net-notice__retry">Thử lại</button>'
+        + '<button type="button" class="jp-net-notice__retry">Đóng</button>'
         + '<button type="button" class="jp-net-notice__close" aria-label="Đóng">×</button>';
-      el.querySelector('.jp-net-notice__retry').addEventListener('click', function () { root.location.reload(); });
+      el.querySelector('.jp-net-notice__retry').addEventListener('click', function () { el.hidden = true; });
       el.querySelector('.jp-net-notice__close').addEventListener('click', function () { el.hidden = true; });
       doc.body.appendChild(el);
     }
@@ -115,7 +115,10 @@
     if (status === 401) throw failure('UNAUTHORIZED', message || MSG_UNAUTHORIZED, status);
     if (!isEnvelope) throw failure('HTTP_' + status, MSG_BUSY, status);
     if (envelope.success === false || status < 200 || status >= 300) {
-      throw failure(envelope.code || 'HTTP_' + status, message || MSG_BUSY, status);
+      var code = envelope.code || 'HTTP_' + status;
+      // Infrastructure errors may contain raw JDBC/driver text. Keep those details out of learner-facing pages.
+      if (status >= 500 && QUIET_CODES.indexOf(code) < 0) message = MSG_BUSY;
+      throw failure(code, message || MSG_BUSY, status);
     }
     hideNotice();
     return envelope.data === undefined || envelope.data === null ? null : envelope.data;

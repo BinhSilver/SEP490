@@ -72,7 +72,7 @@
     overflow-wrap: anywhere;
   }
 
-  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(button, a, input, select, textarea, summary):focus-visible {
+  #jlabBasePage[data-mobile-adapt="owned"] #jlabBaseContent :is(button, a, input, select, textarea, summary):focus-visible:not(:where(body.jlas-ui-owned input, body.jlas-ui-owned select, body.jlas-ui-owned textarea)) {
     outline: 2px solid var(--color-primary);
     outline-offset: 3px;
   }

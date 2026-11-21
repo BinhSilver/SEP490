@@ -188,6 +188,7 @@ public class JpathPathCreator {
             }
             throw e;
         }
+        pauseComm(userId);
         userLevels.save(JpathUserLevel.builder()
                 .pathId(path.getId())
                 .level(openLevel)
@@ -276,5 +277,17 @@ public class JpathPathCreator {
 
     private static BigDecimal score(Integer value) {
         return value == null ? null : BigDecimal.valueOf(value).setScale(2);
+    }
+
+    private JpathCommPathPauser commPauser;
+
+    /** I3: optional so unit tests that build this class by hand need no communication tables. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setCommPauser(JpathCommPathPauser commPauser) {
+        this.commPauser = commPauser;
+    }
+
+    private void pauseComm(Long userId) {
+        if (commPauser != null) commPauser.pauseCommPaths(userId);
     }
 }

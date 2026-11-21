@@ -198,6 +198,7 @@ public class JpathPathChanger {
             }
             throw e;
         }
+        pauseComm(userId);
         JpathPathViewAssembler.Pacing pacing = views.pacing(path, level);
         level.setPriorityMode(pacing.pace().skippedLowPriority() > 0);
         userLevels.flush();
@@ -206,5 +207,17 @@ public class JpathPathChanger {
 
     private JpathUserPath lockActive(Long userId) {
         return paths.findActiveForUpdate(userId).orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
+    }
+
+    private JpathCommPathPauser commPauser;
+
+    /** I3: optional so unit tests that build this class by hand need no communication tables. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setCommPauser(JpathCommPathPauser commPauser) {
+        this.commPauser = commPauser;
+    }
+
+    private void pauseComm(Long userId) {
+        if (commPauser != null) commPauser.pauseCommPaths(userId);
     }
 }

@@ -5,7 +5,7 @@
   var esc = ui.escapeHtml;
   var tabs = ['word', 'kanji', 'example', 'grammar'];
   var state = { tab: 'word', query: '', result: null, selectedId: null, word: null, detailCode: null,
-    selectedGrammarCode: null, grammarDetailToken: 0,
+    selectedGrammarCode: null, grammarDetailToken: 0, kanjiDetailToken: 0,
     page: 0, size: 20, token: 0, otherPageToken: 0, suggestionResult: null,
     kanjiRelated: [], kanjiCharacter: '' };
   var els = {};
@@ -161,7 +161,9 @@
     return '<article class="dict-kanji-mini"><div class="dict-kanji-mini__glyph" data-stroke-for="' + esc(kanji.character) +
       '">' + esc(kanji.character) + '</div><div><h3>' + esc(kanji.character) + ' <small>' + esc(kanji.hanViet || '') +
       '</small></h3><p>On: ' + esc(on || '—') + '</p><p>Kun: ' + esc(kun || '—') + '</p>' +
-      '<button type="button" class="dict-text-button" data-kanji="' + esc(kanji.character) + '">Xem chi tiết</button></div></article>';
+      '<div class="dict-kanji-mini__actions"><button type="button" class="dict-text-button" data-kanji="' + esc(kanji.character) + '">Xem chi tiết</button>' +
+      '<a class="dict-text-button" href="/dictionary/kanji-map?kanji=' + encodeURIComponent(kanji.character) +
+      '" aria-label="Xem lược đồ chữ ' + esc(kanji.character) + '">Xem lược đồ</a></div></div></article>';
   }
   async function fillWordKanji(word, token) {
     var composition = word.kanjiComposition || [];
@@ -248,9 +250,32 @@
     renderOtherResults();
     fillWordKanji(data, token);
   }
+  function renderKanjiResults() {
+    var results = state.result && state.result.kanjiResults || [];
+    var host = byId('dict-side-kanji');
+    els.other.hidden = !results.length;
+    host.hidden = !results.length;
+    host.innerHTML = results.length ? '<h2>Kết quả tra cứu kanji</h2><div class="dict-vocab-list">' + results.map(function (kanji) {
+      return '<button type="button" class="dict-vocab-row dict-kanji-result-row"' +
+        ' data-kanji-pick="' + esc(kanji.character) + '" aria-pressed="false">' +
+        '<strong class="dict-kanji-result-row__glyph" lang="ja">' + esc(kanji.character) + '</strong>' +
+        '<small class="dict-kanji-result-row__han-viet">' + esc((kanji.hanViet || '').toUpperCase()) + '</small></button>';
+    }).join('') + '</div>' : '';
+    selectKanjiResult();
+    byId('dict-other-title').hidden = true;
+    els.vocabList.hidden = true;
+    els.otherPagination.hidden = true;
+    els.otherPagination.innerHTML = '';
+  }
+  function selectKanjiResult() {
+    Array.prototype.forEach.call(byId('dict-side-kanji').querySelectorAll('[data-kanji-pick]'), function (row) {
+      var selected = row.dataset.kanjiPick === state.kanjiCharacter;
+      row.classList.toggle('is-selected', selected);
+      row.setAttribute('aria-pressed', String(selected));
+    });
+  }
   function renderKanjiRelated() {
     els.other.hidden = false;
-    byId('dict-side-kanji').hidden = true;
     byId('dict-other-title').hidden = false;
     byId('dict-other-title').textContent = 'Từ vựng chứa Kanji';
     els.vocabList.hidden = false;
@@ -582,11 +607,11 @@
     }
     if (button.hasAttribute('data-contribution-report')) {
       if (!isLoggedIn()) { ui.toast('Vui lòng đăng nhập để báo cáo'); return true; }
-      if (!window.confirm('Báo cáo ý kiến này? Ý kiến sẽ bị ẩn cho đến khi được kiểm duyệt.')) return true;
+      if (!window.confirm('Báo cáo ý kiến này? Ý kiến chỉ tạm ẩn để chờ kiểm duyệt khi có đủ 3 người dùng khác nhau báo cáo.')) return true;
       button.disabled = true;
       try {
         await window.DictApi.reportContribution(button.dataset.contributionId);
-        ui.toast('Đã báo cáo. Ý kiến đã được ẩn để chờ kiểm duyệt.');
+        ui.toast('Đã ghi nhận báo cáo của bạn.');
         var page = Number(host.dataset.page || 0);
         var result = await loadContributions(host, page, state.token);
         if (result && !result.content.length && page > 0 && host.isConnected) {
@@ -735,6 +760,7 @@
       '</article>';
 
     renderKanjiRelated();
+    selectKanjiResult();
     if (kanji.strokeSvgUri) {
       var container = byId('dict-stroke-order');
       window.DictStrokeOrder.mount(container, kanji.strokeSvgUri).then(function (replay) {
@@ -770,17 +796,19 @@
       if (mock) renderWord(mock, token); else showEmpty();
     }
   }
-  async function loadKanji(result, token) {
+  async function loadKanji(result, token, pick) {
     var first = Array.from(state.query).find(function (ch) { return /[\u3400-\u9fff]/.test(ch); });
-    var character = first || ((result && result.kanjiResults || [])[0] || {}).character;
+    var character = pick || first || ((result && result.kanjiResults || [])[0] || {}).character;
     if (!character) { showEmpty(); return; }
+    var request = ++state.kanjiDetailToken;
     try {
       var kanji = await window.DictApi.kanjiDetail(character);
-      if (token === state.token) renderKanjiDetail(kanji);
+      if (token === state.token && request === state.kanjiDetailToken) renderKanjiDetail(kanji);
     } catch (_err) {
-      if (token !== state.token) return;
+      if (token !== state.token || request !== state.kanjiDetailToken) return;
       var mock = window.DictMock.kanji[character];
-      if (mock) renderKanjiDetail(mock); else showEmpty();
+      if (mock) renderKanjiDetail(mock);
+      else { state.kanjiCharacter = ''; selectKanjiResult(); showEmpty(); }
     }
   }
 
@@ -899,6 +927,7 @@
     state.query = route.query;
     state.detailCode = route.detailCode || null;
     state.selectedGrammarCode = null;
+    state.kanjiCharacter = '';
     state.grammarDetailToken++;
     state.page = 0;
     state.otherPageToken++;
@@ -930,6 +959,7 @@
     try { result = await window.DictApi.search(state.query, 0, state.size); } catch (_err) { /* Dữ liệu mẫu khi API không sẵn sàng. */ }
     if (token !== state.token) return;
     state.result = result;
+    if (state.tab === 'kanji') renderKanjiResults();
     try {
       if (state.tab === 'word') await loadWord(result, token);
       else await loadKanji(result, token);
@@ -1154,6 +1184,8 @@
         else { showLoading(true); selectGrammarResult(grammar.dataset.grammarCode, state.token); }
         return;
       }
+      var kanjiPick = event.target.closest('[data-kanji-pick]');
+      if (kanjiPick) { loadKanji(state.result, state.token, kanjiPick.dataset.kanjiPick); return; }
       var kanji = event.target.closest('[data-kanji]');
       if (kanji) { navigate('kanji', kanji.dataset.kanji); return; }
       var word = event.target.closest('[data-word]');

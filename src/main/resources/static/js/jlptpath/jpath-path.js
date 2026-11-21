@@ -102,18 +102,18 @@
   }
 
   function tabKeys(path) {
-    var keys = ['vocab', 'kanji', 'grammar', 'skills'];
-    return path && path.kanaTab ? ['kana'].concat(keys) : keys;
+    // owner 18/11: no kana tab — the kana stage is the first nodes of the Từ vựng map
+    return ['vocab', 'kanji', 'grammar', 'skills'];
   }
 
   function defaultTab(path) {
-    return path && path.kanaTab && !path.kanaCompleted ? 'kana' : 'vocab';
+    return 'vocab';
   }
 
   function resolveTab(param, path) {
     var key = typeof param === 'string' ? param.trim().toLowerCase() : '';
     if (!TAB_KEY[key]) return defaultTab(path);
-    if (key === 'kana' && !(path && path.kanaTab)) return 'vocab';
+    if (key === 'kana') return 'vocab';
     return key;
   }
 
@@ -270,7 +270,16 @@
     }).join('');
     return '<div class="jp-stage"><h2 class="jp-sr">Chặng ' + esc(p.openLevel) + '</h2>'
       + '<ol class="jp-stepper jp-stage__steps" aria-label="' + esc('Chặng ' + (p.openLevel || '')) + '">' + marks + '</ol>'
+      + (at > 2 && p.openLevel ? passedLinksHtml(p.openLevel) : '')
       + '</div>';
+  }
+
+  /** Owner 18/11: a passed mock test shows where its result and the certificate are. */
+  function passedLinksHtml(level) {
+    var lv = encodeURIComponent(level);
+    return '<p class="jp-stage__passed">Bạn đã đậu thi thử ' + esc(level)
+      + '<a href="/learning/jlpt/levels/' + lv + '/summary">Xem kết quả</a>'
+      + '<a href="/learning/jlpt/levels/' + lv + '/certificate">Xem chứng nhận</a></p>';
   }
 
   function weekday(iso) {
@@ -332,7 +341,7 @@
       + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù.</li>';
     return '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
       + '<p class="jp-muted">Đổi ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
-      + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Điều chỉnh nhịp học" bên dưới.</p></details>';
+      + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Nhịp học và ngày nghỉ" phía trên.</p></details>';
   }
 
   // ------------------------------------------------------------------------------------------------ numbers
@@ -360,7 +369,7 @@
     // Plan 3 Task 19: jpath-skills-tab.js fills the real tab from GET /skills/overview
     if (root.JpathSkillsTab) {
       return '<section class="jp-card jp-skills" data-jpath-skills-tab aria-live="polite">'
-        + '<p class="jp-muted" role="status">Đang tải phần Đọc · Nghe…</p></section>' + days;
+        + '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải phần Đọc · Nghe…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p></section>' + days;
     }
     return '<section class="jp-card jp-skills" aria-labelledby="jp-skills-title">'
       + '<h2 class="jp-section-title" id="jp-skills-title">Đọc · Nghe <span class="jp-tab__soon">Sắp mở</span></h2>'
@@ -382,10 +391,10 @@
   function lockedTabNoteHtml(path, tab) {
     var info = tabInfo(path, tab);
     var kanaFirst = !!(path && path.kanaTab && !path.kanaCompleted);
-    if (!info || (info.open !== false && !kanaFirst)) return '';
-    var text = info.open === false ? 'Học xong <strong>Chữ cái</strong> để mở tab này.'
-      : 'Lộ trình đang học <strong>Chữ cái</strong> trước; các phần ở đây mở dần sau khi xong Chữ cái.';
-    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=kana">Về tab Chữ cái</a></p>';
+    // owner 18/11: the kana stage sits at the start of the Từ vựng map, so that map needs no note
+    if (!info || tab === 'vocab' || (info.open !== false && !kanaFirst)) return '';
+    var text = 'Học xong <strong>chặng Chữ cái</strong> để mở tab này.';
+    return '<p class="jp-band jp-locked-note" role="note">' + text + ' <a href="/learning?tab=vocab">Về chặng Chữ cái</a></p>';
   }
 
   // tab buttons are updated in place so focus stays on the activated tab
@@ -464,6 +473,17 @@
       // the pace panel is folded; a pace warning (behind, rebalance) opens it so it is not missed
       var pace = part(rootEl, 'pace');
       if (pace && list(p.warnings).length) pace.open = true;
+      // owner 18/11: once the level's lessons are learned the daily-amount slider changes nothing, so it goes
+      var tools = rootEl.querySelector ? rootEl.querySelector('[data-jp-tools]') : null;
+      if (tools) {
+        var learning = !p.stage || p.stage === 'STUDY';
+        var paceChip = tools.querySelector('[data-tool="pace"]');
+        var pacePanel = tools.querySelector('[data-tool-panel="pace"]');
+        if (paceChip) paceChip.hidden = !learning;
+        if (pacePanel && !learning) pacePanel.hidden = true;
+        var skipChip = tools.querySelector('[data-tool="skip"]');
+        tools.hidden = !learning && (!skipChip || skipChip.hidden);
+      }
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
         { skills: state.skills, why: todayReason(p, state.today),
           side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') }));
@@ -479,6 +499,11 @@
       lists.mountTab(el, state.tab, { level: state.viewLevel || p.openLevel, display: p.display || {},
         skillDay: !!(state.today && state.today.kind === 'SKILL'), api: apiClient, location: loc,
         history: env.history, document: doc });
+      // owner 18/11: the kana stage is the first part of the Từ vựng map (no kana tab)
+      if (root.JpathKanaStage && typeof root.JpathKanaStage.mount === 'function') {
+        root.JpathKanaStage.mount(slot(rootEl, 'kana-stage'), { api: apiClient, tab: state.tab,
+          ownLevel: !state.viewLevel || state.viewLevel === p.openLevel, path: p });
+      }
       // Owner 05/11: V/K/G tabs open on their study parts; the whole list waits behind "Xem toàn bộ"
       if (root.JpathParts && typeof root.JpathParts.mount === 'function') {
         root.JpathParts.mount(slot(rootEl, 'parts'), el, state.tab, {
@@ -526,7 +551,7 @@
     function paintAll() {
       var p = state.path;
       if (p.display && rootEl.classList) D().applyDisplay(displayTarget(rootEl), p.display);
-      setHtml(rootEl, 'hero', heroHtml(p, state.today) + menuHtml());
+      setHtml(rootEl, 'hero', heroHtml(p, state.today)); // owner 18/11: the … menu repeated the side links
       // the stage and the week sit in the today panel's footer; this region keeps the week guide
       setHtml(rootEl, 'stage', weekGuideHtml(p, state.today));
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(p));
@@ -581,7 +606,7 @@
     function failInto(name, btn) {
       return function (e) {
         if (btn) btn.disabled = false;
-        showError(part(rootEl, name), e && e.message);
+        showError(part(rootEl, name), e && (e.code || e.status) && e.message);
       };
     }
 
@@ -652,7 +677,7 @@
         apiClient.get(PREVIEW_URL + encodeURIComponent(lv) + '/preview').then(function (pv) {
           openDialog(C.levelPreviewHtml(pv, state.path.openLevel), el);
         }, function (e) {
-          openDialog('<p id="jp-dialog-title">' + esc((e && e.message) || 'Không tải được.') + '</p>', el);
+          openDialog('<p id="jp-dialog-title">' + esc((e && (e.code || e.status) && e.message) || 'Không tải được.') + '</p>', el);
         });
       },
       'coming-soon': function (el) { openDialog(C.comingSoonHtml(el.getAttribute('data-coming-soon')), el); },
@@ -723,10 +748,13 @@
         var p = apiClient.send('PUT', D().SETTINGS_URL, patch);
         if (p && typeof p.catch === 'function') p.catch(function () { /* the tour shows again next time */ });
       } };
+      // owner 17/11: shown once — the flag is saved when the guide opens, not only on finish/skip
+      var savedAtOpen = !state.path.tourDone;
+      if (savedAtOpen) { state.path.tourDone = true; saver.save({ tourDone: true }); }
       state.tour = tour.create({ doc: doc, onFinish: function () {
         state.tour = null;
+        if (!savedAtOpen) saver.save({ tourDone: true });
         state.path.tourDone = true;
-        saver.save({ tourDone: true });
         if (env.history && /(^|[?&])tour=1(&|$)/.test((loc && loc.search) || '')) {
           try { env.history.replaceState(null, '', withoutTour(loc)); } catch (e) { /* ignore */ }
         }

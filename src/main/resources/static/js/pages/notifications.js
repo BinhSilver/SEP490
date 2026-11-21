@@ -6,6 +6,7 @@
   var ICONS = {
     MODERATION_CONTENT: 'fa-shield-halved', MODERATION_SANCTION: 'fa-user-lock', MODERATION_APPEAL: 'fa-scale-balanced',
     SECURITY: 'fa-shield-halved', DICTIONARY_CONTRIBUTION: 'fa-book', FLASHCARD_COMMENT: 'fa-comment',
+    COMMUNITY_COMMENT: 'fa-comment', COMMUNITY_REMOVED: 'fa-shield-halved',
     SHADOWING_COMMENT: 'fa-comment', SHADOWING_VIDEO_READY: 'fa-closed-captioning',
     SHADOWING_VIDEO_FAILED: 'fa-triangle-exclamation', WELCOME: 'fa-hand'
   };

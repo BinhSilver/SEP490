@@ -56,7 +56,7 @@ public class CpathTravelService {
     @Transactional(readOnly = true)
     public Map<String, Object> phrasebook(Long userId) {
         Map<String, Map<String, Object>> topics = new LinkedHashMap<>();
-        for (Map<String, Object> r : db.queryForList("SELECT t.code topic, t.name_vi, t.name_ja, i.code, i.ja, i.reading, i.vi, i.note_vi, i.audio_path "
+        for (Map<String, Object> r : db.queryForList("SELECT t.code topic, t.name_vi, t.name_ja, i.code, i.ja, i.reading, i.vi, i.note_vi, i.audio_path, i.example_ja, i.example_furigana, i.example_vi "
                 + "FROM cpath_item i JOIN cpath_topic t ON t.code = i.topic_code WHERE t.goal_code = ? AND i.kind = 'PHRASE' "
                 + "ORDER BY t.sort_order, i.sort_order", GOAL)) {
             Map<String, Object> t = topics.computeIfAbsent(String.valueOf(r.get("topic")), k -> {
@@ -74,8 +74,30 @@ public class CpathTravelService {
             p.put("vi", r.get("vi"));
             p.put("note", r.get("note_vi"));
             p.put("audioUrl", url(r.get("audio_path")));
+            if (r.get("example_ja") != null) {
+                Map<String, Object> ex = new LinkedHashMap<>();
+                ex.put("ja", r.get("example_ja"));
+                ex.put("furigana", r.get("example_furigana"));
+                ex.put("vi", r.get("example_vi"));
+                p.put("example", ex);
+            }
             @SuppressWarnings("unchecked") List<Map<String, Object>> list = (List<Map<String, Object>>) t.get("phrases");
             list.add(p);
+        }
+        // owner 17/11: each phrase shows a real sentence that uses it, taken from the place's dialogues
+        for (Map<String, Object> r : db.queryForList("SELECT s.topic_code topic, l.ja, l.furigana, l.vi, l.audio_path FROM cpath_line l "
+                + "JOIN cpath_situation s ON s.code = l.situation_code JOIN cpath_topic t ON t.code = s.topic_code "
+                + "WHERE t.goal_code = ? ORDER BY s.sort_order, l.line_order", GOAL)) {
+            Map<String, Object> t = topics.get(String.valueOf(r.get("topic")));
+            if (t == null) continue;
+            Map<String, Object> l = new LinkedHashMap<>();
+            l.put("ja", r.get("ja"));
+            l.put("furigana", r.get("furigana"));
+            l.put("vi", r.get("vi"));
+            l.put("audioUrl", url(r.get("audio_path")));
+            @SuppressWarnings("unchecked") List<Map<String, Object>> lines =
+                    (List<Map<String, Object>>) t.computeIfAbsent("lines", k -> new ArrayList<Map<String, Object>>());
+            lines.add(l);
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("display", display(travelPath(userId)));

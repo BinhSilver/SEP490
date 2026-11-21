@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Luyện thi JLPT - KotsuKotsu', 'jlpt')}"></head>
-<body id="jlabBasePage" class="app-body jlpt-body">
+<body id="jlabBasePage" class="app-body jlpt-body jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jlpt-page jlpt-library" data-inline-dictionary>
     <header class="jlpt-library-intro">
@@ -30,7 +30,7 @@
 </main>
 <dialog id="jlptModeDialog" class="jlpt-mode-dialog" aria-labelledby="jlptModeTitle">
     <button id="jlptModeClose" class="jlpt-mode-dialog__close" type="button" aria-label="Đóng"><span class="material-symbols-outlined">close</span></button>
-    <img class="jlpt-mode-dialog__mascot" src="/images/mascots/kitsu/kitsu-crying-30.webp" alt="Linh vật Kitsu">
+    <img class="jlpt-mode-dialog__mascot" src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="Kitsu đang cân nhắc lựa chọn">
     <span class="jlpt-mode-dialog__eyebrow">CHỌN CHẾ ĐỘ</span>
     <h2 id="jlptModeTitle">Bạn muốn làm đề theo cách nào?</h2>
     <div class="jlpt-mode-dialog__options">
@@ -38,6 +38,6 @@
         <a id="jlptModeExam" class="is-exam" href="#"><span class="material-symbols-outlined">timer</span><strong>Luyện thi</strong><small>Tính giờ theo 3 phần GOI, Ngữ pháp &amp; Dokkai, Choukai.</small></a>
     </div>
 </dialog>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
 <script th:src="@{/js/pages/jlpt-library.js?v=20261111-ui}"></script>
 </body></html>

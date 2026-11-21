@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  function reportButton(provider,id,label){return window.LearningReport?window.LearningReport.buttonHtml(provider,id,label):'';}
 
   var params = new URLSearchParams(location.search);
   var code = params.get('code') || 'N3_2025_12';
@@ -23,7 +24,6 @@
   var scriptOpen = false;
   var translationOpen = false;
   var furiganaOn = false;
-  var pendingFocus = null;
   var completedParts = {};
   var deadline = null;
   var timerHandle = null;
@@ -289,7 +289,7 @@
       var requested = requestedId ? allQuestionRows().find(function(row){return String(row.question.id) === requestedId;}) : null;
       var requestedPart = requested ? requested.partIndex : exam.parts.findIndex(function(part){return part.code === params.get('part');});
       if (requestedPart >= 0) partIndex = requestedPart;
-      if (requested) { pageIndex = Math.max(0, pageIndexForQuestion(requestedId)); pendingFocus = requestedId; }
+      if (requested) { pageIndex = Math.max(0, pageIndexForQuestion(requestedId)); }
       if (practiceFinished) { finishExam(true); return; }
     }
     renderTabs();
@@ -312,7 +312,6 @@
       var button = event.target.closest('[data-page-index]');
       if (!button || button.disabled) return;
       pageIndex = Number(button.dataset.pageIndex);
-      pendingFocus = button.dataset.questionId;
       scriptOpen = false;
       if (!isExamMode) savePracticeSession();
       render();
@@ -368,7 +367,7 @@
       var button = event.target.closest('[data-filter]');
       if (!button) return;
       filterMode = button.dataset.filter;
-      Array.from(this.querySelectorAll('[data-filter]')).forEach(function (item) { item.classList.toggle('is-active', item === button); });
+      Array.from(this.querySelectorAll('[data-filter]')).forEach(function (item) { item.classList.toggle('is-active', item === button); item.setAttribute('aria-pressed', String(item === button)); });
       renderPalette();
     });
     $('jlptAudio').addEventListener('click', handleAudioClick);
@@ -429,14 +428,8 @@
       $('jlptSubmitMondai').textContent = partIndex === exam.parts.length - 1 ? 'Nộp bài thi' : 'Nộp phần ' + partShortName(currentPart());
       $('jlptExamStep').textContent = 'PHẦN ' + (partIndex + 1) + '/' + exam.parts.length;
     } else $('jlptSubmitMondai').textContent = 'Nộp bài luyện tập';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (pendingFocus) {
-      pendingFocus = null;
-      requestAnimationFrame(function () {
-        var card = document.querySelector('.jlpt-exam-card');
-        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
+    // All question navigation lands at the same position, without competing animations.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 
   function passageHtml(passage, override) {
@@ -459,7 +452,7 @@
       var position = questionPosition(question.id) + 1;
       var image = question.imageUrl ? '<div class="jlpt-exam-image"><img src="' + esc(question.imageUrl) + '" alt="Hình minh họa câu ' + position + '"></div>' : '';
       return '<section class="jlpt-exam-question-block" data-question-id="' + question.id + '"><header><strong>Câu ' + position + '</strong>' +
-        '<button type="button" data-action="bookmark" data-question-id="' + question.id + '" aria-pressed="false"></button></header>' + image +
+        '<div class="learning-report-actions">' + reportButton('jlpt-question',question.id,'Báo cáo câu hỏi') + '<button type="button" data-action="bookmark" data-question-id="' + question.id + '" aria-pressed="false"></button></div></header>' + image +
         '<div class="jlpt-exam-question jlpt-exam-question-text" lang="ja"' + (hideSpokenText(question) ? ' hidden' : '') + '>' + (hideSpokenText(question) ? '' : displayQuestionHtml(question)) + '</div>' +
         '<form><div class="jlpt-exam-choices"></div></form>' + (isExamMode ? '' : '<div class="jlpt-exam-check"><span class="jlpt-exam-feedback"></span>' +
         '<button type="button" data-action="check" data-question-id="' + question.id + '"><span class="material-symbols-outlined">fact_check</span>Đáp án</button>' +
@@ -705,6 +698,7 @@
     element.innerHTML = '<header><span class="material-symbols-outlined">school</span><div><b>Giải thích đáp án</b><small>' +
       (data.aiGenerated ? 'Giáo viên AI phân tích theo dữ liệu câu hỏi' : 'Giải thích dự phòng') + '</small></div></header>' +
       (items.length === 4 ? items.join('') : '<p>' + esc(text).replace(/\n/g, '<br>') + '</p>');
+    if(data.aiGenerated&&window.LearningReport)element.insertAdjacentHTML('beforeend','<div class="learning-report-footer">'+reportButton('jlpt-ai',question.id,'Báo cáo giải thích AI')+'</div>');
     element.hidden = false;
   }
 
@@ -1173,5 +1167,9 @@
     var minute = Math.floor(seconds / 60);
     var second = Math.floor(seconds % 60);
     return String(minute).padStart(2, '0') + ':' + String(second).padStart(2, '0');
+  }
+  if(window.LearningReport){
+    window.LearningReport.register('jlpt-question',function(id){var q=questionById(id);return q?{targetType:'JLPT_QUESTION',page:'JLPT_EXAM',questionId:String(q.id),label:code+' · Câu '+q.number}:null;});
+    window.LearningReport.register('jlpt-ai',function(id){var q=questionById(id),data=explanations[id];return q&&data&&data.aiGenerated?{targetType:'AI_EXPLANATION',page:'JLPT_EXAM',questionId:String(q.id),explanation:data.explanation,label:code+' · Câu '+q.number}:null;});
   }
 })();

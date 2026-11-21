@@ -269,7 +269,7 @@
       fields: fields,
       priorityTopics: (state.priorityTopics || []).slice(),
       selfLevel: state.selfLevel || 'BEGINNER',
-      dailySituations: Number(state.dailySituations) === 1 ? 1 : 2,
+      dailySituations: Math.min(4, Math.max(1, Number(state.dailySituations) || 2)),
       restDays: (state.restDays || []).slice()
     };
     if (state.finishDate) payload.finishDate = state.finishDate;
@@ -382,8 +382,9 @@
       bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>'
         + kanaQuestionHtml(state);
     } else {
-      var pace1 = Number(state.dailySituations) === 1;
-      var pace2 = Number(state.dailySituations) !== 1;
+      // owner 18/11: 15 phút = 1 tình huống, tối đa 60 phút = 4 (chỉ là ước lượng)
+      var paceN = Math.min(4, Math.max(1, Number(state.dailySituations) || 2));
+      var PACES = [{ n: 1, d: 'Nhẹ nhàng, đều đặn' }, { n: 2, d: 'Vừa sức' }, { n: 3, d: 'Tiến bộ nhanh' }, { n: 4, d: 'Học dồn' }];
       var restChips = DAYS_OF_WEEK.map(function (d) {
         var isRest = state.restDays.indexOf(d.code) >= 0;
         return '<button type="button" class="cp-rest-chip" data-cp-rest="' + d.code + '" aria-pressed="' + (isRest ? 'true' : 'false') + '" title="' + esc(d.full) + '">'
@@ -394,32 +395,38 @@
       bodyHtml = '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Số tình huống học mỗi ngày</span>'
         + '<div class="cp-pace-grid">'
-        + '<button type="button" class="cp-pill' + (pace1 ? ' is-selected' : '') + '" data-cp-daily="1" aria-pressed="' + (pace1 ? 'true' : 'false') + '">'
-        + '<span class="cp-pill__body"><span class="cp-pill__label">1 tình huống / ngày</span><span class="cp-pill__desc">Khoảng 15 phút · Nhẹ nhàng, đều đặn</span></span>'
-        + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-        + '</button>'
-        + '<button type="button" class="cp-pill' + (pace2 ? ' is-selected' : '') + '" data-cp-daily="2" aria-pressed="' + (pace2 ? 'true' : 'false') + '">'
-        + '<span class="cp-pill__body"><span class="cp-pill__label">2 tình huống / ngày</span><span class="cp-pill__desc">Khoảng 30 phút · Tiến bộ nhanh</span></span>'
-        + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-        + '</button>'
+        + PACES.map(function (pc) {
+          var on = paceN === pc.n;
+          return '<button type="button" class="cp-pill' + (on ? ' is-selected' : '') + '" data-cp-daily="' + pc.n + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+            + '<span class="cp-pill__body"><span class="cp-pill__label">' + pc.n + ' tình huống / ngày</span><span class="cp-pill__desc">Khoảng ' + (pc.n * 15) + ' phút · ' + pc.d + '</span></span>'
+            + '<span class="cp-pill__check">' + svgCheck() + '</span></button>';
+        }).join('')
         + '</div>'
         + '</div>'
         + '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Chọn ngày nghỉ trong tuần (bấm để bật/tắt ngày nghỉ)</span>'
         + '<div class="cp-rest-days" role="group" aria-label="Ngày nghỉ trong tuần">' + restChips + '</div>'
+        + (state.restNote ? '<p class="cp-survey__hint" role="status">' + esc(state.restNote) + '</p>' : '')
         + '</div>'
         + '<div class="cp-survey__row">'
         + '<label class="cp-survey__label" for="cpFinishDateInput">Hạn muốn hoàn thành (tùy chọn)</label>'
-        + '<input id="cpFinishDateInput" type="date" class="cp-survey__date-input" data-cp-finish-date value="' + esc(state.finishDate || '') + '" />'
+        + '<input id="cpFinishDateInput" type="date" class="cp-survey__date-input" data-cp-finish-date min="' + (function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() + '" value="' + esc(state.finishDate || '') + '" />'
         + '</div>';
     }
 
+    // owner 17/11: a learner coming from the goal step (no path yet) goes back to that step, not to a path they lack
+    var topBack = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.jp-back') : null;
+    if (topBack && !state.secondaryPath) {
+      topBack.setAttribute('href', '/survey?edit=goal');
+      var lbl = topBack.querySelector('span');
+      if (lbl) lbl.textContent = 'Quay lại chọn mục tiêu';
+    }
     var prevBtn = step > 1
-      ? '<button type="button" class="cp-btn-ghost" data-cp-prev>‹ Quay lại</button>'
+      ? '<button type="button" class="cp-btn-ghost" data-cp-prev>Quay lại</button>'
       // step 1 still goes back: a secondary goal returns to the path, otherwise to the general survey (owner 11/11)
-      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey') + '">‹ Quay lại</a>';
+      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey?edit=goal') + '">Quay lại</a>';
     var nextBtn = step < total
-      ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
+      ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
         + (state.submitting ? (state.secondaryPath ? 'Đang thêm mục tiêu phụ…' : 'Đang tạo lộ trình…')
           : (state.secondaryPath ? 'Thêm mục tiêu phụ' : 'Bắt đầu lộ trình giao tiếp')) + '</button>';
@@ -585,7 +592,7 @@
 
       var dailyBtn = t.closest('[data-cp-daily]');
       if (dailyBtn) {
-        state.dailySituations = Number(dailyBtn.getAttribute('data-cp-daily')) === 1 ? 1 : 2;
+        state.dailySituations = Math.min(4, Math.max(1, Number(dailyBtn.getAttribute('data-cp-daily')) || 2));
         render();
         return;
       }
@@ -596,6 +603,8 @@
         var rIdx = state.restDays.indexOf(dCode);
         if (rIdx >= 0) state.restDays.splice(rIdx, 1);
         else if (state.restDays.length < 6) state.restDays.push(dCode);
+        // bug 17: the 7th day stays a study day; say why instead of ignoring the click
+        state.restNote = rIdx < 0 && state.restDays.indexOf(dCode) < 0 ? 'Cần giữ ít nhất một ngày học trong tuần.' : '';
         render();
         return;
       }
@@ -629,7 +638,7 @@
           if (root.location) root.location.href = '/learning/comm/path';
         }, function (err) {
           state.submitting = false;
-          state.errorMsg = (err && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
+          state.errorMsg = (err && (err.code || err.status) && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
           render();
         });
       }
