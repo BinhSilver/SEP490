@@ -133,7 +133,7 @@ public class PromptBuilderService {
             }
             if (definition.states() != null) {
                 flow = definition.states().stream()
-                        .map(s -> "- " + n(s.code()) + ": " + n(s.systemInstruction()))
+                        .map(s -> "- " + n(s.code()) + ": " + withoutRepeats(s.systemInstruction()))
                         .collect(Collectors.joining("\n"));
             }
         }
@@ -195,7 +195,7 @@ public class PromptBuilderService {
                     .filter(s -> wantedState != null && wantedState.equals(s.code()))
                     .findFirst().orElse(definition.states().get(0));
             stateName = n(compactState.name() != null ? compactState.name() : compactState.code());
-            statePrompt = n(compactState.systemInstruction());
+            statePrompt = withoutRepeats(compactState.systemInstruction());
             stateNext = n(compactState.nextStateCode());
             stateGoal = compactState.allowedGoalCodes() == null
                     ? "" : String.join(", ", compactState.allowedGoalCodes());
@@ -311,6 +311,30 @@ public class PromptBuilderService {
     private static String n(String s) {
         return s == null ? "" : s;
     }
+
+    /**
+     * Some catalog state prompts carry the same persona sentence many times over (one state repeats it seven
+     * times); every turn sends every state's prompt, so each repeat costs tokens and tells the model nothing new.
+     */
+    static String withoutRepeats(String text) {
+        if (text == null || text.isBlank()) return "";
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        StringBuilder out = new StringBuilder();
+        for (String sentence : SENTENCE_END.split(text.strip())) {
+            String key = sentence.strip();
+            if (key.isEmpty() || !seen.add(key)) continue;
+            // Japanese sentences follow each other without a space; Latin ones need one.
+            if (!out.isEmpty() && "。！？".indexOf(out.charAt(out.length() - 1)) < 0) out.append(' ');
+            out.append(key);
+        }
+        return out.toString();
+    }
+
+    /**
+     * Splits after a sentence end, keeping the mark with its sentence. A Latin mark needs a space after it, so
+     * "3.600 yên" stays one number; a Japanese mark ends the sentence on its own.
+     */
+    private static final java.util.regex.Pattern SENTENCE_END = java.util.regex.Pattern.compile("(?<=[.!?])\\s+|(?<=[。！？])\\s*");
 
     private static String defaultTemplate() {
         return """

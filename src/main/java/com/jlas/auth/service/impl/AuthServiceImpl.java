@@ -98,8 +98,9 @@ public class AuthServiceImpl implements AuthService {
                     "Email is not verified. Please verify your email before logging in.");
         }
         loginAttemptThrottle.recordSuccess(email, clientIp);
+        boolean firstLogin = user.getLastLoginAt() == null;
         user.setLastLoginAt(LocalDateTime.now());
-        notifications.greetDaily(user.getId(), user.getFullName());
+        notifications.greetDaily(user.getId(), user.getFullName(), firstLogin);
         return issueTokens(user, clientIp, deviceInfo);
     }
 
@@ -299,9 +300,10 @@ public class AuthServiceImpl implements AuthService {
             if (blankToNull(user.getAvatarUrl()) == null) user.setAvatarUrl(blankToNull(googleUser.avatar()));
             user.setIsVerified(true);
         }
+        boolean firstLogin = user.getLastLoginAt() == null;
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
-        notifications.greetDaily(user.getId(), user.getFullName());
+        notifications.greetDaily(user.getId(), user.getFullName(), firstLogin);
         return issueTokens(user, clientIp, deviceInfo);
     }
 
