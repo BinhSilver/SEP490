@@ -129,7 +129,11 @@
         + '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5.5 3.5h9v13l-4.5-3.2-4.5 3.2z" '
         + 'stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" fill="' + (saved ? 'currentColor' : 'none') + '"/></svg></button>';
     }
-    if (card.itemType === 'VOCAB' || card.itemType === 'KANJI') html += D().controlsHtml(display);
+    if (card.itemType === 'VOCAB' || card.itemType === 'KANJI') {
+      var kanji = /[㐀-鿿々ヶ]/;
+      var hasKanji = kanji.test(card.expression || '') || kanji.test(card.kanji || '') || kanji.test(JSON.stringify(card.examples || []));
+      html += D().controlsHtml(display, { furigana: hasKanji });
+    }
     return '<div class="jp-study-tools">' + html + '</div>';
   }
 

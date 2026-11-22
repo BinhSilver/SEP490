@@ -1331,6 +1331,10 @@
         exitLink.setAttribute('href', backUrl);
         if (/\/learning\/jlpt\/study/.test(backUrl)) {
           exitLink.textContent = '← Quay lại buổi học';
+        } else {
+          // owner 22/11: the crumb "Quay về Lộ trình JLPT" already goes back to the path (the CSS rule only caught a
+          // bare "/learning"; a back link with a query string stayed as a second, smaller button)
+          exitLink.hidden = true;
         }
       }
     }

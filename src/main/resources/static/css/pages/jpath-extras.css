@@ -518,3 +518,9 @@ body:has(.jp-tour) .jp-report-fab { display: none; }
     padding: 6px 10px;
   }
 }
+
+/* owner 22/11: the dialog hugs its content (no wide empty area); Trước / Sau left and Đóng right on one footer row */
+.jp-writing .jp-writing__panel { width: fit-content; min-width: min(560px, 94vw); max-width: min(1100px, 94vw); }
+.jp-writing__foot { justify-content: space-between; border-top: 1px solid var(--jp-line); padding-top: 12px; margin-top: 12px; }
+.jp-writing__foot .jp-writing__nav { margin-top: 0; }
+.jp-writing__foot [data-writing-close] { margin-left: auto; }

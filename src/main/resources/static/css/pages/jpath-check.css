@@ -872,7 +872,7 @@ html.dark .jp-check {
 .jp-check-back {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
+  min-height: 40px; /* same height as the Furigana toggle beside it */
   padding: 4px 12px;
   border-radius: 8px;
   border: 1px solid var(--jp-check-line);
@@ -1432,7 +1432,8 @@ html.dark .cp-page {
 /* [JLAS-W0108] F105 + #96: check page (/learning/jlpt/check/...): the crumb "Quay về Lộ trình JLPT" and the
    button "Quay lại lộ trình" both lead to /learning, so hide the duplicate link on all viewports; when it goes
    back to a study session (href /learning/jlpt/study…, "Quay lại buổi học") it stays. */
-.jp-check-topBar__actions .jp-check-back[href="/learning"] { display: none; }
+.jp-check-topBar__actions .jp-check-back[href="/learning"],
+.jp-check-topBar__actions .jp-check-back[hidden] { display: none; }
 .jp-check__submitting { text-align: center; padding: 32px 24px; }
 
 /* [JLAS-W0108] F120: grammar pattern page (/learning/jlpt/grammar/{code}), owner 14/11 "siêu tệ về UI".

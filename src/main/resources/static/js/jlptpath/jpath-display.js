@@ -6,7 +6,7 @@
  *
  * window.JpathDisplay:
  *   applyDisplay(root, display)     jp-font-S|M|L (default M), jp-furigana-off, jp-romaji-off on root
- *   controlsHtml(display)           furigana / romaji / font S M L buttons (data-jp-control, aria-pressed)
+ *   controlsHtml(display, {furigana}) furigana (left out when furigana is false) / romaji / font S M L buttons (data-jp-control, aria-pressed)
  *   createSaver({send, setTimeout, clearTimeout, delayMs = 400}) → {save(patch)}
  *                                   merges patches and sends one PUT /api/learning/jlpt/settings per quiet
  *                                   period; romajiOn true/false is written as romajiMode ON/OFF
@@ -68,11 +68,13 @@
       + '">' + esc(label) + '</button>';
   }
 
-  function controlsHtml(display) {
+  function controlsHtml(display, opts) {
     var d = display || {};
+    var o = opts || {};
     var font = fontOf(d);
     var html = '<div class="jp-display-controls" role="group" aria-label="Tùy chọn hiển thị">';
-    html += button('data-jp-control="furigana"', !d.furiganaHiddenAll, 'Furigana');
+    // owner 22/11: no Furigana button when the card has no Kanji to read
+    if (o.furigana !== false) html += button('data-jp-control="furigana"', !d.furiganaHiddenAll, 'Furigana');
     html += button('data-jp-control="romaji"', romajiOn(d), 'Romaji');
     FONTS.forEach(function (f) {
       html += button('data-jp-control="font" data-jp-font="' + f + '" aria-label="' + esc(FONT_LABELS[f]) + '"',
