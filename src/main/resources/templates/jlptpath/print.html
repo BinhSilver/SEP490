@@ -14,7 +14,7 @@
     <button type="button" class="jp-print-toolbar__btn jp-print-toolbar__btn--primary" data-jpath-print-now
             th:disabled="${sheet == null or #lists.isEmpty(sheet.pages())}">In bảng này</button>
     <button type="button" class="jp-print-toolbar__btn" data-jpath-print-close>Đóng</button>
-    <nav class="jp-print-toolbar__tabs" aria-label="Chọn bảng" th:if="${param.scope != null and param.scope[0] != 'KANA'}">
+    <nav class="jp-print-toolbar__tabs" aria-label="Chọn bảng" th:if="${param.scope != null and param.scope[0] != 'KANA' and param.scope[0] != 'PART'}">
         <a th:each="t : ${ {'VOCAB','KANJI'} }"
            th:href="@{/learning/jlpt/print(scope=${param.scope[0]},tab=${t},day=${param.day},level=${param.level},q=${param.q},topic=${param.topic},state=${param.state},radical=${param.radical},sort=${param.sort})}"
            th:classappend="${param.tab != null and param.tab[0] == t} ? ' is-on'"

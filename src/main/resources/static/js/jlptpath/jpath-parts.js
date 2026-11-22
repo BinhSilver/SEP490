@@ -22,7 +22,7 @@
  *    - Automatically shifts down/up into the visible viewport below the sticky banner when opened.
  *    - Max height ~70vh with internal scroll; "10/10" progress ring sits neatly inline in the footer button row.
  *
- * window.JpathParts = { partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
+ * window.JpathParts = { printPartHtml(tab, index), partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
  */
 (function (root, factory) {
   'use strict';
@@ -522,18 +522,28 @@
       + '</div>';
   }
 
-  function wordPillHtml(it) {
+  var WRITE_TYPES = { vocab: 'VOCAB', kanji: 'KANJI', kana: 'KANA' };
+
+  /** owner 22/11: a word / Kanji / kana pill opens "Luyện viết" (stroke order, tracing cells, In phiếu viết). */
+  function wordPillHtml(it, tabKey) {
     var label = (it && (it.label || it.text || it.expression || '')) || '';
     var rd = it && it.reading && it.reading !== label ? it.reading : '';
     var mean = (it && (it.meaning || it.meaningVi || '')) || '';
-    return '<li class="jp-parts__word-pill">'
-      + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
+    var type = WRITE_TYPES[String(tabKey || '').toLowerCase()];
+    // F216 (owner 22/11): an item picked for this learner wears a "Dành cho bạn" tag (the why is never shown)
+    var mine = it && it.forYou ? '<span class="jp-for-you" title="Mục này được chọn riêng cho bạn">Dành cho bạn</span>' : '';
+    var inner = mine + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
       + '<span class="jp-parts__pill-ja" lang="ja">' + esc(label) + '</span>'
-      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '')
-      + '</li>';
+      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '');
+    if (type && it && it.code) {
+      return '<li class="jp-parts__word-pill jp-parts__word-pill--write">'
+        + '<button type="button" class="jp-parts__pill-btn" title="Bấm để luyện viết" data-jpath-writing="'
+        + esc(JSON.stringify({ itemType: type, code: it.code })) + '">' + inner + '</button></li>';
+    }
+    return '<li class="jp-parts__word-pill">' + inner + '</li>';
   }
 
-  function pillsGridHtml(items, unit, expanded) {
+  function pillsGridHtml(items, unit, expanded, tabKey) {
     var arr = list(items);
     if (!arr.length) return '<p class="jp-parts__pop-empty">Chưa có mục nào trong phần này.</p>';
     var showAll = !!expanded || arr.length <= PILL_PREVIEW_COUNT;
@@ -546,7 +556,7 @@
         + '</button></li>'
       : '';
     return '<ul class="jp-parts__pills-grid jp-parts__items">'
-      + first.map(wordPillHtml).join('')
+      + first.map(function (it) { return wordPillHtml(it, tabKey); }).join('')
       + moreBtn
       + '</ul>';
   }
@@ -571,6 +581,12 @@
 
   function popoverSideForPos(pos) {
     return pos === 'right' ? 'left' : 'right';
+  }
+
+  /** F226 (owner 22/11): "In cả phần" — the writing sheet of every item of the part, in a new tab. */
+  function printPartHtml(tab, index) {
+    return '<a class="jp-btn jp-btn--sm" target="_blank" rel="noopener" href="/learning/jlpt/print?scope=PART&tab='
+      + encodeURIComponent(tab) + '&part=' + encodeURIComponent(index) + '">In cả phần</a>';
   }
 
   function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
@@ -600,6 +616,7 @@
       statusIcon = svgLock();
     }
     var dateStr = p.day ? dayLabel(p.day) : (p.date ? dayLabel(p.date) : '');
+    var mineCount = items.filter(function (it) { return it && it.forYou; }).length;
     var doneItems = (isDone || isTodayDone) ? n : Math.min(n, Math.max(0, Number(p.learnedCount) || 0));
 
     var actions = '';
@@ -619,6 +636,7 @@
     // owner 18/11: every vocab/kanji part can be studied with the team's flashcard (upcoming: set made on press)
     if (/^(vocab|kanji)$/i.test(String(tabKey || '')) && items.length) {
       actions += '<button type="button" class="jp-btn jp-btn--sm" data-parts-fc="' + esc(p.index) + '">Học bằng flashcard</button>'
+        + printPartHtml(String(tabKey).toUpperCase(), p.index)
         + '<span class="jp-parts__err" role="status" data-parts-fc-error></span>';
     }
 
@@ -631,13 +649,14 @@
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
       + (dateStr ? '<span class="jp-parts__pop-date">' + esc(dateStr) + '</span>' : '')
+      + (mineCount ? '<span class="jp-for-you">' + mineCount + ' mục dành cho bạn</span>' : '')
       + '</div>'
       + '<h3 class="jp-parts__pop-title">Phần ' + esc(p.index) + ' · ' + n + ' ' + esc(unit) + '</h3>'
       + '</div>'
       + '<button type="button" class="jp-parts__pop-close" data-parts-pop-close aria-label="Đóng bong bóng">×</button>'
       + '</div>'
       + '<div class="jp-parts__pop-body">'
-      + pillsGridHtml(items, unit, pillsExpanded)
+      + pillsGridHtml(items, unit, pillsExpanded, tabKey)
       + '</div>'
       + '<div class="jp-parts__pop-foot">'
       + '<div class="jp-parts__pop-actions">' + actions + '</div>'
@@ -1309,6 +1328,14 @@
         var t = ev.target;
         if (!t || typeof t.closest !== 'function') return;
 
+        // pills are drawn after the page's bind ran: wire the pressed one now and let its own handler open the dialog
+        var writeEl = t.closest('[data-jpath-writing]');
+        if (writeEl && writeEl.getAttribute('data-jpath-writing-bound') !== '1' && root.JpathWriting && root.JpathWriting.bind) {
+          root.JpathWriting.bind(writeEl);
+          writeEl.click();
+          return;
+        }
+
         var popClose = t.closest('[data-parts-pop-close]');
         if (popClose) {
           partsEl.__selectedKey = '';
@@ -1479,6 +1506,9 @@
   }
 
   return {
+    printPartHtml: printPartHtml,
+    wordPillHtml: wordPillHtml,
+    partPopoverHtml: partPopoverHtml,
     partsHtml: partsHtml,
     weeklyHtml: weeklyHtml,
     savedNoticeHtml: savedNoticeHtml,
