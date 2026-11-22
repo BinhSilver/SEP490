@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] F220 (owner 22/11): public About page (/about); static content, the same for guests and members. -->
+<head th:replace="~{fragments/head :: standard('Giới thiệu - KotsuKotsu', null)}"></head>
+<link rel="stylesheet" th:href="@{/css/site-footer.css(v=20261123)}" />
+<body id="jlabBasePage" class="app-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="site-page">
+    <section class="site-page__hero">
+        <p class="site-page__kicker">Giới thiệu</p>
+        <h1>KotsuKotsu: học tiếng Nhật mỗi ngày một chút</h1>
+        <p class="site-page__lead"><span lang="ja">こつこつ</span> nghĩa là đều đặn từng chút một. KotsuKotsu giúp bạn học tiếng Nhật theo đúng trình độ của mình, mỗi ngày một lượng vừa sức, và thấy rõ mình đang tiến bộ.</p>
+    </section>
+
+    <h2>Có gì trong KotsuKotsu</h2>
+    <div class="site-page__grid">
+        <div class="site-page__card"><h3>Lộ trình JLPT N5 đến N1</h3><p>Bắt đầu từ trình độ thật của bạn sau Smart Test, mỗi ngày học từ vựng, Kanji, ngữ pháp và luyện Đọc, Nghe.</p></div>
+        <div class="site-page__card"><h3>Lộ trình giao tiếp</h3><p>Học nói theo tình huống thật: chào hỏi, mua sắm, đi lại, công việc.</p></div>
+        <div class="site-page__card"><h3>Công cụ học</h3><p>Từ điển, flashcard, luyện viết chữ, shadowing, gọi AI để luyện nói và mini-game.</p></div>
+        <div class="site-page__card"><h3>Cộng đồng</h3><p>Chia sẻ, hỏi đáp và học cùng những người cũng đang học tiếng Nhật.</p></div>
+    </div>
+
+    <h2>Lộ trình giúp bạn thế nào</h2>
+    <ul>
+        <li>Bắt đầu đúng chỗ: phần bạn đã biết thì kiểm tra nhanh rồi bỏ qua, không phải học lại.</li>
+        <li>Mỗi ngày vừa sức: bạn chọn số từ mới mỗi ngày, lộ trình tự chia Kanji và ngữ pháp cho đều.</li>
+        <li>Ôn đúng lúc: những gì vừa học sẽ quay lại để ôn trước khi bạn kịp quên.</li>
+        <li>Thấy rõ tiến bộ: lịch học, huy hiệu, thống kê và bài thi thử cho từng cấp.</li>
+    </ul>
+
+    <h2>Đội ngũ</h2>
+    <p>KotsuKotsu là đồ án tốt nghiệp (SEP490) của một nhóm sinh viên Trường Đại học FPT. Chúng tôi xây dựng KotsuKotsu cho chính những người học như mình: bận rộn, muốn học đều, và cần biết hôm nay nên học gì.</p>
+
+    <h2>Góp ý</h2>
+    <p>Gặp lỗi trong bài học? Bấm "Báo sai" ngay trong bài. Muốn góp ý thêm, hãy viết cho chúng tôi trong <a th:href="@{/community}">Cộng đồng</a>. Xem thêm <a th:href="@{/policy}">Chính sách người dùng</a>.</p>
+</main>
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] F220 (owner 22/11): public user policy page (/policy); static content. Wording to be reviewed by the
+     team before release. -->
+<head th:replace="~{fragments/head :: standard('Chính sách người dùng - KotsuKotsu', null)}"></head>
+<link rel="stylesheet" th:href="@{/css/site-footer.css(v=20261123)}" />
+<body id="jlabBasePage" class="app-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="site-page">
+    <section class="site-page__hero">
+        <p class="site-page__kicker">Chính sách người dùng</p>
+        <h1>Bạn dùng KotsuKotsu thế nào, và chúng tôi giữ dữ liệu của bạn ra sao</h1>
+        <p class="site-page__lead">Cập nhật ngày 23/11/2026. Khi tạo tài khoản và dùng KotsuKotsu, bạn đồng ý với những điều dưới đây.</p>
+    </section>
+
+    <h2>1. Tài khoản</h2>
+    <ul>
+        <li>Bạn đăng ký bằng email hoặc tài khoản Google. Mỗi người dùng một tài khoản, tự giữ bí mật mật khẩu của mình.</li>
+        <li>Không dùng KotsuKotsu để gây hại cho người khác, phát tán nội dung vi phạm pháp luật hay làm quá tải hệ thống.</li>
+    </ul>
+
+    <h2>2. Dữ liệu chúng tôi lưu</h2>
+    <ul>
+        <li>Thông tin tài khoản: tên hiển thị, email, ảnh đại diện nếu bạn chọn.</li>
+        <li>Việc học: kết quả Smart Test, lộ trình, mục đã học, câu trả lời, lịch học, huy hiệu, sổ tay.</li>
+        <li>Bản ghi âm khi bạn luyện nói hoặc luyện phát âm, để chấm điểm và cho bạn nghe lại.</li>
+        <li>Bài viết, bình luận và báo lỗi bạn gửi trong Cộng đồng hoặc trong bài học.</li>
+    </ul>
+
+    <h2>3. Chúng tôi dùng dữ liệu để làm gì</h2>
+    <ul>
+        <li>Xếp lộ trình theo trình độ của bạn, chọn bài cho mỗi ngày và nhắc ôn đúng lúc.</li>
+        <li>Chấm bài, chấm phát âm và giải thích câu trả lời.</li>
+        <li>Sửa lỗi nội dung và cải thiện KotsuKotsu.</li>
+    </ul>
+    <p>Chúng tôi không bán dữ liệu của bạn và không dùng nó để quảng cáo.</p>
+
+    <h2>4. Dịch vụ bên ngoài</h2>
+    <p>Một số tính năng gửi phần dữ liệu cần thiết tới dịch vụ đối tác để xử lý:</p>
+    <ul>
+        <li>Đăng nhập bằng Google.</li>
+        <li>Nhận dạng giọng nói và chấm phát âm (Microsoft Azure, Deepgram) khi bạn ghi âm.</li>
+        <li>Trí tuệ nhân tạo để giải thích câu trả lời và trò chuyện luyện nói.</li>
+        <li>Thanh toán gói Premium qua cổng thanh toán PayOS; chúng tôi không lưu số thẻ của bạn.</li>
+    </ul>
+
+    <h2>5. Nội dung trong Cộng đồng</h2>
+    <ul>
+        <li>Bạn chịu trách nhiệm với nội dung mình đăng. Hãy tôn trọng người khác.</li>
+        <li>Nội dung vi phạm có thể bị ẩn hoặc gỡ bởi người kiểm duyệt.</li>
+    </ul>
+
+    <h2>6. Quyền của bạn</h2>
+    <ul>
+        <li>Xem và sửa thông tin tài khoản trong trang Hồ sơ.</li>
+        <li>Yêu cầu xoá tài khoản và dữ liệu học bằng cách gửi yêu cầu trong <a th:href="@{/community}">Cộng đồng</a>.</li>
+    </ul>
+
+    <h2>7. Thay đổi chính sách</h2>
+    <p>Khi chính sách thay đổi, chúng tôi cập nhật ngày ở đầu trang này. Bạn tiếp tục dùng KotsuKotsu nghĩa là đồng ý với bản mới.</p>
+
+    <p class="site-page__note">KotsuKotsu là đồ án tốt nghiệp (SEP490) của sinh viên Trường Đại học FPT. Xem thêm <a th:href="@{/about}">Giới thiệu</a>.</p>
+</main>
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+</body>
+</html>
