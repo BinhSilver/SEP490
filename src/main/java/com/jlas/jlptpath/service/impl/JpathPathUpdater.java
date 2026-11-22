@@ -77,8 +77,11 @@ public class JpathPathUpdater {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Thiếu số mục mỗi ngày.");
         }
         JpathUserPath path = lockActive(userId);
-        JpathSliderValues wanted = new JpathSliderValues(request.vocab(), request.kanji(), request.grammar());
-        JpathSliderBounds.requireInRange(path.getOpenLevel(), wanted);
+        JpathSliderValues asked = new JpathSliderValues(request.vocab(), request.kanji(), request.grammar());
+        JpathSliderBounds.requireInRange(path.getOpenLevel(), asked);
+        // F230: the learner chooses the words; Kanji and grammar follow so the three tabs finish together
+        JpathSliderValues balanced = views.balanced(userId, path.getOpenLevel(), asked.vocab());
+        JpathSliderValues wanted = balanced == null ? asked : balanced;
         JpathUserLevel level = lockOpenLevel(path);
         JpathSliderValues current = sliders(level);
         if (current.equals(wanted)) {
@@ -110,7 +113,9 @@ public class JpathPathUpdater {
         JpathUserPath path = lockActive(userId);
         JpathUserLevel level = lockOpenLevel(path);
         JpathSliderValues current = sliders(level);
-        JpathSliderValues recommended = JpathPacingEngine.recommend(path.getOpenLevel(), path.getDailyMinutes());
+        JpathSliderValues byMinutes = JpathPacingEngine.recommend(path.getOpenLevel(), path.getDailyMinutes());
+        JpathSliderValues balancedRec = views.balanced(userId, path.getOpenLevel(), byMinutes.vocab());
+        JpathSliderValues recommended = balancedRec == null ? byMinutes : balancedRec;
         if (current.equals(recommended)) {
             return new Change(path, level, views.pacing(path, level), null);
         }

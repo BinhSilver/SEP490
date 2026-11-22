@@ -31,6 +31,8 @@ import java.util.Set;
 public final class JpathPacingEngine {
 
     public static final List<Integer> MINUTE_OPTIONS = List.of(15, 20, 30, 45, 60, 90, 120, 180);
+    /** Owner 22/11 (F230): words per day the learner picks from; Kanji and grammar follow them. */
+    public static final List<Integer> WORD_OPTIONS = List.of(5, 10, 15, 20, 25, 30, 40, 50);
     public static final double VOCAB_MIN = 0.6;
     public static final double KANJI_MIN = 1.25;
     public static final double GRAMMAR_MIN = 4.0;
@@ -60,6 +62,70 @@ public final class JpathPacingEngine {
                 JpathSliderBounds.clamp(level, JpathTab.VOCAB, v),
                 JpathSliderBounds.clamp(level, JpathTab.KANJI, k),
                 JpathSliderBounds.clamp(level, JpathTab.GRAMMAR, g));
+    }
+
+    /**
+     * Owner 22/11 (F230): the learner picks words per day; Kanji and grammar per day follow so the three tabs of the
+     * level finish on the same study day — D = ⌈vocab left / V⌉ study days, K = ⌈Kanji left / D⌉,
+     * G = ⌈grammar left / D⌉ — each clamped to the level's limits. A tab with nothing left keeps its minimum.
+     * With no vocab left, D comes from the recommended Kanji pace instead.
+     */
+    public static JpathSliderValues balance(String level, int vocabPerDay, int vocabLeft, int kanjiLeft,
+            int grammarLeft) {
+        int v = JpathSliderBounds.clamp(level, JpathTab.VOCAB, vocabPerDay);
+        int days;
+        if (vocabLeft > 0) {
+            days = ceilDiv(vocabLeft, v);
+        } else {
+            int k = JpathSliderBounds.clamp(level, JpathTab.KANJI, (int) Math.round(v * KANJI_SHARE * VOCAB_MIN
+                    / (VOCAB_SHARE * KANJI_MIN)));
+            days = Math.max(1, Math.max(ceilDiv(Math.max(0, kanjiLeft), k), ceilDiv(Math.max(0, grammarLeft),
+                    JpathSliderBounds.max(level, JpathTab.GRAMMAR))));
+        }
+        days = Math.max(1, days);
+        return new JpathSliderValues(v,
+                JpathSliderBounds.clamp(level, JpathTab.KANJI, ceilDiv(Math.max(0, kanjiLeft), days)),
+                JpathSliderBounds.clamp(level, JpathTab.GRAMMAR, ceilDiv(Math.max(0, grammarLeft), days)));
+    }
+
+    /** {@link #balance} for the items of one pace level not counted yet. */
+    public static JpathSliderValues balance(JpathPaceLevel l, int vocabPerDay) {
+        return balance(l.level(), vocabPerDay, Math.max(0, l.vocabTotal() - l.vocabDone()),
+                Math.max(0, l.kanjiTotal() - l.kanjiDone()), Math.max(0, l.grammarTotal() - l.grammarDone()));
+    }
+
+    /** The smallest minute option that holds a study day with these counts (the largest when none does). */
+    public static int minutesOptionFor(JpathSliderValues sliders) {
+        int need = dayMinutes(sliders, false, JpathStudyMode.COMBINED, 0);
+        for (int option : MINUTE_OPTIONS) {
+            if (option >= need) {
+                return option;
+            }
+        }
+        return MINUTE_OPTIONS.get(MINUTE_OPTIONS.size() - 1);
+    }
+
+    /** F230: the smallest minute option whose recommended words reach {@code words} (the largest when none does). */
+    public static int minutesForWords(String level, int words) {
+        for (int option : MINUTE_OPTIONS) {
+            if (recommend(level, option).vocab() >= words) {
+                return option;
+            }
+        }
+        return MINUTE_OPTIONS.get(MINUTE_OPTIONS.size() - 1);
+    }
+
+    private static JpathSliderValues withVocab(JpathSliderValues s, int vocab) {
+        return new JpathSliderValues(vocab, s.kanji(), s.grammar());
+    }
+
+    /** MORE_WORDS suggestion: {@code words} per day and the day the target is ready with them. */
+    private static JpathPaceSuggestion moreWords(int words, LocalDate finish) {
+        return new JpathPaceSuggestion("MORE_WORDS", null, null, null, finish, words);
+    }
+
+    private static int ceilDiv(int a, int b) {
+        return b <= 0 ? a : (a + b - 1) / b;
     }
 
     /**
@@ -127,36 +193,39 @@ public final class JpathPacingEngine {
 
         Walk walk = walk(in, in.sliders(), m);
         boolean late = isLate(walk, exam);
-        boolean blocked = in.enforceTarget() && isLate(walk(in, recommend(openLevel, m), m), exam);
+        // F230: the learner picks the words per day, so the chosen pace is the one that must make it
+        boolean blocked = in.enforceTarget() && late;
 
         List<JpathPaceSuggestion> suggestions = new ArrayList<>();
         int skipped = 0;
+        int words = JpathSliderBounds.clamp(openLevel, JpathTab.VOCAB, in.sliders().vocab());
         if (late) {
-            for (int option : MINUTE_OPTIONS) {
-                if (option <= m) {
+            // F230: the way out is more words per day (Kanji and grammar follow them)
+            for (int option : WORD_OPTIONS) {
+                if (option <= words || option > JpathSliderBounds.max(openLevel, JpathTab.VOCAB)) {
                     continue;
                 }
-                Walk faster = walk(in, recommend(openLevel, option), option);
+                Walk faster = walk(in, withVocab(in.sliders(), option), m);
                 if (!isLate(faster, exam)) {
-                    suggestions.add(new JpathPaceSuggestion("MORE_MINUTES", option, null, null, faster.targetFinish()));
+                    suggestions.add(moreWords(option, faster.targetFinish()));
                     break;
                 }
             }
-            // AI 1 #12: no option alone is in time, but more minutes still brings the finish closer; offer the most
-            int most = MINUTE_OPTIONS.get(MINUTE_OPTIONS.size() - 1);
-            if (suggestions.isEmpty() && m < most) {
-                Walk fastest = walk(in, recommend(openLevel, most), most);
-                suggestions.add(new JpathPaceSuggestion("MORE_MINUTES", most, null, null, fastest.targetFinish()));
+            // AI 1 #12: no option alone is in time, but more words still brings the finish closer; offer the most
+            int most = JpathSliderBounds.max(openLevel, JpathTab.VOCAB);
+            if (suggestions.isEmpty() && words < most) {
+                Walk fastest = walk(in, withVocab(in.sliders(), most), m);
+                suggestions.add(moreWords(most, fastest.targetFinish()));
             }
             if (exam != null) {
                 LocalDate from = latest(walk.targetFinish(), exam).plusDays(1);
                 suggestions.add(new JpathPaceSuggestion("LATER_EXAM", null,
-                        JpathExamCalendar.nextSessionOnOrAfter(from), null, walk.targetFinish()));
+                        JpathExamCalendar.nextSessionOnOrAfter(from), null, walk.targetFinish(), null));
                 for (int i = walk.ready().size() - 2; i >= 0; i--) {
                     LocalDate ready = walk.ready().get(i);
                     if (!ready.isAfter(exam.minusDays(1))) {
                         suggestions.add(new JpathPaceSuggestion("LOWER_TARGET", null, null,
-                                in.levels().get(i).level(), ready));
+                                in.levels().get(i).level(), ready, null));
                         break;
                     }
                 }
@@ -168,16 +237,18 @@ public final class JpathPacingEngine {
 
         String message;
         if (late) {
-            message = "Với " + m + " phút/ngày bạn cần khoảng "
+            message = "Với " + words + " từ mỗi ngày bạn cần khoảng "
                     + durationVi(ChronoUnit.DAYS.between(in.today(), walk.targetFinish())) + " để tới " + targetLevel;
         } else if (exam != null) {
-            message = "Với " + m + " phút/ngày bạn kịp xong " + targetLevel + " trước ngày thi (dự kiến "
+            message = "Với " + words + " từ mỗi ngày bạn kịp xong " + targetLevel + " trước ngày thi (dự kiến "
                     + DATE_VI.format(walk.targetFinish()) + ")";
         } else {
             message = "Dự kiến xong " + targetLevel + ": " + DATE_VI.format(walk.targetFinish());
         }
 
-        int minutesPerDay = dayMinutes(in.sliders(), in.kanaRowsLeft() > 0, in.mode(), m);
+        // F230: the day is costed with the balanced counts the walk actually uses
+        int minutesPerDay = dayMinutes(balance(in.levels().get(0), in.sliders().vocab()), in.kanaRowsLeft() > 0,
+                in.mode(), m);
         return new JpathPaceResult(walk.openTabFinish(), walk.openLevelFinish(), walk.targetFinish(), blocked, late,
                 minutesPerDay > m, minutesPerDay, List.copyOf(suggestions), skipped, message);
     }
@@ -210,7 +281,8 @@ public final class JpathPacingEngine {
 
         for (int i = 0; i < in.levels().size(); i++) {
             JpathPaceLevel level = in.levels().get(i);
-            JpathSliderValues s = i == 0 ? openSliders : recommend(level.level(), minutes);
+            // F230: every level's three tabs finish together
+            JpathSliderValues s = balance(level, openSliders.vocab()); // the same words per day on every level
             int[] total = {level.vocabTotal(), level.kanjiTotal(), level.grammarTotal()};
             int[] done = {Math.min(level.vocabDone(), total[0]), Math.min(level.kanjiDone(), total[1]),
                     Math.min(level.grammarDone(), total[2])};

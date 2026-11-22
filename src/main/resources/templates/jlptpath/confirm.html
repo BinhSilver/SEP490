@@ -68,10 +68,6 @@
                         <button type="button" class="jp-confirm-btn jp-confirm-btn--small" data-role="exam-clear" hidden>Bỏ ngày thi</button>
                     </div>
                 </div>
-                <label class="jp-confirm-field">
-                    <span class="jp-confirm-field__label">Thời gian rảnh mỗi ngày</span>
-                    <select class="jp-confirm-input" data-role="minutes"></select>
-                </label>
             </div>
             <div class="jp-confirm-days" data-role="days"></div>
             </div>
@@ -81,8 +77,13 @@
         <div class="jp-confirm__group" data-jp-confirm-group="Nhịp học">
         <section class="jp-confirm-card" aria-labelledby="jp-confirm-sliders-title">
             <h2 class="jp-confirm-card__title" id="jp-confirm-sliders-title">Mỗi ngày học</h2>
-            <div class="jp-confirm-sliders" data-role="slider-list"></div>
+            <label class="jp-confirm-field jp-confirm-words">
+                <span class="jp-confirm-field__label">Số từ mới mỗi ngày</span>
+                <select class="jp-confirm-input" data-role="words"></select>
+            </label>
+            <p class="jp-confirm-load" data-role="day-load" aria-live="polite"></p>
             <p class="jp-confirm-minutes" data-role="minutes-line" aria-live="polite"></p>
+            <p class="jp-confirm-hint">Kanji và ngữ pháp mỗi ngày tự tính theo số từ bạn chọn, để cả 3 phần xong cùng ngày.</p>
         </section>
 
         <section class="jp-confirm-card jp-confirm-pace" data-role="pace" aria-labelledby="jp-confirm-pace-title">

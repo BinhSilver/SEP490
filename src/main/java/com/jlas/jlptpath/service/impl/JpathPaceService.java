@@ -52,18 +52,15 @@ public class JpathPaceService {
     }
 
     /**
-     * Pace estimate. An exam date on or before today is not used and adds EXAM_DATE_PASSED (#33). With the target
-     * enforced and blocked, the estimate is redone with the recommended sliders (the ones the block is decided on), so
-     * a blocked target is always late too.
+     * Pace estimate. An exam date on or before today is not used and adds EXAM_DATE_PASSED (#33). F230: the block is
+     * decided on the words per day the learner chose, so a blocked target is always late too.
      */
     @Transactional(readOnly = true)
     public JpathPaceView pace(Long userId, Query q) {
         LocalDate exam = usableExamDate(q.examDate(), q.today());
-        JpathPaceResult result = JpathPacingEngine.estimate(input(userId, q, exam, q.sliders()));
-        JpathSliderValues recommended = JpathPacingEngine.recommend(q.openLevel(), q.minutes());
-        if (result.blocked() && !recommended.equals(q.sliders())) {
-            result = JpathPacingEngine.estimate(input(userId, q, exam, recommended));
-        }
+        JpathPaceInput in = input(userId, q, exam, q.sliders());
+        JpathPaceResult result = JpathPacingEngine.estimate(in);
+        JpathSliderValues balanced = JpathPacingEngine.balance(in.levels().get(0), q.sliders().vocab());
 
         int minutes = q.minutes();
         String targetLevel = q.targetLevel();
@@ -75,17 +72,26 @@ public class JpathPaceService {
             warnings.add(new JpathWarningView("LATE", "Với số mục mỗi ngày đang chọn, bạn chưa kịp xong "
                     + targetLevel + " trước ngày thi."));
         }
-        if (result.overBudget()) {
-            warnings.add(new JpathWarningView("OVER_BUDGET", "Ước tính " + result.minutesPerDay()
-                    + " phút/ngày, nhiều hơn " + minutes + " phút bạn rảnh."));
-        }
+        // F230: no OVER_BUDGET warning — the learner picks words, the minutes shown are only an estimate
         if (!result.blocked() && result.skippedLowPriority() > 0) {
             warnings.add(new JpathWarningView("PRIORITY_MODE", "Sát ngày thi: lộ trình học mục hay gặp trước, "
                     + "bạn sẽ bỏ qua khoảng " + result.skippedLowPriority() + " mục ít gặp."));
         }
         return new JpathPaceView(result.tabFinish(), result.levelFinish(), result.targetFinish(), result.blocked(),
                 result.late(), result.overBudget(), result.minutesPerDay(), minutes, result.suggestions(),
-                result.skippedLowPriority(), result.messageVi(), List.copyOf(warnings));
+                result.skippedLowPriority(), result.messageVi(), List.copyOf(warnings), balanced);
+    }
+
+    /** F230: Kanji and grammar per day that finish the level's left items together with {@code vocabPerDay} words. */
+    @Transactional(readOnly = true)
+    public JpathSliderValues balanced(Long userId, String level, int vocabPerDay) {
+        Map<JpathTab, JpathTabCount> c = tabCounts.read(userId, level);
+        return JpathPacingEngine.balance(level, vocabPerDay, left(c.get(JpathTab.VOCAB)), left(c.get(JpathTab.KANJI)),
+                left(c.get(JpathTab.GRAMMAR)));
+    }
+
+    private static int left(JpathTabCount c) {
+        return c == null ? 0 : (int) Math.max(0, c.total() - c.counted());
     }
 
     /** Exam dates on or before today are not used (policy #33). */

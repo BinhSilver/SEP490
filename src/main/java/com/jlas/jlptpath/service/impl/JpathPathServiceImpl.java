@@ -185,7 +185,7 @@ public class JpathPathServiceImpl implements JpathPathService {
                 suggestion.mode(), null, true, null));
 
         return new JpathConfirmationView(source, attemptId, inProgress, summary, openLevel, levelNote, targetLevel,
-                JpathPathRules.targetOptions(catalog, openLevel), JpathPaceService.usableExamDate(surveyExam, today),
+                JpathPathRules.targetOptions(catalog, openLevel, targetLevel), JpathPaceService.usableExamDate(surveyExam, today),
                 minutes, JpathPacingEngine.MINUTE_OPTIONS, JpathDays.codes(skillDays), JpathDays.codes(restDays),
                 kanaTab, sliders, JpathPathRules.bounds(openLevel), pace, suggestion);
     }
