@@ -390,6 +390,36 @@
       + (floor ? '<span class="jp-today__pill-sub jp-todo__sub">' + esc(floor) + '</span>' : '') + '</span>' + action + '</li>';
   }
 
+  /**
+   * Owner 22/11 (F229): the steps of a skill day (make-up days too) still to do, in the order one "Học hôm nay"
+   * runs them: Đọc → Nghe → Ôn (và quiz). A card not loaded yet counts as to do; a card with no exercise is skipped.
+   */
+  function skillDaySteps(t, extra) {
+    var o = (extra && extra.skills) || {};
+    var out = [];
+    [['READING', o.reading], ['LISTENING', o.listening]].forEach(function (pair) {
+      var c = pair[1];
+      if (c && (!c.typeCode || c.doneToday)) return;
+      out.push({ key: pair[0], label: SKILL_NAME[pair[0]], openSessionId: c && c.openSessionId != null ? c.openSessionId : null });
+    });
+    var quiz = quizRequired(t);
+    if (reviewDue(t) > 0 || quiz) out.push({ key: 'REVIEW', label: quiz ? 'Ôn và quiz' : 'Ôn thẻ' });
+    return out;
+  }
+
+  function skillGoHtml(t, extra) {
+    var steps = skillDaySteps(t, extra);
+    if (!steps.length) return '';
+    var order = steps.map(function (s) { return s.label; }).join(' → ');
+    var started = steps.length < 3 || steps.some(function (s) { return s.openSessionId != null; });
+    var tip = 'Học lần lượt ' + order + '; xong phần nào tự sang phần sau';
+    return '<div class="jp-today__go">'
+      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="run-day" data-tip="' + esc(tip) + '">'
+      + (started ? 'Học tiếp hôm nay' : 'Học hôm nay') + '</button>'
+      + '<span class="jp-today__go-sub">' + esc(order) + '</span>'
+      + '</div>';
+  }
+
   function skillDayHtml(t, extra) {
     var o = (extra && extra.skills) || null;
     var due = reviewDue(t);
@@ -397,6 +427,7 @@
     var reviewDone = due === 0 && !quiz;
     var reviewText = (due ? 'Ôn ' + due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + (quiz ? ' · quiz 10 câu' : '');
     return (t.skillMakeup ? '<p class="jp-today__summary">Hôm nay bù ngày kỹ năng đã lỡ.</p>' : '')
+      + skillGoHtml(t, extra)
       + '<ol class="jp-today__pills jp-todo">' + skillTask(o && o.reading, 'READING') + skillTask(o && o.listening, 'LISTENING')
       + '<li class="jp-today__pill jp-todo__item' + (reviewDone ? ' is-done' : '') + '" data-pill-tab="review">'
       + progressRingSvg(reviewDone ? 1 : 0, 1, reviewDone)
@@ -579,5 +610,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, skillDaySteps: skillDaySteps, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });
