@@ -4,7 +4,7 @@
  * saves tourDone through PUT /api/learning/jlpt/settings when it ends (done or skipped) and drops tour=1.
  *
  * window.JpathTour:
- *   STEPS                               4 frozen steps {target, text}: level, slider, today, skills
+ *   STEPS                               4 frozen steps {target, text}: level, settings, today, skills
  *   shouldStart(path, search)           !path.tourDone || /(^|[?&])tour=1(&|$)/.test(search)
  *   stepHtml(step, i, n)                role="dialog" box: "Bước i/n", text, "Bỏ qua", "Tiếp" / "Xong" on the last step
  *   create({doc, steps, onFinish, reducedMotion}) → {start, next, skip, index}
@@ -24,8 +24,8 @@
   var STEPS = Object.freeze([
     Object.freeze({ target: '[data-tour="level"]',
       text: 'Đây là cấp của bạn: học cấp đang mở, cấp dưới để ôn, cấp trên mở bằng Thi thử JLPT.' }),
-    Object.freeze({ target: '[data-tour="slider"]',
-      text: 'Kéo để chọn số mục mới mỗi ngày cho từng tab; bạn được cập nhật 2 lần mỗi cấp.' }),
+    Object.freeze({ target: '[data-tour="settings"]',
+      text: 'Số từ mới mỗi ngày, ngày nghỉ và bài kiểm tra bỏ qua tuần đã biết nằm trong Cài đặt lộ trình.' }),
     Object.freeze({ target: '[data-tour="today"]',
       text: 'Bấm Học hôm nay để học liền một lượt, hoặc học riêng từng tab nếu muốn chia nhỏ.' }),
     Object.freeze({ target: '[data-tour="skills"]',

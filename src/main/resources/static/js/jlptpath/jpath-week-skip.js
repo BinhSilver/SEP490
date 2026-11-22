@@ -4,9 +4,10 @@
  * weeks of the level: GET /api/learning/jlpt/week-skip?tab=VOCAB|KANJI|GRAMMAR → {offer, tab, level, items}. One card
  * on the path page lists the tabs on offer; a button issues POST /api/learning/jlpt/week-skip/{tab}/check and opens
  * the check. Right on 90% or more = the week's items count as known (asked right → Đã biết, not asked → review).
- * "Để sau" hides the card on this device for the day.
+ * F227 (owner 22/11): the card lives in Cài đặt lộ trình ([data-slot="week-skip"]); the path page only counts the
+ * offers for its nudge (jpath-tools-nudge.js), whose "Để sau" hides that nudge on this device for the day.
  *
- * window.JpathWeekSkip = { cardHtml(offers), mount(el) }
+ * window.JpathWeekSkip = { cardHtml(offers), mount(el), count(), hideToday() }
  */
 (function (root, factory) {
   'use strict';
@@ -14,7 +15,14 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathWeekSkip = api;
   if (root && root.document && typeof module === 'undefined') {
-    var start = function () { api.mount(root.document.querySelector('[data-slot="week-skip"]')); api.tools(root.document); };
+    var start = function () {
+      var card = root.document.querySelector('[data-slot="week-skip"]');
+      if (card) { api.mount(card); return; }
+      var nudge = root.document.querySelector('[data-slot="tools-nudge"]');
+      if (nudge && root.JpathToolsNudge) {
+        Promise.resolve(api.count()).then(function (n) { root.JpathToolsNudge.paint(nudge, { skip: n, doc: root.document }); });
+      }
+    };
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start);
     else start();
   }
@@ -66,60 +74,31 @@
       + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
   }
 
-  /** Owner 17/11: the path's tool row — one panel open at a time, the open one remembered on this device. */
-  function tools(doc) {
-    var box = doc && doc.querySelector ? doc.querySelector('[data-jp-tools]') : null;
-    if (!box) return;
-    function set(name) {
-      var chips = box.querySelectorAll('[data-tool]');
-      for (var i = 0; i < chips.length; i++) {
-        var on = chips[i].getAttribute('data-tool') === name;
-        chips[i].setAttribute('aria-expanded', on ? 'true' : 'false');
-        var panel = box.querySelector('[data-tool-panel="' + chips[i].getAttribute('data-tool') + '"]');
-        if (panel) panel.hidden = !on;
-      }
-      try { root.localStorage.setItem('jpath-tools:open:' + uidPart(), name || ''); } catch (e) { /* private mode */ }
-    }
-    box.addEventListener('click', function (ev) {
-      var chip = ev.target.closest && ev.target.closest('[data-tool]');
-      if (!chip) return;
-      set(chip.getAttribute('aria-expanded') === 'true' ? '' : chip.getAttribute('data-tool'));
-    });
-    var saved = '';
-    try { saved = root.localStorage.getItem('jpath-tools:open:' + uidPart()) || ''; } catch (e) { saved = ''; }
-    if (saved === 'pace') set('pace');
+  function offers(client) {
+    return Promise.all(TABS.map(function (t) {
+      return Promise.resolve(client.get(BASE + '?tab=' + t[0])).then(function (r) { return r; }, function () { return null; });
+    }));
   }
 
+  /** How many tabs offer the coming week (0 when hidden today or nothing is on offer) — the path page nudge. */
+  function count() {
+    var client = root && root.JpathApi;
+    if (!client || isHidden()) return Promise.resolve(0);
+    return offers(client).then(function (list) {
+      return list.filter(function (o) { return o && o.offer && o.tab !== 'KANA'; }).length;
+    }, function () { return 0; });
+  }
+
+  /** The Cài đặt lộ trình card: always shown there, with a line when no week is on offer. */
   function mount(el) {
     var client = root && root.JpathApi;
     if (!el || !client) return null;
-    if (isHidden()) { el.hidden = true; return null; }
-    var asks = TABS.map(function (t) {
-      return Promise.resolve(client.get(BASE + '?tab=' + t[0])).then(function (r) { return r; }, function () { return null; });
-    });
-    return Promise.all(asks).then(function (offers) {
-      var html = cardHtml(offers);
-      if (!html) { el.hidden = true; el.innerHTML = ''; return; }
-      var n = (html.match(/class="jp-warmup jp-week-skip"/g) || []).length;
-      var chip = root.document && root.document.querySelector ? root.document.querySelector('[data-tool="skip"]') : null;
-      el.innerHTML = html;
-      if (chip) {
-        // owner 17/11: inside the path's tool row the offers open from their own button (jpath tools below)
-        chip.hidden = false;
-        var count = chip.querySelector('[data-tool-count]');
-        if (count) count.textContent = n + ' gợi ý';
-      } else {
-        el.hidden = false;
-      }
+    return offers(client).then(function (list) {
+      var html = cardHtml(list).replace('<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button>', '');
+      el.hidden = false;
+      el.innerHTML = html || '<p class="jp-settings-muted">Chưa có tuần nào để kiểm tra bỏ qua. Gợi ý hiện ở đây khi tuần tới của một phần có mục mới.</p>';
       el.onclick = function (ev) {
         var t = ev.target;
-        if (t.closest && t.closest('[data-week-skip-later]')) {
-          hide();
-          el.hidden = true;
-          var c = root.document && root.document.querySelector ? root.document.querySelector('[data-tool="skip"]') : null;
-          if (c) { c.hidden = true; c.setAttribute('aria-expanded', 'false'); }
-          return;
-        }
         var b = t.closest && t.closest('[data-week-skip-tab]');
         if (!b) return;
         b.disabled = true;
@@ -134,8 +113,8 @@
             b.insertAdjacentHTML('afterend', '<span class="jp-warmup__err">Chưa mở được bài kiểm tra. Thử lại sau.</span>');
           });
       };
-    }, function () { el.hidden = true; });
+    }, function () { el.hidden = false; el.innerHTML = '<p class="jp-settings-muted">Chưa tải được gợi ý. Thử lại sau.</p>'; });
   }
 
-  return { cardHtml: cardHtml, mount: mount, tools: tools };
+  return { cardHtml: cardHtml, mount: mount, count: count, hideToday: hide };
 });
