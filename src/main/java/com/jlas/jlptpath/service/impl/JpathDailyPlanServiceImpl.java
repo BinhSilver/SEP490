@@ -169,9 +169,11 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
                 kept.add(t.getTab());
             }
         }
+        // F237: the raise after missed days is decided again with the new values (or dropped once turned off)
         JpathDayRules.applyRows(plan, tabs, JpathDayRules.tabRows(plan.getDayKind(), plan.isKanaPhase(),
-                path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes(),
-                JpathDayRules.kanaRows(path, plan.getStudyDay())), kept, clock.now(), dailyTabs);
+                path.isKanaTab(), path.getStudyMode(), inserter.autoSliders(plan, path, level),
+                path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay())), kept, clock.now(),
+                dailyTabs);
         dailyTabs.flush();
         return kept;
     }

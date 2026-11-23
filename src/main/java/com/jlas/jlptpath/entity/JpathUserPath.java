@@ -126,6 +126,21 @@ public class JpathUserPath {
     @Column(name = "archived_at")
     private LocalDateTime archivedAt;
 
+    /**
+     * F237: the open level's finish day first projected with the chosen words per day (the milestone of a path
+     * without exam date); {@code paceMilestoneLevel} = the level it was projected for. Null = not projected yet.
+     */
+    @Column(name = "pace_milestone")
+    private LocalDate paceMilestone;
+
+    @Column(name = "pace_milestone_level", length = 2)
+    private String paceMilestoneLevel;
+
+    /** F237: the learner turned the automatic raise after missed days off ("Hoàn tác"). */
+    @Builder.Default
+    @Column(name = "auto_pace_off", nullable = false)
+    private boolean autoPaceOff = false;
+
     @Setter(AccessLevel.NONE)
     @Column(name = "active_flag")
     private Boolean activeFlag;

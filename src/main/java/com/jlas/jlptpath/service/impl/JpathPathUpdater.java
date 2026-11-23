@@ -159,6 +159,9 @@ public class JpathPathUpdater {
         level.setSliderVocab(after.vocab());
         level.setSliderKanji(after.kanji());
         level.setSliderGrammar(after.grammar());
+        // F237: new words per day = a new finish day to keep, projected again
+        path.setPaceMilestone(null);
+        path.setPaceMilestoneLevel(null);
         adjustments.save(JpathPathRules.adjustment(path.getId(), path.getOpenLevel(), kind, counted, before, after,
                 path.getDailyMinutes()));
         JpathPathViewAssembler.Pacing pacing = refreshPriority(path, level);

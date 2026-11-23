@@ -94,6 +94,12 @@ public class JpathPaceService {
         return c == null ? 0 : (int) Math.max(0, c.total() - c.counted());
     }
 
+    /** F237: the engine input of {@code q} (exam dates on or before today dropped), for rules built on the estimate. */
+    @Transactional(readOnly = true)
+    public JpathPaceInput engineInput(Long userId, Query q) {
+        return input(userId, q, usableExamDate(q.examDate(), q.today()), q.sliders());
+    }
+
     /** Exam dates on or before today are not used (policy #33). */
     public static LocalDate usableExamDate(LocalDate examDate, LocalDate today) {
         return examDate != null && examDate.isAfter(today) ? examDate : null;

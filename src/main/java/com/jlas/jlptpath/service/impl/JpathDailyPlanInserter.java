@@ -2,6 +2,7 @@ package com.jlas.jlptpath.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathStudySession;
@@ -74,6 +75,9 @@ public class JpathDailyPlanInserter {
     // Plan 3: which skills have visible content at a level; field-injected so the constructor stays as it was
     @Autowired
     private ObjectProvider<JpathSkillPicker> skillPicker;
+    // F237: today's words raised after missed study days; optional so unit wiring stays as it was
+    @Autowired(required = false)
+    private ObjectProvider<JpathAutoPaceService> autoPace;
 
     public JpathDailyPlanInserter(JpathUserPathRepository paths, JpathUserLevelRepository levels,
             JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions,
@@ -166,7 +170,8 @@ public class JpathDailyPlanInserter {
         JpathDailyPlan plan = plans.save(JpathDailyPlan.builder().userId(userId).pathId(path.getId()).studyDay(day)
                 .level(level.getLevel()).dayKind(dayPlan.kind()).kanaPhase(dayPlan.kanaPhase())
                 .skillMakeup(dayPlan.skillMakeup()).build());
-        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, level, clock.now()));
+        JpathSliderValues sliders = autoSliders(plan, path, level);
+        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, sliders, clock.now()));
         JpathDayCompletion days = completion.getIfAvailable();
         if (days != null) {
             days.settleWithoutReward(userId, plan, saved);
@@ -182,14 +187,15 @@ public class JpathDailyPlanInserter {
 
     /** The tab rows of a new plan of {@code dayPlan}'s kind, linked to {@code plan}. */
     private List<JpathDailyTab> freshTabs(JpathDailyPlan plan, JpathDayRules.DayPlan dayPlan, JpathUserPath path,
-            JpathUserLevel level, LocalDateTime now) {
+            JpathSliderValues sliders, LocalDateTime now) {
+        String levelCode = plan.getLevel();
         List<JpathDailyTab> tabs = JpathDayRules.tabRows(dayPlan.kind(), dayPlan.kanaPhase(), path.isKanaTab(),
-                path.getStudyMode(), level, path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay()));
+                path.getStudyMode(), sliders, path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay()));
         for (JpathDailyTab tab : tabs) {
             tab.setPlanId(plan.getId());
             JpathDayRules.markZeroTargetDone(tab, now);
             if (tab.getTab() == JpathTab.SKILL) {
-                int skills = skillsWithContent(level.getLevel());
+                int skills = skillsWithContent(levelCode);
                 tab.setNewTarget(skills);
                 if (skills == 0) {
                     tab.setDoneAt(now); // no visible skill content: the skill day is done by its reviews
@@ -197,6 +203,12 @@ public class JpathDailyPlanInserter {
             }
         }
         return tabs;
+    }
+
+    /** F237: the sliders of the plan's tabs (raised after missed study days when due); the raise is kept on it. */
+    JpathSliderValues autoSliders(JpathDailyPlan plan, JpathUserPath path, JpathUserLevel level) {
+        JpathAutoPaceService auto = autoPace == null ? null : autoPace.getIfAvailable();
+        return auto == null ? JpathAutoPaceService.chosen(level) : auto.applyTo(plan, path, level);
     }
 
     /** True when a skill session (open or done) runs on the plan; false without the skill module. */
@@ -230,7 +242,8 @@ public class JpathDailyPlanInserter {
         plan.setKanaPhase(dayPlan.kanaPhase());
         plan.setAllDoneAt(null);
         plan.setReviewsClearedAt(null);
-        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, level, clock.now()));
+        JpathSliderValues sliders = autoSliders(plan, path, level);
+        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, sliders, clock.now()));
         dailyTabs.flush();
         JpathDayCompletion days = completion.getIfAvailable();
         if (days != null) {

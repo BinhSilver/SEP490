@@ -42,6 +42,8 @@
   var DAY_RUN_KEY = 'jlasDayRun';
   var DAY_RUN_DELAY_MS = 2500;
   var TODAY_URL = '/api/learning/jlpt/today';
+  // F237 (owner 23/11): today's words raised after missed study days, and its "Hoàn tác"
+  var AUTO_PACE_URL = '/api/learning/jlpt/auto-pace';
   var REBALANCE_URL = '/api/learning/jlpt/path/rebalance';
   var MODE_URL = '/api/learning/jlpt/path/mode';
   var REVIEW_DAY_URL = '/api/learning/jlpt/today/review-day';
@@ -333,9 +335,10 @@
    * F216 (owner 22/11): "Vì sao hôm nay" — two to four plain reasons for today's plan, in the learner's words (the day,
    * the pace toward the exam or finish date, the cards due, a schedule change). It never names a rule or a formula.
    */
-  function whyTodayHtml(path, today) {
+  function whyTodayHtml(path, today, autoPace) {
     var p = path || {};
     var t = today || {};
+    var a = autoPace && autoPace.active ? autoPace : null;
     if (!t.day) return '';
     var fmt = function (iso) { return D() && D().fmtDate ? D().fmtDate(iso) : String(iso || ''); };
     var tabs = list(t.tabs);
@@ -353,6 +356,11 @@
       else if (p.examDate) out.push(goal + '. Với nhịp này bạn chưa kịp ngày thi ' + fmt(p.examDate) + '; có thể tăng số từ mỗi ngày trong Cài đặt lộ trình.');
       else if (p.levelFinish) out.push(goal + ', giữ nhịp này bạn xong ' + level + ' khoảng ' + fmt(p.levelFinish) + '.');
       else out.push(goal + '.');
+      if (a) {
+        out.push('Bạn lỡ ' + a.missedDays + ' ngày học gần đây nên hôm nay có ' + a.words + ' từ thay vì ' + a.chosenWords
+          + ' từ' + (a.milestone ? ', để ' + (a.reachable ? 'kịp ' : 'gần hơn ') + (a.examMilestone ? 'ngày thi ' : 'ngày xong dự kiến ')
+          + fmt(a.milestone) : '') + '.');
+      }
     }
     if (due > 0) out.push('Có ' + due + ' thẻ đến lúc ôn: ôn đúng lúc giúp bạn nhớ lâu hơn.');
     var change = todayReason(p, t);
@@ -383,6 +391,21 @@
       + 'hôm nay là bài ' + skillName + '.</p>'
       + '<button type="button" class="jp-btn jp-btn--sm" data-action="start-skill" data-skill="' + (c.skill === 'LISTENING' ? 'LISTENING' : 'READING')
       + '">Làm bài ' + skillName + '</button></section>';
+  }
+
+  /**
+   * F237 (owner 23/11): the card of today's raise after missed study days — the server's sentence and "Hoàn tác", which
+   * keeps the learner's own words per day from now on. Empty when today has no raise.
+   */
+  function autoPaceHtml(autoPace) {
+    var a = autoPace || {};
+    if (!a.active || !a.message) return '';
+    return '<section class="jp-card jp-auto-pace" role="status" aria-labelledby="jp-auto-pace-title">'
+      + '<h3 class="jp-auto-pace__title" id="jp-auto-pace-title">Nhịp hôm nay</h3>'
+      + '<p class="jp-auto-pace__text">' + esc(a.message) + '</p>'
+      + '<div class="jp-auto-pace__foot"><button type="button" class="jp-btn jp-btn--ghost" data-action="auto-pace-off">Hoàn tác</button>'
+      + '<span class="jp-auto-pace__hint">' + esc('Hoàn tác: mỗi ngày giữ đúng ' + a.chosenWords + ' từ như bạn chọn.') + '</span></div>'
+      + '<p class="jp-alert" data-part="auto-pace-error" role="alert" hidden></p></section>';
   }
 
   function weekGuideHtml(path, today) {
@@ -520,7 +543,7 @@
     var loc = d.location || root.location;
     var doc = d.document || root.document;
     var rendered = d.rendered || function (el) { D().rendered(el); };
-    var state = { path: null, today: null, todayFailed: false, tab: null, draft: null, viewLevel: null };
+    var state = { path: null, today: null, todayFailed: false, tab: null, draft: null, viewLevel: null, autoPace: null };
     var env = { location: loc, history: d.history || root.history };
 
     function paintControls() {
@@ -533,7 +556,7 @@
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
         { skills: state.skills, why: '',
           side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') })
-        + whyTodayHtml(p, state.today) + carryHtml(state.carry));
+        + autoPaceHtml(state.autoPace) + whyTodayHtml(p, state.today, state.autoPace) + carryHtml(state.carry));
       filterWeeklyButtons(slot(rootEl, 'today'), p, state.today);
     }
 
@@ -633,8 +656,14 @@
       }, function () { state.todayFailed = true; });
     }
 
+    // F237: the raise card is extra; without it the page still loads
+    function loadAutoPace() {
+      return Promise.resolve().then(function () { return apiClient.get(AUTO_PACE_URL); })
+        .then(function (a) { state.autoPace = a || null; }, function () { state.autoPace = null; });
+    }
+
     function reload() {
-      return Promise.all([apiClient.get(PATH_URL), loadToday()]).then(function (res) {
+      return Promise.all([apiClient.get(PATH_URL), loadToday(), loadAutoPace()]).then(function (res) {
         state.path = res[0] || {};
         state.draft = C.newDraft(state.path.sliders);
         paintAll();
@@ -752,6 +781,10 @@
         runTimer = null;
         var box = rootEl.querySelector && rootEl.querySelector('[data-part="day-run"]');
         if (box) box.remove();
+      },
+      'auto-pace-off': function (el) {
+        el.disabled = true;
+        apiClient.send('POST', AUTO_PACE_URL + '/off').then(reload).catch(failInto('auto-pace-error', el));
       },
       'start-skill-review': function (el) {
         start({ tab: 'SKILL', mode: 'TODAY' }, el);
@@ -880,7 +913,7 @@
 
     function firstLoad(attempt) {
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });
-    return Promise.all([pathLoad, loadToday()]).then(function (res) {
+    return Promise.all([pathLoad, loadToday(), loadAutoPace()]).then(function (res) {
       state.path = res[0] || {};
       state.draft = C.newDraft(state.path.sliders);
       state.tab = resolveTab(readParam(loc) || (rootEl.getAttribute && rootEl.getAttribute('data-jpath-tab')), state.path);
@@ -957,7 +990,7 @@
     premiumBoxHtml: premiumBoxHtml, setBusy: setBusy, loadFailedHtml: loadFailedHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
-    whyTodayHtml: whyTodayHtml, carryHtml: carryHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
+    whyTodayHtml: whyTodayHtml, carryHtml: carryHtml, autoPaceHtml: autoPaceHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     filterWeeklyButtons: filterWeeklyButtons,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });

@@ -314,6 +314,11 @@ public class JpathSettingsWriter {
                         s.minutes()));
             }
         }
+        if (c.targetChanged || c.minutesChanged || daysChanged) {
+            // F237: a new pace, target or week is a new plan: the finish day to keep is projected again
+            path.setPaceMilestone(null);
+            path.setPaceMilestoneLevel(null);
+        }
         // Priority mode (#30) from the pace of the new schedule, as JpathPathUpdater does.
         level.setPriorityMode(c.pacing.pace().skippedLowPriority() > 0);
         paths.flush();

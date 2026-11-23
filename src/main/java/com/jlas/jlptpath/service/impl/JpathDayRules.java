@@ -1,5 +1,6 @@
 package com.jlas.jlptpath.service.impl;
 
+import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathUserLevel;
@@ -108,9 +109,16 @@ final class JpathDayRules {
 
     static List<JpathDailyTab> tabRows(JpathDayKind kind, boolean kanaPhase, boolean kanaTab, JpathStudyMode mode,
             JpathUserLevel level, int minutes, int kanaRows) {
-        int v = level.getSliderVocab();
-        int k = level.getSliderKanji();
-        int g = level.getSliderGrammar();
+        return tabRows(kind, kanaPhase, kanaTab, mode, new JpathSliderValues(level.getSliderVocab(),
+                level.getSliderKanji(), level.getSliderGrammar()), minutes, kanaRows);
+    }
+
+    /** F237: the table rows with {@code sliders} instead of the level's (today's words raised after missed days). */
+    static List<JpathDailyTab> tabRows(JpathDayKind kind, boolean kanaPhase, boolean kanaTab, JpathStudyMode mode,
+            JpathSliderValues sliders, int minutes, int kanaRows) {
+        int v = sliders.vocab();
+        int k = sliders.kanji();
+        int g = sliders.grammar();
         List<JpathDailyTab> out = new ArrayList<>(5);
         switch (kind) {
             case STUDY -> {
