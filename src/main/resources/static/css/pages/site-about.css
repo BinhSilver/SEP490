@@ -37,52 +37,64 @@
 .about-hero__lead { max-width: 52ch; font-size: 1.0625rem; color: var(--about-muted); }
 .about-hero__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
 
-/* 原稿用紙: a row of writing squares with a dashed centre cross, like a kana practice sheet */
-.about-word { position: relative; margin: 0; }
+/* 原稿用紙: a practice sheet lying on a second sheet, Kitsu peeking over the top. The one loud element of the page. */
+.about-word { position: relative; margin: 0; padding: var(--space-6) var(--space-2) 0 0; }
+.about-word::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--space-6) + 14px) -10px -12px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-fixed);
+  transform: rotate(2.5deg);
+}
+.about-word__paper {
+  position: relative;
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  border: 1px solid var(--about-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-lowest);
+  box-shadow: var(--shadow-md, 0 12px 32px -18px var(--color-primary));
+}
+.about-word__kitsu { position: absolute; top: -50px; right: var(--space-5); width: 104px; height: auto; }
 .about-word__sheet {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   border: 2px solid var(--about-accent);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-lowest);
+  border-radius: 4px;
+  container-type: inline-size;
 }
 .about-word__cell {
-  position: relative;
   display: grid;
   place-items: center;
   aspect-ratio: 1;
-  border-left: 1px solid var(--about-accent);
+  border-left: 1.5px solid var(--about-accent);
   background:
-    linear-gradient(to right, transparent calc(50% - 0.5px), var(--about-line) calc(50% - 0.5px), var(--about-line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--about-line) calc(50% - 0.5px), var(--about-line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    repeating-linear-gradient(to right, var(--about-line) 0 4px, transparent 4px 8px) center / 100% 1px no-repeat,
+    repeating-linear-gradient(to bottom, var(--about-line) 0 4px, transparent 4px 8px) center / 1px 100% no-repeat;
 }
 .about-word__cell:first-child { border-left: 0; }
 .about-word__cell b {
   font-family: var(--font-jp-display);
-  font-size: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+  font-size: 16cqi;
   font-weight: 600;
   line-height: 1;
   color: var(--about-ink);
+  animation: about-write 0.55s cubic-bezier(.4, 0, .2, 1) both;
+  animation-delay: calc(0.25s + var(--i) * 0.32s);
 }
-.about-word__cell i {
-  position: absolute;
-  left: 0; right: 0; bottom: 6%;
-  font-style: normal;
-  font-size: 0.75rem;
-  text-align: center;
-  color: var(--color-outline);
+@keyframes about-write {
+  from { clip-path: inset(0 100% 0 0); opacity: .2; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
 }
-.about-word figcaption {
-  display: grid;
-  gap: var(--space-1);
-  max-width: 40ch;
-  margin-top: var(--space-4);
-  padding-right: 120px;
-  font-size: 0.9375rem;
-  color: var(--about-muted);
-}
-.about-word__reading { font-weight: 600; color: var(--about-accent); }
-.about-word__kitsu { position: absolute; right: 0; bottom: -8px; width: 120px; height: auto; }
+.about-word__romaji { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: var(--space-2); }
+.about-word__romaji span { text-align: center; font-size: 0.8125rem; color: var(--color-outline); }
+.about-word__entry { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px dashed var(--about-line); }
+.about-word__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); }
+.about-word__head span { font-family: var(--font-jp-display); font-size: 1.375rem; font-weight: 600; color: var(--about-accent); }
+.about-word__head small { font-size: 0.8125rem; color: var(--color-outline); }
+.about .about-word__meaning { margin-top: var(--space-1); font-size: 1.25rem; font-weight: 500; color: var(--about-ink); }
+.about .about-word__note { margin-top: var(--space-2); font-size: 0.9375rem; color: var(--about-muted); }
+@media (prefers-reduced-motion: reduce) { .about-word__cell b { animation: none; } }
 
 /* Steps: a real sequence, so it gets numbers, set in the same writing squares */
 .about-steps__list {
@@ -203,8 +215,8 @@
   .about-steps__list { grid-template-columns: 1fr; }
   .about-steps__list li::after { display: none; }
   .about-features__groups { grid-template-columns: 1fr; gap: var(--space-4); }
-  .about-word figcaption { padding-right: 88px; }
-  .about-word__kitsu { width: 84px; }
+  .about-word__kitsu { width: 80px; top: -40px; }
+  .about-word__paper { padding: var(--space-5) var(--space-4) var(--space-4); }
   .about-team { grid-template-columns: 1fr; gap: var(--space-4); padding: var(--space-6) var(--space-4); }
   .about-team__mark { writing-mode: horizontal-tb; font-size: 1.5rem; letter-spacing: 0.04em; }
   .about-contact__actions, .about-contact__actions .btn, .about-hero__actions .btn { width: 100%; }
