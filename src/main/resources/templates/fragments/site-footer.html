@@ -1,55 +1,50 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- [JLAS-W0108] F220 (owner 22–23/11): the team's shared site footer, drawn like the landing footer card (brand, three
-     numbered link columns, About / policy / feedback row). The landing uses it too. Any page adds it with
+<!-- [JLAS-W0108] F220 (owner 22-23/11): the team's shared site footer, a plain compact band (brand, four link columns,
+     credits). The landing uses it too. Any page adds it with
      <th:block th:replace="~{fragments/site-footer :: footer}"></th:block> right after its </main>. Static content only
      (guest pages show no user data). -->
 <th:block th:fragment="footer">
-<link rel="stylesheet" th:href="@{/css/site-footer.css(v=20261123b)}" />
+<link rel="stylesheet" th:href="@{/css/site-footer.css(v=20261123c)}" />
 <footer class="site-foot" aria-label="Chân trang KotsuKotsu">
-    <div class="site-foot__wrap">
-        <div class="site-foot__card">
-            <span class="site-foot__ring" aria-hidden="true"></span>
-            <p class="site-foot__kicker">Cùng đi xa hơn</p>
-            <div class="site-foot__grid">
-                <div class="site-foot__brand">
-                    <a class="site-foot__name" th:href="@{/}">KotsuKotsu</a>
-                    <p class="site-foot__title">Mỗi ngày một chút.<br>Tiến xa cùng nhau.</p>
-                    <p class="site-foot__intro">Một nơi để học, luyện tập và giữ thói quen tiếng Nhật mỗi ngày.</p>
-                    <p class="site-foot__jp" lang="ja">毎日、こつこつ。</p>
-                </div>
-                <nav class="site-foot__col" aria-label="Học nền tảng">
-                    <h2><span>01</span>Học nền tảng</h2>
-                    <a th:href="@{/dictionary}">Từ điển</a>
-                    <a th:href="@{/flashcard/library.html}">Flashcard</a>
-                    <a th:href="@{/dictionary/kanji-map}">Lược đồ Kanji</a>
-                    <a th:href="@{/practice/verbs}">Luyện chia động từ</a>
-                </nav>
-                <nav class="site-foot__col" aria-label="Thực hành và khám phá">
-                    <h2><span>02</span>Thực hành &amp; khám phá</h2>
-                    <a th:href="@{/shadowing}">Shadowing</a>
-                    <a th:href="@{/ai-call}">AI Call</a>
-                    <a th:href="@{/textbooks}">Giáo trình</a>
-                    <a th:href="@{/games}">Mini-game</a>
-                </nav>
-                <nav class="site-foot__col" aria-label="Hành trình của bạn">
-                    <h2><span>03</span>Hành trình của bạn</h2>
-                    <a th:href="@{/survey}">Smart Test</a>
-                    <a th:href="@{/learning}">Lộ trình học</a>
-                    <a th:href="@{/jlpt}">Đề thi JLPT</a>
-                    <a th:href="@{/premium}">Premium</a>
-                </nav>
-            </div>
-            <div class="site-foot__bottom">
-                <span>© 2026 KotsuKotsu · Đồ án tốt nghiệp SEP490, Trường Đại học FPT</span>
-                <nav class="site-foot__links" aria-label="Về KotsuKotsu">
-                    <a th:href="@{/about}">Giới thiệu</a>
-                    <a th:href="@{/policy}">Chính sách người dùng</a>
-                    <a th:href="@{/community}">Góp ý</a>
-                    <span class="site-foot__guest" data-auth-guest data-lp-guest-only><a th:href="@{/login}">Đăng nhập</a> · <a th:href="@{/register}">Đăng ký</a></span>
-                </nav>
-            </div>
+    <div class="site-foot__inner">
+        <div class="site-foot__brand">
+            <a class="site-foot__logo" th:href="@{/}"><img th:src="@{/images/logo.png}" alt="" width="32" height="32" /><span>KotsuKotsu</span></a>
+            <p class="site-foot__intro">Học tiếng Nhật mỗi ngày một chút, theo đúng trình độ của bạn.</p>
+            <p class="site-foot__jp" lang="ja">毎日、こつこつ。</p>
         </div>
+        <nav class="site-foot__col" aria-label="Học nền tảng">
+            <h2>Học nền tảng</h2>
+            <a th:href="@{/dictionary}">Từ điển</a>
+            <a th:href="@{/flashcard/library.html}">Flashcard</a>
+            <a th:href="@{/dictionary/kanji-map}">Lược đồ Kanji</a>
+            <a th:href="@{/practice/verbs}">Luyện chia động từ</a>
+        </nav>
+        <nav class="site-foot__col" aria-label="Thực hành">
+            <h2>Thực hành</h2>
+            <a th:href="@{/shadowing}">Shadowing</a>
+            <a th:href="@{/ai-call}">AI Call</a>
+            <a th:href="@{/textbooks}">Giáo trình</a>
+            <a th:href="@{/games}">Mini-game</a>
+        </nav>
+        <nav class="site-foot__col" aria-label="Hành trình">
+            <h2>Hành trình</h2>
+            <a th:href="@{/survey}">Smart Test</a>
+            <a th:href="@{/learning}">Lộ trình học</a>
+            <a th:href="@{/jlpt}">Đề thi JLPT</a>
+            <a th:href="@{/premium}">Premium</a>
+        </nav>
+        <nav class="site-foot__col" aria-label="Về KotsuKotsu">
+            <h2>Về chúng tôi</h2>
+            <a th:href="@{/about}">Giới thiệu</a>
+            <a th:href="@{/policy}">Chính sách người dùng</a>
+            <a th:href="@{/community}">Góp ý</a>
+            <span class="site-foot__guest" data-auth-guest data-lp-guest-only><a th:href="@{/login}">Đăng nhập</a> · <a th:href="@{/register}">Đăng ký</a></span>
+        </nav>
+    </div>
+    <div class="site-foot__bottom">
+        <span>© 2026 KotsuKotsu</span>
+        <span>Đồ án tốt nghiệp SEP490 · Trường Đại học FPT</span>
     </div>
 </footer>
 </th:block>
