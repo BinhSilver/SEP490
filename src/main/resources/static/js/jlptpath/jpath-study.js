@@ -367,6 +367,13 @@
       + ico + '<span class="jp-rate__label">' + esc(label) + '</span></button>';
   }
 
+  // owner 23/11: a new card has 2 buttons, a review card 4 — one line says why
+  var RATE_NOTE = Object.freeze({
+    NEW: 'Mục mới: chọn Nhớ rồi hoặc Chưa nhớ. Chưa nhớ sẽ được hỏi lại cuối lượt.',
+    REVIEW: 'Thẻ ôn: chọn mức nhớ của bạn. Số ngày dưới mỗi nút là lúc thẻ quay lại.' });
+
+  function rateNote(text) { return '<p class="jp-rate-note">' + esc(text) + '</p>'; }
+
   function ratingButtonsHtml(card, flipped, state) {
     if (!card || isCheck(card)) return '';
     if (card.kind === 'RETYPE') return state && state.retype && state.retype.done ? nextButton() : '';
@@ -376,12 +383,13 @@
       return bar('jp-rate-bar--flip', flipButtonHtml(false));
     }
     if (card.kind === 'NEW') {
-      return '<div class="jp-rate-stack">' + bar('jp-rate-bar--two', RATINGS.NEW.map(function (r, i) { return rateButton(r, i, null); }).join('')) + '</div>';
+      return '<div class="jp-rate-stack">' + bar('jp-rate-bar--two', RATINGS.NEW.map(function (r, i) { return rateButton(r, i, null); }).join(''))
+        + rateNote(RATE_NOTE.NEW) + '</div>';
     }
     var days = card.intervalDays || {};
     return '<div class="jp-rate-stack">' + bar('jp-rate-bar--four', RATINGS.REVIEW.map(function (r, i) {
       return rateButton(r, i, intervalLabel(r, days[r]));
-    }).join('')) + '</div>';
+    }).join('')) + rateNote(RATE_NOTE.REVIEW) + '</div>';
   }
 
   // ---- step bar -------------------------------------------------------------------------------------------
@@ -1445,7 +1453,7 @@
   }
 
   return { newRun: newRun, listHtml: listHtml, afterFlush: afterFlush, rebase: rebase, replayAction: replayAction,
-    endState: endState, endHtml: endHtml, rejectedIds: rejectedIds, whenSaved: whenSaved, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
+    endState: endState, endHtml: endHtml, rejectedIds: rejectedIds, whenSaved: whenSaved, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, RATE_NOTE: RATE_NOTE, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
     cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, viewSteps: viewSteps,
     minutesText: minutesText, keyAction: keyAction,
     controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
