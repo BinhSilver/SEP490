@@ -244,7 +244,8 @@
     // owner 23/11: a path learner without a Smart Test result sees where they started (from the survey), not an invite
     renderEntrySummary(keepsPath && !hasResult ? { survey: survey, entry: entryStatus, fromZero: fromZero } : null);
     // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
-    startTest.hidden = needsPathOnly && !keepsPath;
+    // owner 23/11: a learner new to Japanese who keeps a path is not offered Smart Test (set after the summary)
+    startTest.hidden = (needsPathOnly && !keepsPath) || (keepsPath && !hasResult && fromZero);
     var startLabel = startTest.querySelector('span');
     if (startLabel) startLabel.textContent = keepsPath ? (hasResult ? 'Làm bài mới' : 'Làm Smart Test') : 'Bắt đầu Smart Test';
     noTest = needsPathOnly;
@@ -306,9 +307,16 @@
       var item = document.createElement('div');
       var dt = document.createElement('dt'); dt.textContent = row[0];
       var dd = document.createElement('dd'); dd.textContent = row[1];
+      if (row[0] === 'Mục tiêu') dd.setAttribute('data-entry-target', '');
       item.append(dt, dd); dl.appendChild(item);
     });
     document.getElementById('inviteText').after(dl);
+    // the goal shown is the path's current one (settings may have changed it since the survey)
+    api('/api/learning/jlpt/path').then(function (path) {
+      var box = document.getElementById('surveyEntrySummary');
+      var cell = box && box.querySelector ? box.querySelector('[data-entry-target]') : null;
+      if (cell && path && path.targetLevel) cell.textContent = 'JLPT ' + path.targetLevel;
+    }).catch(function () {});
     // the path is the main way on; Smart Test stays one click away, and is not offered to a learner new to Japanese
     startTest.className = 'smart-test-secondary';
     if (actions) actions.appendChild(startTest);
