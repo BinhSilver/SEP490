@@ -1169,7 +1169,15 @@
       failed: !!page.saveFailed, loadFailed: !!page.loadFailed || !!page.replayLeft,
       finished: f.status === 'COMPLETED' || (Number(f.position) || 0) >= (Number(f.total) || 0),
       backUrl: page.leaving && /^\/learning(?:[/?]|$)/.test(page.leaving) ? page.leaving : doneUrl(f),
-      notice: page.notice || '' };
+      next: nextStepLabel(f), notice: page.notice || '' };
+  }
+
+  /** The first part of the session not finished yet ("Chữ cái"), or null. */
+  function nextStepLabel(flow) {
+    var s = (flow && flow.session) || {};
+    var st = list(s.steps).filter(function (x) { return x && STEP_LABEL[x.key] && !x.complete; })[0];
+    if (!st) return null;
+    return st.key === 'VOCAB' && s.tab && s.tab !== 'COMBINED' ? SPLIT_VOCAB_LABEL : STEP_LABEL[st.key];
   }
 
   function endHtml(st) {
@@ -1177,6 +1185,8 @@
       return '<a class="jp-btn' + (primary ? ' jp-btn--primary' : '') + '" href="' + esc(st.backUrl) + '">Về Lộ trình học</a>';
     };
     var retry = '<button type="button" class="jp-btn jp-btn--primary" data-jp-retry-end>Thử lại</button>';
+    // owner 23/11: the end of the loaded cards always says what comes next and offers it, never a dead end
+    var goOn = st.next ? '<button type="button" class="jp-btn jp-btn--primary" data-jp-retry-end>Học tiếp ' + esc(st.next) + '</button>' : '';
     var title;
     var text;
     var actions = '';
@@ -1187,17 +1197,18 @@
     } else if (st.loadFailed) {
       title = 'Chưa tải được thẻ tiếp theo';
       text = st.notice || NEED_NETWORK_TEXT;
-      actions = retry + back(false);
+      actions = (goOn || retry) + back(false);
     } else if (st.saving) {
       title = 'Đang lưu kết quả';
       text = st.pending > 0 ? 'Đang gửi ' + st.pending + ' thẻ vừa chấm lên máy chủ, chờ một chút.' : 'Đang hoàn tất lượt học, chờ một chút.';
-    } else if (st.finished) {
+    } else if (st.finished && !st.next) {
       title = 'Đã học xong lượt này';
-      text = 'Kết quả đã được lưu.';
+      text = 'Kết quả đã được lưu. Phần tiếp theo của hôm nay ở trang Lộ trình học.';
       actions = back(true);
     } else {
-      title = 'Đang tải thẻ tiếp theo';
-      text = 'Chờ một chút.';
+      title = st.next ? 'Tiếp theo: ' + st.next : 'Đang tải thẻ tiếp theo';
+      text = 'Đang mở phần tiếp theo, chờ một chút.';
+      actions = goOn + back(false);
     }
     return '<section class="jp-card jp-study-end" role="status" aria-live="polite"' + (st.saving && !st.failed ? ' aria-busy="true"' : '') + '>'
       + '<h2 class="jp-study-end__title">' + esc(title) + '</h2><p class="jp-study-muted">' + esc(text) + '</p>'

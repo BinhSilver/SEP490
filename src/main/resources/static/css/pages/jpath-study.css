@@ -1708,3 +1708,11 @@ html.dark .cp-page {
 /* Owner 17/11: same scrollbar flash on the JLPT study cards — clip the 3D turn and keep the gutter. */
 html:has(.jp-study) { scrollbar-gutter: stable; }
 .jp-study-main { overflow-x: clip; }
+
+/* Owner 23/11: end of the loaded cards (saving, next part, done) — never a bare line on an empty page. */
+.jp-study-end { display: grid; gap: var(--space-2); justify-items: center; text-align: center;
+  padding: var(--space-5) var(--space-4); }
+.jp-study-end__title { margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--jp-ink); }
+.jp-study-end__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center;
+  margin-top: var(--space-2); }
+.jp-study-end[aria-busy="true"] .jp-study-end__title::after { content: "…"; }
