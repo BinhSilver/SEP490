@@ -122,7 +122,8 @@
       return t && t.tab !== 'SKILL' && num(t.newTarget) > 0;
     }).map(function (t) {
       return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '" data-pill-tab="' + esc(String(t.tab || '').toLowerCase()) + '">'
-        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget)) + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
+        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget) + (t.tab === 'KANA' ? ' hàng' : ''))
+        + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
     }).join('');
     return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
   }
@@ -318,8 +319,14 @@
     if (g > 0) parts.push(g + ' mẫu');
     var line = parts.length ? ('Hôm nay học ' + parts.join(' · ')) : 'Hôm nay ôn tập các mục đến hạn';
     var mins = num(t && t.estimatedMinutes);
-    if (mins > 0) line += ', khoảng ' + mins + ' phút';
+    if (mins > 0) line += ', ' + minutesWords(t, mins);
     return line;
+  }
+
+  /** Owner 23/11: the server gives what is left (the study page's minutes), so a started day says "còn khoảng". */
+  function minutesWords(t, mins) {
+    var started = list(t && t.tabs).some(function (x) { return x && num(x.newDone) > 0; });
+    return (started ? 'còn khoảng ' : 'khoảng ') + mins + ' phút';
   }
 
   /**
@@ -448,7 +455,7 @@
     if (t.kind === 'SKILL') return 'Ngày kỹ năng · Đọc, Nghe và ôn tập';
     if (t.kind === 'REST') return 'Ngày nghỉ · không có bài bắt buộc';
     if (t.kind === 'REVIEW_ONLY') return 'Ngày ôn · chỉ ôn thẻ đến hạn';
-    if (t.kanaPhase) return 'Hôm nay học ' + kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ';
+    if (t.kanaPhase) return 'Hôm nay học ' + kanaRows(t) + ' hàng chữ cái' + (target(t, 'VOCAB') > 0 ? ' · ' + target(t, 'VOCAB') + ' từ' : '');
     return studySummaryText(t);
   }
 
@@ -522,7 +529,8 @@
         + '</div>' + missed + end;
     }
     if (t.kanaPhase) {
-      var summary = kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút';
+      var summary = kanaRows(t) + ' hàng chữ cái' + (target(t, 'VOCAB') > 0 ? ' · ' + target(t, 'VOCAB') + ' từ mới' : '')
+        + (num(t.estimatedMinutes) > 0 ? ' · ' + minutesWords(t, num(t.estimatedMinutes)) : '');
       html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
       return html + modeButtonsHtml(t, path, activeTab)
         + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;

@@ -52,6 +52,8 @@
   var STEP_LABEL = Object.freeze({ REVIEW: 'Ôn', VOCAB: 'Từ mới', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', KANA: 'Chữ cái',
     SKILL_QUIZ: 'Đọc · Nghe' });
   var SPLIT_VOCAB_LABEL = 'Từ vựng';
+  // owner 23/11: Chữ cái counts kana rows like the path page ("Chữ cái 1/4 hàng"); a row counts once its check passed
+  var STEP_UNIT = Object.freeze({ KANA: ' hàng' });
   var CHECK_KINDS = { MICRO_CHECK: true, GROUP_EXERCISE: true };
   var PAGE_CONTEXT = 'STUDY_CARD';
 
@@ -384,6 +386,11 @@
 
   // ---- step bar -------------------------------------------------------------------------------------------
 
+  /** Owner 23/11: same words as the path page ("còn khoảng 24 phút"). */
+  function minutesText(minutes) {
+    return minutes > 0 ? 'còn khoảng ' + minutes + ' phút' : 'sắp xong';
+  }
+
   function stepsHtml(steps, minutesLeft, tab) {
     var items = list(steps).filter(function (s) { return s && STEP_LABEL[s.key]; });
     var done = 0;
@@ -394,7 +401,7 @@
       var t = Number(s.total) || 0;
       done += Math.min(d, t);
       total += t;
-      var countStr = s.complete ? (t + '/' + t) : (d + '/' + t); // L18b: always "done/total"
+      var countStr = (s.complete ? (t + '/' + t) : (d + '/' + t)) + (STEP_UNIT[s.key] || ''); // L18b: always "done/total"
       var dotIcon = s.complete
         ? '<svg class="jp-step__check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         : '';
@@ -411,7 +418,7 @@
     var minutes = Math.max(0, Math.round(Number(minutesLeft) || 0));
     return '<div class="jp-study-steps"><p class="jp-study-steps__line">'
       + parts.join('')
-      + '<span class="jp-study-steps__left"> · ~' + minutes + ' phút còn lại</span></p>'
+      + '<span class="jp-study-steps__left"> · ' + minutesText(minutes) + '</span></p>'
       + '<div class="jp-study-progress" role="progressbar" aria-label="Tiến độ lượt học" aria-valuemin="0"'
       + ' aria-valuemax="100" aria-valuenow="' + pct + '"><span style="width:' + pct + '%"></span></div></div>';
   }
@@ -517,6 +524,22 @@
     return { steps: steps, minutesLeft: minutes };
   }
 
+  /**
+   * Owner 23/11: the step bar of the page. flow.session.steps already move with every card answered (bumpSteps), so
+   * only the minutes follow the position (liveSteps added the cards a second time: "Ôn 36/37" while 23 were done);
+   * the active step is the one of the card shown (a review word never sits under "Chữ cái").
+   */
+  function viewSteps(flow) {
+    var f = flow || {};
+    var s = f.session || {};
+    var key = cardStepKey(f.cards && f.cards[0]);
+    var steps = list(s.steps).map(function (st) { return Object.assign({}, st); });
+    if (key && steps.some(function (st) { return st && st.key === key; })) {
+      steps.forEach(function (st) { if (st) st.active = st.key === key; });
+    }
+    return { steps: steps, minutesLeft: liveSteps(s, f.position, f.total).minutesLeft };
+  }
+
   function repeatKey(c) { return c.kind + '|' + c.itemType + '|' + c.code; }
 
   function initFlow(session) {
@@ -560,7 +583,8 @@
   }
 
   function bumpSteps(session, key, dDone, dTotal, nextActiveKey) {
-    if (!session || !Array.isArray(session.steps) || !key) return session;
+    // KANA counts rows (the server moves it when a row check passes), not the cards of a row
+    if (!session || !Array.isArray(session.steps) || !key || key === 'KANA') return session;
     var changed = false;
     var steps = session.steps.map(function (st) {
       if (!st || st.key !== key) return st;
@@ -1238,7 +1262,8 @@
     var run = !f.retype ? newRun(f) : [];
     if (run.length) {
       loadListSet(page, run[0].itemType);
-      el.innerHTML = banner + stepsHtml(liveSteps(s, f.position, f.total).steps, liveSteps(s, f.position, f.total).minutesLeft, s.tab)
+      var listSteps = viewSteps(f);
+      el.innerHTML = banner + stepsHtml(listSteps.steps, listSteps.minutesLeft, s.tab)
         + '<div class="jp-study-main">' + listHtml(run, page.fc) + '</div>'
         + '<p class="jp-study-status" role="status" aria-live="polite" data-jp-status>' + esc(page.notice) + '</p>';
       D().applyDisplay(el, page.display);
@@ -1258,7 +1283,7 @@
     }
     var hint = c.kind === 'NEW' && swipeRating(c, 'RIGHT') && shouldShowSwipeHint(page.display, coarsePointer())
       ? swipeHintHtml() : '';
-    var live = liveSteps(s, f.position, f.total);
+    var live = viewSteps(f);
     el.innerHTML = banner + stepsHtml(live.steps, live.minutesLeft, s.tab)
       + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check"'
       + ' data-jp-inline-check hidden></div></div>' + hint
@@ -1421,7 +1446,8 @@
 
   return { newRun: newRun, listHtml: listHtml, afterFlush: afterFlush, rebase: rebase, replayAction: replayAction,
     endState: endState, endHtml: endHtml, rejectedIds: rejectedIds, whenSaved: whenSaved, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
-    cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, keyAction: keyAction,
+    cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, viewSteps: viewSteps,
+    minutesText: minutesText, keyAction: keyAction,
     controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,
     retypeMessage: retypeMessage, skipMessage: skipMessage, shouldShowSwipeHint: shouldShowSwipeHint,
