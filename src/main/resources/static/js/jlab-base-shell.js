@@ -349,7 +349,7 @@
                 '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
               '</div>' +
             '</div>' +
-            '<a id="' + ids.aboutLink + '" href="/#about" aria-label="Giới thiệu">' + icon('', 'info') + '<span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
+            '<a id="' + ids.aboutLink + '" href="/about" aria-label="Giới thiệu">' + icon('', 'info') + '<span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
           '</nav>' +
           '<div id="' + ids.actions + '" class="site-header__actions">' +
             '<div id="' + ids.guestActions + '" class="user-actions" data-auth-guest>' +
