@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] owner 23/11: the learning flow's fox moves like the home page fox. Add
+     <th:block th:replace="~{fragments/learning-fox :: fox}"></th:block> before </body>. -->
+<th:block th:fragment="fox">
+<link rel="stylesheet" th:href="@{/css/learning-fox.css}" />
+<script th:src="@{/js/pages/home-mascot.js}"></script>
+<script th:src="@{/js/learning/learning-fox.js}"></script>
+</th:block>
+</html>
