@@ -620,10 +620,17 @@
       };
     }
 
+    // owner 23/11: "Học hôm nay (Gộp)" took ~5 s with no sign of life; one start at a time, the button says so
     function start(req, btn) {
-      if (btn) btn.disabled = true;
+      if (state.starting) return Promise.resolve(null);
+      state.starting = true;
+      setBusy(btn, true);
       return Promise.resolve().then(function () { return api.onStart(req, { api: apiClient }); })
-        .catch(failInto('today-error', btn));
+        .catch(function (e) {
+          state.starting = false;
+          setBusy(btn, false);
+          failInto('today-error', btn)(e);
+        });
     }
 
     var runTimer = null;
@@ -853,6 +860,21 @@
     });
   }
 
+  /** A start button while its session opens: disabled, aria-busy, "Đang mở…" (the label comes back on failure). */
+  function setBusy(btn, on) {
+    if (!btn) return;
+    btn.disabled = !!on;
+    if (typeof btn.setAttribute !== 'function' || typeof btn.getAttribute !== 'function') return;
+    btn.setAttribute('aria-busy', on ? 'true' : 'false');
+    var saved = btn.getAttribute('data-label');
+    if (on) {
+      if (saved === null || saved === undefined) btn.setAttribute('data-label', btn.textContent);
+      btn.textContent = 'Đang mở…';
+    } else if (saved !== null && saved !== undefined) {
+      btn.textContent = saved;
+    }
+  }
+
   /** F5 (owner 11/11): N4–N1 need Premium; a locked learner sees an upgrade box above the path. */
   function premiumBoxHtml(gate) {
     if (!gate || !gate.locked) return '';
@@ -872,7 +894,7 @@
   }
 
   var api = Object.assign({}, C, {
-    premiumBoxHtml: premiumBoxHtml,
+    premiumBoxHtml: premiumBoxHtml, setBusy: setBusy,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     whyTodayHtml: whyTodayHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
