@@ -146,15 +146,35 @@
     return target(today, 'KANA');
   }
 
+  /** Something left to do today in the tab {@code key} (new items or due reviews). */
+  function hasWork(today, key) {
+    var t = todayTab(today, code(key));
+    return !!t && !t.done && (num(t.newTarget) > num(t.newDone) || num(t.reviewDue) > 0);
+  }
+
+  /**
+   * Owner 23/11: the tab "Học riêng … (Tách)" opens: the active tab when it has work today, else the first one that
+   * has (kana stage: Chữ cái, not Từ vựng with 0 new words); null when no tab has anything to do.
+   */
+  function splitTabFor(today, activeTab) {
+    var first = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
+    if (!today || hasWork(today, first)) return first;
+    var order = ['kana', 'vocab', 'kanji', 'grammar'];
+    for (var i = 0; i < order.length; i++) if (hasWork(today, order[i])) return order[i];
+    return null;
+  }
+
   function modeButtonsHtml(today, path, activeTab) {
     var p = path || {};
     var suggested = p.suggestedMode || 'COMBINED';
-    var splitTab = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
+    var splitTab = splitTabFor(today, activeTab);
     var defs = [
       { mode: 'COMBINED', label: 'Học hôm nay (Gộp)',
-        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' },
-      { mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
-        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' }];
+        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' }];
+    if (splitTab) {
+      defs.push({ mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
+        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' });
+    }
     var html = defs.map(function (def) {
       var on = def.mode === suggested;
       var out = '<div class="jp-mode' + (on ? ' jp-suggested' : '') + '">'
@@ -618,5 +638,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, skillDaySteps: skillDaySteps, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { splitTabFor: splitTabFor, UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, skillDaySteps: skillDaySteps, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });
