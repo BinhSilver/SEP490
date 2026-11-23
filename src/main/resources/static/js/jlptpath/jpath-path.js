@@ -50,7 +50,7 @@
   var VOLUME_UNIT = { kana: 'chữ', vocab: 'từ', kanji: 'chữ Kanji', grammar: 'mẫu' };
   var WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   var SKILL_OPENS_AT = 80;
-  var MSG_LOAD_FAILED = 'Không tải được lộ trình. Thử tải lại trang.';
+  var MSG_LOAD_FAILED = 'Không tải được lộ trình. Kiểm tra mạng rồi bấm Thử lại.';
 
   var C = (root && root.JpathPathControls)
     || (typeof require === 'function' ? require('./jpath-path-controls.js') : null);
@@ -633,6 +633,8 @@
         });
     }
 
+    var later = d.setTimeout || function (fn, ms) { return root.setTimeout(fn, ms); };
+
     var runTimer = null;
     var session = d.sessionStorage !== undefined ? d.sessionStorage
       : (function () { try { return root.sessionStorage; } catch (e) { return null; } })();
@@ -841,6 +843,7 @@
       });
     }
 
+    function firstLoad(attempt) {
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });
     return Promise.all([pathLoad, loadToday()]).then(function (res) {
       state.path = res[0] || {};
@@ -855,9 +858,31 @@
       premiumBox(rootEl, apiClient);
       continueDayRun();
     }, function () {
-      setHtml(rootEl, 'hero', '<p class="jp-alert" role="alert">' + esc(MSG_LOAD_FAILED) + '</p>');
+      // owner 23/11: a short network hiccup showed a dead error: one quiet retry, then a Thử lại button
+      if (!attempt) {
+        return new Promise(function (resolve) { later(resolve, LOAD_RETRY_MS); }).then(function () { return firstLoad(1); });
+      }
+      setHtml(rootEl, 'hero', loadFailedHtml());
       rootEl.setAttribute('aria-busy', 'false');
+      var btn = rootEl.querySelector && rootEl.querySelector('[data-jpath-load-retry]');
+      if (btn && typeof btn.addEventListener === 'function') {
+        btn.addEventListener('click', function () {
+          btn.disabled = true;
+          rootEl.setAttribute('aria-busy', 'true');
+          firstLoad(1);
+        });
+      }
+      return null;
     });
+    }
+    return firstLoad(d.noLoadRetry ? 1 : 0);
+  }
+
+  var LOAD_RETRY_MS = 1500;
+
+  function loadFailedHtml() {
+    return '<div class="jp-alert" role="alert"><p>' + esc(MSG_LOAD_FAILED) + '</p>'
+      + '<button type="button" class="jp-btn jp-btn--primary" data-jpath-load-retry>Thử lại</button></div>';
   }
 
   /** A start button while its session opens: disabled, aria-busy, "Đang mở…" (the label comes back on failure). */
@@ -894,7 +919,7 @@
   }
 
   var api = Object.assign({}, C, {
-    premiumBoxHtml: premiumBoxHtml, setBusy: setBusy,
+    premiumBoxHtml: premiumBoxHtml, setBusy: setBusy, loadFailedHtml: loadFailedHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
     whyTodayHtml: whyTodayHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
