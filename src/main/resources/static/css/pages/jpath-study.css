@@ -1719,3 +1719,16 @@ html:has(.jp-study) { scrollbar-gutter: stable; }
 
 /* Owner 23/11: one line under the rating buttons says why a new card has 2 and a review card 4. */
 .jp-rate-note { flex-basis: 100%; margin: 0; color: var(--jp-muted); font-size: .8rem; font-weight: 400; text-align: center; }
+
+/* [JLAS-W0108] owner 23/11: every study card uses the flashcard mould of the Flashcard page (study.html):
+   672px wide, 320px tall, 24px corners, white, thin border, no shadow; the buttons sit under it at the same width */
+.jp-study .jp-study-main, .jp-study .jp-rate-bar { width: 100%; max-width: 672px; margin-inline: auto; }
+.jp-study .jp-study-card {
+  min-height: 320px !important;
+  border-radius: 24px !important;
+  border: 1px solid #cbc4d2 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .jp-study .jp-study-card { background: var(--color-surface-lowest) !important; border-color: var(--color-outline-variant) !important; }
+.jp-study .jp-study-card .jp-study-glyph { font-size: 64px !important; line-height: 1.2; }
