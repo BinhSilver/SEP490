@@ -69,6 +69,9 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
                         .hasRole("ADMIN")
+                        // [JLAS2-270] Learners submit; only content creators/admins review learning error reports.
+                        .requestMatchers("/admin/learning-content-reports", "/api/admin/learning-content-reports", "/api/admin/learning-content-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
                         .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")

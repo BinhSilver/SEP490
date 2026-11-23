@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-head :: head('Báo lỗi học tập - KotsuKotsu', 'learning-content-reports')}"></head>
+<body id="jlabBasePage" class="admin-portal">
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="lcr-page" hidden>
+    <header><h1>Báo lỗi học tập</h1><p>Xem báo cáo từ các bài JLPT, luyện chia thể, Lược đồ và giải thích AI.</p></header>
+    <form id="lcrFilters" class="lcr-filters">
+        <label>Trạng thái<select data-jl-select id="lcrStatus"><option value="OPEN">Chờ xử lý</option><option value="RESOLVED">Đã xử lý</option><option value="REJECTED">Đã từ chối</option></select></label>
+        <label>Nội dung<select data-jl-select id="lcrType"><option value="">Tất cả</option><option value="JLPT_QUESTION">Câu hỏi JLPT</option><option value="VERB_QUESTION">Luyện chia thể</option><option value="KANJI_MAP">Lược đồ Kanji</option><option value="AI_EXPLANATION">Giải thích AI</option></select></label>
+        <button type="submit">Tải lại</button><span id="lcrCount" role="status"></span>
+    </form>
+    <p id="lcrNotice" role="status" hidden></p>
+    <div class="lcr-workspace"><section aria-label="Danh sách báo cáo"><div id="lcrList"></div><nav class="lcr-pagination" aria-label="Trang báo cáo"><button id="lcrPrevious" type="button">Trang trước</button><span id="lcrPage"></span><button id="lcrNext" type="button">Trang tiếp</button></nav></section>
+        <article id="lcrDetail" aria-label="Chi tiết báo cáo"><p>Chọn một báo cáo để xem nội dung.</p></article>
+    </div>
+</main>
+<script th:src="@{/js/pages/admin-core.js(v=20261120-reports)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261109-kotsu)}"></script>
+<script th:src="@{/js/pages/learning-content-reports.js(v=20261120-reports)}"></script>
+</body></html>

@@ -60,6 +60,10 @@
     <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-controls.css?v=20261119-scroll}" />
     <link th:if="${pageCss == 'jlpt-exam' or pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-sentence-order.css?v=20261119-compact}" />
     <link th:if="${pageCss == 'weakness-notebook'}" rel="stylesheet" th:href="@{/css/pages/weakness-notebook.css(v=20261119-compact-selection)}" />
+    <th:block th:if="${pageCss == 'jlpt-exam' or pageCss == 'jlpt-practice' or pageCss == 'verb-practice' or pageCss == 'kanji-map'}">
+        <link rel="stylesheet" th:href="@{/css/components/learning-report.css(v=20261120-report-fix)}" />
+        <script th:src="@{/js/components/learning-report.js(v=20261120-report-fix)}"></script>
+    </th:block>
     <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261111-nav-nowrap}" />
     <link rel="stylesheet" th:href="@{/css/pages/learning-journey.css}" />
@@ -74,7 +78,7 @@
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <!-- Chatbot gia sư (nút nổi); tự ẩn với khách, trang quản trị, bài kiểm tra, hoặc khi máy chủ chưa bật -->
-    <link rel="stylesheet" th:href="@{/css/components/tutor-widget.css(v=20261117-fox)}" />
+    <link rel="stylesheet" th:href="@{/css/components/tutor-widget.css(v=20261120-dark)}" />
     <script defer th:src="@{/js/pages/home-mascot.js?v=20261115-f129}"></script>
     <script defer th:src="@{/js/components/tutor-widget.js(v=20261117-fox)}"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />

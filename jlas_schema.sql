@@ -2918,6 +2918,26 @@ CREATE TABLE content_comment_vote (
     CONSTRAINT chk_content_comment_vote CHECK (vote IN (-1, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0250] One durable report per user and dictionary contribution comment.
+CREATE TABLE dictionary_comment_report (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    comment_id  BIGINT UNSIGNED NOT NULL,
+    reporter_id BIGINT UNSIGNED NOT NULL,
+    reason      VARCHAR(500) NULL,
+    status      VARCHAR(12) NOT NULL DEFAULT 'OPEN',
+    resolved_at DATETIME(6) NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dictionary_comment_report_once (comment_id, reporter_id),
+    KEY idx_dictionary_comment_report_open (comment_id, status),
+    KEY idx_dictionary_comment_report_reporter (reporter_id),
+    CONSTRAINT fk_dictionary_comment_report_comment FOREIGN KEY (comment_id)
+        REFERENCES content_comment(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dictionary_comment_report_reporter FOREIGN KEY (reporter_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_dictionary_comment_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Ban dich ben vung cua cau user nhap tu do; khong phai cache TTL.
 CREATE TABLE sentence_translation (
     source_hash     VARCHAR(64) NOT NULL,
@@ -4242,6 +4262,35 @@ CREATE TABLE IF NOT EXISTS user_notebook_kanji (
 -- [JLAS-NOTEBOOK] End of Kanji update.
 
 -- End of canonical schema.
+
+
+-- [JLAS2-270] Learning content and displayed AI explanation reports; no automatic hiding or content edits.
+-- Run once before enabling the new report API; safe to re-run. Contains no changes to existing content.
+CREATE TABLE IF NOT EXISTS learning_content_report (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    reporter_user_id BIGINT NOT NULL,
+    target_type VARCHAR(24) NOT NULL,
+    target_code VARCHAR(160) COLLATE utf8mb4_bin NOT NULL,
+    page_context VARCHAR(40) NOT NULL,
+    target_label VARCHAR(255) NOT NULL,
+    reason VARCHAR(16) NOT NULL,
+    note VARCHAR(1000) NULL,
+    context_json LONGTEXT NOT NULL,
+    source_url VARCHAR(500) NOT NULL,
+    status VARCHAR(10) NOT NULL DEFAULT 'OPEN',
+    review_note VARCHAR(1000) NULL,
+    resolved_by BIGINT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    resolved_at DATETIME(6) NULL,
+    open_flag TINYINT GENERATED ALWAYS AS (CASE WHEN status='OPEN' THEN 1 ELSE NULL END) STORED,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_report_open (reporter_user_id,target_type,target_code,open_flag),
+    KEY idx_learning_report_queue (status,created_at,id),
+    KEY idx_learning_report_user_day (reporter_user_id,created_at),
+    CONSTRAINT chk_learning_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED')),
+    CONSTRAINT chk_learning_report_target CHECK (target_type IN ('JLPT_QUESTION','VERB_QUESTION','KANJI_MAP','AI_EXPLANATION')),
+    CONSTRAINT chk_learning_report_reason CHECK (reason IN ('CONTENT','ANSWER','AUDIO','AI','OTHER'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- [JLAS-W0108] owner 18/11: one private flashcard set per learner per JLPT part (team flashcard feature)
 CREATE TABLE IF NOT EXISTS learning_path_flashcard_set (

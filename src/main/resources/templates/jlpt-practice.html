@@ -55,11 +55,11 @@
             <div id="practiceInstruction" class="jlpt-practice-instruction" lang="ja"></div>
             <section id="practicePassage" class="jlpt-practice-passage" lang="ja" hidden></section>
             <section id="practiceAudio" class="jlpt-practice-audio" hidden></section>
-            <div class="jp-question-tools"><button id="practiceMark" type="button" aria-pressed="false"><svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor" aria-hidden="true"><path d="M2 1h12v16L8 13l-6 4Z"/></svg><span>Đánh dấu</span></button></div>
+            <div class="jp-question-tools"><span id="practiceReport"></span><button id="practiceMark" type="button" aria-pressed="false"><svg width="16" height="18" viewBox="0 0 16 18" fill="currentColor" aria-hidden="true"><path d="M2 1h12v16L8 13l-6 4Z"/></svg><span>Đánh dấu</span></button></div>
             <h2 id="practicePrompt" lang="ja"></h2>
             <div id="practiceChoices" class="jlpt-practice-choices"></div>
             <div class="jlpt-practice-actions"><span id="practiceFeedback" role="status"></span><button id="practiceExplain" type="button" hidden>✦ Giải thích AI</button><button id="practiceCheck" type="button">Kiểm tra</button></div>
-            <section id="practiceExplanation" class="jlpt-practice-explanation" hidden></section>
+            <section id="practiceExplanation" class="jlpt-practice-explanation" hidden><div id="practiceExplanationText"></div><div id="practiceAiReport" class="learning-report-footer" hidden></div></section>
             <footer><button id="practicePrevious" type="button">Câu trước</button><button id="practiceNext" type="button">Câu tiếp</button></footer>
             </article>
         </div>
@@ -71,6 +71,6 @@
 </main>
 <script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
 <script th:src="@{/js/pages/jlpt-sentence-order.js?v=2}"></script>
-<script th:src="@{/js/pages/jlpt-practice.js?v=20261119-instant-mark}"></script>
+<script th:src="@{/js/pages/jlpt-practice.js?v=20261120-reports}"></script>
 </body>
 </html>

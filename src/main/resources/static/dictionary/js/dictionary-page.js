@@ -607,11 +607,11 @@
     }
     if (button.hasAttribute('data-contribution-report')) {
       if (!isLoggedIn()) { ui.toast('Vui lòng đăng nhập để báo cáo'); return true; }
-      if (!window.confirm('Báo cáo ý kiến này? Ý kiến sẽ bị ẩn cho đến khi được kiểm duyệt.')) return true;
+      if (!window.confirm('Báo cáo ý kiến này? Ý kiến chỉ tạm ẩn để chờ kiểm duyệt khi có đủ 3 người dùng khác nhau báo cáo.')) return true;
       button.disabled = true;
       try {
         await window.DictApi.reportContribution(button.dataset.contributionId);
-        ui.toast('Đã báo cáo. Ý kiến đã được ẩn để chờ kiểm duyệt.');
+        ui.toast('Đã ghi nhận báo cáo của bạn.');
         var page = Number(host.dataset.page || 0);
         var result = await loadContributions(host, page, state.token);
         if (result && !result.content.length && page > 0 && host.isConnected) {

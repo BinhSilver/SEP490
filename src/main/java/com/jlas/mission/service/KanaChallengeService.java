@@ -167,7 +167,7 @@ public class KanaChallengeService {
         Progress progress = read(challenge.solutionJson(), Progress.class).resumed(now);
         // Match actual cell IDs against an individually verified word path. Alternative
         // spelling paths cannot consume tiles belonging to an unsolved word and strand the board.
-        Solution found = puzzle.solutions().stream().filter(s -> s.path().equals(attempt.path())).findFirst().orElse(null);
+        Solution found = puzzle.solutions().stream().filter(s -> samePath(s.path(), attempt.path())).findFirst().orElse(null);
         if (found == null) return new Result(false, view(challenge, defaultLevel));
         if (progress.solvedWordIds().contains(found.wordId())) return new Result(true, view(challenge, defaultLevel));
         List<Long> solved = new ArrayList<>(progress.solvedWordIds());
@@ -182,6 +182,15 @@ public class KanaChallengeService {
             repository.saveProgress(challenge.id(), write(updated));
         }
         return new Result(true, view(repository.findById(userId, challenge.id()).orElseThrow(), defaultLevel));
+    }
+
+    /**
+     * The word's own cells, dragged from either end. Going backwards uses exactly the same cells, so it can never
+     * take a tile from another word; only a different set of cells is refused.
+     */
+    static boolean samePath(List<Integer> solution, List<Integer> attempt) {
+        if (attempt == null || attempt.size() != solution.size()) return false;
+        return solution.equals(attempt) || solution.equals(attempt.reversed());
     }
 
     /**

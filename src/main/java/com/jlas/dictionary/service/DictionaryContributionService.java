@@ -5,6 +5,8 @@ import com.jlas.auth.repository.UserRepository;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.dto.*;
+import com.jlas.dictionary.entity.DictionaryCommentReport;
+import com.jlas.dictionary.repository.DictionaryCommentReportRepository;
 import com.jlas.dictionary.repository.KanjiRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
 import com.jlas.moderation.dto.ModerationResult;
@@ -19,6 +21,7 @@ import com.jlas.moderation.service.UserActionPolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -31,12 +34,14 @@ public class DictionaryContributionService {
     private static final String VOCABULARY = "VOCABULARY";
     private static final String KANJI = "KANJI";
     private static final String MODERATION_TARGET = "DICTIONARY_COMMENT";
+    private static final int REPORT_HIDE_THRESHOLD = 3;
 
     private final VocabularyEntryRepository vocabulary;
     private final KanjiRepository kanji;
     private final UserRepository users;
     private final ContentCommentRepository comments;
     private final ContentCommentVoteRepository votes;
+    private final DictionaryCommentReportRepository reports;
     private final ModerationReviewQueueRepository reviewQueue;
     private final ContentModerationPort moderation;
     private final UserActionPolicyPort actionPolicy;
@@ -95,15 +100,30 @@ public class DictionaryContributionService {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Không thể báo cáo ý kiến của chính bạn");
         }
         actionPolicy.assertCanAct(reporter);
-        comment.setIsHidden(true);
-        comments.save(comment);
-        if (reviewQueue.findFirstByTargetTypeAndTargetIdAndStatus(MODERATION_TARGET, commentId, "OPEN").isEmpty()) {
+        if (reports.existsByCommentIdAndReporterId(commentId, reporter)) {
+            throw new ApiException(ErrorCode.CONFLICT, "Bạn đã báo cáo ý kiến này");
+        }
+        String reportReason = StringUtils.hasText(reason) ? reason.trim() : null;
+        if (reportReason != null && reportReason.length() > 500) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Lý do báo cáo tối đa 500 ký tự");
+        }
+        try {
+            reports.saveAndFlush(DictionaryCommentReport.builder()
+                    .comment(comment).reporterId(reporter).reason(reportReason).build());
+        } catch (DataIntegrityViolationException e) {
+            throw new ApiException(ErrorCode.CONFLICT, "Bạn đã báo cáo ý kiến này");
+        }
+        if (reports.countByCommentIdAndStatus(commentId, "OPEN") >= REPORT_HIDE_THRESHOLD) {
+            comment.setIsHidden(true);
+            comments.save(comment);
             String detail = StringUtils.hasText(reason) ? ": " + reason.trim() : "";
-            reviewQueue.save(ModerationReviewQueue.builder()
-                    .targetType(MODERATION_TARGET).targetId(commentId)
-                    .requesterUserId(reporter).ownerUserId(comment.getUser().getId())
-                    .titleSnapshot("Báo cáo ý kiến đóng góp từ điển")
-                    .summary("Người dùng báo cáo" + detail).build());
+            if (reviewQueue.findFirstByTargetTypeAndTargetIdAndStatus(MODERATION_TARGET, commentId, "OPEN").isEmpty()) {
+                reviewQueue.save(ModerationReviewQueue.builder()
+                        .targetType(MODERATION_TARGET).targetId(commentId)
+                        .requesterUserId(reporter).ownerUserId(comment.getUser().getId())
+                        .titleSnapshot("Báo cáo ý kiến đóng góp từ điển")
+                        .summary("Người dùng báo cáo" + detail).build());
+            }
         }
     }
 
