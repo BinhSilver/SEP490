@@ -1003,7 +1003,18 @@
     });
   }
 
+  function markPastResult(data) {
+    if (!data || data.status !== 'SUBMITTED') return;
+    var eyebrow = document.querySelector('#resultView .result-eyebrow');
+    if (eyebrow) eyebrow.textContent = 'Kết quả Smart Test gần nhất';
+    var restartLabel = document.querySelector('#restartButton span');
+    if (restartLabel) restartLabel.textContent = 'Làm lại Smart Test';
+    pastResultShown = true;
+  }
+  var pastResultShown = false;
+
   document.getElementById('restartButton').addEventListener('click', function () {
+    if (pastResultShown) { window.location.assign('/survey?retake=1'); return; }
     state = { attemptId: null, currentQuestion: null, goal: null, result: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
@@ -1016,8 +1027,15 @@
     }).catch(function () {});
   }
 
+  // [JLAS-W0108] owner 23/11: /smart-test?attempt=<id> reopens a finished attempt (the newest result of a returning learner)
+  var pastAttempt = null;
+  try { pastAttempt = new URLSearchParams(window.location.search).get('attempt'); } catch (ignore) { pastAttempt = null; }
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);
-  if (activeAttempt) {
+  if (pastAttempt && /^\d+$/.test(pastAttempt)) {
+    api('/api/assessment/smart-tests/' + pastAttempt)
+      .then(function (data) { markPastResult(data); render(data); })
+      .catch(function () { show(emptyView); });
+  } else if (activeAttempt) {
     api('/api/assessment/smart-tests/' + activeAttempt)
       .then(render)
       .catch(function () { localStorage.removeItem(ACTIVE_ATTEMPT_KEY); show(emptyView); });

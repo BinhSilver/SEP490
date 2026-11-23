@@ -43,6 +43,9 @@
   var kanaAutoFilled = false;
   var editParam = null;
   try { editParam = new URLSearchParams(window.location.search).get('edit'); } catch (ignore) { editParam = null; }
+  // [JLAS-W0108] owner 23/11: ?retake=1 (from the past-result page) shows the start card instead of the old result
+  var retakeParam = false;
+  try { retakeParam = new URLSearchParams(window.location.search).get('retake') === '1'; } catch (ignore) { retakeParam = false; }
 
   function checkedValue(name) {
     var input = form.querySelector('input[name="' + name + '"]:checked');
@@ -218,10 +221,13 @@
     var keepsPath = Boolean(afterSurveyTarget) && Flow.keepsPath(pathStatus);
     var resumesSmartTest = Boolean(afterSurveyTarget) && !keepsPath && !fromZero;
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
+    var hasResult = Boolean(entryStatus && entryStatus.smartTest && entryStatus.smartTest.status === 'SUBMITTED');
     if (keepsPath) {
-      document.getElementById('inviteTitle').textContent = 'Lộ trình JLPT của bạn vẫn được giữ!';
-      document.getElementById('inviteText').textContent = 'Tiến độ học vẫn được giữ nguyên. Bạn có thể làm lại Smart Test để đo trình độ hiện tại; '
-        + 'ở trang kết quả, KotsuKotsu so cấp mới với lộ trình và cho bạn đổi cấp nếu cần.';
+      document.getElementById('inviteTitle').textContent = hasResult ? 'Làm lại Smart Test?' : 'Đo trình độ bằng Smart Test';
+      document.getElementById('inviteText').textContent = (hasResult
+        ? 'Bài mới thay cho kết quả lần trước. '
+        : 'Lộ trình hiện tại được tạo từ khảo sát, bạn chưa làm Smart Test. ')
+        + 'Lộ trình và tiến độ giữ nguyên; xong bài, bạn so cấp mới với lộ trình và tự chọn có đổi cấp hay không.';
     } else if (resumesSmartTest) {
       document.getElementById('inviteTitle').textContent = 'Kitsu đã lưu lịch học của bạn!';
       document.getElementById('inviteText').textContent = 'Bạn đã có bài Smart Test. Tiếp tục để xem kết quả và xác nhận lộ trình JLPT.';
@@ -238,7 +244,7 @@
     // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
     startTest.hidden = needsPathOnly && !keepsPath;
     var startLabel = startTest.querySelector('span');
-    if (startLabel) startLabel.textContent = keepsPath ? 'Làm lại Smart Test' : 'Bắt đầu Smart Test';
+    if (startLabel) startLabel.textContent = keepsPath ? (hasResult ? 'Làm bài mới' : 'Làm Smart Test') : 'Bắt đầu Smart Test';
     noTest = needsPathOnly;
     goHome.textContent = needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
     goHome.classList.toggle('smart-test-primary', needsPathOnly);
@@ -550,6 +556,10 @@
       if (startStep) {
         finishLoading();
         openWizard(startStep);
+      } else if (survey && !retakeParam && entryStatus && entryStatus.smartTest
+          && entryStatus.smartTest.status === 'SUBMITTED' && entryStatus.smartTest.attemptId) {
+        // owner 23/11: a learner who already took Smart Test sees that result first, not the start card
+        window.location.replace('/smart-test?attempt=' + encodeURIComponent(entryStatus.smartTest.attemptId));
       } else if (survey) {
         finishLoading();
         showInvitation(survey);
