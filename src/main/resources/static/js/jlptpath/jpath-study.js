@@ -27,7 +27,9 @@
  *   shouldShowSwipeHint(display, coarse), swipeHintHtml(), OFFLINE_TEXT, NEED_NETWORK_TEXT, CHECK_NEEDS_NETWORK_TEXT
  *   mountPage(doc)                     wires #jpathStudyRoot: events go through JpathOfflineQueue (one uuid each,
  *                                      flushed at once, again on 'online' and 'pagehide'); a flush answer syncs the
- *                                      session; a REJECTED outcome or a dropped batch reloads it
+ *                                      session; a REJECTED outcome reloads it and replays the refused and queued
+ *                                      ratings on it (rebase); a dropped batch reloads it. Leaving the page or loading
+ *                                      the next cards waits until nothing is pending (whenSaved: "Đang lưu", Thử lại)
  */
 (function (root, factory) {
   'use strict';
@@ -596,7 +598,9 @@
     // a check card carries no tab: it closes the run of cards before it, so its tab is that run's item type
     var checkAt = -1;
     var runType = c.itemType;
-    for (var i = 1; i < cards.length; i++) {
+    // a review or retype repeat goes to the very end on the server (JpathQueueBuilder.appendRepeat): placing it before
+    // a check here moved every later card one place, so the server refused the next ratings (STEP_MISMATCH)
+    for (var i = c.kind === 'NEW' ? 1 : cards.length; i < cards.length; i++) {
       var k = cards[i];
       if (!k) continue;
       if (k.kind === 'MICRO_CHECK') {
@@ -747,7 +751,6 @@
   // ---- page -----------------------------------------------------------------------------------------------
 
   var RATE_GUARD_MS = 300;
-  var LEAVE_WAIT_MS = 1500;
 
   function isTyping(doc) {
     var a = doc && doc.activeElement;
@@ -785,9 +788,11 @@
     } });
     page.queue = root.JpathOfflineQueue.create({ sessionId: sessionId, storage: safeStorage(),
       send: function (batch) { return api.send('POST', BASE + '/sessions/' + sessionId + '/events', { events: batch }); },
+      rejectedIds: rejectedIds,
       onChange: function (info) {
         if (info && info.dropped) dispatch(page, { type: 'DROPPED', n: info.dropped });
         else if (info && info.authRequired) setNotice(page, (info.error && info.error.message) || '');
+        else if (info && info.pending === 0 && page.waiting) settled(page); // a timed retry sent the last ones
       } });
     page.queue.attach(root);
     page.deps = { uuid: function () { return root.JpathOfflineQueue.uuid(root.crypto); }, now: Date.now };
@@ -834,8 +839,28 @@
   }
 
   function reload(page) {
+    page.loadFailed = false;
     return root.JpathApi.get(BASE + '/sessions/' + page.sessionId).then(function (s) { start(page, s); },
-      function (err) { setNotice(page, (err && (err.code || err.status) && err.message) || NEED_NETWORK_TEXT); });
+      function (err) {
+        page.loadFailed = true;
+        page.notice = (err && (err.code || err.status) && err.message) || NEED_NETWORK_TEXT;
+        draw(page);
+      });
+  }
+
+  /** Thử lại on the end screen: refused ratings first, then unsent ones, then the next cards. */
+  function retryEnd(page) {
+    page.offline = root.navigator && root.navigator.onLine === false;
+    if (page.replayLeft) {
+      var left = page.replayLeft;
+      page.replayLeft = null;
+      page.loadFailed = false;
+      replay(page, left);
+    } else if (page.waiting) {
+      whenSaved(page, page.waiting);
+    } else {
+      resync(page);
+    }
   }
 
   function setNotice(page, text) {
@@ -863,6 +888,11 @@
     if (r.effect) runEffect(page, r.effect);
   }
 
+  function rejectedIds(result) {
+    return list(result && result.outcomes).filter(function (o) { return o && o.status === 'REJECTED'; })
+      .map(function (o) { return o.clientEventId; });
+  }
+
   function afterFlush(page, res) {
     if (!res || !page.flow) return;
     var retype = page.flow.retype;
@@ -877,22 +907,118 @@
       if (mine) dispatch(page, { type: 'RETYPE_RESULT', outcome: mine });
     }
     if (outcomes.some(function (o) { return o && o.status === 'REJECTED'; })) {
-      // events still queued were made on the stale queue: drop them, the reloaded session is the truth
-      page.queue.clear();
-      reload(page);
+      // owner 23/11: the server refused a rating made on a stale queue; those ratings and the ones still queued are
+      // sent again on the reloaded session (same cards, same order) instead of being thrown away
+      replay(page, list(res.rejected));
       return;
     }
     if (batch.session) dispatch(page, { type: 'SERVER_SYNC', session: batch.session, pending: page.queue.pending().length });
   }
 
+  /** The study action that repeats {@code ev} on card {@code c}, or null when {@code c} is not that event's card. */
+  function replayAction(ev, c) {
+    if (!ev || !c || isCheck(c) || c.code !== ev.itemCode || c.itemType !== ev.itemType) return null;
+    if (ev.action === 'FIRST_RATE' && c.kind === 'NEW') {
+      return c.itemType === 'GRAMMAR' ? { type: 'NEXT', elapsedMs: ev.elapsedMs }
+        : { type: 'RATE', rating: ev.rating, code: c.code, elapsedMs: ev.elapsedMs };
+    }
+    if (ev.action === 'REVIEW_RATE' && c.kind === 'REVIEW') {
+      return { type: 'RATE', rating: ev.rating, code: c.code, elapsedMs: ev.elapsedMs };
+    }
+    return null;
+  }
+
+  /**
+   * Replays {@code events} (ratings the server has not applied) on {@code flow}, a session fresh from the server:
+   * {events: new events with the right positions, flow, rest: the ones that no longer fit (other card, end of the
+   * loaded cards)}.
+   */
+  function rebase(flow, events, deps) {
+    var f = flow;
+    var out = [];
+    var rest = list(events).slice();
+    while (rest.length) {
+      var act = replayAction(rest[0], f.cards[0]);
+      if (!act) break;
+      var r = reduce(f, act, deps);
+      if (!r.event) break;
+      out.push(r.event);
+      f = r.flow;
+      rest.shift();
+    }
+    return { flow: f, events: out, rest: rest };
+  }
+
+  var REPLAY_LOST_TEXT = ' thẻ không gửi được vì lượt học đã đổi, các thẻ đó sẽ được hỏi lại.';
+
+  function replay(page, rejected) {
+    page.replaying = true;
+    return root.JpathApi.get(BASE + '/sessions/' + page.sessionId).then(function (s) {
+      var events = list(rejected).concat(page.queue.pending());
+      page.queue.clear();
+      var fresh = initFlow(s);
+      fresh.lastType = page.flow ? page.flow.lastType : null;
+      var r = rebase(fresh, events, page.deps);
+      r.events.forEach(function (e) { page.queue.enqueue(e); });
+      page.flow = r.flow;
+      var more = r.rest.length > 0 && r.events.length > 0 && !r.flow.cards[0];
+      page.replaying = more;
+      if (r.rest.length && !more) page.notice = r.rest.length + REPLAY_LOST_TEXT;
+      draw(page);
+      var flushed = page.queue.flush();
+      if (more) {
+        return flushed.then(function () { return replay(page, r.rest); });
+      }
+      flushed.then(function (res) { afterFlush(page, res); settled(page); }, function () {});
+      var effect = stepEffect(page.flow);
+      if (effect) runEffect(page, effect);
+      return null;
+    }, function () {
+      page.replaying = false;
+      // the refused ratings stay on the page (the rest stay queued): Thử lại sends them on a fresh session
+      page.replayLeft = list(rejected);
+      page.loadFailed = true;
+      draw(page);
+    });
+  }
+
+  /** Runs {@code then} once every rating is on the server; the page shows "Đang lưu" (Thử lại when sending fails). */
+  function whenSaved(page, then) {
+    page.waiting = then;
+    page.saveFailed = false;
+    draw(page);
+    page.queue.flush().then(function (res) { afterFlush(page, res); settled(page); }, function () { settled(page); });
+  }
+
+  function settled(page) {
+    if (!page.waiting || page.replaying) return;
+    if (page.queue.pending().length) {
+      page.saveFailed = true;
+      draw(page);
+      return;
+    }
+    var then = page.waiting;
+    page.waiting = null;
+    page.saveFailed = false;
+    then();
+  }
+
   function leave(page, url) {
-    var wait = new Promise(function (resolve) { setTimeout(resolve, LEAVE_WAIT_MS); });
-    Promise.race([page.queue.flush().catch(function () {}), wait]).then(function () { root.location.assign(url); });
+    page.leaving = url;
+    whenSaved(page, function () {
+      draw(page);
+      root.location.assign(url);
+    });
+  }
+
+  /** The loaded cards ran out: wait for the ratings to reach the server, then load the next cards. */
+  function resync(page) {
+    whenSaved(page, function () { reload(page); });
   }
 
   function runEffect(page, effect) {
     if (effect.navigate) leave(page, effect.navigate);
-    else if (effect.reload) reload(page);
+    else if (effect.reload) resync(page);
     else if (effect.issueCheck) issueCheck(page, effect.issueCheck);
     else if (effect.play) D().playAudio(effect.play);
   }
@@ -1034,6 +1160,50 @@
     });
   }
 
+  // ---- end of the loaded cards (owner 23/11: never a blank "Đã học xong" while ratings are still being sent) -----
+
+  function endState(page) {
+    var f = page.flow || {};
+    var pending = page.queue ? page.queue.pending().length : 0;
+    return { pending: pending, saving: !!page.waiting || !!page.replaying || pending > 0,
+      failed: !!page.saveFailed, loadFailed: !!page.loadFailed || !!page.replayLeft,
+      finished: f.status === 'COMPLETED' || (Number(f.position) || 0) >= (Number(f.total) || 0),
+      backUrl: page.leaving && /^\/learning(?:[/?]|$)/.test(page.leaving) ? page.leaving : doneUrl(f),
+      notice: page.notice || '' };
+  }
+
+  function endHtml(st) {
+    var back = function (primary) {
+      return '<a class="jp-btn' + (primary ? ' jp-btn--primary' : '') + '" href="' + esc(st.backUrl) + '">Về Lộ trình học</a>';
+    };
+    var retry = '<button type="button" class="jp-btn jp-btn--primary" data-jp-retry-end>Thử lại</button>';
+    var title;
+    var text;
+    var actions = '';
+    if (st.saving && st.failed) {
+      title = 'Chưa gửi được ' + st.pending + ' kết quả';
+      text = 'Kết quả vẫn được giữ trên máy này. Kiểm tra mạng rồi bấm Thử lại.';
+      actions = retry + back(false);
+    } else if (st.loadFailed) {
+      title = 'Chưa tải được thẻ tiếp theo';
+      text = st.notice || NEED_NETWORK_TEXT;
+      actions = retry + back(false);
+    } else if (st.saving) {
+      title = 'Đang lưu kết quả';
+      text = st.pending > 0 ? 'Đang gửi ' + st.pending + ' thẻ vừa chấm lên máy chủ, chờ một chút.' : 'Đang hoàn tất lượt học, chờ một chút.';
+    } else if (st.finished) {
+      title = 'Đã học xong lượt này';
+      text = 'Kết quả đã được lưu.';
+      actions = back(true);
+    } else {
+      title = 'Đang tải thẻ tiếp theo';
+      text = 'Chờ một chút.';
+    }
+    return '<section class="jp-card jp-study-end" role="status" aria-live="polite"' + (st.saving && !st.failed ? ' aria-busy="true"' : '') + '>'
+      + '<h2 class="jp-study-end__title">' + esc(title) + '</h2><p class="jp-study-muted">' + esc(text) + '</p>'
+      + (actions ? '<div class="jp-study-end__actions">' + actions + '</div>' : '') + '</section>';
+  }
+
   function draw(page) {
     var el = page.el;
     var f = page.flow;
@@ -1050,7 +1220,7 @@
       : null;
     var banner = page.offline ? '<p class="jp-study-offline" role="status">' + esc(OFFLINE_TEXT) + '</p>' : '';
     if (!c) {
-      el.innerHTML = banner + '<p class="jp-study-muted" role="status">Đã học xong lượt này.</p>';
+      el.innerHTML = banner + endHtml(endState(page));
       return;
     }
     var body;
@@ -1082,6 +1252,7 @@
       + '<div class="jp-study-main">' + body + '<div class="jp-study-inline-check"'
       + ' data-jp-inline-check hidden></div></div>' + hint
       + ratingButtonsHtml(c, f.flipped, { retype: f.retype, flippedOnce: f.flippedOnce, flipCount: f.flipCount })
+      + (page.waiting && page.saveFailed ? endHtml(endState(page)) : '')
       + '<p class="jp-study-status" role="status" aria-live="polite" data-jp-status>' + esc(page.notice) + '</p>';
     if (page.blocked) {
       Array.prototype.forEach.call(el.querySelectorAll('.jp-rate-bar button, .jp-retype button'), function (b) {
@@ -1117,7 +1288,7 @@
 
   function rate(page, rating) {
     var c = current(page);
-    if (!c || page.blocked || elapsed(page) < RATE_GUARD_MS) return;
+    if (!c || page.blocked || page.replaying || page.waiting || elapsed(page) < RATE_GUARD_MS) return;
     dispatch(page, { type: 'RATE', rating: rating, code: c.code, elapsedMs: elapsed(page) });
   }
 
@@ -1170,6 +1341,7 @@
     if (btn) { rate(page, btn.getAttribute('data-jp-rate')); return; }
     if (t.closest('[data-jp-next]')) { next(page); return; }
     if (t.closest('[data-jp-skip]')) { skip(page); return; }
+    if (t.closest('[data-jp-retry-end]')) { retryEnd(page); return; }
     if (t.closest('[data-jp-retry-check]')) {
       var req = page.checkFailed;
       page.offline = root.navigator && root.navigator.onLine === false;
@@ -1236,7 +1408,8 @@
     else if (act.type === 'SUBMIT') next(page);
   }
 
-  return { newRun: newRun, listHtml: listHtml, afterFlush: afterFlush, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
+  return { newRun: newRun, listHtml: listHtml, afterFlush: afterFlush, rebase: rebase, replayAction: replayAction,
+    endState: endState, endHtml: endHtml, rejectedIds: rejectedIds, whenSaved: whenSaved, RATINGS: RATINGS, RATING_LABEL: RATING_LABEL, STEP_LABEL: STEP_LABEL, intervalLabel: intervalLabel,
     cardHtml: cardHtml, ratingButtonsHtml: ratingButtonsHtml, stepsHtml: stepsHtml, liveSteps: liveSteps, keyAction: keyAction,
     controlPatch: controlPatch, bindControls: bindControls, cardStepKey: cardStepKey, bumpSteps: bumpSteps, initFlow: initFlow, reduce: reduce, stepEffect: stepEffect,
     classifySwipe: classifySwipe, swipeAllowed: swipeAllowed, swipeRating: swipeRating, newCardEffect: newCardEffect,
