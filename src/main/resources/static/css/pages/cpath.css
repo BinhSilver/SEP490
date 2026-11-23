@@ -2344,3 +2344,9 @@ html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
 
 /* bug 17: why the 7th rest day did not turn on */
 .cp-survey__hint { margin: 6px 0 0; font-size: 13px; font-weight: 400; color: var(--jp-muted, inherit); }
+
+/* [JLAS-W0108] owner 23/11: the communication flashcard uses the same mould as the Flashcard page's card
+   (672px wide, 320px tall, 24px corners, white, thin border, no shadow) */
+.cp-flashcard-clip { width: 100%; max-width: 672px; margin-inline: auto; }
+.cp-flashcard { min-height: 320px; border-radius: 24px; border: 1px solid #cbc4d2; background: #fff; box-shadow: none; }
+html[data-theme="dark"] .cp-flashcard { background: var(--color-surface-lowest); border-color: var(--color-outline-variant); }
