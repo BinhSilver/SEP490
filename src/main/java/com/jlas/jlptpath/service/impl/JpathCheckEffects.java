@@ -500,20 +500,44 @@ public class JpathCheckEffects {
         JpathQueueStep next = q.get(session.getPosition());
         String url = STUDY_URL + session.getId();
         if (next.kind() == JpathStepKind.NEW) {
-            int count = 0;
-            for (int i = session.getPosition(); i < q.size(); i++) {
-                JpathQueueStep st = q.get(i);
-                if (st.kind() == JpathStepKind.NEW && st.tab() == next.tab() && !st.repeat()) {
-                    count++;
-                } else if (st.kind() == JpathStepKind.NEW && st.tab() != next.tab()) {
-                    break;
-                }
-            }
-            String label = count > 0 ? "Tiếp: " + tabLabel(next.tab()) + " mới (" + count + ")" : "Tiếp tục";
+            int count = remainingNew(q, session.getPosition(), next.tab());
+            String label = count > 0 ? "Tiếp: " + tabLabel(next.tab()) + " mới · còn " + count + " " + unit(next.tab())
+                    : "Tiếp tục";
             return new JpathCheckNext("CONTINUE", label, url, next.tab(), count > 0 ? count : null,
                     session.getId());
         }
         return new JpathCheckNext("CONTINUE", "Tiếp tục", url, next.tab(), null, session.getId());
+    }
+
+    /**
+     * Owner 23/11: what is left of the run of {@code tab} from {@code from}, in the unit of the study page step bar:
+     * kana rows (KANA_ROW checks) for Chữ cái — "Chữ cái mới (13)" counted letters while the bar counted rows —,
+     * new items (repeats left out) otherwise.
+     */
+    static int remainingNew(List<JpathQueueStep> q, int from, JpathTab tab) {
+        int count = 0;
+        for (int i = Math.max(0, from); i < q.size(); i++) {
+            JpathQueueStep st = q.get(i);
+            if (st.kind() == JpathStepKind.NEW && st.tab() != tab) {
+                break;
+            }
+            boolean counts = tab == JpathTab.KANA ? st.checkKind() == JpathCheckKind.KANA_ROW
+                    : st.kind() == JpathStepKind.NEW && st.tab() == tab && !st.repeat();
+            if (counts) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    static String unit(JpathTab tab) {
+        return switch (tab) {
+            case VOCAB -> "từ";
+            case KANJI -> "chữ";
+            case GRAMMAR -> "mẫu";
+            case KANA -> "hàng";
+            case SKILL -> "phần";
+        };
     }
 
     static String tabLabel(JpathTab tab) {

@@ -10,6 +10,9 @@
  *   pending(), attach(win) ('online' -> flush), resume(), clear()
  * Events are saved under KEY_PREFIX + sessionId; when storage is missing or throws the queue lives in memory.
  * Resending is safe: the server applies events idempotently by eventId.
+ * rejectedIds(result) (option): ids of the events the server refused in a sent batch; the run then stops there, the
+ *   outcome carries those events as {rejected:[...]} and the events after them stay queued, in order, so the page can
+ *   send them again on a fresh session (never a silent loss of later events).
  * F144: two tabs of one session share the key — every save and flush first takes in the events the other tab stored
  * (by clientEventId), leaving out those this tab already sent or dropped, so neither tab wipes the other's events.
  */
@@ -42,6 +45,7 @@
     var send = opts.send;
     var schedule = opts.setTimeout || (root && root.setTimeout ? root.setTimeout.bind(root) : setTimeout);
     var onChange = typeof opts.onChange === 'function' ? opts.onChange : function () {};
+    var rejectedIds = typeof opts.rejectedIds === 'function' ? opts.rejectedIds : function () { return []; };
     var gone = {};
     var events = load();
     var running = null;
@@ -115,6 +119,14 @@
           failures = 0;
           outcome.sent += batch.length;
           outcome.result = result;
+          var refused = {};
+          (rejectedIds(result) || []).forEach(function (id) { refused['id:' + id] = true; });
+          var rejected = batch.filter(function (e) { return refused[idOf(e)]; });
+          if (rejected.length) {
+            outcome.rejected = rejected;
+            outcome.kept = events.length;
+            return outcome;
+          }
           return next();
         }, function (err) {
           if (isRejected(err)) {

@@ -928,12 +928,17 @@ public class JpathStudyServiceImpl implements JpathStudyService {
 
     /**
      * Segments of the queue in order of first appearance: REVIEW (reviews, retypes, the grammar review),
-     * SKILL_QUIZ (skill-day check), otherwise the step's tab; done = steps before {@code position}.
+     * SKILL_QUIZ (skill-day check), otherwise the step's tab; done = steps before {@code position}. Owner 23/11: KANA
+     * counts kana rows (its KANA_ROW checks), the unit of the path page ("Chữ cái 1/4 hàng"), not the letters.
      */
-    private static List<JpathCombinedStep> segments(List<JpathQueueStep> q, int position) {
+    static List<JpathCombinedStep> segments(List<JpathQueueStep> q, int position) {
         Map<String, int[]> counts = new LinkedHashMap<>();
         for (int i = 0; i < q.size(); i++) {
-            int[] c = counts.computeIfAbsent(segment(q.get(i)), x -> new int[2]);
+            String seg = segment(q.get(i));
+            int[] c = counts.computeIfAbsent(seg, x -> new int[2]);
+            if ("KANA".equals(seg) && q.get(i).checkKind() != JpathCheckKind.KANA_ROW) {
+                continue;
+            }
             c[1]++;
             if (i < position) {
                 c[0]++;

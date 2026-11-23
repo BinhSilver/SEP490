@@ -122,7 +122,8 @@
       return t && t.tab !== 'SKILL' && num(t.newTarget) > 0;
     }).map(function (t) {
       return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '" data-pill-tab="' + esc(String(t.tab || '').toLowerCase()) + '">'
-        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget)) + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
+        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget) + (t.tab === 'KANA' ? ' hàng' : ''))
+        + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
     }).join('');
     return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
   }
@@ -145,15 +146,35 @@
     return target(today, 'KANA');
   }
 
+  /** Something left to do today in the tab {@code key} (new items or due reviews). */
+  function hasWork(today, key) {
+    var t = todayTab(today, code(key));
+    return !!t && !t.done && (num(t.newTarget) > num(t.newDone) || num(t.reviewDue) > 0);
+  }
+
+  /**
+   * Owner 23/11: the tab "Học riêng … (Tách)" opens: the active tab when it has work today, else the first one that
+   * has (kana stage: Chữ cái, not Từ vựng with 0 new words); null when no tab has anything to do.
+   */
+  function splitTabFor(today, activeTab) {
+    var first = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
+    if (!today || hasWork(today, first)) return first;
+    var order = ['kana', 'vocab', 'kanji', 'grammar'];
+    for (var i = 0; i < order.length; i++) if (hasWork(today, order[i])) return order[i];
+    return null;
+  }
+
   function modeButtonsHtml(today, path, activeTab) {
     var p = path || {};
     var suggested = p.suggestedMode || 'COMBINED';
-    var splitTab = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
+    var splitTab = splitTabFor(today, activeTab);
     var defs = [
       { mode: 'COMBINED', label: 'Học hôm nay (Gộp)',
-        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' },
-      { mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
-        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' }];
+        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' }];
+    if (splitTab) {
+      defs.push({ mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
+        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' });
+    }
     var html = defs.map(function (def) {
       var on = def.mode === suggested;
       var out = '<div class="jp-mode' + (on ? ' jp-suggested' : '') + '">'
@@ -318,8 +339,14 @@
     if (g > 0) parts.push(g + ' mẫu');
     var line = parts.length ? ('Hôm nay học ' + parts.join(' · ')) : 'Hôm nay ôn tập các mục đến hạn';
     var mins = num(t && t.estimatedMinutes);
-    if (mins > 0) line += ', khoảng ' + mins + ' phút';
+    if (mins > 0) line += ', ' + minutesWords(t, mins);
     return line;
+  }
+
+  /** Owner 23/11: the server gives what is left (the study page's minutes), so a started day says "còn khoảng". */
+  function minutesWords(t, mins) {
+    var started = list(t && t.tabs).some(function (x) { return x && num(x.newDone) > 0; });
+    return (started ? 'còn khoảng ' : 'khoảng ') + mins + ' phút';
   }
 
   /**
@@ -448,7 +475,7 @@
     if (t.kind === 'SKILL') return 'Ngày kỹ năng · Đọc, Nghe và ôn tập';
     if (t.kind === 'REST') return 'Ngày nghỉ · không có bài bắt buộc';
     if (t.kind === 'REVIEW_ONLY') return 'Ngày ôn · chỉ ôn thẻ đến hạn';
-    if (t.kanaPhase) return 'Hôm nay học ' + kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ';
+    if (t.kanaPhase) return 'Hôm nay học ' + kanaRows(t) + ' hàng chữ cái' + (target(t, 'VOCAB') > 0 ? ' · ' + target(t, 'VOCAB') + ' từ' : '');
     return studySummaryText(t);
   }
 
@@ -522,7 +549,8 @@
         + '</div>' + missed + end;
     }
     if (t.kanaPhase) {
-      var summary = kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút';
+      var summary = kanaRows(t) + ' hàng chữ cái' + (target(t, 'VOCAB') > 0 ? ' · ' + target(t, 'VOCAB') + ' từ mới' : '')
+        + (num(t.estimatedMinutes) > 0 ? ' · ' + minutesWords(t, num(t.estimatedMinutes)) : '');
       html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
       return html + modeButtonsHtml(t, path, activeTab)
         + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
@@ -610,5 +638,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, skillDaySteps: skillDaySteps, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { splitTabFor: splitTabFor, UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, skillDaySteps: skillDaySteps, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });
