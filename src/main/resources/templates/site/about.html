@@ -1,38 +1,127 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!-- [JLAS-W0108] F220 (owner 22/11): public About page (/about); static content, the same for guests and members. -->
+<!-- [JLAS-W0108] F220 (owner 22-23/11): public About page (/about), linked from the site footer "Giới thiệu".
+     Static content only, the same for guests and members (guest pages never show user data). -->
 <head th:replace="~{fragments/head :: standard('Giới thiệu - KotsuKotsu', null)}"></head>
 <link rel="stylesheet" th:href="@{/css/site-footer.css(v=20261123c)}" />
+<link rel="stylesheet" th:href="@{/css/pages/site-about.css(v=20261123a)}" />
 <body id="jlabBasePage" class="app-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="site-page">
-    <section class="site-page__hero">
-        <p class="site-page__kicker">Giới thiệu</p>
-        <h1>KotsuKotsu: học tiếng Nhật mỗi ngày một chút</h1>
-        <p class="site-page__lead"><span lang="ja">こつこつ</span> nghĩa là đều đặn từng chút một. KotsuKotsu giúp bạn học tiếng Nhật theo đúng trình độ của mình, mỗi ngày một lượng vừa sức, và thấy rõ mình đang tiến bộ.</p>
+<main id="jlabBaseContent" class="about">
+
+    <section class="about-hero" aria-labelledby="aboutTitle">
+        <div class="about-hero__text">
+            <h1 id="aboutTitle">Học tiếng Nhật mỗi ngày một chút, và thấy mình tiến bộ</h1>
+            <p class="about-hero__lead">KotsuKotsu đưa bạn vào đúng trình độ của mình, chia bài vừa sức cho từng ngày và nhắc ôn đúng lúc. Bạn chỉ cần mở ra và học phần của hôm nay.</p>
+            <div class="about-hero__actions">
+                <a class="btn btn--primary" th:href="@{/learning}">Xem lộ trình học</a>
+                <a class="btn btn--secondary" th:href="@{/survey}">Làm Smart Test</a>
+            </div>
+        </div>
+
+        <figure class="about-word" aria-label="こつこつ (kotsu kotsu): đều đặn, từng chút một">
+            <div class="about-word__sheet" aria-hidden="true">
+                <span class="about-word__cell"><b lang="ja">こ</b><i>ko</i></span>
+                <span class="about-word__cell"><b lang="ja">つ</b><i>tsu</i></span>
+                <span class="about-word__cell"><b lang="ja">こ</b><i>ko</i></span>
+                <span class="about-word__cell"><b lang="ja">つ</b><i>tsu</i></span>
+            </div>
+            <figcaption>
+                <span class="about-word__reading">kotsu kotsu</span>
+                <span>đều đặn, từng chút một. Tên của chúng tôi cũng là cách chúng tôi tin người ta học được một ngôn ngữ.</span>
+            </figcaption>
+            <img class="about-word__kitsu" th:src="@{/images/mascots/kitsu/kitsu-waving.svg}" alt="" width="120" height="74" />
+        </figure>
     </section>
 
-    <h2>Có gì trong KotsuKotsu</h2>
-    <div class="site-page__grid">
-        <div class="site-page__card"><h3>Lộ trình JLPT N5 đến N1</h3><p>Bắt đầu từ trình độ thật của bạn sau Smart Test, mỗi ngày học từ vựng, Kanji, ngữ pháp và luyện Đọc, Nghe.</p></div>
-        <div class="site-page__card"><h3>Lộ trình giao tiếp</h3><p>Học nói theo tình huống thật: chào hỏi, mua sắm, đi lại, công việc.</p></div>
-        <div class="site-page__card"><h3>Công cụ học</h3><p>Từ điển, flashcard, luyện viết chữ, shadowing, gọi AI để luyện nói và mini-game.</p></div>
-        <div class="site-page__card"><h3>Cộng đồng</h3><p>Chia sẻ, hỏi đáp và học cùng những người cũng đang học tiếng Nhật.</p></div>
-    </div>
+    <section class="about-steps" aria-labelledby="aboutStepsTitle">
+        <h2 id="aboutStepsTitle">Lộ trình đi cùng bạn thế nào</h2>
+        <ol class="about-steps__list">
+            <li>
+                <h3>Bắt đầu đúng chỗ</h3>
+                <p>Khảo sát ngắn và Smart Test cho biết bạn đang ở đâu. Phần đã biết thì kiểm tra nhanh rồi bỏ qua.</p>
+            </li>
+            <li>
+                <h3>Mỗi ngày vừa sức</h3>
+                <p>Bạn chọn số từ mới mỗi ngày. Kanji và ngữ pháp được chia theo để cả ba xong cùng lúc.</p>
+            </li>
+            <li>
+                <h3>Ôn trước khi quên</h3>
+                <p>Thẻ bạn hay quên quay lại sớm hơn, thẻ đã nhớ chắc thì giãn ra. Ngày Đọc và Nghe chọn dạng bài bạn còn yếu.</p>
+            </li>
+            <li>
+                <h3>Thấy rõ tiến bộ</h3>
+                <p>Lịch học, chuỗi ngày, huy hiệu và bài thi thử cuối mỗi cấp. Đạt thì lên cấp tiếp theo.</p>
+            </li>
+        </ol>
+    </section>
 
-    <h2>Lộ trình giúp bạn thế nào</h2>
-    <ul>
-        <li>Bắt đầu đúng chỗ: phần bạn đã biết thì kiểm tra nhanh rồi bỏ qua, không phải học lại.</li>
-        <li>Mỗi ngày vừa sức: bạn chọn số từ mới mỗi ngày, lộ trình tự chia Kanji và ngữ pháp cho đều.</li>
-        <li>Ôn đúng lúc: những gì vừa học sẽ quay lại để ôn trước khi bạn kịp quên.</li>
-        <li>Thấy rõ tiến bộ: lịch học, huy hiệu, thống kê và bài thi thử cho từng cấp.</li>
-    </ul>
+    <section class="about-features" aria-labelledby="aboutFeaturesTitle">
+        <h2 id="aboutFeaturesTitle">Có gì trong KotsuKotsu</h2>
+        <div class="about-features__groups">
+            <div class="about-features__group">
+                <h3>Lộ trình</h3>
+                <a class="about-feature" th:href="@{/learning}">
+                    <i class="fa-solid fa-route" aria-hidden="true"></i>
+                    <span><strong>Lộ trình JLPT N5 đến N1</strong><small>Từ vựng, Kanji, ngữ pháp mỗi ngày, luyện Đọc và Nghe theo tuần.</small></span>
+                </a>
+                <a class="about-feature" th:href="@{/learning}">
+                    <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                    <span><strong>Lộ trình giao tiếp</strong><small>Học nói theo tình huống: đời sống, du lịch, công việc BrSE.</small></span>
+                </a>
+            </div>
+            <div class="about-features__group">
+                <h3>Công cụ học</h3>
+                <a class="about-feature" th:href="@{/dictionary}">
+                    <i class="fa-solid fa-book" aria-hidden="true"></i>
+                    <span><strong>Từ điển và Kanji</strong><small>Tra từ, xem nét viết, lược đồ Kanji.</small></span>
+                </a>
+                <a class="about-feature" th:href="@{/flashcard/library.html}">
+                    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                    <span><strong>Flashcard</strong><small>Bộ thẻ có sẵn hoặc tự tạo, ôn theo lịch.</small></span>
+                </a>
+                <a class="about-feature" th:href="@{/shadowing}">
+                    <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                    <span><strong>Shadowing và AI Call</strong><small>Nói theo video, gọi AI để luyện hội thoại.</small></span>
+                </a>
+                <a class="about-feature" th:href="@{/games}">
+                    <i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i>
+                    <span><strong>Mini-game</strong><small>Ôn từ và chữ qua trò chơi ngắn.</small></span>
+                </a>
+            </div>
+            <div class="about-features__group">
+                <h3>Cùng học</h3>
+                <a class="about-feature" th:href="@{/community}">
+                    <i class="fa-solid fa-people-group" aria-hidden="true"></i>
+                    <span><strong>Cộng đồng</strong><small>Hỏi đáp, chia sẻ cách học với người cùng mục tiêu.</small></span>
+                </a>
+                <a class="about-feature" th:href="@{/jlpt}">
+                    <i class="fa-solid fa-file-pen" aria-hidden="true"></i>
+                    <span><strong>Đề thi JLPT</strong><small>Làm đề thử có tính giờ, xem lại từng câu.</small></span>
+                </a>
+            </div>
+        </div>
+    </section>
 
-    <h2>Đội ngũ</h2>
-    <p>KotsuKotsu là đồ án tốt nghiệp (SEP490) của một nhóm sinh viên Trường Đại học FPT. Chúng tôi xây dựng KotsuKotsu cho chính những người học như mình: bận rộn, muốn học đều, và cần biết hôm nay nên học gì.</p>
+    <section class="about-team" aria-labelledby="aboutTeamTitle">
+        <p class="about-team__mark" lang="ja" aria-hidden="true">毎日、こつこつ。</p>
+        <div class="about-team__body">
+            <h2 id="aboutTeamTitle">Về chúng tôi</h2>
+            <p>KotsuKotsu là đồ án tốt nghiệp (SEP490) của một nhóm sinh viên Trường Đại học FPT. Chúng tôi cũng là người học tiếng Nhật: bận rộn, muốn học đều, và nhiều hôm mở sách ra không biết nên học gì trước.</p>
+            <p>Vì vậy chúng tôi làm một nơi trả lời câu hỏi đó mỗi ngày: hôm nay học gì, học bao nhiêu, và mình đã đi được bao xa.</p>
+        </div>
+    </section>
 
-    <h2>Góp ý</h2>
-    <p>Gặp lỗi trong bài học? Bấm "Báo sai" ngay trong bài. Muốn góp ý thêm, hãy viết cho chúng tôi trong <a th:href="@{/community}">Cộng đồng</a>. Xem thêm <a th:href="@{/policy}">Chính sách người dùng</a>.</p>
+    <section class="about-contact" aria-labelledby="aboutContactTitle">
+        <div>
+            <h2 id="aboutContactTitle">Góp ý cho chúng tôi</h2>
+            <p>Gặp lỗi trong bài học, bấm "Báo sai" ngay trong bài. Muốn đề xuất thêm, hãy viết trong Cộng đồng.</p>
+        </div>
+        <div class="about-contact__actions">
+            <a class="btn btn--primary" th:href="@{/community}">Viết góp ý</a>
+            <a class="btn btn--secondary" th:href="@{/policy}">Chính sách người dùng</a>
+        </div>
+    </section>
 </main>
 <th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
