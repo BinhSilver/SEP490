@@ -278,7 +278,7 @@
     ];
     if (en.skillDays && en.skillDays.length) rows.push(['Ngày kỹ năng', days(en.skillDays)]);
     rows.push(['Ngày nghỉ', en.restDays && en.restDays.length ? days(en.restDays) : 'Không có']);
-    rows.push(['Smart Test', fromZero ? 'Chưa làm. Học xong bảng chữ cái là làm được.' : 'Chưa làm']);
+    if (!fromZero) rows.push(['Smart Test', 'Chưa làm (không bắt buộc)']);
     return rows;
   }
 
@@ -295,8 +295,10 @@
     }
     if (eyebrow) eyebrow.textContent = 'Điểm bắt đầu của bạn';
     document.getElementById('inviteTitle').textContent = data.fromZero ? 'Bạn bắt đầu từ bảng chữ cái' : 'Lộ trình của bạn đến từ khảo sát';
-    document.getElementById('inviteText').textContent = 'Bạn chưa làm Smart Test, nên điểm bắt đầu lấy từ khảo sát. '
-      + 'Muốn đo trình độ thật thì làm Smart Test; lộ trình và tiến độ giữ nguyên.';
+    // owner 23/11: a learner new to Japanese does not need Smart Test at all; never word it as a missing step
+    document.getElementById('inviteText').textContent = data.fromZero
+      ? 'Bạn chưa học tiếng Nhật nên lộ trình bắt đầu từ bảng chữ cái, không cần làm bài kiểm tra đầu vào.'
+      : 'Lộ trình dựa trên khảo sát của bạn. Nếu muốn biết mình đang ở cấp nào, bạn có thể làm Smart Test bất cứ lúc nào; lộ trình và tiến độ giữ nguyên.';
     var dl = document.createElement('dl');
     dl.id = 'surveyEntrySummary';
     dl.className = 'survey-entry-summary';
@@ -307,9 +309,10 @@
       item.append(dt, dd); dl.appendChild(item);
     });
     document.getElementById('inviteText').after(dl);
-    // the path is the main way on; Smart Test stays one click away
+    // the path is the main way on; Smart Test stays one click away, and is not offered to a learner new to Japanese
     startTest.className = 'smart-test-secondary';
     if (actions) actions.appendChild(startTest);
+    startTest.hidden = Boolean(data.fromZero);
   }
 
   function getVietnamToday() {
