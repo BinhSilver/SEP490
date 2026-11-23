@@ -73,6 +73,9 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
     private ObjectProvider<JpathRewardHook> hooks;
     @Autowired
     private ObjectProvider<JpathDayCompletion> completion;
+    // F238: carried skill sessions (field-injected so the constructor stays as it was)
+    @Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathCalendarService calendar;
     private final TransactionTemplate tx;
     private final TransactionTemplate readTx;
 
@@ -127,7 +130,20 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         List<VisibleSet> sets;
         if (r.kind() == JpathSkillSessionKind.DAY) {
             if (plan.getDayKind() != JpathDayKind.SKILL) {
-                throw new ApiException(ErrorCode.JPATH_SKILL_NOT_SKILL_DAY);
+                // F238: a normal study day takes one session carried from earlier weeks, nothing else
+                JpathSkillCarry.Carry carry = carryOf(path, plan.getStudyDay());
+                if (!carry.offerToday() && carry.owed() <= 0) {
+                    throw new ApiException(ErrorCode.JPATH_SKILL_NOT_SKILL_DAY);
+                }
+                if (!carry.offerToday()) {
+                    Optional<JpathSkillSession> paidToday = sessions
+                            .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(userId,
+                                    plan.getId(), r.skill(), JpathSkillSessionKind.DAY);
+                    if (paidToday.isPresent()) {
+                        return paidToday.get().getId();
+                    }
+                    throw new ApiException(ErrorCode.JPATH_SKILL_NOT_SKILL_DAY);
+                }
             }
             Optional<JpathSkillSession> doneToday = sessions
                     .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(userId,
@@ -154,6 +170,36 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                 .reused(pick.reused()).studyDay(plan.getStudyDay()).startedAt(clock.now()).build());
         ensureTokens(s, true);
         return s.getId();
+    }
+
+    @Override
+    public com.jlas.jlptpath.dto.JpathSkillCarryView carry(Long userId) {
+        return readTx.execute(status -> {
+            JpathUserPath path = paths.findFirstByUserIdAndStatusAndArchivedAtIsNullOrderByIdDesc(userId,
+                    com.jlas.jlptpath.enums.JpathPathStatus.ACTIVE).orElse(null);
+            if (path == null) {
+                return new com.jlas.jlptpath.dto.JpathSkillCarryView(0, "READING", false, false);
+            }
+            java.time.LocalDate today = clock.today(userId);
+            JpathSkillCarry.Carry carry = carryOf(path, today);
+            JpathDailyPlan plan = plans == null ? null : plans.findByUserIdAndStudyDay(userId, today).orElse(null);
+            boolean studyDay = plan == null || plan.getDayKind() == JpathDayKind.STUDY;
+            return new com.jlas.jlptpath.dto.JpathSkillCarryView(carry.owed(), carry.skill().name(),
+                    studyDay && carry.offerToday(), carry.doneToday());
+        });
+    }
+
+    /** F238: carried skill sessions of the path on {@code day} (none without the calendar, e.g. hand-built tests). */
+    private JpathSkillCarry.Carry carryOf(JpathUserPath path, java.time.LocalDate day) {
+        if (calendar == null || plans == null || levels == null) {
+            return JpathSkillCarry.Carry.NONE;
+        }
+        com.jlas.jlptpath.enums.JpathStage stage = levels.findById(new com.jlas.jlptpath.entity.JpathUserLevelId(path.getId(), path.getOpenLevel()))
+                .map(com.jlas.jlptpath.entity.JpathUserLevel::getStage).orElse(null);
+        if (stage == null) {
+            return JpathSkillCarry.Carry.NONE;
+        }
+        return JpathSkillCarry.compute(calendar, plans, sessions, path, stage, day);
     }
 
     /** FREE: a visible type of the requested skill, at the open level or a lower one, whose lesson is visible. */

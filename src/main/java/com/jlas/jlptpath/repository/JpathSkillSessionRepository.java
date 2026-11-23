@@ -29,6 +29,10 @@ public interface JpathSkillSessionRepository extends JpaRepository<JpathSkillSes
     long countByUserIdAndKindAndStudyDayBetweenAndCompletedAtIsNotNull(Long userId, JpathSkillSessionKind kind,
             LocalDate from, LocalDate to);
 
+    /** F238: completed sessions of one kind with {@code from <= study_day <= to} (owed skill sessions). */
+    List<JpathSkillSession> findByUserIdAndKindAndStudyDayBetweenAndCompletedAtIsNotNull(Long userId,
+            JpathSkillSessionKind kind, LocalDate from, LocalDate to);
+
     /** The session when it is the learner's (another learner's id reads as absent). */
     Optional<JpathSkillSession> findByIdAndUserId(Long id, Long userId);
 

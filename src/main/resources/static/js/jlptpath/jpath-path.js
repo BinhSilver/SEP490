@@ -37,6 +37,7 @@
   var PATH_URL = '/api/learning/jlpt/path';
   var SKILLS_OVERVIEW_URL = '/api/learning/jlpt/skills/overview';
   var SKILL_SESSIONS_URL = '/api/learning/jlpt/skills/sessions';
+  var SKILL_CARRY_URL = '/api/learning/jlpt/skills/carry';
   // owner 22/11 (F229): "Học hôm nay" on a skill day runs Đọc → Nghe → Ôn in a row; the run lives for this tab and day
   var DAY_RUN_KEY = 'jlasDayRun';
   var DAY_RUN_DELAY_MS = 2500;
@@ -363,6 +364,27 @@
       + out.slice(0, 4).map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></section>';
   }
 
+  /**
+   * F238 (owner 23/11): Đọc · Nghe sessions left from earlier weeks are carried, not dropped on Monday; a normal study
+   * day takes one of them after the main lesson. Empty when nothing is owed or today is not a normal study day.
+   */
+  function carryHtml(carry) {
+    var c = carry || {};
+    var owed = Number(c.owed) || 0;
+    if (owed <= 0 || (!c.offerToday && !c.doneToday)) return '';
+    var skillName = c.skill === 'LISTENING' ? 'Nghe hiểu' : 'Đọc hiểu';
+    if (!c.offerToday) {
+      return '<section class="jp-card jp-carry" aria-label="Bài kỹ năng còn nợ"><p class="jp-carry__text">Hôm nay bạn đã làm bù 1 bài kỹ năng. '
+        + 'Còn ' + owed + ' bài Đọc, Nghe từ tuần trước, ngày học sau làm tiếp.</p></section>';
+    }
+    return '<section class="jp-card jp-carry" aria-labelledby="jp-carry-title">'
+      + '<h3 class="jp-carry__title" id="jp-carry-title">Bù bài kỹ năng tuần trước</h3>'
+      + '<p class="jp-carry__text">Tuần trước còn ' + owed + ' bài Đọc, Nghe chưa làm. Mỗi ngày học bạn làm thêm 1 bài sau bài chính, '
+      + 'hôm nay là bài ' + skillName + '.</p>'
+      + '<button type="button" class="jp-btn jp-btn--sm" data-action="start-skill" data-skill="' + (c.skill === 'LISTENING' ? 'LISTENING' : 'READING')
+      + '">Làm bài ' + skillName + '</button></section>';
+  }
+
   function weekGuideHtml(path, today) {
     var p = path || {};
     var skill = list(p.skillDays);
@@ -374,7 +396,7 @@
         + (Number(s.kanji) || 0) + ' Kanji, ' + (Number(s.grammar) || 0) + ' mẫu ngữ pháp') + ', rồi ôn các thẻ đến hạn.</li>'
       + '<li><strong>Ngày kỹ năng</strong>' + esc(names(skill)) + ': không học mới; làm 1 buổi Đọc và 1 buổi Nghe, ôn các thẻ đến hạn.</li>'
       + (rest.length ? '<li><strong>Ngày nghỉ</strong>' + esc(names(rest)) + ': không có bài.</li>' : '')
-      + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù.</li>';
+      + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù. Hết tuần vẫn còn thì sang tuần sau, mỗi ngày học làm thêm 1 bài.</li>';
     return '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
       + '<p class="jp-muted">Đổi số từ mới mỗi ngày, ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
       + 'Cài đặt lộ trình</a>.</p></details>';
@@ -511,7 +533,7 @@
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
         { skills: state.skills, why: '',
           side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') })
-        + whyTodayHtml(p, state.today));
+        + whyTodayHtml(p, state.today) + carryHtml(state.carry));
       filterWeeklyButtons(slot(rootEl, 'today'), p, state.today);
     }
 
@@ -598,6 +620,12 @@
       return Promise.resolve().then(function () { return apiClient.get(TODAY_URL); }).then(function (t) {
         state.today = t;
         state.todayFailed = false;
+        state.carry = null;
+        // F238: a normal study day may carry one Đọc · Nghe session left from earlier weeks
+        if (t && t.kind === 'STUDY' && !t.kanaPhase) {
+          return Promise.resolve().then(function () { return apiClient.get(SKILL_CARRY_URL); })
+            .then(function (c) { state.carry = c || null; state.skills = null; }, function () { state.carry = null; state.skills = null; });
+        }
         // a skill day lists its Reading and Listening sessions: their type of the day and state come from the overview
         if (!t || t.kind !== 'SKILL') { state.skills = null; return null; }
         return Promise.resolve().then(function () { return apiClient.get(SKILLS_OVERVIEW_URL); })
@@ -875,7 +903,7 @@
     premiumBoxHtml: premiumBoxHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
-    whyTodayHtml: whyTodayHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
+    whyTodayHtml: whyTodayHtml, carryHtml: carryHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     filterWeeklyButtons: filterWeeklyButtons,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });
