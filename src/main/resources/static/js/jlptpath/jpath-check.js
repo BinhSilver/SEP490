@@ -1320,24 +1320,33 @@
     return mount(el, token, o);
   }
 
+  /**
+   * One back action on the check page. Owner 22/11: the crumb "Quay về Lộ trình JLPT" already goes back to the path,
+   * so the extra button is hidden. Owner 23/11: inside a study round the crumb itself goes back to the round
+   * ("Quay lại buổi học") instead of a second button next to "Quay về Lộ trình JLPT".
+   */
+  function setBackLinks(d, search) {
+    var backUrl = nextHref(null, search);
+    var exitLink = d.querySelector('[data-check-exit]');
+    if (exitLink) exitLink.hidden = true;
+    if (!/\/learning\/jlpt\/study/.test(backUrl)) return;
+    var crumb = d.querySelector('.jp-check-topBar .jp-back');
+    if (crumb) {
+      crumb.setAttribute('href', backUrl);
+      var label = crumb.querySelector('span');
+      if (label) label.textContent = 'Quay lại buổi học';
+    } else if (exitLink) {
+      exitLink.setAttribute('href', backUrl);
+      exitLink.textContent = 'Quay lại buổi học';
+      exitLink.hidden = false;
+    }
+  }
+
   function mountPage(doc) {
     var d = doc || (root && root.document);
     var el = d && d.getElementById && d.getElementById('jpathCheckRoot');
     if (!el) return null;
-    if (d && d.querySelector && root && root.location) {
-      var exitLink = d.querySelector('[data-check-exit]');
-      if (exitLink) {
-        var backUrl = nextHref(null, root.location.search);
-        exitLink.setAttribute('href', backUrl);
-        if (/\/learning\/jlpt\/study/.test(backUrl)) {
-          exitLink.textContent = '← Quay lại buổi học';
-        } else {
-          // owner 22/11: the crumb "Quay về Lộ trình JLPT" already goes back to the path (the CSS rule only caught a
-          // bare "/learning"; a back link with a query string stayed as a second, smaller button)
-          exitLink.hidden = true;
-        }
-      }
-    }
+    if (d && d.querySelector && root && root.location) setBackLinks(d, root.location.search);
     return mount(el, el.getAttribute('data-check-token') || '', {});
   }
 
@@ -1348,7 +1357,7 @@
 
   return { KIND_TITLE: KIND_TITLE, initState: initState, parts: parts, headerHtml: headerHtml, boardReduce: boardReduce,
     answerReduce: answerReduce, orderReduce: orderReduce, questionState: questionState, questionHtml: questionHtml,
-    timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
+    setBackLinks: setBackLinks, timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
     timerOffPatch: timerOffPatch, audioUrl: audioUrl, questionStart: questionStart, submitKey: submitKey, resultHtml: resultHtml,
     reviewWrongHtml: reviewWrongHtml, retryRequest: retryRequest, nextHref: nextHref, checkPageUrl: checkPageUrl,
     safeReturn: safeReturn, skillSessionHref: skillSessionHref, wrongLine: wrongLine, mount: mount, mountPage: mountPage, mountInline: mountInline };
