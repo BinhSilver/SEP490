@@ -1183,7 +1183,7 @@
 
   /** "Làm bài kiểm tra": the list counts as seen (FIRST_RATE REMEMBERED each); the path's check decides. */
   function finishList(page) {
-    if (page.blocked) return;
+    if (page.blocked || page.replaying || page.waiting) return;
     var run = newRun(page.flow);
     run.forEach(function (c) {
       var cur = current(page);
@@ -1337,7 +1337,7 @@
   }
 
   function next(page) {
-    if (page.blocked) return;
+    if (page.blocked || page.replaying || page.waiting) return;
     dispatch(page, { type: 'NEXT', elapsedMs: elapsed(page) });
   }
 
