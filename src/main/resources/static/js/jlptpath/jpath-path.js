@@ -843,6 +843,13 @@
       });
     }
 
+    // owner 23/11: back with the browser's Back button the page came from the cache with yesterday's numbers (the
+    // "Tự chọn bài" lists too): such a page loads again
+    if (typeof root.addEventListener === 'function' && !rootEl.__jpathPageshow) {
+      rootEl.__jpathPageshow = true;
+      root.addEventListener('pageshow', function (ev) { if (ev && ev.persisted && loc && loc.reload) loc.reload(); });
+    }
+
     function firstLoad(attempt) {
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });
     return Promise.all([pathLoad, loadToday()]).then(function (res) {
