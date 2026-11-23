@@ -241,6 +241,8 @@
       document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
     }
+    // owner 23/11: a path learner without a Smart Test result sees where they started (from the survey), not an invite
+    renderEntrySummary(keepsPath && !hasResult ? { survey: survey, entry: entryStatus, fromZero: fromZero } : null);
     // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
     startTest.hidden = needsPathOnly && !keepsPath;
     var startLabel = startTest.querySelector('span');
@@ -255,6 +257,59 @@
     invitation.hidden = false;
     notice.hidden = true;
     (needsPathOnly ? goHome : startTest).focus();
+  }
+
+  var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy', SUN: 'Chủ nhật' };
+
+  /** Rows of the "where you started" summary for a path learner without a Smart Test result (owner 23/11). */
+  function entrySummaryRows(survey, entry, fromZero) {
+    var sv = survey || {};
+    var en = entry || {};
+    var self = sv.selfReportedLevel;
+    var selfText = self === 'FROM_ZERO' ? 'Chưa học tiếng Nhật'
+      : self === 'UNKNOWN' || !self ? 'Đã học, chưa rõ cấp' : 'Khoảng ' + self;
+    var days = function (list) {
+      return (list || []).map(function (c) { return DAY_NAMES[c] || c; }).join(', ');
+    };
+    var rows = [
+      ['Mục tiêu', 'JLPT ' + (sv.targetLevel || 'N5')],
+      ['Trình độ khi khảo sát', selfText],
+      ['Bắt đầu từ', fromZero ? 'Bảng chữ cái, rồi N5' : 'Cấp theo khảo sát']
+    ];
+    if (en.skillDays && en.skillDays.length) rows.push(['Ngày kỹ năng', days(en.skillDays)]);
+    rows.push(['Ngày nghỉ', en.restDays && en.restDays.length ? days(en.restDays) : 'Không có']);
+    rows.push(['Smart Test', fromZero ? 'Chưa làm. Học xong bảng chữ cái là làm được.' : 'Chưa làm']);
+    return rows;
+  }
+
+  function renderEntrySummary(data) {
+    var old = document.getElementById('surveyEntrySummary');
+    if (old) old.remove();
+    var eyebrow = invitation.querySelector('.survey-eyebrow');
+    var actions = invitation.querySelector('.survey-invitation__actions');
+    if (!data) {
+      if (eyebrow) eyebrow.textContent = 'Kitsu đã ghi nhớ mục tiêu của bạn';
+      startTest.className = 'smart-test-primary';
+      if (actions && actions.firstElementChild !== startTest) actions.insertBefore(startTest, actions.firstChild);
+      return;
+    }
+    if (eyebrow) eyebrow.textContent = 'Điểm bắt đầu của bạn';
+    document.getElementById('inviteTitle').textContent = data.fromZero ? 'Bạn bắt đầu từ bảng chữ cái' : 'Lộ trình của bạn đến từ khảo sát';
+    document.getElementById('inviteText').textContent = 'Bạn chưa làm Smart Test, nên điểm bắt đầu lấy từ khảo sát. '
+      + 'Muốn đo trình độ thật thì làm Smart Test; lộ trình và tiến độ giữ nguyên.';
+    var dl = document.createElement('dl');
+    dl.id = 'surveyEntrySummary';
+    dl.className = 'survey-entry-summary';
+    entrySummaryRows(data.survey, data.entry, data.fromZero).forEach(function (row) {
+      var item = document.createElement('div');
+      var dt = document.createElement('dt'); dt.textContent = row[0];
+      var dd = document.createElement('dd'); dd.textContent = row[1];
+      item.append(dt, dd); dl.appendChild(item);
+    });
+    document.getElementById('inviteText').after(dl);
+    // the path is the main way on; Smart Test stays one click away
+    startTest.className = 'smart-test-secondary';
+    if (actions) actions.appendChild(startTest);
   }
 
   function getVietnamToday() {
@@ -579,6 +634,7 @@
       getExamDateConstraints: getExamDateConstraints,
       initExamDateConstraints: initExamDateConstraints,
       fillSurvey: fillSurvey,
+      entrySummaryRows: entrySummaryRows,
       ready: initReady
     };
   }
