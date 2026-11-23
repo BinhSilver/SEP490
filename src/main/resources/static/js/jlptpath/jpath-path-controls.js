@@ -273,7 +273,7 @@
       + '<span class="jp-today__cal-jp" lang="ja"><span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
       + '</div>'
       // owner 10/11 (F31): Kitsu sits by the ring and wraps its tail round it
-      + '<img class="jp-today__cal-kitsu" src="/images/mascots/kitsu/kitsu-cheer-30-128.webp" alt="" width="60" height="60" loading="lazy">'
+      + '<img class="jp-today__cal-kitsu" src="/images/mascots/fox/kitsu-cheer-30-128.webp" alt="" width="60" height="60" loading="lazy">'
       + '</div>';
   }
 
@@ -480,16 +480,16 @@
   }
 
   function todayKitsuHtml(t) {
-    var src = '/images/mascots/kitsu/kitsu-encouraging.webp';
+    var src = '/images/mascots/fox/kitsu-encouraging.webp';
     var say = 'Cùng Kitsu chinh phục bài hôm nay nhé!';
     if (t && t.allDone) {
-      src = '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+      src = '/images/mascots/fox/kitsu-celebrate-30.webp';
       say = 'Hoàn thành xuất sắc hôm nay!';
     } else if (t && t.kind === 'REST') {
-      src = '/images/mascots/kitsu/kitsu-resting-30.webp';
+      src = '/images/mascots/fox/kitsu-resting-30.webp';
       say = 'Nghỉ ngơi nạp năng lượng nhé!';
     } else if (t && t.kind === 'SKILL') {
-      src = '/images/mascots/kitsu/kitsu-preparing.webp';
+      src = '/images/mascots/fox/kitsu-preparing.webp';
       say = 'Cùng rèn Đọc · Nghe nào!';
     }
     return '<div class="jp-today__kitsu" aria-hidden="true">'

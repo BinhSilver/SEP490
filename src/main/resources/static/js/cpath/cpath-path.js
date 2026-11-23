@@ -44,7 +44,7 @@
   // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy
   function kitsuSmall(file) { return kitsuSrc(String(file).replace(/\.webp$/, '-128.webp')); }
   function kitsuSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function pageUrl(page, params) {
@@ -1211,7 +1211,7 @@
       Promise.resolve(root.JpathApi.get('/api/learning/comm/premium-gate')).then(function (gate) {
         if (!gate || !gate.locked || rootEl.querySelector('.jp-premium-box')) return;
         rootEl.insertAdjacentHTML('afterbegin', '<section class="jp-premium-box" role="note">'
-          + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+          + '<img src="/images/mascots/fox/kitsu-announcing.webp" alt="" width="56" height="56">'
           + '<div><p class="jp-premium-box__title">Lộ trình Giao tiếp dành cho tài khoản Premium</p>'
           + '<p class="jp-premium-box__text">Bạn xem được bản đồ và cài đặt. Nâng cấp Premium để học các tình huống, nhập vai và luyện nói.</p></div>'
           + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>');

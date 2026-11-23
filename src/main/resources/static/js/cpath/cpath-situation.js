@@ -47,7 +47,7 @@
   // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy
   function kitsuSmall(file) { return kitsuSrc(String(file).replace(/\.webp$/, '-128.webp')); }
   function kitsuSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function pageUrl(page, params) {

@@ -37,7 +37,7 @@
   function list(v) { return Array.isArray(v) ? v : []; }
 
   function kitsuSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function pageUrl(page, params) {

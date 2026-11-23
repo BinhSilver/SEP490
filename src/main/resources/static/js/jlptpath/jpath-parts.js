@@ -62,12 +62,12 @@
   function small(src) { return String(src).replace(/\.webp$/, '-128.webp'); }
 
   var SIDE_KITSUS = [
-    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Cố lên nhé!' },
-    { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
-    { src: '/images/mascots/kitsu/kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Cùng tiến lên nào!' },
-    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Từng bước một!' },
-    { src: '/images/mascots/kitsu/kitsu-resting-30.webp', alt: 'Kitsu nghỉ ngơi', say: 'Đều đặn mỗi ngày!' },
-    { src: '/images/mascots/kitsu/kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Giữ vững phong độ!' }
+    { src: '/images/mascots/fox/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Cố lên nhé!' },
+    { src: '/images/mascots/fox/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
+    { src: '/images/mascots/fox/kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Cùng tiến lên nào!' },
+    { src: '/images/mascots/fox/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Từng bước một!' },
+    { src: '/images/mascots/fox/kitsu-resting-30.webp', alt: 'Kitsu nghỉ ngơi', say: 'Đều đặn mỗi ngày!' },
+    { src: '/images/mascots/fox/kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Giữ vững phong độ!' }
   ];
 
   function esc(s) {
@@ -94,7 +94,7 @@
         + '" style="--cf-i:' + i + '" aria-hidden="true"></span>');
     }
     return '<div class="jp-saved-note__confetti-wrap" aria-hidden="true">' + pieces.join('') + '</div>'
-      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
+      + '<img class="jp-saved-note__kitsu" src="/images/mascots/fox/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
       + '<div class="jp-saved-note__body">'
       + '<strong class="jp-saved-note__title">Hoàn thành xuất sắc!</strong>'
       + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".') + '</span>'
@@ -454,7 +454,7 @@
   /* Round 6 Item 1d: 1 side Kitsu per week, pose varies by week */
   // [JLAS-W0108] C2: the side Kitsu follows the week's progress - celebrates a finished week, points at the
   // current one, wonders about the weeks ahead (the old per-week pose stays when the state is unknown)
-  var K = '/images/mascots/kitsu/';
+  var K = '/images/mascots/fox/';
   var MOOD_KITSUS = {
     past: [{ src: K + 'kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Xong tuần này rồi!' },
       { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Giỏi lắm!' }],
@@ -570,7 +570,7 @@
 
   /* Round 6 Item 1a: Animated Kitsu beside Today's node with speech bubble */
   function kitsuBesideTodayHtml(isTodayDone, labelSide) {
-    var src = isTodayDone ? '/images/mascots/kitsu/kitsu-celebrate-30.webp' : '/images/mascots/kitsu/kitsu-cheer-30.webp';
+    var src = isTodayDone ? '/images/mascots/fox/kitsu-celebrate-30.webp' : '/images/mascots/fox/kitsu-cheer-30.webp';
     var say = isTodayDone ? 'Đã xong! Bấm xem lại' : 'Bấm vào đây để học';
     var sideCls = labelSide === 'left' ? 'jp-parts__mascot--right' : 'jp-parts__mascot--left';
     return '<span class="jp-parts__mascot jp-parts__mascot--today ' + sideCls + '">'
@@ -599,19 +599,19 @@
     var tone = (isDone || isTodayDone) ? 'done' : (isToday ? 'today' : 'next');
     var popSide = popoverSideForPos(pos);
 
-    var mascotSrc = '/images/mascots/kitsu/kitsu-encouraging.webp';
+    var mascotSrc = '/images/mascots/fox/kitsu-encouraging.webp';
     var statusLabel = 'Hôm nay';
     var statusIcon = svgStar();
     if (isTodayDone) {
-      mascotSrc = '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+      mascotSrc = '/images/mascots/fox/kitsu-celebrate-30.webp';
       statusLabel = 'Đã học hôm nay';
       statusIcon = svgMedal('jp-parts__pop-pill-ic');
     } else if (isDone) {
-      mascotSrc = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+      mascotSrc = '/images/mascots/fox/kitsu-cheer-30.webp';
       statusLabel = 'Đã học';
       statusIcon = svgMedal('jp-parts__pop-pill-ic');
     } else if (!isToday) {
-      mascotSrc = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+      mascotSrc = '/images/mascots/fox/kitsu-thinking-30.webp';
       statusLabel = 'Sắp tới';
       statusIcon = svgLock();
     }
@@ -670,8 +670,8 @@
     var tone = unlocked ? 'done' : 'today';
     var popSide = popoverSideForPos(pos);
     var mascotSrc = unlocked
-      ? '/images/mascots/kitsu/kitsu-celebrate-30.webp'
-      : '/images/mascots/kitsu/kitsu-cheer-30.webp';
+      ? '/images/mascots/fox/kitsu-celebrate-30.webp'
+      : '/images/mascots/fox/kitsu-cheer-30.webp';
     var statusLabel = unlocked ? 'Đã nhận cúp tuần' : 'Mốc kiểm tra tuần';
     var statusIcon = unlocked ? svgTrophyCup('jp-parts__pop-pill-ic') : svgChestClosed();
     var partPills = [];

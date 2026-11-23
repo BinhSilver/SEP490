@@ -972,7 +972,7 @@
   function premiumBoxHtml(gate) {
     if (!gate || !gate.locked) return '';
     return '<section class="jp-premium-box" role="note">'
-      + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+      + '<img src="/images/mascots/fox/kitsu-announcing.webp" alt="" width="56" height="56">'
       + '<div><p class="jp-premium-box__title">' + esc(gate.level || 'N4') + ' dành cho tài khoản Premium</p>'
       + '<p class="jp-premium-box__text">N5 học miễn phí. Từ N4 đến N1, hãy nâng cấp Premium để mở bài học hằng ngày.</p></div>'
       + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>';

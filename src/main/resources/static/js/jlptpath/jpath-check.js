@@ -541,17 +541,17 @@
   }
 
   function checkMascotHtml(q, st) {
-    var img = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+    var img = '/images/mascots/fox/kitsu-thinking-30.webp';
     var speech = 'Suy nghĩ kỹ nhé!';
     var mood = 'think';
     if (isBoard(q)) {
       var b = st.board || emptyBoard();
       if (b.flash) {
-        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        img = '/images/mascots/fox/kitsu-confused-30.webp';
         speech = 'Tiếc quá, chọn lại cặp khác nhé!';
         mood = 'bad';
       } else if (Object.keys(b.matched || {}).length > 0) {
-        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        img = '/images/mascots/fox/kitsu-cheer-30.webp';
         speech = 'Đúng rồi, nối tiếp nào!';
         mood = 'ok';
       } else {
@@ -559,11 +559,11 @@
       }
     } else if (st.answer) {
       if (st.answer.correct) {
-        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        img = '/images/mascots/fox/kitsu-cheer-30.webp';
         speech = 'Đúng rồi, tuyệt lắm!';
         mood = 'ok';
       } else {
-        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        img = '/images/mascots/fox/kitsu-confused-30.webp';
         speech = st && st.hasNext === false ? 'Tiếc quá, xem kỹ đáp án nhé!' : 'Tiếc quá, cố lên ở câu sau nhé!';
         mood = 'bad';
       }
@@ -707,8 +707,8 @@
 
   function celebrateArtHtml(passed) {
     var img = passed === false
-      ? '/images/mascots/kitsu/kitsu-encouraging.webp'
-      : '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+      ? '/images/mascots/fox/kitsu-encouraging.webp'
+      : '/images/mascots/fox/kitsu-celebrate-30.webp';
     var speech = passed === false
       ? 'Đừng nản, ôn lại chút là vượt qua ngay!'
       : 'Xuất sắc! Bạn làm rất tốt!';

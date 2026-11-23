@@ -196,7 +196,7 @@
   }
 
   function kitsuImgSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function svgCheck() {

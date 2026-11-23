@@ -311,26 +311,26 @@
         : '<span class="jp-study-face-tag jp-study-face-tag--front" data-label="Mặt trước · Chạm vào thẻ hoặc nhấn phím Space để lật xem ' + backWhat + '" aria-hidden="true"></span>')
       : '';
     var flipCue = '';
-    var mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+    var mImg = '/images/mascots/fox/kitsu-thinking-30.webp';
     var mSpeech = 'Thử nhớ lại xem nào!';
     var mMood = 'think';
     var rt = state && state.retype;
     if (card.kind === 'RETYPE') {
       if (rt && (rt.verdict === 'EXACT' || rt.verdict === 'MINOR')) {
-        mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Giỏi lắm, chuẩn rồi!'; mMood = 'ok';
+        mImg = '/images/mascots/fox/kitsu-cheer-30.webp'; mSpeech = 'Giỏi lắm, chuẩn rồi!'; mMood = 'ok';
       } else if (rt && rt.verdict === 'WRONG') {
-        mImg = '/images/mascots/kitsu/kitsu-confused-30.webp'; mSpeech = 'Chú ý cách đọc nhé!'; mMood = 'bad';
+        mImg = '/images/mascots/fox/kitsu-confused-30.webp'; mSpeech = 'Chú ý cách đọc nhé!'; mMood = 'bad';
       } else {
-        mImg = '/images/mascots/kitsu/kitsu-thinking-30.webp'; mSpeech = 'Gõ lại cách đọc nào!'; mMood = 'think';
+        mImg = '/images/mascots/fox/kitsu-thinking-30.webp'; mSpeech = 'Gõ lại cách đọc nào!'; mMood = 'think';
       }
     } else if (card.kind === 'NEW') {
       if (isFlipped) {
-        mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'flip';
+        mImg = '/images/mascots/fox/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'flip';
       } else {
-        mImg = '/images/mascots/kitsu/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem ' + backWhat + ' nhé!'; mMood = 'encourage';
+        mImg = '/images/mascots/fox/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem ' + backWhat + ' nhé!'; mMood = 'encourage';
       }
     } else if (isFlipped) {
-      mImg = '/images/mascots/kitsu/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'flip';
+      mImg = '/images/mascots/fox/kitsu-cheer-30.webp'; mSpeech = 'Đối chiếu đáp án nhé!'; mMood = 'flip';
     }
     var mascot = '<div class="jp-study-mascot jp-study-mascot--' + mMood + '" aria-hidden="true">'
       + '<img class="jp-study-mascot__img" src="' + mImg + '" alt="" width="76" height="76" loading="eager">'
