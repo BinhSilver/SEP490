@@ -166,48 +166,27 @@
 .about-feature:hover strong { color: var(--about-accent); }
 .about-feature:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
-/* Team: the motto written vertically, like a hanging scroll, beside the story */
-.about-team {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-7);
-  align-items: start;
-  padding: var(--space-7) var(--space-6);
-  border-radius: var(--radius-lg);
-  background: var(--color-primary-fixed);
-}
-.about-team__mark {
-  writing-mode: vertical-rl;
-  font-family: var(--font-jp-display);
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 0.12em;
-  color: var(--about-accent);
-}
-.about-team__body { max-width: 62ch; display: grid; gap: var(--space-3); }
-.about-team__body h2 { margin-bottom: var(--space-1); }
-.about-team__body p { font-size: 1.0625rem; }
-
-/* Contact */
-.about-contact {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-5);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--about-line);
-}
-.about-contact h2 { margin-bottom: var(--space-2); }
-.about-contact p { max-width: 56ch; color: var(--about-muted); }
-.about-contact__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+/* Team (owner 23/11): member cards, leader first */
+.about-team { position: relative; }
+.about-team__lead { max-width: 60ch; color: var(--about-muted); font-size: 1.0625rem; }
+.about-team__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-5); margin: var(--space-6) 0 0; padding: 0; list-style: none; }
+.about-member { display: grid; justify-items: start; gap: var(--space-1); padding: var(--space-5); border: 1px solid var(--about-edge); border-radius: 24px; background: var(--about-sky); }
+.about-member:nth-child(2) { background: var(--about-mint); }
+.about-member:nth-child(3) { background: var(--about-peach); }
+.about-member:nth-child(4) { background: var(--about-lilac); }
+.about-member--lead { background: var(--about-rose); }
+.about-member__avatar { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: var(--space-3); border: 1.5px solid var(--about-navy); border-radius: 50%; background: #fffdf7; box-shadow: 3px 3px 0 var(--about-navy); font-family: "Noto Serif", Georgia, serif; font-size: 1.375rem; font-weight: 600; color: var(--about-ink); }
+.about .about-member__role { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--about-accent); }
+.about-member h3 { font-family: "Noto Serif", Georgia, serif; font-size: 1.125rem; color: var(--about-ink); }
+.about .about-member__note { font-size: .875rem; color: var(--about-muted); }
+.about-team__mark { margin-top: var(--space-6); font-family: var(--font-jp-display); font-size: 1.5rem; font-weight: 600; letter-spacing: .12em; color: var(--about-accent); text-align: right; }
 
 @media (max-width: 960px) {
   .about-hero { grid-template-columns: 1fr; gap: var(--space-6); }
   .about-steps__list { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-6); }
   .about-steps__list li:nth-child(2)::after { display: none; }
   .about-features__groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about-team__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 600px) {
   .about { padding: var(--space-5) var(--space-4) var(--space-6); }
@@ -217,7 +196,43 @@
   .about-features__groups { grid-template-columns: 1fr; gap: var(--space-4); }
   .about-word__kitsu { width: 64px; top: -52px; }
   .about-word__paper { padding: var(--space-5) var(--space-4) var(--space-4); }
-  .about-team { grid-template-columns: 1fr; gap: var(--space-4); padding: var(--space-6) var(--space-4); }
-  .about-team__mark { writing-mode: horizontal-tb; font-size: 1.5rem; letter-spacing: 0.04em; }
-  .about-contact__actions, .about-contact__actions .btn, .about-hero__actions .btn { width: 100%; }
+  .about-team__grid { grid-template-columns: 1fr; }
+  .about-hero__actions .about-btn { width: 100%; }
 }
+
+/* ── Owner 23/11: the landing's look — cream page, navy serif titles, torii-red kickers, pastel cards ── */
+body:has(.about--lp) #jlabBaseBackground { background: #fff8ec; }
+html[data-theme="dark"] body:has(.about--lp) #jlabBaseBackground { background: linear-gradient(180deg, #152c60 0%, #1a3570 45%, #152c60 100%); }
+.about--lp {
+  --about-ink: #1f376b; --about-muted: color-mix(in srgb, #1f376b 72%, transparent); --about-accent: #cf453c; --about-navy: #233650;
+  --about-line: color-mix(in srgb, #1f376b 20%, transparent); --about-edge: color-mix(in srgb, #1f376b 20%, transparent);
+  --about-mint: #dcefd6; --about-peach: #fde4cc; --about-sky: #d7eaf4; --about-lemon: #f8edcf; --about-lilac: #e7e3f4; --about-rose: #fcdbe2;
+  max-width: 1180px;
+}
+html[data-theme="dark"] .about--lp { --about-ink: #f3f6fc; --about-muted: color-mix(in srgb, #f3f6fc 75%, transparent); --about-accent: #ff8a7a; --about-line: rgba(255,255,255,.16); }
+html[data-theme="dark"] .about--lp :is(.about-member, .about-word__paper, .about-feature) { --about-ink: #1f376b; --about-muted: #56617a; --about-accent: #cf453c; --about-line: #ddd6c6; }
+.about--lp section + section { margin-top: clamp(64px, 9vw, 112px); }
+.about--lp :is(h1, h2) { font-family: "Noto Serif", Georgia, serif; font-weight: 700; letter-spacing: -.01em; color: var(--about-ink); }
+.about--lp h1 { font-size: clamp(2rem, 1.3rem + 2.6vw, 3.1rem); line-height: 1.15; }
+.about--lp h2 { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.25rem); line-height: 1.2; }
+.about-kicker { margin: 0 0 var(--space-2); font-size: .75rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--about-accent); }
+.about-btn--primary { background: var(--about-accent); border: 1.5px solid var(--about-navy); color: #fff; box-shadow: 3px 3px 0 var(--about-navy); }
+.about-btn--primary:hover { box-shadow: 4px 4px 0 var(--about-navy); }
+.about-btn--secondary { border: 1.5px solid var(--about-navy); color: #1f376b; background: #fffdf7; }
+.about--lp .about-word::before { background: var(--about-peach); border-radius: 28px; }
+.about--lp .about-word__paper { border-color: var(--about-edge); border-radius: 28px; background: #fffdf7; box-shadow: 0 18px 40px -22px rgba(31, 55, 107, .45); }
+.about--lp .about-word__sheet, .about--lp .about-word__cell { border-color: var(--about-navy); }
+.about--lp .about-steps__list li { padding: 76px var(--space-5) var(--space-5); border: 1px solid var(--about-edge); border-radius: 24px; background: var(--about-sky); }
+.about--lp .about-steps__list li:nth-child(2) { background: var(--about-mint); }
+.about--lp .about-steps__list li:nth-child(3) { background: var(--about-lemon); }
+.about--lp .about-steps__list li:nth-child(4) { background: var(--about-rose); }
+.about--lp .about-steps__list li::before { top: var(--space-5); left: var(--space-5); border-color: var(--about-navy); border-radius: 50%; background: #fffdf7; box-shadow: 3px 3px 0 var(--about-navy); color: #1f376b; }
+.about--lp .about-steps__list li::after { display: none; }
+.about--lp .about-steps__list :is(h3, p) { color: #1f376b; }
+.about--lp .about-features__group { padding: var(--space-5); border: 1px solid var(--about-edge); border-radius: 24px; background: color-mix(in srgb, var(--about-peach) 45%, #fffdf7); }
+.about--lp .about-feature { border-radius: 16px; }
+.about--lp .about-feature:hover { background: #fffdf7; }
+.about--lp .about-feature:hover strong { color: var(--about-accent); }
+.about-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border-radius: 999px; font-weight: 600; text-decoration: none; transition: box-shadow .15s, transform .15s; }
+.about-btn:hover { transform: translate(-1px, -1px); }
+.about-btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }

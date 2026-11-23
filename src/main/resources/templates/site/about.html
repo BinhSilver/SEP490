@@ -4,18 +4,18 @@
      Static content only, the same for guests and members (guest pages never show user data). -->
 <head th:replace="~{fragments/head :: standard('Giới thiệu - KotsuKotsu', null)}"></head>
 <link rel="stylesheet" th:href="@{/css/site-footer.css(v=20261123c)}" />
-<link rel="stylesheet" th:href="@{/css/pages/site-about.css(v=20261123a)}" />
+<link rel="stylesheet" th:href="@{/css/pages/site-about.css(v=20261123c)}" />
 <body id="jlabBasePage" class="app-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="about">
+<main id="jlabBaseContent" class="about about--lp">
 
     <section class="about-hero" aria-labelledby="aboutTitle">
         <div class="about-hero__text">
             <h1 id="aboutTitle">Học tiếng Nhật mỗi ngày một chút, và thấy mình tiến bộ</h1>
             <p class="about-hero__lead">KotsuKotsu đưa bạn vào đúng trình độ của mình, chia bài vừa sức cho từng ngày và nhắc ôn đúng lúc. Bạn chỉ cần mở ra và học phần của hôm nay.</p>
             <div class="about-hero__actions">
-                <a class="btn btn--primary" th:href="@{/learning}">Xem lộ trình học</a>
-                <a class="btn btn--secondary" th:href="@{/survey}">Làm Smart Test</a>
+                <a class="about-btn about-btn--primary" th:href="@{/learning}">Xem lộ trình học</a>
+                <a class="about-btn about-btn--secondary" th:href="@{/survey}">Làm Smart Test</a>
             </div>
         </div>
 
@@ -39,6 +39,7 @@
     </section>
 
     <section class="about-steps" aria-labelledby="aboutStepsTitle">
+        <p class="about-kicker">01 / Cách học</p>
         <h2 id="aboutStepsTitle">Lộ trình đi cùng bạn thế nào</h2>
         <ol class="about-steps__list">
             <li>
@@ -61,6 +62,7 @@
     </section>
 
     <section class="about-features" aria-labelledby="aboutFeaturesTitle">
+        <p class="about-kicker">02 / Tính năng</p>
         <h2 id="aboutFeaturesTitle">Có gì trong KotsuKotsu</h2>
         <div class="about-features__groups">
             <div class="about-features__group">
@@ -108,23 +110,36 @@
     </section>
 
     <section class="about-team" aria-labelledby="aboutTeamTitle">
+        <p class="about-kicker">03 / Đội ngũ</p>
+        <h2 id="aboutTeamTitle">Những người làm KotsuKotsu</h2>
+        <p class="about-team__lead">Đồ án tốt nghiệp SEP490 của một nhóm sinh viên Trường Đại học FPT, cũng là những người đang học tiếng Nhật mỗi ngày.</p>
+        <ul class="about-team__grid">
+            <li class="about-member about-member--lead">
+                <span class="about-member__avatar" aria-hidden="true">N</span>
+                <p class="about-member__role">Founder · Leader</p>
+                <h3>Trần Thảo Nguyên</h3>
+                <p class="about-member__note">Lộ trình học, Smart Test</p>
+            </li>
+            <li class="about-member">
+                <span class="about-member__avatar" aria-hidden="true">B</span>
+                <p class="about-member__role">Team member</p>
+                <h3>Nguyễn Phạm Thanh Bình</h3>
+                <p class="about-member__note">Thành viên nhóm</p>
+            </li>
+            <li class="about-member">
+                <span class="about-member__avatar" aria-hidden="true">H</span>
+                <p class="about-member__role">Team member</p>
+                <h3>Ngô Vũ Hoàn Hùng</h3>
+                <p class="about-member__note">Thành viên nhóm</p>
+            </li>
+            <li class="about-member">
+                <span class="about-member__avatar" aria-hidden="true">M</span>
+                <p class="about-member__role">Team member</p>
+                <h3>Đức Minh</h3>
+                <p class="about-member__note">Thành viên nhóm</p>
+            </li>
+        </ul>
         <p class="about-team__mark" lang="ja" aria-hidden="true">毎日、こつこつ。</p>
-        <div class="about-team__body">
-            <h2 id="aboutTeamTitle">Về chúng tôi</h2>
-            <p>KotsuKotsu là đồ án tốt nghiệp (SEP490) của một nhóm sinh viên Trường Đại học FPT. Chúng tôi cũng là người học tiếng Nhật: bận rộn, muốn học đều, và nhiều hôm mở sách ra không biết nên học gì trước.</p>
-            <p>Vì vậy chúng tôi làm một nơi trả lời câu hỏi đó mỗi ngày: hôm nay học gì, học bao nhiêu, và mình đã đi được bao xa.</p>
-        </div>
-    </section>
-
-    <section class="about-contact" aria-labelledby="aboutContactTitle">
-        <div>
-            <h2 id="aboutContactTitle">Góp ý cho chúng tôi</h2>
-            <p>Gặp lỗi trong bài học, bấm "Báo sai" ngay trong bài. Muốn đề xuất thêm, hãy viết trong Cộng đồng.</p>
-        </div>
-        <div class="about-contact__actions">
-            <a class="btn btn--primary" th:href="@{/community}">Viết góp ý</a>
-            <a class="btn btn--secondary" th:href="@{/policy}">Chính sách người dùng</a>
-        </div>
     </section>
 </main>
 <th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
