@@ -208,7 +208,7 @@
           + '<ul class="cp-survey__grid" style="list-style:none;padding:0;margin:0;">' + scoreRowsHtml + '</ul>'
           + '</section>'
         : '')
-      + '<div class="jp-dayd__actions" style="margin-top:12px;">'
+      + '<div class="jp-dayd__actions cp-dayd__back">'
       + '<a class="cp-btn-primary" href="' + esc(pageUrl('path')) + '">Về lộ trình giao tiếp</a>'
       + '</div>';
   }
