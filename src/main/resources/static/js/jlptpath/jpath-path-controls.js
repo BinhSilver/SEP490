@@ -531,7 +531,7 @@
       + (compactSide ? '<aside class="jp-today__side" aria-label="Tiến trình">' + compactSide + '</aside>' : '')
       + '</div>';
     var end = '</div></div>' + foot + '</section>';
-    var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
+    var missed = t.skillDayMissed && !t.skillMakeup ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
 
     if (t.allDone) {
       return html
