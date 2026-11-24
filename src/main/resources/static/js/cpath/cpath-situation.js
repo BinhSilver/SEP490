@@ -1572,6 +1572,11 @@
         state.flashcard = {};
         Promise.resolve(root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId) + '/flashcards')).then(function (fc) {
           state.flashcard = fc || {};
+          // owner 24/11 Q1: every card graded in the flashcard counts as step 1 done (the server marked it)
+          if (fc && fc.wordsStepDone === true && sitData) {
+            sitData.steps = sitData.steps || {};
+            sitData.steps.words = true;
+          }
           render();
         }, function () { state.flashcard = { error: true }; render(); });
         // F61: open with the display saved in Cài đặt (the buttons on the page still flip it for this visit)

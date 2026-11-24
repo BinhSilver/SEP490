@@ -8,8 +8,11 @@ import com.jlas.flashcard.dto.FlashcardDtos.FolderRequest;
 import com.jlas.flashcard.dto.FlashcardDtos.SetRequest;
 import com.jlas.flashcard.dto.FlashcardDtos.StudySummaryDto;
 import com.jlas.flashcard.service.FlashcardService;
+import com.jlas.jlptpath.entity.JpathExample;
+import com.jlas.jlptpath.entity.JpathGrammar;
 import com.jlas.jlptpath.entity.JpathKanji;
 import com.jlas.jlptpath.entity.JpathVocabulary;
+import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathTab;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -29,8 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>JLPT parts are per learner, so each learner gets one PRIVATE set per part, in the folder
  * "Lộ trình JLPT · N5". A part is found again by the hash of its item codes, so a part studied ahead
  * (button) keeps the same set when it becomes today's part. Today's set is made without a button
- * when the path or the flashcard page opens. The flashcard progress is only shown ("Đã nhớ x/y");
- * the path's own check still decides when the part is done.
+ * when the path or the flashcard page opens.
+ *
+ * <p>Owner 24/11 Q1: the flashcard grades count in the path ({@link JpathFlashcardProgressSync}): every read of the
+ * sets first applies the cards graded since the last read, so a part studied with flashcards counts as studied; the
+ * part's quick check is still the path's own. F241 câu 3: grammar parts have sets too (front the pattern, back the
+ * meaning and one example).
  */
 @Service
 public class JpathFlashcardService {
@@ -52,6 +59,12 @@ public class JpathFlashcardService {
     private final JpathPartsService parts;
     private final JpathContentReader content;
     private volatile boolean tableReady;
+    private JpathFlashcardProgressSync sync;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setSync(JpathFlashcardProgressSync sync) {
+        this.sync = sync;
+    }
 
     public JpathFlashcardService(JdbcTemplate db, FlashcardService flashcards, JpathPartsService parts,
             JpathContentReader content) {
@@ -67,7 +80,7 @@ public class JpathFlashcardService {
      */
     @Transactional
     public PartSets sets(Long userId, JpathTab tab) {
-        JpathPartsService.Parts p = partsOf(userId, requireTab(tab));
+        JpathPartsService.Parts p = synced(userId, requireTab(tab));
         List<PartSet> out = new ArrayList<>();
         for (JpathPartsService.Part part : p.parts()) {
             if (part.items().isEmpty()) continue;
@@ -80,7 +93,7 @@ public class JpathFlashcardService {
     /** "Học bằng flashcard" on one part (learned or upcoming): its set, made now if needed. */
     @Transactional
     public PartSet open(Long userId, JpathTab tab, int index) {
-        JpathPartsService.Parts p = partsOf(userId, requireTab(tab));
+        JpathPartsService.Parts p = synced(userId, requireTab(tab));
         JpathPartsService.Part part = p.parts().stream().filter(x -> x.index() == index).findFirst()
                 .orElseThrow(() -> new ApiException(ErrorCode.VALIDATION_FAILED, "Không tìm thấy phần học này."));
         if (part.items().isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Phần này chưa có từ.");
@@ -88,9 +101,33 @@ public class JpathFlashcardService {
     }
 
     private static JpathTab requireTab(JpathTab tab) {
-        if (tab != JpathTab.VOCAB && tab != JpathTab.KANJI && tab != JpathTab.KANA)
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chỉ chữ cái, từ vựng và Kanji có flashcard.");
+        if (tab != JpathTab.VOCAB && tab != JpathTab.KANJI && tab != JpathTab.KANA && tab != JpathTab.GRAMMAR)
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chỉ chữ cái, từ vựng, Kanji và ngữ pháp có flashcard.");
         return tab;
+    }
+
+    /** Q1: the tab's parts after the new flashcard grades are in the path (read again when a grade changed them). */
+    private JpathPartsService.Parts synced(Long userId, JpathTab tab) {
+        JpathPartsService.Parts p = partsOf(userId, tab);
+        if (sync == null || p.parts().isEmpty()) return p;
+        int changed = sync.apply(userId, tab.name(), JpathItemType.valueOf(tab.name()), p.level(), codeByFront(tab, p));
+        return changed > 0 ? partsOf(userId, tab) : p;
+    }
+
+    /** Card front → item code over every part of the tab, the same faces {@link #cards} puts on the front. */
+    private Map<String, String> codeByFront(JpathTab tab, JpathPartsService.Parts p) {
+        Map<String, String> out = new java.util.HashMap<>();
+        List<String> codes = new ArrayList<>();
+        for (JpathPartsService.Part part : p.parts()) {
+            for (JpathPartsService.Item it : part.items()) {
+                codes.add(it.code());
+                if (tab == JpathTab.KANA && it.label() != null) out.putIfAbsent(it.label(), it.code());
+            }
+        }
+        if (tab == JpathTab.KANJI) content.kanjis(codes).forEach(k -> { if (k.getCharacter() != null) out.putIfAbsent(k.getCharacter(), k.getCode()); });
+        else if (tab == JpathTab.GRAMMAR) content.grammars(codes).forEach(g -> { if (g.getPattern() != null) out.putIfAbsent(cut(g.getPattern(), 500), g.getCode()); });
+        else if (tab == JpathTab.VOCAB) content.vocabs(codes).forEach(v -> { if (v.getExpression() != null) out.putIfAbsent(v.getExpression(), v.getCode()); });
+        return out;
     }
 
     /** Owner 18/11: kana parts are the kana stage's day parts (one private set each), the other tabs their own parts. */
@@ -150,7 +187,12 @@ public class JpathFlashcardService {
     }
 
     static String title(JpathTab tab, String level, JpathPartsService.Part part) {
-        String what = tab == JpathTab.KANJI ? "Kanji" : (tab == JpathTab.KANA ? "Chữ cái" : "Từ vựng");
+        String what = switch (tab) {
+            case KANJI -> "Kanji";
+            case KANA -> "Chữ cái";
+            case GRAMMAR -> "Ngữ pháp";
+            default -> "Từ vựng";
+        };
         String when = part.day() != null ? " · " + String.format("%02d/%02d", part.day().getDayOfMonth(), part.day().getMonthValue()) : "";
         return what + " " + (level == null ? "" : level) + " · Phần " + part.index() + when;
     }
@@ -167,6 +209,25 @@ public class JpathFlashcardService {
                 CardInput card = new CardInput();
                 card.setFront(it.label());
                 card.setMeaning(cut(it.reading() == null || it.reading().isBlank() ? it.label() : it.reading(), 500));
+                card.setPosition(pos++);
+                out.add(card);
+            }
+        } else if (tab == JpathTab.GRAMMAR) {
+            // F241 câu 3: front the pattern (～です), back its meaning and one example
+            Map<String, JpathGrammar> byCode = new LinkedHashMap<>();
+            content.grammars(codes).forEach(g -> byCode.put(g.getCode(), g));
+            for (String c : codes) {
+                JpathGrammar g = byCode.get(c);
+                if (g == null || g.getPattern() == null || g.getPattern().isBlank()) continue;
+                CardInput card = new CardInput();
+                card.setFront(cut(g.getPattern(), 500));
+                card.setMeaning(cut(nonBlank(g.getMeaningVi(), g.getPattern()), 500));
+                List<JpathExample> ex = content.examples("GRAMMAR", c);
+                if (!ex.isEmpty()) {
+                    card.setExampleJa(ex.get(0).getJa());
+                    card.setExampleVi(ex.get(0).getVi());
+                }
+                card.setJlptLevel(level);
                 card.setPosition(pos++);
                 out.add(card);
             }
