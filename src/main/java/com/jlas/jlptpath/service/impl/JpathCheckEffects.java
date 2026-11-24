@@ -20,6 +20,8 @@ import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
 import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathProgressService;
+import com.jlas.jlptpath.service.JpathRewardHook;
+import com.jlas.jlptpath.util.JpathRewardPolicy;
 import com.jlas.jlptpath.util.JpathQueueBuilder;
 import com.jlas.jlptpath.util.JpathQueueStep;
 import java.time.LocalDateTime;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +86,13 @@ public class JpathCheckEffects {
     private final JpathProgressService progress;
     private final JpathPathService pathService;
     private final JpathClock clock;
+    /** Q5: pays the weekly check CP; optional so hand-built instances (unit tests) work without it. */
+    private ObjectProvider<JpathRewardHook> rewards;
+
+    @Autowired(required = false)
+    void setRewards(ObjectProvider<JpathRewardHook> rewards) {
+        this.rewards = rewards;
+    }
 
     public JpathCheckEffects(JpathItemStateMachine items, JpathUserItemRepository userItems,
                              JpathDayCompletion completion, JpathDailyPlanService planService,
@@ -104,14 +115,21 @@ public class JpathCheckEffects {
      */
     public record Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
                          Map<String, JpathRating> grammarRatings, List<String> pendingCodes, boolean skillReview,
-                         boolean skillDayQuiz) {
+                         boolean skillDayQuiz, boolean weeklyCheck, boolean weeklyPassed) {
         public Scored {
             pendingCodes = pendingCodes == null ? List.of() : pendingCodes;
         }
 
         public Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
+                      Map<String, JpathRating> grammarRatings, List<String> pendingCodes, boolean skillReview,
+                      boolean skillDayQuiz) {
+            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, pendingCodes, skillReview, skillDayQuiz,
+                    false, false);
+        }
+
+        public Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
                       Map<String, JpathRating> grammarRatings) {
-            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, List.of(), false, false);
+            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, List.of(), false, false, false, false);
         }
     }
 
@@ -191,10 +209,24 @@ public class JpathCheckEffects {
                 advance = true;
             }
             case FREE_QUIZ -> {
+                // Q5 (owner 24/11): a failed weekly check puts its wrong items in the daily review of next week
+                // (no notebook, nothing blocked); a passed one keeps the usual notebook rule and pays the week CP.
+                boolean weeklyFailed = s.weeklyCheck() && !s.weeklyPassed();
                 for (String code : s.itemCodes()) {
                     if (s.wrongCodes().contains(code)) {
-                        items.wrongInCheck(items.ensureRow(userId, type, code, set.getLevel()),
-                                JpathNotebookSource.QUIZ);
+                        JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                        if (weeklyFailed) {
+                            items.dueNextWeek(row);
+                        } else {
+                            items.wrongInCheck(row, JpathNotebookSource.QUIZ);
+                        }
+                    }
+                }
+                if (s.weeklyCheck() && s.weeklyPassed() && !s.tooFast() && rewards != null) {
+                    JpathRewardHook hook = rewards.getIfAvailable();
+                    if (hook != null) {
+                        hook.onWeeklyCheckPassed(userId, clock.today(userId), set.getTab());
+                        cp += JpathRewardPolicy.WEEK_CHECK;
                     }
                 }
                 if (s.skillDayQuiz()) {

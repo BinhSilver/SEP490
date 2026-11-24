@@ -24,8 +24,16 @@ public final class JpathRewardPolicy {
     public static final String REF_SKILL_LISTENING = "JPATH_SKILL_LISTENING";
     public static final String REF_BADGE = "JPATH_BADGE";
     public static final String REF_MOCK_PASS = "JPATH_MOCK_PASS";
+    /** Q5 (owner 24/11): a weekly check passed at 80%+, like the comm path (CPATH_WEEK 2 CP); once per tab and week. */
+    public static final int WEEK_CHECK = 2;
+    public static final String REF_WEEK_CHECK = "JPATH_WEEK_CHECK";
 
     private JpathRewardPolicy() {
+    }
+
+    /** Reference id of a weekly check: Monday of the week's epochDay × 10 + tab ordinal. */
+    public static long weekCheckRef(LocalDate day, JpathTab tab) {
+        return tabDayRef(day.with(java.time.DayOfWeek.MONDAY), tab);
     }
 
     /** Reference id of a tab day: epochDay × 10 + tab ordinal. */

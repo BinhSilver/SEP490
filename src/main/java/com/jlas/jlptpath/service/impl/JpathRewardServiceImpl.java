@@ -92,6 +92,12 @@ public class JpathRewardServiceImpl implements JpathRewardService {
                 skill == JpathSkill.LISTENING ? "Xong buổi Nghe" : "Xong buổi Đọc");
     }
 
+    @Override
+    public void onWeeklyCheckPassed(Long userId, LocalDate day, JpathTab tab) {
+        pay(userId, JpathRewardPolicy.WEEK_CHECK, JpathRewardPolicy.REF_WEEK_CHECK,
+                JpathRewardPolicy.weekCheckRef(day, tab), "Đạt kiểm tra tuần " + label(tab));
+    }
+
     /** Optional: without the mission daily goal the path pays as before. */
     private DailyGoalService dailyGoal;
 

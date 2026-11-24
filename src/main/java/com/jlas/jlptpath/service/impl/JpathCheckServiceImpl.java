@@ -114,6 +114,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathCheckServiceImpl implements JpathCheckService {
 
+    /** Q5: pass mark of the weekly check, the same as the comm path (CpathService.WEEKLY_PASS). */
+    static final int WEEKLY_PASS_PCT = 80;
+
     static final String ISSUED = "ISSUED";
     static final String SUBMITTED = "SUBMITTED";
     static final String EXPIRED = "EXPIRED";
@@ -1119,6 +1122,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         // The server-chosen skill-day step counts whatever its size (its pool may give fewer than 10 questions).
         // Plan 3 Task 16 removed rule #25: a free quiz never completes a skill day any more
         boolean skillDayQuiz = false;
+        // Q5 (owner 24/11): the weekly check (FREE_QUIZ source WEEK, 10+ questions, not a redo) — 80% pays CP
+        boolean weeklyCheck = set.getKind() == JpathCheckKind.FREE_QUIZ
+                && JpathStudyServiceImpl.weekly(set.getIssueJson());
 
         List<String> itemCodes = readList(set.getItemCodesJson());
         JpathStudySession session = set.getSessionId() == null ? null
@@ -1137,7 +1143,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         JpathCheckEffects.Applied applied = effects.apply(set,
                 new JpathCheckEffects.Scored(passed, tooFast, itemCodes, wrong, grammarRatings, keys.pending(),
-                        skillReview, skillDayQuiz), session, today, tabs);
+                        skillReview, skillDayQuiz, weeklyCheck, weeklyCheck && percent >= WEEKLY_PASS_PCT),
+                session, today, tabs);
 
         boolean rewardEligible = !tooFast && applied.dayCredit();
         boolean skillKind = SKILL_KINDS.contains(set.getKind());

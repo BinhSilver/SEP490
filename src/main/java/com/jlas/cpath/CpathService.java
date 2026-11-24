@@ -1553,6 +1553,16 @@ public class CpathService {
                 + "FROM cpath_user_note n JOIN cpath_line l ON CONCAT(l.situation_code, '-L', l.line_order) = n.item_code "
                 + "WHERE n.path_id = ? AND n.kind = 'LINE' AND l.vi IS NOT NULL", pathId);
         asked.addAll(noteLines);
+        // Q5: misses of a failed weekly test, due a week after it
+        asked.addAll(db.queryForList("SELECT i.code id, i.ja, i.reading, i.vi, i.audio_path FROM cpath_user_week_miss w JOIN cpath_item i "
+                + "ON i.code = w.item_code WHERE w.path_id = ? AND w.kind = 'ITEM' AND w.due_on <= ? AND i.vi IS NOT NULL", pathId, today));
+        asked.addAll(db.queryForList("SELECT CONCAT(l.situation_code, '-L', l.line_order) id, l.ja, NULL reading, l.vi, l.audio_path "
+                + "FROM cpath_user_week_miss w JOIN cpath_line l ON CONCAT(l.situation_code, '-L', l.line_order) = w.item_code "
+                + "WHERE w.path_id = ? AND w.kind = 'LINE' AND w.due_on <= ? AND l.vi IS NOT NULL", pathId, today));
+        { // an item both in the notebook and due again is asked once
+            Set<Object> ids = new java.util.HashSet<>();
+            asked.removeIf(m -> !ids.add(m.get("id")));
+        }
         List<String> due = new ArrayList<>();
         for (Map<String, Object> r : db.queryForList("SELECT situation_code, done_at FROM cpath_user_situation WHERE path_id = ? AND done_at IS NOT NULL", pathId)) {
             LocalDate d = dateOf(r.get("done_at"));
@@ -1733,6 +1743,8 @@ public class CpathService {
         for (WeeklyQ q : qs) {
             Object given = answers.get(q.id());
             boolean ok = given != null && num(given) == q.answer();
+            db.update("DELETE FROM cpath_user_week_miss WHERE path_id = ? AND item_code = ? AND due_on <= ?", pid, q.id(),
+                    clock.today(userId)); // Q5: the week-later review is done once asked
             if (ok) {
                 correct++;
                 db.update("DELETE FROM cpath_user_note WHERE path_id = ? AND item_code = ?", pid, q.id());
@@ -2051,7 +2063,7 @@ public class CpathService {
             throw new ApiException(ErrorCode.JPATH_RESTART_CONFIRM_MISMATCH);
         }
         Long pathId = ((Number) requirePath(userId).get("id")).longValue();
-        for (String table : List.of("cpath_user_situation", "cpath_user_topic", "cpath_user_goal_test", "cpath_user_weak_speech")) {
+        for (String table : List.of("cpath_user_situation", "cpath_user_topic", "cpath_user_goal_test", "cpath_user_weak_speech", "cpath_user_week_miss")) {
             db.update("DELETE FROM " + table + " WHERE path_id = ?", pathId);
         }
         new CpathCoreService(db, clock).clear(pathId); // F70: the base-set progress too (the JLPT side is kept)
@@ -2125,20 +2137,36 @@ public class CpathService {
         if (qs.isEmpty()) throw new ApiException(ErrorCode.VALIDATION_FAILED, "Tuần này chưa có nội dung để kiểm tra.");
         Map<String, Object> answers = body != null && body.get("answers") instanceof Map<?, ?> a ? (Map<String, Object>) a : Map.of();
         int correct = 0;
+        for (WeeklyQ q : qs) {
+            Object given = answers.get(q.id());
+            if (given != null && num(given) == q.answer()) correct++;
+        }
+        int score = Math.round(100f * correct / qs.size());
+        boolean pass = score >= WEEKLY_PASS;
+        Long pid = ((Number) path.get("id")).longValue();
+        // [JLAS-W0108] Keep the first weekly submission; retries remain available for practice.
+        db.update("INSERT INTO learning_pace_week (path_kind, path_id, week_start, first_score) VALUES ('COMM',?,?,?) "
+                + "ON DUPLICATE KEY UPDATE first_score = COALESCE(first_score, VALUES(first_score))",
+                pid, monday, score);
         List<Map<String, Object>> review = new ArrayList<>();
         for (WeeklyQ q : qs) {
             Object given = answers.get(q.id());
             boolean ok = given != null && num(given) == q.answer();
-            if (ok) correct++;
-            // Sổ tay: a miss goes in (or counts again), a right answer takes it out
-            Long pid = ((Number) path.get("id")).longValue();
+            String kind = q.id().matches(".*-L\\d+$") ? "LINE" : "ITEM";
             if (ok) {
+                // Sổ tay: a right answer takes it out
                 db.update("DELETE FROM cpath_user_note WHERE path_id = ? AND item_code = ?", pid, q.id());
-            } else {
+            } else if (pass) {
+                // a miss in a passed test goes in the Sổ tay (or counts again)
                 db.update("INSERT INTO cpath_user_note (path_id, item_code, kind) VALUES (?,?,?) "
-                        + "ON DUPLICATE KEY UPDATE wrong_count = wrong_count + 1", pid, q.id(), q.id().matches(".*-L\\d+$") ? "LINE" : "ITEM");
+                        + "ON DUPLICATE KEY UPDATE wrong_count = wrong_count + 1", pid, q.id(), kind);
+            } else {
+                // Q5 (owner 24/11, like the JLPT path): a failed test puts its misses in the daily review a week later
+                db.update("DELETE FROM cpath_user_week_miss WHERE path_id = ? AND item_code = ?", pid, q.id());
+                db.update("INSERT INTO cpath_user_week_miss (path_id, item_code, kind, due_on) VALUES (?,?,?,?)",
+                        pid, q.id(), kind, today.plusDays(7));
             }
-            if (teamNotebook != null) teamNotebook.answered(userId, q.id(), ok); // F126: chép sang sổ "Lộ trình học"
+            if (teamNotebook != null && (ok || pass)) teamNotebook.answered(userId, q.id(), ok); // F126: chép sang sổ "Lộ trình học"
             Map<String, Object> r = new LinkedHashMap<>();
             r.put("id", q.id());
             r.put("ja", q.ja());
