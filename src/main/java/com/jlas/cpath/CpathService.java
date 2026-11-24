@@ -561,6 +561,13 @@ public class CpathService {
                 return Map.of("id", s.get("code"));
             }
         }
+        // walkthrough 25/11: missed days already planned every situation (2/7 done) and "Học thêm" said all were
+        // learned; the earliest situation not finished yet is the one to learn
+        for (Map<String, Object> s : orderedSituations(path)) {
+            if (!done(prog.get(s.get("code")))) {
+                return Map.of("id", s.get("code"));
+            }
+        }
         return Map.of();
     }
 
