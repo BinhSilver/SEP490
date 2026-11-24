@@ -138,7 +138,9 @@
     var act = paused
       ? '<button type="button" class="jp-btn" data-mp-resume="' + key + '">Học tiếp</button>'
         + '<a class="mp-link" href="' + esc(safeUrl(p.url)) + '">Xem</a>'
-      : '<a class="mp-link" href="' + esc(safeUrl(p.url)) + '">Xem lại</a>';
+      : (p.kind !== 'JLPT' && /^COMM:[A-Z_]+$/.test(String(p.key || ''))
+        ? '<a class="mp-link" href="/learning/comm/certificate?goal=' + esc(String(p.key).slice(5)) + '">Xem chứng chỉ</a>' : '')
+        + '<a class="mp-link" href="' + esc(safeUrl(p.url)) + '">Xem lại</a>';
     var pct = Math.max(0, Math.min(100, Math.round(num(p.percent))));
     return '<li class="mp-row mp-kind--' + (p.kind === 'JLPT' ? 'jlpt' : 'comm') + '" data-mp-card="' + key + '"><span class="mp-row__name">'
       + '<span class="mp-row__dot" aria-hidden="true"></span>' + esc(p.title)
