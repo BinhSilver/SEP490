@@ -51,6 +51,11 @@ final class JpathDayRules {
         boolean kanaPhase = path.isKanaTab() && path.getKanaCompletedAt() == null;
         boolean noNewLeft = noNewItemsLeft(content, path, level);
         JpathDayKind kind = calendar.dayKind(path, stage, day, noNewLeft);
+        // walkthrough 24/11: kana comes first; a Reading/Listening day before the kana stage is done cannot be read,
+        // so a calendar skill day in the kana phase is a study (kana) day and owes nothing later
+        if (kanaPhase) {
+            return new DayPlan(kind == JpathDayKind.SKILL ? JpathDayKind.STUDY : kind, false, true, noNewLeft);
+        }
         if (kind == JpathDayKind.STUDY && owedSkillDays(calendar, plans, path, stage, day) > 0) {
             return new DayPlan(JpathDayKind.SKILL, true, kanaPhase, noNewLeft);
         }
@@ -73,6 +78,10 @@ final class JpathDayRules {
         LocalDate from = monday;
         if (path.getCreatedAt() != null && path.getCreatedAt().toLocalDate().isAfter(from)) {
             from = path.getCreatedAt().toLocalDate();
+        }
+        // skill days of the kana phase are not owed (see dayPlan)
+        if (path.isKanaTab() && path.getKanaCompletedAt() != null && path.getKanaCompletedAt().toLocalDate().isAfter(from)) {
+            from = path.getKanaCompletedAt().toLocalDate();
         }
         int scheduled = 0;
         for (LocalDate d = from; d.isBefore(day); d = d.plusDays(1)) {
