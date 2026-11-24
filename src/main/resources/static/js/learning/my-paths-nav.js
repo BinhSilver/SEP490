@@ -37,25 +37,69 @@
 
   function addSwitcher(doc, view, loc) {
     var core = root.MyPathsCore;
-    if (OVERVIEW.indexOf(loc.pathname) < 0 || doc.querySelector('.mp-switch')) return;
+    if (OVERVIEW.indexOf(loc.pathname) < 0) return;
     var html = core.switcherHtml(view, core.currentKey(view, loc.pathname, loc.search));
+    var old = doc.querySelector('.mp-switch');
+    if (old) { if (!html && old.parentNode) old.parentNode.removeChild(old); return; } // a cached bar goes once a path pauses
     var main = doc.getElementById('jlabBaseContent');
     if (!html || !main) return;
     var box = doc.createElement('div');
     box.innerHTML = html;
-    main.insertBefore(box.firstChild, main.firstChild);
+    var bar = box.firstChild;
+    main.insertBefore(bar, main.firstChild);
+    slider(bar);
+  }
+
+  // owner 25/11: the white pill slides between the paths: on click it slides to the picked tab, then the next page
+  // starts it where it was and slides it home, so switching reads as one bar moving instead of a page reload
+  var PILL_KEY = 'mp.switch.from';
+  function store(k, v) { try { if (v == null) root.sessionStorage.removeItem(k); else root.sessionStorage.setItem(k, v); } catch (e) { /* private mode */ } }
+  function read(k) { try { return root.sessionStorage.getItem(k); } catch (e) { return null; } }
+  function place(pill, tab) {
+    pill.style.width = tab.offsetWidth + 'px';
+    pill.style.transform = 'translateX(' + tab.offsetLeft + 'px)';
+  }
+  function slider(bar) {
+    var tabs = bar.querySelector('.mp-switch__tabs');
+    var cur = bar.querySelector('.mp-switch__tab.is-current');
+    if (!tabs || !cur || !root.requestAnimationFrame) return;
+    var pill = root.document.createElement('span');
+    pill.className = 'mp-switch__pill';
+    pill.setAttribute('aria-hidden', 'true');
+    tabs.insertBefore(pill, tabs.firstChild);
+    tabs.classList.add('has-pill');
+    var from = read(PILL_KEY);
+    store(PILL_KEY, null);
+    var start = from ? JSON.parse(from) : null;
+    if (start) { pill.style.width = start.w + 'px'; pill.style.transform = 'translateX(' + start.x + 'px)'; }
+    else place(pill, cur);
+    root.requestAnimationFrame(function () { root.requestAnimationFrame(function () {
+      pill.classList.add('is-moving'); place(pill, cur);
+    }); });
+    tabs.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('.mp-switch__tab');
+      if (!a || a === cur || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+      e.preventDefault();
+      store(PILL_KEY, JSON.stringify({ x: cur.offsetLeft, w: cur.offsetWidth }));
+      cur.classList.remove('is-current'); a.classList.add('is-current');
+      place(pill, a);
+      root.setTimeout(function () { root.location.href = a.href; }, 220);
+    });
   }
 
   function apply(doc, view, loc) {
     var list = view && Array.isArray(view.paths) ? view.paths : [];
-    if (list.length < 2) return;
+    if (list.length < 2) { addSwitcher(doc, view, loc); return; }
     addSideLinks(doc, loc.pathname);
     addSwitcher(doc, view, loc);
   }
 
   function mount(doc, loc) {
     if (!doc || !loc || !root.JpathApi || !root.MyPathsCore || loc.pathname === '/learning/my') return;
+    var cached = read('mp.view');
+    if (cached) { try { apply(doc, JSON.parse(cached), loc); } catch (e) { /* stale cache */ } }
     root.JpathApi.get('/api/learning/my-paths').then(function (view) {
+      try { store('mp.view', JSON.stringify(view)); } catch (e) { /* too big */ }
       apply(doc, view, loc);
       // side menus drawn later by page scripts (e.g. the folded phone menu) get the link too
       if (typeof root.MutationObserver === 'function') {
