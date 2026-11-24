@@ -416,15 +416,34 @@ public class CpathService {
         return args;
     }
 
+    // perf 24/11: the situation catalogue is static content read once per path on every page (4x on 'Lộ trình
+    // của tôi'); keep a 60 s copy per goal and hand out fresh row maps so callers may still change them
+    private static final long SITUATION_TTL_MS = 60_000L;
+    private record CachedRows(List<Map<String, Object>> rows, long at) { }
+    private final java.util.concurrent.ConcurrentHashMap<String, CachedRows> situationCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private List<Map<String, Object>> goalSituations(String goal) {
+        long now = System.currentTimeMillis();
+        CachedRows hit = goal == null ? null : situationCache.get(goal);
+        if (hit == null || now - hit.at() >= SITUATION_TTL_MS) {
+            List<Map<String, Object>> loaded = db.queryForList("SELECT s.code, s.title_ja, s.title_vi, s.level, s.topic_code, t.name_vi topic_name, "
+                    + "t.sort_order t_order, s.sort_order s_order FROM cpath_situation s JOIN cpath_topic t ON t.code = s.topic_code "
+                    + "WHERE t.goal_code = ? ORDER BY t.sort_order, s.sort_order", goal);
+            hit = new CachedRows(List.copyOf(loaded), now);
+            if (goal != null) situationCache.put(goal, hit);
+        }
+        List<Map<String, Object>> out = new ArrayList<>(hit.rows().size());
+        for (Map<String, Object> row : hit.rows()) out.add(new java.util.LinkedHashMap<>(row));
+        return out;
+    }
+
     /** The path's situations in study order: priority topics first, then by level and topic order; WORK keeps its fields. */
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> orderedSituations(Map<String, Object> path) {
         String goal = (String) path.get("goal_code");
         List<Object> priority = parse((String) path.get("priority_topics_json"), List.of());
         Set<String> allowed = allowedTopics(path);
-        List<Map<String, Object>> rows = db.queryForList("SELECT s.code, s.title_ja, s.title_vi, s.level, s.topic_code, t.name_vi topic_name, "
-                + "t.sort_order t_order, s.sort_order s_order FROM cpath_situation s JOIN cpath_topic t ON t.code = s.topic_code "
-                + "WHERE t.goal_code = ? ORDER BY t.sort_order, s.sort_order", goal);
+        List<Map<String, Object>> rows = goalSituations(goal);
         Set<String> keep = allowed;
         List<Map<String, Object>> out = new ArrayList<>(rows.stream().filter(r -> keep == null || keep.contains(r.get("topic_code"))).toList());
         if (CpathCoreService.hasCore(goal)) {
