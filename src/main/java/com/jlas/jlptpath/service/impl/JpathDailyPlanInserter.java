@@ -160,7 +160,21 @@ public class JpathDailyPlanInserter {
     private void insert(Long userId, LocalDate day) {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
-        if (plans.findByUserIdAndStudyDay(userId, day).isPresent()) {
+        java.util.Optional<JpathDailyPlan> existing = plans.findByUserIdAndStudyDay(userId, day);
+        if (existing.isPresent()) {
+            // bug 25/11: a day planned while kana was still running keeps "học chữ cái" after kana is done; rebuild it
+            // when nothing of it was studied yet, so the new words open on the first day after kana
+            if (existing.get().isKanaPhase() && path.getKanaCompletedAt() != null) {
+                JpathUserLevel level = lockLevel(path);
+                plans.findForUpdate(userId, day).ifPresent(plan -> {
+                    List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
+                    boolean started = (plan.getCpAwarded() != null && plan.getCpAwarded() > 0)
+                            || tabs.stream().anyMatch(t -> t.getNewDone() > 0 || t.getExtraDone() > 0 || t.getReviewDone() > 0);
+                    if (!started) {
+                        rebuildForSchedule(path, level, plan, tabs);
+                    }
+                });
+            }
             return;
         }
         progress.reevaluateStage(userId);
@@ -224,7 +238,9 @@ public class JpathDailyPlanInserter {
      */
     boolean rebuildForSchedule(JpathUserPath path, JpathUserLevel level, JpathDailyPlan plan, List<JpathDailyTab> tabs) {
         JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, plan.getStudyDay());
-        boolean levelChanged = !java.util.Objects.equals(level.getLevel(), plan.getLevel());
+        // bug 25/11: kana finished after this plan was made → rebuild at once, like a new level (new words open today)
+        boolean levelChanged = !java.util.Objects.equals(level.getLevel(), plan.getLevel())
+                || (plan.isKanaPhase() && !dayPlan.kanaPhase());
         if (!levelChanged && dayPlan.kind() == plan.getDayKind() && dayPlan.skillMakeup() == plan.isSkillMakeup()) {
             return false;
         }

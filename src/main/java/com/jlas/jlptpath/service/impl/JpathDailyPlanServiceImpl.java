@@ -74,8 +74,16 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
         if (JpathPathLocks.held()) {
             throw new IllegalStateException("ensurePlanExists called while the transaction holds the path lock");
         }
-        if (views.currentPlan(userId).isPresent()) {
+        Optional<JpathDailyPlan> current = views.currentPlan(userId);
+        if (current.isPresent() && !current.get().isKanaPhase()) {
             return;
+        }
+        if (current.isPresent()) {
+            // planned during kana: the inserter rebuilds it if kana has finished since (cheap when it has not)
+            boolean kanaDone = pathService.findActive(userId).map(p -> p.getKanaCompletedAt() != null).orElse(false);
+            if (!kanaDone) {
+                return;
+            }
         }
         LocalDate today = clock.today(userId);
         try {
