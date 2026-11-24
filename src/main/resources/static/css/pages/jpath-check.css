@@ -1508,3 +1508,9 @@ html.dark .cp-page {
 .jp-check-root .jp-check { max-width: 672px !important; margin-inline: auto !important; border-radius: 24px !important; border: 1px solid #cbc4d2 !important; background: #fff; box-shadow: none !important; }
 html[data-theme="dark"] .jp-check-root .jp-check { background: var(--color-surface-lowest); border-color: var(--color-outline-variant) !important; }
 .jp-check-root .jp-board .jp-pair [lang="ja"] { font-size: 1.9rem !important; line-height: 1.2; }
+
+/* owner 25/11: result is one light card, not a card inside a card; calmer score */
+.jp-check-page .jp-result.jp-card { border: 0; box-shadow: none; background: transparent; padding: 8px 0; }
+.jp-result__score { font-size: clamp(2.4rem, 6vw, 3.2rem); font-weight: 600; line-height: 1.1; }
+.jp-result__title { font-size: 1rem; font-weight: 500; }
+.jp-result__wrong { font-size: .9rem; color: var(--color-text-muted, inherit); max-width: 56ch; }

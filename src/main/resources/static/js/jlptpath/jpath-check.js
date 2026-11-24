@@ -753,7 +753,8 @@
     var kind = check && check.kind;
     var o = opts || {};
     var pct = Number(r.scorePercent) || 0;
-    var mood = kind === 'FREE_QUIZ' && isWeekly(check) ? pct >= PASS_PERCENT : r.passed;
+    // owner 25/11: a free quiz under 50% is never praised
+    var mood = kind === 'FREE_QUIZ' ? pct >= (isWeekly(check) ? PASS_PERCENT : 50) : r.passed;
     var celCls = mood === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
     var html = '<section class="jp-result jp-card' + celCls + '" aria-labelledby="jp-result-title">'
       + celebrateArtHtml(mood);
@@ -777,7 +778,7 @@
       html += weeklySummaryHtml(r, check, pct);
     } else if (kind === 'FREE_QUIZ') {
       html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
-        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
+        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu.' + (pct < 50 ? ' Cần từ 50% để tính là đã ôn xong: xem lại câu sai rồi làm lại.' : '') + '</p>';
     } else {
       html += '<div class="jp-result__score' + tone + '">' + esc(pct) + '%</div><p class="jp-result__title" id="jp-result-title" tabindex="-1">';
       if (r.passed === true) html += '<b>Đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
