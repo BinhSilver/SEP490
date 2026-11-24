@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] "Lộ trình của tôi" (owner 24/11): every path of the learner as equal cards, "Học hết hôm nay",
+     total minutes per day and pause / resume per path. my-paths-page.js draws it from GET /api/learning/my-paths. -->
+<head th:replace="~{fragments/head :: standard('Lộ trình của tôi - KotsuKotsu', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('')}"></th:block>
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page mp-page" data-inline-dictionary>
+    <header class="mp-page__head">
+        <h1>Lộ trình của tôi</h1>
+        <p>Các lộ trình học ngang hàng, mỗi lộ trình giữ nhịp riêng.</p>
+    </header>
+    <div class="mp-root" data-mp-root aria-busy="true" aria-live="polite">
+        <p class="jp-skel jp-skel--map" role="status"><span class="jp-skel__sr">Đang tải lộ trình của bạn…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
+    </div>
+    <p class="jp-skel__sr" data-mp-status role="status" aria-live="polite"></p>
+</main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/learning/my-paths-page.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
+</body>
+</html>

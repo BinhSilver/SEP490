@@ -1,0 +1,95 @@
+/* [JLAS-W0108] "Lộ trình của tôi" (owner 24/11): dashboard /learning/my, the switcher bar on the path pages and
+   the side-menu link. Team UI standard: tokens only, weights 400/500/600, no arrows or emoji. */
+
+/* ---- Dashboard ---- */
+.mp-page { max-width: 1040px; margin: 0 auto; padding: var(--space-6, 24px) var(--space-4, 16px) var(--space-10, 48px); display: grid; gap: 20px; }
+.mp-page__head h1 { margin: 0; font-size: var(--text-2xl, 1.6rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-page__head p { margin: 6px 0 0; color: var(--color-on-surface-variant); }
+.mp-root { display: grid; gap: 20px; }
+.mp-root[aria-busy="true"] { min-height: 320px; }
+
+.mp-hero { display: flex; gap: 20px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  padding: 22px 24px; border-radius: var(--radius-lg, 16px); background: var(--color-primary-fixed);
+  border: 1px solid var(--color-outline-variant); }
+.mp-hero h2 { margin: 0 0 4px; font-size: var(--text-xl, 1.3rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-hero p { margin: 0; color: var(--color-on-surface-variant); }
+.mp-hero__text { flex: 1 1 320px; display: grid; gap: 8px; }
+.mp-hero__cta { display: grid; gap: 6px; justify-items: end; }
+.mp-hero__next { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-hero__done { font-weight: 500; color: var(--color-success); }
+.mp-hero__bar { height: 8px; border-radius: 99px; background: var(--color-surface-lowest); overflow: hidden; max-width: 420px; }
+.mp-hero__bar span { display: block; height: 100%; border-radius: inherit; background: var(--color-primary); }
+.mp-hero__count { font-size: var(--text-sm, .875rem); }
+.mp-hero__remind { font-weight: 500; color: var(--color-on-surface) !important; }
+
+.mp-time { padding: 14px 18px; border-radius: var(--radius-md, 12px); border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-lowest); color: var(--color-on-surface-variant); }
+.mp-time p { margin: 0; }
+.mp-time p + p { margin-top: 4px; }
+.mp-time strong { font-weight: 600; color: var(--color-on-surface); }
+.mp-time--over { border-color: var(--color-warning, var(--color-error)); background: var(--color-warning-bg, var(--color-error-container)); }
+
+.mp-list__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.mp-list__head h2 { margin: 0; font-size: var(--text-lg, 1.15rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-list__hint { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+.mp-card { display: grid; gap: 12px; align-content: start; padding: 18px; border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--color-outline-variant); background: var(--color-surface-lowest); color: var(--color-on-surface); }
+.mp-card--paused { background: var(--color-surface-container); }
+.mp-card__head { display: flex; gap: 14px; align-items: center; }
+.mp-card__title { display: grid; gap: 2px; min-width: 0; }
+.mp-card__title h3 { margin: 0; font-size: var(--text-lg, 1.1rem); font-weight: 600; }
+.mp-card__kind { font-size: var(--text-xs, .75rem); font-weight: 500; color: var(--color-outline); text-transform: uppercase; letter-spacing: .04em; }
+.mp-card__today { margin: 0; font-weight: 500; }
+.mp-card__today.is-done { color: var(--color-success); }
+.mp-card__meta { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-card__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.mp-card__actions .jp-btn { min-height: 40px; }
+
+.mp-badge { justify-self: start; padding: 2px 10px; border-radius: 99px; font-size: var(--text-xs, .75rem); font-weight: 500;
+  background: var(--color-surface-container); color: var(--color-on-surface-variant); }
+.mp-badge--active { background: var(--color-success-bg); color: var(--color-success); }
+.mp-badge--finished { background: var(--color-primary-fixed); color: var(--color-primary); }
+
+.mp-ring { --mp-p: 0; flex: none; width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--color-primary) calc(var(--mp-p) * 1%), var(--color-surface-container) 0); }
+.mp-ring__text { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--color-surface-lowest);
+  font-size: var(--text-xs, .75rem); font-weight: 600; color: var(--color-on-surface); }
+
+.mp-card--add { place-content: center; justify-items: center; text-align: center; min-height: 180px; text-decoration: none;
+  border-style: dashed; color: var(--color-primary); font-weight: 500; }
+.mp-card--add small { color: var(--color-on-surface-variant); font-weight: 400; }
+.mp-card--add:hover { background: var(--color-primary-fixed); }
+.mp-card__plus { font-size: 2rem; line-height: 1; font-weight: 400; }
+
+.mp-error { padding: 24px; display: grid; gap: 10px; justify-items: start; }
+.mp-error h2 { margin: 0; font-size: var(--text-lg, 1.15rem); font-weight: 600; }
+.mp-error p { margin: 0; color: var(--color-on-surface-variant); }
+
+/* ---- Dialog "đang học đủ 2" (fixed, above the site header) ---- */
+.mp-dialog { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 16px; }
+.mp-dialog__backdrop { position: absolute; inset: 0; background: rgba(22, 29, 31, .45); }
+.mp-dialog__panel { position: relative; max-width: 460px; width: 100%; padding: 22px; border-radius: var(--radius-lg, 16px);
+  background: var(--color-surface-lowest); color: var(--color-on-surface); box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, .18)); }
+.mp-dialog__msg { margin: 0 0 16px; line-height: 1.55; }
+.mp-dialog__actions { display: grid; gap: 8px; }
+
+/* ---- Switcher bar on the path pages ---- */
+.mp-switch { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 16px; padding: 8px 10px;
+  border-radius: var(--radius-md, 12px); border: 1px solid var(--color-outline-variant); background: var(--color-surface-lowest); }
+.mp-switch__home { font-size: var(--text-sm, .875rem); font-weight: 500; color: var(--color-primary); text-decoration: none; padding: 6px 8px; border-radius: 8px; }
+.mp-switch__home:hover { background: var(--color-primary-fixed); }
+.mp-switch__tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 4px; border-radius: 10px; background: var(--color-surface-container); }
+.mp-switch__tab { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 8px; text-decoration: none;
+  font-weight: 500; color: var(--color-on-surface-variant); }
+.mp-switch__tab:hover { color: var(--color-on-surface); }
+.mp-switch__tab.is-current { background: var(--color-surface-lowest); color: var(--color-primary); font-weight: 600; }
+.mp-switch__done { font-size: var(--text-xs, .75rem); font-weight: 500; color: var(--color-success); }
+.mp-switch a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .mp-hero__cta { justify-items: stretch; width: 100%; }
+  .mp-hero__cta .jp-btn { width: 100%; }
+  .mp-grid { grid-template-columns: 1fr; }
+}
