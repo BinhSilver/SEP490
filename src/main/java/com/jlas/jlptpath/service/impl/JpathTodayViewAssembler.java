@@ -201,6 +201,10 @@ public class JpathTodayViewAssembler {
         }
         boolean study = plan.getDayKind() == JpathDayKind.STUDY;
         int minutes = study ? minutesLeft(tabs.values()) : 0;
+        JpathTodayTab skillLeft = tabs.get(JpathTab.SKILL);
+        if (plan.getDayKind() == JpathDayKind.SKILL && skillLeft != null && skillLeft.required() && !skillLeft.done()) {
+            minutes = Math.max(minutes, SKILL_QUIZ_MINUTES);
+        }
         boolean reviewDayHint = study && tabs.values().stream()
                 .anyMatch(t -> t.reviewCap() > 0 && t.reviewDue() > 3 * t.reviewCap());
         List<JpathStudySession> open = openTodaySessions(userId, plan);
@@ -217,6 +221,9 @@ public class JpathTodayViewAssembler {
      * what is left of today's new items with the session's weights (JpathStudyServiceImpl#minutesLeft: word 0.6,
      * kanji 1.25, pattern 4.0, kana row 6.0) plus the due reviews the day still takes (0.15 each).
      */
+    /** A 10-question skill quiz still to pass: about 3 minutes. */
+    static final int SKILL_QUIZ_MINUTES = 3;
+
     static int minutesLeft(java.util.Collection<JpathTodayTab> tabs) {
         double total = 0;
         for (JpathTodayTab t : tabs) {
@@ -275,7 +282,9 @@ public class JpathTodayViewAssembler {
                 JpathTodayTab skill = tabs.get(JpathTab.SKILL);
                 done = skill == null ? 0 : skill.newDone();
                 total = skill == null ? 0 : skill.newTarget();
-                complete = skill == null || skill.done() || done >= total;
+                // the skill day ends with its quiz (#25): sessions done is not enough while the tab is not done,
+                // else a failed quiz left the step ticked, 0 minutes and a day that could never finish
+                complete = skill == null || skill.done() || (done >= total && !skill.required());
             } else {
                 JpathTodayTab t = tabs.get(JpathTab.valueOf(key));
                 done = t == null ? 0 : t.newDone();
