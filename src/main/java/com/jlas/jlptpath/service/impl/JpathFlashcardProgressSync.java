@@ -30,10 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class JpathFlashcardProgressSync {
 
-    static final String APPLIED_DDL = "CREATE TABLE IF NOT EXISTS learning_path_flashcard_applied ("
-            + " user_id BIGINT NOT NULL, card_id BIGINT NOT NULL, reviewed_at DATETIME(6) NOT NULL,"
-            + " PRIMARY KEY (user_id, card_id))";
-
     /** One graded card not applied yet. */
     record Review(long cardId, String front, int quality, LocalDateTime reviewedAt) {
     }
@@ -44,7 +40,6 @@ public class JpathFlashcardProgressSync {
     private final JpathStudyEventRepository events;
     private final JpathUserPathRepository paths;
     private final JpathClock clock;
-    private volatile boolean tableReady;
 
     public JpathFlashcardProgressSync(JdbcTemplate db, JpathItemStateMachine machine, JpathUserItemRepository items,
             JpathStudyEventRepository events, JpathUserPathRepository paths, JpathClock clock) {
@@ -74,7 +69,6 @@ public class JpathFlashcardProgressSync {
      * transaction.
      */
     public int apply(Long userId, String tab, JpathItemType type, String level, Map<String, String> codeByFront) {
-        ready();
         List<Review> reviews = db.query("SELECT c.id, c.front, p.last_quality, p.last_reviewed_at"
                         + " FROM learning_path_flashcard_set m JOIN flashcard_set s ON s.id = m.set_id AND s.deleted_at IS NULL"
                         + " JOIN flashcard_card c ON c.set_id = m.set_id"
@@ -117,12 +111,5 @@ public class JpathFlashcardProgressSync {
                 .rating(rating).quality(JpathSrsPolicy.quality(rating)).correct(rating != JpathRating.FORGOT)
                 .studyDay(day).build());
         return true;
-    }
-
-    private void ready() {
-        if (!tableReady) {
-            db.execute(APPLIED_DDL);
-            tableReady = true;
-        }
     }
 }
