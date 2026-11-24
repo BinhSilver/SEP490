@@ -152,6 +152,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
     /** Plan 3 #40: a timed section refuses answers this long after its deadline (network latency). */
     static final long SECTION_GRACE_SECONDS = 5;
+    static final int SKILL_DAY_QUIZ_PCT = 50;
     static final String SKILL_SESSION_URL = "/learning/jlpt/skills/session/";
     private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
     /** Kinds bound to one item of the step: a check of another item is never reused for them. */
@@ -1121,10 +1122,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         // #25 / D4: only a quiz of ≥ 10 questions on LEARNED or NOTEBOOK items counts for the skill day.
         // The server-chosen skill-day step counts whatever its size (its pool may give fewer than 10 questions).
         // Plan 3 Task 16 removed rule #25: a free quiz never completes a skill day any more
-        boolean skillDayQuiz = false;
         // Q5 (owner 24/11): the weekly check (FREE_QUIZ source WEEK, 10+ questions, not a redo) — 80% pays CP
         boolean weeklyCheck = set.getKind() == JpathCheckKind.FREE_QUIZ
                 && JpathStudyServiceImpl.weekly(set.getIssueJson());
+        // Q7 (owner 24/11) + bug 25/11: the skill day's quiz counts at 50%+ (JpathDayCompletion still waits for it;
+        // it was switched off, so a skill day never finished and every next day became a make-up skill day)
+        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ && !weeklyCheck
+                && percent >= SKILL_DAY_QUIZ_PCT;
 
         List<String> itemCodes = readList(set.getItemCodesJson());
         JpathStudySession session = set.getSessionId() == null ? null
@@ -1141,6 +1145,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 tabs = dailyTabs.findForUpdateByPlanId(today.getId());
             }
         }
+        // only the quiz step of today's skill-day session ("Ôn và quiz") takes it; a free quiz from a list never does
+        skillDayQuiz = skillDayQuiz && session != null && today != null && today.getDayKind() == JpathDayKind.SKILL;
         JpathCheckEffects.Applied applied = effects.apply(set,
                 new JpathCheckEffects.Scored(passed, tooFast, itemCodes, wrong, grammarRatings, keys.pending(),
                         skillReview, skillDayQuiz, weeklyCheck, weeklyCheck && percent >= WEEKLY_PASS_PCT),
