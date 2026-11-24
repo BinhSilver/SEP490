@@ -589,6 +589,10 @@
       + encodeURIComponent(tab) + '&part=' + encodeURIComponent(index) + '">In cả phần</a>';
   }
 
+  // owner 24/11: set by mount — the tab is still closed behind the kana stage ("Sau chữ cái")
+  var lockedByKana = false;
+  var TAB_NAME = { vocab: 'Từ vựng', kanji: 'Kanji', grammar: 'Ngữ pháp' };
+
   function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
     var items = list(p.items).length ? list(p.items) : list(p.preview);
     var n = Number(p.totalCount) || items.length || 10;
@@ -630,6 +634,11 @@
         + '" data-parts-count="' + n + '">Học lại phần này</button>'
         + '<span class="jp-parts__err" role="status" data-parts-relearn-error></span>' : '')
         + (p.day ? '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/day?d=' + esc(p.day) + '">Kết quả lần trước</a>' : '');
+    } else if (lockedByKana) {
+      // owner 24/11: the real reason — kanji and grammar open after the kana stage, not after today's part
+      actions = '<span class="jp-parts__locked-note">' + esc(TAB_NAME[String(tabKey || '').toLowerCase()] || 'Phần này')
+        + ' mở sau khi học xong Nhập môn (chữ cái)</span>'
+        + '<a class="jp-btn jp-btn--primary jp-parts__pop-main-btn" href="/learning?tab=kana">Học Nhập môn</a>';
     } else {
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
     }
@@ -1321,6 +1330,7 @@
     var key = String(tabKey || '').toLowerCase();
     var o = opts || {};
     var client = o.api || root.JpathApi;
+    lockedByKana = !!o.afterKana;
     if (!TABS[key] || o.ownLevel === false || !client) {
       partsEl.innerHTML = '';
       partsEl.hidden = true;

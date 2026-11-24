@@ -577,7 +577,8 @@
       // Owner 05/11: V/K/G tabs open on their study parts; the whole list waits behind "Xem toàn bộ"
       if (root.JpathParts && typeof root.JpathParts.mount === 'function') {
         root.JpathParts.mount(slot(rootEl, 'parts'), el, state.tab, {
-          api: apiClient, ownLevel: !state.viewLevel || state.viewLevel === p.openLevel, week: p.week });
+          api: apiClient, ownLevel: !state.viewLevel || state.viewLevel === p.openLevel, week: p.week,
+          afterKana: !!(tabInfo(p, state.tab) && tabInfo(p, state.tab).open === false) });
       }
     }
 
