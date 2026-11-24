@@ -412,74 +412,55 @@
     return null;
   }
 
+  // Owner 25/11: step 1 is a list (like the JLPT word lists); the flashcard button above is the way to drill
   function renderStepWords(sit, state) {
     var deck = buildDeck(sit);
     if (!deck.length) {
       return '<div class="cp-sit-stage"><p>Không có thẻ từ hoặc mẫu câu nào.</p></div>';
     }
-    var idx = Math.max(0, Math.min(deck.length - 1, state.cardIdx || 0));
-    var card = deck[idx];
-    var flipped = !!state.cardFlipped;
     var wordCount = list(sit.words).length;
-    var tabCount = card.kind === 'WORD' ? wordCount : deck.length - wordCount;
-    var tabIndex = card.kind === 'WORD' ? idx + 1 : idx - wordCount + 1;
-    var example = exampleLineFor(card, sit.lines);
-
+    var showPhrases = (state.cardIdx || 0) >= wordCount && deck.length > wordCount;
+    var rows = deck.filter(function (c) { return showPhrases ? c.kind !== 'WORD' : c.kind === 'WORD'; });
     var saving = !!(state && state.savingStep);
-    var hasDistinctReading = !!(card.reading && card.reading !== card.ja);
-    // Owner 17/11: Furigana puts the reading above the Japanese (word and example), Bản dịch shows the meanings.
-    var sameLine = example && example.furigana && String(example.ja) === String(card.ja);
-    function headHtml(furi) {
-      if (furi && hasDistinctReading && card.kind === 'WORD') {
-        return '<div class="cp-flashcard__ja" lang="ja"><ruby>' + esc(card.ja) + '<rt>' + esc(card.reading) + '</rt></ruby></div>';
-      }
-      if (furi && sameLine) return '<div class="cp-flashcard__ja" lang="ja">' + toRubyHtml(example.furigana, true) + '</div>';
-      return '<div class="cp-flashcard__ja" lang="ja">' + esc(card.ja) + '</div>'
-        + (furi && hasDistinctReading ? '<div class="cp-flashcard__rd" lang="ja">' + esc(card.reading) + '</div>' : '');
-    }
-    var exampleHtml = example && !sameLine ? '<p class="cp-flashcard__example"><small>Ví dụ trong hội thoại</small><span lang="ja">'
-      + toRubyHtml(example.furigana || example.ja, state.display.furigana) + '</span>'
-      + (state.display.translation && example.vi ? '<span class="cp-flashcard__ex-vi">' + esc(example.vi) + '</span>' : '') + '</p>' : '';
-    var cardBody = !flipped
-      ? headHtml(!!state.display.furigana)
+    var furi = !!state.display.furigana;
+    var trans = !!state.display.translation;
+    var rowsHtml = rows.map(function (card) {
+      var hasReading = !!(card.reading && card.reading !== card.ja);
+      var example = exampleLineFor(card, sit.lines);
+      var sameLine = example && example.furigana && String(example.ja) === String(card.ja);
+      var head;
+      if (furi && hasReading && card.kind === 'WORD') head = '<ruby>' + esc(card.ja) + '<rt>' + esc(card.reading) + '</rt></ruby>';
+      else if (furi && sameLine) head = toRubyHtml(example.furigana, true);
+      else head = esc(card.ja) + (furi && hasReading ? '<span class="cp-flashcard__rd">' + esc(card.reading) + '</span>' : '');
+      var saved = !!(state.saved && state.saved[card.id]);
+      var exHtml = example && !sameLine ? '<div class="cp-wordrow__ex"><span lang="ja">' + toRubyHtml(example.furigana || example.ja, furi) + '</span>'
+        + (trans && example.vi ? '<span class="cp-wordrow__ex-vi">' + esc(example.vi) + '</span>' : '') + '</div>' : '';
+      return '<li class="cp-wordrow">'
+        + '<div class="cp-wordrow__main">'
+        + '<div class="cp-wordrow__ja" lang="ja">' + head + '</div>'
         + romajiHtml(card.reading || card.ja, state)
-        + (state.display.translation && card.vi ? '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>' : '')
-        + exampleHtml
-        + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
+        + (trans && card.vi ? '<div class="cp-wordrow__vi">' + esc(card.vi) + '</div>' : '')
+        + exHtml
+        + '</div>'
+        + '<div class="cp-wordrow__actions">'
+        + '<button type="button" class="jp-speak-btn" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
         + '" aria-label="Nghe phát âm" title="Nghe phát âm">' + svgSpeaker() + '</button>'
-        + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn' + (state.saved && state.saved[card.id] ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + (state.saved && state.saved[card.id] ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (state.saved && state.saved[card.id] ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
-        + ''
-      : headHtml(true)
-        + romajiHtml(card.reading || card.ja, state)
-        + '<div class="cp-flashcard__vi">' + esc(card.vi) + '</div>'
-        + exampleHtml
-        + '<div class="cp-flashcard__note">' + esc(card.note) + '</div>'
-        + '<button type="button" class="jp-speak-btn jp-speak-btn--corner" data-cp-play-audio="' + esc(card.audioUrl) + '" data-cp-play-text="' + esc(card.ja)
-        + '" aria-label="Nghe lại" title="Nghe lại">' + svgSpeaker() + '</button>'
-        + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn' + (state.saved && state.saved[card.id] ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + (state.saved && state.saved[card.id] ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (state.saved && state.saved[card.id] ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
-        + '';
+        + (card.id ? '<button type="button" class="jp-speak-btn jp-save-btn jp-save-btn--inline' + (saved ? ' is-saved' : '') + '" data-cp-save="' + esc(card.id) + '" aria-pressed="' + saved + '" aria-label="Lưu vào sổ tay điểm yếu" title="' + (saved ? 'Đã lưu trong sổ tay · bấm để bỏ' : 'Lưu vào sổ tay điểm yếu') + '">' + svgBookmark() + '</button>' : '')
+        + '</div></li>';
+    }).join('');
 
     return '<div class="cp-sit-stage cp-sit-stage--words">'
       + '<div class="cp-deck-switch">'
       + '<div class="cp-deck-tabs" role="tablist">'
-      + '<button type="button" class="cp-deck-tab' + (idx < wordCount ? ' is-active' : '') + '" data-cp-jump-card="0">Từ vựng (' + wordCount + ')</button>'
-      + '<button type="button" class="cp-deck-tab' + (idx >= wordCount ? ' is-active' : '') + '" data-cp-jump-card="' + wordCount + '">Mẫu câu (' + Math.max(0, deck.length - wordCount) + ')</button>'
+      + '<button type="button" role="tab" aria-selected="' + !showPhrases + '" class="cp-deck-tab' + (!showPhrases ? ' is-active' : '') + '" data-cp-jump-card="0">Từ vựng (' + wordCount + ')</button>'
+      + '<button type="button" role="tab" aria-selected="' + showPhrases + '" class="cp-deck-tab' + (showPhrases ? ' is-active' : '') + '" data-cp-jump-card="' + wordCount + '">Mẫu câu (' + Math.max(0, deck.length - wordCount) + ')</button>'
       + '</div>'
-      + '<span class="cp-survey__sub">Thẻ <strong>' + tabIndex + '/' + tabCount + '</strong></span>'
       + '</div>'
-      // F194: a thin bar that fills card by card replaces the "Từ vựng · 1/25" chip on the card
-      + '<div class="cp-deck-progress" aria-hidden="true"><span style="width:' + Math.round(100 * tabIndex / Math.max(1, tabCount)) + '%"></span></div>'
-      + '<div class="cp-flashcard-clip"><div class="cp-flashcard" data-cp-flip-card tabindex="0" role="button" aria-label="Thẻ học lật hai chiều">'
-      + cardBody
-      + '</div></div>'
+      + '<ul class="cp-wordlist" data-cp-word-list>' + rowsHtml + '</ul>'
       + '</div>'
-      + '<footer class="cp-sit-foot">'
-      + '<button type="button" class="cp-btn-ghost" data-cp-card-prev' + (idx <= 0 ? ' disabled' : '') + '>Thẻ trước</button>'
-      + '<button type="button" class="cp-btn-ghost" data-cp-flip-btn>' + (flipped ? 'Xem mặt trước' : 'Lật xem nghĩa') + '<span class="cp-wide-only"> (Space)</span>' + '</button>'
-      + (idx + 1 < deck.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-card-next>Đã nhớ · Thẻ tiếp</button>'
-        : '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>'
-          + (saving ? 'Đang lưu…' : 'Hoàn thành Bước 1 · Sang Nghe hội thoại') + '</button>')
+      + '<footer class="cp-sit-foot cp-sit-foot--end">'
+      + '<button type="button" class="cp-btn-primary" data-cp-finish-step="WORDS"' + (saving ? ' disabled' : '') + '>'
+      + (saving ? 'Đang lưu…' : 'Đã học xong danh sách · Sang Nghe hội thoại') + '</button>'
       + '</footer>';
   }
 
@@ -1547,7 +1528,7 @@
 
     if (doc) {
       doc.addEventListener('keydown', function (ev) {
-        if (ev.code === 'Space' && state.activeStep === 'WORDS' && !state.showDoneScreen) {
+        if (ev.code === 'Space' && false && state.activeStep === 'WORDS' && !state.showDoneScreen) {
           var activeTag = doc.activeElement && doc.activeElement.tagName;
           if (activeTag !== 'INPUT' && activeTag !== 'TEXTAREA') {
             ev.preventDefault();

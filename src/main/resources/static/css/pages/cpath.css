@@ -2374,3 +2374,24 @@ html[data-theme="dark"] .cp-flashcard { background: var(--color-surface-lowest) 
   .jp-dayd__sec .jp-todo__item { grid-template-columns: 1fr; }
   .jp-dayd__sec .jp-todo__item > .cp-btn-primary { width: 100%; }
 }
+
+/* Owner 25/11: step 1 "Từ & mẫu câu" is a compact list, like the JLPT path word lists */
+.cp-wordlist { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 0; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); }
+.cp-wordrow { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--cp-line); }
+.cp-wordrow:first-child { border-top: 0; }
+.cp-wordrow__main { flex: 1 1 auto; min-width: 0; display: grid; gap: 3px; }
+.cp-wordrow__ja { font-size: 1.25rem; font-weight: 600; color: var(--cp-ink); line-height: 1.5; }
+.cp-wordrow__ja ruby rt { font-size: .5em; font-weight: 500; }
+.cp-wordrow__ja .cp-flashcard__rd { margin-left: 8px; font-size: .9rem; }
+.cp-wordrow__vi { font-size: .95rem; font-weight: 500; color: var(--jp-c-purple-900); }
+.cp-wordrow__ex { display: grid; gap: 2px; margin-top: 2px; font-size: .88rem; color: var(--cp-ink); }
+.cp-wordrow__ex ruby rt { font-size: .6em; }
+.cp-wordrow__ex-vi { color: var(--cp-muted); font-size: .82rem; }
+.cp-wordrow__actions { flex: 0 0 auto; display: flex; gap: 6px; }
+.cp-sit-foot--end { justify-content: flex-end; }
+@media (max-width: 600px) {
+  .cp-wordrow { padding: 10px 12px; gap: 8px; }
+  .cp-wordrow__ja { font-size: 1.1rem; }
+  .cp-wordrow__actions { flex-direction: column; }
+}
+.cp-wordrow__actions .jp-save-btn { position: static; }
