@@ -31,6 +31,7 @@
                 <p class="jp-path__loading jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải lộ trình…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
             <section class="jp-path__today" data-slot="today" data-mode-part="today"></section>
+            <section class="jp-band" data-learning-pace="JLPT" aria-live="polite" hidden></section>
             <section class="jp-path__warmup" data-slot="warmup" data-mode-part="today" hidden></section>
             <!-- F227 (owner 22/11): pace and week-skip live in Cài đặt lộ trình; only a nudge with a reason shows here -->
             <section class="jp-path__nudge" data-slot="tools-nudge" data-mode-part="today" aria-live="polite" hidden></section>
@@ -68,6 +69,7 @@
 <script th:src="@{/js/jlptpath/jpath-mock-card.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-skills-tab.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-path.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/learning/learning-pace-card.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>

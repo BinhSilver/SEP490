@@ -130,6 +130,11 @@
     if (state.targetLevel) parts.push('Mục tiêu ' + state.targetLevel);
     parts.push(state.examDate ? 'Thi ' + formatDate(state.examDate) : 'Chưa có ngày thi');
     if (state.sliders && state.sliders.vocab) parts.push(state.sliders.vocab + ' từ mỗi ngày');
+    if (state.view && state.view.smartTest && state.view.source === 'SMART_TEST') {
+      var baseline = recommend(state.view.dailyMinutes, state.view.bounds).vocab;
+      var suggested = state.view.sliders && state.view.sliders.vocab;
+      if (suggested !== baseline) parts.push('Nhịp gợi ý từ kết quả Smart Test');
+    }
     var skill = list(state.skillDays).map(function (d) { return DAY_VI[d] || d; });
     if (skill.length) parts.push('Kỹ năng ' + skill.join(', '));
     var rest = list(state.restDays).map(function (d) { return DAY_VI[d] || d; });

@@ -394,6 +394,7 @@
       }).join('');
       bodyHtml = '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Số tình huống học mỗi ngày</span>'
+        + '<p class="cp-survey__hint">Gợi ý theo trình độ bạn chọn và thời gian rảnh. Bạn có thể chọn nhịp khác.</p>'
         + '<div class="cp-pace-grid">'
         + PACES.map(function (pc) {
           var on = paceN === pc.n;
@@ -452,6 +453,12 @@
       + '</section>';
   }
 
+  function suggestedDaily(minutes, level) {
+    var base = minutes > 0 ? Math.round(minutes / 15) : 2;
+    var offset = level === 'BEGINNER' ? -1 : level === 'INTERMEDIATE' ? 1 : 0;
+    return Math.max(1, Math.min(4, base + offset));
+  }
+
   function mount(targetEl) {
     var doc = root && root.document;
     var el = targetEl || (doc && doc.getElementById && doc.getElementById('cpathSurveyRoot'));
@@ -464,7 +471,9 @@
       fields: [],
       priorityTopics: [],
       selfLevel: 'BEGINNER',
-      dailySituations: 2,
+      dailySituations: suggestedDaily(null, 'BEGINNER'),
+      baseMinutes: null,
+      dailyTouched: false,
       restDays: ['SUN'],
       finishDate: '',
       submitting: false,
@@ -586,6 +595,7 @@
       var lvBtn = t.closest('[data-cp-level]');
       if (lvBtn) {
         state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'BEGINNER';
+        if (!state.dailyTouched) state.dailySituations = suggestedDaily(state.baseMinutes, state.selfLevel);
         render();
         return;
       }
@@ -593,6 +603,7 @@
       var dailyBtn = t.closest('[data-cp-daily]');
       if (dailyBtn) {
         state.dailySituations = Math.min(4, Math.max(1, Number(dailyBtn.getAttribute('data-cp-daily')) || 2));
+        state.dailyTouched = true;
         render();
         return;
       }
@@ -693,15 +704,14 @@
         render();
       }
       applyPresetGoal();
-      if (!want && !forceSecondary) {
-        Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
-          var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
-          var saved = savedSurvey && savedSurvey.goal;
-          if (!saved) return;
-          want = saved;
-          applyPresetGoal();
-        }).catch(function () {});
-      }
+      Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
+        var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
+        state.baseMinutes = savedSurvey && Number(savedSurvey.dailyStudyMinutes);
+        if (!state.dailyTouched) state.dailySituations = suggestedDaily(state.baseMinutes, state.selfLevel);
+        var saved = savedSurvey && savedSurvey.goal;
+        if (!want && !forceSecondary && saved) { want = saved; applyPresetGoal(); }
+        render();
+      }).catch(function () {});
     }, failLoad);
 
     // [JLAS-W0108] F152/F155: distinguish secondary-goal add (?secondary=1 or plain /survey with existing path)
@@ -732,6 +742,7 @@
       state.currentSecondary = p.secondary && p.secondary.goal ? p.secondary.goal : null;
       if (p.selfLevel === 'BEGINNER' || p.selfLevel === 'ELEMENTARY' || p.selfLevel === 'INTERMEDIATE') {
         state.selfLevel = p.selfLevel;
+        if (!state.dailyTouched) state.dailySituations = suggestedDaily(state.baseMinutes, state.selfLevel);
       }
       if (p.display && typeof p.display.fullRomaji === 'boolean') {
         state.knowsKana = !p.display.fullRomaji;
@@ -752,6 +763,7 @@
     surveyHtml: surveyHtml,
     buildPayload: buildPayload,
     getAvailableTopics: getAvailableTopics,
+    suggestedDaily: suggestedDaily,
     steps: steps,
     displayGoals: displayGoals,
     mount: mount
