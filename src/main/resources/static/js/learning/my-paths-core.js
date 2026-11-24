@@ -60,10 +60,10 @@
     return active(view).length >= max;
   }
 
-  function ring(percent) {
+  function bar(percent) {
     var p = Math.max(0, Math.min(100, Math.round(num(percent))));
-    return '<span class="mp-ring" style="--mp-p:' + p + '" role="img" aria-label="Tiến độ ' + p + '%">'
-      + '<span class="mp-ring__text">' + p + '%</span></span>';
+    return '<div class="mp-prog"><span class="mp-prog__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p
+      + '" aria-label="Tiến độ ' + p + '%"><i style="width:' + p + '%"></i></span><span class="mp-prog__pct">' + p + '%</span></div>';
   }
 
   function todayLine(p) {
@@ -79,89 +79,96 @@
     try { return typeof require === 'function' ? require('./path-io-core.js') : null; } catch (e) { return null; }
   }
 
+  function kindLabel(p) { return p.kind === 'JLPT' ? 'JLPT' : 'Giao tiếp'; }
+
+  /** Big card of a path being studied. */
   function cardHtml(p) {
     var key = esc(p.key);
-    var statusCls = 'mp-card--' + String(p.status || '').toLowerCase();
     var meta = [];
-    if (num(p.minutesPerDay) > 0) meta.push('<span>' + num(p.minutesPerDay) + ' phút mỗi ngày</span>');
-    if (p.finishDate && p.status !== 'FINISHED') meta.push('<span>Dự kiến xong ' + esc(dateVi(p.finishDate)) + '</span>');
-    if (p.focusTopic) meta.push('<span>Tuần này: ' + esc(p.focusTopic) + '</span>');
+    if (num(p.minutesPerDay) > 0) meta.push(num(p.minutesPerDay) + ' phút/ngày');
+    if (p.finishDate && p.status !== 'FINISHED') meta.push('dự kiến xong ' + esc(dateVi(p.finishDate)));
+    if (p.focusTopic) meta.push('tuần này: ' + esc(p.focusTopic));
     var actions = [];
     if (p.status === 'ACTIVE') {
-      actions.push(p.todayDone
-        ? '<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Vào lộ trình</a>'
-        : '<a class="jp-btn jp-btn--primary" href="' + esc(safeUrl(p.todayUrl, safeUrl(p.url))) + '" data-mp-today="' + key + '">Học hôm nay</a>'
-          + '<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Vào lộ trình</a>');
-      actions.push('<button type="button" class="jp-btn mp-card__pause" data-mp-pause="' + key + '">Tạm dừng</button>');
+      if (!p.todayDone) actions.push('<a class="jp-btn jp-btn--primary" href="' + esc(safeUrl(p.todayUrl, safeUrl(p.url))) + '" data-mp-today="' + key + '">Học hôm nay</a>');
+      actions.push('<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Vào lộ trình</a>');
+      actions.push('<button type="button" class="mp-link mp-card__pause" data-mp-pause="' + key + '">Tạm dừng</button>');
     } else if (p.status === 'PAUSED') {
       actions.push('<button type="button" class="jp-btn jp-btn--primary" data-mp-resume="' + key + '">Học tiếp</button>');
       actions.push('<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Xem lộ trình</a>');
     } else {
       actions.push('<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Xem lại</a>');
     }
-    return '<article class="mp-card ' + statusCls + '" data-mp-card="' + key + '">'
-      + '<div class="mp-card__head">' + ring(p.percent)
-      + '<div class="mp-card__title"><span class="mp-card__kind">' + (p.kind === 'JLPT' ? 'JLPT' : 'Giao tiếp') + '</span>'
-      + '<h3>' + esc(p.title) + '</h3>'
-      + '<span class="mp-badge mp-badge--' + String(p.status || '').toLowerCase() + '">' + esc(STATUS_LABEL[p.status] || p.status) + '</span></div></div>'
+    return '<article class="mp-card mp-card--' + String(p.status || '').toLowerCase() + '" data-mp-card="' + key + '">'
+      + '<header class="mp-card__head"><span class="mp-card__kind">' + kindLabel(p) + '</span>'
+      + '<h3>' + esc(p.title) + '</h3></header>'
+      + bar(p.percent)
       + '<p class="mp-card__today' + (p.todayDone ? ' is-done' : '') + '">' + todayLine(p) + '</p>'
-      + (meta.length ? '<p class="mp-card__meta">' + meta.join('') + '</p>' : '')
-      // F240: entry and exit of the path (from /api/learning/path-io, merged in by the page)
+      + (meta.length ? '<p class="mp-card__meta">' + meta.join(' · ') + '</p>' : '')
       + (p.io && ioCore() ? ioCore().lineHtml(p.io) : '')
       + '<div class="mp-card__actions">' + actions.join('') + '</div>'
       + '</article>';
   }
 
-  function heroHtml(view) {
+  /** One compact row of a paused or finished path. */
+  function rowHtml(p) {
+    var key = esc(p.key);
+    var paused = p.status === 'PAUSED';
+    var note = paused ? (p.pausedSince ? 'tạm dừng từ ' + esc(dateVi(p.pausedSince)) : 'tạm dừng') : 'đã xong';
+    var act = paused
+      ? '<button type="button" class="jp-btn" data-mp-resume="' + key + '">Học tiếp</button>'
+        + '<a class="mp-link" href="' + esc(safeUrl(p.url)) + '">Xem</a>'
+      : '<a class="mp-link" href="' + esc(safeUrl(p.url)) + '">Xem lại</a>';
+    return '<li class="mp-row" data-mp-card="' + key + '"><span class="mp-row__name">' + esc(p.title) + '</span><span class="mp-row__note">' + Math.round(num(p.percent)) + '% · ' + note + '</span>'
+      + '<span class="mp-row__act">' + act + '</span></li>';
+  }
+
+  function todayHtml(view) {
     var list = active(view);
+    var total = num(view && view.totalMinutes);
+    var free = num(view && view.freeMinutes);
+    var over = !!(view && view.overFreeTime) || (free > 0 && total > free);
     if (!list.length) {
-      return '<section class="mp-hero"><div><h2>Chưa có lộ trình nào đang học</h2>'
-        + '<p>Chọn Học tiếp ở một lộ trình đang tạm dừng, hoặc thêm lộ trình mới.</p></div></section>';
+      return '<section class="mp-today"><div class="mp-today__text"><h2>Chưa có lộ trình nào đang học</h2>'
+        + '<p>Chọn Học tiếp ở một lộ trình bên dưới, hoặc thêm lộ trình mới.</p></div></section>';
     }
     var pr = todayProgress(view);
     var next = nextToday(view);
-    var btn = next
-      ? '<a class="jp-btn jp-btn--primary mp-hero__go" href="' + esc(safeUrl(next.todayUrl, safeUrl(next.url))) + '" data-mp-all>'
-        + (pr.total > 1 ? 'Học hết hôm nay' : 'Học hôm nay') + '</a>'
-        + (pr.total > 1 ? '<span class="mp-hero__next">Tiếp theo: ' + esc(next.title) + '</span>' : '')
-      : '<span class="mp-hero__done">Hôm nay đã xong. Hẹn gặp lại ngày mai.</span>';
-    var bar = pr.total > 1
-      ? '<div class="mp-hero__bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + pr.total + '" aria-valuenow="' + pr.done
-        + '" aria-label="Đã xong ' + pr.done + ' trên ' + pr.total + ' lộ trình hôm nay"><span style="width:' + Math.round(pr.done * 100 / pr.total) + '%"></span></div>'
-        + '<p class="mp-hero__count">Đã xong ' + pr.done + '/' + pr.total + ' lộ trình hôm nay</p>'
-      : '';
+    var line = [];
+    if (total) line.push('Mỗi ngày khoảng ' + total + ' phút' + (free ? ' (bạn rảnh ' + free + ' phút)' : ''));
+    if (pr.total > 1) line.push('Đã xong ' + pr.done + '/' + pr.total + ' lộ trình hôm nay');
     var left = list.filter(function (p) { return !p.todayDone; }).map(function (p) { return esc(p.title); });
-    var remind = left.length && pr.total > 1 && pr.done > 0 ? '<p class="mp-hero__remind" role="status">Hôm nay còn ' + left.join(', ') + ' chưa học.</p>' : '';
-    return '<section class="mp-hero"><div class="mp-hero__text"><h2>Hôm nay</h2>'
-      + '<p>' + (pr.total > 1 ? 'Thẻ ôn của các lộ trình học trước, rồi lần lượt từng lộ trình.' : 'Phần hôm nay của lộ trình đang học.') + '</p>'
-      + bar + remind + '</div><div class="mp-hero__cta">' + btn + '</div></section>';
+    var remind = left.length && pr.total > 1 && pr.done > 0 ? '<p class="mp-today__remind" role="status">Hôm nay còn ' + left.join(', ') + ' chưa học.</p>' : '';
+    var cta = pr.total < 2 && next ? '' : next
+      ? '<a class="jp-btn jp-btn--primary" href="' + esc(safeUrl(next.todayUrl, safeUrl(next.url))) + '" data-mp-all>'
+        + (pr.total > 1 ? 'Học hết hôm nay' : 'Học hôm nay') + '</a>'
+        + (pr.total > 1 ? '<span class="mp-today__next">Tiếp theo: ' + esc(next.title) + '</span>' : '')
+      : '<span class="mp-today__done">Hôm nay đã xong. Hẹn gặp lại ngày mai.</span>';
+    return '<section class="mp-today' + (over ? ' mp-today--over' : '') + '"><div class="mp-today__text"><h2>Hôm nay</h2>'
+      + (line.length ? '<p>' + line.join(' · ') + '</p>' : '') + remind
+      + (over ? '<p class="mp-today__warn" role="alert">Tổng thời gian đang vượt thời gian rảnh. Giảm nhịp ở Cài đặt của một lộ trình, hoặc tạm dừng bớt.</p>' : '')
+      + '</div><div class="mp-today__cta">' + cta + '</div></section>';
   }
 
-  function timeHtml(view) {
-    var total = num(view && view.totalMinutes);
-    if (!total) return '';
-    var free = num(view && view.freeMinutes);
-    var over = !!(view && view.overFreeTime) || (free > 0 && total > free);
-    return '<section class="mp-time' + (over ? ' mp-time--over' : '') + '" role="' + (over ? 'alert' : 'note') + '">'
-      + '<p><strong>Mỗi ngày khoảng ' + total + ' phút</strong>' + (free ? ' · thời gian rảnh bạn chọn: ' + free + ' phút' : '') + '</p>'
-      + (over ? '<p>Tổng thời gian đang vượt thời gian rảnh. Giảm nhịp ở Cài đặt của một lộ trình, hoặc tạm dừng bớt.</p>' : '')
-      + '</section>';
-  }
-
-  /** The whole dashboard body. */
+  /** The whole dashboard body: today, the paths being studied (max 2), then paused and finished ones. */
   function dashboardHtml(view) {
     var list = paths(view);
     var max = num(view && view.maxActive) || 2;
-    var order = { ACTIVE: 0, PAUSED: 1, FINISHED: 2 };
-    var sorted = list.slice().sort(function (a, b) { return rank(a) - rank(b); });
-    function rank(p) { return order.hasOwnProperty(p.status) ? order[p.status] : 3; }
-    return heroHtml(view) + timeHtml(view)
-      + '<section class="mp-list" aria-label="Các lộ trình"><div class="mp-list__head"><h2>Các lộ trình</h2>'
-      + '<span class="mp-list__hint">Học cùng lúc tối đa ' + max + ' lộ trình. Tạm dừng lộ trình nào chỉ dừng lộ trình đó.</span></div>'
-      + '<div class="mp-grid">' + sorted.map(cardHtml).join('')
-      + '<a class="mp-card mp-card--add" href="/survey?edit=goal" data-mp-add><span class="mp-card__plus" aria-hidden="true">+</span>'
-      + '<span>Thêm lộ trình</span><small>JLPT hoặc giao tiếp (Du lịch, Đời sống, Công việc)</small></a>'
-      + '</div></section>';
+    var studying = active(view);
+    var rest = list.filter(function (p) { return p && p.status === 'PAUSED'; })
+      .concat(list.filter(function (p) { return p && p.status === 'FINISHED'; }));
+    var add = studying.length < max
+      ? '<a class="mp-add" href="/survey?edit=goal" data-mp-add><strong>Thêm lộ trình</strong><span>JLPT hoặc giao tiếp (Du lịch, Đời sống, Công việc)</span></a>'
+      : '';
+    return todayHtml(view)
+      + '<section class="mp-list" aria-label="Đang học"><div class="mp-list__head"><h2>Đang học <span class="mp-count">'
+      + studying.length + '/' + max + '</span></h2>'
+      + '<span class="mp-list__hint">Học cùng lúc tối đa ' + max + ' lộ trình.</span></div>'
+      + '<div class="mp-grid">' + studying.map(cardHtml).join('') + add + '</div></section>'
+      + (rest.length ? '<section class="mp-list" aria-label="Tạm dừng và đã xong"><div class="mp-list__head"><h2>Tạm dừng và đã xong</h2>'
+        + '<span class="mp-list__hint">Tiến độ được giữ nguyên.</span></div>'
+        + '<ul class="mp-rows">' + rest.map(rowHtml).join('') + '</ul></section>' : '')
+      + (add ? '' : '<p class="mp-full">Đang học đủ ' + max + ' lộ trình. Muốn thêm lộ trình mới, hãy tạm dừng một lộ trình trước.</p>');
   }
 
   /** Switcher bar for a path page; '' with fewer than 2 ACTIVE paths. */

@@ -123,7 +123,11 @@
     }
     function load() {
       el.setAttribute('aria-busy', 'true');
-      return Promise.all([http().get(URL_VIEW), ioPromise]).then(function (r) { draw(r[0]); }, fail);
+      // draw the cards as soon as they arrive; the slower entry/exit lines fill in after
+      return http().get(URL_VIEW).then(function (v) {
+        draw(v);
+        if (!io) ioPromise.then(function (x) { if (x && view && !busy) draw(view); });
+      }, fail);
     }
 
     function resume(key, pauseKey) {
