@@ -66,6 +66,29 @@
     });
   }
 
+  /** F240: the popup of one level or need (counts + can-do lines); Esc, backdrop or Đóng close it. */
+  function showInfo(html) {
+    var doc = root.document;
+    var prev = doc.activeElement;
+    var el = doc.createElement('div');
+    el.className = 'mp-dialog';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.innerHTML = '<div class="mp-dialog__backdrop" data-mp-cancel></div><div class="mp-dialog__panel mp-io__panel">' + html
+      + '<div class="mp-dialog__actions"><button type="button" class="jp-btn" data-mp-cancel>Đóng</button></div></div>';
+    function close() {
+      doc.removeEventListener('keydown', onKey, true);
+      el.remove();
+      if (prev && prev.focus) prev.focus();
+    }
+    function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); close(); } }
+    el.addEventListener('click', function (e) { if (e.target.closest('[data-mp-cancel]')) close(); });
+    doc.addEventListener('keydown', onKey, true);
+    doc.body.appendChild(el);
+    var btn = el.querySelector('button[data-mp-cancel]');
+    if (btn) btn.focus();
+  }
+
   function confirmPause(title) {
     var msg = 'Tạm dừng ' + title + '? Tiến độ được giữ, các lộ trình khác không đổi. Bấm Học tiếp để học lại đúng chỗ đã dừng.';
     return typeof root.JlasConfirm === 'function'
@@ -79,8 +102,16 @@
     var view = null;
     var busy = false;
 
+    var io = null; // F240: entry/exit per path key, read once per page load
+    var ioPromise = Promise.resolve(http().get('/api/learning/path-io')).then(function (x) { io = x || null; return io; },
+      function () { return null; });
+    function withIo(v) {
+      if (!v || !io || !io.paths) return v;
+      (v.paths || []).forEach(function (p) { if (io.paths[p.key]) p.io = io.paths[p.key]; });
+      return v;
+    }
     function draw(v) {
-      view = v;
+      view = withIo(v);
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = core().dashboardHtml(v);
     }
@@ -92,7 +123,7 @@
     }
     function load() {
       el.setAttribute('aria-busy', 'true');
-      return http().get(URL_VIEW).then(draw, fail);
+      return Promise.all([http().get(URL_VIEW), ioPromise]).then(function (r) { draw(r[0]); }, fail);
     }
 
     function resume(key, pauseKey) {
@@ -113,6 +144,11 @@
     el.addEventListener('click', function (e) {
       var t = e.target;
       if (t.closest('[data-mp-reload]')) { load(); return; }
+      var lv = t.closest('[data-io-level]');
+      if (lv && root.PathIoCore) {
+        showInfo(root.PathIoCore.popupHtml(lv.getAttribute('data-io-level'), io && io.levels));
+        return;
+      }
       var pause = t.closest('[data-mp-pause]');
       var res = t.closest('[data-mp-resume]');
       if ((!pause && !res) || busy) return;

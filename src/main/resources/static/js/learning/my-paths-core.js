@@ -74,6 +74,11 @@
     return left > 0 ? 'Hôm nay: còn khoảng ' + left + ' phút' : 'Hôm nay: chưa học';
   }
 
+  function ioCore() {
+    if (typeof PathIoCore !== 'undefined') return PathIoCore; // browser global
+    try { return typeof require === 'function' ? require('./path-io-core.js') : null; } catch (e) { return null; }
+  }
+
   function cardHtml(p) {
     var key = esc(p.key);
     var statusCls = 'mp-card--' + String(p.status || '').toLowerCase();
@@ -101,6 +106,8 @@
       + '<span class="mp-badge mp-badge--' + String(p.status || '').toLowerCase() + '">' + esc(STATUS_LABEL[p.status] || p.status) + '</span></div></div>'
       + '<p class="mp-card__today' + (p.todayDone ? ' is-done' : '') + '">' + todayLine(p) + '</p>'
       + (meta.length ? '<p class="mp-card__meta">' + meta.join('') + '</p>' : '')
+      // F240: entry and exit of the path (from /api/learning/path-io, merged in by the page)
+      + (p.io && ioCore() ? ioCore().lineHtml(p.io) : '')
       + '<div class="mp-card__actions">' + actions.join('') + '</div>'
       + '</article>';
   }
