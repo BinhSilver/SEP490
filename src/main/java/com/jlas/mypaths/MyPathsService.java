@@ -195,6 +195,19 @@ public class MyPathsService {
         m.put("focusTopic", null);
         m.put("focusField", null);
         m.put("targetLevel", row.get("target_level"));
+        if (!active) {
+            // #87 (25/11): a paused path kept its progress; the card showed 0% because only the active path was read
+            try {
+                JpathPathView v = jpath.paused(userId);
+                if (v != null) {
+                    int learned = 0, total = 0;
+                    for (JpathLevelCell c : v.levels()) { learned += c.learned(); total += c.total(); }
+                    m.put("percent", total == 0 ? 0 : (int) Math.round(100.0 * learned / total));
+                }
+            } catch (RuntimeException e) {
+                // the dashboard still lists the path
+            }
+        }
         if (active) {
             java.util.concurrent.CompletableFuture<JpathTodayView> todayF = java.util.concurrent.CompletableFuture
                     .supplyAsync(() -> { try { return jpathDay.today(userId); } catch (RuntimeException e) { return null; } });

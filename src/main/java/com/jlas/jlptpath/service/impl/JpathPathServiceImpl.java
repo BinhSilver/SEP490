@@ -236,6 +236,12 @@ public class JpathPathServiceImpl implements JpathPathService {
 
     @Override
     @Transactional(readOnly = true)
+    public JpathPathView paused(Long userId) {
+        return paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.PAUSED).map(views::view).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public JpathUserLevel openLevelState(Long userId) {
         JpathUserPath path = requireActive(userId);
         return userLevels.findById(new JpathUserLevelId(path.getId(), path.getOpenLevel()))
