@@ -272,6 +272,19 @@
       });
     }
 
+    // walkthrough 25/11: keys 1–4 pick an answer, like the JLPT checks (the two paths behave the same)
+    if (root.document && root.document.addEventListener) {
+      root.document.addEventListener('keydown', function (ev) {
+        if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+        var tag = ev.target && ev.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        var n = Number(ev.key);
+        if (!(n >= 1 && n <= 4)) return;
+        var opts = el.querySelectorAll('[data-weekly-pick],[data-rp-pick]');
+        if (opts[n - 1] && !opts[n - 1].disabled) { ev.preventDefault(); opts[n - 1].click(); }
+      });
+    }
+
     el.addEventListener('click', function (ev) {
       var t = ev.target;
       if (!t || !t.closest) return;
