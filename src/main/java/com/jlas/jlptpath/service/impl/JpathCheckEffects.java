@@ -27,6 +27,7 @@ import com.jlas.jlptpath.util.JpathQueueStep;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -214,7 +215,7 @@ public class JpathCheckEffects {
                 boolean weeklyFailed = s.weeklyCheck() && !s.weeklyPassed();
                 for (String code : s.itemCodes()) {
                     if (s.wrongCodes().contains(code)) {
-                        JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                        JpathUserItem row = quizRow(userId, set, type, code);
                         if (weeklyFailed) {
                             items.dueNextWeek(row);
                         } else {
@@ -327,6 +328,21 @@ public class JpathCheckEffects {
     }
 
     // ---- items ---------------------------------------------------------------------------------------------
+
+    /**
+     * Walkthrough 25/11: the skill day's quiz mixes words, kanji and grammar under the SKILL tab, which maps to KANA —
+     * so a missed word got a stray kana row and never reached the notebook. A free quiz asks items already learned:
+     * use the learner's own row of that code (any type), and fall back to the tab's type only when none exists.
+     */
+    private JpathUserItem quizRow(Long userId, JpathCheckSet set, JpathItemType tabType, String code) {
+        if (set.getTab() == JpathTab.SKILL) {
+            for (JpathItemType t : List.of(JpathItemType.VOCAB, JpathItemType.KANJI, JpathItemType.GRAMMAR, JpathItemType.KANA)) {
+                Optional<JpathUserItem> own = userItems.findByUserIdAndItemTypeAndItemCode(userId, t, code);
+                if (own.isPresent()) return own.get();
+            }
+        }
+        return items.ensureRow(userId, tabType, code, set.getLevel());
+    }
 
     static JpathItemType itemType(JpathCheckSet set) {
         if (set.getKind() == JpathCheckKind.GROUP_EXERCISE) {
