@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * MODERATOR/ADMIN gỡ trực tiếp bài viết / bình luận cộng đồng (không cần chờ đủ báo cáo). Dùng chung cơ chế với hàng
+ * MODERATOR/ADMIN/CONTENT_CREATOR gỡ trực tiếp bài viết / bình luận cộng đồng (không cần chờ đủ báo cáo). Dùng chung cơ chế với hàng
  * chờ báo cáo: trạng thái REMOVED trên community_content / community_comment (không xoá cứng), báo cáo đang mở của đối
  * tượng được đóng là RESOLVED ({@link CommunityReportedContentPort#resolve}), ghi nhật ký kiểm duyệt
  * (moderation_audit_log, cùng transaction) và báo cho tác giả kèm lý do.
@@ -52,12 +52,35 @@ public class CommunityModerationService {
         if (CommunityStatus.REMOVED.name().equals(row.getStatus())) {
             throw new ApiException(ErrorCode.CONFLICT, "Bài viết đã bị gỡ");
         }
+        removeLocked(row, target, moderatorId, why);
+        return feed.item(access.load(CommunityContentType.POST, postId), moderatorId);
+    }
+
+    /**
+     * Gỡ một nội dung cộng đồng theo id dòng community_content (bài viết, bộ thẻ chia sẻ…), dùng cho trang "Báo cáo cộng
+     * đồng" của người biên soạn: gỡ được cả nội dung mới có 1 báo cáo lẫn nội dung đang tạm ẩn.
+     */
+    @Transactional
+    public void removeContent(Long communityContentId, Long moderatorId, String reason) {
+        requireModerator();
+        String why = reason(reason);
+        CommunityContent row = access.fresh(contents.lockById(communityContentId)
+                .orElseThrow(CommunityAccessService::notFound));
+        if (CommunityStatus.REMOVED.name().equals(row.getStatus())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Nội dung đã bị gỡ");
+        }
+        removeLocked(row, access.load(row), moderatorId, why);
+    }
+
+    /** Dòng đã khoá + đọc lại, chưa REMOVED: gỡ, đóng báo cáo đang mở, ghi nhật ký và báo tác giả. */
+    private void removeLocked(CommunityContent row, Target target, Long moderatorId, String why) {
         String from = row.getStatus();
         reportedContent.resolve(CommunityReportedContentPort.CONTENT, row.getId(), decision(moderatorId, why));
         audit.record(moderatorId, new ModerationAuditService.Entry(ACTION_REMOVE, CommunityReportedContentPort.CONTENT,
                 row.getId(), from, CommunityStatus.REMOVED.name(), why, null));
-        notifier.removedByModerator(target.source().ownerId(), target.source(), null, why, true);
-        return feed.item(access.load(CommunityContentType.POST, postId), moderatorId);
+        // Chỉ tác giả bài viết (POST) còn xem được nội dung đã gỡ; nguồn khác link về trang Cộng đồng.
+        notifier.removedByModerator(target.source().ownerId(), target.source(), null, why,
+                CommunityContentType.POST.equals(row.getContentType()));
     }
 
     /** Gỡ một bình luận cộng đồng (trên bài viết hoặc nội dung chia sẻ). */
@@ -93,7 +116,7 @@ public class CommunityModerationService {
 
     private static void requireModerator() {
         if (!CommunityAccessService.isModerator()) {
-            throw new ApiException(ErrorCode.FORBIDDEN, "Chỉ kiểm duyệt viên hoặc quản trị viên được gỡ nội dung");
+            throw new ApiException(ErrorCode.FORBIDDEN, "Chỉ người biên soạn, kiểm duyệt viên hoặc quản trị viên được gỡ nội dung");
         }
     }
 

@@ -6,6 +6,7 @@ import com.jlas.community.dto.CommunityDtos.ContentDetail;
 import com.jlas.community.dto.CommunityDtos.RatingResult;
 import com.jlas.community.entity.CommunityContent;
 import com.jlas.community.entity.CommunityRating;
+import com.jlas.community.entity.CommunitySavedPost;
 import com.jlas.community.enums.CommunityContentType;
 import com.jlas.community.enums.CommunityStatus;
 import com.jlas.community.handler.CommunitySource;
@@ -13,9 +14,11 @@ import com.jlas.community.handler.SourceRatingSupport;
 import com.jlas.community.handler.SourceRatingSupport.RatingSnapshot;
 import com.jlas.community.repository.CommunityContentRepository;
 import com.jlas.community.repository.CommunityRatingRepository;
+import com.jlas.community.repository.CommunitySavedPostRepository;
 import com.jlas.community.service.CommunityAccessService.Target;
 import com.jlas.moderation.service.UserActionPolicyPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class CommunityContentService {
     private final CommunityContentRepository contents;
     private final CommunityRatingRepository ratings;
     private final UserActionPolicyPort actionPolicy;
+    private final CommunitySavedPostRepository saved;
 
     @Transactional(readOnly = true)
     public ContentDetail detail(String contentType, Long contentId, Long viewerId) {
@@ -102,6 +106,32 @@ public class CommunityContentService {
         });
         refreshRating(row);
         return new RatingResult(row.getRatingAvg().doubleValue(), row.getRatingCount(), null);
+    }
+
+    /**
+     * "Lưu bài" để xem lại sau (mục Đã lưu). Chỉ lưu được nội dung người xem đang xem được; lưu lại lần nữa không lỗi.
+     * Không cần quyền hành động (bị hạn chế vẫn lưu được) vì chỉ người lưu thấy.
+     */
+    @Transactional
+    public boolean save(String contentType, Long contentId, Long viewerId) {
+        Target target = access.requireViewable(contentType, contentId, viewerId);
+        String type = target.source().contentType();
+        Long id = target.source().contentId();
+        if (saved.existsByUserIdAndContentTypeAndContentId(viewerId, type, id)) return true;
+        try {
+            saved.saveAndFlush(CommunitySavedPost.builder().userId(viewerId).contentType(type).contentId(id).build());
+        } catch (DataIntegrityViolationException e) {
+            // Hai lần bấm cùng lúc: UNIQUE(user_id, content_type, content_id) giữ một dòng, kết quả vẫn là "đã lưu".
+        }
+        return true;
+    }
+
+    /** Bỏ lưu. Không kiểm tra quyền xem: nội dung đã bị ẩn / gỡ vẫn bỏ lưu được. */
+    @Transactional
+    public boolean unsave(String contentType, Long contentId, Long viewerId) {
+        String type = access.handler(contentType).map(h -> h.contentType()).orElseThrow(CommunityAccessService::notFound);
+        saved.deleteSaved(viewerId, type, contentId);
+        return false;
     }
 
     /** Tính lại từ bảng community_rating khi đang giữ khoá dòng nội dung. */
