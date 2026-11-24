@@ -13,6 +13,21 @@ public final class JpathRewardPolicy {
     /** Plan 3 #44: a DAY skill session done (Reading or Listening), once per skill and day (ref id = epochDay). */
     public static final int SKILL_SESSION = 2;
     public static final int BADGE = 5;
+
+    /**
+     * Owner 25/11: CP is paid once, when the whole day is done, never piece by piece during the day. The lump keeps the
+     * old total of a full day: study day = 3 tabs x TAB_DAY + REVIEW_DAY + DAY, skill day = 2 sessions + SKILL_DAY,
+     * review-only day = REVIEW_DAY + DAY.
+     */
+    public static int dayTotal(com.jlas.jlptpath.enums.JpathDayKind kind) {
+        if (kind == null) return 0;
+        return switch (kind) {
+            case SKILL -> 2 * SKILL_SESSION + SKILL_DAY;
+            case REVIEW_ONLY -> REVIEW_DAY + DAY;
+            case REST -> 0;
+            default -> 3 * TAB_DAY + REVIEW_DAY + DAY;
+        };
+    }
     /** #44: passing the JLPT mock test of a level (ref id = mock attempt id). */
     public static final int MOCK_PASS = 20;
 

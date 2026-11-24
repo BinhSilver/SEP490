@@ -48,18 +48,13 @@ public class JpathRewardServiceImpl implements JpathRewardService {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onTabDayCompleted(Long userId, LocalDate day, JpathTab tab, boolean rewardEligible) {
-        if (tab == JpathTab.SKILL || !rewardEligible) {
-            return;
-        }
-        pay(userId, JpathRewardPolicy.TAB_DAY, JpathRewardPolicy.REF_TAB_DAY, JpathRewardPolicy.tabDayRef(day, tab),
-                "Xong phần " + label(tab) + " hôm nay");
+        // owner 25/11: no CP for a part of the day; the day lump is paid in onDayCompleted
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onReviewsCleared(Long userId, LocalDate day) {
-        pay(userId, JpathRewardPolicy.REVIEW_DAY, JpathRewardPolicy.REF_REVIEW_DAY, day.toEpochDay(),
-                "Ôn hết thẻ đến hạn hôm nay");
+        // owner 25/11: paid with the whole day
     }
 
     @Override
@@ -73,10 +68,10 @@ public class JpathRewardServiceImpl implements JpathRewardService {
         applyAfterCommit(userId);
         if (rewardEligible) {
             if (kind == JpathDayKind.SKILL) {
-                pay(userId, JpathRewardPolicy.SKILL_DAY, JpathRewardPolicy.REF_SKILL_DAY, day.toEpochDay(),
+                pay(userId, JpathRewardPolicy.dayTotal(kind), JpathRewardPolicy.REF_SKILL_DAY, day.toEpochDay(),
                         "Xong ngày kỹ năng");
             } else {
-                pay(userId, JpathRewardPolicy.DAY, JpathRewardPolicy.REF_DAY, day.toEpochDay(),
+                pay(userId, JpathRewardPolicy.dayTotal(kind), JpathRewardPolicy.REF_DAY, day.toEpochDay(),
                         "Xong cả phần hôm nay");
             }
         }
@@ -86,10 +81,7 @@ public class JpathRewardServiceImpl implements JpathRewardService {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onSkillSessionDone(Long userId, LocalDate day, JpathSkill skill) {
-        String ref = skill == JpathSkill.LISTENING ? JpathRewardPolicy.REF_SKILL_LISTENING
-                : JpathRewardPolicy.REF_SKILL_READING;
-        pay(userId, JpathRewardPolicy.SKILL_SESSION, ref, day.toEpochDay(),
-                skill == JpathSkill.LISTENING ? "Xong buổi Nghe" : "Xong buổi Đọc");
+        // owner 25/11: the two sessions are paid with the skill day, not one by one
     }
 
     @Override

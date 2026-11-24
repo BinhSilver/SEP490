@@ -141,11 +141,6 @@ public class CpathService {
     static final String REF_TOPIC = "CPATH_TOPIC";
     static final String REF_WEEK = "CPATH_WEEK";
 
-    private int awardSituation(Long userId, String code, String titleVi) {
-        return award(userId, SITUATION_CP, REF_SITUATION, situationRef(code),
-                "Hoàn thành tình huống giao tiếp " + (titleVi == null ? code : titleVi));
-    }
-
     /** Queues CP in this transaction (the ledger key drops a repeat) and applies the open awards after commit. */
     private int award(Long userId, int amount, String refType, long refId, String note) {
         com.jlas.mission.service.CreditAwardService credit = awards == null ? null : awards.getIfAvailable();
@@ -1126,11 +1121,7 @@ public class CpathService {
         boolean all = doneSteps.containsAll(STEPS);
         int cp = 0;
         if (all) {
-            if (row.get("done_at") == null) {
-                String title = db.queryForList("SELECT title_vi FROM cpath_situation WHERE code = ?", String.class, code)
-                        .stream().findFirst().orElse(null);
-                cp = awardSituation(userId, code, title);
-            }
+            // owner 25/11: no CP per situation; the situations of the day are paid together when the day is done
             boolean first = row.get("done_at") == null;
             db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, ?) WHERE path_id = ? AND situation_code = ?", vnNow(), pathId, code);
             String passedTopic = updateTopic(pathId, code);
@@ -1143,7 +1134,10 @@ public class CpathService {
                 Integer open = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day = ? AND done_at IS NULL",
                         Integer.class, pathId, today);
                 if (open != null && open == 0) {
-                    cp += award(userId, DAY_CP, REF_DAY, today.toEpochDay(), "Xong ngày học giao tiếp " + today);
+                    Integer planned = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day = ?",
+                            Integer.class, pathId, today);
+                    int lump = DAY_CP + SITUATION_CP * (planned == null ? 0 : planned);
+                    cp += award(userId, lump, REF_DAY, today.toEpochDay(), "Xong ngày học giao tiếp " + today);
                 }
             }
         }
@@ -1271,7 +1265,7 @@ public class CpathService {
         out.put("today", clock.today(userId).toString());
         out.put("situations", situations);
         out.put("scores", scores);
-        out.put("cp", (int) finished * SITUATION_CP + (dayDone && finished > 0 ? DAY_CP : 0));
+        out.put("cp", dayDone && finished > 0 ? rows.size() * SITUATION_CP + DAY_CP : 0); // owner 25/11: one lump per day
         out.put("goal", String.valueOf(p.get("goal_code")));
         out.put("restDay", isRest(p, day)); // F116: an empty rest day says "ngày nghỉ", not "chưa có lịch"
         out.put("weekStatus", weekStatus(pathId, day));
