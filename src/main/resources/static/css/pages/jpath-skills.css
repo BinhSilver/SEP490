@@ -396,3 +396,11 @@
   .jp-skill-bai__text { padding: 14px 14px; }
   .jp-skill-passage-bar .jp-btn { min-height: 44px; }
 }
+
+/* owner 25/11: same minimal frame as the study card — the passage tools are one small pill tucked top-right */
+.jp-skill-passage-bar { display: flex; justify-content: flex-end; gap: 0; margin: -4px 0 8px; }
+.jp-skill-passage-bar > * { display: inline-flex; align-items: center; }
+.jp-skill-passage-bar .jp-btn, .jp-skill-passage-bar button { min-height: 24px; height: 24px; padding: 0 8px; font-size: .72rem; font-weight: 500;
+  border: 1px solid var(--color-outline-variant, var(--jp-line)); border-radius: 999px; background: transparent; box-shadow: none; }
+.jp-skill-passage-bar .jp-btn[aria-pressed="true"] { border-color: var(--jp-primary-soft); background: var(--jp-primary-soft); color: var(--jp-primary); }
+@media (max-width: 640px) { .jp-skill-passage-bar .jp-btn, .jp-skill-passage-bar button { min-height: 28px; height: 28px; } }
