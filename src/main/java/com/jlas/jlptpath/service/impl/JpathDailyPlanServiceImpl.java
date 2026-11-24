@@ -80,7 +80,7 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
         }
         if (current.isPresent()) {
             // planned during kana: the inserter rebuilds it if kana has finished since (cheap when it has not)
-            boolean kanaDone = pathService.findActive(userId).map(p -> p.getKanaCompletedAt() != null).orElse(false);
+            boolean kanaDone = inserter.kanaFinished(userId);
             if (!kanaDone) {
                 return;
             }

@@ -363,7 +363,7 @@
     var due = tabs.reduce(function (n, x) { return n + (Number(x && x.reviewDue) || 0); }, 0);
     var level = p.openLevel || '';
     var out = [];
-    if (t.kanaPhase) out.push('Bạn đang học bảng chữ cái trước, vì bạn chọn bắt đầu từ chữ cái. Xong chữ cái là vào từ vựng.');
+    if (t.kanaPhase && !p.kanaCompleted) out.push('Bạn đang học bảng chữ cái trước, vì bạn chọn bắt đầu từ chữ cái. Xong chữ cái là vào từ vựng.');
     if (t.kind === 'SKILL') {
       out.push(t.skillMakeup ? 'Tuần này bạn lỡ ngày kỹ năng, nên hôm nay học bù Đọc và Nghe.'
         : 'Hôm nay là ngày kỹ năng: luyện Đọc và Nghe bằng những gì bạn đã học, không có mục mới.');

@@ -157,6 +157,18 @@ public class JpathDailyPlanInserter {
         }
     }
 
+    /** Kana is over: stamped on the path, or all {@link JpathTabCountsReader#KANA_ROWS} rows passed (same rule as the path page). */
+    boolean kanaFinished(Long userId, JpathUserPath path) {
+        return path.isKanaTab() && (path.getKanaCompletedAt() != null
+                || kanaRows.countCompletedRows(userId) >= JpathTabCountsReader.KANA_ROWS);
+    }
+
+    /** {@link #kanaFinished} for the learner's active path (false without one). */
+    @Transactional(readOnly = true)
+    public boolean kanaFinished(Long userId) {
+        return pathService.findActive(userId).map(p -> kanaFinished(userId, p)).orElse(false);
+    }
+
     private void insert(Long userId, LocalDate day) {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
@@ -164,20 +176,40 @@ public class JpathDailyPlanInserter {
         if (existing.isPresent()) {
             // bug 25/11: a day planned while kana was still running keeps "học chữ cái" after kana is done; rebuild it
             // when nothing of it was studied yet, so the new words open on the first day after kana
-            if (existing.get().isKanaPhase() && path.getKanaCompletedAt() != null) {
+            if (existing.get().isKanaPhase() && kanaFinished(userId, path)) {
+                if (path.getKanaCompletedAt() == null) {
+                    path.setKanaCompletedAt(clock.now()); // all 36 rows passed but the moment was never stamped
+                }
                 JpathUserLevel level = lockLevel(path);
                 plans.findForUpdate(userId, day).ifPresent(plan -> {
                     List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
                     boolean started = (plan.getCpAwarded() != null && plan.getCpAwarded() > 0)
                             || tabs.stream().anyMatch(t -> t.getNewDone() > 0 || t.getExtraDone() > 0 || t.getReviewDone() > 0);
-                    if (!started) {
-                        rebuildForSchedule(path, level, plan, tabs);
+                    // a kana day already begun is rebuilt too (no kana row is left to learn): the reviews and
+                    // extra cards done today carry over, so nothing studied is lost
+                    java.util.Map<JpathTab, int[]> kept = new java.util.EnumMap<>(JpathTab.class);
+                    for (JpathDailyTab t : tabs) {
+                        kept.put(t.getTab(), new int[] {t.getReviewDone(), t.getExtraDone(),
+                                t.getTab() == JpathTab.KANA ? 0 : t.getNewDone()});
+                    }
+                    if (rebuildForSchedule(path, level, plan, tabs) && started) {
+                        for (JpathDailyTab t : dailyTabs.findForUpdateByPlanId(plan.getId())) {
+                            int[] k = kept.get(t.getTab());
+                            if (k == null) continue;
+                            t.setReviewDone(k[0]);
+                            t.setExtraDone(k[1]);
+                            t.setNewDone(k[2]);
+                        }
+                        dailyTabs.flush();
                     }
                 });
             }
             return;
         }
         progress.reevaluateStage(userId);
+        if (path.getKanaCompletedAt() == null && kanaFinished(userId, path)) {
+            path.setKanaCompletedAt(clock.now());
+        }
         pathService.refreshPacing(userId);
         JpathUserLevel level = lockLevel(path);
         JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, day);
