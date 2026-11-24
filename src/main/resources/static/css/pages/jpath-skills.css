@@ -56,6 +56,10 @@
 .jp-section-floor { position: relative; height: 10px; border-radius: 5px; background: var(--jp-canvas); overflow: hidden; }
 .jp-section-floor__bar { height: 100%; background: var(--jp-primary); }
 .jp-section-floor__line { position: absolute; top: 0; bottom: 0; left: 32%; width: 2px; background: var(--jp-danger); }
+.jp-section-floor__line--ready { left: 60%; background: var(--jp-success, var(--jp-primary)); }
+.jp-section-marks { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font-weight: 400; }
+.jp-section-mark strong { font-weight: 500; }
+.jp-section-mark.is-reached strong { font-weight: 600; color: var(--jp-primary); }
 
 @media (prefers-reduced-motion: reduce) {
   .jp-section-floor__bar { transition: none !important; }
