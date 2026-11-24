@@ -10,6 +10,8 @@
     <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v=${jpathAssetVersion})}" />
     <!-- Workspace layout + navigation kit (back link, stepper, progress, flow buttons, pager, accordion, toc). -->
     <link rel="stylesheet" th:href="@{/css/pages/jpath-nav.css(v=${jpathAssetVersion})}" />
+    <!-- owner 24/11: "Lộ trình của tôi" link + switcher bar on every path page -->
+    <link rel="stylesheet" th:href="@{/css/pages/my-paths.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
           th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
 </th:block>
@@ -38,6 +40,9 @@
     <script th:src="@{/js/jlptpath/jpath-extra-links.js(v=${jpathAssetVersion})}"></script>
     <!-- [JLAS-W0108] F36/F37: AI giải thích & hỏi đáp câu hỏi đã trả lời trong Lộ trình JLPT + Giao tiếp. -->
     <script th:src="@{/js/jlptpath/jpath-ai-explain.js(v=${jpathAssetVersion})}"></script>
+    <!-- owner 24/11: "Lộ trình của tôi" — side-menu link and switcher between the paths being studied -->
+    <script th:src="@{/js/learning/my-paths-core.js(v=${jpathAssetVersion})}"></script>
+    <script th:src="@{/js/learning/my-paths-nav.js(v=${jpathAssetVersion})}"></script>
 </th:block>
 
 
