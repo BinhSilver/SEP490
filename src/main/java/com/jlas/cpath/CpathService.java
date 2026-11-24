@@ -1132,7 +1132,8 @@ public class CpathService {
             boolean first = row.get("done_at") == null;
             db.update("UPDATE cpath_user_situation SET done_at = COALESCE(done_at, ?) WHERE path_id = ? AND situation_code = ?", vnNow(), pathId, code);
             String passedTopic = updateTopic(pathId, code);
-            if (passedTopic != null)
+            // owner 25/11: while today still has situations to do, the topic CP waits for the day lump (one gift)
+            if (passedTopic != null && !dayOpen(pathId, clock.today(userId)))
                 cp += award(userId, TOPIC_CP, REF_TOPIC, situationRef(passedTopic), "Đạt chủ đề giao tiếp " + passedTopic);
             if (first) {
                 refreshDailyGoalAfterCommit(userId); // F128
@@ -1144,7 +1145,25 @@ public class CpathService {
                     Integer planned = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day = ?",
                             Integer.class, pathId, today);
                     int lump = DAY_CP + SITUATION_CP * (planned == null ? 0 : planned);
-                    cp += award(userId, lump, REF_DAY, today.toEpochDay(), "Xong ngày học giao tiếp " + today);
+                    // owner 25/11: the weekly check and topics passed during the day are paid with the day, once
+                    List<String> owed = new ArrayList<>();
+                    for (String t : db.queryForList("SELECT topic_code FROM cpath_user_topic WHERE path_id = ? AND passed_at IS NOT NULL "
+                            + "AND cp_day IS NULL", String.class, pathId)) {
+                        Integer paidTopic = db.queryForObject("SELECT COUNT(*) FROM pending_credit_award WHERE user_id = ? AND reference_type = ? "
+                                + "AND reference_id = ?", Integer.class, userId, REF_TOPIC, situationRef(t));
+                        if (paidTopic == null || paidTopic == 0) owed.add(t);
+                    }
+                    int topicsOwed = owed.size();
+                    Integer weekOwed = db.queryForObject("SELECT COALESCE(week_cp_owed, 0) FROM cpath_user_path WHERE id = ?", Integer.class, pathId);
+                    boolean week = weekOwed != null && weekOwed > 0;
+                    lump += TOPIC_CP * topicsOwed + (week ? WEEK_CP : 0);
+                    String note = "Xong ngày học giao tiếp " + today.format(DAY_MONTH)
+                            + (week ? " (kèm kiểm tra tuần)" : "") + (topicsOwed > 0 ? " (kèm " + topicsOwed + " chủ đề)" : "");
+                    int paid = award(userId, lump, REF_DAY, today.toEpochDay(), note);
+                    cp += paid;
+                    if (paid > 0 && week) db.update("UPDATE cpath_user_path SET week_cp_owed = 0 WHERE id = ?", pathId);
+                    if (paid > 0) for (String t : owed)
+                        db.update("UPDATE cpath_user_topic SET cp_day = ? WHERE path_id = ? AND topic_code = ?", today, pathId, t);
                 }
             }
         }
@@ -1330,8 +1349,10 @@ public class CpathService {
                 + "AND (u.study_day BETWEEN ? AND ? "
                 // F65 (11/11): what was learned ahead last week after its test was passed is checked this week
                 + "OR (u.study_day BETWEEN ? AND ? AND COALESCE(u.done_at, CURRENT_TIMESTAMP(6)) > "
-                + "(SELECT MIN(a.created_at) FROM pending_credit_award a WHERE a.user_id = ? AND a.reference_type = ? AND a.reference_id = ?)))",
-                pathId, monday, today, monday.minusDays(7), monday.minusDays(1), userId, REF_WEEK, monday.minusDays(7).toEpochDay());
+                + "COALESCE((SELECT MIN(a.created_at) FROM pending_credit_award a WHERE a.user_id = ? AND a.reference_type = ? AND a.reference_id = ?), "
+                + "(SELECT p.week_pass_at FROM cpath_user_path p WHERE p.id = u.path_id AND p.week_pass_monday = ?))))",
+                pathId, monday, today, monday.minusDays(7), monday.minusDays(1), userId, REF_WEEK, monday.minusDays(7).toEpochDay(),
+                monday.minusDays(7));
         if (studied.isEmpty()) return List.of();
         List<String> sits = studied.stream().map(r -> (String) r.get("situation_code")).toList();
         Set<String> topics = new LinkedHashSet<>(studied.stream().map(r -> (String) r.get("topic_code")).toList());
@@ -2118,8 +2139,25 @@ public class CpathService {
     private boolean weeklyPassed(Long userId, LocalDate monday) {
         Integer n = db.queryForObject("SELECT COUNT(*) FROM pending_credit_award WHERE user_id = ? AND reference_type = ? AND reference_id = ?",
                 Integer.class, userId, REF_WEEK, monday.toEpochDay());
+        if (n != null && n > 0) return true;
+        Integer m = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND week_pass_monday = ?",
+                Integer.class, userId, monday);
+        return m != null && m > 0;
+    }
+
+    private boolean weekMarked(long pathId, LocalDate monday) {
+        Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE id = ? AND week_pass_monday = ?", Integer.class, pathId, monday);
         return n != null && n > 0;
     }
+
+    /** Today still has a planned situation not done (its lump is not paid yet). */
+    private boolean dayOpen(long pathId, LocalDate today) {
+        Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_user_situation WHERE path_id = ? AND study_day = ? AND done_at IS NULL",
+                Integer.class, pathId, today);
+        return n != null && n > 0;
+    }
+
+    private static final java.time.format.DateTimeFormatter DAY_MONTH = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
 
     @Transactional(readOnly = true)
     public Map<String, Object> weekly(Long userId) {
@@ -2196,6 +2234,7 @@ public class CpathService {
             review.add(r);
         }
         int cp = 0;
+        int cpLater = 0;
         if (pass) {
             // F114 (13/11): two submits at the same moment both read "not passed yet" and both answered "+2 CP"
             // (the credit itself was kept once by the award table's unique key). Lock the path row so the submits
@@ -2203,7 +2242,18 @@ public class CpathService {
             db.queryForList("SELECT id FROM cpath_user_path WHERE id = ? FOR UPDATE", ((Number) path.get("id")).longValue());
             boolean already = !db.queryForList("SELECT id FROM pending_credit_award WHERE user_id = ? AND reference_type = ? "
                     + "AND reference_id = ? FOR UPDATE", userId, REF_WEEK, monday.toEpochDay()).isEmpty();
-            if (!already) cp = award(userId, WEEK_CP, REF_WEEK, monday.toEpochDay(), "Đạt kiểm tra tuần giao tiếp " + monday);
+            already = already || weekMarked(((Number) path.get("id")).longValue(), monday);
+            if (!already) {
+                long pid = ((Number) path.get("id")).longValue();
+                if (dayOpen(pid, today)) {
+                    // owner 25/11: paid together with today's lump when the day is done (one gift, not two)
+                    db.update("UPDATE cpath_user_path SET week_pass_monday = ?, week_pass_at = ?, week_cp_owed = 1 WHERE id = ?",
+                            monday, vnNow(), pid);
+                    cpLater = WEEK_CP;
+                } else {
+                    cp = award(userId, WEEK_CP, REF_WEEK, monday.toEpochDay(), "Đạt kiểm tra tuần giao tiếp " + monday.format(DAY_MONTH));
+                }
+            }
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("score", score);
@@ -2211,6 +2261,7 @@ public class CpathService {
         m.put("total", qs.size());
         m.put("passed", pass);
         m.put("cp", cp);
+        m.put("cpLater", cpLater);
         m.put("review", review);
         return m;
     }

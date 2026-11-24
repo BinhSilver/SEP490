@@ -132,7 +132,7 @@
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
       + '<h2 id="cpWeeklyResult" class="jp-result__title" tabindex="-1">'
-      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu.' + (Number(r.correct) < Number(r.total) ? ' Mục sai đã vào Sổ tay.' : ' Không sai câu nào.')) : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
+      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu.' + (Number(r.correct) < Number(r.total) ? ' Mục sai đã vào Sổ tay.' : ' Không sai câu nào.')) : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : r.cpLater ? (' +' + r.cpLater + ' CP cộng chung khi xong ngày học hôm nay.') : ''))
         : ('Đúng ' + r.correct + '/' + r.total + ' câu, cần từ 80% để đạt. Ôn lại các câu sai rồi làm lại nhé.')) + '</h2>'
       + weekTipHtml(r) + scheduleNoteHtml()
       + '<ul class="jp-review">' + rows + '</ul>'
@@ -464,7 +464,7 @@
           + '<p class="jp-result__note">Chọn câu: ' + esc(result.choiceScore) + '%.'
           + (scope === 'situation' ? '' : result.speakingSkipped ? ' Chưa chấm phần nói; điểm chỉ tính phần chọn câu.'
             : ' Nói: ' + esc(result.speakingScore) + '%.')
-          + ' ' + (result.cp ? '+' + esc(result.cp) + ' CP.' : 'Bài này không cộng thêm CP.') + '</p>'
+          + ' ' + (result.cp ? '+' + esc(result.cp) + ' CP.' : result.cpLater ? '+' + esc(result.cpLater) + ' CP cộng chung khi xong ngày học hôm nay.' : 'Bài này không cộng thêm CP.') + '</p>'
           + '<p class="jp-result__note">' + (wrong ? 'Sai ' + wrong + ' câu — xem lại bên dưới.' : 'Không sai câu nào.') + '</p>'
           + roleplayReviewHtml(result.review, state.questions, state.answers)
           + (scope === 'goal' && result.passed ? '<nav class="jp-result__note" aria-label="Bước học tiếp"><h3>Gợi ý bước tiếp</h3>'
