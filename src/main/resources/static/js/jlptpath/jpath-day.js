@@ -113,7 +113,6 @@
       var isCurrent = di === day;
       var isToday = di === today;
       var isFuture = today && di > today;
-      // AI 1 #15: a past day is ticked only when the history says something was studied that day
       var known = weekStatus && Object.prototype.hasOwnProperty.call(weekStatus, di) ? !!weekStatus[di] : null;
       var isPastDone = isCurrent ? !!isDone : (known !== null ? known : false);
       var cls = 'jp-dayd__node'
@@ -165,18 +164,27 @@
   }
 
   var wrongCodes = {};
+  var itemMeanings = {};
   function isWrong(it) {
     return !!wrongCodes[it.itemType + ':' + it.code] || it.correct === false || it.lastRating === 'FORGOT';
   }
 
   function itemHtml(it) {
     var wrong = isWrong(it);
-    var cls = 'jp-dayd__item' + (wrong ? ' is-wrong' : '');
-    var body = '<span lang="ja" class="jp-dayd__ja">' + esc(it.label || it.code) + '</span>'
-      + (it.reading && it.reading !== it.label ? '<span lang="ja" class="jp-dayd__rd">' + esc(it.reading) + '</span>' : '')
-      + (wrong ? '<span class="jp-dayd__wrong-dot" aria-label="Cần ôn lại" title="Mục sai / chưa nhớ"></span>' : '');
+    var cls = 'jp-dayd__item jp-dayd__item--' + String(it.itemType || 'VOCAB').toLowerCase() + (wrong ? ' is-wrong' : '');
+    var meaning = it.meaning || itemMeanings[it.itemType + ':' + it.code] || '';
+    var showReading = it.reading && it.reading !== it.label;
+    var top = '<span class="jp-dayd__item-top">'
+      + '<span lang="ja" class="jp-dayd__ja">' + esc(it.label || it.code) + '</span>'
+      + (showReading ? '<span lang="ja" class="jp-dayd__rd">' + esc(it.reading) + '</span>' : '')
+      + (wrong ? '<span class="jp-dayd__wrong-dot" aria-label="Cần ôn lại" title="Mục sai / chưa nhớ">Cần ôn</span>' : '')
+      + '</span>';
+    var sub = meaning
+      ? '<span class="jp-dayd__mn" data-item-mn="' + esc(it.itemType + ':' + it.code) + '">' + esc(meaning) + '</span>'
+      : (it.itemType !== 'KANA' ? '<span class="jp-dayd__mn" data-item-mn="' + esc(it.itemType + ':' + it.code) + '" hidden></span>' : '');
+    var body = top + sub;
     if (WRITABLE[it.itemType]) {
-      return '<li><button type="button" class="' + cls + '" title="Luyện viết" data-jpath-writing="'
+      return '<li><button type="button" class="' + cls + '" title="Bấm để luyện viết" data-jpath-writing="'
         + esc(JSON.stringify({ itemType: it.itemType, code: it.code })) + '">' + body + '</button></li>';
     }
     return '<li><span class="' + cls + '">' + body + '</span></li>';
@@ -199,10 +207,8 @@
     wrongCodes = {};
     wrongAll.forEach(function (w) { if (w) wrongCodes[w.itemType + ':' + w.code] = true; });
     var strip = weekStripHtml(day, today, !!x.done, x.weekStatus);
-    var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác"><a class="jp-btn" href="?d=' + esc(shift(day, -1)) + '">‹ Hôm trước</a>'
-      + (day < today ? '<a class="jp-btn" href="?d=' + esc(shift(day, 1)) + '">Hôm sau ›</a>' : '') + '</nav>';
-    var html = strip + '<header class="jp-dayd__head"><h1 class="jp-page-head__title">' + title(day) + ' · '
-      + esc(KIND[x.kind] || 'Ngoài lộ trình') + '</h1>' + nav + '</header>';
+    var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác"><a class="jp-btn jp-dayd__nav-btn" href="?d=' + esc(shift(day, -1)) + '">‹ Hôm trước</a>'
+      + (day < today ? '<a class="jp-btn jp-dayd__nav-btn" href="?d=' + esc(shift(day, 1)) + '">Hôm sau ›</a>' : '') + '</nav>';
     var reviewed = items.filter(function (i) { return i.lastAction === 'REVIEW_RATE'; });
     // F171: the badge counts what the sections show — one row per item, only the study tabs (it said 12 where the
     // history and the sections listed 10, because an item studied twice or a non-tab row counted again)
@@ -227,35 +233,58 @@
     var cpBadge = Number(x.cpAwarded) > 0
       ? ' <span class="jp-dayd__points-sep">·</span> <span class="jp-dayd__badge jp-dayd__badge--cp">+' + esc(x.cpAwarded) + ' CP</span>'
       : '';
-    html += '<div class="jp-dayd__hero-row">'
+    var countBadge = items.length > 0
+      ? ' <span class="jp-dayd__points-sep">·</span> <span class="jp-dayd__badge jp-dayd__badge--count">'
+        + (fresh.length ? fresh.length + ' mục mới' : '')
+        + (fresh.length && reviewed.length ? ' · ' : '')
+        + (reviewed.length ? reviewed.length + ' thẻ ôn' : '')
+        + '</span>'
+      : '';
+    var html = strip
+      + '<div class="jp-dayd__hero-card">'
+      + '<header class="jp-dayd__head"><h1 class="jp-page-head__title">' + title(day) + ' · '
+      + esc(KIND[x.kind] || 'Ngoài lộ trình') + '</h1>' + nav + '</header>'
+      + '<div class="jp-dayd__hero-row">'
       + '<div class="jp-dayd__hero-info">'
-      + '<p class="jp-dayd__sum"><span class="' + statusCls + '">' + (x.done ? SVG_CHECK + ' ' : '') + statusText + '</span>' + cpBadge + '</p>'
-      + (scores.length ? '<details class="jp-dayd__quiz"><summary class="jp-btn">Xem kết quả kiểm tra</summary><ul>'
+      + '<p class="jp-dayd__sum"><span class="' + statusCls + '">' + (x.done ? SVG_CHECK + ' ' : '') + statusText + '</span>' + cpBadge + countBadge + '</p>'
+      // owner 17/11: scores, "Học lại như mới" and "Làm lại kiểm tra" live in one card below (jpath-revisit.js)
+      + (scores.length && !root.JpathRevisit ? '<details class="jp-dayd__quiz"><summary class="jp-btn jp-dayd__quiz-btn">Xem kết quả kiểm tra</summary><ul>'
         + scores.join('') + '</ul><a class="jp-link-btn" href="/learning/jlpt/history?day=' + esc(day)
         + '">Làm lại một bài kiểm tra</a></details>' : '')
       + '</div>'
       + mascotHtml(!!x.done, items.length > 0, wrongAll.length)
+      + '</div>'
       + '</div>';
     if (!items.length) {
-      return html + '<p class="jp-side__note">Không có mục nào được học hay ôn trong ngày này.</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>';
+      return html + '<div class="jp-dayd__empty"><p class="jp-side__note">Không có mục nào được học hay ôn trong ngày này.</p>'
+        + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a></div>';
     }
+    html += '<div data-jpath-revisit="' + esc(day) + '"></div>';
+    html += '<div class="jp-dayd__sections">';
     TABS.forEach(function (t) {
       var mine = fresh.filter(function (i) { return i.itemType === t[0]; });
       if (!mine.length) return;
       var wrong = mine.filter(isWrong).length;
-      html += '<section class="jp-dayd__sec"><h2 class="jp-dayd__h"><span>' + esc(t[1]) + '</span><span class="jp-dayd__meta"> · '
-        + mine.length + ' ' + t[2] + ' mới</span>'
-        + (wrong ? ' <span class="jp-dayd__bad">· sai ' + wrong + '</span>' : '') + '</h2><ul class="jp-dayd__list jp-parts__items">'
+      html += '<section class="jp-dayd__sec jp-dayd__sec--' + t[0].toLowerCase() + '">'
+        + '<header class="jp-dayd__sec-head"><h2 class="jp-dayd__h"><span class="jp-dayd__h-title">' + esc(t[1]) + '</span>'
+        + '<span class="jp-dayd__meta"> · ' + mine.length + ' ' + t[2] + ' mới</span>'
+        + (wrong ? ' <span class="jp-dayd__bad">· sai ' + wrong + '</span>' : '') + '</h2>'
+        + (WRITABLE[t[0]] ? '<span class="jp-dayd__sec-hint">Bấm vào mục để luyện viết</span>' : '')
+        + '</header><ul class="jp-dayd__list jp-parts__items jp-dayd__list--' + t[0].toLowerCase() + '">'
         + mine.map(itemHtml).join('') + '</ul></section>';
     });
     if (reviewed.length) {
       var forgot = reviewed.filter(isWrong).length;
-      html += '<section class="jp-dayd__sec"><h2 class="jp-dayd__h"><span>Ôn thẻ</span><span class="jp-dayd__meta"> · ' + reviewed.length + ' thẻ · '
-        + (reviewed.length - forgot) + ' nhớ, ' + forgot + ' quên</span></h2><ul class="jp-dayd__list jp-parts__items">'
+      html += '<section class="jp-dayd__sec jp-dayd__sec--review">'
+        + '<header class="jp-dayd__sec-head"><h2 class="jp-dayd__h"><span class="jp-dayd__h-title">Ôn thẻ</span>'
+        + '<span class="jp-dayd__meta"> · ' + reviewed.length + ' thẻ · '
+        + (reviewed.length - forgot) + ' nhớ, ' + forgot + ' quên</span></h2></header>'
+        + '<ul class="jp-dayd__list jp-parts__items">'
         + reviewed.map(itemHtml).join('') + '</ul></section>';
     }
+    html += '</div>';
     html += '<div class="jp-dayd__actions">'
+      + '<div class="jp-dayd__actions-main">'
       + (wrongAll.length ? '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/notebook">' + SVG_REFRESH + '<span>Ôn mục sai trong Sổ tay</span></a>' : '')
       // F171: a kana-only day has no kanji to write or print
       + (day === today && hasType('KANJI') ? '<button type="button" class="jp-btn" data-jpath-writing="' + esc(JSON.stringify({ today: 'KANJI' }))
@@ -264,9 +293,36 @@
       + '">' + SVG_PRINT + '<span>In bảng kanji ngày này</span></button>' : '')
       + (hasType('VOCAB') ? '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'VOCAB', day: day }))
       + '">' + SVG_PRINT + '<span>In bảng từ vựng ngày này</span></button>' : '')
-      + '<a class="jp-link-btn jp-dayd__back" href="/learning">Về lộ trình</a></div>'
-      + '<p class="jp-side__note">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
+      + '</div>'
+      + '<a class="jp-btn jp-dayd__back" href="/learning">Về lộ trình</a></div>'
+      + '<p class="jp-side__note jp-dayd__footnote">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
     return html;
+  }
+
+  function hydrateMeanings(el, items) {
+    if (!el || !root || !root.JpathApi) return;
+    list(items).forEach(function (it) {
+      if (!it || it.itemType === 'KANA' || !it.code) return;
+      var key = it.itemType + ':' + it.code;
+      var node = el.querySelector && el.querySelector('[data-item-mn="' + key + '"]');
+      if (!node) return;
+      if (itemMeanings[key]) {
+        node.textContent = itemMeanings[key];
+        node.hidden = false;
+        return;
+      }
+      var url = BASE + '/items/' + encodeURIComponent(String(it.itemType).toLowerCase()) + '/' + encodeURIComponent(it.code);
+      root.JpathApi.get(url).then(function (det) {
+        var mn = det && det.meaning ? String(det.meaning).trim() : '';
+        if (!mn) return;
+        itemMeanings[key] = mn;
+        var live = el.querySelector && el.querySelector('[data-item-mn="' + key + '"]');
+        if (live) {
+          live.textContent = mn;
+          live.hidden = false;
+        }
+      }, function () { /* best-effort enrichment */ });
+    });
   }
 
   function mount() {
@@ -313,6 +369,7 @@
         }
         if (root.JpathPrint && root.JpathPrint.bind) root.JpathPrint.bind(el);
         if (root.JpathWriting && root.JpathWriting.bind) root.JpathWriting.bind(el);
+        hydrateMeanings(el, d && d.items);
       }, function () {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = '<p class="jp-alert" role="alert">Chưa tải được ngày này. <button type="button" class="jp-btn" data-day-retry>Thử lại</button></p>';
