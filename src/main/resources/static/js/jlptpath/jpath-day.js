@@ -294,7 +294,8 @@
         var map = {};
         if (h && Array.isArray(h.days)) {
           h.days.forEach(function (hd) {
-            if (hd && hd.day) map[hd.day] = !!(hd.done || Number(hd.newLearned) > 0 || Number(hd.reviewed) > 0);
+            // Q8 (owner 24/11): a day is ticked only when its check was passed (done), not for a part studied halfway
+            if (hd && hd.day) map[hd.day] = !!hd.done;
           });
         }
         return map;

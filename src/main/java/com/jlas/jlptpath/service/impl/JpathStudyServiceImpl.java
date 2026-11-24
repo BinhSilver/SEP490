@@ -232,8 +232,19 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             if (t == JpathTab.KANA) {
                 rows = nextKanaRows(userId, remaining);
             } else {
-                newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                        remaining, kanaRemaining));
+                newCodes.put(t, withUnfinished(userId, plan, t, remaining, newCodes(userId, plan.getLevel(), t,
+                        plan.isKanaPhase(), open.isPriorityMode(), remaining - unfinished(userId, plan, t, remaining).size(),
+                        kanaRemaining)));
+            }
+        }
+        // Q8: an unfinished item brought back as a new card is not also asked as a review card
+        for (Map.Entry<JpathTab, List<String>> e : newCodes.entrySet()) {
+            Set<String> again = new HashSet<>(e.getValue());
+            if (again.isEmpty()) continue;
+            if (e.getKey() == JpathTab.GRAMMAR) {
+                grammarDue = grammarDue.stream().filter(c -> !again.contains(c)).toList();
+            } else if (due.containsKey(e.getKey())) {
+                due.put(e.getKey(), due.get(e.getKey()).stream().filter(d -> !again.contains(d.code())).toList());
             }
         }
         // Plan 3 Task 16: Reading and Listening are skill sessions. QA 20/11: the day completion still waits for the
@@ -599,6 +610,33 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             return content.nextKanaOnlyVocab(userId, level, limit, kana);
         }
         return content.nextNewCodes(userId, level, JpathItemType.valueOf(tab.name()), limit, priorityMode, null);
+    }
+
+    /**
+     * Q8 (owner 24/11): a study day counts only once its check is passed. Items of an earlier day that were learned
+     * but never passed their check come first today and take places of today's new items, so the day's minutes stay
+     * the same and nothing new comes before the unfinished part. Not in the kana stage (its own row order).
+     */
+    private List<String> unfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit) {
+        if (limit <= 0 || plan.isKanaPhase() || plan.getDayKind() != JpathDayKind.STUDY) {
+            return List.of();
+        }
+        LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
+        return userItems.unfinishedBefore(userId, JpathItemType.valueOf(t.name()), plan.getLevel(), startOfToday,
+                PageRequest.of(0, limit));
+    }
+
+    private List<String> withUnfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit, List<String> fresh) {
+        List<String> carried = unfinished(userId, plan, t, limit);
+        if (carried.isEmpty()) {
+            return fresh;
+        }
+        List<String> out = new ArrayList<>(carried);
+        for (String c : fresh) {
+            if (out.size() >= limit) break;
+            if (!out.contains(c)) out.add(c);
+        }
+        return out;
     }
 
     /** Patterns with a visible ORDER and a visible FILL exercise get the GRAMMAR_PRACTICE step. */
