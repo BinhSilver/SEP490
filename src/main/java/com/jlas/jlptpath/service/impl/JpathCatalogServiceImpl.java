@@ -104,7 +104,7 @@ public class JpathCatalogServiceImpl implements JpathCatalogService {
         // catalogue counts change only on seed or moderation, so a 60 s copy is fresh enough
         long now = System.currentTimeMillis();
         CachedInfo hit = infoCache.get(normalized);
-        if (hit != null && now - hit.at() < INFO_TTL_MS) {
+        if (hit != null && now - hit.at() < infoTtlMs) {
             return hit.info();
         }
         JpathLevelInfo info = toInfo(normalized, levelRepository.findById(normalized).orElse(null));
@@ -112,7 +112,8 @@ public class JpathCatalogServiceImpl implements JpathCatalogService {
         return info;
     }
 
-    private static final long INFO_TTL_MS = 60_000L;
+    @org.springframework.beans.factory.annotation.Value("${jlas.learning.catalog-cache-ms:60000}")
+    private long infoTtlMs; // 0 (no cache) when built by hand in tests
     private record CachedInfo(JpathLevelInfo info, long at) { }
     private final java.util.concurrent.ConcurrentHashMap<String, CachedInfo> infoCache = new java.util.concurrent.ConcurrentHashMap<>();
 

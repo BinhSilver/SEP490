@@ -418,14 +418,15 @@ public class CpathService {
 
     // perf 24/11: the situation catalogue is static content read once per path on every page (4x on 'Lộ trình
     // của tôi'); keep a 60 s copy per goal and hand out fresh row maps so callers may still change them
-    private static final long SITUATION_TTL_MS = 60_000L;
+    @org.springframework.beans.factory.annotation.Value("${jlas.learning.catalog-cache-ms:60000}")
+    private long situationTtlMs; // 0 (no cache) when built by hand in tests
     private record CachedRows(List<Map<String, Object>> rows, long at) { }
     private final java.util.concurrent.ConcurrentHashMap<String, CachedRows> situationCache = new java.util.concurrent.ConcurrentHashMap<>();
 
     private List<Map<String, Object>> goalSituations(String goal) {
         long now = System.currentTimeMillis();
         CachedRows hit = goal == null ? null : situationCache.get(goal);
-        if (hit == null || now - hit.at() >= SITUATION_TTL_MS) {
+        if (hit == null || now - hit.at() >= situationTtlMs) {
             List<Map<String, Object>> loaded = db.queryForList("SELECT s.code, s.title_ja, s.title_vi, s.level, s.topic_code, t.name_vi topic_name, "
                     + "t.sort_order t_order, s.sort_order s_order FROM cpath_situation s JOIN cpath_topic t ON t.code = s.topic_code "
                     + "WHERE t.goal_code = ? ORDER BY t.sort_order, s.sort_order", goal);
@@ -433,7 +434,7 @@ public class CpathService {
             if (goal != null) situationCache.put(goal, hit);
         }
         List<Map<String, Object>> out = new ArrayList<>(hit.rows().size());
-        for (Map<String, Object> row : hit.rows()) out.add(new java.util.LinkedHashMap<>(row));
+        for (Map<String, Object> row : hit.rows()) { Map<String, Object> copy = new org.springframework.util.LinkedCaseInsensitiveMap<>(); copy.putAll(row); out.add(copy); }
         return out;
     }
 
