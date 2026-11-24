@@ -195,7 +195,7 @@ public class MyPathsService {
                 for (JpathLevelCell c : v.levels()) { learned += c.learned(); total += c.total(); }
                 m.put("percent", total == 0 ? 0 : (int) Math.round(100.0 * learned / total));
                 m.put("finishDate", v.levelFinish() == null ? null : v.levelFinish().toString());
-                m.put("focusTopic", v.openLevel());
+                m.put("focusTopic", v.kanaTab() && !v.kanaCompleted() ? "Nhập môn" : v.openLevel());
                 if (v.sliders() != null) m.put("minutesPerDay", v.sliders().estimatedMinutes());
             } catch (RuntimeException e) {
                 // the dashboard still lists the path
