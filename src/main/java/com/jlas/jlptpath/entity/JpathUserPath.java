@@ -141,6 +141,11 @@ public class JpathUserPath {
     @Column(name = "auto_pace_off", nullable = false)
     private boolean autoPaceOff = false;
 
+    /** Q9 (owner 24/11): weak Reading/Listening in the Smart Test → a third skill day each week from the study stage. */
+    @Builder.Default
+    @Column(name = "extra_skill_day", nullable = false)
+    private boolean extraSkillDay = false;
+
     @Setter(AccessLevel.NONE)
     @Column(name = "active_flag")
     private Boolean activeFlag;

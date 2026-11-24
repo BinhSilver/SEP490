@@ -182,6 +182,7 @@ public class JpathPathCreator {
                 .smartKanjiScore(withResult ? score(snapshot.kanjiScore()) : null)
                 .smartGrammarScore(withResult ? score(snapshot.grammarScore()) : null)
                 .smartAbilityBand(withResult ? snapshot.abilityBand() : null)
+                .extraSkillDay(withResult && snapshot.weakReadingOrListening())
                 .studyDurationMonths(survey.getStudyDurationMonths())
                 .build();
         try {

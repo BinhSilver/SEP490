@@ -685,9 +685,31 @@
       part('content').hidden = false;
     }
 
+    // Q9 (owner 24/11): third skill day each week from the study stage (weak Reading/Listening); its own save
+    function bindExtraSkillDay() {
+      var wrap = part('extra-skill-wrap');
+      var box = part('extra-skill');
+      if (!wrap || !box) return null;
+      return Promise.resolve(api.get(SETTINGS_URL + '/extra-skill-day')).then(function (v) {
+        box.checked = !!(v && v.on);
+        wrap.hidden = false;
+        box.addEventListener('change', function () {
+          var saved = part('extra-skill-saved');
+          box.disabled = true;
+          Promise.resolve(api.send('PUT', SETTINGS_URL + '/extra-skill-day', { on: box.checked })).then(function (r) {
+            box.checked = !!(r && r.on);
+            if (saved) { saved.textContent = box.checked ? 'Đã thêm, áp dụng từ ngày mai.' : 'Đã bỏ, áp dụng từ ngày mai.'; saved.hidden = false; }
+          }, function (e) {
+            box.checked = !box.checked;
+            if (saved) { saved.textContent = e && e.message ? e.message : 'Chưa lưu được, thử lại.'; saved.hidden = false; }
+          }).then(function () { box.disabled = false; });
+        });
+      }, function () { /* the block stays hidden */ });
+    }
+
     var historyRequest = api.get(SETTINGS_URL + '/slider-history').then(list, function () { return null; });
     return api.get(SETTINGS_URL).then(function (next) {
-      return historyRequest.then(function (history) { start(next, history); });
+      return historyRequest.then(function (history) { start(next, history); bindExtraSkillDay(); });
     }, function (error) {
       part('loading').hidden = true;
       message(el, 'error', error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
