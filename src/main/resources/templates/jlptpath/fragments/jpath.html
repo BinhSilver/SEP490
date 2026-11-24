@@ -53,7 +53,7 @@
         <!-- F174 (owner 15/11): on a phone the links fold behind one button instead of a sideways-scrolling row -->
         <details class="jp-sidenav__fold" open>
         <summary class="jp-sidenav__toggle"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg><span class="jp-sidenav__toggle-text">Trang của lộ trình</span><span class="jp-sidenav__chev" aria-hidden="true">▾</span></summary>
-        <a class="jp-sidenav__link" href="/learning" th:attr="aria-current=${current == '/learning'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg>Lộ trình</a>
+        <a class="jp-sidenav__link" href="/learning?view=jlpt" th:attr="aria-current=${current == '/learning'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg>Lộ trình</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/notebook" th:attr="aria-current=${current == '/learning/jlpt/notebook'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg>Sổ tay</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/confusables" th:attr="aria-current=${current == '/learning/jlpt/confusables'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-git-compare-arrows"/></svg>Phân biệt dễ nhầm</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/settings" th:attr="aria-current=${current == '/learning/jlpt/settings'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg>Cài đặt lộ trình</a>
@@ -86,7 +86,7 @@
 </th:block>
 
 <th:block th:fragment="crumbs(here)">
-    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình JLPT', '/learning')}"></th:block>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình JLPT', '/learning?view=jlpt')}"></th:block>
 </th:block>
 
 </html>

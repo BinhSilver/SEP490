@@ -666,7 +666,7 @@
     if (/^\d+$/.test(p.session || '')) return '/learning/jlpt/study?session=' + p.session;
     // F180 (AI test L20): back on the tab the check was about; plain /learning opened the Chữ cái tab during the kana phase
     var key = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana' }[String(tab || '').toUpperCase()];
-    return key ? '/learning?tab=' + key : '/learning?view=jlpt';
+    return key ? '/learning?view=jlpt&tab=' + key : '/learning?view=jlpt';
   }
 
   /** The check page of a new token, keeping ?session= and ?return= of the current page. */
