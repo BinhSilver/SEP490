@@ -257,7 +257,7 @@
       + '</div>';
     if (!items.length) {
       return html + '<div class="jp-dayd__empty"><p class="jp-side__note">Không có mục nào được học hay ôn trong ngày này.</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a></div>';
+        + '<a class="jp-btn jp-btn--primary" href="/learning?view=jlpt">Về lộ trình</a></div>';
     }
     html += '<div data-jpath-revisit="' + esc(day) + '"></div>';
     html += '<div class="jp-dayd__sections">';
@@ -294,7 +294,7 @@
       + (hasType('VOCAB') ? '<button type="button" class="jp-btn" data-jpath-print="' + esc(JSON.stringify({ scope: 'DAY', tab: 'VOCAB', day: day }))
       + '">' + SVG_PRINT + '<span>In bảng từ vựng ngày này</span></button>' : '')
       + '</div>'
-      + '<a class="jp-btn jp-dayd__back" href="/learning">Về lộ trình</a></div>'
+      + '<a class="jp-btn jp-dayd__back" href="/learning?view=jlpt">Về lộ trình</a></div>'
       + '<p class="jp-side__note jp-dayd__footnote">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
     return html;
   }

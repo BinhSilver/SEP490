@@ -49,7 +49,7 @@
     if (!s.allDone) {
       return '<section class="jp-done jp-card" aria-labelledby="jp-done-title"><h1 class="jp-done__title" id="jp-done-title">'
         + 'Phần hôm nay chưa xong</h1><p>Học nốt các phần còn lại trong lộ trình để hoàn thành ngày hôm nay.</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a></section>';
+        + '<a class="jp-btn jp-btn--primary" href="/learning?view=jlpt">Về lộ trình học</a></section>';
     }
     // Owner 05/11 (approved mock-up): everything visible, a clear "what next" row, a way back and the day's detail.
     var before = num(s.levelPercentBefore);
@@ -76,7 +76,7 @@
     // owner 17/11: learn the day again / redo a check / history, right here (jpath-revisit.js)
     if (s.day && s.kind !== 'SKILL') html += '<div data-jpath-revisit="' + esc(s.day) + '"></div>';
     html += '<p class="jp-done__label">Tiếp theo</p><div class="jp-done__actions">'
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>'
+      + '<a class="jp-btn jp-btn--primary" href="/learning?view=jlpt">Về lộ trình</a>'
       + '<a class="jp-btn" href="/learning/jlpt/day' + (s.day ? '?d=' + esc(s.day) : '') + '">Xem chi tiết ngày</a>'
       + (wrong.length ? '<a class="jp-btn" href="/learning/jlpt/notebook">Ôn lại ' + wrong.length + ' mục sai</a>' : '')
       + '<button type="button" class="jp-btn" data-jpath-writing="' + dataJson({ today: 'KANJI' }) + '">Luyện viết kanji</button>'

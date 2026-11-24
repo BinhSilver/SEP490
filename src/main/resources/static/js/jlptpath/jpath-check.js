@@ -66,7 +66,7 @@
   var MSG_SEND_FAILED = 'Chưa gửi được câu trả lời. Hãy thử lại.';
   var MSG_TIMEOUT_FAILED = 'Hết giờ nhưng chưa gửi được. Kiểm tra kết nối rồi bấm Thử lại.';
   var CLOSED_HTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
-    + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+    + '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a></div>';
   var MSG_LOCKED_ELSEWHERE = 'Câu này đã được trả lời ở cửa sổ khác — đáp án hiển thị là đáp án đã khóa.';
   var BOARD_HINT = 'Chọn 1 ô trái rồi 1 ô phải. Sai thì nháy đỏ, tính 1 lỗi, chọn lại.';
 
@@ -604,7 +604,7 @@
     var e = err || {};
     if (e.code === 'JPATH_CHECK_NOT_FOUND') {
       return '<div class="jp-check__error jp-card" role="alert"><p>' + esc(MSG_NOT_FOUND) + '</p>'
-        + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+        + '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a></div>';
     }
     return '<div class="jp-check__error jp-card" role="alert"><p>' + esc(MSG_LOAD_FAILED) + '</p>'
       + '<button type="button" class="jp-btn" data-action="reload">Thử lại</button></div>';
@@ -640,8 +640,8 @@
   }
 
   function safeReturn(v) {
-    if (typeof v !== 'string') return '/learning';
-    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning';
+    if (typeof v !== 'string') return '/learning?view=jlpt';
+    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning?view=jlpt';
     return v;
   }
 
@@ -666,7 +666,7 @@
     if (/^\d+$/.test(p.session || '')) return '/learning/jlpt/study?session=' + p.session;
     // F180 (AI test L20): back on the tab the check was about; plain /learning opened the Chữ cái tab during the kana phase
     var key = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana' }[String(tab || '').toUpperCase()];
-    return key ? '/learning?tab=' + key : '/learning';
+    return key ? '/learning?tab=' + key : '/learning?view=jlpt';
   }
 
   /** The check page of a new token, keeping ?session= and ?return= of the current page. */
@@ -807,7 +807,7 @@
       html += '<button type="button" class="jp-link-btn" data-action="review-wrong" aria-expanded="' + (o.reviewOpen ? 'true' : 'false')
         + '">Xem lại câu sai</button>';
     }
-    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning">Về lộ trình học</a>';
+    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a>';
     return html + '</div><p class="jp-status" role="status" data-part="result-status"></p></section>';
   }
 

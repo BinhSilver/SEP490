@@ -545,9 +545,9 @@
       state = with_(state, { saving: true });
       update();
       api.send('POST', '/api/learning/jlpt/paths', createBody(state)).then(function () {
-        go('/learning');
+        go('/learning?view=jlpt');
       }, function (error) {
-        if (error && error.code === 'JPATH_ACTIVE_PATH_EXISTS') { go('/learning'); return; }
+        if (error && error.code === 'JPATH_ACTIVE_PATH_EXISTS') { go('/learning?view=jlpt'); return; }
         var message = error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED;
         state = with_(state, { saving: false });
         if (error && error.code === 'JPATH_TARGET_TOO_SOON') change(state); // re-estimate: pace and lock catch up
