@@ -199,8 +199,17 @@
   }
 
   // ── HTML ─────────────────────────────────────────────────────────────────
+  /** Nút "Lưu" / "Đã lưu" ở hàng hành động dưới bài (cùng thao tác với mục "Lưu bài" trong menu "…"). */
+  function saveActionHtml(item) {
+    return '<button type="button" class="cm-action' + (item.saved ? ' is-saved' : '') + '" data-act="save" data-role="save-action" aria-pressed="' + !!item.saved + '">' +
+      '<i class="' + (item.saved ? 'fa-solid' : 'fa-regular') + ' fa-bookmark" aria-hidden="true"></i> ' + (item.saved ? 'Đã lưu' : 'Lưu') + '</button>';
+  }
+
   function menuHtml(item) {
-    var entries = '';
+    // "Lưu bài" (xem lại sau, mục "Đã lưu") có cho mọi mục, nên menu "…" luôn có ít nhất một lựa chọn.
+    var entries = item.saved
+      ? '<button type="button" role="menuitem" data-act="save"><i class="fa-solid fa-bookmark" aria-hidden="true"></i> Bỏ lưu</button>'
+      : '<button type="button" role="menuitem" data-act="save"><i class="fa-regular fa-bookmark" aria-hidden="true"></i> Lưu bài</button>';
     if (item.canEdit) entries += '<button type="button" role="menuitem" data-act="edit"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i> Sửa bài viết</button>';
     // Bài đang tạm ẩn chờ kiểm duyệt: BE không cho xoá (kiểm duyệt viên cần nội dung) nên không hiện nút.
     if (item.mine && isPost(item) && item.status !== 'TEMPORARILY_HIDDEN') entries += '<button type="button" role="menuitem" data-act="delete" class="is-danger"><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Xoá bài viết</button>';
@@ -312,6 +321,7 @@
     var actions =
       (item.canRate ? '<button type="button" class="cm-action" data-act="toggle-rate"><i class="fa-regular fa-star" aria-hidden="true"></i> Đánh giá</button>' : '') +
       '<button type="button" class="cm-action" data-act="focus-comment"' + (item.canComment ? '' : ' disabled') + '><i class="fa-regular fa-comment" aria-hidden="true"></i> Bình luận</button>' +
+      saveActionHtml(item) +
       '<button type="button" class="cm-action" data-act="share"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Chia sẻ</button>';
     var me = UI.currentAuthor();
     var composer = item.canComment
@@ -538,6 +548,33 @@
       }
     }
 
+    /** Lưu / Bỏ lưu. Đang xem "Đã lưu" (options.removeOnUnsave) mà bỏ lưu thì bỏ thẻ khỏi danh sách. */
+    async function toggleSave(card, item) {
+      if (item.saving) return;   // đang gửi: bỏ qua lần bấm thứ hai (tránh lưu rồi bỏ lưu ngay)
+      item.saving = true;
+      var path = '/api/community/contents/' + encodeURIComponent(item.contentType) + '/' +
+        encodeURIComponent(item.contentId) + '/save';
+      try {
+        var result = await UI.api(path, { method: item.saved ? 'DELETE' : 'PUT' });
+        item.saved = !!(result && result.saved);
+        UI.toast(item.saved ? 'Đã lưu. Xem lại trong mục “Đã lưu” ở thanh tìm kiếm.' : 'Đã bỏ lưu', 'success');
+        if (!item.saved && options.removeOnUnsave && options.removeOnUnsave()) remove(card);
+        else {
+          refreshMenu(card, item);
+          var action = card.querySelector('[data-role="save-action"]');
+          if (action) {
+            var focused = document.activeElement === action;
+            action.outerHTML = saveActionHtml(item);
+            if (focused) card.querySelector('[data-role="save-action"]').focus();
+          }
+        }
+      } catch (error) {
+        UI.toast(error.message, 'error');
+      } finally {
+        item.saving = false;
+      }
+    }
+
     function editPost(item) {
       editor.open({
         title: 'Sửa bài viết', submitLabel: 'Lưu', body: item.description, level: item.jlptLevel || '',
@@ -628,7 +665,8 @@
         var text = card.querySelector('[data-role="text"]');
         var expanded = text.classList.toggle('is-expanded');
         button.textContent = expanded ? 'Thu gọn' : 'Xem thêm';
-      } else if (act === 'edit') editPost(item);
+      } else if (act === 'save') toggleSave(card, item);
+      else if (act === 'edit') editPost(item);
       else if (act === 'delete') deletePost(card, item);
       else if (act === 'report') {
         openReport({ type: 'CONTENT', isPost: isPost(item), contentType: item.contentType, contentId: item.contentId,

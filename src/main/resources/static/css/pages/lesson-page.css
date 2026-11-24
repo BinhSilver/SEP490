@@ -1233,6 +1233,51 @@ html.lp-zoom-open { overflow: hidden; }
 .lesson-page .lp-flashcard-link:hover { filter: brightness(1.08); transform: translateY(-1px); }
 .lesson-page .lp-flashcard-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
 
+/* Bài chỉ có một loại nội dung (vd. bảng chữ): thanh tab ẩn, thay bằng tiêu đề mục căn giữa (textbook-lesson.js
+   applySingleSection). Hero không còn chip thì ẩn cả hàng meta. */
+.lesson-page .lesson-tabs[hidden],
+.lesson-page .lp-hero__meta[hidden],
+.lesson-page .lp-section-title[hidden] { display: none; }
+.lesson-page .lp-hero__desc:has(+ .lp-hero__meta[hidden]) { margin-bottom: 0; }
+.lesson-page .lp-section-title {
+  margin: 10px 0 24px;
+  text-align: center;
+  font-size: 22px; font-weight: 800; line-height: 1.3;
+  color: var(--ink);
+}
+.lesson-page .lp-section-title::after {
+  content: ""; display: block;
+  width: 44px; height: 3px; margin: 10px auto 0;
+  border-radius: 3px; background: var(--primary);
+}
+
+/* Cuối bài: Bài trước / Bài tiếp theo (xuyên unit), textbook-lesson.js renderLessonNav. */
+/* Nút chỉ có chữ (tên bài đích ở tooltip); hai nút ở hai góc trái / phải. */
+.lesson-page .lp-lesson-nav {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin: 32px 0 8px;
+}
+.lesson-page .lp-lesson-nav__link {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px; padding: 0 20px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--card); color: var(--primary); text-decoration: none;
+  font-size: 14px; font-weight: 700; white-space: nowrap;
+  transition: border-color .15s var(--lp-ease), box-shadow .15s var(--lp-ease), transform .15s var(--lp-ease);
+}
+.lesson-page .lp-lesson-nav__link:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 24px rgba(91, 59, 181, .12);
+  transform: translateY(-1px);
+}
+.lesson-page .lp-lesson-nav__link:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.lesson-page .lp-lesson-nav__link--next.is-new-unit,
+.lesson-page .lp-lesson-nav__link--next.is-done { background: var(--primary-soft); border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-page .lp-lesson-nav__link { transition: none; }
+  .lesson-page .lp-lesson-nav__link:hover { transform: none; }
+}
+
 /* Plum dark mode */
 html[data-theme="dark"] .lesson-page {
   --primary: var(--dark-accent); --primary-deep: var(--dark-accent);

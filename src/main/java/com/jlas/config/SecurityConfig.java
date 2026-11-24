@@ -78,12 +78,15 @@ public class SecurityConfig {
                         // Duyệt nội dung do gia sư AI tạo ra: hàng chờ người biên soạn.
                         .requestMatchers("/admin/tutor-review", "/admin/tutor-review/**", "/api/admin/tutor-review/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        // Báo cáo Cộng đồng: người biên soạn (content admin) xử lý mọi báo cáo bài viết / bình luận.
+                        .requestMatchers("/admin/community-reports", "/api/admin/community-reports", "/api/admin/community-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "MODERATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
                         // [JLAS2-37] Gỡ trực tiếp bài viết / bình luận cộng đồng: chặn theo vai trò TRƯỚC khi đọc và kiểm
-                        // tra body, để người không phải MODERATOR/ADMIN luôn nhận 403 (không phải 400 vì thiếu lý do).
+                        // tra body, để người không phải MODERATOR/ADMIN/CONTENT_CREATOR luôn nhận 403 (không phải 400 vì thiếu lý do).
                         .requestMatchers(HttpMethod.POST, "/api/community/posts/*/remove", "/api/community/comments/*/remove")
-                        .hasAnyRole("MODERATOR", "ADMIN")
+                        .hasAnyRole("MODERATOR", "ADMIN", "CONTENT_CREATOR")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error", "/about", "/policy").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()

@@ -58,7 +58,7 @@ class CommunityPostServiceTest {
         access = mock(CommunityAccessService.class);
         feed = mock(CommunityFeedService.class);
         actionPolicy = mock(UserActionPolicyPort.class);
-        service = new CommunityPostService(posts, contents, access, feed, actionPolicy);
+        service = new CommunityPostService(posts, contents, access, feed, actionPolicy, mock(CommunityPostMediaService.class));
         // fresh(): đọc lại bản mới nhất sau khi khoá; mặc định coi như dòng không đổi.
         when(access.fresh(any())).thenAnswer(inv -> inv.getArgument(0));
     }

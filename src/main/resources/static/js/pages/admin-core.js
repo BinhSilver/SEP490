@@ -22,6 +22,7 @@
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
       { key: 'content-learning-reports', label: 'Báo lỗi học tập', icon: 'fa-flag', href: '/admin/learning-content-reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
+      { key: 'content-community-reports', label: 'Báo cáo cộng đồng', icon: 'fa-people-group', href: '/admin/community-reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-tutor-review', label: 'Duyệt câu trả lời AI', icon: 'fa-robot', href: '/admin/tutor-review', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-verb-practice', label: 'Luyện chia động từ', icon: 'fa-language', href: '/admin/verb-practice', roles: ['CONTENT_CREATOR'] },

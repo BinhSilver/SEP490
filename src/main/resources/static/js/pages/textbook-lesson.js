@@ -3045,21 +3045,100 @@
     headerEl.hidden = false;
   }
 
-  function heroChip(icon, text) {
-    return '<span class="lp-hero__chip"><i class="' + icon + '" aria-hidden="true"></i> ' + escapeHtml(text) + '</span>';
+  /**
+   * Meta hero: không còn chip loại bài / "Ôn tập" / "N mục" (thừa với người học). Chỉ còn nút đổi trạng thái của
+   * CONTENT_CREATOR và nhãn "Chưa duyệt" cho bài chưa công bố (statusBadge); không có gì thì ẩn cả hàng.
+   */
+  function renderHeroMeta(data) {
+    var metaEl = document.getElementById('lessonMeta');
+    metaEl.innerHTML = [statusToggle('lesson', data.id, data.status)].filter(Boolean).join('');
+    metaEl.hidden = !metaEl.innerHTML;
   }
 
   /**
-   * Meta hero: loại bài, tổng số mục = tổng các tab. Người học không thấy chip "Đã công bố" / thời lượng;
-   * CONTENT_CREATOR vẫn có nút đổi trạng thái, bài chưa duyệt vẫn có nhãn "Chưa duyệt" (statusBadge).
+   * Bài chỉ có MỘT loại nội dung (vd. bài bảng chữ): thanh tab một nút trông như nút bấm → ẩn thanh tab, thay bằng
+   * tiêu đề mục (không bấm được). Bài nhiều loại nội dung giữ thanh tab như cũ.
    */
-  function renderHeroMeta(data, counts) {
-    var total = Object.keys(counts).reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
-    var meta = [statusToggle('lesson', data.id, data.status)].filter(Boolean);
-    if (data.skill) meta.push(heroChip('fa-solid fa-book-open', SKILL_LABELS[data.skill] || data.skill));
-    if (data.lessonType === 'REVIEW') meta.push(heroChip('fa-solid fa-rotate', 'Ôn tập'));
-    meta.push(heroChip('fa-solid fa-layer-group', total + ' mục'));
-    document.getElementById('lessonMeta').innerHTML = meta.join('');
+  function applySingleSection() {
+    var bar = document.querySelector('.lesson-tabs');
+    if (!bar) return;
+    var visible = Array.prototype.filter.call(document.querySelectorAll('.lesson-tab'), function (t) { return !t.hidden; });
+    var heading = document.getElementById('lessonSectionTitle');
+    var single = visible.length === 1;
+    bar.hidden = single;
+    if (!single) { if (heading) heading.hidden = true; return; }
+    if (!heading) {
+      heading = document.createElement('h2');
+      heading.id = 'lessonSectionTitle';
+      heading.className = 'lp-section-title';
+      bar.parentNode.insertBefore(heading, bar.nextSibling);
+    }
+    var label = visible[0].cloneNode(true);
+    Array.prototype.forEach.call(label.querySelectorAll('.lesson-tab__count'), function (c) { c.remove(); });
+    heading.textContent = label.textContent.trim();
+    heading.hidden = false;
+    var panel = document.querySelector('.lesson-panel[data-panel="' + visible[0].getAttribute('data-tab') + '"]');
+    if (panel) {
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-labelledby', heading.id);
+      panel.removeAttribute('tabindex');
+    }
+  }
+
+  /**
+   * Cuối bài: "Bài trước" / "Bài tiếp theo" theo thứ tự cả giáo trình (unit rồi tới bài, như trang danh sách bài).
+   * Hết một unit thì bài tiếp theo là bài đầu của unit sau ("Sang phần mới"); bài cuối giáo trình → về danh sách bài.
+   */
+  function loadLessonNav() {
+    if (!NEW_UI || !IS_TEXTBOOK_PAGE || !textbookId || !lessonId) return;
+    var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
+    fetch('/api/dictionary/textbooks/' + encodeURIComponent(textbookId) + '/units', { headers: headers })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (json) {
+        var units = json && json.data && json.data.units;
+        if (!units) return;
+        var flat = [];
+        units.forEach(function (unit) {
+          (unit.lessons || []).forEach(function (l) { flat.push({ id: l.id, title: l.title, unitId: unit.id, unitTitle: unit.title }); });
+        });
+        var index = -1;
+        for (var i = 0; i < flat.length; i++) if (String(flat[i].id) === String(lessonId)) index = i;
+        if (index < 0) return;
+        renderLessonNav(flat[index], flat[index - 1], flat[index + 1]);
+      })
+      .catch(function () { /* thanh chuyển bài là phụ: lỗi mạng thì bỏ qua */ });
+  }
+
+  function lessonHref(item) {
+    return '/textbooks/' + encodeURIComponent(textbookId) + '/lessons/' + encodeURIComponent(item.id);
+  }
+
+  function renderLessonNav(current, prev, next) {
+    var old = document.getElementById('lessonNav');
+    if (old) old.remove();
+    // Nút chỉ có chữ; tên bài đích nằm ở tooltip (title) và aria-label.
+    function link(item, cls, rel, label) {
+      var name = item.title + (item.unitId !== current.unitId ? ' (' + item.unitTitle + ')' : '');
+      return '<a class="lp-lesson-nav__link ' + cls + '" href="' + lessonHref(item) + '" rel="' + rel + '" title="' +
+        escapeHtml(name) + '" aria-label="' + escapeHtml(label + ': ' + name) + '">' + escapeHtml(label) + '</a>';
+    }
+    var html = prev ? link(prev, 'lp-lesson-nav__link--prev', 'prev', 'Bài trước')
+      : '<span class="lp-lesson-nav__spacer" aria-hidden="true"></span>';
+    if (next) {
+      var newUnit = next.unitId !== current.unitId;
+      html += link(next, 'lp-lesson-nav__link--next' + (newUnit ? ' is-new-unit' : ''), 'next',
+        newUnit ? 'Sang phần mới' : 'Bài tiếp theo');
+    } else {
+      html += '<a class="lp-lesson-nav__link lp-lesson-nav__link--next is-done" href="/textbooks/' +
+        encodeURIComponent(textbookId) + '">Về danh sách bài</a>';
+    }
+    var nav = document.createElement('nav');
+    nav.id = 'lessonNav';
+    nav.className = 'lp-lesson-nav';
+    nav.setAttribute('aria-label', 'Chuyển bài');
+    nav.innerHTML = html;
+    var note = document.getElementById('lessonSourceNote');
+    contentEl.parentNode.insertBefore(nav, note ? note.nextSibling : contentEl.nextSibling);
   }
 
   /* ---------- Tab trượt + xuất hiện lần lượt ---------- */
@@ -3632,7 +3711,7 @@
     applyTabVisibility(counts);
     contentEl.hidden = false;
     renderSourceNote(data);
-    if (NEW_UI) { renderHeroMeta(data, counts); syncTabA11y(); moveTabSlider(); staggerPanel(activePanel()); }
+    if (NEW_UI) { renderHeroMeta(data); syncTabA11y(); applySingleSection(); moveTabSlider(); staggerPanel(activePanel()); }
     assignRoleVoices();   // giọng có thể đã sẵn sàng trước khi dữ liệu về
     probeAudioFiles(data);
     applySpeakButtonVisibility();
@@ -3667,6 +3746,7 @@
         });
       })
       .then(render)
+      .then(loadLessonNav)
       .then(loadReadingImages)
       .then(loadPageImages)
       .catch(function (err) { showError(err.message || 'Không tải được bài học.'); });

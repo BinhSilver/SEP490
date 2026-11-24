@@ -18,6 +18,7 @@ import com.jlas.community.enums.ReportReason;
 import com.jlas.community.handler.CommunityContentTypeHandler;
 import com.jlas.community.handler.CommunitySource;
 import com.jlas.community.repository.CommunityPostRepository;
+import com.jlas.community.repository.CommunitySavedPostRepository;
 import com.jlas.community.service.CommunityAccessService.Target;
 import com.jlas.moderation.repository.ModerationAuditLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +64,7 @@ public class CommunityFeedService {
     private final ModerationAuditLogRepository moderationAudit;
     private final NamedParameterJdbcTemplate jdbc;
     private final CommunityPostMediaService postMedia;
+    private final CommunitySavedPostRepository saved;
 
     public enum Sort {
         NEWEST("Mới nhất", "f.created_at DESC, f.content_id DESC"),
@@ -94,8 +96,16 @@ public class CommunityFeedService {
         }
     }
 
-    public record Query(String keyword, String contentType, String jlptLevel, Double minRating, String sort,
-                        Integer page, Integer size) {
+    /**
+     * {@code rating} = đúng số sao (1-5): điểm trung bình làm tròn bằng N, tức trong [N-0.5, N+0.5), chỉ bài đã có
+     * đánh giá. {@code minRating} (link cũ "4★ trở lên") vẫn nhận: trung bình ≥ giá trị.
+     */
+    public record Query(String keyword, String contentType, String jlptLevel, Double minRating, Integer rating,
+                        boolean saved, String sort, Integer page, Integer size) {
+        public Query(String keyword, String contentType, String jlptLevel, Double minRating, String sort,
+                     Integer page, Integer size) {
+            this(keyword, contentType, jlptLevel, minRating, null, false, sort, page, size);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -133,11 +143,22 @@ public class CommunityFeedService {
             where.append(" AND ").append(RATING_AVG).append(" >= :minRating");
             params.addValue("minRating", query.minRating());
         }
+        if (query.rating() != null) {
+            if (query.rating() < 1 || query.rating() > 5) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Số sao phải từ 1 đến 5");
+            }
+            where.append(" AND ").append(RATING_COUNT).append(" > 0 AND ").append(RATING_AVG)
+                    .append(" >= :ratingFrom AND ").append(RATING_AVG).append(" < :ratingTo");
+            params.addValue("ratingFrom", query.rating() - 0.5).addValue("ratingTo", query.rating() + 0.5);
+        }
 
         String union = branches.stream().map(h -> "(" + h.feedSelectSql() + ")")
                 .collect(Collectors.joining(" UNION ALL "));
+        // "Đã lưu": chỉ mục người xem đã lưu (INNER JOIN); còn lại LEFT JOIN để biết cờ saved của từng mục.
         String from = " FROM (" + union + ") f LEFT JOIN community_content cc "
-                + "ON cc.content_type = f.content_type AND cc.content_id = f.content_id";
+                + "ON cc.content_type = f.content_type AND cc.content_id = f.content_id"
+                + (query.saved() ? " JOIN" : " LEFT JOIN") + " community_saved_post sp ON sp.user_id = :viewerId "
+                + "AND sp.content_type = f.content_type AND sp.content_id = f.content_id";
 
         Long total = jdbc.queryForObject("SELECT COUNT(*)" + from + where, params, Long.class);
         long totalElements = total == null ? 0 : total;
@@ -147,11 +168,12 @@ public class CommunityFeedService {
                 + "f.jlpt_level, f.created_at, f.link, " + RATING_AVG + " AS rating_avg, "
                 + RATING_COUNT + " AS rating_count, COALESCE(cc.comment_count, 0) AS comment_count, "
                 + "u.full_name, u.username, u.avatar_url, COALESCE(f.ext_my_rating, my.score) AS my_score, "
-                + "cc.id AS community_id"
+                + "cc.id AS community_id, sp.id AS saved_id"
                 + from
                 + " LEFT JOIN users u ON u.id = f.owner_id"
                 + " LEFT JOIN community_rating my ON my.community_content_id = cc.id AND my.user_id = :viewerId"
-                + where + " ORDER BY " + sort.orderBy + " LIMIT :limit OFFSET :offset";
+                + where + " ORDER BY " + (query.saved() && sort == Sort.NEWEST ? "sp.created_at DESC, sp.id DESC"
+                : sort.orderBy) + " LIMIT :limit OFFSET :offset";
 
         List<Row> rows = jdbc.query(sql, params, (rs, i) -> {
             Long ownerId = rs.getObject("owner_id") == null ? null : rs.getLong("owner_id");
@@ -168,7 +190,7 @@ public class CommunityFeedService {
                     rs.getInt("rating_count"), rs.getInt("comment_count"),
                     myScore == null ? null : ((Number) myScore).intValue(),
                     created == null ? null : created.toLocalDateTime(),
-                    communityId == null ? null : ((Number) communityId).longValue());
+                    communityId == null ? null : ((Number) communityId).longValue(), rs.getObject("saved_id") != null);
         });
         // Truy vấn gộp cho cả trang (không N+1): cờ "đã chỉnh sửa" + ảnh/video của bài viết + vài bình luận mới nhất.
         List<Long> postIds = rows.stream()
@@ -203,7 +225,8 @@ public class CommunityFeedService {
                 source.thumbnailUrl(), source.jlptLevel(), source.link(), source.ownerId(),
                 access.author(source.ownerId()), row == null ? 0 : row.getRatingAvg().doubleValue(),
                 row == null ? 0 : row.getRatingCount(), row == null ? 0 : row.getCommentCount(), null,
-                source.createdAt(), row == null ? null : row.getId());
+                source.createdAt(), row == null ? null : row.getId(), viewerId != null
+                && saved.existsByUserIdAndContentTypeAndContentId(viewerId, source.contentType(), source.contentId()));
         List<MediaDto> media = CommunityContentType.POST.equals(source.contentType())
                 ? postMedia.forPosts(List.of(source.contentId())).getOrDefault(source.contentId(), List.of()) : List.of();
         FeedItem item = toItem(r, target.status(), target.publicNow(), edited, viewerId, recent, media);
@@ -222,14 +245,14 @@ public class CommunityFeedService {
         return new FeedItem(i.contentType(), i.contentTypeLabel(), i.contentId(), i.title(), i.description(),
                 i.thumbnailUrl(), i.jlptLevel(), i.link(), i.author(), i.ratingAvg(), i.ratingCount(), i.commentCount(),
                 i.myRating(), i.createdAt(), i.status(), i.mine(), i.edited(), i.canRate(), i.canComment(),
-                i.canReport(), i.canEdit(), i.recentComments(), i.canModerate(), note, i.media());
+                i.canReport(), i.canEdit(), i.recentComments(), i.canModerate(), note, i.media(), i.saved());
     }
 
     /** Một dòng feed trước khi gắn quyền + bình luận. */
     private record Row(String contentType, Long contentId, String title, String description, String thumbnailUrl,
                        String jlptLevel, String link, Long ownerId, AuthorDto author, double ratingAvg,
                        int ratingCount, int commentCount, Integer myRating, LocalDateTime createdAt,
-                       Long communityId) {
+                       Long communityId, boolean saved) {
     }
 
     private FeedItem toItem(Row r, String status, boolean active, boolean edited, Long viewerId,
@@ -243,7 +266,8 @@ public class CommunityFeedService {
                 r.ratingCount(), r.commentCount(), r.myRating(), r.createdAt(), status, mine, edited,
                 active && rateable && !mine, active, active && !mine,
                 post && mine && !CommunityStatus.REMOVED.name().equals(status), recent,
-                post && CommunityAccessService.isModerator() && !CommunityStatus.REMOVED.name().equals(status), null, media);
+                post && CommunityAccessService.isModerator() && !CommunityStatus.REMOVED.name().equals(status), null, media,
+                r.saved());
     }
 
     private Set<Long> editedPosts(List<Long> postIds) {

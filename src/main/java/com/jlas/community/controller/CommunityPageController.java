@@ -15,6 +15,12 @@ public class CommunityPageController {
         return "community/index";
     }
 
+    /** Trang "Báo cáo cộng đồng" trong cổng quản trị (CONTENT_CREATOR / MODERATOR / ADMIN, xem SecurityConfig). */
+    @GetMapping("/admin/community-reports")
+    public String reports() {
+        return "admin/community-reports";
+    }
+
     /** Trang một bài viết: link chia sẻ và link từ thông báo bình luận. */
     @GetMapping("/community/posts/{postId}")
     public String post(@PathVariable Long postId, Model model) {

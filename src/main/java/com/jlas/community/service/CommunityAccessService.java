@@ -86,8 +86,10 @@ public class CommunityAccessService {
         return handlers.stream().filter(h -> h.supports(contentType)).findFirst();
     }
 
+    /** Người quản lý Cộng đồng: kiểm duyệt viên, quản trị viên và người biên soạn (content admin). */
     public static boolean isModerator() {
-        return CurrentUser.hasRole("ROLE_MODERATOR") || CurrentUser.hasRole("ROLE_ADMIN");
+        return CurrentUser.hasRole("ROLE_MODERATOR") || CurrentUser.hasRole("ROLE_ADMIN")
+                || CurrentUser.hasRole("ROLE_CONTENT_CREATOR");
     }
 
     public static ApiException notFound() {

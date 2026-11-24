@@ -4094,6 +4094,20 @@ CREATE TABLE IF NOT EXISTS community_post_media (
     CONSTRAINT chk_community_post_media_kind CHECK (kind IN ('IMAGE', 'VIDEO', 'YOUTUBE'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-37] "Luu bai" de xem lai sau (muc "Da luu" tren feed Cong dong). Luu theo (content_type, content_id) nen
+-- luu duoc moi loai tren feed (POST, FLASHCARD_SET, SHADOWING_VIDEO). Migration: sql/migrations/092_community_saved_post.sql.
+CREATE TABLE IF NOT EXISTS community_saved_post (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id      BIGINT UNSIGNED NOT NULL,
+    content_type VARCHAR(30)     NOT NULL,
+    content_id   BIGINT UNSIGNED NOT NULL,
+    created_at   DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_community_saved_post (user_id, content_type, content_id),
+    KEY idx_community_saved_post_user (user_id, created_at),
+    CONSTRAINT fk_community_saved_post_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- [JLAS-KANJI-MAP] Relational source catalog.
 CREATE TABLE IF NOT EXISTS user_kanji_mastery (
     user_id BIGINT UNSIGNED NOT NULL,

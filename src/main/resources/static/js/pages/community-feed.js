@@ -23,6 +23,7 @@
   // không tự tải lại khi cuộn (tránh gọi API liên tục), chờ người dùng bấm "Xem thêm".
   var state = { page: -1, totalPages: 0, loading: false, done: false, failed: false, removed: 0, generation: 0 };
   var cards = Cards.create(feedEl, {
+    removeOnUnsave: function () { return !!Filters.get().saved; },
     onRemoved: function () {
       state.removed += 1;
       if (!cards.count() && state.done) showEmpty();
@@ -31,16 +32,18 @@
 
   // ── State bộ lọc (một nguồn duy nhất) + đồng bộ URL ─────────────────────────────────────────────
   // URL dùng khoá ngắn q / type / level / rating / sort (reload hay chia sẻ link vẫn giữ bộ lọc); link cũ dùng
-  // keyword / contentType / jlptLevel / minRating vẫn đọc được. API giữ nguyên tên tham số cũ.
+  // keyword / contentType / jlptLevel / minRating vẫn đọc được. Lọc sao gửi API tham số rating (đúng số sao).
   var Filters = (function () {
-    var DEFAULTS = { q: '', type: '', level: '', rating: '', sort: 'newest' };
+    // saved = '1': chỉ hiện mục người xem đã "Lưu" (nút "Đã lưu" trên thanh công cụ, không nằm trong popover).
+    var DEFAULTS = { q: '', type: '', level: '', rating: '', saved: '', sort: 'newest' };
     var LEGACY = { q: 'keyword', type: 'contentType', level: 'jlptLevel', rating: 'minRating' };
-    var API = { q: 'keyword', type: 'contentType', level: 'jlptLevel', rating: 'minRating', sort: 'sort' };
+    var API = { q: 'keyword', type: 'contentType', level: 'jlptLevel', rating: 'rating', saved: 'saved', sort: 'sort' };
     var SORTS = ['newest', 'topRated', 'mostCommented'];
     var current = Object.assign({}, DEFAULTS);
     var api = {
       LEVELS: ['N5', 'N4', 'N3', 'N2', 'N1'],
-      RATINGS: { '4': '4★ trở lên', '5': '5★' },
+      // Đúng số sao (trung bình làm tròn), xếp thấp → cao. Link cũ minRating=4/5 đọc thành 4★/5★.
+      RATINGS: { '1': '1★', '2': '2★', '3': '3★', '4': '4★', '5': '5★' },
       get: function () { return current; },
       /** Gộp patch (đã chuẩn hoá); trả về true nếu có thay đổi. */
       set: function (patch) {
@@ -53,7 +56,7 @@
       },
       /** Số bộ lọc trong popover đang bật (không tính từ khoá và sắp xếp). */
       activeCount: function () { return ['type', 'level', 'rating'].filter(function (k) { return current[k]; }).length; },
-      hasFilter: function () { return !!(current.q || api.activeCount()); },
+      hasFilter: function () { return !!(current.q || current.saved || api.activeCount()); },
       readUrl: function (knownTypes) {
         var params = new URLSearchParams(window.location.search);
         var read = function (k) { return params.get(k) !== null ? params.get(k) : (LEGACY[k] ? params.get(LEGACY[k]) : null); };
@@ -62,6 +65,7 @@
         if (knownTypes.indexOf(read('type')) >= 0) next.type = read('type');
         if (api.LEVELS.indexOf(read('level')) >= 0) next.level = read('level');
         if (api.RATINGS[read('rating')]) next.rating = read('rating');
+        if (read('saved') === '1') next.saved = '1';
         next.sort = read('sort') || 'newest';
         api.set(next);
       },
@@ -99,6 +103,11 @@
   }
 
   function showEmpty() {
+    if (Filters.get().saved && !Filters.activeCount() && !Filters.get().q) {
+      stateEl.innerHTML = '<div class="cm-state"><i class="fa-regular fa-bookmark" aria-hidden="true"></i>' +
+        '<p><b>Chưa có bài nào được lưu</b></p><p class="cm-muted">Bấm “…” trên một bài rồi chọn “Lưu bài” để xem lại sau.</p></div>';
+      return;
+    }
     stateEl.innerHTML = '<div class="cm-state"><i class="fa-regular fa-comments" aria-hidden="true"></i>' +
       (hasFilter()
         ? '<p><b>Chưa có nội dung phù hợp</b></p><p class="cm-muted">Thử đổi từ khoá hoặc bỏ bớt bộ lọc.</p>'
@@ -135,7 +144,8 @@
       state.done = page + 1 >= data.totalPages;
       stateEl.innerHTML = '';
       cards.add(data.items);
-      summary.textContent = hasFilter() ? 'Tìm thấy ' + data.totalElements + ' mục' : '';
+      summary.textContent = !hasFilter() ? '' : Filters.get().saved && !Filters.activeCount() && !Filters.get().q
+        ? 'Đã lưu ' + data.totalElements + ' mục' : 'Tìm thấy ' + data.totalElements + ' mục';
       if (!cards.count()) showEmpty();
       else if (!state.done && !('IntersectionObserver' in window)) loadMoreBtn.hidden = false;
     } catch (error) {
@@ -209,7 +219,8 @@
       counter.textContent = value.length + '/' + Cards.MAX_POST;
       counter.classList.toggle('is-over', value.length > Cards.MAX_POST);
       el('cmComposerSubmit').disabled = this.pending || !value.trim() || value.length > Cards.MAX_POST;
-      el('cmComposerSubmit').textContent = this.pending ? 'Đang đăng…' : 'Đăng';
+      // Bài được AI kiểm duyệt trước khi lưu (video/YouTube có thể mất vài giây) nên nói rõ đang làm gì.
+      el('cmComposerSubmit').textContent = this.pending ? 'Đang kiểm duyệt…' : 'Đăng';
     }
   };
 
@@ -394,6 +405,9 @@
   /** Huy hiệu số bộ lọc + hàng chip; gọi sau mỗi lần Filters đổi. */
   function renderFilterUi() {
     var f = Filters.get();
+    var savedBtn = el('cmSavedToggle');
+    savedBtn.setAttribute('aria-pressed', String(!!f.saved));
+    savedBtn.querySelector('i').className = (f.saved ? 'fa-solid' : 'fa-regular') + ' fa-bookmark';
     var badge = el('cmFilterCount');
     badge.textContent = Filters.activeCount();
     badge.hidden = Filters.activeCount() === 0;
@@ -420,6 +434,7 @@
   }
 
   toggleBtn.addEventListener('click', function () { if (isOpen()) closePanel(true); else openPanel(); });
+  el('cmSavedToggle').addEventListener('click', function () { applyFilters({ saved: Filters.get().saved ? '' : '1' }); });
   el('cmFilterClose').addEventListener('click', function () { closePanel(true); });
   backdrop.addEventListener('click', function () { closePanel(false); });
   el('cmApply').addEventListener('click', function () {

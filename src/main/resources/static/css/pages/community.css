@@ -291,6 +291,9 @@
 #jlabBaseContent .cm-sort select { padding: 0 10px; font-weight: 500; min-width: 150px; }
 #jlabBaseContent :is(.cm-filter-btn:hover, .cm-filter-btn[aria-expanded="true"], .cm-sort select:hover) { border-color: var(--color-primary); }
 #jlabBaseContent .cm-filter-btn[aria-expanded="true"] { color: var(--color-primary); }
+#jlabBaseContent .cm-saved-btn { cursor: pointer; }
+#jlabBaseContent .cm-saved-btn[aria-pressed="true"] { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary, #fff); }
+#jlabBaseContent .cm-saved-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 #jlabBaseContent :is(.cm-filter-btn, .cm-sort select, .cm-pill, .cm-link-btn, .cm-active-chips button):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 #jlabBaseContent .cm-filter-btn__count {
   display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
@@ -411,6 +414,7 @@
 }
 #jlabBaseContent .cm-action:hover:not(:disabled) { background: color-mix(in srgb, var(--color-primary) 10%, transparent); color: var(--color-primary); }
 #jlabBaseContent .cm-action:disabled { opacity: .5; cursor: not-allowed; }
+#jlabBaseContent .cm-action.is-saved { color: var(--color-primary); }
 #jlabBaseContent .cm-action:focus-visible,
 #jlabBaseContent .cm-icon-btn:focus-visible,
 #jlabBaseContent .cm-preview:focus-visible { outline: 2px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; }
@@ -556,6 +560,7 @@ html[data-theme="dark"] #jlabBaseContent :is(.cm-post, .cm-composer, .cm-filter-
 }
 html[data-theme="dark"] #jlabBaseContent .cm-filter-panel { box-shadow: 0 12px 32px var(--dark-shadow); }
 html[data-theme="dark"] #jlabBaseContent :is(.cm-filter-btn:hover, .cm-filter-btn[aria-expanded="true"]) { border-color: var(--dark-accent); color: var(--dark-accent); }
+html[data-theme="dark"] #jlabBaseContent .cm-saved-btn[aria-pressed="true"] { background: var(--dark-button); border-color: var(--dark-button); color: var(--dark-on-button); }
 html[data-theme="dark"] #jlabBaseContent .cm-filter-btn__count { background: var(--dark-soft); color: var(--dark-accent); }
 html[data-theme="dark"] #jlabBaseContent .cm-search,
 html[data-theme="dark"] #jlabBaseContent :is(.cm-field select, .cm-field textarea, .cm-comment-form textarea, .cm-edit textarea) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
@@ -573,6 +578,7 @@ html[data-theme="dark"] #jlabBaseContent :is(.cm-composer__open, .cm-composer__i
 html[data-theme="dark"] #jlabBaseContent .cm-reply__bubble { background: var(--dark-raised); }
 html[data-theme="dark"] #jlabBaseContent .cm-chip--level { background: var(--dark-button); color: var(--dark-on-button); }
 html[data-theme="dark"] #jlabBaseContent .cm-btn-danger { background: var(--dark-danger) !important; border-color: var(--dark-danger) !important; color: var(--dark-bg) !important; }
+html[data-theme="dark"] #jlabBaseContent .cm-action.is-saved { color: var(--dark-accent); }
 html[data-theme="dark"] .cm-toast { background: var(--dark-raised); color: var(--dark-ink); border-left-color: var(--dark-accent); box-shadow: 0 8px 24px var(--dark-shadow); }
 html[data-theme="dark"] .cm-toast--success { border-left-color: var(--dark-success); }
 html[data-theme="dark"] .cm-toast--warning { border-left-color: var(--dark-warning); }
