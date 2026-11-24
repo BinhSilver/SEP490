@@ -209,7 +209,7 @@
 
   // ------------------------------------------------------------------------------------------------ levels
 
-  var LEVEL_STEP = { PASSED: 'done', OPEN: 'now', LOCKED: 'todo', COMING_SOON: 'off' };
+  var LEVEL_STEP = { PASSED: 'done', OPEN: 'now', NEXT_AFTER_KANA: 'todo', LOCKED: 'todo', COMING_SOON: 'off' };
 
   function levelCellHtml(cell) {
     var c = cell || {};
@@ -225,6 +225,7 @@
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
       + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
       + '%"></span></span>';
+    else if (state === 'NEXT_AFTER_KANA') sub = '<span class="jp-level-cell__state">Mở sau Nhập môn</span>';
     else if (state === 'LOCKED') sub = '<button type="button" class="jp-level-cell__preview" data-action="preview" data-preview-level="'
       + name + '">Xem trước</button>';
     else sub = '<button type="button" class="jp-level-cell__preview" data-action="coming-soon" data-coming-soon="' + name
@@ -241,10 +242,25 @@
       + '</span>' + sub + '</span></li>';
   }
 
+  // walkthrough 24/11: while kana is being learned the bar said "N5 · Đang học 0%" but 'Lộ trình của tôi' said
+  // "Nhập môn"; the bar now shows Nhập môn as the level being studied and N5 as the next one
+  function kanaPhase(path) {
+    return !!(path && path.kanaTab && !path.kanaCompleted);
+  }
+
+  function kanaCellHtml(path) {
+    if (!kanaPhase(path)) return '';
+    return '<li class="jp-step jp-step--now jp-level-cell jp-level-cell--open" aria-current="step"><span class="jp-step__mark"'
+      + ' aria-hidden="true"></span><span class="jp-step__body"><span class="jp-level-cell__name">Nhập môn</span>'
+      + '<span class="jp-level-cell__state">Đang học · chữ cái</span></span></li>';
+  }
+
   function levelBarHtml(path) {
     return '<section class="jp-levels" data-tour="level" aria-labelledby="jp-levels-title">'
       + '<h2 class="jp-sidenav__title" id="jp-levels-title">Cấp độ của bạn</h2>'
-      + '<ol class="jp-stepper jp-stepper--vertical jp-level-bar">' + list(path && path.levels).map(levelCellHtml).join('')
+      + '<ol class="jp-stepper jp-stepper--vertical jp-level-bar">' + kanaCellHtml(path)
+      + list(path && path.levels).map(function (c) { return levelCellHtml(kanaPhase(path) && c && c.state === 'OPEN'
+        ? Object.assign({}, c, { state: 'NEXT_AFTER_KANA' }) : c); }).join('')
       + '</ol></section>';
   }
 
