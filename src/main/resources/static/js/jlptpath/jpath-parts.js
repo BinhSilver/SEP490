@@ -988,6 +988,14 @@
       var weekOffset = w - currentWeekIdx;
       var startMs = baseMs + weekOffset * 7 * 86400000;
       var endMs = startMs + 6 * 86400000;
+      // parts already studied keep their real day: stretch the range so "Tuần 1 · 24/11–30/11" never holds a 15/11 part
+      for (var dj = 0; dj < normalized.length; dj++) {
+        var dIso = normalized[dj].day || normalized[dj].date;
+        var dMs = dIso ? Date.parse(String(dIso).slice(0, 10) + 'T00:00:00Z') : NaN;
+        if (isNaN(dMs)) continue;
+        if (dMs < startMs) startMs = dMs;
+        if (dMs > endMs) endMs = dMs;
+      }
       var dateRange = shortDdMm(startMs) + '–' + shortDdMm(endMs);
 
       weeks.push({

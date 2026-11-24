@@ -217,7 +217,8 @@ public class MyPathsService {
                 m.put("todayDone", t.allDone() || rest);
                 m.put("todayMinutesLeft", t.allDone() || rest ? 0 : t.estimatedMinutes());
             } catch (RuntimeException e) {
-                // no plan today (e.g. a test day not ready): keep the defaults
+                // no plan built yet today: the day is still ahead, so count the daily minutes
+                m.put("todayMinutesLeft", m.get("minutesPerDay"));
             }
         }
         m.put("url", "/learning?view=jlpt");
