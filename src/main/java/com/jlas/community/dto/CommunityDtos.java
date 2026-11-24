@@ -28,7 +28,7 @@ public final class CommunityDtos {
     /**
      * Một mục trên feed (bài viết POST hoặc nội dung chia sẻ). Bài viết: {@code description} là toàn bộ nội dung,
      * {@code title} chỉ là đoạn trích. Các cờ can* đã tính theo quyền người xem; {@code recentComments} là vài bình
-     * luận mới nhất (cũ → mới) hiện ngay dưới bài, nạp một lần cho cả trang.
+     * luận mới nhất (cũ → mới) hiện ngay dưới bài, nạp một lần cho cả trang. {@code saved}: người xem đã "Lưu" mục này.
      */
     public record FeedItem(String contentType, String contentTypeLabel, Long contentId, String title,
                            String description, String thumbnailUrl, String jlptLevel, String link,
@@ -36,7 +36,11 @@ public final class CommunityDtos {
                            Integer myRating, LocalDateTime createdAt, String status, boolean mine,
                            boolean edited, boolean canRate, boolean canComment, boolean canReport,
                            boolean canEdit, List<CommentDto> recentComments, boolean canModerate,
-                           String moderationNote, List<MediaDto> media) {
+                           String moderationNote, List<MediaDto> media, boolean saved) {
+    }
+
+    /** Kết quả Lưu / Bỏ lưu một mục feed. */
+    public record SaveResult(boolean saved) {
     }
 
     /**

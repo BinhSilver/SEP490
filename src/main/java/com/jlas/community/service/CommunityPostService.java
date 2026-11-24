@@ -32,6 +32,7 @@ public class CommunityPostService {
     private final CommunityAccessService access;
     private final CommunityFeedService feed;
     private final UserActionPolicyPort actionPolicy;
+    private final CommunityPostMediaService postMedia;
 
     /** Đăng bài; trả về mục feed để FE chèn ngay đầu danh sách. */
     @Transactional
@@ -68,6 +69,8 @@ public class CommunityPostService {
         if (CommunityStatus.REMOVED.name().equals(target.status())) {
             throw new ApiException(ErrorCode.CONFLICT, "Bài viết đã bị gỡ nên không thể sửa");
         }
+        // Nội dung sửa cũng phải qua kiểm duyệt (từ cấm + chủ đề tiếng Nhật) như lúc đăng.
+        if (!text.equals(post.getBody())) postMedia.screenEditedText(postId, text);
         post.setBody(text);
         post.setJlptLevel(level);
         post.setEditedAt(LocalDateTime.now());

@@ -11,7 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/community.css}"/>
+    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261124-toast)}"/>
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -64,6 +64,9 @@
                             </div>
                         </div>
                     </div>
+                    <button type="button" class="cm-filter-btn cm-saved-btn" id="cmSavedToggle" aria-pressed="false" title="Chỉ hiện bài bạn đã lưu">
+                        <i class="fa-regular fa-bookmark" aria-hidden="true"></i><span class="cm-filter-btn__text">Đã lưu</span>
+                    </button>
                     <label class="cm-sort">
                         <span class="cm-visually-hidden">Sắp xếp</span>
                         <select id="cmSort"><option value="newest">Mới nhất</option></select>
@@ -142,8 +145,8 @@
 
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/community-common.js}"></script>
-<script th:src="@{/js/pages/community-cards.js}"></script>
-<script th:src="@{/js/pages/community-feed.js}"></script>
+<script th:src="@{/js/pages/community-common.js(v=20261124-toast)}"></script>
+<script th:src="@{/js/pages/community-cards.js(v=20261124-notice2)}"></script>
+<script th:src="@{/js/pages/community-feed.js(v=20261124-saved)}"></script>
 </body>
 </html>

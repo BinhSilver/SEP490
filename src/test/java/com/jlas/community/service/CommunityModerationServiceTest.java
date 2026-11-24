@@ -151,12 +151,35 @@ class CommunityModerationServiceTest {
     }
 
     @Test
-    void learnerAndContentCreatorCannotRemove() {
-        for (String role : List.of("LEARNER", "CONTENT_CREATOR")) {
-            loginAs(LEARNER, role);
-            assertCode(ErrorCode.FORBIDDEN, () -> service.removePost(POST_ID, LEARNER, "Spam"));
-            assertCode(ErrorCode.FORBIDDEN, () -> service.removeComment(100L, LEARNER, "Spam"));
-        }
+    void contentCreatorCanRemoveAnyPost() {
+        // Content admin (CONTENT_CREATOR) gỡ thẳng từ menu "…" mà không cần đủ báo cáo.
+        loginAs(MODERATOR, "CONTENT_CREATOR");
+        when(access.load(CommunityContentType.POST, POST_ID)).thenReturn(new Target(postSource(), row("PUBLISHED"), "PUBLISHED"));
+        when(contents.lockBySource(CommunityContentType.POST, POST_ID)).thenReturn(Optional.of(row("PUBLISHED")));
+        service.removePost(POST_ID, MODERATOR, "Spam");
+        verify(reportedContent).resolve(eq(CommunityReportedContentPort.CONTENT), eq(ROW_ID), any());
+        verify(notifier).removedByModerator(eq(AUTHOR), any(CommunitySource.class), eq(null), eq("Spam"), eq(true));
+    }
+
+    @Test
+    void removeContentByRowIdUsesTheSameFlow() {
+        loginAs(MODERATOR, "CONTENT_CREATOR");
+        CommunityContent hidden = row("TEMPORARILY_HIDDEN");
+        when(contents.lockById(ROW_ID)).thenReturn(Optional.of(hidden));
+        when(access.load(hidden)).thenReturn(new Target(postSource(), hidden, "TEMPORARILY_HIDDEN"));
+        service.removeContent(ROW_ID, MODERATOR, "Spam");
+        verify(reportedContent).resolve(eq(CommunityReportedContentPort.CONTENT), eq(ROW_ID), any());
+        ArgumentCaptor<ModerationAuditService.Entry> entry = ArgumentCaptor.forClass(ModerationAuditService.Entry.class);
+        verify(audit).record(eq(MODERATOR), entry.capture());
+        assertEquals("TEMPORARILY_HIDDEN", entry.getValue().fromState());
+    }
+
+    @Test
+    void learnerCannotRemove() {
+        loginAs(LEARNER, "LEARNER");
+        assertCode(ErrorCode.FORBIDDEN, () -> service.removePost(POST_ID, LEARNER, "Spam"));
+        assertCode(ErrorCode.FORBIDDEN, () -> service.removeComment(100L, LEARNER, "Spam"));
+        assertCode(ErrorCode.FORBIDDEN, () -> service.removeContent(ROW_ID, LEARNER, "Spam"));
         SecurityContextHolder.clearContext();
         assertCode(ErrorCode.FORBIDDEN, () -> service.removePost(POST_ID, LEARNER, "Spam"));
         verify(reportedContent, never()).resolve(anyString(), anyLong(), any());

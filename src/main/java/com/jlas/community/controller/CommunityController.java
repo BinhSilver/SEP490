@@ -14,6 +14,7 @@ import com.jlas.community.dto.CommunityDtos.RatingResult;
 import com.jlas.community.dto.CommunityDtos.ReportRequest;
 import com.jlas.community.dto.CommunityDtos.RemoveRequest;
 import com.jlas.community.dto.CommunityDtos.ReportResult;
+import com.jlas.community.dto.CommunityDtos.SaveResult;
 import com.jlas.community.service.CommunityCommentService;
 import com.jlas.community.service.CommunityContentService;
 import com.jlas.community.service.CommunityFeedService;
@@ -58,10 +59,13 @@ public class CommunityController {
             @RequestParam(required = false) String contentType,
             @RequestParam(required = false) String jlptLevel,
             @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) Integer rating,
+            @RequestParam(required = false) Boolean saved,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        var query = new CommunityFeedService.Query(keyword, contentType, jlptLevel, minRating, sort, page, size);
+        var query = new CommunityFeedService.Query(keyword, contentType, jlptLevel, minRating, rating,
+                Boolean.TRUE.equals(saved), sort, page, size);
         return ResponseEntity.ok(ApiResponse.ok("OK", feed.search(query, CurrentUser.requireUserId())));
     }
 
@@ -85,6 +89,19 @@ public class CommunityController {
                                                             @PathVariable Long contentId) {
         return ResponseEntity.ok(ApiResponse.ok("Đã gỡ đánh giá",
                 contents.unrate(contentType, contentId, CurrentUser.requireUserId())));
+    }
+
+    /** Lưu mục để xem lại sau (bộ lọc "Đã lưu"). Lưu lại lần nữa không lỗi. */
+    @PutMapping("/contents/{contentType}/{contentId}/save")
+    public ResponseEntity<ApiResponse<SaveResult>> save(@PathVariable String contentType, @PathVariable Long contentId) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu",
+                new SaveResult(contents.save(contentType, contentId, CurrentUser.requireUserId()))));
+    }
+
+    @DeleteMapping("/contents/{contentType}/{contentId}/save")
+    public ResponseEntity<ApiResponse<SaveResult>> unsave(@PathVariable String contentType, @PathVariable Long contentId) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã bỏ lưu",
+                new SaveResult(contents.unsave(contentType, contentId, CurrentUser.requireUserId()))));
     }
 
     @GetMapping("/contents/{contentType}/{contentId}/comments")
@@ -120,8 +137,11 @@ public class CommunityController {
     // ── Bài viết (POST). Bình luận / báo cáo bài viết dùng chung endpoint ở trên với contentType = POST. ──
     @PostMapping("/posts")
     public ResponseEntity<ApiResponse<FeedItem>> createPost(@Valid @RequestBody PostRequest request) {
+        Long userId = CurrentUser.requireUserId();
+        CommunityPostService.clean(request.body());
+        postMedia.prepare(request.body(), null, null, null); // bài chỉ có chữ: vẫn qua kiểm duyệt AI
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Đã đăng bài viết",
-                posts.create(CurrentUser.requireUserId(), request.body(), request.jlptLevel())));
+                posts.create(userId, request.body(), request.jlptLevel())));
     }
 
     /**
@@ -137,7 +157,7 @@ public class CommunityController {
             @RequestParam(value = "youtubeUrl", required = false) String youtubeUrl) {
         Long userId = CurrentUser.requireUserId();
         CommunityPostService.clean(body);
-        List<CommunityPostMediaService.Stored> stored = postMedia.prepare(images, video, youtubeUrl);
+        List<CommunityPostMediaService.Stored> stored = postMedia.prepare(body, images, video, youtubeUrl);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("Đã đăng bài viết",
                 posts.create(userId, body, jlptLevel, postId -> postMedia.attach(postId, stored))));
     }
