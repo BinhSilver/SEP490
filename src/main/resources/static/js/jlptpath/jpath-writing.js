@@ -25,7 +25,7 @@
   'use strict';
 
   var BASE = '/api/learning/jlpt/writing/';
-  var ITEM_TYPES = ['VOCAB', 'KANJI', 'KANA'];
+  /* owner 25/11: only kana and kanji have Luyện viết, never words */ var ITEM_TYPES = ['KANJI', 'KANA'];
   var TABS = ['VOCAB', 'KANJI', 'GRAMMAR', 'KANA', 'SKILL'];
   var BOUND = 'data-jpath-writing-bound';
   var MSG_EMPTY = 'Hôm nay chưa có mục mới để luyện viết.';

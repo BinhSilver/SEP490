@@ -522,7 +522,7 @@
       + '</div>';
   }
 
-  var WRITE_TYPES = { vocab: 'VOCAB', kanji: 'KANJI', kana: 'KANA' };
+  /* owner 25/11: only kana and kanji have Luyện viết, never words */ var WRITE_TYPES = { kanji: 'KANJI', kana: 'KANA' };
 
   /** owner 22/11: a word / Kanji / kana pill opens "Luyện viết" (stroke order, tracing cells, In phiếu viết). */
   function wordPillHtml(it, tabKey) {

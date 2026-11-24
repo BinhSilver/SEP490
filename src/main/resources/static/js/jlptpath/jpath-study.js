@@ -294,7 +294,7 @@
     }
     if (has(card.code) && has(type)) {
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
-      if (type === 'VOCAB' || type === 'KANJI') attrs += ' data-jpath-writing="' + attrJson({ itemType: type, code: card.code }) + '"';
+      if (type === 'KANJI') attrs += ' data-jpath-writing="' + attrJson({ itemType: type, code: card.code }) + '"';
     }
     // F64 (owner 11/11): "Đã biết" on every new card of Từ vựng, Kanji and Ngữ pháp (one question decides)
     var SKIP_ASK = { VOCAB: 'Đã biết từ này?', KANJI: 'Đã biết chữ này?', GRAMMAR: 'Đã biết mẫu này?' };
