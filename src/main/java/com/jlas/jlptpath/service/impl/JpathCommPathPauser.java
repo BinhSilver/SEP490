@@ -24,6 +24,13 @@ public class JpathCommPathPauser {
 
     /** Pauses every ACTIVE communication path of the learner; returns how many were paused. */
     public int pauseCommPaths(Long userId) {
+        // owner 24/11: /learning routes by the survey goal, so the main goal follows the path that just became ACTIVE;
+        // otherwise a resumed JLPT path stays hidden behind the communication path
+        try {
+            db.update("UPDATE user_learning_survey SET goal = 'JLPT' WHERE user_id = ?", userId);
+        } catch (org.springframework.jdbc.BadSqlGrammarException e) {
+            // no survey table (tests / feature not installed): nothing to follow
+        }
         try {
             return db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND status = 'ACTIVE'", userId);
         } catch (DataAccessException e) {

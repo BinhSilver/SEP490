@@ -228,6 +228,13 @@ public class CpathService {
             // owner 17/11 (mentor review): one main goal — a communication goal as the main goal pauses an ACTIVE
             // JLPT path (progress kept; choosing JLPT again resumes it), the mirror of JLPT pausing communication
             db.update("UPDATE jpath_user_path SET status = 'PAUSED', active_flag = NULL WHERE user_id = ? AND status = 'ACTIVE'", userId);
+            // owner 24/11: /learning routes by the survey goal; without this the new main path stays hidden behind
+            // the paused JLPT path's "Học tiếp" screen
+            try {
+                db.update("UPDATE user_learning_survey SET goal = ? WHERE user_id = ?", goal, userId);
+            } catch (org.springframework.jdbc.BadSqlGrammarException e) {
+                // no survey table (tests): nothing to follow
+            }
         }
         List<Long> resumable = secondary ? List.of() : db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
         // F118 (owner 14/11): the new main goal is the learner's secondary goal → that row becomes the main path, so
