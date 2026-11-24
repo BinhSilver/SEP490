@@ -17,7 +17,7 @@
     + 'background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font:inherit;text-align:left}'
     + '.mission-demo button:hover{background:rgba(255,255,255,.14)}.mission-demo button:disabled{opacity:.5;cursor:wait}'
     + '.mission-demo__status{color:rgba(255,255,255,.75);font-size:.76rem}.mission-demo:not([open]){width:auto}'
-    + '@media (max-width:640px){.mission-demo{bottom:calc(84px + env(safe-area-inset-bottom));'
+    + '@media (max-width:640px){.mission-demo{top:76px;bottom:auto;'
     + 'max-height:calc(100dvh - 180px);overflow-y:auto}}';
 
   var KIND_NAMES = {
