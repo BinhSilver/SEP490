@@ -835,8 +835,9 @@
     var p = pathData || {};
     var sec = p.secondary;
     var progress = p.progress || {};
-    var passed = Number(progress.passedTopics || 0);
-    var total = Number(progress.totalTopics || 0);
+    // walkthrough 25/11: the same count as the my-paths card ("Đã xong 2/7 tình huống", 29%), not passed topics
+    var passed = Number(progress.doneSituations || 0);
+    var total = Number(progress.totalSituations || 0);
     var pct = total ? Math.round(100 * passed / total) : 0;
     var fin = p.finished;
     var others = list(p.finishedPaths);
@@ -846,7 +847,7 @@
       + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp')
       + (fin && fin.finishedAt ? ' · xong ' + esc(fmtFullDate(fin.finishedAt)) : '') + '</span>'
       + '<a class="cp-goal-card__progress" href="' + esc(fin && fin.certificateUrl || '/learning/comm/certificate') + '" title="Xem chứng nhận">'
-      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
+      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' tình huống</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
       + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
       + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
