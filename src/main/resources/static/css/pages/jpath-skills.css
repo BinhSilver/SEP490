@@ -369,3 +369,30 @@
     bottom: calc(var(--jlab-mobile-bottom, 0px) + 78px);
   }
 }
+
+/* [JLAS-W0108] F242 (mentor, owner 24/11): reading passage presentation only — Japanese text at 18px with room for
+   furigana, the passage shown as paragraphs of a few sentences, Furigana + Dịch nghĩa right above the passage,
+   passage left (sticky) and questions right on wide screens, stacked on phones. */
+.jp-skill-bai--split .jp-skill-passage { max-width: none; margin: 0; font-size: calc(18px * var(--jp-font-scale, 1)); line-height: 2.05; }
+.jp-sen-list--prose .jp-sen-par { display: block; margin: 0 0 1em; }
+.jp-sen-list--prose .jp-sen-par:last-child { margin-bottom: 0; }
+.jp-sen-list--prose .jp-sen, .jp-sen-list--prose .jp-sen__ja { display: inline; padding: 0; }
+.jp-sen-list--prose .jp-sen__vi { font-size: .82em; }
+.jp-skill-passage-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.jp-skill-passage-bar__furi:empty { display: none; }
+.jp-skill-passage-bar .jp-furi-toggle-wrap { display: inline-flex; }
+.jp-skill-passage-bar .jp-btn { min-height: 40px; padding: 6px 14px; }
+.jp-skill-passage-bar .jp-btn[aria-pressed="true"] { border-color: var(--jp-primary); background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-skill-bai__text { padding: 18px 20px; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive); background: var(--jp-surface); }
+.jp-skill-bai__qs > .jp-skill-q:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+@media (min-width: 960px) {
+  .jp-skill-bai--split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  .jp-skill-bai--split .jp-skill-bai__text { position: sticky; top: 72px; max-height: calc(100dvh - 88px); overflow-y: auto; }
+}
+@media (max-width: 959px) {
+  .jp-skill-bai__text { margin-bottom: 18px; }
+}
+@media (max-width: 640px) {
+  .jp-skill-bai__text { padding: 14px 14px; }
+  .jp-skill-passage-bar .jp-btn { min-height: 44px; }
+}

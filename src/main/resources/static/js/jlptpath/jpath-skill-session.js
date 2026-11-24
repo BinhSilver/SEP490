@@ -216,13 +216,25 @@
   /** A sentence list: one sentence per line; hover/tap shows its translation right below (light floating label). */
   function senListHtml(lines, withWho, viOn) {
     if (!list(lines).length) return '';
-    return '<div class="jp-skill-passage jp-sen-list' + (viOn ? ' is-vi' : '') + '">'
-      + list(lines).map(function (l, i) {
-        var vi = l.vi ? '<span class="jp-sen__vi">' + esc(l.vi) + '</span>' : '';
-        var who = withWho ? '<span class="jp-sen__who">' + esc(SPEAKER[l.speaker] || l.speaker) + '</span>' : '';
-        return '<span class="jp-sen' + (l.vi ? ' has-vi' : '') + '" tabindex="0" data-sen="' + i + '">'
-          + who + '<span class="jp-sen__ja" lang="ja">' + esc(l.ja) + '</span>' + vi + '</span>';
-      }).join('') + '</div>';
+    var spans = list(lines).map(function (l, i) {
+      var vi = l.vi ? '<span class="jp-sen__vi">' + esc(l.vi) + '</span>' : '';
+      var who = withWho ? '<span class="jp-sen__who">' + esc(SPEAKER[l.speaker] || l.speaker) + '</span>' : '';
+      return '<span class="jp-sen' + (l.vi ? ' has-vi' : '') + '" tabindex="0" data-sen="' + i + '">'
+        + who + '<span class="jp-sen__ja" lang="ja">' + esc(l.ja) + '</span>' + vi + '</span>';
+    });
+    var inner = withWho ? spans.join('') : paragraphs(spans);
+    return '<div class="jp-skill-passage jp-sen-list' + (withWho ? '' : ' jp-sen-list--prose') + (viOn ? ' is-vi' : '')
+      + '">' + inner + '</div>';
+  }
+
+  /** F242: a reading passage is shown as paragraphs of PARA_SENTENCES sentences (display only, data unchanged). */
+  var PARA_SENTENCES = 3;
+  function paragraphs(spans) {
+    var out = '';
+    for (var k = 0; k < spans.length; k += PARA_SENTENCES) {
+      out += '<span class="jp-sen-par">' + spans.slice(k, k + PARA_SENTENCES).join('') + '</span>';
+    }
+    return out;
   }
 
   /**
@@ -280,7 +292,7 @@
       + btn('result', 'jp-btn--primary', 'Kết quả', ctx.graded || !allPicked)
       + btn('redo', '', 'Làm lại', ctx.graded || !hasPicks(ctx.picks))
       + btn('answer', '', 'Đáp án', !ctx.graded)
-      + btn('translate', '', 'Dịch nghĩa', !ctx.graded, ctx.viOn)
+      + (ctx.split ? '' : btn('translate', '', 'Dịch nghĩa', !ctx.graded, ctx.viOn))
       + '</div>' + (!ctx.graded ? '<p class="jp-muted">Chọn đáp án trước</p>' : '');
   }
 
@@ -384,11 +396,26 @@
       var q = ctx.questions[qid];
       return q ? questionHtml(q, n + 1, ctx) : '';
     }).join('');
-    return head + '<section class="jp-skill-block jp-skill-bai" data-jpath-report="' + report + '">'
-      + setSource(set, graded, ctx.viOn, ctx.token)
-      + (set.imageDescriptionVi ? '<p class="jp-skill-situation">Tình huống: ' + esc(set.imageDescriptionVi) + '</p>' : '')
+    var source = setSource(set, graded, ctx.viOn, ctx.token);
+    var situation = set.imageDescriptionVi ? '<p class="jp-skill-situation">Tình huống: ' + esc(set.imageDescriptionVi) + '</p>' : '';
+    // F242: a reading passage sits on the left (sticky on wide screens) with Furigana + Dịch nghĩa right above it
+    ctx.split = set.skill !== 'LISTENING' && source !== '';
+    if (!ctx.split) {
+      return head + '<section class="jp-skill-block jp-skill-bai" data-jpath-report="' + report + '">'
+        + source + situation
+        + qs + toolbarHtml(set, ctx) + scoreHtml(set, ctx) + (set.revealed ? wordsHtml(set) : '')
+        + nextHtml(graded, index, total) + '</section>';
+    }
+    var passageBar = '<div class="jp-skill-passage-bar" role="toolbar" aria-label="Công cụ đoạn văn">'
+      + '<span class="jp-skill-passage-bar__furi" data-skill-furi-slot></span>'
+      + '<button type="button" class="jp-btn" data-skill-tool="translate"' + (graded ? '' : ' disabled')
+      + ' aria-pressed="' + (ctx.viOn ? 'true' : 'false') + '"' + (graded ? '' : ' title="Dịch nghĩa mở sau khi xem kết quả"')
+      + '>Dịch nghĩa</button></div>';
+    return head + '<section class="jp-skill-block jp-skill-bai jp-skill-bai--split" data-jpath-report="' + report + '">'
+      + '<div class="jp-skill-bai__text">' + passageBar + source + '</div>'
+      + '<div class="jp-skill-bai__qs">' + situation
       + qs + toolbarHtml(set, ctx) + scoreHtml(set, ctx) + (set.revealed ? wordsHtml(set) : '')
-      + nextHtml(graded, index, total) + '</section>';
+      + nextHtml(graded, index, total) + '</div></section>';
   }
 
   function doneHtml(s) {
@@ -461,7 +488,7 @@
         status.textContent = '';
         if (s.step === 'THEORY') {
           return api.get(BASE + '/skills/lessons/' + encodeURIComponent(s.typeCode) + '?sessionId=' + encodeURIComponent(id))
-            .then(function (l) { state.lesson = l; body.innerHTML = lessonHtml(l); players(); });
+            .then(function (l) { state.lesson = l; parkFuriToggle(); body.innerHTML = lessonHtml(l); players(); });
         }
         if (s.step === 'PRACTICE' && s.practiceToken) return loadPractice(s.practiceToken);
         if (s.step === 'DICTATION' && s.dictationToken && root.JpathDictation) {
@@ -469,10 +496,11 @@
             return api.send('POST', BASE + '/skills/sessions/' + encodeURIComponent(id) + '/advance').then(load);
           } });
         }
-        if (s.step === 'DONE' || s.done) { body.innerHTML = doneHtml(s); return null; }
+        if (s.step === 'DONE' || s.done) { parkFuriToggle(); body.innerHTML = doneHtml(s); return null; }
         // a step whose check is not ready yet: let the server move it on
         return api.send('POST', BASE + '/skills/sessions/' + encodeURIComponent(id) + '/advance').then(function (n) {
           if (n && n.step !== s.step) return load();
+          parkFuriToggle();
           body.innerHTML = '<p class="jp-muted">Bài luyện của buổi này đang được chuẩn bị.</p>';
           return null;
         });
@@ -502,10 +530,33 @@
           if (t) renderPractice();
         }, function () { /* keep the old split */ });
       }
+      parkFuriToggle();
       body.innerHTML = practiceHtml(set, state.view, state.current, {
         token: ps.token, questions: ps.questions, answered: ps.answered,
         picks: state.picks, feedback: state.feedback, showExplain: state.showExplain, viOn: state.viOn });
+      placeFuriToggle();
       players();
+    }
+
+    /**
+     * F242: the page's one Furigana toggle (jpath-auto-furigana.js) moves into the bar right above a reading passage,
+     * and back to the page head before the body is drawn again (so a redraw never throws it away).
+     */
+    function furiHolder() {
+      var page = body.closest ? body.closest('[data-jpath-auto-furigana]') : null;
+      return page && page.querySelector ? page.querySelector('.jp-furi-toggle-wrap') : null;
+    }
+    function parkFuriToggle() {
+      var h = furiHolder();
+      if (!h || !body.contains || !body.contains(h)) return;
+      var page = body.closest('[data-jpath-auto-furigana]');
+      var head = page.querySelector('.jp-page-head') || page;
+      head.appendChild(h);
+    }
+    function placeFuriToggle() {
+      var slot = body.querySelector ? body.querySelector('[data-skill-furi-slot]') : null;
+      var h = slot ? furiHolder() : null;
+      if (h) slot.appendChild(h);
     }
 
     function refreshToolbar() {
