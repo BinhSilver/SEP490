@@ -235,6 +235,7 @@
     // a locked level already shows a "Xem trước" button: its note keeps only the condition ("Thi thử N5 để mở")
     var note = String(c.note || '').trim();
     if (state === 'LOCKED') note = note.replace(/^Xem trước\s*·\s*/, '');
+    if (state === 'NEXT_AFTER_KANA') note = '';
     if (note && note !== said) sub += '<span class="jp-level-cell__note">' + esc(note) + '</span>';
     var tipAttr = (state === 'LOCKED' && note && note !== said) ? ' data-tip="' + esc(note) + '" title="' + esc(note) + '"' : '';
     return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"' + (state === 'OPEN' ? ' aria-current="step"' : '') + tipAttr + '><span class="jp-step__mark" aria-hidden="true">' + mark
