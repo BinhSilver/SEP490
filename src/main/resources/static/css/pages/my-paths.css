@@ -7,14 +7,18 @@
 .mp-root { display: grid; gap: 32px; }
 .mp-root[aria-busy="true"] { min-height: 320px; }
 
-.mp-today { display: flex; gap: 16px 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;
-  padding: 0 0 24px; border-bottom: 1px solid var(--color-outline-variant); }
-.mp-today h2 { margin: 0 0 4px; font-size: var(--text-lg, 1.15rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-today { position: relative; display: flex; gap: 16px 24px; align-items: center; flex-wrap: wrap;
+  padding: 20px 24px; border-radius: var(--radius-lg, 16px); background: var(--color-primary-fixed); color: var(--color-on-surface); overflow: hidden; }
+.mp-today.is-done { background: var(--color-success-bg); }
+.mp-today__fox { flex: none; width: 96px; height: 96px; object-fit: contain; }
+.mp-today__text { flex: 1 1 280px; display: grid; gap: 4px; }
+.mp-today__date { font-size: var(--text-sm, .875rem); font-weight: 500; color: var(--color-primary); }
+.mp-today.is-done .mp-today__date { color: var(--color-success); }
+.mp-today h2 { margin: 0; font-size: var(--text-xl, 1.3rem); font-weight: 500; color: var(--color-on-surface); }
+.mp-today h2 strong { font-weight: 600; color: var(--color-primary); }
 .mp-today p { margin: 0; color: var(--color-on-surface-variant); }
-.mp-today__text { flex: 1 1 320px; display: grid; gap: 4px; }
 .mp-today__cta { display: grid; gap: 6px; justify-items: end; }
 .mp-today__next { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
-.mp-today__done { font-weight: 500; color: var(--color-success); }
 .mp-today__remind { font-weight: 500; color: var(--color-on-surface) !important; }
 .mp-today__warn { margin-top: 6px !important; padding-left: 10px; border-left: 3px solid var(--color-warning, var(--color-error));
   color: var(--color-on-surface) !important; }
@@ -25,8 +29,24 @@
 .mp-list__hint { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
 .mp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 
-.mp-card { display: grid; gap: 12px; align-content: start; padding: 20px; border-radius: var(--radius-md, 12px);
-  border: 1px solid var(--color-outline-variant); background: var(--color-surface-lowest); color: var(--color-on-surface); }
+.mp-kind--jlpt { --mp-accent: var(--color-primary); --mp-accent-bg: var(--color-primary-fixed); }
+.mp-kind--comm { --mp-accent: var(--color-secondary); --mp-accent-bg: var(--color-secondary-container); }
+.mp-card { position: relative; display: grid; gap: 12px; align-content: start; padding: 20px 20px 18px; border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--color-outline-variant); border-top: 4px solid var(--mp-accent, var(--color-primary));
+  background: var(--color-surface-lowest); color: var(--color-on-surface); }
+.mp-chip { justify-self: start; padding: 2px 10px; border-radius: 99px; font-size: var(--text-xs, .75rem); font-weight: 600;
+  background: var(--mp-accent-bg); color: var(--mp-accent); }
+.mp-steps { list-style: none; margin: 2px 0 0; padding: 0; display: flex; }
+.mp-steps__stop { position: relative; flex: 1; display: grid; justify-items: center; gap: 6px; font-size: var(--text-xs, .75rem);
+  color: var(--color-on-surface-variant); }
+.mp-steps__stop + .mp-steps__stop::before { content: ""; position: absolute; top: 6px; right: 50%; width: 100%; height: 2px;
+  background: var(--color-outline-variant); }
+.mp-steps__stop.is-passed::before, .mp-steps__stop.is-current::before { background: var(--mp-accent); }
+.mp-steps__dot { position: relative; z-index: 1; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--color-outline-variant);
+  background: var(--color-surface-lowest); }
+.mp-steps__stop.is-passed .mp-steps__dot { background: var(--mp-accent); border-color: var(--mp-accent); }
+.mp-steps__stop.is-current .mp-steps__dot { border-color: var(--mp-accent); box-shadow: 0 0 0 4px var(--mp-accent-bg); }
+.mp-steps__stop.is-current { font-weight: 600; color: var(--mp-accent); }
 .mp-card__head { display: grid; gap: 2px; }
 .mp-card__head h3 { margin: 0; font-size: var(--text-lg, 1.1rem); font-weight: 600; }
 .mp-card__kind { font-size: var(--text-xs, .75rem); font-weight: 500; color: var(--color-on-surface-variant); }
@@ -39,7 +59,7 @@
 
 .mp-prog { display: flex; align-items: center; gap: 10px; }
 .mp-prog__bar { flex: 1; height: 6px; border-radius: 99px; background: var(--color-surface-container); overflow: hidden; }
-.mp-prog__bar i { display: block; height: 100%; border-radius: inherit; background: var(--color-primary); }
+.mp-prog__bar i { display: block; height: 100%; border-radius: inherit; background: var(--mp-accent, var(--color-primary)); }
 .mp-prog__pct { font-size: var(--text-sm, .875rem); font-weight: 500; color: var(--color-on-surface-variant); min-width: 3ch; text-align: right; }
 
 .mp-link { padding: 6px 4px; border: 0; background: none; font: inherit; font-size: var(--text-sm, .875rem); font-weight: 500;
@@ -56,7 +76,10 @@
 .mp-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-outline-variant); }
 .mp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 16px; align-items: center;
   padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant); }
-.mp-row__name { display: grid; gap: 2px; font-weight: 500; color: var(--color-on-surface); min-width: 0; }
+.mp-row__name { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px 10px; font-weight: 500; color: var(--color-on-surface); min-width: 0; }
+.mp-row__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mp-accent); }
+.mp-row__bar { grid-column: 2; height: 4px; max-width: 220px; border-radius: 99px; background: var(--color-surface-container); overflow: hidden; }
+.mp-row__bar i { display: block; height: 100%; background: var(--mp-accent); }
 .mp-row__note { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
 .mp-row__act { display: flex; align-items: center; gap: 8px; justify-self: end; }
 .mp-row__act .jp-btn { min-height: 36px; }
@@ -88,6 +111,7 @@
 .mp-switch a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
 @media (max-width: 640px) {
+  .mp-today__fox { width: 64px; height: 64px; }
   .mp-today__cta { justify-items: stretch; width: 100%; }
   .mp-today__cta .jp-btn { width: 100%; }
   .mp-grid { grid-template-columns: 1fr; }
