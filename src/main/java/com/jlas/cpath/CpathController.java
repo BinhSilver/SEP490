@@ -67,6 +67,10 @@ public class CpathController {
     @Autowired
     private CpathFlashcardService flashcardService;
 
+    /** Owner 24/11 "Lộ trình của tôi" notices (added / pace changed), sent after the service transaction. */
+    @Autowired(required = false)
+    private com.jlas.mypaths.MyPathsService myPaths;
+
     /** Owner 18/11: the situation's flashcard set ("Đã nhớ x/y"); POST makes it. */
     @GetMapping("/situations/{id}/flashcards")
     public ResponseEntity<ApiResponse<Map<String, Object>>> flashcards(@AuthenticationPrincipal UserPrincipal user,
@@ -112,7 +116,9 @@ public class CpathController {
     @PostMapping("/path")
     public ResponseEntity<ApiResponse<Map<String, Object>>> create(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", service.createPath(user.userId(), body)));
+        Map<String, Object> made = service.createPath(user.userId(), body);
+        if (myPaths != null && body != null && body.get("goal") != null) myPaths.notifyAdded(user.userId(), "COMM:" + body.get("goal"));
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", made));
     }
 
     /** Owner 17/11: main goal, secondary goal and paused paths of both paths, for every goal panel and message. */
@@ -325,13 +331,17 @@ public class CpathController {
     @org.springframework.web.bind.annotation.PutMapping("/path/daily")
     public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", service.setDaily(user.userId(), body)));
+        Map<String, Object> out = service.setDaily(user.userId(), body);
+        if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", out));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/path/pace")
     public ResponseEntity<ApiResponse<Map<String, Object>>> setPace(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", service.setPace(user.userId(), body)));
+        Map<String, Object> out = service.setPace(user.userId(), body);
+        if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", out));
     }
 
     /** F61: furigana / romaji / translation saved for the main path. */

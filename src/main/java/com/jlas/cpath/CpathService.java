@@ -207,7 +207,8 @@ public class CpathService {
         String level = str(req.getOrDefault("selfLevel", "BEGINNER"));
         if (!List.of("BEGINNER", "ELEMENTARY", "INTERMEDIATE").contains(level)) level = "BEGINNER";
         // owner 18/11: situations per day follow the survey's free time unless the learner picked a number
-        int daily = req.get("dailySituations") != null ? dailyOf(req.get("dailySituations")) : dailyFromSurvey(userId);
+        int daily = req.get("dailySituations") != null ? dailyOf(req.get("dailySituations"))
+                : com.jlas.learning.pace.LearningPaceRule.initialCommSituations(dailyFromSurvey(userId), level);
         List<Object> rest = req.get("restDays") instanceof List<?> l ? (List<Object>) l : List.of();
         // bug 12: a finish date before today was stored when the path was created (settings already refused it)
         Object finish = req.get("finishDate");
@@ -218,51 +219,28 @@ public class CpathService {
             if (wanted.isBefore(clock == null ? LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")) : clock.today(userId)))
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Ngày hoàn thành phải từ hôm nay trở đi.");
         }
-        Long main = mainPathId(userId);
-        String requestedRole = str(req.get("role"));
-        boolean secondary = "SECONDARY".equals(requestedRole) && main != null;
-        if (secondary && goal.equals(db.queryForObject("SELECT goal_code FROM cpath_user_path WHERE id = ?", String.class, main))) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Mục tiêu phụ phải khác mục tiêu chính.");
-        }
-        if (!secondary) {
-            // owner 17/11 (mentor review): one main goal — a communication goal as the main goal pauses an ACTIVE
-            // JLPT path (progress kept; choosing JLPT again resumes it), the mirror of JLPT pausing communication
-            db.update("UPDATE jpath_user_path SET status = 'PAUSED', active_flag = NULL WHERE user_id = ? AND status = 'ACTIVE'", userId);
-            // owner 24/11: /learning routes by the survey goal; without this the new main path stays hidden behind
-            // the paused JLPT path's "Học tiếp" screen
-            try {
-                db.update("UPDATE user_learning_survey SET goal = ? WHERE user_id = ?", goal, userId);
-            } catch (org.springframework.jdbc.BadSqlGrammarException e) {
-                // no survey table (tests): nothing to follow
-            }
-        }
-        List<Long> resumable = secondary ? List.of() : db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
-        // F118 (owner 14/11): the new main goal is the learner's secondary goal → that row becomes the main path, so
-        // its situations, topics and notebook carry over instead of a fresh 0% main path
-        boolean promote = false;
-        if (resumable.isEmpty() && !secondary) {
-            resumable = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'SECONDARY' AND goal_code = ? AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, id DESC LIMIT 1", Long.class, userId, goal);
-            promote = !resumable.isEmpty();
-        }
-        if (!resumable.isEmpty()) {
-            Long resumeId = resumable.get(0);
-            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, resumeId);
-            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE' AND goal_code = ? AND id <> ?", userId, goal, resumeId);
-            if (promote) db.update("UPDATE cpath_user_path SET role = 'MAIN' WHERE id = ?", resumeId);
+        // owner 24/11 "Lộ trình của tôi": paths are peers. Adding or resuming a communication goal never pauses another
+        // path (JLPT or communication); at most MAX_ACTIVE paths run at once, else the learner chooses one to pause
+        // (body "pauseKey": "JLPT" or "COMM:<goal>"). The role column stays as an internal tag: the first active
+        // communication path is MAIN (what the older single-path pages read), any other one SECONDARY.
+        List<Long> sameGoal = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND goal_code = ? "
+                + "AND status IN ('ACTIVE','PAUSED') ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END, "
+                + "role = 'MAIN' DESC, id DESC LIMIT 1", Long.class, userId, goal);
+        boolean alreadyActive = !sameGoal.isEmpty() && "ACTIVE".equals(db.queryForObject(
+                "SELECT status FROM cpath_user_path WHERE id = ?", String.class, sameGoal.get(0)));
+        if (!alreadyActive) makeRoom(userId, str(req.get("pauseKey")));
+        boolean wantMain = "MAIN".equals(str(req.get("role")));
+        if (!sameGoal.isEmpty()) {
+            Long resumeId = sameGoal.get(0);
             db.update("UPDATE cpath_user_path SET status = 'ACTIVE', self_level = ?, priority_topics_json = COALESCE(?, priority_topics_json), daily_situations = COALESCE(?, daily_situations), rest_days = COALESCE(?, rest_days), finish_date = COALESCE(?, finish_date) WHERE id = ?", level, req.containsKey("priorityTopics") ? json(req.get("priorityTopics")) : null, req.containsKey("dailySituations") ? daily : null, req.containsKey("restDays") ? String.join(",", rest.stream().map(String::valueOf).toList()) : null, finish == null || finish.toString().isBlank() ? null : finish.toString(), resumeId);
+            if (req.containsKey("fields")) db.update("UPDATE cpath_user_path SET fields_json = ? WHERE id = ?", json(req.get("fields")), resumeId);
+            String role = settleRole(userId, resumeId, wantMain);
             applyKanaChoice(resumeId, req);
-            return Map.of("pathId", resumeId, "role", "MAIN");
+            return Map.of("pathId", resumeId, "role", role);
         }
-        String role = secondary ? "SECONDARY" : "MAIN";
-        if ("MAIN".equals(role)) db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'", userId);
-        if (secondary) {
-            // a second goal replaces the earlier secondary one (owner 06/11: one main + one secondary)
-            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE'", userId);
-        } else {
-            // F113 (13/11): changing the MAIN goal no longer pauses a secondary of another goal without a word;
-            // only a secondary of the new main goal steps aside (a goal is never main and secondary at once)
-            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND role = 'SECONDARY' AND status = 'ACTIVE' AND goal_code = ?", userId, goal);
-        }
+        String role = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'",
+                Integer.class, userId) > 0 && !wantMain ? "SECONDARY" : "MAIN";
+        if ("MAIN".equals(role)) db.update("UPDATE cpath_user_path SET role = 'SECONDARY' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'", userId);
         db.update("INSERT INTO cpath_user_path (user_id, goal_code, role, status, self_level, fields_json, priority_topics_json, "
                 + "daily_situations, rest_days, finish_date) VALUES (?,?,?,?,?,?,?,?,?,?)", userId, goal, role, "ACTIVE", level,
                 json(req.get("fields")), json(req.get("priorityTopics")), daily,
@@ -270,6 +248,69 @@ public class CpathService {
         Long id = db.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
         applyKanaChoice(id, req);
         return Map.of("pathId", id, "role", role);
+    }
+
+    /** Owner 24/11: at most this many paths (JLPT and communication together) are studied at once. */
+    public static final int MAX_ACTIVE = 2;
+
+    /** Owner 24/11: active paths of the learner, JLPT and communication together. */
+    public int activeCount(Long userId) {
+        Integer comm = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+        return (comm == null ? 0 : comm) + jlptActiveCount(userId);
+    }
+
+    private int jlptActiveCount(Long userId) {
+        try {
+            Integer n = db.queryForObject("SELECT COUNT(*) FROM jpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+            return n == null ? 0 : n;
+        } catch (org.springframework.jdbc.BadSqlGrammarException e) {
+            return 0; // a DB without the JLPT tables (tests)
+        }
+    }
+
+    /**
+     * Owner 24/11: one more path is about to become active. Below the limit nothing happens; at the limit the path the
+     * learner chose ({@code pauseKey}) pauses, and without a choice MY_PATHS_FULL lets the page ask.
+     */
+    void makeRoom(Long userId, String pauseKey) {
+        if (activeCount(userId) < MAX_ACTIVE) return;
+        if (pauseKey == null || pauseKey.isBlank()) throw new ApiException(ErrorCode.MY_PATHS_FULL);
+        if ("JLPT".equals(pauseKey)) {
+            int n = db.update("UPDATE jpath_user_path SET status = 'PAUSED', active_flag = NULL WHERE user_id = ? AND status = 'ACTIVE'", userId);
+            if (n == 0) throw new ApiException(ErrorCode.MY_PATHS_FULL);
+            return;
+        }
+        String goal = pauseKey.startsWith("COMM:") ? pauseKey.substring(5) : pauseKey;
+        if (!pauseGoal(userId, goal)) throw new ApiException(ErrorCode.MY_PATHS_FULL);
+    }
+
+    /** Owner 24/11: pauses the learner's active path of this communication goal only; false when there is none. */
+    @Transactional
+    public boolean pauseGoal(Long userId, String goal) {
+        List<Map<String, Object>> rows = db.queryForList("SELECT id, role FROM cpath_user_path WHERE user_id = ? AND goal_code = ? AND status = 'ACTIVE'", userId, goal);
+        if (rows.isEmpty()) return false;
+        for (Map<String, Object> r : rows) {
+            db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE id = ?", ((Number) r.get("id")).longValue());
+        }
+        // the internal MAIN tag moves to the other active communication path, if any (no status changes)
+        if (db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE'", Integer.class, userId) == 0) {
+            List<Long> other = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1", Long.class, userId);
+            if (!other.isEmpty()) db.update("UPDATE cpath_user_path SET role = 'MAIN' WHERE id = ?", other.get(0));
+        }
+        return true;
+    }
+
+    /** The internal role of a path that just became active: MAIN when no other active path holds it (or asked). */
+    private String settleRole(Long userId, Long pathId, boolean wantMain) {
+        Integer otherMain = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' "
+                + "AND status = 'ACTIVE' AND id <> ?", Integer.class, userId, pathId);
+        if (wantMain || otherMain == null || otherMain == 0) {
+            db.update("UPDATE cpath_user_path SET role = 'SECONDARY' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, pathId);
+            db.update("UPDATE cpath_user_path SET role = 'MAIN' WHERE id = ?", pathId);
+            return "MAIN";
+        }
+        db.update("UPDATE cpath_user_path SET role = 'SECONDARY' WHERE id = ?", pathId);
+        return "SECONDARY";
     }
 
     /**
@@ -306,9 +347,19 @@ public class CpathService {
         return ids.isEmpty() ? null : ids.get(0);
     }
 
+    /**
+     * Owner 24/11: the communication path a request is about — the active path of {@code ?goal=} when the learner
+     * studies that goal, else the path tagged MAIN, else the newest active one (a learner with one path: that path).
+     */
     Long mainPathId(Long userId) {
-        List<Long> ids = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' "
-                + "ORDER BY id DESC LIMIT 1", Long.class, userId);
+        String goal = com.jlas.mypaths.MyPathsGoalFilter.currentGoal();
+        if (goal != null) {
+            List<Long> own = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND goal_code = ? AND status = 'ACTIVE' "
+                    + "ORDER BY role = 'MAIN' DESC, id DESC LIMIT 1", Long.class, userId, goal);
+            if (!own.isEmpty()) return own.get(0);
+        }
+        List<Long> ids = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE' "
+                + "ORDER BY role = 'MAIN' DESC, id DESC LIMIT 1", Long.class, userId);
         return ids.isEmpty() ? null : ids.get(0);
     }
 
@@ -319,7 +370,10 @@ public class CpathService {
     }
 
     private Map<String, Object> requirePath(Long userId) {
-        Map<String, Object> p = pathRow(userId, "MAIN");
+        Long id = mainPathId(userId);
+        List<Map<String, Object>> rows = id == null ? List.of() : db.queryForList("SELECT p.*, g.name_vi FROM cpath_user_path p "
+                + "JOIN cpath_goal g ON g.code = p.goal_code WHERE p.id = ?", id);
+        Map<String, Object> p = rows.isEmpty() ? null : rows.get(0);
         if (p == null) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
         return p;
     }
@@ -386,10 +440,16 @@ public class CpathService {
                 out.removeIf(r -> ranks.getOrDefault(String.valueOf(r.get("code")), 1) > depth && !started.contains(r.get("code")));
             }
         }
+        // P5a (owner 24/11): a WORK path with several fields studies one field at a time, in the order the learner
+        // chose them; the always-included office field comes after them
+        Map<String, Integer> fieldRank = fieldRanks(path);
         out.sort((a, b) -> {
             int pa = priority.contains(a.get("topic_code")) ? 0 : 1;
             int pb = priority.contains(b.get("topic_code")) ? 0 : 1;
-            return pa != pb ? pa - pb : 0; // stable: keeps topic + situation order inside each group
+            if (pa != pb) return pa - pb;
+            int fa = fieldRank.getOrDefault(String.valueOf(a.get("topic_code")), Integer.MAX_VALUE);
+            int fb = fieldRank.getOrDefault(String.valueOf(b.get("topic_code")), Integer.MAX_VALUE);
+            return Integer.compare(fa, fb); // stable: keeps topic + situation order inside each group
         });
         return out;
     }
@@ -458,6 +518,7 @@ public class CpathService {
             if (write) prog = progressOf(pathId);
         }
         List<Map<String, Object>> out = new ArrayList<>();
+        Map<String, String> fields = fieldNames(path);
         for (Map<String, Object> s : order) {
             if (!planned.contains(s.get("code"))) continue;
             Map<String, Object> m = new LinkedHashMap<>();
@@ -466,6 +527,7 @@ public class CpathService {
             m.put("titleJa", s.get("title_ja"));
             m.put("topicCode", s.get("topic_code"));
             m.put("topicName", s.get("topic_name"));
+            m.put("fieldName", fields.get(String.valueOf(s.get("topic_code")))); // P5a: null outside WORK
             m.put("status", done(prog.get(s.get("code"))) ? "DONE" : "TODAY");
             out.add(m);
         }
@@ -532,6 +594,10 @@ public class CpathService {
         todayMap.put("date", learnerToday.toString());
         todayMap.put("restDay", isRest(p, learnerToday));
         todayMap.put("situations", today(userId, p, false)); // bug 108: GET never plans
+        // P5a: "Tuần này: <lĩnh vực>" = the field of the next situation not learned yet (null outside WORK)
+        Map<String, String> fieldOf = fieldNames(p);
+        todayMap.put("focusField", order.stream().filter(x -> !done(prog.get(x.get("code"))))
+                .map(x -> fieldOf.get(String.valueOf(x.get("topic_code")))).filter(java.util.Objects::nonNull).findFirst().orElse(null));
         String testDay = weeklyTestDay(userId, p);
         todayMap.put("weeklyTestDay", testDay);
         todayMap.put("weeklyOpen", weeklyOpen(userId, p, learnerToday, testDay)); // F44: the path page shows the same rule
@@ -539,6 +605,9 @@ public class CpathService {
         todayMap.put("reviewDue", reviewQuestions(userId, p).size());
         m.put("today", todayMap);
         Map<String, Object> sec = pathRow(userId, "SECONDARY");
+        // owner 24/11: the path asked for by ?goal= may itself be the SECONDARY row; it is not its own secondary
+        if (sec != null && ((Number) sec.get("id")).longValue() == pathId) sec = pathRow(userId, "MAIN");
+        if (sec != null && ((Number) sec.get("id")).longValue() == pathId) sec = null;
         if (sec == null) {
             m.put("secondary", null);
         } else {
@@ -695,6 +764,9 @@ public class CpathService {
         req.put("goal", sec.get("goal_code"));
         req.put("role", "MAIN");
         req.put("selfLevel", sec.get("self_level"));
+        // the finished main path steps aside (progress kept), so it does not hold one of the two study places
+        Map<String, Object> main = pathRow(userId, "MAIN");
+        if (main != null) db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE id = ?", ((Number) main.get("id")).longValue());
         return createPath(userId, req);
     }
 
@@ -1929,7 +2001,8 @@ public class CpathService {
         }
         m.put("paused", paused);
         // a secondary goal studies alongside a communication main path only (it has no daily schedule of its own)
-        m.put("canAddSecondary", cMain != null && !jlptMain);
+        // owner 24/11: paths are peers — another path can be added while fewer than MAX_ACTIVE run
+        m.put("canAddSecondary", activeCount(userId) < MAX_ACTIVE);
         return m;
     }
 
@@ -1940,8 +2013,9 @@ public class CpathService {
      */
     @Transactional
     public Map<String, Object> pauseForJlptMain(Long userId) {
-        int n = db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE user_id = ? AND status = 'ACTIVE'", userId);
-        return Map.of("paused", n);
+        // owner 24/11 "Lộ trình của tôi": choosing JLPT no longer pauses communication paths (paths are peers); the
+        // JLPT side refuses with MY_PATHS_FULL when two paths already run, and the page asks which one to pause
+        return Map.of("paused", 0);
     }
 
     private static String optColumn(java.sql.ResultSet rs, String column) {
@@ -1961,7 +2035,7 @@ public class CpathService {
     @Transactional
     public Map<String, Object> pausePath(Long userId) {
         Map<String, Object> path = requirePath(userId);
-        db.update("UPDATE cpath_user_path SET status = 'PAUSED' WHERE id = ?", ((Number) path.get("id")).longValue());
+        pauseGoal(userId, (String) path.get("goal_code")); // owner 24/11: only this path; no other path changes
         return Map.of("redirectUrl", "/learning");
     }
 
@@ -2072,8 +2146,6 @@ public class CpathService {
             r.put("answer", q.options().get(q.answer()));
             review.add(r);
         }
-        int score = Math.round(100f * correct / qs.size());
-        boolean pass = score >= WEEKLY_PASS;
         int cp = 0;
         if (pass) {
             // F114 (13/11): two submits at the same moment both read "not passed yet" and both answered "+2 CP"
@@ -2276,5 +2348,150 @@ public class CpathService {
     private static <T> T parse(String json, T fallback) {
         if (json == null || json.isBlank()) return fallback;
         try { return (T) JSON.readValue(json, Object.class); } catch (Exception e) { return fallback; }
+    }
+
+    /** Owner 18/11: one situation is about 15 minutes (the survey's estimate). */
+    public static final int MINUTES_PER_SITUATION = 15;
+
+    /**
+     * Owner 24/11 "Lộ trình của tôi": one card per communication goal the learner has (newest row per goal; ACTIVE,
+     * PAUSED or finished). Reads only — today's plan is not written here.
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> myPathsRows(Long userId) {
+        List<Map<String, Object>> rows = db.queryForList("SELECT p.*, g.name_vi FROM cpath_user_path p JOIN cpath_goal g ON g.code = p.goal_code "
+                + "WHERE p.user_id = ? AND p.status IN ('ACTIVE','PAUSED','DONE') "
+                + "ORDER BY CASE p.status WHEN 'ACTIVE' THEN 0 WHEN 'PAUSED' THEN 1 ELSE 2 END, p.id DESC", userId);
+        Set<String> seen = new java.util.HashSet<>();
+        List<Map<String, Object>> out = new ArrayList<>();
+        LocalDate today = clock.today(userId);
+        for (Map<String, Object> p : rows) {
+            String goal = (String) p.get("goal_code");
+            if (!seen.add(goal)) continue;
+            Long pathId = ((Number) p.get("id")).longValue();
+            List<Map<String, Object>> order = orderedSituations(p);
+            Map<String, Map<String, Object>> prog = progressOf(pathId);
+            long doneCount = order.stream().filter(x -> done(prog.get(x.get("code")))).count();
+            boolean finished = "DONE".equals(p.get("status")) || isFinished(pathId);
+            int daily = ((Number) p.get("daily_situations")).intValue();
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("key", "COMM:" + goal);
+            m.put("kind", "COMM");
+            m.put("goal", goal);
+            m.put("title", "Giao tiếp · " + p.get("name_vi"));
+            m.put("status", finished ? "FINISHED" : String.valueOf(p.get("status")));
+            m.put("percent", order.isEmpty() ? 0 : (int) Math.round(100.0 * doneCount / order.size()));
+            m.put("minutesPerDay", daily * MINUTES_PER_SITUATION);
+            Object fd = p.get("finish_date");
+            m.put("finishDate", fd != null ? fd.toString() : estimateFinish(p, today, order.size() - (int) doneCount, daily));
+            boolean active = "ACTIVE".equals(p.get("status")) && !finished;
+            int left = 0;
+            boolean rest = isRest(p, today);
+            if (active && !rest) {
+                List<Map<String, Object>> plan = today(userId, p, false);
+                long open = plan.stream().filter(x -> !"DONE".equals(x.get("status"))).count();
+                // nothing planned yet today (the page plans it on first open): the day's share is still ahead
+                left = (int) (plan.isEmpty() ? daily : open) * MINUTES_PER_SITUATION;
+            }
+            m.put("todayMinutesLeft", left);
+            m.put("todayDone", active && left == 0);
+            m.put("restDay", active && rest);
+            Map<String, Object> next = order.stream().filter(x -> !done(prog.get(x.get("code")))).findFirst().orElse(null);
+            Map<String, String> fields = fieldNames(p);
+            m.put("focusTopic", next == null ? null : next.get("topic_name"));
+            m.put("focusField", next == null ? null : fields.get(String.valueOf(next.get("topic_code"))));
+            m.put("lastStudied", lastStudied(pathId));
+            String q = "?goal=" + goal;
+            m.put("url", "/learning/comm/path" + q);
+            m.put("todayUrl", "/learning/comm/day" + q);
+            m.put("settingsUrl", "/learning/comm/settings" + q);
+            out.add(m);
+        }
+        return out;
+    }
+
+    /** The newest day a situation step of this path was learned or finished, or null. */
+    private String lastStudied(Long pathId) {
+        List<Object> d = db.queryForList("SELECT MAX(study_day) FROM cpath_user_situation WHERE path_id = ? "
+                + "AND (done_at IS NOT NULL OR steps_done <> '')", Object.class, pathId);
+        Object v = d.isEmpty() ? null : d.get(0);
+        LocalDate day = v == null ? null : toDate(v);
+        return day == null ? null : day.toString();
+    }
+
+    /** Study days needed for {@code remaining} situations at {@code daily} a day, skipping rest days (at most 3 years). */
+    private String estimateFinish(Map<String, Object> path, LocalDate from, int remaining, int daily) {
+        if (remaining <= 0) return from.toString();
+        int perDay = Math.max(1, daily);
+        LocalDate d = from;
+        int left = remaining;
+        for (int i = 0; i < 1100 && left > 0; i++) {
+            if (!isRest(path, d)) left -= perDay;
+            if (left > 0) d = d.plusDays(1);
+        }
+        return d.toString();
+    }
+
+    /** P5a (owner 24/11): topic code → field name for a WORK path with chosen fields; empty for other goals. */
+    @SuppressWarnings("unchecked")
+    Map<String, String> fieldNames(Map<String, Object> path) {
+        Map<String, String> out = new LinkedHashMap<>();
+        if (!"WORK".equals(path.get("goal_code"))) return out;
+        List<Object> defs = parse(db.queryForObject("SELECT fields_json FROM cpath_goal WHERE code = ?", String.class, path.get("goal_code")), List.of());
+        for (Object d : defs) {
+            Map<String, Object> f = (Map<String, Object>) d;
+            String name = String.valueOf(f.getOrDefault("labelVi", f.get("code")));
+            for (Object c : (List<Object>) f.getOrDefault("topicCodes", List.of())) out.putIfAbsent(String.valueOf(c), name);
+        }
+        return out;
+    }
+
+    /**
+     * Owner 24/11: resume one paused communication goal. At the limit of two paths {@code pauseKey} names the path to
+     * pause first ("JLPT" or "COMM:&lt;goal&gt;"); without it MY_PATHS_FULL. Returns the resumed path's id, or null when the
+     * learner has no paused path of that goal.
+     */
+    @Transactional
+    public Long resumeGoal(Long userId, String goal, String pauseKey) {
+        List<Long> ids = db.queryForList("SELECT id FROM cpath_user_path WHERE user_id = ? AND goal_code = ? AND status = 'PAUSED' "
+                + "ORDER BY id DESC LIMIT 1", Long.class, userId, goal);
+        if (ids.isEmpty()) return null;
+        makeRoom(userId, pauseKey);
+        Long id = ids.get(0);
+        db.update("UPDATE cpath_user_path SET status = 'ACTIVE' WHERE id = ?", id);
+        settleRole(userId, id, false);
+        return id;
+    }
+
+    /** The learner's free minutes a day from the survey, or null. */
+    public Integer surveyFreeMinutes(Long userId) {
+        try {
+            List<Integer> m = db.queryForList("SELECT daily_study_minutes FROM user_learning_survey WHERE user_id = ?", Integer.class, userId);
+            return m.isEmpty() ? null : m.get(0);
+        } catch (org.springframework.jdbc.BadSqlGrammarException e) {
+            return null;
+        }
+    }
+
+    /** {@link #makeRoom} for the "Lộ trình của tôi" service (resuming the JLPT path). */
+    @Transactional
+    public void makeRoomFor(Long userId, String pauseKey) {
+        makeRoom(userId, pauseKey);
+    }
+
+    /** P5a: topic code → rank of its field (the learner's chosen order, office after them); empty outside WORK. */
+    @SuppressWarnings("unchecked")
+    private Map<String, Integer> fieldRanks(Map<String, Object> path) {
+        Map<String, Integer> out = new java.util.HashMap<>();
+        if (!"WORK".equals(path.get("goal_code"))) return out;
+        List<Object> chosen = parse((String) path.get("fields_json"), List.of());
+        List<Object> defs = parse(db.queryForObject("SELECT fields_json FROM cpath_goal WHERE code = ?", String.class, path.get("goal_code")), List.of());
+        for (Object d : defs) {
+            Map<String, Object> f = (Map<String, Object>) d;
+            int idx = chosen.indexOf(f.get("code"));
+            int rank = idx >= 0 ? idx : chosen.size();
+            for (Object c : (List<Object>) f.getOrDefault("topicCodes", List.of())) out.putIfAbsent(String.valueOf(c), rank);
+        }
+        return out;
     }
 }
