@@ -41,7 +41,8 @@ public class JpathSettingsController {
     private final JpathPathService pathService;
     private final JpathDailyPlanService dailyPlans;
     private final com.jlas.jlptpath.service.impl.JpathExtraSkillDayService extraSkillDay;
-    private final com.jlas.learning.pace.LearningPaceService learningPace;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
 
     /** Q9 (owner 24/11): the third skill day each week from the study stage (weak Reading/Listening). */
     @GetMapping("/settings/extra-skill-day")
@@ -88,7 +89,8 @@ public class JpathSettingsController {
             }
         }
         JpathSettingsView saved = settingsService.update(user.userId(), request);
-        if (request != null && request.vocabPerDay() != null) learningPace.manualChange(user.userId(), "JLPT");
+        if (learningPace != null && request != null && request.vocabPerDay() != null)
+            learningPace.manualChange(user.userId(), "JLPT");
         return ResponseEntity.ok(ApiResponse.ok("Đã lưu cài đặt.", saved));
     }
 

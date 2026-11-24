@@ -20,6 +20,11 @@ public record JpathSettingsUpdateRequest(String targetLevel, LocalDate examDate,
         Boolean reminderEmail, String reminderTime, String vocabListView, Boolean tourDone, Boolean swipeHintDone,
         Integer vocabPerDay) {
 
+    public static JpathSettingsUpdateRequest pace(int words) {
+        return new JpathSettingsUpdateRequest(null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null, null, words);
+    }
+
     /** Request without {@code vocabPerDay}. */
     public JpathSettingsUpdateRequest(String targetLevel, LocalDate examDate, Boolean clearExamDate,
             Integer dailyMinutes, List<String> skillDays, List<String> restDays, String thirdSkillDay,

@@ -71,6 +71,9 @@ public class CpathController {
     @Autowired(required = false)
     private com.jlas.mypaths.MyPathsService myPaths;
 
+    @Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
+
     /** Owner 18/11: the situation's flashcard set ("Đã nhớ x/y"); POST makes it. */
     @GetMapping("/situations/{id}/flashcards")
     public ResponseEntity<ApiResponse<Map<String, Object>>> flashcards(@AuthenticationPrincipal UserPrincipal user,
@@ -332,6 +335,7 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
         Map<String, Object> out = service.setDaily(user.userId(), body);
+        if (learningPace != null && myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) learningPace.manualChange(user.userId(), k); }
         if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
         return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", out));
     }
@@ -340,6 +344,10 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> setPace(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
         Map<String, Object> out = service.setPace(user.userId(), body);
+        if (learningPace != null && body != null && body.get("dailySituations") != null && myPaths != null) {
+            String k = myPaths.commKey(user.userId(), null);
+            if (k != null) learningPace.manualChange(user.userId(), k);
+        }
         if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
         return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", out));
     }

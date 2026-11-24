@@ -39,6 +39,8 @@ public class JpathPathController {
 
     private final JpathPathService pathService;
     private final org.springframework.beans.factory.ObjectProvider<com.jlas.mypaths.MyPathsService> myPaths;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
 
     @GetMapping("/entry-status")
     public ResponseEntity<ApiResponse<JpathEntryStatusView>> entryStatus(
@@ -90,6 +92,7 @@ public class JpathPathController {
     public ResponseEntity<ApiResponse<JpathSliderView>> updateSliders(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSliderUpdateRequest request) {
         JpathSliderView out = pathService.updateSliders(user.userId(), request);
+        if (learningPace != null) learningPace.manualChange(user.userId(), "JLPT");
         myPaths.ifAvailable(m -> m.notifyPace(user.userId(), com.jlas.mypaths.MyPathsService.JLPT));
         return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật lộ trình.", out));
     }

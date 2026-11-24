@@ -178,6 +178,11 @@ public class JpathPathServiceImpl implements JpathPathService {
                 : JpathModeRule.suggest(minutes, snapshot.modeVocab(), snapshot.modeKanji(),
                         snapshot.modeGrammar(), true);
         JpathSliderValues sliders = JpathPacingEngine.recommend(openLevel, minutes);
+        if (summary != null) {
+            int words = com.jlas.learning.pace.LearningPaceRule.initialJlptWords(sliders.vocab(),
+                    snapshot.vocabScore(), snapshot.kanjiScore(), snapshot.grammarScore());
+            sliders = new JpathSliderValues(words, sliders.kanji(), sliders.grammar());
+        }
         LocalDate today = clock.today(userId);
         LocalDate surveyExam = survey.map(UserLearningSurvey::getExamDate).orElse(null);
         JpathPaceView pace = paceService.pace(userId, new JpathPaceService.Query(today, openLevel, targetLevel,

@@ -74,6 +74,11 @@ public class JpathAutoPaceService {
         if (path.isAutoPaceOff()) {
             return null;
         }
+        // [JLAS-W0108] Pace changes now wait for a completed week and learner consent. A missed
+        // study day must not trigger F237's automatic increase while unfinished work carries over.
+        if (missedDays(path, level, day) > 0) {
+            return null;
+        }
         JpathPaceInput in = paceService.engineInput(path.getUserId(), query(path, level, day));
         if (in.examDate() == null && (path.getPaceMilestone() == null
                 || !level.getLevel().equals(path.getPaceMilestoneLevel()))) {
