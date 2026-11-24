@@ -493,7 +493,7 @@
 
   // ---- flow (pure) ----------------------------------------------------------------------------------------
 
-  var DONE_URL = '/learning?saved=1'; // owner 05/11: no summary page
+  var DONE_URL = '/learning?view=jlpt&saved=1'; // owner 05/11: no summary page
   var MAX_REPEATS = 2;
   var DAY_TABS = { VOCAB: true, KANJI: true, GRAMMAR: true, KANA: true, SKILL: true };
   var STEP_TAB = { VOCAB: 'VOCAB', KANJI: 'KANJI', GRAMMAR: 'GRAMMAR', KANA: 'KANA', SKILL_QUIZ: 'SKILL' };
@@ -1166,8 +1166,10 @@
     page.fc = { tab: tab, remembered: 0, total: 0, url: null };
     Promise.resolve(root.JpathApi.send('GET', BASE + '/flashcards?tab=' + encodeURIComponent(tab))).then(function (res) {
       var parts = (res && res.parts) || [];
-      var today = parts.filter(function (x) { return x && /^TODAY/.test(x.status) && x.setId; })[0];
+      var today = parts.filter(function (x) { return x && /^TODAY/.test(x.status); })[0];
       if (!today || !page.fc || page.fc.tab !== tab) return;
+      page.fc.part = today.index;
+      if (!today.setId) return; // made on the first click (openListSet)
       page.fc.remembered = today.remembered; page.fc.total = today.total; page.fc.url = today.url;
       draw(page);
     }, function () { /* the list still works without flashcards */ });
@@ -1178,6 +1180,17 @@
     var back = root.location.pathname + root.location.search;
     var go = function (url) { root.location.assign(url + '&back=' + encodeURIComponent(back)); };
     if (fc && fc.url) { go(fc.url); return; }
+    if (fc && fc.part != null && !fc.loading) {
+      // today's set is not made yet: make it now, as the part map's button does
+      fc.loading = true; draw(page);
+      Promise.resolve(root.JpathApi.send('POST', BASE + '/flashcards/open?tab=' + encodeURIComponent(fc.tab)
+        + '&part=' + encodeURIComponent(fc.part))).then(function (set) {
+        fc.loading = false;
+        if (set && set.url) { fc.url = set.url; go(set.url); return; }
+        draw(page); setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút');
+      }, function () { fc.loading = false; draw(page); setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút'); });
+      return;
+    }
     setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút');
   }
 
