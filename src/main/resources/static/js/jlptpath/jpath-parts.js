@@ -1130,6 +1130,15 @@
     return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + aheadHtml + stageHtml + '</div>';
   }
 
+  /** Owner 24/11: true when the node is hidden behind the fixed site header or below the screen. */
+  function nodeOffScreen(node) {
+    if (!node || typeof node.getBoundingClientRect !== 'function') return true;
+    var r = node.getBoundingClientRect();
+    var header = root.document.getElementById('jlabBaseHeader');
+    var top = header && typeof header.getBoundingClientRect === 'function' ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+    return r.bottom < top || r.top > (Number(root.innerHeight) || 760);
+  }
+
   /* Round 6 Bổ sung 1: Keep popover strictly inside viewport & below sticky banner so it is never covered */
   function adjustPopoverInViewport(partsEl) {
     if (!partsEl || !root || !root.document) return;
@@ -1151,8 +1160,17 @@
         bannerBottom = Math.max(bannerBottom, bRect.bottom);
       }
     }
-    var minTop = Math.min(vh * 0.42, bannerBottom + 10);
+    // owner 24/11 (reported many times): the site's fixed header counts too, so the popover never slides under it
+    var header = root.document.getElementById('jlabBaseHeader');
+    var headerBottom = 0;
+    if (header && typeof header.getBoundingClientRect === 'function') {
+      var hRect = header.getBoundingClientRect();
+      if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
+    }
+    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
     var maxBottom = vh - 14;
+    pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
+    pop.style.overflowY = 'auto';
     var rect = pop.getBoundingClientRect();
     var shiftY = 0;
 
@@ -1252,8 +1270,26 @@
         var activePartsEl = root.document && root.document.querySelector('[data-slot="parts"]');
         if (activePartsEl && activePartsEl.__selectedKey) adjustPopoverInViewport(activePartsEl);
       };
-      // Owner 18/11: the popover stays beside its node while scrolling — it is only fitted when opened or resized.
+      // Owner 18/11: the popover stays beside its node while scrolling. Owner 24/11: it never slides under the site
+      // header — while scrolling it is fitted again, and once its node is hidden behind the header or below the
+      // screen the popover closes.
       root.addEventListener('resize', onScrollOrResize, { passive: true });
+      var scrollFrame = 0;
+      root.addEventListener('scroll', function () {
+        if (scrollFrame || typeof root.requestAnimationFrame !== 'function') return;
+        scrollFrame = root.requestAnimationFrame(function () {
+          scrollFrame = 0;
+          var el = root.document && root.document.querySelector('[data-slot="parts"]');
+          if (!el || !el.__selectedKey) return;
+          if (nodeOffScreen(el.querySelector('[data-parts-node="' + String(el.__selectedKey).replace(/"/g, '') + '"]'))) {
+            el.__selectedKey = '';
+            el.__pillsExpanded = false;
+            if (el.__renderCurrent) el.__renderCurrent();
+            return;
+          }
+          adjustPopoverInViewport(el);
+        });
+      }, { passive: true });
     }
   }
 
