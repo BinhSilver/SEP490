@@ -187,6 +187,10 @@ public class JpathDailyPlanInserter {
                             || tabs.stream().anyMatch(t -> t.getNewDone() > 0 || t.getExtraDone() > 0 || t.getReviewDone() > 0);
                     // a kana day already begun is rebuilt too (no kana row is left to learn): the reviews and
                     // extra cards done today carry over, so nothing studied is lost
+                    // only a kana STUDY day not finished yet: a skill day or a finished day keeps what it earned
+                    if (plan.getDayKind() != JpathDayKind.STUDY || plan.getAllDoneAt() != null) {
+                        return;
+                    }
                     java.util.Map<JpathTab, int[]> kept = new java.util.EnumMap<>(JpathTab.class);
                     for (JpathDailyTab t : tabs) {
                         kept.put(t.getTab(), new int[] {t.getReviewDone(), t.getExtraDone(),
