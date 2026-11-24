@@ -1732,3 +1732,28 @@ html:has(.jp-study) { scrollbar-gutter: stable; }
 }
 html[data-theme="dark"] .jp-study .jp-study-card { background: var(--color-surface-lowest) !important; border-color: var(--color-outline-variant) !important; }
 .jp-study .jp-study-card .jp-study-glyph { font-size: 64px !important; line-height: 1.2; }
+
+/* owner 25/11: one tidy column — the step bar, the card and the Tiếp bar share one width; smaller card, even gaps */
+.jp-study { max-width: min(760px, 100%); margin-inline: auto; }
+.jp-study-root { gap: 16px; }
+.jp-study-root > *, .jp-study-steps, .jp-study-card, .jp-rate-bar { width: 100%; max-width: none; margin-inline: 0; box-sizing: border-box; }
+.jp-study-steps { padding: 12px 16px; gap: 10px; box-shadow: none; }
+.jp-study-steps__line .jp-step { min-height: 32px; }
+.jp-study-card { min-height: 0; padding: 20px 24px; border-radius: 16px; }
+.jp-study-face { min-height: 0; gap: 10px; }
+.jp-study-word { font-size: clamp(2.2em, 5vw, 3em); }
+.jp-study-meaning { padding-top: 10px; }
+.jp-study-card button, .jp-study-card .jp-btn { white-space: nowrap; }
+@media (max-width: 640px) {
+  .jp-study-card { padding: 16px; }
+  .jp-study-word { font-size: 2.2em; }
+}
+
+/* owner 25/11: display tools as one small grouped pill in the corner, not a row of big buttons */
+.jp-study-tools { display: inline-flex; flex-wrap: nowrap; gap: 0; justify-content: flex-end; margin-left: auto; padding: 2px; border: 1px solid var(--color-border, #e5e7eb); border-radius: 999px; width: max-content; }
+.jp-study-tools button, .jp-study-tools .jp-btn { min-height: 28px; min-width: 0; padding: 2px 10px; font-size: .78rem; font-weight: 500; border: 0; border-radius: 999px; background: transparent; box-shadow: none; }
+.jp-study-tools button[aria-pressed="true"], .jp-study-tools .is-active { background: var(--color-primary-soft, #ede9fe); }
+.jp-study .jp-study-main { max-width: none; width: 100%; }
+.jp-study .jp-study-tools .jp-display-bar { display: inline-flex; gap: 0; }
+.jp-study .jp-study-tools button, .jp-study .jp-study-tools .jp-display-bar button { border: 0; box-shadow: none; background: transparent; min-height: 28px; padding: 2px 10px; border-radius: 999px; font-size: .78rem; }
+.jp-study .jp-study-tools button[aria-pressed="true"], .jp-study .jp-study-tools button.is-active, .jp-study .jp-study-tools .is-saved { background: var(--color-primary-soft, #ede9fe); }
