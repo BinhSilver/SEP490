@@ -367,7 +367,7 @@
     var ids = list(set.questionIds);
     var correct = 0;
     ids.forEach(function (id) { if (ctx.answered[id] && ctx.answered[id].correct) correct++; });
-    return '<p class="jp-skill-score" role="status">Đúng ' + correct + '/' + ids.length + ' câu · điểm chỉ để xem.</p>';
+    return '<p class="jp-skill-score" role="status">Đúng ' + correct + '/' + ids.length + ' câu.</p>'; // 24/11: the 50% rule (Q7) is on the day's practice, not on each lesson
   }
 
   /** Once a bài is done: Bài tiếp, or Hoàn thành buổi after the last one. */
@@ -482,6 +482,9 @@
     function load() {
       return api.get(BASE + '/skills/sessions/' + encodeURIComponent(id)).then(function (s) {
         if (s && s.studyDay) sessionDay = s.studyDay;
+        // walkthrough 24/11: a new step used to open where the last one was scrolled to (looked stuck at the bottom)
+        if (state.lastStep && state.lastStep !== s.step && root.scrollTo) root.scrollTo(0, 0);
+        state.lastStep = s.step;
         state.session = s;
         steps.innerHTML = stepsHtml(s);
         main.querySelector('[data-role="title"]').textContent = 'Buổi ' + (s.skill === 'LISTENING' ? 'Nghe' : 'Đọc');
