@@ -189,13 +189,14 @@
     var rest = list.filter(function (p) { return p && p.status === 'PAUSED'; })
       .concat(list.filter(function (p) { return p && p.status === 'FINISHED'; }));
     var add = studying.length < max
-      ? '<a class="mp-add" href="/survey?edit=goal" data-mp-add><strong>Thêm lộ trình</strong><span>JLPT hoặc giao tiếp (Du lịch, Đời sống, Công việc)</span></a>'
+      ? '<a class="mp-add" href="/survey?edit=goal" data-mp-add title="Thêm lộ trình JLPT hoặc giao tiếp (Du lịch, Đời sống, Công việc)">'
+        + '<span class="mp-add__plus" aria-hidden="true">+</span>Thêm lộ trình</a>'
       : '';
     return todayHtml(view)
       + '<section class="mp-list" aria-label="Đang học"><div class="mp-list__head"><h2>Đang học <span class="mp-count">'
       + studying.length + '/' + max + '</span></h2>'
-      + '<span class="mp-list__hint">Học cùng lúc tối đa ' + max + ' lộ trình.</span></div>'
-      + '<div class="mp-grid">' + studying.map(function (p) { return cardHtml(p, studying.length === 1); }).join('') + add + '</div></section>'
+      + '<span class="mp-list__hint">Học cùng lúc tối đa ' + max + ' lộ trình.</span>' + add + '</div>'
+      + '<div class="mp-grid">' + studying.map(function (p) { return cardHtml(p, studying.length === 1); }).join('') + '</div></section>'
       + (rest.length ? '<section class="mp-list" aria-label="Tạm dừng và đã xong"><div class="mp-list__head"><h2>Tạm dừng và đã xong</h2>'
         + '<span class="mp-list__hint">Tiến độ được giữ nguyên.</span></div>'
         + '<ul class="mp-rows">' + rest.map(rowHtml).join('') + '</ul></section>' : '')

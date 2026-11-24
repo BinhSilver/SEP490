@@ -68,11 +68,12 @@
 .mp-link:focus-visible { outline: 2px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; border-radius: 4px; }
 
 /* owner 24/11: compact one-line row, not a tall empty card */
-.mp-add { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; align-self: start; padding: 12px 16px; text-decoration: none;
-  border: 1px dashed var(--color-outline-variant); border-radius: var(--radius-md, 12px); color: var(--color-on-surface-variant); }
-.mp-add strong { font-weight: 600; color: var(--color-primary); }
-.mp-add span { font-size: var(--text-sm, .875rem); }
-.mp-add:hover { border-color: var(--color-primary); }
+.mp-add { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; text-decoration: none; font-weight: 500;
+  font-size: var(--text-sm, .875rem); border: 1px solid var(--color-outline-variant); border-radius: 99px; color: var(--color-primary); }
+.mp-list__head:has(.mp-add) { justify-content: flex-start; }
+.mp-list__head:has(.mp-add) .mp-list__hint { margin-left: auto; }
+.mp-add__plus { font-weight: 600; font-size: 1.1em; line-height: 1; }
+.mp-add:hover { border-color: var(--color-primary); background: var(--color-surface-container); }
 
 .mp-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-outline-variant); }
 .mp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 16px; align-items: center;
