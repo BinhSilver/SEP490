@@ -134,7 +134,12 @@
   }
 
   function reviewDue(today) {
-    return list(today && today.tabs).reduce(function (sum, t) { return sum + num(t && t.reviewDue); }, 0);
+    // walkthrough 25/11: "Ôn 131 thẻ" while the session holds 38 — count what today's review will actually ask
+    return list(today && today.tabs).reduce(function (sum, t) {
+      var due = num(t && t.reviewDue);
+      var cap = num(t && t.reviewCap);
+      return sum + (cap > 0 ? Math.min(due, Math.max(0, cap - num(t && t.reviewDone))) : due);
+    }, 0);
   }
 
   function quizRequired(today) {

@@ -50,7 +50,7 @@
   var RATING_LABEL = Object.freeze({ FORGOT: 'Chưa nhớ', REMEMBERED: 'Nhớ rồi', HARD: 'Khó', GOOD: 'Nhớ tốt',
     EASY: 'Rất dễ' });
   var STEP_LABEL = Object.freeze({ REVIEW: 'Ôn', VOCAB: 'Từ mới', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp', KANA: 'Chữ cái',
-    SKILL_QUIZ: 'Đọc · Nghe' });
+    SKILL_QUIZ: 'Quiz ôn' }); // walkthrough 25/11: the skill day's last step is the 10-question quiz
   var SPLIT_VOCAB_LABEL = 'Từ vựng';
   // owner 23/11: Chữ cái counts kana rows like the path page ("Chữ cái 1/4 hàng"); a row counts once its check passed
   var STEP_UNIT = Object.freeze({ KANA: ' hàng' });

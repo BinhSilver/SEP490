@@ -793,8 +793,11 @@
     var n = r.next;
     // The server decides: RETRY = a new set is offered; every other next (also a wrong SKIP_ONE kept on its card) continues.
     var failed = !!(n && n.action === 'RETRY');
+    // walkthrough 25/11: a quiz under 50% does not count, so "Làm lại" leads and moving on is the quiet choice
+    var lowQuiz = kind === 'FREE_QUIZ' && !isWeekly(check) && pct < 50 && !failed && !o.embedded;
+    if (lowQuiz) html += '<button type="button" class="jp-btn jp-btn--primary" data-action="retry">Làm lại quiz</button>';
     if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
-      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + '</button>';
+      html += '<button type="button" class="jp-btn' + (lowQuiz ? '' : ' jp-btn--primary') + '" data-action="continue">' + esc(n.label || 'Tiếp tục') + '</button>';
     }
     if (failed && !o.embedded) {
       html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
