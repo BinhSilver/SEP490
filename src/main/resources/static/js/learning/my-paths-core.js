@@ -146,7 +146,8 @@
     var list = paths(view);
     var max = num(view && view.maxActive) || 2;
     var order = { ACTIVE: 0, PAUSED: 1, FINISHED: 2 };
-    var sorted = list.slice().sort(function (a, b) { return (order[a.status] || 3) - (order[b.status] || 3); });
+    var sorted = list.slice().sort(function (a, b) { return rank(a) - rank(b); });
+    function rank(p) { return order.hasOwnProperty(p.status) ? order[p.status] : 3; }
     return heroHtml(view) + timeHtml(view)
       + '<section class="mp-list" aria-label="Các lộ trình"><div class="mp-list__head"><h2>Các lộ trình</h2>'
       + '<span class="mp-list__hint">Học cùng lúc tối đa ' + max + ' lộ trình. Tạm dừng lộ trình nào chỉ dừng lộ trình đó.</span></div>'
