@@ -74,6 +74,9 @@ final class JpathDayRules {
      */
     static int owedSkillDays(JpathCalendarService calendar, JpathDailyPlanRepository plans, JpathUserPath path,
             JpathStage stage, LocalDate day) {
+        if (path.isKanaTab() && path.getKanaCompletedAt() == null) {
+            return 0; // kana phase: no skill day is owed (dayPlan), nor warned about on the path page
+        }
         LocalDate monday = day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate from = monday;
         if (path.getCreatedAt() != null && path.getCreatedAt().toLocalDate().isAfter(from)) {
