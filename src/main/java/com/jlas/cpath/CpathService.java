@@ -2424,11 +2424,12 @@ public class CpathService {
             m.put("todayMinutesLeft", left);
             m.put("todayDone", active && left == 0);
             m.put("restDay", active && rest);
-            Map<String, Object> next = order.stream().filter(x -> !done(prog.get(x.get("code")))).findFirst().orElse(null);
-            Map<String, String> fields = fieldNames(p);
+            // focus and last study day matter only for a path being studied (paused / finished rows skip the reads)
+            Map<String, Object> next = active ? order.stream().filter(x -> !done(prog.get(x.get("code")))).findFirst().orElse(null) : null;
+            Map<String, String> fields = next == null ? Map.of() : fieldNames(p);
             m.put("focusTopic", next == null ? null : next.get("topic_name"));
             m.put("focusField", next == null ? null : fields.get(String.valueOf(next.get("topic_code"))));
-            m.put("lastStudied", lastStudied(pathId));
+            m.put("lastStudied", active ? lastStudied(prog.values()) : null);
             String q = "?goal=" + goal;
             m.put("url", "/learning/comm/path" + q);
             m.put("todayUrl", "/learning/comm/day" + q);
@@ -2439,12 +2440,15 @@ public class CpathService {
     }
 
     /** The newest day a situation step of this path was learned or finished, or null. */
-    private String lastStudied(Long pathId) {
-        List<Object> d = db.queryForList("SELECT MAX(study_day) FROM cpath_user_situation WHERE path_id = ? "
-                + "AND (done_at IS NOT NULL OR steps_done <> '')", Object.class, pathId);
-        Object v = d.isEmpty() ? null : d.get(0);
-        LocalDate day = v == null ? null : toDate(v);
-        return day == null ? null : day.toString();
+    private String lastStudied(java.util.Collection<Map<String, Object>> progress) {
+        LocalDate best = null;
+        for (Map<String, Object> r : progress) {
+            Object steps = r.get("steps_done");
+            if (r.get("done_at") == null && (steps == null || String.valueOf(steps).isEmpty())) continue;
+            LocalDate d = r.get("study_day") == null ? null : toDate(r.get("study_day"));
+            if (d != null && (best == null || d.isAfter(best))) best = d;
+        }
+        return best == null ? null : best.toString();
     }
 
     /** Study days needed for {@code remaining} situations at {@code daily} a day, skipping rest days (at most 3 years). */

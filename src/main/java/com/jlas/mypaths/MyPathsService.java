@@ -49,9 +49,13 @@ public class MyPathsService {
     /** The dashboard: all paths (ACTIVE first), totals and the over-free-time warning. Sends idle / finished notices. */
     public Map<String, Object> overview(Long userId) {
         List<Map<String, Object>> paths = new ArrayList<>();
-        Map<String, Object> j = jlptRow(userId);
+        // the JLPT card and the communication cards read separate tables: fetch them side by side (remote DB latency)
+        java.util.concurrent.CompletableFuture<Map<String, Object>> jlpt =
+                java.util.concurrent.CompletableFuture.supplyAsync(() -> jlptRow(userId));
+        List<Map<String, Object>> commRows = comm.myPathsRows(userId);
+        Map<String, Object> j = jlpt.join();
         if (j != null) paths.add(j);
-        paths.addAll(comm.myPathsRows(userId));
+        paths.addAll(commRows);
         paths.sort((a, b) -> rank(a) - rank(b));
         int active = 0, total = 0;
         boolean allDone = true;
@@ -189,6 +193,8 @@ public class MyPathsService {
         m.put("focusField", null);
         m.put("targetLevel", row.get("target_level"));
         if (active) {
+            java.util.concurrent.CompletableFuture<JpathTodayView> todayF = java.util.concurrent.CompletableFuture
+                    .supplyAsync(() -> { try { return jpathDay.today(userId); } catch (RuntimeException e) { return null; } });
             try {
                 JpathPathView v = jpath.current(userId);
                 int learned = 0, total = 0;
@@ -201,7 +207,8 @@ public class MyPathsService {
                 // the dashboard still lists the path
             }
             try {
-                JpathTodayView t = jpathDay.today(userId);
+                JpathTodayView t = todayF.join();
+                if (t == null) throw new IllegalStateException("no plan today");
                 boolean rest = t.kind() != null && "REST".equals(t.kind().name());
                 m.put("restDay", rest);
                 m.put("todayDone", t.allDone() || rest);

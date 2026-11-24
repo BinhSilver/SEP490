@@ -26,9 +26,20 @@ public class JpathClockImpl implements JpathClock {
         this.missionClock = missionClock;
     }
 
+    /** A page asks the zone many times per request; one DB read per user per 30 s is enough. */
+    private static final long ZONE_TTL_NANOS = 30_000_000_000L;
+    private final java.util.concurrent.ConcurrentHashMap<Long, Object[]> zoneCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     @Override
     public ZoneId zone(Long userId) {
-        return zones.zoneOf(userId);
+        if (userId == null) return zones.zoneOf(null);
+        long now = System.nanoTime();
+        Object[] hit = zoneCache.get(userId);
+        if (hit != null && now - (Long) hit[1] < ZONE_TTL_NANOS) return (ZoneId) hit[0];
+        ZoneId z = zones.zoneOf(userId);
+        if (zoneCache.size() > 10_000) zoneCache.clear();
+        zoneCache.put(userId, new Object[] {z, now});
+        return z;
     }
 
     @Override
