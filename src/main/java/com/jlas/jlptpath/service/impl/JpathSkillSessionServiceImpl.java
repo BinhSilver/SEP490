@@ -238,7 +238,14 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                 case PRACTICE -> {
                     ensureTokens(s, false);
                     Optional<JpathCheckSet> practice = submitted(userId, s.getPracticeToken());
-                    if (practice.isPresent()) {
+                    if (practice.isPresent() && s.getKind() == JpathSkillSessionKind.DAY
+                            && pct(practice.get()) < JpathSkillPolicy.DAY_PASS_PCT) {
+                        // Q7 (owner 24/11): a skill day counts only from 50% on the practice; below it the learner
+                        // gets a fresh practice of the same sets (no limit), the failed score shown on the page
+                        s.setScorePct(java.math.BigDecimal.valueOf(pct(practice.get())));
+                        s.setPracticeToken(null);
+                        ensureTokens(s, false);
+                    } else if (practice.isPresent()) {
                         if (s.getSkill() == JpathSkill.LISTENING) {
                             s.setStep(JpathSkillStep.DICTATION);
                         } else {
@@ -328,6 +335,12 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         }
     }
 
+    private static int pct(JpathCheckSet c) {
+        if (c.getScorePct() != null) return c.getScorePct().intValue();
+        Integer total = c.getTotalCount(), ok = c.getCorrectCount();
+        return total == null || total == 0 || ok == null ? 100 : Math.round(100f * ok / total);
+    }
+
     private Optional<JpathCheckSet> submitted(Long userId, String token) {
         return checkSet(userId, token).filter(c -> SUBMITTED.equals(c.getStatus()));
     }
@@ -356,7 +369,12 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         return new JpathSkillSessionView(s.getId(), s.getSkill(), s.getKind(), s.getTypeCode(), s.getStep(),
                 codes.size(), questions, dictation, s.isReused(), s.getPracticeToken(), s.getDictationToken(),
                 s.getCompletedAt() != null, s.getCpAwarded() == null ? 0 : s.getCpAwarded(), s.getStudyDay(),
-                practiceCorrect, dictationCorrect);
+                practiceCorrect, dictationCorrect,
+                s.getStep() == JpathSkillStep.PRACTICE && s.getKind() == JpathSkillSessionKind.DAY ? toInt(s.getScorePct()) : null);
+    }
+
+    private static Integer toInt(Number n) {
+        return n == null ? null : n.intValue();
     }
 
     private Optional<JpathCheckSet> checkSet(Long userId, String token) {

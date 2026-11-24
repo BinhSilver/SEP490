@@ -534,6 +534,12 @@
       body.innerHTML = practiceHtml(set, state.view, state.current, {
         token: ps.token, questions: ps.questions, answered: ps.answered,
         picks: state.picks, feedback: state.feedback, showExplain: state.showExplain, viOn: state.viOn });
+      // Q7 (owner 24/11): the last practice of this skill day was below 50%, so this is a fresh try
+      var retry = state.session && state.session.retryPct;
+      if (retry != null && state.current === 0 && !Object.keys(ps.answered || {}).length) {
+        body.insertAdjacentHTML('afterbegin', '<p class="jp-alert" role="status">Lần trước bạn đúng ' + esc(retry)
+          + '%. Ngày kỹ năng cần đúng từ 50% trở lên, hãy làm lại bài luyện này.</p>');
+      }
       placeFuriToggle();
       players();
     }
