@@ -82,6 +82,10 @@
       + '</section>';
   }
 
+  // [JLAS-W0108] Q2 24/11: the comm path reviews on a fixed schedule, said in one line on the review page
+  var REVIEW_SCHEDULE_NOTE = 'Lịch ôn của lộ trình giao tiếp cố định: mỗi tình huống được ôn lại sau 1, 3, 7, 14 và 30 ngày kể từ ngày học xong; mục trong Sổ tay được ôn mỗi ngày tới khi làm đúng.';
+  function scheduleNoteHtml() { return REVIEW ? '<p class="jp-muted" data-part="review-schedule">' + esc(REVIEW_SCHEDULE_NOTE) + '</p>' : ''; }
+
   // [JLAS-W0108] C3: one next step under the weekly score (weak items → notebook)
   function weekTipHtml(r) {
     if (REVIEW) return '';
@@ -130,7 +134,7 @@
       + '<h2 id="cpWeeklyResult" class="jp-result__title" tabindex="-1">'
       + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu.' + (Number(r.correct) < Number(r.total) ? ' Mục sai đã vào Sổ tay.' : ' Không sai câu nào.')) : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
         : ('Đúng ' + r.correct + '/' + r.total + ' câu, cần từ 80% để đạt. Ôn lại các câu sai rồi làm lại nhé.')) + '</h2>'
-      + weekTipHtml(r)
+      + weekTipHtml(r) + scheduleNoteHtml()
       + '<ul class="jp-review">' + rows + '</ul>'
       + '<div class="jp-result__actions">'
       + (ok || REVIEW ? '' : '<button type="button" class="jp-btn" data-weekly-retry>Làm lại</button>')
@@ -247,7 +251,7 @@
             el.innerHTML = '<p>Hôm nay có câu nói cần ôn lại.</p><button type="button" class="jp-btn" data-weekly-speech-start>Bắt đầu phần Nói</button>';
             return;
           }
-          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.');
+          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.') + scheduleNoteHtml();
           return;
         }
         var qs = state.data.questions;
@@ -547,5 +551,5 @@
     return load();
   }
 
-  return { questionHtml: questionHtml, resultHtml: resultHtml, mount: mount };
+  return { questionHtml: questionHtml, resultHtml: resultHtml, mount: mount, REVIEW_SCHEDULE_NOTE: REVIEW_SCHEDULE_NOTE };
 });

@@ -455,7 +455,7 @@
       + extra
       // owner 17/11: no review button before anything is due (a new learner saw "Ôn tập hôm nay" on day one)
       + (typeof todayObj.reviewDue === 'number' && todayObj.reviewDue <= 0 ? ''
-        : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay'
+        : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn (sau 1, 3, 7, 14, 30 ngày) và mục trong Sổ tay">Ôn tập hôm nay'
           + (typeof todayObj.reviewDue === 'number' ? ' (' + todayObj.reviewDue + ')' : '') + '</a>')
       + '</div>';
 
