@@ -1541,10 +1541,18 @@
 
     if (root.CpathAudio) root.CpathAudio.bind(el, root.CpathAudio.saveToServer);
 
+    function openFirstUndone() {
+      var st = (sitData && sitData.steps) || {};
+      var first = ['WORDS', 'LISTEN', 'ROLEPLAY', 'SPEAK'].filter(function (k) { return !st[k.toLowerCase()]; })[0];
+      if (first) state.activeStep = first;
+    }
+
     function load() {
       root.JpathApi.get('/api/learning/comm/situations/' + encodeURIComponent(sitId)).then(function (data) {
         if (!data) throw new Error('Không có dữ liệu tình huống.');
         sitData = data;
+        // #84 (25/11): F5 opens the first step not done yet, not step 1 again
+        openFirstUndone();
         // F196: which cards are already in the notebook (the save button shows filled)
         Promise.resolve(root.JpathApi.get('/api/learning/comm/notebook')).then(function (nb) {
           ((nb && nb.items) || []).forEach(function (x) { if (x && x.id) state.saved[x.id] = true; });
@@ -1557,6 +1565,7 @@
           if (fc && fc.wordsStepDone === true && sitData) {
             sitData.steps = sitData.steps || {};
             sitData.steps.words = true;
+            if (state.activeStep === 'WORDS') openFirstUndone();
           }
           render();
         }, function () { state.flashcard = { error: true }; render(); });
