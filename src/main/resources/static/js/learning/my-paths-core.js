@@ -71,7 +71,9 @@
       ? 'Tạm dừng từ ' + esc(dateVi(p.pausedSince)) + '. Tiến độ được giữ.' : (p.status === 'FINISHED' ? 'Đã học xong lộ trình này.' : 'Tiến độ được giữ.');
     if (p.todayDone) return 'Hôm nay: đã xong';
     var left = num(p.todayMinutesLeft);
-    return left > 0 ? 'Hôm nay: còn khoảng ' + left + ' phút' : 'Hôm nay: chưa học';
+    // a missed day carries over (up to twice a normal day): say so instead of a figure that contradicts "phút/ngày"
+    var carry = left > num(p.minutesPerDay) && num(p.minutesPerDay) > 0 ? ' (gồm phần còn lại của ngày trước)' : '';
+    return left > 0 ? 'Hôm nay: còn khoảng ' + left + ' phút' + carry : 'Hôm nay: chưa học';
   }
 
   function ioCore() {
@@ -91,8 +93,9 @@
   }
 
   var WEEKDAY = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-  function todayLabel(now) {
-    var d = now instanceof Date ? now : new Date();
+  function todayLabel(now, iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    var d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : (now instanceof Date ? now : new Date());
     return WEEKDAY[d.getDay()] + ', ' + ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2);
   }
   var FOX = '/images/mascots/fox/';
@@ -153,7 +156,7 @@
     var total = num(view && view.totalMinutes);
     var free = num(view && view.freeMinutes);
     var over = !!(view && view.overFreeTime) || (free > 0 && total > free);
-    var date = '<span class="mp-today__date">' + todayLabel(now) + '</span>';
+    var date = '<span class="mp-today__date">' + todayLabel(now, view && view.today) + '</span>';
     if (!list.length) {
       return '<section class="mp-today"><img class="mp-today__fox" src="' + FOX + 'kitsu-resting-30-128.webp" alt="" width="96" height="96">'
         + '<div class="mp-today__text">' + date + '<h2>Chưa có lộ trình nào đang học</h2>'

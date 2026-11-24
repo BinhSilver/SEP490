@@ -36,9 +36,11 @@ public class MyPathsService {
     private final JpathPathService jpath;
     private final JpathDailyPlanService jpathDay;
     private final MyPathsNotifier notifier;
+    private final com.jlas.jlptpath.service.JpathClock clock;
 
     public MyPathsService(JdbcTemplate db, CpathService comm, JpathPathService jpath, JpathDailyPlanService jpathDay,
-            MyPathsNotifier notifier) {
+            MyPathsNotifier notifier, com.jlas.jlptpath.service.JpathClock clock) {
+        this.clock = clock;
         this.db = db;
         this.comm = comm;
         this.jpath = jpath;
@@ -68,6 +70,7 @@ public class MyPathsService {
         Integer free = comm.surveyFreeMinutes(userId);
         notices(userId, paths);
         Map<String, Object> out = new LinkedHashMap<>();
+        out.put("today", clock.today(userId).toString()); // the study day (demo clock included), not the browser's
         out.put("activeCount", active);
         out.put("maxActive", CpathService.MAX_ACTIVE);
         out.put("freeMinutes", free);
