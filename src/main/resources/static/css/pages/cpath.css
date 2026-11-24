@@ -2357,3 +2357,20 @@ html[data-theme="dark"] .cp-flashcard { background: var(--color-surface-lowest) 
 .cp-sit-shell .cp-step-tab, .cp-page .cp-step-tab { min-height: 28px; padding: 2px 10px; border-radius: 999px; font-size: .82rem; }
 .cp-sit-shell .cp-sit-topbar .cp-btn-ghost, .cp-page .cp-sit-topbar .cp-btn-ghost { min-height: 28px; padding: 2px 10px; font-size: .8rem; }
 .cp-sit-title { font-size: 1rem; }
+
+/* [JLAS-W0108] owner 25/11: comm day page — blocks keep their gap, situation rows line up with one fixed-width button */
+.jp-dayd__hero-row { display: grid; gap: 12px; margin-bottom: 16px; justify-items: stretch; grid-template-columns: minmax(0, 1fr); }
+.jp-dayd__hero-row > .jp-dayd__mascot { width: auto; max-width: none; justify-self: stretch; }
+.jp-dayd__badge { display: inline-flex; margin: 0; }
+.jp-dayd__sum { margin: 0; }
+.jp-dayd__sec { margin-top: 0; }
+.jp-dayd__sec + .jp-dayd__sec, .jp-dayd__actions { margin-top: 16px; }
+.jp-dayd__sec .jp-todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jp-dayd__sec .jp-todo__item { display: grid; grid-template-columns: minmax(0, 1fr) 160px; align-items: center; gap: 16px;
+  padding: 12px 16px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md, 12px); }
+.jp-dayd__sec .jp-todo__item .jp-today__pill-body { min-width: 0; }
+.jp-dayd__sec .jp-todo__item > .cp-btn-primary { width: 160px; justify-self: end; text-align: center; }
+@media (max-width: 600px) {
+  .jp-dayd__sec .jp-todo__item { grid-template-columns: 1fr; }
+  .jp-dayd__sec .jp-todo__item > .cp-btn-primary { width: 100%; }
+}
