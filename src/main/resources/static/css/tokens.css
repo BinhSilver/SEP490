@@ -1,4 +1,4 @@
-@import url("dark-palette.css");
+@import url("dark-palette.css?v=20261125-phase1");
 /* JLAS design tokens - Komorebi light palette (tím + xanh lá). */
 :root {
   color-scheme: light;
@@ -49,6 +49,19 @@
   --color-on-error: #ffffff;
   --color-success: #006947;
   --color-success-bg: #d6f5e7;
+  --color-warning: #8a5a00;
+  --color-warning-bg: #fdf0d5;
+  --jl-error-hover: #9a1414;
+  --jl-ok-bg: #e3f6ec;
+  --jl-ok-ink: #2f6b52;
+  --jl-warn-bg: #fdf1d8;
+  --jl-warn-ink: #7a5512;
+  --jl-err-bg: #fde6e8;
+  --jl-err-ink: #9b2c3a;
+  --jl-tooltip-bg: var(--color-inverse-surface);
+  --jl-tooltip-ink: var(--color-surface-lowest);
+  --jl-scrim: color-mix(in srgb, var(--color-on-surface) 45%, transparent);
+  --jl-press: color-mix(in srgb, var(--color-on-surface) 10%, transparent);
   --color-focus: #4f378a;
 
   /* Typography — single project-wide font, matching the nav bar (--font-body); the site
@@ -59,9 +72,11 @@
   --font-headline: var(--font-body);
   --font-display: var(--font-body);
   --font-mono: var(--font-body);
-  --font-size-base: 14px;
+  --font-jp: "Noto Sans JP", var(--font-body);
+  --font-jp-display: "Klee One", var(--font-jp);
+  --font-size-base: 0.875rem;
   --font-weight-base: 400;
-  --line-height-base: 20px;
+  --line-height-base: 1.25rem;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -73,30 +88,29 @@
   --text-4xl: 2.75rem;
 
   /* Spacing and shape - unchanged layout tokens */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-  --space-8: 64px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
   --radius-sm: 0.375rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-full: 9999px;
   --radius-control: 0.625rem;
+  --radius-input: 0.5rem;
 
   /* Quiet elevation for light surfaces */
-  --shadow-1: 0 4px 20px rgba(22, 29, 31, 0.08);
-  --shadow-2: 0 10px 40px rgba(22, 29, 31, 0.14);
-  --shadow-action: 0 4px 14px rgba(79, 55, 138, 0.18);
-  --shadow-action-hover: 0 6px 20px rgba(79, 55, 138, 0.24);
-  --focus-ring: 0 0 0 3px rgba(79, 55, 138, 0.16);
+  --shadow-1: 0 0.25rem 1.25rem color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+  --shadow-2: 0 0.625rem 2.5rem color-mix(in srgb, var(--color-on-surface) 14%, transparent);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-focus) 16%, transparent);
 
-  --header-height: 72px;
-  --sidebar-width: 260px;
-  --max-width: 1400px;
+  --header-height: 4.5rem;
+  --sidebar-width: 16.25rem;
+  --max-width: max(87.5rem, 85%);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-short: 180ms;
   --dur-medium: 300ms;
@@ -109,8 +123,8 @@
   --z-overlay: 120;
 
   /* Shared background aliases used by older modules. */
-  --bg-gradient-static: linear-gradient(135deg, #f4fafd 0%, #eef5f7 64%, #e9ddff 100%);
-  --bg-gradient-animated: linear-gradient(135deg, #f4fafd 0%, #eef5f7 64%, #e9ddff 100%);
+  --bg-gradient-static: var(--color-background);
+  --bg-gradient-animated: var(--color-background);
 }
 
 @keyframes jlas-bg-pan {
@@ -184,27 +198,27 @@ html[data-theme="dark"] {
   --color-star: #ffc94a;
 
   /* Surfaces */
-  --color-surface-lowest: #141218;
-  --color-surface: #1d1b20;
-  --color-surface-low: #211f26;
-  --color-surface-mid: #2a2631;
-  --color-surface-high: #2a2631;
-  --color-background: #141218;
-  --color-surface-container: #211f26;
-  --color-surface-container-high: #2a2631;
-  --color-surface-variant: #48434f;
+  --color-surface-lowest: var(--dark-surface);
+  --color-surface: var(--dark-bg);
+  --color-surface-low: var(--dark-surface);
+  --color-surface-mid: var(--dark-raised);
+  --color-surface-high: var(--dark-soft);
+  --color-background: var(--dark-bg);
+  --color-surface-container: var(--dark-raised);
+  --color-surface-container-high: var(--dark-soft);
+  --color-surface-variant: var(--dark-soft);
   --color-inverse-surface: #e8e3ec;
 
   /* Text */
-  --color-on-surface: #e6e1ea;
-  --color-on-surface-variant: #cbc6d2;
+  --color-on-surface: var(--dark-ink);
+  --color-on-surface-variant: var(--dark-muted);
 
   /* Brand (tím) */
-  --color-primary: #d3bcff;
-  --color-primary-container: #4f378a;
-  --color-on-primary: #33106d;
+  --color-primary: var(--dark-accent);
+  --color-primary-container: var(--dark-accent-hover);
+  --color-on-primary: var(--dark-on-button);
   --color-on-primary-container: #ecdfff;
-  --color-primary-fixed: #30263f;
+  --color-primary-fixed: var(--dark-soft);
   --color-on-primary-fixed: #ecdfff;
   --color-inverse-primary: #4f378a;
   --color-secondary: #cec2dc;
@@ -220,33 +234,35 @@ html[data-theme="dark"] {
   --color-tertiary-fixed-dim: #e7c365;
 
   /* Borders and status (xanh lá = success) */
-  --color-outline: #948f9b;
-  --color-outline-variant: #48434f;
-  --color-error: #ffb4ab;
-  --color-error-container: #8c1d18;
-  --color-on-error-container: #ffdad6;
-  --color-on-error: #690005;
-  --color-success: #7ad5a0;
-  --color-success-bg: #103a24;
-  --color-focus: #d3bcff;
+  --color-outline: var(--dark-faint);
+  --color-outline-variant: var(--dark-line);
+  --color-error: var(--dark-danger);
+  --color-error-container: var(--dark-danger-bg);
+  --color-on-error-container: var(--dark-danger);
+  --color-on-error: var(--dark-on-button);
+  --color-success: var(--dark-success);
+  --color-success-bg: var(--dark-success-bg);
+  --color-warning: var(--dark-warning);
+  --color-warning-bg: var(--dark-warning-bg);
+  --jl-error-hover: var(--dark-error-hover);
+  --jl-ok-bg: var(--dark-badge-success-bg);
+  --jl-ok-ink: var(--dark-badge-success-ink);
+  --jl-warn-bg: var(--dark-badge-warning-bg);
+  --jl-warn-ink: var(--dark-badge-warning-ink);
+  --jl-err-bg: var(--dark-badge-error-bg);
+  --jl-err-ink: var(--dark-badge-error-ink);
+  --jl-tooltip-bg: var(--dark-button-light);
+  --jl-tooltip-ink: var(--dark-on-button);
+  --jl-scrim: color-mix(in srgb, var(--dark-bg) 58%, transparent);
+  --jl-press: color-mix(in srgb, var(--dark-ink) 12%, transparent);
+  --color-focus: var(--dark-focus);
 
   /* Quiet elevation for dark surfaces */
-  --shadow-1: 0 4px 20px rgba(0, 0, 0, 0.42);
-  --shadow-2: 0 10px 40px rgba(0, 0, 0, 0.58);
-  --shadow-action: 0 4px 14px rgba(211, 188, 255, 0.16);
-  --shadow-action-hover: 0 6px 20px rgba(211, 188, 255, 0.22);
-  --focus-ring: 0 0 0 3px rgba(211, 188, 255, 0.28);
+  --shadow-1: 0 0.25rem 1.25rem color-mix(in srgb, var(--dark-shadow) 42%, transparent);
+  --shadow-2: 0 0.625rem 2.5rem var(--dark-shadow);
+  --focus-ring: 0 0 0 3px var(--dark-focus-ring);
 
-  --bg-gradient-static: linear-gradient(135deg, #141218 0%, #1d1b20 64%, #241a3a 100%);
-  --bg-gradient-animated: linear-gradient(135deg, #141218 0%, #1d1b20 64%, #241a3a 100%);
-}
-
-/* Additional semantic tokens from ui-dong-bo-jlas; existing tokens remain unchanged. */
-:root {
-  --color-warning: #8a5a00;
-  --color-warning-bg: #fdf0d5;
-  --font-jp: "Noto Sans JP", var(--font-body);
-  --font-jp-display: "Klee One", var(--font-jp);
-  --radius-input: 8px;
+  --bg-gradient-static: var(--color-background);
+  --bg-gradient-animated: var(--color-background);
 }
 :root { --font-icon: "Font Awesome 6 Free"; }

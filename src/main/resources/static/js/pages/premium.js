@@ -25,7 +25,7 @@
   function minutes(value) { return Number(value).toLocaleString('vi-VN', { maximumFractionDigits: 1 }); }
   function badge(status) {
     var s = STATUS[status] || [status, ''];
-    return '<span class="pm-badge' + (s[1] ? ' pm-badge--' + s[1] : '') + '">' + esc(s[0]) + '</span>';
+    return '<span class="pm-badge jl-badge' + (s[1] ? ' pm-badge--' + s[1] : '') + '">' + esc(s[0]) + '</span>';
   }
   function loggedIn() { return !!(window.JlasAuth && JlasAuth.isLoggedIn()); }
 
@@ -108,7 +108,7 @@
             '<div><h2>Premium</h2>' + (plan.description ? '<p class="pm-plan__desc">' + esc(plan.description) + '</p>' : '') + '</div>' +
             '<div class="pm-price">' + (period === 'year' && yearlyOriginal() > Number(plan.price)
               ? '<s class="pm-price__original">' + vnd(yearlyOriginal()) + '</s>' : '') +
-              '<strong>' + vnd(plan.price) + '</strong><span>/ ' + (period === 'year' ? 'năm' : plan.durationDays + ' ngày') + '</span>' +
+              '<strong class="jl-num">' + vnd(plan.price) + '</strong><span>/ ' + (period === 'year' ? 'năm' : plan.durationDays + ' ngày') + '</span>' +
               (period === 'year' ? '<span>(≈ ' + vnd(Math.round(Number(plan.price) / 12)) + '/tháng)</span>' : '') + '</div>' +
             '<ul class="pm-features">' +
               '<li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Gọi AI luyện hội thoại ' + minutes(q.premiumDailyMinutes) +

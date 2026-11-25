@@ -148,6 +148,9 @@
       var page = 0;
       var rows = {};
       var detailId = null;
+      var detailModal = null;
+      var detailRequest = 0;
+      var detailOpener = null;
       root.innerHTML =
         '<form class="adm-toolbar" data-filters novalidate>' +
           '<input class="input" type="search" name="q" maxlength="100" placeholder="Email, tên đăng nhập hoặc họ tên" aria-label="Tìm người dùng">' +
@@ -159,7 +162,7 @@
             '<option value="ACTIVE">' + STATUS.ACTIVE + '</option><option value="LOCKED">' + STATUS.LOCKED + '</option></select>' +
           '<select class="select" name="premium" aria-label="Premium"><option value="">Miễn phí và Premium</option>' +
             '<option value="true">Premium còn hạn</option><option value="false">Không có Premium</option></select>' +
-        '</form><div data-detail></div><div data-list></div>';
+        '</form><div data-list></div>';
       var form = root.querySelector('[data-filters]');
       A.filterPopover(form);
 
@@ -210,11 +213,11 @@
         try {
           await A.api.post(API + '/users/' + id + '/role', { role: decision.extra.role, reason: decision.reason });
           A.toast('Đã đổi vai trò', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        await showDetail(id);
       }
 
       async function grantPremium(id) {
@@ -263,11 +266,11 @@
             planId: decision.extra.planId, durationDays: decision.extra.durationDays, reason: decision.reason
           });
           A.toast('Đã cấp Premium', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        await showDetail(id);
       }
 
       // Plan choice pre-fills its duration; the days field accepts digits only.
@@ -319,12 +322,60 @@
         }
       }
 
-      async function showDetail(id) {
-        var box = root.querySelector('[data-detail]');
+      function userInUrl() {
+        var value = new URL(window.location.href).searchParams.get('user');
+        return /^\d+$/.test(value || '') && Number(value) > 0 ? Number(value) : null;
+      }
+
+      function closeDetail(updateUrl) {
+        if (!detailModal) return;
+        detailModal.remove();
+        detailModal = null;
+        detailId = null;
+        detailRequest++;
+        if (!document.querySelector('.adm-modal')) document.body.classList.remove('adm-modal-open');
+        if (updateUrl) {
+          var url = new URL(window.location.href);
+          url.searchParams.delete('user');
+          history.replaceState(history.state, '', url);
+        }
+        var row = detailOpener && root.contains(detailOpener) ? detailOpener
+          : detailOpener && root.querySelector('tr[data-detail-id="' + detailOpener.dataset.detailId + '"]');
+        if (row) row.focus();
+        else form.elements.q.focus();
+        detailOpener = null;
+      }
+
+      async function showDetail(id, pushUrl, opener) {
+        if (!detailModal) {
+          detailModal = document.createElement('div');
+          detailModal.className = 'adm-modal adm-modal--user-detail';
+          detailModal.setAttribute('role', 'dialog');
+          detailModal.setAttribute('aria-modal', 'true');
+          detailModal.setAttribute('aria-labelledby', 'admUserDetailTitle');
+          detailModal.innerHTML = '<section class="adm-modal__dialog adm-modal__dialog--wide">' +
+            '<div class="adm-user-detail__header"><h2 class="adm-modal__title" id="admUserDetailTitle">Tài khoản #' + id + '</h2>' +
+            '<button type="button" class="adm-user-detail__close" data-close-detail aria-label="Đóng chi tiết tài khoản">&times;</button></div>' +
+            '<div data-user-detail-body></div></section>';
+          detailModal.addEventListener('click', onUserClick);
+          document.body.appendChild(detailModal);
+          document.body.classList.add('adm-modal-open');
+          detailModal.querySelector('[data-close-detail]').focus();
+        }
         detailId = id;
-        box.innerHTML = '<section class="adm-panel">' + A.loading() + '</section>';
+        if (opener) detailOpener = opener;
+        if (pushUrl) {
+          var url = new URL(window.location.href);
+          url.searchParams.set('user', id);
+          history.pushState(history.state, '', url);
+        }
+        var box = detailModal.querySelector('[data-user-detail-body]');
+        var request = ++detailRequest;
+        if (box.contains(document.activeElement)) detailModal.querySelector('[data-close-detail]').focus();
+        box.innerHTML = A.loading();
         try {
           var u = await A.api.get(API + '/users/' + id);
+          if (request !== detailRequest || !detailModal) return;
           var fields = [
             ['Email', u.email], ['Tên đăng nhập', u.username], ['Họ tên', u.fullName], ['Vai trò', roleLabel(u.role)],
             ['Đăng nhập bằng', u.loginType === 'GOOGLE' ? 'Google' : 'Email/mật khẩu'],
@@ -336,19 +387,17 @@
             ['Ngày sinh', birthDateText(u.dateOfBirth)],
             ['Ngày tạo', A.date(u.createdAt)], ['Đăng nhập gần nhất', A.date(u.lastLoginAt)]
           ];
-          box.innerHTML = '<section class="adm-panel" aria-label="Chi tiết tài khoản">' +
-            '<h2 class="adm-panel__title">Tài khoản #' + u.id + '</h2>' +
-            '<dl class="adm-detail">' + fields.filter(function (f) { return f[1] != null && f[1] !== ''; }).map(function (f) {
-              return '<dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd>';
+          detailModal.querySelector('#admUserDetailTitle').textContent = 'Tài khoản #' + u.id;
+          box.innerHTML = '<dl class="adm-user-detail__fields">' + fields.filter(function (f) { return f[1] != null && f[1] !== ''; }).map(function (f) {
+              return '<div><dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd></div>';
             }).join('') + '</dl>' +
-            '<p class="adm-toolbar">' + lockButton(u) + manageButtons(u) +
+            '<div class="adm-modal__actions">' + lockButton(u) + manageButtons(u) +
               '<button type="button" class="btn btn--secondary btn--sm" data-adjust="' + u.id + '">Điều chỉnh CP</button>' +
               '<button type="button" class="btn btn--secondary btn--sm" data-birth-date="' + u.id + '">Sửa ngày sinh</button>' +
-              '<button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p>' +
-          '</section>';
+            '</div>';
           rows[u.id] = u;
-          box.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (e) {
+          if (request !== detailRequest || !detailModal) return;
           box.innerHTML = '<p class="adm-error">' + A.esc(e.message) + '</p>';
         }
       }
@@ -366,11 +415,11 @@
         try {
           await A.api.post(API + '/users/' + id + (lock ? '/lock' : '/unlock'), { reason: decision.reason });
           A.toast(lock ? 'Đã khoá tài khoản' : 'Đã mở khoá tài khoản', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        if (detailId === id) await showDetail(id);
       }
 
       async function adjustCredits(id) {
@@ -392,7 +441,8 @@
         try {
           await A.api.post(API + '/users/' + id + '/credits', { amount: decision.extra.amount, reason: decision.reason });
           A.toast('Đã điều chỉnh CP', 'success');
-          await load(); await showDetail(id);
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) { A.toast(e.message, 'error'); }
       }
 
@@ -432,17 +482,18 @@
             dateOfBirth: decision.extra.dateOfBirth, reason: decision.reason
           });
           A.toast('Đã cập nhật ngày sinh', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        await showDetail(id);
       }
 
       form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
-      root.addEventListener('click', function (event) {
+      function onUserClick(event) {
         var target = event.target;
         var el;
+        if (target === detailModal || target.closest('[data-close-detail]')) { closeDetail(true); return; }
         if ((el = target.closest('[data-page]'))) { page += Number(el.dataset.page); load(); return; }
         if ((el = target.closest('[data-lock]'))) { setLocked(Number(el.dataset.lock), true); return; }
         if ((el = target.closest('[data-unlock]'))) { setLocked(Number(el.dataset.unlock), false); return; }
@@ -451,17 +502,41 @@
         if ((el = target.closest('[data-adjust]'))) { adjustCredits(Number(el.dataset.adjust)); return; }
         if ((el = target.closest('[data-birth-date]'))) { changeBirthDate(Number(el.dataset.birthDate)); return; }
         // Checked after the row's own buttons so "Khoá"/"Mở khoá" inside a row don't also open the detail.
-        if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId)); return; }
-        if (target.closest('[data-close-detail]')) { detailId = null; root.querySelector('[data-detail]').innerHTML = ''; }
-      });
+        if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId), true, el); }
+      }
+      root.addEventListener('click', onUserClick);
       root.addEventListener('keydown', function (event) {
         var row = event.target.closest && event.target.closest('tr[data-detail-id]');
         if (row && event.target === row && (event.key === 'Enter' || event.key === ' ')) {
           event.preventDefault();
-          showDetail(Number(row.dataset.detailId));
+          showDetail(Number(row.dataset.detailId), true, row);
         }
       });
+      document.addEventListener('keydown', function (event) {
+        if (!detailModal || document.querySelector('.adm-modal--decision')) return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeDetail(true);
+        } else if (event.key === 'Tab') {
+          var focusable = Array.from(detailModal.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'));
+          var first = focusable[0];
+          var last = focusable[focusable.length - 1];
+          if (!first) return;
+          if (event.shiftKey && (document.activeElement === first || !detailModal.contains(document.activeElement))) {
+            event.preventDefault(); last.focus();
+          } else if (!event.shiftKey && (document.activeElement === last || !detailModal.contains(document.activeElement))) {
+            event.preventDefault(); first.focus();
+          }
+        }
+      });
+      window.addEventListener('popstate', function () {
+        var id = userInUrl();
+        if (id && id !== detailId) showDetail(id);
+        else if (!id) closeDetail(false);
+      });
       await load();
+      var linkedUser = userInUrl();
+      if (linkedUser) await showDetail(linkedUser);
     }
   });
 
@@ -907,9 +982,9 @@
 
   function countTable(caption, rows) {
     return '<section class="adm-panel"><h2 class="adm-panel__title">' + A.esc(caption) + '</h2>' +
-      (rows.length ? '<table class="adm-table"><tbody>' + rows.map(function (r) {
+      (rows.length ? '<div class="adm-table-wrap"><table class="adm-table"><tbody>' + rows.map(function (r) {
         return '<tr><td>' + r[0] + '</td><td class="adm-nowrap"><strong>' + A.esc(r[1]) + '</strong></td></tr>';
-      }).join('') + '</tbody></table>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
+      }).join('') + '</tbody></table></div>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
   }
 
   // ── Dashboard: every figure comes from GET /api/admin/system/dashboard?period=… ─────────────────

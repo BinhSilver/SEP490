@@ -79,9 +79,9 @@
 
 /* ── Main area ───────────────────────────────────────────────────────── */
 
-#jlabBaseContent .adm-main { min-width: 0; display: grid; gap: 16px; }
+#jlabBaseContent .adm-main { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 /* Sections append toolbar, detail box and list as direct siblings: space them evenly; empty slots take no room. */
-#jlabBaseContent #admContent { display: grid; gap: 16px; min-width: 0; }
+#jlabBaseContent #admContent { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
 #jlabBaseContent #admContent > :empty { display: none; }
 #jlabBaseContent #admContent > p.adm-toolbar { margin: 0; }
 /* The sidebar nav already names the current page (highlighted item + browser tab title), so the in-content
@@ -97,6 +97,8 @@
 
 #jlabBaseContent .adm-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 12px;
   padding: 18px;
   border: 1px solid var(--color-outline-variant);
@@ -198,7 +200,7 @@
 #jlabBaseContent .adm-card__body { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-outline-variant); }
 
 /* Section without a card around it (title + content straight on the page background). */
-#jlabBaseContent .adm-section { display: grid; gap: 12px; }
+#jlabBaseContent .adm-section { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 12px; }
 #jlabBaseContent .adm-section > :empty { display: none; }
 
 #jlabBaseContent .adm-badge {
@@ -287,7 +289,7 @@
 
 /* ── Tables ──────────────────────────────────────────────────────────── */
 
-#jlabBaseContent .adm-table-wrap { overflow-x: auto; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); }
+#jlabBaseContent .adm-table-wrap { position: relative; min-width: 0; max-width: 100%; overflow-x: auto; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); }
 #jlabBaseContent .adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 
 #jlabBaseContent .adm-table th {
@@ -369,6 +371,8 @@
   background: rgba(22, 29, 31, 0.5);
 }
 
+.adm-modal--decision { z-index: calc(var(--z-modal, 100) + 1); }
+
 .adm-modal__dialog {
   width: min(500px, 100%);
   max-height: calc(100dvh - 32px);
@@ -380,6 +384,16 @@
   box-shadow:none;
   font-family: "Inter", var(--font-body);
 }
+
+.adm-modal__dialog--wide { width: min(760px, 100%); }
+.adm-user-detail__header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.adm-user-detail__header .adm-modal__title { margin: 0; }
+.adm-user-detail__close { border: 0; background: transparent; color: inherit; cursor: pointer; font-size: 26px; line-height: 1; padding: 0 4px; }
+.adm-user-detail__close:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.adm-user-detail__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0; font-size: 14px; }
+.adm-user-detail__fields > div { min-width: 0; }
+.adm-user-detail__fields dt { color: var(--color-on-surface-variant); font-size: 13px; }
+.adm-user-detail__fields dd { margin: 3px 0 0; overflow-wrap: anywhere; }
 
 .adm-modal__dialog:has(.adm-form-grid) {
   width: min(960px, calc(100vw - 32px));
@@ -408,6 +422,12 @@
 .adm-modal .adm-hint .fa-bell { color: var(--color-primary, #4f378a); }
 .adm-modal__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .adm-modal-open { overflow: hidden; }
+
+@media (max-width: 560px) {
+  .adm-modal--user-detail { padding: 0; }
+  .adm-modal--user-detail .adm-modal__dialog { box-sizing: border-box; width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0; }
+  .adm-user-detail__fields { grid-template-columns: 1fr; }
+}
 
 .adm-toast-host {
   position: fixed;

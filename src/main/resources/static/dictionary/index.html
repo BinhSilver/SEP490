@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tra cứu từ điển · KotsuKotsu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/tokens.css" />
   <link rel="stylesheet" href="/css/theme-bridge.css" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -13,9 +12,11 @@
   <link rel="stylesheet" href="/css/components/buttons.css" />
   <link rel="stylesheet" href="/css/components/cards.css" />
   <link rel="stylesheet" href="/css/components/inputs.css" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261125-largescreen" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261125-handwriting" />
+  <link rel="stylesheet" href="/css/controls.css?v=20261125-largescreen" />
+  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261125-largescreen" />
+  <link rel="stylesheet" href="/css/components/ui-chuan.css?v=20261125-largescreen" />
 </head>
 <body id="jlabBasePage" class="dictionary-page">
   <div id="jlabBaseShellMount"></div>
@@ -32,14 +33,14 @@
             <i class="fa-solid fa-magnifying-glass dict-search-bar__icon" aria-hidden="true"></i>
             <input id="dict-search-input" class="dict-search-bar__input" type="search"
                    placeholder="Nhập Kanji, Hiragana, Katakana, Romaji hoặc từ vựng..." autocomplete="off" autofocus />
-            <button type="button" id="dict-search-clear" class="dict-search-icon-btn dict-search-clear"
+            <button type="button" id="dict-search-clear" class="dict-search-icon-btn jl-icon-btn dict-search-clear"
                     aria-label="Xóa từ khóa" hidden><i class="fa-solid fa-xmark"></i></button>
             <ul id="dict-suggest" class="dict-suggest" hidden role="listbox"></ul>
           </div>
           <div class="dict-search-bar__actions">
-            <button type="button" id="dict-open-handwriting" class="dict-search-icon-btn"
+            <button type="button" id="dict-open-handwriting" class="dict-search-icon-btn jl-icon-btn"
                     title="Viết tay" aria-label="Viết tay"><i class="fa-solid fa-pen-nib"></i></button>
-            <button type="button" id="dict-mode-radical" class="dict-search-icon-btn"
+            <button type="button" id="dict-mode-radical" class="dict-search-icon-btn jl-icon-btn"
                     title="Tra theo bộ thủ" aria-label="Tra theo bộ thủ"><i class="fa-solid fa-shapes"></i></button>
           </div>
         </div>
@@ -86,14 +87,14 @@
     <div class="dict-save-popover__head">
       <strong class="dict-save-popover__title">Lưu</strong>
       <p id="dict-notebook-word" class="dict-save-popover__word" lang="ja"></p>
-      <button type="button" class="dict-save-popover__close" data-notebook-close aria-label="Đóng">
+      <button type="button" class="dict-save-popover__close jl-icon-btn" data-notebook-close aria-label="Đóng">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
     </div>
     <div data-notebook-view="list">
       <label class="dict-save-search">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <input id="dict-notebook-search" type="search" placeholder="Tìm sổ tay" autocomplete="off" aria-label="Tìm sổ tay">
+        <input id="dict-notebook-search" class="input" type="search" placeholder="Tìm sổ tay" autocomplete="off" aria-label="Tìm sổ tay">
       </label>
       <div class="dict-save-popover__scroll">
         <p id="dict-notebook-loading" class="dict-notebook-message" role="status" hidden>Đang tải sổ tay…</p>
@@ -112,13 +113,13 @@
     </div>
     <form id="dict-notebook-create" class="dict-save-create" hidden>
       <div class="dict-save-create__head">
-        <button type="button" class="dict-save-popover__close" data-notebook-back aria-label="Quay lại">
+        <button type="button" class="dict-save-popover__close jl-icon-btn" data-notebook-back aria-label="Quay lại">
           <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
         </button>
         <strong>Tạo sổ tay</strong>
       </div>
       <label for="dict-notebook-name">Tên sổ tay</label>
-      <input id="dict-notebook-name" name="name" type="text" maxlength="120" required autocomplete="off">
+      <input id="dict-notebook-name" class="input" name="name" type="text" maxlength="120" required autocomplete="off">
       <button type="submit" class="dict-save-create__submit">Tạo và lưu</button>
     </form>
     <p id="dict-notebook-status" class="dict-notebook-status" role="status" aria-live="polite"></p>
@@ -130,7 +131,7 @@
         <div>
           <h2 id="dict-modal-title">Vẽ một chữ Kanji</h2>
         </div>
-        <button type="button" class="dict-modal__close" data-modal-close aria-label="Đóng">
+        <button type="button" class="dict-modal__close jl-icon-btn" data-modal-close aria-label="Đóng">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -175,7 +176,7 @@
           <h2 id="dict-radical-title">Tra Kanji theo bộ thủ</h2>
           <p class="dict-modal__hint">Chọn một hoặc nhiều bộ thủ có trong chữ cần tìm.</p>
         </div>
-        <button type="button" class="dict-modal__close" data-modal-close aria-label="Đóng">
+        <button type="button" class="dict-modal__close jl-icon-btn" data-modal-close aria-label="Đóng">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -200,7 +201,7 @@
         <div class="dict-modal__section-heading">
           <span>Bộ thủ</span>
         </div>
-        <input id="dict-radical-filter" class="dict-radical-filter" type="search"
+        <input id="dict-radical-filter" class="dict-radical-filter input" type="search"
                placeholder="Lọc theo tên bộ thủ, ví dụ: nhân, thuỷ, mộc" autocomplete="off"
                aria-label="Lọc bộ thủ theo tên">
         <div id="dict-radical-picker" class="dict-radical-picker" aria-label="Danh sách bộ thủ"></div>
@@ -227,7 +228,7 @@
   <script src="/dictionary/js/mock-data.js?v=20261115-daily1"></script>
   <script src="/dictionary/js/dictionary-page.js?v=20261120-report-copy"></script>
   <!-- Gia sư AI (nút nổi); các nút AI của trang tra cứu gửi câu hỏi qua đây -->
-  <link rel="stylesheet" href="/css/components/tutor-widget.css?v=20261125-cleanup" />
+  <link rel="stylesheet" href="/css/components/tutor-widget.css?v=20261125-largescreen" />
   <script defer src="/js/pages/home-mascot.js?v=20261115-f129"></script>
   <script defer src="/js/components/tutor-widget.js?v=20261125-cleanup"></script>
 </body>

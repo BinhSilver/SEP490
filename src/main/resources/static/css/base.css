@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block');
 @import url('./sakura-background.css');
 @import url('./components/dropdowns.css');
-@import url('./components/user-menu.css');
+@import url('./components/user-menu.css?v=20261125-largescreen');
 @import url('./components/scrollbar.css');
 
 *,
@@ -27,7 +27,7 @@ body {
   font-weight: var(--font-weight-base, 400);
   line-height: var(--line-height-base, 20px);
   color: var(--color-on-surface);
-  background: transparent;
+  background: var(--color-background);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -39,26 +39,12 @@ body {
 
 /* Shared light background for every page except the video-based home page. */
 body:not(.page-home) {
-  background: var(--color-background, #f4fafd) !important;
-  background-attachment: fixed !important;
+  background: var(--color-background) !important;
 }
 
 /* Module shells share the same calm canvas without changing their geometry. */
 body:not(.page-home) :is(.app-main, .jlas-page, .page) {
-  background: var(--color-background, #f4fafd) !important;
-  background-attachment: fixed !important;
-}
-
-body:not(.page-home)::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100dvh;
-  z-index: var(--z-background);
-  background: linear-gradient(135deg, rgba(244, 250, 253, 0.96), rgba(238, 245, 247, 0.96), rgba(233, 221, 255, 0.60)) !important;
-  pointer-events: none !important;
-  will-change: background-position;
+  background: var(--color-background) !important;
 }
 
 
@@ -66,7 +52,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-headline);
+  font-family: var(--font-body);
   line-height: 1.25;
   margin: 0;
 }
@@ -103,31 +89,21 @@ html:not(:has(body.jlas-ui-owned)) select,
 html:not(:has(body.jlas-ui-owned)) .select,
 html:not(:has(body.jlas-ui-owned)) input.input,
 html:not(:has(body.jlas-ui-owned)) textarea.textarea {
-  background: var(--color-surface-lowest, #ffffff) !important;
-  border: 1px solid var(--color-outline-variant, #cbc4d2) !important;
-  color: var(--color-on-surface, #161d1f) !important;
-  border-radius: var(--radius-md, 8px) !important;
-}
-
-html:not(:has(body.jlas-ui-owned)) select:focus,
-html:not(:has(body.jlas-ui-owned)) .select:focus,
-html:not(:has(body.jlas-ui-owned)) input.input:focus,
-html:not(:has(body.jlas-ui-owned)) textarea.textarea:focus {
-  background: var(--color-surface-lowest, #ffffff) !important;
-  border-color: var(--color-primary, #4f378a) !important;
-  box-shadow: var(--focus-ring) !important;
-  outline: 2px solid transparent !important;
+  background: var(--color-surface-lowest) !important;
+  border: 1px solid var(--color-outline) !important;
+  color: var(--color-on-surface) !important;
+  border-radius: var(--radius-input) !important;
 }
 
 select option,
 .select option {
-  background-color: var(--color-surface-lowest, #ffffff) !important;
-  color: var(--color-on-surface, #161d1f) !important;
+  background-color: var(--color-surface-lowest) !important;
+  color: var(--color-on-surface) !important;
   padding: 8px 12px;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-primary);
+:is(a, button, [role="button"], [role="tab"], [role="menuitem"], summary):focus-visible {
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -171,4 +147,21 @@ select option,
   .container {
     padding-inline: var(--space-5);
   }
+}
+
+/* Large screens (2K, 2.5K, 4K): grow the root size so rem-based type, spacing and controls scale
+   with the screen and the page keeps its Full HD proportions. (CSS zoom would also scale vh/vw
+   units and break full-height layouts, so it is not used.) Games, the Kanji map and the home page
+   keep their own sizing. */
+@media (min-width: 2000px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 18px; }
+}
+@media (min-width: 2300px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 20px; }
+}
+@media (min-width: 2500px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 21.33px; }
+}
+@media (min-width: 3200px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 26.66px; }
 }

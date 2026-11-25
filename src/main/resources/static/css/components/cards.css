@@ -7,14 +7,12 @@
   box-shadow: var(--shadow-1) !important;
   position: relative;
   overflow: hidden;
-  transition: border-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+  transition: border-color var(--dur-short) var(--ease-out);
   color: var(--color-on-surface);
 }
 
-.card:hover, .glass-card:hover {
+.card--link:hover, a.glass-card:hover {
   border-color: var(--jl-card-hover-border, var(--color-primary-container)) !important;
-  box-shadow: var(--jl-card-hover-shadow, var(--shadow-2)) !important;
-  transform: translateY(-2px);
 }
 
 .card--accent-top::before, .card--accent-bottom::after {
@@ -22,7 +20,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 0.125rem;
   background: var(--color-primary);
 }
 
@@ -42,8 +40,8 @@
 }
 
 .card__title {
-  font-family: var(--font-headline);
-  font-size: var(--text-2xl);
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-on-surface);
   margin-bottom: var(--space-1);
@@ -57,7 +55,7 @@
 /* Feature grid items matching v0 template */
 .card-v0-step {
   position: relative;
-  padding: 32px;
+  padding: 2rem;
   background: var(--color-surface-low);
   border: 1px solid var(--color-outline-variant);
   transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
@@ -68,7 +66,7 @@
 }
 
 .card-v0-step .step-number {
-  font-family: var(--font-display);
-  font-size: 2.25rem;
+  font-family: var(--font-body);
+  font-size: var(--text-3xl);
   color: var(--color-primary-container);
 }
