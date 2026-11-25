@@ -1,0 +1,370 @@
+@import url("../css/dark-page.css");
+
+/* Bridge the older Flashcard selectors to the J-LAS palette. */
+html[data-theme="dark"] {
+  --dm-flashcard-bg: var(--dark-bg);
+  --dm-flashcard-surface: var(--dark-surface);
+  --dm-flashcard-raised: var(--dark-raised);
+  --dm-flashcard-ink: var(--dark-ink);
+  --dm-flashcard-muted: var(--dark-muted);
+  --dm-flashcard-line: var(--dark-line);
+  --dm-flashcard-accent: var(--dark-accent);
+  --dm-flashcard-action: var(--dark-soft);
+  --dm-flashcard-accent-soft: var(--dark-soft);
+  --dm-flashcard-on-accent: var(--dark-on-button);
+  --dm-flashcard-success: var(--dark-success);
+  --dm-flashcard-success-bg: var(--dark-success-bg);
+  --dm-flashcard-success-line: var(--dark-success-line);
+  --dm-flashcard-danger: var(--dark-danger);
+  --dm-flashcard-danger-bg: var(--dark-danger-bg);
+  --dm-flashcard-danger-line: var(--dark-danger-line);
+  --dm-flashcard-warning: var(--dark-warning);
+  --dm-flashcard-warning-bg: var(--dark-warning-bg);
+  --dm-flashcard-warning-line: var(--dark-warning-line);
+  --dm-flashcard-pink: var(--dark-pink);
+  --dm-flashcard-pink-bg: var(--dark-pink-bg);
+  --dm-flashcard-pink-line: var(--dark-pink-line);
+}
+
+#jlabBasePage.flashcard-page {
+  --fc-field-line: var(--color-outline);
+  --fc-field-fill: var(--color-surface-lowest);
+  --jlab-base-page-background: var(--color-background);
+  background: var(--color-background);
+}
+
+html[data-theme="dark"] #jlabBasePage.flashcard-page {
+  --fc-field-line: var(--dark-input-line);
+  --fc-field-fill: var(--dark-input);
+  --color-warning: var(--dark-warning);
+  --color-warning-bg: var(--dark-warning-bg);
+  --color-on-error: var(--dark-on-button);
+  --shadow-1: 0 4px 20px var(--dark-shadow);
+  --shadow-2: 0 10px 40px var(--dark-shadow);
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent.jl-ui-kit {
+  background: var(--color-background) !important;
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop, .fc-folder-dialog)
+  :is(input, textarea)::placeholder {
+  color: var(--color-on-surface-variant);
+  opacity: 1;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop, .fc-folder-dialog)
+  :is(button, a, summary, [role="button"], [role="combobox"], [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The visible field owns focus. Wrapper fields draw it around their input. */
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop, .fc-folder-dialog)
+  :is(input:not([type="radio"], [type="checkbox"], [type="file"], [type="range"], .sr-typing-capture),
+      textarea, .jl-select__trigger, .sr-filter__trigger, .quiz-pair-select__trigger):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop, .fc-folder-dialog)
+  :is(input, textarea, .jl-select__trigger, .input-wrap)[aria-invalid="true"]:focus-visible,
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(input, textarea).is-invalid:focus-visible {
+  outline-color: var(--color-error);
+}
+
+#jlabBasePage.flashcard-page--editor :is(#jlabBaseContent, #import-modal) .input-wrap:has(
+  > :is(input, textarea):not([type="file"], [type="checkbox"]):focus-visible
+) {
+  outline: 2px solid var(--fc-field-focus, var(--color-focus));
+  outline-offset: -2px;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--editor :is(#jlabBaseContent, #import-modal) .input-wrap:has(
+  > :is(input, textarea):not([type="file"], [type="checkbox"]):focus-visible
+) > :is(input, textarea):focus-visible {
+  outline: none;
+}
+
+#jlabBasePage.flashcard-page--editor :is(#jlabBaseContent, #import-modal)
+  .input-wrap:has(> :is(input, textarea):not([type="file"], [type="checkbox"])) {
+  border-color: var(--fc-field-line) !important;
+  background: var(--fc-field-fill) !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--editor :is(#jlabBaseContent, #import-modal)
+  .input-wrap:is(.is-invalid, .has-error, :has(> [aria-invalid="true"], > .is-invalid)) {
+  --fc-field-focus: var(--color-error);
+  border-color: var(--color-error) !important;
+}
+
+@media (max-width: 640px) {
+  #jlabBasePage.flashcard-page--editor #jlabBaseContent .editor-sheet__actions :is(.btn, .page-guide-button) {
+    min-height: 44px;
+    padding-inline: var(--space-2);
+    gap: var(--space-1);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .library-content {
+  background: var(--color-background);
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search {
+  background: var(--fc-field-fill);
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search #lib-search:focus-visible {
+  outline: none;
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card {
+  border-radius: var(--radius-lg);
+  border-color: var(--color-outline-variant);
+  background: var(--color-surface-lowest);
+  box-shadow: var(--shadow-1);
+}
+
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card:hover,
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card:focus-within {
+  border-color: var(--color-primary);
+  transform: none;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.btn-primary, .btn--primary, .fc-button--primary, .sr-primary) {
+  border-color: var(--color-primary) !important;
+  background: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.btn-primary, .btn--primary, .fc-button--primary, .sr-primary):not(:disabled):hover {
+  border-color: var(--color-primary-container) !important;
+  background: var(--color-primary-container) !important;
+  transform: none;
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent .flip-card .flip-card__face {
+  background: var(--color-surface-lowest);
+  border-color: var(--color-outline-variant);
+  box-shadow: var(--shadow-1);
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent :is(.flip-label, .study-speak-btn) {
+  color: var(--color-on-surface-variant);
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent .flip-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent .study-speak-btn:hover {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent .flip-card .flip-text {
+  font-family: var(--font-jp-display);
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent .study-session-progress {
+  background: var(--color-surface-container);
+}
+
+#jlabBasePage.flashcard-page--study #jlabBaseContent .study-session-progress > span {
+  background: var(--color-primary);
+}
+
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-question-term.fc-kanji {
+  font-family: var(--font-jp-display) !important;
+  font-weight: 600 !important;
+}
+
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing
+  .quiz-options .quiz-option:not(.is-correct, .is-wrong) {
+  color: var(--color-on-surface) !important;
+  background: var(--color-surface-lowest) !important;
+  border-color: var(--color-outline-variant) !important;
+}
+
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing
+  .quiz-options .quiz-option:hover:not(:disabled) {
+  background: var(--color-primary-fixed) !important;
+  border-color: var(--color-primary) !important;
+}
+
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing
+  .quiz-options .quiz-option:is(.is-correct, .is-wrong) {
+  color: var(--quiz-feedback-ink) !important;
+  background: var(--quiz-feedback-bg) !important;
+  border-color: var(--quiz-feedback-ink) !important;
+  box-shadow: none !important;
+}
+
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-option.is-correct {
+  --quiz-feedback-ink: var(--color-success);
+  --quiz-feedback-bg: var(--color-success-bg);
+}
+
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-option.is-wrong {
+  --quiz-feedback-ink: var(--color-error);
+  --quiz-feedback-bg: var(--color-error-container);
+}
+
+/* The Speed Recall board retains its timer, slot and answer feedback styles. */
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__card,
+#jlabBasePage.speed-recall-page #jlabBaseContent #result :is(.sr-stats, .sr-review li) {
+  background: var(--color-surface-lowest);
+  border-color: var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup :is(.sr-filter__trigger, input[type="number"]),
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent #quiz-quick-form
+  :is(.quiz-pair-select__trigger, .sr-setup__control input[type="number"]) {
+  color: var(--color-on-surface);
+  background: var(--fc-field-fill);
+  border-color: var(--fc-field-line);
+  border-radius: var(--radius-input);
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup input[type="number"][aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-filter__trigger
+  :is(.sr-filter__label, .sr-filter__icon) {
+  color: inherit;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-actions .sr-primary,
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-actions .sr-primary {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-history li {
+  border-color: var(--color-outline-variant);
+}
+
+/* Bridge existing Flashcard badges and choice chips to the shared ghost style. */
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.tag, .chip, .srs-chip, .editor-card-count, .study-card-list__count,
+      .lib-card__count, .lib-card__rating, .fc-srs-due-badge, .quiz-wrong-badge,
+      .study-face-picker__badge, .optional-label, .import-preview-issues,
+      .sr-result-badge, .sr-review-status, #eligible-count, #selected-count-badge) {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-sm);
+}
+
+#jlabBasePage.flashcard-page #jlabBaseContent
+  :is(.editor-card-count, .study-card-list__count, .lib-card__count, #eligible-count,
+      #selected-count-badge, .tag-public, .tag-folder) {
+  color: var(--color-primary) !important;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.chip-ok, .tag-green) {
+  color: var(--color-success) !important;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.chip-bad, .tag-red, .tag-blocked, .quiz-wrong-badge, .fc-srs-due-badge,
+      .sr-review-status.is-wrong) {
+  color: var(--color-error) !important;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.tag-draft, .tag-review, .srs-chip--warn, .study-face-picker__badge,
+      .import-preview-issues, .sr-review-status.is-timeout) {
+  color: var(--color-warning) !important;
+  border-color: currentColor;
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.quiz-filter-chip, .study-face-picker__option, .lib-export__chip span),
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-question::before {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--color-on-surface-variant);
+  border: 1px solid var(--color-outline-variant);
+}
+
+#jlabBasePage.flashcard-page :is(#jlabBaseContent, .modal-backdrop)
+  :is(.quiz-filter-chip.is-active, .study-face-picker__option:has(input:checked),
+      .lib-export__chip input:checked + span) {
+  background: transparent !important;
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  font-weight: 600;
+}
+
+#jlabBasePage.flashcard-page #settings-modal .study-face-picker__option input {
+  accent-color: var(--color-primary) !important;
+}
+
+#jlabBasePage.flashcard-page #export-modal .lib-export__badge {
+  background: transparent;
+  color: var(--color-primary);
+}
+
+/* Select option tags are rendered in a body-level listbox. */
+#jlabBasePage.flashcard-page .jl-select-tag {
+  background: transparent;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+/* Speed Recall uses weight for headings and concise control labels. */
+#jlabBasePage.speed-recall-page #jlabBaseContent :is(h1, h2, h3, .sr-set-title) {
+  font-weight: 600;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-set-title {
+  font-weight: 600;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent
+  :is(.sr-button, .sr-game-control, .sr-filter__trigger, .jl-select__trigger,
+      .sr-setup__field, .sr-fields label, .sr-filter__option, dt, th) {
+  font-weight: 500;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent :is(p, small, .sr-history a, .sr-context) {
+  font-weight: 400;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent strong {
+  font-weight: 500;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #setup #start.sr-primary {
+  font-weight: 500;
+}
+
+#jlabBasePage.speed-recall-page #jlabBaseContent #count-suffix {
+  font-weight: 400;
+}
