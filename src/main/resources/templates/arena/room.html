@@ -70,6 +70,10 @@
             <button type="button" class="ar-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
         <div class="ar-dialog__body">
+            <section class="ar-card ar-step" data-dialog-level hidden>
+                <label class="ar-label" for="ar-room-jlpt">Cấp JLPT</label>
+                <select class="ar-input" id="ar-room-jlpt" data-jl-select></select>
+            </section>
             <section class="ar-card ar-step">
                 <div class="ar-room-deck-summary__row" data-dialog-deck-summary hidden>
                     <strong data-dialog-deck-name></strong>
@@ -108,7 +112,7 @@
 <script th:src="@{/arena/js/vs-room.js(v='20261111-select')}"></script>
 <script th:src="@{/arena/js/room-skins.js(v='20261106-skin-art')}"></script>
 <script th:src="@{/arena/js/room-settings.js(v='20261111-pair-select')}"></script>
-<script th:src="@{/arena/js/room-page.js(v='20261109-kotsu')}"></script>
+<script th:src="@{/arena/js/room-page.js(v='20261125-puzzle-games')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script defer src="/arena/js/standard-tabs.js?v=20261124-ui-standard"></script>
 </body>

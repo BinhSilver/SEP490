@@ -3287,13 +3287,13 @@ CREATE TABLE streak_freeze_day (
 
 -- #############################################################################
 -- 10) GAMES
--- Game lay cau hoi tu flashcard_card cua flashcard_set duoc chon.
+-- [JLAS-1095] Game dung flashcard hoac ngan hang cau hoi JLPT, tuy game_type.
 -- #############################################################################
 
 -- Thong tin mot tran; room runtime nam trong WebSocket/in-memory.
 CREATE TABLE game_match (
     match_id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    flashcard_set_id  BIGINT UNSIGNED NOT NULL, -- Nguon card cua tran.
+    flashcard_set_id  BIGINT UNSIGNED NULL, -- [JLAS-1095] Chi co gia tri cho game dung flashcard.
     room_id           VARCHAR(64) NOT NULL,
     room_code         VARCHAR(16) NOT NULL,
     game_type         VARCHAR(32) NOT NULL,
@@ -3313,7 +3313,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH','SPHINX_RIDDLE','PICTURE_REBUS','DRAW_GUESS')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -3340,7 +3340,7 @@ CREATE TABLE game_match_player (
     CONSTRAINT fk_game_match_player_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_game_match_player_result
-        CHECK (result IN ('PENDING','WIN','LOSE','DRAW','FORFEIT'))
+        CHECK (result IN ('PENDING','WIN','LOSE','DRAW','FORFEIT','COMPLETED')) -- [JLAS-1095] Ket thuc khong tinh diem.
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ket qua Memory Match cua tung user.

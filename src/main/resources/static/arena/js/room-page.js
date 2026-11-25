@@ -136,7 +136,7 @@
     document.body.classList.remove('is-vs-room');
     el.room.hidden = false;
     document.title = 'Phòng ' + room.code + ' · ' + room.gameName + ' - KotsuKotsu';
-    el.game.textContent = room.gameName + ' · Đấu tay đôi';
+    el.game.textContent = room.gameName + (room.gameType === 'DRAW_GUESS' ? ' · Chơi cùng bạn' : ' · Đấu tay đôi');
     el.code.textContent = room.code;
     el.visibility.textContent = 'Chỉ người có mã hoặc link mời mới vào được';
     var skinRoot = document.querySelector('[data-room-skins]');
@@ -186,14 +186,14 @@
 
   function renderSettings(room) {
     var settings = room.settings || {};
-    var rows = [
+    var rows = settings.jlpt ? [['Cấp JLPT', settings.jlpt]] : [
       ['Bộ flashcard', settings.setTitle || '—'],
       ['Cài đặt trận', 'Tung đồng xu khi đủ 2 người']
     ];
     el.settings.innerHTML = rows.map(function (row) {
       return '<dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd>';
     }).join('');
-    el.editSettings.hidden = true;
+    el.editSettings.hidden = !settings.jlpt || !isHost() || room.status !== 'WAITING';
   }
 
   function renderActions(room) {
@@ -206,13 +206,13 @@
       html += '<p class="ar-room-actions__hint">Trận sắp bắt đầu…</p>';
     } else if (isHost()) {
       var guest = room.players.find(function (p) { return p.userId !== state.meId; });
-      var hint = !guest ? 'Đang chờ đối thủ vào phòng.'
+      var hint = !guest ? (room.gameType === 'DRAW_GUESS' ? 'Đang chờ bạn vào phòng.' : 'Đang chờ đối thủ vào phòng.')
         : !guest.ready ? 'Chờ ' + guest.displayName + ' bấm "Sẵn sàng".'
           : guest.displayName + ' đã sẵn sàng. Bấm bắt đầu khi bạn muốn.';
       html += '<p class="ar-room-actions__hint">' + esc(hint) + '</p>'
         + '<button type="button" class="ar-btn ar-btn--primary ar-btn--lg ar-btn--block" data-action="start"'
         + (guest && guest.ready && !state.busy && !state.skinBusy ? '' : ' disabled') + '>'
-        + '<i class="fa-solid fa-play" aria-hidden="true"></i> ' + (room.lastResult ? 'Đấu lại' : 'Bắt đầu') + '</button>';
+        + '<i class="fa-solid fa-play" aria-hidden="true"></i> ' + (room.lastResult ? 'Chơi lại' : 'Bắt đầu') + '</button>';
     } else if (mine) {
       html += '<p class="ar-room-actions__hint">' + (mine.ready
         ? 'Bạn đã sẵn sàng. Chờ chủ phòng bắt đầu.'
@@ -230,6 +230,10 @@
     var result = room.lastResult;
     el.lastResult.hidden = !result;
     if (!result) return;
+    if (result.gameType === 'DRAW_GUESS') {
+      el.lastResultBody.textContent = 'Đã kết thúc phiên Vẽ & Đoán.';
+      return;
+    }
     var headline = result.draw ? 'Hoà!'
       : result.winnerUserId === state.meId ? 'Bạn thắng!'
         : result.winnerUserId ? 'Đối thủ thắng' : 'Không có người thắng';
@@ -411,6 +415,19 @@
 
   el.editSettings.addEventListener('click', function () {
     var settings = state.room.settings;
+    if (settings.jlpt) {
+      var level = document.getElementById('ar-room-jlpt');
+      if (!level.options.length) {
+        catalogItem().choices.jlpt.forEach(function (value) { level.add(new Option(value, value)); });
+      }
+      level.value = settings.jlpt;
+      document.querySelector('[data-dialog-level]').hidden = false;
+      [el.dialogDeck, el.dialogFields, el.dialogOptions].forEach(function (part) { part.parentElement.hidden = true; });
+      el.dialogProblem.hidden = true;
+      el.saveSettings.disabled = false;
+      el.dialog.showModal();
+      return;
+    }
     draft = {
       deck: null,
       cards: null,
@@ -471,10 +488,11 @@
   });
 
   el.saveSettings.addEventListener('click', function () {
-    if (!draft || !draft.deck) return;
+    var puzzle = !!state.room.settings.jlpt;
+    if (!puzzle && (!draft || !draft.deck)) return;
     el.saveSettings.dataset.loading = 'true';
     el.saveSettings.disabled = true;
-    arena.api.updateSettings(roomId, {
+    arena.api.updateSettings(roomId, puzzle ? { jlpt: document.getElementById('ar-room-jlpt').value } : {
       setId: draft.deck.id,
       questionField: draft.question,
       answerField: draft.answer,

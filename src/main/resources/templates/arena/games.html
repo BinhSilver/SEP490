@@ -82,7 +82,7 @@
                     <span class="ar-game-card__body">
                         <span class="ar-game-card__tag" th:text="${game.tagline}">Tagline</span>
                         <span class="ar-game-card__name" th:text="${game.name}">Tên game</span>
-                        <span class="ar-game-card__modes">Ghép trận, chơi với bạn bè hoặc luyện tập</span>
+                        <span class="ar-game-card__modes" th:text="${game.type.usesDeck() ? 'Ghép trận, chơi với bạn bè hoặc luyện tập' : (game.type.supportsSolo() ? 'Chơi với bạn bè hoặc luyện tập' : 'Chơi với bạn bè')}">Chơi với bạn bè</span>
                     </span>
                 </a>
             </div>

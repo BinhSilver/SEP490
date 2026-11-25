@@ -352,7 +352,8 @@
   }
 
   var FIELD_LABELS = { KANJI: 'Kanji', HIRAGANA: 'Cách đọc', MEANING: 'Nghĩa tiếng Việt', HAN_VIET: 'Hán Việt' };
-  var GAME_NAMES = { NEKO_CATCH: 'Bắt cá', MEMORY_MATCH: 'Lật thẻ', AIR_DEFENSE: 'Bắn máy bay' };
+  var GAME_NAMES = { NEKO_CATCH: 'Bắt cá', MEMORY_MATCH: 'Lật thẻ', AIR_DEFENSE: 'Bắn máy bay',
+    SPHINX_RIDDLE: 'Giải đố Nhân Sư', PICTURE_REBUS: 'Ghép hình đoán từ', DRAW_GUESS: 'Vẽ & Đoán' };
 
   global.addEventListener('beforeunload', function () { live.close(); });
 

@@ -55,6 +55,7 @@
     .ar-join__row .ar-btn { height: 48px; min-height: 48px; }
     :is(.ar-seg,.ar-mode-list) { border-color: var(--color-outline-variant); background: var(--color-surface-container); box-shadow: none; }
     :is(.ar-seg button,.ar-mode-list button) { color: var(--color-on-surface-variant); background: transparent; border-color: transparent; font-weight: 500; border-radius: var(--radius-control); box-shadow: none; }
+    .ar-mode-list button[hidden] { display: none; }
     :is(.ar-seg button[aria-selected='true'],.ar-mode-list button[aria-pressed='true'],.ar-mode-list button[aria-checked='true'],.ar-mode-list button.is-active) { color: var(--color-primary); background: var(--color-primary-fixed); border-color: transparent; box-shadow: none; }
     .ar-standard-tabs { position: relative; isolation: isolate; }
     .ar-standard-tabs::before { content: ''; position: absolute; z-index: -1; top: var(--ar-tab-top, 0); left: 0; width: var(--ar-tab-width, 0); height: var(--ar-tab-height, 0); transform: translateX(var(--ar-tab-x, 0)); border-radius: var(--radius-control); background: var(--color-primary-fixed); pointer-events: none; transition: transform 300ms var(--ease-out), width 300ms var(--ease-out); }

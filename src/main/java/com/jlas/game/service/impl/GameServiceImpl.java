@@ -67,6 +67,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -205,7 +206,9 @@ public class GameServiceImpl implements GameService {
         }
         // Bộ có thể là bộ riêng của chủ phòng nên đọc theo quyền của chủ phòng, trước khi rời phòng đang ở.
         GameSettings roomSettings = room.withLock(room::getSettings);
-        List<DeckPairView> pairs = decks.deck(room.withLock(room::getHostUserId), roomSettings.setId()).pairs();
+        List<DeckPairView> pairs = room.getGameType().usesDeck()
+                ? decks.deck(room.withLock(room::getHostUserId), roomSettings.setId()).pairs()
+                : List.of();
         cancelQuickMatch(userId);
         leaveCurrentRoom(userId, roomId);
         PlayerSeat me = seatOf(userId, 0);
@@ -226,7 +229,7 @@ public class GameServiceImpl implements GameService {
             room.playersByUserId().put(userId,
                     new RoomPlayer(me, room.freeSlot(), now));
             rooms.bindUser(userId, roomId);
-            if (room.isFull()) {
+            if (room.isFull() && room.getGameType().usesDeck()) {
                 room.setQuickMatch(true);
                 room.setStatus(RoomStatus.DRAFTING);
                 room.setDraft(new QuickDraft(room.getGameType(), room.getHostUserId(), userId, pairs,
@@ -461,6 +464,9 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public QuickMatchView quickMatch(long userId, QuickMatchRequest request) {
+        if (!request.gameType().usesDeck()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy tạo phòng và mời bạn bằng mã phòng");
+        }
         rateLimiter.check(userId, "quick-match", properties.arena().rateLimit().joinPerMinute());
         GameType type = request.gameType();
         DeckDetailView detail = decks.deck(userId, request.setId());
@@ -677,15 +683,29 @@ public class GameServiceImpl implements GameService {
     private GameSession openSession(GameType type, PlayMode mode, String roomId, String roomCode,
                                     GameSettings settings, List<PlayerSeat> seats, long authorityUserId) {
         GameOptions options = GameRules.normalize(type, mode, settings.options());
-        DeckWords deck = configuredWords(authorityUserId, settings, options);
-        requireEnoughWords(type, options, deck, settings);
+        DeckWords deck = null;
+        if (type.usesDeck()) {
+            deck = configuredWords(authorityUserId, settings, options);
+            requireEnoughWords(type, options, deck, settings);
+        }
+        Long setId = deck == null ? null : deck.setId();
+        String title = deck == null ? settings.jlpt() : deck.title();
         String sessionId = UUID.randomUUID().toString();
-        Long matchId = recorder.start(type, roomId == null ? "solo:" + sessionId : roomId, roomCode, deck.setId(),
-                seats, settings.withTitle(deck.title()).withOptions(options));
+        Long matchId = recorder.start(type, roomId == null ? "solo:" + sessionId : roomId, roomCode, setId,
+                seats, settings.withTitle(title).withOptions(options));
         LaunchRequest request = new LaunchRequest(sessionId, mode, roomId, roomId == null ? null : roomCode, matchId,
-                deck.setId(), deck.title(), settings.questionField(), settings.answerField(), options, seats,
-                deck.words());
-        return engine(type).launch(request);
+                setId, title, settings.questionField(), settings.answerField(), options, seats,
+                deck == null ? List.of() : deck.words(), settings.jlpt());
+        try {
+            return engine(type).launch(request);
+        } catch (RuntimeException ex) {
+            try {
+                recorder.finish(matchId, null, true, Set.of(), Set.of());
+            } catch (RuntimeException persistError) {
+                ex.addSuppressed(persistError);
+            }
+            throw ex;
+        }
     }
 
     // ----------------------------------------------------------------- session
@@ -817,6 +837,13 @@ public class GameServiceImpl implements GameService {
 
     /** Chuẩn hoá tuỳ chọn và kiểm bộ thẻ có đủ thẻ mang cả 2 trường đã chọn. */
     private GameSettings validatedSettings(GameType type, PlayMode mode, GameSettings raw, long authorityUserId) {
+        if (!type.usesDeck()) {
+            if (mode == PlayMode.SOLO && !type.supportsSolo()) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Vẽ & Đoán cần hai người chơi");
+            }
+            String jlpt = GameRules.puzzleLevel(raw == null ? null : raw.jlpt());
+            return new GameSettings(null, jlpt, null, null, GameRules.normalize(type, mode, null), jlpt);
+        }
         if (raw == null || raw.setId() == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn bộ flashcard");
         }

@@ -1,6 +1,7 @@
 package com.jlas.game.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jlas.game.enums.DeckField;
 import com.jlas.game.enums.GameType;
 import com.jlas.game.enums.PlayMode;
@@ -22,18 +23,21 @@ public final class GameDtos {
 
     // ----------------------------------------------------------------- settings
 
-    /**
-     * Cài đặt một trận. {@code setTitle} do server điền; client chỉ gửi setId + 2 trường + options.
-     */
+    /** Cài đặt nguồn học liệu của trận. Tiêu đề hiển thị do server điền. */
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record GameSettings(Long setId, String setTitle, DeckField questionField, DeckField answerField,
-                               GameOptions options) {
+                               GameOptions options, String jlpt) {
+        public GameSettings(Long setId, String setTitle, DeckField questionField, DeckField answerField,
+                            GameOptions options) {
+            this(setId, setTitle, questionField, answerField, options, null);
+        }
+
         public GameSettings withTitle(String title) {
-            return new GameSettings(setId, title, questionField, answerField, options);
+            return new GameSettings(setId, title, questionField, answerField, options, jlpt);
         }
 
         public GameSettings withOptions(GameOptions value) {
-            return new GameSettings(setId, setTitle, questionField, answerField, value);
+            return new GameSettings(setId, setTitle, questionField, answerField, value, jlpt);
         }
     }
 
@@ -73,6 +77,8 @@ public final class GameDtos {
                               int minCards,
                               List<DeckField> answerFields, GameOptions defaults,
                               Map<String, List<Object>> choices) {
+        @JsonProperty public boolean usesDeck() { return type.usesDeck(); }
+        @JsonProperty public boolean supportsSolo() { return type.supportsSolo(); }
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -114,7 +120,7 @@ public final class GameDtos {
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record CreateRoomRequest(@NotNull(message = "Chọn game") GameType gameType, RoomVisibility visibility,
-                                    @NotNull(message = "Chọn bộ flashcard") @Valid GameSettings settings) {
+                                    @NotNull(message = "Chọn học liệu") @Valid GameSettings settings) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -129,7 +135,7 @@ public final class GameDtos {
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
     public record SoloRequest(@NotNull(message = "Chọn game") GameType gameType,
-                              @NotNull(message = "Chọn bộ flashcard") @Valid GameSettings settings) {
+                              @NotNull(message = "Chọn học liệu") @Valid GameSettings settings) {
     }
 
     @JsonInclude(JsonInclude.Include.ALWAYS)
