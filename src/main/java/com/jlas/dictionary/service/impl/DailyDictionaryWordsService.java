@@ -5,6 +5,8 @@ import com.jlas.dictionary.entity.DictionarySearchHistory;
 import com.jlas.dictionary.entity.VocabularyEntry;
 import com.jlas.dictionary.repository.DictionarySearchHistoryRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
+import com.jlas.dictionary.repository.VocabularyKanjiRepository;
+import com.jlas.dictionary.mapper.DictionaryMapper;
 import com.jlas.dictionary.util.DictionaryUtil;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
@@ -34,13 +36,16 @@ public class DailyDictionaryWordsService {
     private final UserLearningSurveyRepository surveys;
     private final DictionarySearchHistoryRepository history;
     private final VocabularyEntryRepository vocabulary;
+    private final VocabularyKanjiRepository vocabularyKanji;
 
     public DailyDictionaryWordsService(JpathUserPathRepository paths, UserLearningSurveyRepository surveys,
-            DictionarySearchHistoryRepository history, VocabularyEntryRepository vocabulary) {
+            DictionarySearchHistoryRepository history, VocabularyEntryRepository vocabulary,
+            VocabularyKanjiRepository vocabularyKanji) {
         this.paths = paths;
         this.surveys = surveys;
         this.history = history;
         this.vocabulary = vocabulary;
+        this.vocabularyKanji = vocabularyKanji;
     }
 
     public record Word(Long id, String expression, String reading, String meaning, String jlptLevel) { }
@@ -56,8 +61,8 @@ public class DailyDictionaryWordsService {
         long seed = userId * 1_000_003L + today.toEpochDay();
         String level = resolveTargetLevel(userId);
         if (level != null) {
-            List<Word> words = vocabulary.findDailyWordsForLevel(level, seed).stream()
-                    .filter(entry -> hasVietnameseMeaning(entry.getMeaning())).map(this::map).toList();
+            List<Word> words = mapWords(vocabulary.findDailyWordsForLevel(level, seed).stream()
+                    .filter(entry -> hasVietnameseMeaning(entry.getMeaning())).toList());
             return words.isEmpty() ? new Result("NONE", null, List.of()) : new Result("TARGET_LEVEL", level, words);
         }
 
@@ -106,7 +111,7 @@ public class DailyDictionaryWordsService {
         if (unique.isEmpty()) return new Result("NONE", null, List.of());
         List<VocabularyEntry> choices = new ArrayList<>(unique.values());
         Collections.shuffle(choices, new Random(seed));
-        return new Result("HISTORY", null, choices.stream().limit(5).map(this::map).toList());
+        return new Result("HISTORY", null, mapWords(choices.stream().limit(5).toList()));
     }
 
     String resolveTargetLevel(Long userId) {
@@ -139,11 +144,24 @@ public class DailyDictionaryWordsService {
                 && !"TEXTBOOK".equals(entry.getUsageScope()) && hasVietnameseMeaning(entry.getMeaning());
     }
 
-    private Word map(VocabularyEntry entry) {
+    private List<Word> mapWords(List<VocabularyEntry> entries) {
+        List<Long> missing = entries.stream().filter(entry -> entry.getJlptLevel() == null
+                && entry.getExpression() != null && entry.getExpression().codePointCount(0, entry.getExpression().length()) == 1)
+                .map(VocabularyEntry::getId).toList();
+        Map<Long, String> kanjiLevels = new LinkedHashMap<>();
+        if (!missing.isEmpty()) {
+            vocabularyKanji.findCompositionByVocabularyIds(missing).forEach(link ->
+                    kanjiLevels.putIfAbsent(link.getVocabularyEntry().getId(), link.getKanji().getJlptLevel()));
+        }
+        return entries.stream().map(entry -> map(entry, kanjiLevels.get(entry.getId()))).toList();
+    }
+
+    private Word map(VocabularyEntry entry, String kanjiLevel) {
         String meaning = entry.getMeaning();
         String shortMeaning = meaning == null ? "" : java.util.Arrays.stream(meaning.strip().split("[\\r\\n;；]"))
                 .map(String::strip).filter(DailyDictionaryWordsService::hasVietnameseMeaning)
                 .findFirst().orElse("");
-        return new Word(entry.getId(), entry.getExpression(), entry.getReading(), shortMeaning, entry.getJlptLevel());
+        return new Word(entry.getId(), entry.getExpression(), entry.getReading(), shortMeaning,
+                DictionaryMapper.vocabularyLevel(entry, kanjiLevel));
     }
 }

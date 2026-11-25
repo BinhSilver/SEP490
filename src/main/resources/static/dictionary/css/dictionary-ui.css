@@ -32,40 +32,11 @@
   margin-bottom: var(--space-5);
 }
 
-.dict-dot {
-  font-size: 6px;
-  vertical-align: 1px;
-}
-
-.dict-dot--primary {
-  color: var(--color-primary);
-}
-
-.dict-dot--tertiary {
-  color: var(--color-tertiary-container);
-}
-
-.dict-hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 14px;
-  border-radius: var(--radius-full);
-  background: var(--color-primary-fixed);
-  color: var(--color-primary);
-  margin-bottom: var(--space-3);
-}
-
 .dict-hero__title {
   font-family: var(--font-headline);
   font-size: var(--text-4xl);
-  margin: 0 0 var(--space-2);
-  color: var(--color-on-surface);
-}
-
-.dict-hero__subtitle {
-  color: var(--color-on-surface-variant);
   margin: 0;
+  color: var(--color-on-surface);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1057,28 +1028,6 @@
   border-bottom: 1px solid var(--color-outline-variant);
 }
 
-.dict-modal__system-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-1);
-  color: var(--color-primary);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.dict-modal__status-dot {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: var(--radius-full);
-  background: var(--color-tertiary-container);
-  box-shadow: 0 0 0 4px var(--color-tertiary-fixed-dim);
-}
-
 .dict-modal__header h2 {
   font-family: var(--font-headline);
   font-size: var(--text-2xl);
@@ -1338,7 +1287,6 @@
   background: linear-gradient(-45deg, transparent calc(50% - 1px), var(--color-primary-fixed) 50%, transparent calc(50% + 1px));
 }
 
-.dict-modal__canvas-label,
 .dict-modal__stroke-count {
   position: absolute;
   top: var(--space-2);
@@ -1350,10 +1298,6 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   pointer-events: none;
-}
-
-.dict-modal__canvas-label {
-  left: var(--space-2);
 }
 
 .dict-modal__stroke-count {
@@ -1422,12 +1366,13 @@
   text-transform: uppercase;
 }
 
-.dict-modal__section-heading span:last-child {
+.dict-modal__section-heading span + span {
   color: var(--color-tertiary);
 }
 
 .dict-handwriting-status {
   margin: 0 0 var(--space-2);
+  min-height: 2.8em;
   color: var(--color-on-surface-variant);
   font-size: var(--text-xs);
 }
@@ -1441,7 +1386,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
-  min-height: 92px;
+  min-height: 180px;
   align-content: start;
 }
 
