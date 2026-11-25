@@ -30,10 +30,10 @@
     el('cmThumb').innerHTML = detail.thumbnailUrl
       ? '<img src="' + UI.esc(UI.safeUrl(detail.thumbnailUrl)) + '" alt="">'
       : '<i class="fa-solid ' + (detail.contentType === 'SHADOWING_VIDEO' ? 'fa-film' : 'fa-layer-group') + '"></i>';
-    var badges = '<span class="cm-badge">' + UI.esc(detail.contentTypeLabel) + '</span>';
-    if (detail.jlptLevel) badges += '<span class="cm-badge cm-badge--level">' + UI.esc(detail.jlptLevel) + '</span>';
-    if (detail.extra && detail.extra.cardCount != null) badges += '<span class="cm-badge cm-badge--soft">' + Number(detail.extra.cardCount) + ' thẻ</span>';
-    if (detail.status !== 'PUBLISHED') badges += '<span class="cm-badge cm-badge--warn">' + UI.esc(statusLabel(detail.status)) + '</span>';
+    var badges = '<span class="cm-badge jl-badge">' + UI.esc(detail.contentTypeLabel) + '</span>';
+    if (detail.jlptLevel) badges += '<span class="cm-badge jl-badge cm-badge--level">' + UI.esc(detail.jlptLevel) + '</span>';
+    if (detail.extra && detail.extra.cardCount != null) badges += '<span class="cm-badge jl-badge cm-badge--soft">' + Number(detail.extra.cardCount) + ' thẻ</span>';
+    if (detail.status !== 'PUBLISHED') badges += '<span class="cm-badge jl-badge cm-badge--warn">' + UI.esc(statusLabel(detail.status)) + '</span>';
     el('cmBadges').innerHTML = badges;
     el('cmTitle').textContent = detail.title;
     el('cmAuthor').innerHTML = detail.author
@@ -123,8 +123,8 @@
     if (c.canDelete) actions += '<button type="button" class="cm-link cm-link--danger" data-action="delete">Xoá</button>';
     if (c.canReport) actions += '<button type="button" class="cm-link" data-action="report"><i class="fa-regular fa-flag" aria-hidden="true"></i> Báo cáo</button>';
     var label = '';
-    if (c.status === 'TEMPORARILY_HIDDEN') label = '<span class="cm-badge cm-badge--warn">Đang bị ẩn</span>';
-    if (c.status === 'REMOVED') label = '<span class="cm-badge cm-badge--danger">Đã gỡ</span>';
+    if (c.status === 'TEMPORARILY_HIDDEN') label = '<span class="cm-badge jl-badge cm-badge--warn">Đang bị ẩn</span>';
+    if (c.status === 'REMOVED') label = '<span class="cm-badge jl-badge cm-badge--danger">Đã gỡ</span>';
     return '<li class="cm-comment' + (c.hidden ? ' is-hidden' : '') + '" data-id="' + Number(c.id) + '">' +
       UI.avatar(c.author) +
       '<div class="cm-comment__main">' +

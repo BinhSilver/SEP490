@@ -5,14 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mục tiêu &amp; Chuỗi ngày · J-LAB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=Instrument+Serif:ital@0;1&amp;family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-phase1)}" />
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
     <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-phase1)}" />
     <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-phase1)}" />
+    <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-phase1)}" />
     <link rel="stylesheet" th:href="@{/css/components/reward-fx.css?v=20260926y}" />
-    <link rel="stylesheet" th:href="@{/css/pages/goals-mission.css?v=20261114-bonus-cards}" />
+    <link rel="stylesheet" th:href="@{/css/pages/goals.css?v=20261125-phase2a}" />
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-phase1)}" />
     <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-icons-vi)}" />
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -74,7 +75,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="gp-soft-btn" id="openTargetsBtn" aria-haspopup="dialog">
+                    <button type="button" class="gp-soft-btn btn btn--secondary" id="openTargetsBtn" aria-haspopup="dialog">
                         <i class="fa-solid fa-sliders" aria-hidden="true"></i> Chỉnh mục tiêu mỗi ngày
                     </button>
                 </article>
@@ -130,7 +131,7 @@
                                     <h2 id="bonusDialogTitle">Thưởng thêm</h2>
                                     <p>Cách nhận thêm CP ngoài 3 nhiệm vụ hằng ngày.</p>
                                 </div>
-                                <button type="button" class="gp-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                                <button type="button" class="gp-icon-btn jl-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                             </header>
                             <section class="gp-bonus__group" aria-labelledby="bonusMissionTitle">
                                 <h3 id="bonusMissionTitle">Nhiệm vụ thưởng</h3>
@@ -219,7 +220,7 @@
                         <p>Đạt đủ cả 3 chỉ tiêu để nhận thưởng CP và giữ chuỗi.</p>
                         <p>Học trên lộ trình JLPT và lộ trình Giao tiếp đều được tính: từ/chữ mới, bài kiểm tra và thời gian học.</p>
                     </div>
-                    <button type="button" class="gp-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                    <button type="button" class="gp-icon-btn jl-icon-btn" data-close-dialog aria-label="Đóng"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </header>
 
                 <div class="gp-presets" role="group" aria-label="Mức gợi ý">
@@ -254,8 +255,8 @@
                 </div>
 
                 <footer class="gp-dialog__foot">
-                    <button type="button" class="gp-ghost-btn" data-close-dialog>Huỷ</button>
-                    <button type="submit" class="gp-primary-btn" id="saveTargetBtn"><i class="fa-solid fa-check" aria-hidden="true"></i> Lưu mục tiêu</button>
+                    <button type="button" class="gp-ghost-btn btn btn--ghost" data-close-dialog>Huỷ</button>
+                    <button type="submit" class="gp-primary-btn btn btn--primary" id="saveTargetBtn"><i class="fa-solid fa-check" aria-hidden="true"></i> Lưu mục tiêu</button>
                 </footer>
             </form>
         </dialog>
