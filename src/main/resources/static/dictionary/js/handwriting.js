@@ -132,10 +132,13 @@
   function onPointerMove(event) {
     if (event.pointerId !== activePointer) return;
     event.preventDefault();
-    var point = pointFromEvent(event);
-    var last = currentStroke[currentStroke.length - 1];
-    if (Math.hypot(point[0] - last[0], point[1] - last[1]) < MIN_POINT_DISTANCE) return;
-    currentStroke.push(point);
+    var events = typeof event.getCoalescedEvents === 'function' ? event.getCoalescedEvents() : [];
+    if (!events.length) events = [event];
+    events.forEach(function (sample) {
+      var point = pointFromEvent(sample);
+      var last = currentStroke[currentStroke.length - 1];
+      if (Math.hypot(point[0] - last[0], point[1] - last[1]) >= MIN_POINT_DISTANCE) currentStroke.push(point);
+    });
     redraw(); // chỉ vẽ lại canvas cục bộ — không gọi API ở đây
   }
 

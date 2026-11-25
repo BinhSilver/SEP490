@@ -44,7 +44,7 @@ public final class StrokeMatcher {
     private static final double REVERSE_PENALTY = 0.03;
     private static final double INK_TOLERANCE = 6;
     private static final int INK_GRID = 110;
-    private static final double INK_POINT_SPACING = 2.5;
+    private static final double INK_POINT_SPACING = 1.5;
     private static final int MAX_USER_INK_POINTS = 2048;
     private static final double MAX_INK_COVERAGE_ERROR = 0.32;
     private static final double MAX_MERGED_INK_COVERAGE_ERROR = 0.22;
@@ -69,11 +69,20 @@ public final class StrokeMatcher {
 
     /** Nét chuẩn và các chỉ mục mực dựng sẵn của một Kanji. */
     public record Ref(String character, double[][] strokes, double[] bounds, double inkLength, BitSet inkMask,
-                      byte[] inkDistanceMap) {
+                      byte[] inkDistanceMap, double[][] normalizedStrokes, byte[] normalizedInkMap,
+                      BitSet normalizedInkMask, double aspect, int priority) {
         public static Ref of(String character, List<List<double[]>> polylines) {
+            return of(character, polylines, 0);
+        }
+
+        public static Ref of(String character, List<List<double[]>> polylines, int priority) {
             double[][] strokes = polylines.stream().map(StrokeMatcher::resample).toArray(double[][]::new);
-            return new Ref(character, strokes, StrokeMatcher.bounds(strokes), StrokeMatcher.inkLength(strokes),
-                    StrokeMatcher.inkMask(strokes), StrokeMatcher.inkDistanceMap(strokes));
+            double[] bounds = StrokeMatcher.bounds(strokes);
+            double[][] normalized = normalize(strokes, bounds);
+            return new Ref(character, strokes, bounds, StrokeMatcher.inkLength(strokes),
+                    StrokeMatcher.inkMask(strokes), StrokeMatcher.inkDistanceMap(strokes), normalized,
+                    StrokeMatcher.inkDistanceMap(normalized), StrokeMatcher.inkMask(normalized),
+                    StrokeMatcher.aspect(bounds), priority);
         }
     }
 
@@ -81,7 +90,7 @@ public final class StrokeMatcher {
     }
 
     /** Điểm của một ứng viên; {@code inkRescue} cho biết đường mực đã thay điểm ghép nét kém. */
-    record Scored(String character, double score, double meanCost, boolean inkRescue) {
+    record Scored(String character, double score, double meanCost, boolean inkRescue, int priority, int strokeCount) {
     }
 
     private record InkScore(double meanDistance, double tailDistance, double coverageError) {
@@ -104,11 +113,15 @@ public final class StrokeMatcher {
      */
     public static List<String> rank(List<Ref> index, List<List<double[]>> input, int limit) {
         if (limit <= 0 || input.isEmpty()) return List.of();
+        input = input.stream().filter(StrokeMatcher::isRealStroke).toList();
+        if (input.isEmpty()) return List.of();
+        int drawnStrokes = input.size();
         // Một thang điểm duy nhất cho mọi ứng viên: không ưu tiên cứng đường nào, nếu không một nét
         // đơn khớp hoàn hảo (ví dụ nét ngang cuối) sẽ đè cả hình vẽ tổng thể.
         return scoreAll(index, input).stream()
                 .filter(s -> s.meanCost() <= MAX_MEAN_COST || s.inkRescue())
-                .sorted(Comparator.comparingDouble(Scored::score))
+                .sorted(Comparator.comparingDouble(s -> s.score() - 0.001 * s.priority()
+                        - (s.strokeCount() == drawnStrokes ? 0.04 : 0)))
                 .limit(limit)
                 .map(Scored::character)
                 .toList();
@@ -126,16 +139,14 @@ public final class StrokeMatcher {
             int k = user.length, n = ref.strokes().length;
             // Chặn trên theo TỶ LỆ chỉ để giữ chi phí tính toán, không phải bộ lọc theo số nét: vẽ tách
             // nét thoải mái vẫn qua được, còn phần lệch do nét thừa đã bị chính điểm số phạt.
-            if (k > n * 2 + MAX_MERGE_ALLOWANCE) continue;
+            if (k > n * 4 + MAX_MERGE_ALLOWANCE) continue;
             Scored best = score(ref, user, 0);
             // Bản vẽ gần đủ nét (hoặc vẽ liền một nét): thử thêm phương án co giãn/dịch khung để bù
             // trường hợp vẽ nhỏ, vẽ lệch góc canvas.
-            if (k == 1 || k * 10 >= n * 7) {
-                double[][] fitted = fit(user, userBounds, ref.bounds());
-                if (fitted != null) {
-                    Scored alt = score(ref, fitted, FIT_PENALTY);
-                    if (alt.score() < best.score()) best = alt;
-                }
+            double[][] fitted = fit(user, userBounds, ref.bounds());
+            if (fitted != null) {
+                Scored alt = score(ref, fitted, FIT_PENALTY);
+                if (alt.score() < best.score()) best = alt;
             }
             scored.add(best);
             candidates.add(ref);
@@ -161,7 +172,7 @@ public final class StrokeMatcher {
         }
         boolean strongStrokeMatch = bestStrokeCandidate >= 0
                 && scored.get(bestStrokeCandidate).meanCost() <= INK_RESCUE_MEAN_COST;
-        if (strongStrokeMatch && !likelySplitBoundaries) return scored;
+        if (strongStrokeMatch && !likelySplitBoundaries) return addStitchedScores(scored, candidates, input);
         List<Integer> mergedCandidates = new ArrayList<>();
         List<Integer> splitCandidates = new ArrayList<>();
         double[] rawCoverage = new double[scored.size()];
@@ -213,14 +224,10 @@ public final class StrokeMatcher {
             boolean allowFittedRetry = !mergedSelection[i] || closedInk || userStrokeCount <= 4;
             double[][] fitted = allowFittedRetry && ink.coverageError() > coverageThreshold
                     && ink.coverageError() <= fittedRetryLimit
-                    ? (closedInk || !mergedSelection[i]
-                            ? fitInk(userInk, inkBounds, ref.bounds())
-                            : fit(userInk, inkBounds, ref.bounds()))
+                    ? fit(userInk, inkBounds, ref.bounds())
                     : null;
             if (fitted != null) {
-                double[][] fittedGeometry = closedInk || !mergedSelection[i]
-                        ? fitInk(userInkGeometry, inkBounds, ref.bounds())
-                        : fit(userInkGeometry, inkBounds, ref.bounds());
+                double[][] fittedGeometry = fit(userInkGeometry, inkBounds, ref.bounds());
                 double fittedCover = inkCoverageError(fitted, inkMask(fittedGeometry),
                         ref.strokes(), ref.inkMask());
                 InkScore fittedInk = scoreInk(fittedCover, fitted, inkDistanceMap(fittedGeometry), ref);
@@ -237,14 +244,105 @@ public final class StrokeMatcher {
                 // một phần điểm ghép nét để chữ ít nét không chen lên chỉ nhờ có đường mực gần giống.
                 double rescue = (ink.meanDistance() + INK_TAIL_WEIGHT * ink.tailDistance()) / FRAME
                         + inkPenalty
+                        + (mergedSelection[i] ? 0.08 * Math.max(0, ref.strokes().length - userStrokeCount - 1) : 0)
                         + (mergedSelection[i] ? 0 : INK_STROKE_SCORE_WEIGHT * best.score());
                 if (rescue <= MAX_INK_RESCUE_SCORE && rescue < best.score()) {
-                    best = new Scored(ref.character(), rescue, best.meanCost(), true);
+                    best = new Scored(ref.character(), rescue, best.meanCost(), true,
+                            ref.priority(), ref.strokes().length);
                 }
             }
             scored.set(i, best);
         }
+        return addStitchedScores(scored, candidates, input);
+    }
+
+    private static boolean isRealStroke(List<double[]> stroke) {
+        if (stroke.size() < 2) return false;
+        double length = 0;
+        for (int i = 1; i < stroke.size(); i++) {
+            length += Math.hypot(stroke.get(i)[0] - stroke.get(i - 1)[0],
+                    stroke.get(i)[1] - stroke.get(i - 1)[1]);
+        }
+        return length >= 0.25; // retain short intentional dots; the client rejects five-pixel taps
+    }
+
+    /** Reconnect adjacent pen segments only when their ends nearly coincide. */
+    private static List<List<double[]>> stitch(List<List<double[]>> input) {
+        List<List<double[]>> joined = new ArrayList<>();
+        for (List<double[]> stroke : input) {
+            if (!joined.isEmpty()) {
+                List<double[]> previous = joined.get(joined.size() - 1);
+                double[] end = previous.get(previous.size() - 1), start = stroke.get(0);
+                double[] before = previous.get(previous.size() - 2), after = stroke.get(1);
+                double ax = end[0] - before[0], ay = end[1] - before[1];
+                double bx = after[0] - start[0], by = after[1] - start[1];
+                double alignment = (ax * bx + ay * by) / Math.max(1e-6, Math.hypot(ax, ay) * Math.hypot(bx, by));
+                if (Math.hypot(end[0] - start[0], end[1] - start[1]) <= 2.5 && alignment >= 0.5) {
+                    previous.addAll(stroke.subList(1, stroke.size()));
+                    continue;
+                }
+            }
+            joined.add(new ArrayList<>(stroke));
+        }
+        return joined;
+    }
+
+    private static List<Scored> addStitchedScores(List<Scored> scored, List<Ref> refs, List<List<double[]>> input) {
+        List<List<double[]>> stitched = stitch(input);
+        if (stitched.size() == input.size()) return scored;
+        int joins = input.size() - stitched.size();
+        double[][] user = stitched.stream().map(StrokeMatcher::resample).toArray(double[][]::new);
+        double[] box = bounds(user);
+        double[][] denseInk = densify(input);
+        double[][] normalizedInk = normalize(denseInk, bounds(denseInk));
+        byte[] normalizedMap = inkDistanceMap(normalizedInk);
+        BitSet normalizedMask = inkMask(normalizedInk);
+        for (int i = 0; i < refs.size(); i++) {
+            Ref ref = refs.get(i);
+            if (ref.strokes().length > input.size() || Math.abs(stitched.size() - ref.strokes().length) > 3) continue;
+            double coverage = inkCoverageError(normalizedInk, normalizedMask,
+                    ref.normalizedStrokes(), ref.normalizedInkMask());
+            if (coverage > 0.70) continue;
+            double shape = inkMeanDistance(normalizedInk, normalizedMap,
+                    ref.normalizedStrokes(), ref.normalizedInkMap()) / FRAME;
+            if (shape > 0.10) continue;
+            double aspectError = Math.abs(Math.log(aspect(box) / ref.aspect()));
+            // With only one apparent join, require almost exact shape evidence: naturally adjacent
+            // KanjiVG strokes can otherwise be mistaken for a pen lift in a distorted drawing.
+            if (joins == 1 && (ref.strokes().length != stitched.size()
+                    || coverage > 0.06 || shape > 0.025 || aspectError > 0.08)) continue;
+            double[][] fitted = fit(user, box, ref.bounds());
+            if (fitted == null) continue;
+            Scored connected = score(ref, fitted, 0);
+            if (connected.meanCost() > MAX_MEAN_COST) continue;
+            double rank = 0.7 * connected.meanCost() + 0.3 * shape
+                    + 0.012 * Math.abs(stitched.size() - ref.strokes().length)
+                    + 0.006 * aspectError;
+            if (rank < scored.get(i).score()) {
+                scored.set(i, new Scored(ref.character(), rank, connected.meanCost(), true,
+                        ref.priority(), ref.strokes().length));
+            }
+        }
         return scored;
+    }
+
+    private static double aspect(double[] box) {
+        return Math.max(1, box[2] - box[0]) / Math.max(1, box[3] - box[1]);
+    }
+
+    private static double[][] normalize(double[][] strokes, double[] box) {
+        double longer = Math.max(box[2] - box[0], box[3] - box[1]);
+        double scale = longer < 1e-6 ? 1 : 80 / longer;
+        double cx = (box[0] + box[2]) / 2, cy = (box[1] + box[3]) / 2;
+        double[][] out = new double[strokes.length][];
+        for (int i = 0; i < strokes.length; i++) {
+            out[i] = strokes[i].clone();
+            for (int p = 0; p < out[i].length; p += 2) {
+                out[i][p] = (out[i][p] - cx) * scale + FRAME / 2;
+                out[i][p + 1] = (out[i][p + 1] - cy) * scale + FRAME / 2;
+            }
+        }
+        return out;
     }
 
     /** Nhiều ranh giới có hai đầu gần trùng nhau là dấu hiệu một nét liền đã bị nhấc bút giữa chừng. */
@@ -347,7 +445,8 @@ public final class StrokeMatcher {
             if (!usedUser[i]) extraInk += extraStrokePenalty(user[i], reference.inkDistanceMap());
         }
         double total = matchedCost + (n - matched) * MISSING_PENALTY + extraInk + bonusPenalty;
-        return new Scored(reference.character(), total, matchedGeometry / matched, false);
+        return new Scored(reference.character(), total, matchedGeometry / matched, false,
+                reference.priority(), reference.strokes().length);
     }
 
     /**
@@ -592,28 +691,6 @@ public final class StrokeMatcher {
                 s[p + 1] = (s[p + 1] - fromY) * scale + toY;
             }
             out[i] = s;
-        }
-        return out;
-    }
-
-    /** Chuẩn hoá riêng hai trục cho so khớp toàn bộ đường mực; chữ viết tay thường hẹp/rộng hơn mẫu KanjiVG. */
-    private static double[][] fitInk(double[][] user, double[] from, double[] to) {
-        double fromWidth = from[2] - from[0], fromHeight = from[3] - from[1];
-        double toWidth = to[2] - to[0], toHeight = to[3] - to[1];
-        if (fromWidth < 1e-6 || fromHeight < 1e-6 || toWidth < 1e-6 || toHeight < 1e-6) return null;
-        double scaleX = toWidth / fromWidth, scaleY = toHeight / fromHeight;
-        if (scaleX < MIN_FIT_SCALE || scaleX > MAX_FIT_SCALE
-                || scaleY < MIN_FIT_SCALE || scaleY > MAX_FIT_SCALE) return null;
-        double fromX = (from[0] + from[2]) / 2, fromY = (from[1] + from[3]) / 2;
-        double toX = (to[0] + to[2]) / 2, toY = (to[1] + to[3]) / 2;
-        double[][] out = new double[user.length][];
-        for (int i = 0; i < user.length; i++) {
-            double[] stroke = user[i].clone();
-            for (int p = 0; p < stroke.length; p += 2) {
-                stroke[p] = (stroke[p] - fromX) * scaleX + toX;
-                stroke[p + 1] = (stroke[p + 1] - fromY) * scaleY + toY;
-            }
-            out[i] = stroke;
         }
         return out;
     }

@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261119-jlpt-deploy" />
+  <link rel="stylesheet" href="/dictionary/css/dictionary-ui.css?v=20261125-handwriting" />
 </head>
 <body id="jlabBasePage" class="dictionary-page">
   <div id="jlabBaseShellMount"></div>
@@ -24,9 +24,7 @@
     <div class="container dict-container">
       <section id="dict-search-zone" class="dict-search-zone dict-search-card">
         <div id="dict-hero" class="dict-hero">
-          <span class="dict-hero__eyebrow"><i class="fa-solid fa-circle dict-dot"></i> Hệ thống tra cứu Nhật ngữ</span>
           <h1 class="dict-hero__title">Từ điển Nhật ngữ</h1>
-          <p class="dict-hero__subtitle">Tra cứu từ vựng, Hán tự và nghĩa tiếng Việt</p>
         </div>
 
         <div class="dict-search-toolbar">
@@ -57,7 +55,7 @@
       <section id="dict-home-panels" class="dict-home-panels">
         <div class="dict-home-panel">
           <div class="dict-panel-heading">
-            <div><h2>Tra cứu gần đây</h2><p>Bấm để tra lại</p></div>
+            <div><h2>Tra cứu gần đây</h2></div>
           </div>
           <div id="dict-recent-list" class="dict-recent-grid"></div>
           <p id="dict-recent-empty" class="dict-detail__empty" hidden>Đăng nhập để lưu và đồng bộ lịch sử tra cứu của bạn.</p>
@@ -130,12 +128,7 @@
     <div class="dict-modal" role="dialog" aria-modal="true" aria-labelledby="dict-modal-title">
       <div class="dict-modal__header">
         <div>
-          <div class="dict-modal__system-label">
-            <span class="dict-modal__status-dot" aria-hidden="true"></span>
-            Hệ thống nhập Kanji
-          </div>
           <h2 id="dict-modal-title">Vẽ một chữ Kanji</h2>
-          <p class="dict-modal__hint">Vẽ từng nét trong khung để chọn ký tự cần tra cứu.</p>
         </div>
         <button type="button" class="dict-modal__close" data-modal-close aria-label="Đóng">
           <i class="fa-solid fa-xmark"></i>
@@ -145,7 +138,6 @@
       <div class="dict-modal__drawing-section">
         <div class="dict-modal__canvas-stage">
           <div class="dict-modal__grid" aria-hidden="true"></div>
-          <span class="dict-modal__canvas-label">Canvas 360 × 360</span>
           <span id="dict-hw-stroke-count" class="dict-modal__stroke-count">0 nét</span>
           <canvas id="dict-handwriting-canvas" width="360" height="360"
                   aria-label="Khung vẽ chữ Kanji"></canvas>
@@ -164,7 +156,6 @@
       <div class="dict-modal__candidates-section">
         <div class="dict-modal__section-heading">
           <span>Ứng viên nhận diện</span>
-          <span>Khớp nhất ở đầu</span>
         </div>
         <p id="dict-hw-status" class="dict-handwriting-status" role="status">Vẽ một nét để xem gợi ý.</p>
         <div id="dict-hw-candidates" class="dict-handwriting-candidates" aria-label="Chọn Kanji cần tìm" aria-live="polite"></div>
@@ -181,10 +172,6 @@
     <div class="dict-modal dict-radical-modal" role="dialog" aria-modal="true" aria-labelledby="dict-radical-title">
       <div class="dict-modal__header">
         <div>
-          <div class="dict-modal__system-label">
-            <span class="dict-modal__status-dot" aria-hidden="true"></span>
-            Hệ thống nhập Kanji
-          </div>
           <h2 id="dict-radical-title">Tra Kanji theo bộ thủ</h2>
           <p class="dict-modal__hint">Chọn một hoặc nhiều bộ thủ có trong chữ cần tìm.</p>
         </div>
@@ -212,7 +199,6 @@
       <div class="dict-modal__candidates-section dict-radical-modal__picker">
         <div class="dict-modal__section-heading">
           <span>Bộ thủ</span>
-          <span>Theo số nét</span>
         </div>
         <input id="dict-radical-filter" class="dict-radical-filter" type="search"
                placeholder="Lọc theo tên bộ thủ, ví dụ: nhân, thuỷ, mộc" autocomplete="off"
@@ -230,8 +216,8 @@
   <script src="/dictionary/js/stroke-order.js"></script>
   <script src="/dictionary/js/romaji.js"></script>
     <!-- handwriting.js: b?ng v? Kanji b?ng canvas, t?ch kh?i dictionary-page.js -->
-  <script src="/dictionary/js/handwriting-core.js?v=20260920-1"></script>
-  <script src="/dictionary/js/handwriting.js?v=20260920-1"></script>
+  <script src="/dictionary/js/handwriting-core.js?v=20261125-handwriting"></script>
+  <script src="/dictionary/js/handwriting.js?v=20261125-handwriting"></script>
   <script src="/dictionary/js/radical.js?v=20261016-1"></script>
   <script src="/js/jlab-base-shell.js?v=20261109-kotsu"></script>
   <script src="/js/components.js"></script>
@@ -241,8 +227,8 @@
   <script src="/dictionary/js/mock-data.js?v=20261115-daily1"></script>
   <script src="/dictionary/js/dictionary-page.js?v=20261120-report-copy"></script>
   <!-- Gia sư AI (nút nổi); các nút AI của trang tra cứu gửi câu hỏi qua đây -->
-  <link rel="stylesheet" href="/css/components/tutor-widget.css?v=20261120-dark" />
+  <link rel="stylesheet" href="/css/components/tutor-widget.css?v=20261125-cleanup" />
   <script defer src="/js/pages/home-mascot.js?v=20261115-f129"></script>
-  <script defer src="/js/components/tutor-widget.js?v=20261117-fox"></script>
+  <script defer src="/js/components/tutor-widget.js?v=20261125-cleanup"></script>
 </body>
 </html>
