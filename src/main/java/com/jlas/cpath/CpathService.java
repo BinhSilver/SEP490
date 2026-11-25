@@ -2244,7 +2244,6 @@ public class CpathService {
                     + "AND reference_id = ? FOR UPDATE", userId, REF_WEEK, monday.toEpochDay()).isEmpty();
             already = already || weekMarked(((Number) path.get("id")).longValue(), monday);
             if (!already) {
-                long pid = ((Number) path.get("id")).longValue();
                 if (dayOpen(pid, today)) {
                     // owner 25/11: paid together with today's lump when the day is done (one gift, not two)
                     db.update("UPDATE cpath_user_path SET week_pass_monday = ?, week_pass_at = ?, week_cp_owed = 1 WHERE id = ?",
