@@ -67,12 +67,13 @@
 #jlabBaseContent .pm-badge--ok { background: var(--color-success-bg); color: var(--color-success); }
 #jlabBaseContent .pm-badge--warn { background: var(--color-secondary-container); color: var(--color-on-surface); }
 #jlabBaseContent .pm-badge--bad { background: var(--color-error-container); color: var(--color-on-error-container); }
-#jlabBaseContent .pm-table-wrap { overflow-x: auto; margin-top: 8px; }
+#jlabBaseContent .pm-table-wrap { min-width: 0; overflow-x: auto; margin-top: 8px; }
 #jlabBaseContent .pm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 #jlabBaseContent .pm-table th, #jlabBaseContent .pm-table td { padding: 12px 10px; border-bottom: 1px solid var(--color-outline-variant);
   text-align: left; white-space: nowrap; }
 #jlabBaseContent .pm-table th { color: var(--color-on-surface-variant); font-weight: 600; }
-#jlabBaseContent .pm-stack { display: grid; gap: 20px; }
+#jlabBaseContent .pm-stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+#jlabBaseContent .pm-stack > *, #jlabBaseContent .pm-current > div { min-width: 0; }
 #jlabBaseContent .pm-error { color: var(--color-error); }
 
 /* CP packages follow the game shop's art, price and action rhythm. */
@@ -98,6 +99,8 @@
 @media (max-width: 760px) {
   #jlabBaseContent .pm-plans, #jlabBaseContent .pm-checkout { grid-template-columns: 1fr; }
   #jlabBaseContent .pm-plan { padding: 22px; }
+  #jlabBaseContent .pm-current > div { overflow-wrap: anywhere; }
+  #jlabBaseContent .pm-current .btn { max-width: 100%; white-space: normal; }
 }
 @media (max-width: 520px) {
   #jlabBaseContent .pm-credits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }

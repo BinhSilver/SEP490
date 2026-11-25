@@ -11,6 +11,7 @@
   margin: 0 auto;
   padding: 32px 0 64px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   font-family: "Inter", var(--font-body);
 }
@@ -526,9 +527,19 @@
   /* Mobile: popover thành bottom sheet; nút "Bộ lọc" chỉ còn biểu tượng; tìm kiếm chiếm cả hàng đầu. */
   #jlabBaseContent .cm-toolbar { flex-wrap: wrap; }
   #jlabBaseContent .cm-toolbar .cm-search { flex-basis: 100%; }
+  #jlabBaseContent .cm-toolbar .cm-search input { min-width: 0; }
   #jlabBaseContent .cm-filter-btn__text { display: none; }
-  #jlabBaseContent .cm-sort { flex: 1; }
-  #jlabBaseContent .cm-sort select { width: 100%; }
+  #jlabBaseContent .cm-sort { flex: 1 1 0; min-width: 0; }
+  #jlabBaseContent .cm-sort select { width: 100%; min-width: 0; max-width: 100%; }
+  #jlabBaseContent :is(.cm-feed, .cm-feed__list, .cm-composer, .cm-post, .cm-post__body) {
+    min-width: 0; grid-template-columns: minmax(0, 1fr);
+  }
+  #jlabBaseContent .cm-post__head { min-width: 0; }
+  #jlabBaseContent .cm-composer__open { min-width: 0; }
+  #jlabBaseContent .cm-post__who { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+  #jlabBaseContent .cm-post__who b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #jlabBaseContent .cm-post__meta { min-width: 0; overflow-wrap: anywhere; }
+  #jlabBaseContent .cm-post__text { min-width: 0; overflow-wrap: anywhere; }
   #jlabBaseContent .cm-filter-panel {
     position: fixed; top: auto; right: 0; bottom: 0; left: 0; width: auto; max-width: none; max-height: 85vh; overflow-y: auto;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0; transform: translateY(16px);

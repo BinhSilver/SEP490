@@ -79,9 +79,9 @@
 
 /* ── Main area ───────────────────────────────────────────────────────── */
 
-#jlabBaseContent .adm-main { min-width: 0; display: grid; gap: 16px; }
+#jlabBaseContent .adm-main { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 /* Sections append toolbar, detail box and list as direct siblings: space them evenly; empty slots take no room. */
-#jlabBaseContent #admContent { display: grid; gap: 16px; min-width: 0; }
+#jlabBaseContent #admContent { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
 #jlabBaseContent #admContent > :empty { display: none; }
 #jlabBaseContent #admContent > p.adm-toolbar { margin: 0; }
 /* The sidebar nav already names the current page (highlighted item + browser tab title), so the in-content
@@ -97,6 +97,8 @@
 
 #jlabBaseContent .adm-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 12px;
   padding: 18px;
   border: 1px solid var(--color-outline-variant);
@@ -198,7 +200,7 @@
 #jlabBaseContent .adm-card__body { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-outline-variant); }
 
 /* Section without a card around it (title + content straight on the page background). */
-#jlabBaseContent .adm-section { display: grid; gap: 12px; }
+#jlabBaseContent .adm-section { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 12px; }
 #jlabBaseContent .adm-section > :empty { display: none; }
 
 #jlabBaseContent .adm-badge {
@@ -287,7 +289,7 @@
 
 /* ── Tables ──────────────────────────────────────────────────────────── */
 
-#jlabBaseContent .adm-table-wrap { overflow-x: auto; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); }
+#jlabBaseContent .adm-table-wrap { position: relative; min-width: 0; max-width: 100%; overflow-x: auto; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); }
 #jlabBaseContent .adm-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 
 #jlabBaseContent .adm-table th {

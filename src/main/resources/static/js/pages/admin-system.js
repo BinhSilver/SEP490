@@ -982,9 +982,9 @@
 
   function countTable(caption, rows) {
     return '<section class="adm-panel"><h2 class="adm-panel__title">' + A.esc(caption) + '</h2>' +
-      (rows.length ? '<table class="adm-table"><tbody>' + rows.map(function (r) {
+      (rows.length ? '<div class="adm-table-wrap"><table class="adm-table"><tbody>' + rows.map(function (r) {
         return '<tr><td>' + r[0] + '</td><td class="adm-nowrap"><strong>' + A.esc(r[1]) + '</strong></td></tr>';
-      }).join('') + '</tbody></table>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
+      }).join('') + '</tbody></table></div>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
   }
 
   // ── Dashboard: every figure comes from GET /api/admin/system/dashboard?period=… ─────────────────
