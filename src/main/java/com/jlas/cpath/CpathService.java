@@ -565,6 +565,9 @@ public class CpathService {
         // learned; the earliest situation not finished yet is the one to learn
         for (Map<String, Object> s : orderedSituations(path)) {
             if (!done(prog.get(s.get("code")))) {
+                // learned today: it belongs to today and this week's check (it kept a future or missed day)
+                db.update("UPDATE cpath_user_situation SET study_day = ? WHERE path_id = ? AND situation_code = ?",
+                        clock.today(userId), pathId, s.get("code"));
                 return Map.of("id", s.get("code"));
             }
         }
