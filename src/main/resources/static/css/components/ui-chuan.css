@@ -44,18 +44,30 @@ html[data-theme="dark"] body.jlas-ui-owned {
   border-color: var(--jl-input-line);
   background-color: var(--jl-input-bg);
 }
-.jlas-ui-owned :is(main, dialog) :is(input, textarea, select):focus {
+.jlas-ui-owned :is(main, dialog) :is(input, textarea, select):focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
 }
 .jlas-ui-owned :is(main, dialog) :is(input, textarea, select)[aria-invalid="true"] {
   border-color: var(--color-error);
 }
-.jlas-ui-owned .jl-select__trigger:focus-visible,
-.jlas-ui-owned .jl-select.is-open .jl-select__trigger {
+.jlas-ui-owned .jl-select.is-open .jl-select__trigger:not(:focus-visible) {
   outline: none;
   box-shadow: none;
   border-color: var(--jl-input-line);
+}
+.jlas-ui-owned :is(input[type="checkbox"], input[type="radio"], input[type="range"], input[type="file"]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+/* Draw over the field edge, including on borderless search fields. */
+.jlas-ui-owned :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea, select, .jl-select__trigger):focus-visible {
+  outline: 2px solid var(--jl-field-focus, var(--color-focus));
+  outline-offset: -2px;
+  box-shadow: none;
+}
+.jlas-ui-owned :is([aria-invalid="true"], .has-error) {
+  --jl-field-focus: var(--color-error);
 }
 .jlas-ui-owned .jl-select__trigger[aria-invalid="true"] { border-color: var(--color-error); }
 .jlas-ui-owned :is(input[type=checkbox],input[type=radio]) { accent-color: var(--color-primary); }

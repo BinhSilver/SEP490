@@ -4,7 +4,10 @@ package com.jlas.game.enums;
 public enum GameType {
     NEKO_CATCH("neko"),
     MEMORY_MATCH("memory"),
-    AIR_DEFENSE("air-defense");
+    AIR_DEFENSE("air-defense"),
+    SPHINX_RIDDLE("sphinx"),
+    PICTURE_REBUS("picture-rebus"),
+    DRAW_GUESS("draw-guess");
 
     private final String slug;
 
@@ -19,5 +22,17 @@ public enum GameType {
 
     public String playUrl(String sessionId) {
         return "/games/" + slug + "/" + sessionId;
+    }
+
+    public boolean usesDeck() {
+        return this == NEKO_CATCH || this == MEMORY_MATCH || this == AIR_DEFENSE;
+    }
+
+    public boolean adminOnly() {
+        return this == SPHINX_RIDDLE || this == PICTURE_REBUS || this == DRAW_GUESS;
+    }
+
+    public boolean supportsSolo() {
+        return this != DRAW_GUESS;
     }
 }

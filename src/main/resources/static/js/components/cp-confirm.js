@@ -35,7 +35,7 @@
       '<div><dt>Số dư</dt><dd>' + numbers.balance + ' CP' +
       (enough ? ' → <strong>' + numbers.after + ' CP</strong>' : '') + '</dd></div>';
     var option = options.option && enough
-      ? '<label class="cp-confirm__option"><input type="checkbox" data-cp-option> ' + escapeHtml(options.option) + '</label>' : '';
+      ? '<label class="cp-confirm__option"><input type="checkbox" data-cp-option><span>' + escapeHtml(options.option) + '</span></label>' : '';
     var primary = enough
       ? '<button type="button" class="cp-confirm__primary" data-cp-ok>' + escapeHtml(options.confirmLabel || ('Dùng ' + numbers.cost + ' CP')) + '</button>'
       : '<a class="cp-confirm__primary" href="' + TOP_UP_URL + '">Nạp CP</a>';

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head th:replace="~{fragments/head :: standard(${pageTitle}, 'arena')}"></head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body arena-body">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body arena-body arena-standard jl-ui-kit">
+<link rel="stylesheet" href="/arena/css/arena-standard.css?v=20261124-ui-standard">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="ar-page ar-hub">
@@ -81,7 +82,7 @@
                     <span class="ar-game-card__body">
                         <span class="ar-game-card__tag" th:text="${game.tagline}">Tagline</span>
                         <span class="ar-game-card__name" th:text="${game.name}">Tên game</span>
-                        <span class="ar-game-card__modes">Ghép trận, chơi với bạn bè hoặc luyện tập</span>
+                        <span class="ar-game-card__modes" th:text="${game.type.usesDeck() ? 'Ghép trận, chơi với bạn bè hoặc luyện tập' : (game.type.supportsSolo() ? 'Chơi với bạn bè hoặc luyện tập' : 'Chơi với bạn bè')}">Chơi với bạn bè</span>
                     </span>
                 </a>
             </div>
@@ -93,5 +94,6 @@
 <script th:src="@{/arena/js/games-page.js(v='20261111-hub')}"></script>
 <script th:src="@{/arena/js/game-previews.js(v='20261118-kana-snake')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<script defer src="/arena/js/standard-tabs.js?v=20261124-ui-standard"></script>
 </body>
 </html>

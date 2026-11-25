@@ -110,12 +110,13 @@
 /* The rounded search field owns focus; its inner input has no second frame. */
 #jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search {
   min-height: 48px;
-  border: 1px solid var(--fc-outline-soft) !important;
-  border-radius: 12px !important;
+  border: 1px solid var(--fc-field-line) !important;
+  border-radius: var(--radius-input) !important;
   box-shadow: none !important;
 }
-#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search:focus-within {
-  border-color: var(--fc-primary) !important;
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search:has(#lib-search:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -1px;
 }
 #jlabBasePage.flashcard-page--library #jlabBaseContent #lib-search {
   appearance: none;
@@ -177,13 +178,13 @@
   color: var(--fc-on-surface) !important;
   background: var(--fc-surface-low) !important;
   border: 1px solid var(--fc-outline-soft) !important;
-  font: 500 14px/1.2 "Inter", sans-serif !important;
+  font: 500 14px/1.2 var(--font-body) !important;
 }
 
 /* The sort box matches the search field beside it: same height and corner. */
 #jlabBasePage.flashcard-page--library .lib-sort-field .jl-select__trigger {
   min-height: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius-input);
 }
 
 #jlabBasePage.flashcard-page--library .library-results-heading {
@@ -309,7 +310,7 @@
 #jlabBasePage.flashcard-page--library .tag-private { color: var(--fc-on-variant); background: rgba(255,255,255,.92); }
 #jlabBasePage.flashcard-page--library .tag-review { color: var(--fc-on-variant); background: rgba(255,255,255,.92); }
 #jlabBasePage.flashcard-page--library .tag-blocked { color: var(--fc-error); background: var(--fc-error-soft); }
-#jlabBasePage.flashcard-page--library .tag-draft { color: #8a5a00; background: #fff3cd; }
+#jlabBasePage.flashcard-page--library .tag-draft { color: var(--color-warning); background: var(--color-warning-bg); }
 #jlabBasePage.flashcard-page--library .tag-folder { color: var(--fc-primary); background: rgba(238,238,255,.94); }
 
 #jlabBasePage.flashcard-page--library .lib-folder-select {
@@ -554,7 +555,7 @@
   margin: 0;
   overflow: hidden;
   color: var(--lx-ink);
-  font: 600 var(--lx-title)/1.25 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  font: 600 var(--lx-title)/1.25 var(--font-body), var(--font-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -627,7 +628,7 @@
   border: 0;
   border-radius: 0;
   cursor: pointer;
-  font: 500 var(--lx-text)/1.2 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  font: 500 var(--lx-text)/1.2 var(--font-body), var(--font-body);
 }
 
 .lib-export__tab i { color: #6b6680; }
@@ -780,7 +781,7 @@
   background: #fcfbfe;
   border: 1px solid var(--lx-line);
   border-radius: 12px;
-  font: var(--lx-text)/1.7 "Noto Sans JP", "JetBrains Mono", monospace;
+  font: var(--lx-text)/1.7 var(--font-jp), var(--font-body);
   white-space: pre;
   tab-size: 4;
 }
@@ -815,7 +816,7 @@
 .lib-export__sheet th:last-child,
 .lib-export__sheet td:last-child { border-right: 0; }
 
-.lib-export__sheet td { font-family: "Noto Sans JP", "Inter", sans-serif; }
+.lib-export__sheet td { font-family: var(--font-jp); }
 
 .lib-export__sheet thead th {
   position: sticky;
@@ -882,7 +883,7 @@
   border: 1px solid var(--lx-line);
   border-radius: 10px;
   cursor: pointer;
-  font: 600 var(--lx-text)/1 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  font: 600 var(--lx-text)/1 var(--font-body), var(--font-body);
 }
 
 .lib-export__btn:hover { background: #f8f6fd; }
@@ -1010,30 +1011,6 @@
 /* Page-owned dark mode: flashcard/library-theme.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .library-content {
     background: var(--dm-flashcard-surface)
 }

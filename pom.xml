@@ -169,6 +169,10 @@
 				<configuration>
 					<excludes>
 						<exclude>static/audio/**/*.mp3</exclude>
+						<!-- spring-boot:run can still use the developer's local settings. Never ship them in a jar. -->
+						<exclude>application-local.yaml</exclude>
+						<exclude>application-local.yml</exclude>
+						<exclude>application-local.properties</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

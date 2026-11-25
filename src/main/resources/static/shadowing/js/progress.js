@@ -203,7 +203,7 @@
         + '<span class="progress-thumb">' + thumb + '</span>'
         + '<span class="progress-item-main"><span class="progress-item-title">' + esc(item.title) + '</span>'
         + '<span class="progress-item-meta"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + relativeTime(item.lastActivityAt) + '</span></span>'
-        + '<i class="fa-solid fa-chevron-right progress-item-arrow" aria-hidden="true"></i></a></li>';
+        + '</a></li>';
     }).join('');
     list.querySelectorAll('.progress-thumb img').forEach(img => img.addEventListener('error', () => {
       img.replaceWith(Object.assign(document.createElement('i'), { className: 'fa-solid fa-play' }));

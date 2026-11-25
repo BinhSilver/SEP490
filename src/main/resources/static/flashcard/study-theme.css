@@ -165,7 +165,7 @@
 
 #jlabBasePage.flashcard-page--study .flip-text {
   color: var(--fc-on-surface);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-jp);
   font-size: clamp(30px, 5vw, 46px);
   font-weight: 500;
   line-height: 1.55;
@@ -281,7 +281,7 @@
 
 #jlabBasePage.flashcard-page--study .quote-card__ja {
   color: var(--fc-on-surface);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-jp);
 }
 
 #jlabBasePage.flashcard-page--study .ring {
@@ -603,7 +603,7 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--study #settings-modal .stu
   background: var(--fc-surface-mid);
   border: 1px solid rgba(199,196,215,.32);
   border-radius: var(--fc-radius-sm);
-  font: 700 14px/1 "Inter", sans-serif;
+  font: 700 14px/1 var(--font-body);
   text-decoration: none;
   cursor: pointer;
 }
@@ -891,14 +891,14 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--study #settings-modal .stu
 
 #jlabBasePage.flashcard-page--study .study-card-list__kanji {
   color: var(--fc-on-surface);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-jp);
   font-size: 14px;
   font-weight: 700;
 }
 
 #jlabBasePage.flashcard-page--study .study-card-list__hiragana {
   color: var(--fc-on-surface);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-jp);
 }
 
 #jlabBasePage.flashcard-page--study .study-card-list__han-viet {
@@ -1569,33 +1569,9 @@ html.study-focus #jlabBasePage.flashcard-page--study .study-focus-counts.is-off 
 /* Page-owned dark mode: flashcard/study-theme.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 /* Brighter secondary ink belongs to the study workspace, not the other pages. */
 html[data-theme="dark"] #jlabBasePage.flashcard-page--study {
-    --dm-flashcard-muted: #d5deeb;
+    --dm-flashcard-muted: var(--dark-muted);
     --stitch-muted: var(--dm-flashcard-muted);
     --fc-on-surface-muted: var(--dm-flashcard-muted)
 }
