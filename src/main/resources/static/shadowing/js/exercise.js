@@ -1116,6 +1116,12 @@
       renderSession(view, false, null);
     } catch (error) {
       setStatus(error.message || 'Không tải được phiên học', true);
+      const loadError = document.getElementById('exercise-load-error');
+      if (loadError) {
+        loadError.textContent = error.message || 'Không tải được phiên học. Hãy tải lại trang.';
+        loadError.hidden = false;
+        document.getElementById('exercise-video-title').textContent = 'Luyện nghe';
+      }
       workspace.hidden = true;
     }
   }
