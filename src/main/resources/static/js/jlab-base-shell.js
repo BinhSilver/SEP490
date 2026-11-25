@@ -305,7 +305,7 @@
                 '<i id="' + ids.examsIcon + '" aria-hidden="true"></i><span id="' + ids.examsLabel + '">Học tập</span><i id="' + ids.examsChevron + '" aria-hidden="true"></i>' +
               '</button>' +
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
-                '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
+                '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Bài kiểm tra thông minh</span></a>' +
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
                 '<a id="' + ids.onyomiItem + '" class="dropdown__item" href="/learning/onyomi" role="menuitem"><i id="' + ids.onyomiIcon + '" aria-hidden="true"></i><span>Onyomi</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
@@ -321,7 +321,7 @@
               '<div id="' + ids.testBuilderMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
-                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span>Soạn đề Smart Test</span><span class="nav-soon">sắp có</span></button>' +
+                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span>Soạn đề kiểm tra thông minh</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
@@ -332,8 +332,8 @@
             '<a id="' + ids.lookupLink + '" href="/dictionary/index.html" title="Tra cứu từ điển">' +
               '<i id="' + ids.lookupIcon + '" aria-hidden="true"></i><span id="' + ids.lookupLabel + '">Tra cứu</span>' +
             '</a>' +
-            '<a id="' + ids.gameLink + '" href="/games" title="Chơi game luyện tiếng Nhật">' +
-              '<i id="' + ids.gameIcon + '" aria-hidden="true"></i><span id="' + ids.gameLabel + '">Game</span>' +
+            '<a id="' + ids.gameLink + '" href="/games" title="Chơi trò chơi luyện tiếng Nhật">' +
+              '<i id="' + ids.gameIcon + '" aria-hidden="true"></i><span id="' + ids.gameLabel + '">Trò chơi</span>' +
             '</a>' +
             // [JLAS2-37] Community Hub: nội dung cộng đồng công khai (đánh giá, bình luận, báo cáo).
             '<a id="' + ids.communityLink + '" href="/community" title="Nội dung cộng đồng chia sẻ">' +
@@ -344,9 +344,9 @@
                 '<i id="' + ids.toolsIcon + '" aria-hidden="true"></i><span id="' + ids.toolsLabel + '">Công cụ</span><i id="' + ids.toolsChevron + '" aria-hidden="true"></i>' +
               '</button>' +
               '<div id="' + ids.toolsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
-                '<a id="' + ids.aiCallLink + '" class="dropdown__item" href="/ai-call" role="menuitem"><i id="' + ids.aiCallIcon + '" aria-hidden="true"></i><span id="' + ids.aiCallLabel + '">AI Call</span></a>' +
-                '<a id="' + ids.flashcardLink + '" class="dropdown__item" href="/flashcard/library.html" role="menuitem"><i id="' + ids.flashcardIcon + '" aria-hidden="true"></i><span id="' + ids.flashcardLabel + '">Flashcard</span></a>' +
-                '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
+                '<a id="' + ids.aiCallLink + '" class="dropdown__item" href="/ai-call" role="menuitem"><i id="' + ids.aiCallIcon + '" aria-hidden="true"></i><span id="' + ids.aiCallLabel + '">Gọi AI</span></a>' +
+                '<a id="' + ids.flashcardLink + '" class="dropdown__item" href="/flashcard/library.html" role="menuitem"><i id="' + ids.flashcardIcon + '" aria-hidden="true"></i><span id="' + ids.flashcardLabel + '">Thẻ ghi nhớ</span></a>' +
+                '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Luyện nói theo mẫu</span></a>' +
               '</div>' +
             '</div>' +
             '<a id="' + ids.aboutLink + '" href="/about" aria-label="Giới thiệu">' + icon('', 'info') + '<span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +

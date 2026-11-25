@@ -1,14 +1,12 @@
 /* Header / Top nav — exact v0.app template (Auw4otwlr20) design */
 
 :root {
-  --charcoal: #161d1f;
-  --charcoal-2: #494551;
-  --pink-deep: #4f378a;
-  --pink-accent: #6750a4;
-  --sakura: #e9ddff;
-  --ivory: #f4fafd;
-  --bg-gradient-static: linear-gradient(135deg, #f4fafd 0%, #eef5f7 64%, #e9ddff 100%);
-  --bg-gradient-animated: linear-gradient(135deg, #f4fafd, #eef5f7, #e9ddff);
+  --charcoal: var(--color-on-surface);
+  --charcoal-2: var(--color-on-surface-variant);
+  --pink-deep: var(--color-primary);
+  --pink-accent: var(--color-primary-container);
+  --sakura: var(--color-primary-fixed);
+  --ivory: var(--color-background);
 }
 
 .site-header {
@@ -20,7 +18,7 @@
   height: 72px;
   display: flex;
   align-items: center;
-  background: var(--color-surface-lowest, #ffffff) !important;
+  background: var(--color-surface-lowest) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
@@ -35,9 +33,9 @@ body:not(.page-home) {
 /* Non-home pages need an opaque fixed bar so scrolling content never shows through it. */
 body:not(.page-home) .site-header {
   position: fixed;
-  background: var(--color-surface-lowest, #ffffff) !important;
+  background: var(--color-surface-lowest) !important;
   border-bottom: 1px solid var(--color-outline-variant) !important;
-  box-shadow: 0 5px 20px rgba(22, 29, 31, 0.08);
+  box-shadow: var(--shadow-1);
 }
 
 .site-header__inner {
@@ -52,11 +50,10 @@ body:not(.page-home) .site-header {
 }
 
 .site-header__brand {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: var(--text-2xl);
+  font-weight: 600;
   color: var(--color-primary) !important;
-  letter-spacing: -0.04em;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -64,8 +61,8 @@ body:not(.page-home) .site-header {
 }
 
 .site-header__brand span.tm {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
   color: var(--color-outline);
 }
 

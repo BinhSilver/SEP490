@@ -7,14 +7,14 @@
   gap: 8px;
   border: 1px solid transparent;
   border-radius: var(--radius-control) !important;
-  /* Pill rounded-full like v0 template */
   font-family: var(--font-body);
   font-weight: 500;
   font-size: var(--text-sm);
-  line-height: 1.25;
+  line-height: 20px;
+  min-height: 44px;
   padding: 10px 24px;
   cursor: pointer;
-  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
   text-decoration: none;
   background: transparent;
   white-space: nowrap;
@@ -22,7 +22,7 @@
 
 .btn:disabled,
 .btn.is-disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -32,21 +32,20 @@
   background: var(--color-primary) !important;
   color: var(--color-on-primary) !important;
   border-color: var(--color-primary) !important;
-  box-shadow: var(--shadow-action) !important;
+  box-shadow: none !important;
 }
 
 .btn--primary:hover {
   background: var(--color-primary-container) !important;
   color: var(--color-on-primary) !important;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-action-hover) !important;
+  border-color: var(--color-primary-container) !important;
 }
 
 /* Secondary Button (Translucent Glass with border, like v0 'Sign in') */
 .btn--secondary {
   background: transparent !important;
   color: var(--color-primary) !important;
-  border: 1px solid var(--color-outline) !important;
+  border: 1px solid var(--color-primary) !important;
 }
 
 .btn--secondary:hover {
@@ -61,14 +60,13 @@
   background: var(--color-tertiary-container) !important;
   color: var(--color-on-tertiary-container) !important;
   border-color: var(--color-tertiary-container) !important;
-  box-shadow: var(--shadow-1) !important;
+  box-shadow: none !important;
 }
 
 .btn--accent:hover,
 .btn--sakura:hover {
   background: var(--color-tertiary-fixed-dim) !important;
-  box-shadow: var(--shadow-2) !important;
-  transform: translateY(-1px);
+  border-color: var(--color-tertiary-fixed-dim) !important;
 }
 
 .btn--ghost {
@@ -84,8 +82,9 @@
 }
 
 .btn--sm {
-  padding: 6px 16px;
-  font-size: var(--text-xs);
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: var(--text-sm);
 }
 
 .btn--lg {
@@ -99,5 +98,8 @@
 
 /* A darker hover fill needs its container foreground, not the primary foreground. */
 html[data-theme="dark"] .btn--primary:hover {
-  color: var(--color-on-primary-container) !important;
+  color: var(--color-on-primary) !important;
 }
+.btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.btn:not(:disabled):active { box-shadow: inset 0 0 0 999px var(--jl-press) !important; }
+.btn[aria-busy="true"] { cursor: progress; pointer-events: none; }

@@ -10,13 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261119-compact)}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-phase1)}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css(v=20261119-compact)}"/>
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261119-compact)}"/>
-    <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/toast.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-phase1)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-phase1)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261125-phase1)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/forms.css(v=20261125-phase1)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/toast.css(v=20261125-phase1)}"/>
     <link rel="stylesheet" th:href="@{/css/components/theme-switch.css}"/>
     <link rel="stylesheet" th:href="@{'/css/pages/' + ${pageCss} + '.css' + ${(pageCss == 'admin') ? '?v=20261125-sanctions-overflow' : ((pageCss == 'textbooks' or pageCss == 'jpath-admin') ? '?v=20261118-flat-admin' : ((pageCss == 'jlpt-admin' or pageCss == 'kanji-map-admin' or pageCss == 'verb-practice-admin') ? '?v=20261119-deploy-merge' : ''))}}"/>
     <link rel="stylesheet" th:href="@{/css/admin-shell.css(v=20261125-mobile-overflow)}"/>
@@ -25,14 +25,14 @@
     <script th:src="@{/js/components.js}"></script>
     <script defer th:src="@{/js/theme.js(v=20261119-compact)}"></script>
     <!-- Shared dropdown for <select data-jl-select> (css/components/select.css, js/components/select.js) -->
-    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261111-select2)}" />
-    <script defer th:src="@{/js/components/select.js(v=20261111-select2)}"></script>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-icons-vi)}" />
+    <script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
 
     <!-- UI contract for the owned feature pages; other modules keep their existing styles. -->
     <th:block th:if="${pageCss == 'jlpt-admin' or pageCss == 'jlpt-practice-admin' or pageCss == 'verb-practice-admin' or pageCss == 'kanji-map-admin'}">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" />
-        <link rel="stylesheet" th:href="@{/css/controls.css(v=20261119-compact)}" />
-        <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261119-compact)}" />
+        <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-phase1)}" />
+        <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-phase1)}" />
         <script defer th:src="@{/js/components/owned-ui.js(v=20261119-compact)}"></script>
     </th:block>
 </head>

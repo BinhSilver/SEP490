@@ -5,41 +5,37 @@
  */
 
 :root {
-  --jls-field: var(--color-surface-lowest, #ffffff);
-  --jls-panel: var(--color-surface-lowest, #ffffff);
-  --jls-line: var(--color-outline-variant, #cbc4d2);
-  --jls-line-strong: var(--color-outline, #7a7582);
-  --jls-ink: var(--color-on-surface, #161d1f);
-  --jls-muted: var(--color-on-surface-variant, #494551);
-  --jls-icon: var(--color-outline, #7a7582);
-  --jls-accent: var(--color-primary, #4f378a);
-  --jls-tag-bg: var(--color-primary-fixed, #e9ddff);
-  --jls-hover: color-mix(in srgb, var(--color-primary-fixed, #e9ddff) 48%, transparent);
-  --jls-selected: color-mix(in srgb, var(--color-primary-fixed, #e9ddff) 72%, transparent);
-  --jls-ring: rgb(79 55 138 / 18%);
-  --jls-danger: var(--color-error, #ba1a1a);
-  --jls-danger-ring: rgb(186 26 26 / 14%);
-  --jls-shadow: 0 14px 36px rgb(35 24 41 / 14%), 0 2px 6px rgb(35 24 41 / 8%);
-  --jls-scrim: rgb(35 24 41 / 42%);
+  --jls-field: var(--color-surface-lowest);
+  --jls-panel: var(--color-surface-lowest);
+  --jls-line: var(--color-outline);
+  --jls-line-strong: var(--color-outline);
+  --jls-ink: var(--color-on-surface);
+  --jls-muted: var(--color-on-surface-variant);
+  --jls-icon: var(--color-outline);
+  --jls-accent: var(--color-primary);
+  --jls-tag-bg: var(--color-primary-fixed);
+  --jls-hover: var(--color-surface-container);
+  --jls-selected: var(--color-primary-fixed);
+  --jls-danger: var(--color-error);
+  --jls-shadow: var(--shadow-2);
+  --jls-scrim: color-mix(in srgb, var(--color-on-surface) 42%, transparent);
 }
 
 html[data-theme="dark"] {
-  --jls-field: var(--dark-input, #382840);
-  --jls-panel: var(--dark-raised, #382840);
-  --jls-line: var(--dark-input-line, #8a6f96);
-  --jls-line-strong: var(--dark-faint, #b9a5c2);
-  --jls-ink: var(--dark-ink, #f5eef8);
-  --jls-muted: var(--dark-faint, #b9a5c2);
-  --jls-icon: var(--dark-faint, #b9a5c2);
-  --jls-accent: var(--dark-accent, #dcaee8);
-  --jls-tag-bg: var(--dark-soft, #453250);
-  --jls-hover: var(--dark-soft, #453250);
-  --jls-selected: color-mix(in srgb, var(--dark-selection, #6b4a75) 70%, transparent);
-  --jls-ring: var(--dark-focus-ring, rgb(220 174 232 / 34%));
-  --jls-danger: var(--dark-danger, #ffb4ab);
-  --jls-danger-ring: rgb(255 180 171 / 22%);
-  --jls-shadow: 0 18px 44px var(--dark-shadow, rgb(0 0 0 / 42%));
-  --jls-scrim: rgb(10 5 14 / 58%);
+  --jls-field: var(--color-surface-lowest);
+  --jls-panel: var(--color-surface-container);
+  --jls-line: var(--color-outline);
+  --jls-line-strong: var(--color-outline);
+  --jls-ink: var(--color-on-surface);
+  --jls-muted: var(--color-on-surface-variant);
+  --jls-icon: var(--color-outline);
+  --jls-accent: var(--color-primary);
+  --jls-tag-bg: var(--color-primary-fixed);
+  --jls-hover: var(--color-surface-container-high);
+  --jls-selected: var(--color-primary-fixed);
+  --jls-danger: var(--color-error);
+  --jls-shadow: var(--shadow-2);
+  --jls-scrim: color-mix(in srgb, var(--color-background) 58%, transparent);
 }
 
 /* ---------- The box ---------- */
@@ -86,32 +82,28 @@ html[data-theme="dark"] {
   margin: 0;
   padding: 0 12px 0 16px;
   border: 1px solid var(--jls-line);
-  border-radius: 8px;
+  border-radius: var(--radius-input);
   background: var(--jls-field);
   color: var(--jls-ink);
   font: inherit;
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: 16px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
   font-weight: 400;
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  transition: border-color var(--dur-short) var(--ease-out);
 }
 
 .jl-select__trigger:hover:not(:disabled) {
   border-color: var(--jls-line-strong);
 }
 
-.jl-select__trigger:focus {
+.jl-select__trigger:focus,
+.jl-select__trigger:focus-visible {
   outline: none;
-}
-
-.jl-select__trigger:focus-visible:not(:where(body.jlas-ui-owned *)),
-.jl-select.is-open .jl-select__trigger:not(:where(body.jlas-ui-owned *)) {
-  border-color: var(--jls-accent);
-  box-shadow: 0 0 0 3px var(--jls-ring);
+  box-shadow: none;
 }
 
 .jl-select__trigger[aria-invalid="true"],
@@ -119,10 +111,6 @@ html[data-theme="dark"] {
   border-color: var(--jls-danger);
 }
 
-.jl-select__trigger[aria-invalid="true"]:focus-visible,
-.jl-select.is-open .jl-select__trigger[aria-invalid="true"] {
-  box-shadow: 0 0 0 3px var(--jls-danger-ring);
-}
 
 .jl-select__trigger:disabled {
   cursor: not-allowed;
@@ -135,7 +123,7 @@ html[data-theme="dark"] {
   flex: none;
   width: 18px;
   color: var(--jls-icon);
-  font-size: 16px;
+  font-size: var(--text-md);
   text-align: center;
   transition: color 160ms ease;
 }
@@ -186,10 +174,11 @@ html[data-theme="dark"] {
 /* Filter bars: a compact pill that is as wide as its text. */
 .jl-select--filter .jl-select__trigger {
   gap: 8px;
-  min-height: 40px;
-  padding: 0 8px 0 14px;
-  border-radius: 999px;
-  font-size: 14px;
+  min-height: 32px;
+  padding: 0 8px 0 12px;
+  border-radius: var(--radius-input);
+  font-size: var(--text-sm);
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -207,7 +196,7 @@ html[data-theme="dark"] {
 .jl-select--filter.is-set .jl-select__trigger {
   border-color: var(--jls-accent);
   color: var(--jls-accent);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .jl-select--filter.is-set .jl-select__chevron {
@@ -239,20 +228,19 @@ html[data-theme="dark"] {
   min-width: 32px;
   height: 22px;
   padding: 0 7px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--jls-tag-bg);
   color: var(--jls-accent);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .jl-select--filter .jl-select-tag {
   min-width: 28px;
-  height: 20px;
-  font-size: 11px;
+  height: 24px;
+  font-size: var(--text-xs);
 }
 
 /* ---------- The list ---------- */
@@ -271,8 +259,8 @@ html[data-theme="dark"] {
   background: var(--jls-panel);
   color: var(--jls-ink);
   box-shadow: var(--jls-shadow);
-  font-family: var(--font-body, system-ui, sans-serif);
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
   line-height: 1.35;
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
@@ -331,7 +319,7 @@ html[data-theme="dark"] {
 .jl-select-group__label {
   padding: 8px 12px 4px;
   color: var(--jls-muted);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
 }
 
@@ -373,7 +361,7 @@ html[data-theme="dark"] {
 
 .jl-select-option__hint {
   color: var(--jls-muted);
-  font-size: 13px;
+  font-size: var(--text-xs);
   font-weight: 400;
   line-height: 1.4;
 }
@@ -421,15 +409,15 @@ html[data-theme="dark"] {
 .jl-select-search__input {
   box-sizing: border-box;
   width: 100%;
-  height: 40px;
+  height: 48px;
   margin: 0;
   padding: 0 12px 0 38px;
   border: 1px solid var(--jls-line);
-  border-radius: 8px;
+  border-radius: var(--radius-input);
   background: var(--jls-field);
   color: var(--jls-ink);
   font: inherit;
-  font-size: 16px;
+  font-size: var(--text-md);
 }
 
 .jl-select-search__input::placeholder {
@@ -439,15 +427,14 @@ html[data-theme="dark"] {
 
 .jl-select-search__input:focus {
   outline: none;
-  border-color: var(--jls-accent);
-  box-shadow: 0 0 0 3px var(--jls-ring);
+  box-shadow: none;
 }
 
 .jl-select-empty {
   margin: 0;
   padding: 14px 12px;
   color: var(--jls-muted);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 /* ---------- Phones: the list slides up from the bottom ---------- */
@@ -467,8 +454,8 @@ html[data-theme="dark"] {
   max-height: min(78dvh, 560px);
   padding: 6px 8px calc(10px + env(safe-area-inset-bottom));
   border-width: 1px 0 0;
-  border-radius: 18px 18px 0 0;
-  font-size: 16px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  font-size: var(--text-md);
   opacity: 1;
   transform: translateY(100%);
   transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -503,7 +490,7 @@ html[data-theme="dark"] {
 
 .jl-select-sheet-head__title {
   overflow: hidden;
-  font-size: 16px;
+  font-size: var(--text-md);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -524,12 +511,11 @@ html[data-theme="dark"] {
   cursor: pointer;
 }
 
-.jl-select-sheet-head__close:hover,
-.jl-select-sheet-head__close:focus-visible {
-  outline: none;
+.jl-select-sheet-head__close:hover {
   background: var(--jls-hover);
   color: var(--jls-ink);
 }
+.jl-select-sheet-head__close:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
 .jl-select-sheet-head__close svg {
   width: 20px;

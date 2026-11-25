@@ -49,9 +49,9 @@
 }
 
 .toast--warning {
-  background: #a85f00;
-  border-color: #a85f00;
-  color: var(--color-on-primary);
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
 }
 
 .toast > .material-symbols-outlined,
@@ -76,9 +76,9 @@
 .toast__close:hover { opacity: 1; }
 
 html[data-theme="dark"] .toast--warning {
-  background: var(--color-tertiary-container);
-  border-color: var(--color-tertiary);
-  color: var(--color-on-tertiary-container);
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
 }
 
 @keyframes toast-in {
@@ -94,7 +94,7 @@ html[data-theme="dark"] .toast--warning {
     max-width: none;
   }
 
-  .toast { box-sizing: border-box; width: 100%; min-height: 48px; gap: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.45; }
+  .toast { box-sizing: border-box; width: 100%; min-height: 48px; gap: 8px; padding: 10px 12px; font-size: var(--text-sm); line-height: 1.45; }
   .toast > span:not(.material-symbols-outlined) { min-width: 0; overflow-wrap: anywhere; }
   .toast__close { display: grid; place-items: center; flex: 0 0 44px; width: 44px; min-height: 44px; margin-block: -8px; margin-right: -8px; padding: 0; }
 }

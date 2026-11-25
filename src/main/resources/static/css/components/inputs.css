@@ -7,14 +7,13 @@ select {
   width: 100%;
   padding: 10px 16px;
   background: var(--color-surface-lowest) !important;
-  border: 1px solid var(--color-outline-variant) !important;
-  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--color-outline) !important;
+  border-radius: var(--radius-input) !important;
   color: var(--color-on-surface) !important;
   font-family: var(--font-body);
-  font-size: var(--text-sm);
-  outline: 2px solid transparent;
-  outline-offset: 1px;
-  transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out);
+  font-size: var(--text-md);
+  min-height: 48px;
+  transition: border-color var(--dur-short) var(--ease-out);
 }
 
 .select option,
@@ -29,15 +28,8 @@ select option {
   color: var(--color-outline) !important;
 }
 
-html:not(:has(body.jlas-ui-owned)) .input:focus,
-html:not(:has(body.jlas-ui-owned)) .select:focus,
-html:not(:has(body.jlas-ui-owned)) .textarea:focus,
-html:not(:has(body.jlas-ui-owned)) select:focus {
-  outline-color: var(--color-focus) !important;
-  background: var(--color-surface-low) !important;
-  border-color: var(--color-primary) !important;
-  box-shadow: var(--focus-ring) !important;
-}
+.input:focus, .select:focus, .textarea:focus, select:focus { outline: none; box-shadow: none; }
+:is(.input, .select, .textarea, select)[aria-invalid="true"] { border-color: var(--color-error) !important; }
 
 .field {
   display: flex;
@@ -52,9 +44,9 @@ html:not(:has(body.jlas-ui-owned)) select:focus {
 }
 
 .field__label--caps {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
   color: var(--color-outline);
 }
