@@ -1708,3 +1708,67 @@ html.dark .cp-page {
 /* Owner 17/11: same scrollbar flash on the JLPT study cards — clip the 3D turn and keep the gutter. */
 html:has(.jp-study) { scrollbar-gutter: stable; }
 .jp-study-main { overflow-x: clip; }
+
+/* Owner 23/11: end of the loaded cards (saving, next part, done) — never a bare line on an empty page. */
+.jp-study-end { display: grid; gap: var(--space-2); justify-items: center; text-align: center;
+  padding: var(--space-5) var(--space-4); }
+.jp-study-end__title { margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--jp-ink); }
+.jp-study-end__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: center;
+  margin-top: var(--space-2); }
+.jp-study-end[aria-busy="true"] .jp-study-end__title::after { content: "…"; }
+
+/* Owner 23/11: one line under the rating buttons says why a new card has 2 and a review card 4. */
+.jp-rate-note { flex-basis: 100%; margin: 0; color: var(--jp-muted); font-size: .8rem; font-weight: 400; text-align: center; }
+
+/* [JLAS-W0108] owner 23/11: every study card uses the flashcard mould of the Flashcard page (study.html):
+   672px wide, 320px tall, 24px corners, white, thin border, no shadow; the buttons sit under it at the same width */
+.jp-study .jp-study-main, .jp-study .jp-rate-bar { width: 100%; max-width: 672px; margin-inline: auto; }
+.jp-study .jp-study-card {
+  min-height: 320px !important;
+  border-radius: 24px !important;
+  border: 1px solid #cbc4d2 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .jp-study .jp-study-card { background: var(--color-surface-lowest) !important; border-color: var(--color-outline-variant) !important; }
+.jp-study .jp-study-card .jp-study-glyph { font-size: 64px !important; line-height: 1.2; }
+
+/* owner 25/11: one tidy column, minimal frames — the step bar is a bare line (no box), the card's top row is short
+   and the display tools are one small pill tucked into the card's top-right corner, right under the step bar */
+.jp-study { max-width: min(760px, 100%); margin-inline: auto; }
+.jp-study-root { gap: 10px; }
+.jp-study-root > *, .jp-study-steps, .jp-study-card, .jp-rate-bar { width: 100%; max-width: none; margin-inline: 0; box-sizing: border-box; }
+.jp-study .jp-study-main { max-width: none; width: 100%; }
+
+.jp-study .jp-study-steps { padding: 0 2px; gap: 6px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.jp-study .jp-study-steps__line { margin: 0; gap: 6px; font-size: .82rem; }
+.jp-study .jp-study-steps__line .jp-step { min-height: 24px; padding: 1px 8px; border-radius: 999px; }
+.jp-study .jp-study-progress { height: 3px; border-radius: 999px; }
+
+.jp-study .jp-study-card { min-height: 0; padding: 12px 20px 20px; border-radius: 16px; }
+.jp-study .jp-study-card__top { gap: 6px 8px; margin: 0 0 4px; min-height: 0; align-items: center; }
+.jp-study .jp-study-mascot { gap: 6px; }
+.jp-study .jp-study-mascot__img, .jp-study .jp-study-mascot__img .hm-mascot { width: 40px; height: 40px; flex-basis: 40px; }
+.jp-study .jp-study-mascot__bubble { padding: 2px 10px; font-size: .8rem; }
+.jp-study .jp-study-flag { padding: 1px 8px; font-size: .72rem; }
+.jp-study-face { min-height: 0; gap: 10px; }
+.jp-study-word { font-size: clamp(2.2em, 5vw, 3em); }
+.jp-study-meaning { padding-top: 10px; }
+.jp-study-card button, .jp-study-card .jp-btn { white-space: nowrap; }
+
+.jp-study .jp-study-card__top .jp-study-tools { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 0; margin: -4px -10px 0 auto; padding: 1px; width: max-content;
+  border: 1px solid var(--color-outline-variant, var(--jp-line)); border-radius: 999px; background: transparent; box-shadow: none; }
+.jp-study .jp-study-tools .jp-display-controls, .jp-study .jp-study-tools .jp-display-bar { display: inline-flex; flex-wrap: nowrap; gap: 0; }
+.jp-study .jp-study-tools .jp-study-icon, .jp-study .jp-study-tools .jp-display-btn, .jp-study .jp-study-tools button {
+  min-height: 24px; height: 24px; min-width: 24px; width: auto; padding: 0 7px; font-size: .72rem; font-weight: 500;
+  border: 0; border-radius: 999px; background: transparent; box-shadow: none; }
+.jp-study .jp-study-tools .jp-study-icon svg { width: 14px; height: 14px; }
+.jp-study .jp-study-tools button[aria-pressed="true"], .jp-study .jp-study-tools button.is-active, .jp-study .jp-study-tools .is-saved {
+  background: var(--jp-primary-soft); color: var(--jp-primary); }
+@media (max-width: 640px) {
+  .jp-study .jp-study-card { padding: 10px 12px 16px; }
+  .jp-study-word { font-size: 2.2em; }
+  .jp-study .jp-study-mascot__bubble { display: none; }
+  .jp-study .jp-study-card__top .jp-study-tools { margin-right: -4px; }
+  .jp-study .jp-study-tools .jp-display-btn, .jp-study .jp-study-tools button { padding: 0 5px; }
+}

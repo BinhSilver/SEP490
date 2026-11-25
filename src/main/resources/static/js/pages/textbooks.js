@@ -345,7 +345,6 @@
   function topicLessonRow(l, index) {
     var meta = [];
     if (l.unitTitle) meta.push('<span class="tb-badge">' + escapeHtml(l.unitTitle) + '</span>');
-    if (l.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + l.estimatedMinutes + ' phút</span>');
     meta.push(statusBadge(l.status));
     var locked = l.locked === true;
     if (locked) meta.push(PREMIUM_BADGE);

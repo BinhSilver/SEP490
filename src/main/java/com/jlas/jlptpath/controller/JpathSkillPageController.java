@@ -35,7 +35,7 @@ public class JpathSkillPageController {
             return blocked;
         }
         if (id <= 0) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("sessionId", id);
         return "jlptpath/skill-session";
@@ -48,7 +48,7 @@ public class JpathSkillPageController {
             return blocked;
         }
         if (token == null || !TOKEN.matcher(token).matches()) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("token", token);
         return "jlptpath/skill-section";
@@ -60,7 +60,7 @@ public class JpathSkillPageController {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public String malformedAddress() {
-        return "redirect:/learning";
+        return "redirect:/learning?view=jlpt";
     }
 
     String guard(UserPrincipal user) {
@@ -68,7 +68,7 @@ public class JpathSkillPageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         return null;
     }

@@ -24,6 +24,7 @@ import com.jlas.jlptpath.service.JpathTodayTargetsPort;
 import com.jlas.jlptpath.util.JpathDays;
 import com.jlas.jlptpath.util.JpathModeRule;
 import com.jlas.jlptpath.util.JpathPacingEngine;
+import com.jlas.jlptpath.util.JpathSliderBounds;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -204,6 +205,7 @@ public class JpathSettingsWriter {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cấp mục tiêu không được thấp hơn cấp mở "
                         + open + ".");
             }
+            JpathPathRules.requireTargetOption(catalog, open, path.getTargetLevel(), target);
         }
 
         LocalDate exam = path.getExamDate();
@@ -224,6 +226,12 @@ public class JpathSettingsWriter {
         if (r != null && r.dailyMinutes() != null) {
             minutes = r.dailyMinutes();
             JpathPacingEngine.requireMinuteOption(minutes);
+        }
+        // F230: words per day picked by the learner; the minutes follow them
+        Integer words = null;
+        if (r != null && r.vocabPerDay() != null) {
+            words = JpathSliderBounds.clamp(open, JpathTab.VOCAB, r.vocabPerDay());
+            minutes = JpathPacingEngine.minutesForWords(open, words);
         }
 
         EnumSet<DayOfWeek> skillDays = r != null && r.skillDays() != null ? JpathDays.parseCodes(r.skillDays())
@@ -251,11 +259,17 @@ public class JpathSettingsWriter {
         JpathStudyMode mode = r == null || r.studyMode() == null ? storedMode : r.studyMode();
 
         boolean targetChanged = !target.equals(path.getTargetLevel()) || !Objects.equals(exam, path.getExamDate());
-        boolean minutesChanged = minutes != path.getDailyMinutes();
+        boolean wordsChanged = words != null && words != level.getSliderVocab();
+        boolean minutesChanged = minutes != path.getDailyMinutes() || wordsChanged;
         // Policy #29: a new target or exam resets the sliders to the recommendation for the minutes. Owner 04/11: new
         // minutes reset them too, so the day load follows the time the learner has.
-        JpathSliderValues sliders = targetChanged || minutesChanged ? JpathPacingEngine.recommend(open, minutes)
+        JpathSliderValues sliders = words != null ? new JpathSliderValues(words, level.getSliderKanji(),
+                level.getSliderGrammar())
+                : targetChanged || minutesChanged ? JpathPacingEngine.recommend(open, minutes)
                 : new JpathSliderValues(level.getSliderVocab(), level.getSliderKanji(), level.getSliderGrammar());
+        // F230: Kanji and grammar always follow the words so the three tabs finish together
+        JpathSliderValues balanced = views.balanced(path.getUserId(), open, sliders.vocab());
+        sliders = balanced == null ? sliders : balanced;
         JpathPathViewAssembler.Schedule schedule = new JpathPathViewAssembler.Schedule(target, exam, minutes,
                 skillDays, restDays, third, mode, sliders);
         return new ValidatedSchedule(schedule, targetChanged, mode != storedMode, minutesChanged);
@@ -299,6 +313,11 @@ public class JpathSettingsWriter {
                         c.targetChanged ? JpathSliderKind.TARGET_CHANGE : JpathSliderKind.UPDATE, false, before, after,
                         s.minutes()));
             }
+        }
+        if (c.targetChanged || c.minutesChanged || daysChanged) {
+            // F237: a new pace, target or week is a new plan: the finish day to keep is projected again
+            path.setPaceMilestone(null);
+            path.setPaceMilestoneLevel(null);
         }
         // Priority mode (#30) from the pace of the new schedule, as JpathPathUpdater does.
         level.setPriorityMode(c.pacing.pace().skippedLowPriority() > 0);

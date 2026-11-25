@@ -10,6 +10,7 @@ import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathVocabulary;
 import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
+import com.jlas.jlptpath.enums.JpathNotebookSource;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
@@ -38,8 +39,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathPartsService {
 
-    /** One item of a part. */
-    public record Item(String code, String label, String reading, String meaning) {
+    /**
+     * One item of a part. F216 (owner 22/11): {@code forYou} = picked for this learner (an item they got wrong in the
+     * Smart Test); the page shows it as a "Dành cho bạn" tag, never the rule behind it.
+     */
+    public record Item(String code, String label, String reading, String meaning, boolean forYou) {
+
+        public Item(String code, String label, String reading, String meaning) {
+            this(code, label, reading, meaning, false);
+        }
+
+        Item asForYou() {
+            return new Item(code, label, reading, meaning, true);
+        }
     }
 
     /** One part: DONE (a past day), TODAY, NEXT (coming). {@code day} is the study day of a DONE / TODAY part. */
@@ -291,6 +303,8 @@ public class JpathPartsService {
         Map<LocalDate, List<String>> byDay = new LinkedHashMap<>();
         List<String> undatedKnown = new ArrayList<>();
         List<JpathUserItem> learned = new ArrayList<>(userItems.findByUserIdAndItemType(userId, type));
+        Set<String> forYou = learned.stream().filter(u -> u.getNotebookSource() == JpathNotebookSource.SMART_TEST)
+                .map(JpathUserItem::getItemCode).collect(java.util.stream.Collectors.toSet());
         learned.removeIf(u -> (u.getLevel() != null && !level.equals(u.getLevel()))
                 || (learnedAt(u) == null && u.getState() != JpathItemState.KNOWN));
         learned.sort(Comparator.comparing(JpathPartsService::learnedAt,
@@ -321,7 +335,8 @@ public class JpathPartsService {
 
         List<String> allCodes = new ArrayList<>(undatedKnown);
         allCodes.addAll(union(byDay.values(), todayCodes, queue));
-        Map<String, Item> labels = labels(type, allCodes);
+        Map<String, Item> labels = new HashMap<>(labels(type, allCodes));
+        forYou.forEach(code -> labels.computeIfPresent(code, (c, item) -> item.asForYou()));
         List<Part> parts = new ArrayList<>();
         int index = 1;
         if (!undatedKnown.isEmpty()) {

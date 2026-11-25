@@ -872,7 +872,7 @@ html.dark .jp-check {
 .jp-check-back {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
+  min-height: 40px; /* same height as the Furigana toggle beside it */
   padding: 4px 12px;
   border-radius: 8px;
   border: 1px solid var(--jp-check-line);
@@ -1432,7 +1432,8 @@ html.dark .cp-page {
 /* [JLAS-W0108] F105 + #96: check page (/learning/jlpt/check/...): the crumb "Quay về Lộ trình JLPT" and the
    button "Quay lại lộ trình" both lead to /learning, so hide the duplicate link on all viewports; when it goes
    back to a study session (href /learning/jlpt/study…, "Quay lại buổi học") it stays. */
-.jp-check-topBar__actions .jp-check-back[href="/learning"] { display: none; }
+.jp-check-topBar__actions .jp-check-back[href="/learning"],
+.jp-check-topBar__actions .jp-check-back[hidden] { display: none; }
 .jp-check__submitting { text-align: center; padding: 32px 24px; }
 
 /* [JLAS-W0108] F120: grammar pattern page (/learning/jlpt/grammar/{code}), owner 14/11 "siêu tệ về UI".
@@ -1502,3 +1503,20 @@ html.dark .cp-page {
     padding-bottom: calc(var(--jlab-mobile-bottom, 72px) + 148px);
   }
 }
+
+/* [JLAS-W0108] owner 23/11: check cards share the Flashcard page's card mould (672px, 24px corners, thin border) */
+.jp-check-root .jp-check { max-width: 672px !important; margin-inline: auto !important; border-radius: 24px !important; border: 1px solid #cbc4d2 !important; background: #fff; box-shadow: none !important; }
+html[data-theme="dark"] .jp-check-root .jp-check { background: var(--color-surface-lowest); border-color: var(--color-outline-variant) !important; }
+.jp-check-root .jp-board .jp-pair [lang="ja"] { font-size: 1.9rem !important; line-height: 1.2; }
+
+/* owner 25/11: result is one light card, not a card inside a card; calmer score */
+.jp-check-page .jp-result.jp-card { border: 0; box-shadow: none; background: transparent; padding: 8px 0; }
+.jp-result__score { font-size: clamp(2.4rem, 6vw, 3.2rem); font-weight: 600; line-height: 1.1; }
+.jp-result__title { font-size: 1rem; font-weight: 500; }
+.jp-result__wrong { font-size: .9rem; color: var(--color-text-muted, inherit); max-width: 56ch; }
+
+/* owner 25/11: minimal head, same as the study step bar — one short line and a thin progress line, no box */
+.jp-check-page .jp-check__head { padding: 0 0 2px; gap: 2px 10px; }
+.jp-check-page .jp-check__title { font-size: .95rem; font-weight: 500; }
+.jp-check-page .jp-check__bar { height: 3px; border-radius: 999px; }
+.jp-check-page .jp-check__timer, .jp-check-page .jp-check__timer-off { font-size: .78rem; }

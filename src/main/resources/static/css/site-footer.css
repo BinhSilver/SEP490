@@ -1,0 +1,46 @@
+/* [JLAS-W0108] F220: shared site footer (fragments/site-footer.html) — a plain, compact band that fits every page
+   (landing included), and the About / policy pages (site/*.html). Self-contained colours with app-token fallbacks. */
+.site-foot {
+  --sf-ink: var(--color-on-surface, #1f2937); --sf-muted: var(--color-on-surface-variant, #5b6472);
+  --sf-line: var(--color-outline-variant, #e5e7eb); --sf-bg: var(--color-surface-low, #f7f7fb); --sf-accent: #5521b5;
+  position: relative; z-index: 2; margin-top: 40px; border-top: 1px solid var(--sf-line); background: var(--sf-bg);
+  color: var(--sf-muted); font-size: .9rem; line-height: 1.5;
+}
+html[data-theme="dark"] .site-foot, html.dark .site-foot { --sf-ink: #eef0f6; --sf-muted: rgba(238, 240, 246, .7);
+  --sf-line: rgba(255, 255, 255, .12); --sf-bg: rgba(255, 255, 255, .03); --sf-accent: #b37cf5; }
+.site-foot__inner { max-width: 1200px; margin: 0 auto; padding: 28px 24px 20px; display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); gap: 20px 28px; }
+.site-foot__logo { display: inline-flex; align-items: center; gap: 10px; color: var(--sf-ink); font-weight: 600; font-size: 1rem; text-decoration: none; }
+.site-foot__logo img { border-radius: 8px; }
+.site-foot .site-foot__intro { margin: 10px 0 4px; max-width: 30em; }
+.site-foot .site-foot__jp { margin: 0; color: var(--sf-accent); font-weight: 500; }
+.site-foot__col { display: flex; flex-direction: column; gap: 6px; }
+.site-foot .site-foot__col h2 { margin: 0 0 4px; font-family: inherit; font-size: .78rem; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; line-height: 1.4; color: var(--sf-ink); }
+.site-foot a { color: inherit; text-decoration: none; }
+.site-foot a:hover, .site-foot a:focus-visible { color: var(--sf-accent); }
+.site-foot [hidden] { display: none !important; }
+.site-foot__bottom { max-width: 1200px; margin: 0 auto; padding: 12px 24px 18px; display: flex; flex-wrap: wrap;
+  justify-content: space-between; gap: 4px 16px; border-top: 1px solid var(--sf-line); font-size: .8rem; }
+@media (max-width: 900px) { .site-foot__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); } .site-foot__brand { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .site-foot__inner { padding: 22px 16px 14px; } .site-foot__bottom { padding: 10px 16px 14px; } }
+
+/* About / policy pages */
+.site-page { max-width: 880px; margin: 0 auto; padding: 32px 24px 8px; color: var(--color-text, #1f2937); line-height: 1.65; }
+.site-page__hero { padding: 28px 28px 24px; border-radius: 18px; background: linear-gradient(135deg, #ede4ff, #f4fafd);
+  border: 1px solid #ddd0fb; margin-bottom: 28px; }
+html[data-theme="dark"] .site-page__hero, html.dark .site-page__hero { background: linear-gradient(135deg, #382840, #2e2035); border-color: #4b3a63; }
+.site-page__kicker { margin: 0 0 6px; font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #5521b5; }
+html[data-theme="dark"] .site-page__kicker, html.dark .site-page__kicker { color: #b37cf5; }
+.site-page h1 { margin: 0 0 8px; font-size: 1.8rem; font-weight: 600; line-height: 1.25; }
+.site-page__lead { margin: 0; font-size: 1.02rem; color: var(--color-text-muted, #4b5563); }
+.site-page h2 { margin: 28px 0 8px; font-size: 1.15rem; font-weight: 600; }
+.site-page p, .site-page li { font-size: .95rem; }
+.site-page ul { padding-left: 20px; display: grid; gap: 4px; }
+.site-page__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 8px; }
+.site-page__card { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--color-border, #e5e7eb); background: var(--color-surface-lowest, #fff); }
+.site-page__card h3 { margin: 0 0 4px; font-size: .98rem; font-weight: 600; }
+.site-page__card p { margin: 0; font-size: .88rem; color: var(--color-text-muted, #4b5563); }
+.site-page__note { margin-top: 24px; font-size: .85rem; color: var(--color-text-muted, #6b7280); }
+.site-page a { color: #5521b5; }
+html[data-theme="dark"] .site-page a, html.dark .site-page a { color: #b37cf5; }

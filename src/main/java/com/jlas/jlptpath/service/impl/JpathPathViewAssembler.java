@@ -302,4 +302,9 @@ public class JpathPathViewAssembler {
             return u.getUsername() != null && !u.getUsername().isBlank() ? u.getUsername().trim() : null;
         }).orElse(null);
     }
+
+    /** F230: the balanced Kanji/grammar for {@code vocabPerDay} words on the learner's open level. */
+    JpathSliderValues balanced(Long userId, String level, int vocabPerDay) {
+        return paceService.balanced(userId, level, vocabPerDay);
+    }
 }

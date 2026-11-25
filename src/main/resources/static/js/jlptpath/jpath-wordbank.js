@@ -48,7 +48,7 @@
     if (r.kana && !r.expression) r = { itemType: 'KANA', code: r.code, expression: r.kana, reading: '', meaning: r.romaji };
     var type = r.itemType || 'VOCAB';
     var report = { targetType: type, targetCode: r.code, pageContext: CONTEXT[page] || 'KNOWN_LIST' };
-    var writable = type === 'VOCAB' || type === 'KANJI';
+    /* owner 25/11: only kana and kanji have Luyện viết, never words */ var writable = type === 'KANJI';
     return '<li class="jp-bank-row" data-jpath-report="' + attrJson(report) + '">'
       + '<span class="jp-bank-row__word"><strong lang="ja"' + (type === 'KANJI' ? ' class="jp-kanji"' : '') + '>'
       + esc(r.expression) + '</strong>' + (r.reading ? ' <span lang="ja">' + esc(r.reading) + '</span>' : '') + '</span>'

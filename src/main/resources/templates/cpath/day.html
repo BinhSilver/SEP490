@@ -28,9 +28,6 @@
                 <a class="jp-sidenav__link" href="/learning/comm/path" th:href="@{/learning/comm/path}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Bản đồ tuần
                 </a>
-                <a class="jp-sidenav__link" href="/learning/comm/day" th:href="@{/learning/comm/day}" aria-current="page">
-                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
-                </a>
                 <a class="jp-sidenav__link" href="/learning/comm/settings" th:href="@{/learning/comm/settings}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Cài đặt lộ trình
                 </a>
@@ -49,10 +46,13 @@
         </div>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
     <script src="../../static/js/jlptpath/jpath-api.js"></script>
 </th:block>
 <script src="../../static/js/cpath/cpath-day.js" th:src="@{/js/cpath/cpath-day.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

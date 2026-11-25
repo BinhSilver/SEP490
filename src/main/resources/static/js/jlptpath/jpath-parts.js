@@ -22,7 +22,7 @@
  *    - Automatically shifts down/up into the visible viewport below the sticky banner when opened.
  *    - Max height ~70vh with internal scroll; "10/10" progress ring sits neatly inline in the footer button row.
  *
- * window.JpathParts = { partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
+ * window.JpathParts = { printPartHtml(tab, index), partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
  */
 (function (root, factory) {
   'use strict';
@@ -522,18 +522,28 @@
       + '</div>';
   }
 
-  function wordPillHtml(it) {
+  /* owner 25/11: only kana and kanji have Luyện viết, never words */ var WRITE_TYPES = { kanji: 'KANJI', kana: 'KANA' };
+
+  /** owner 22/11: a word / Kanji / kana pill opens "Luyện viết" (stroke order, tracing cells, In phiếu viết). */
+  function wordPillHtml(it, tabKey) {
     var label = (it && (it.label || it.text || it.expression || '')) || '';
     var rd = it && it.reading && it.reading !== label ? it.reading : '';
     var mean = (it && (it.meaning || it.meaningVi || '')) || '';
-    return '<li class="jp-parts__word-pill">'
-      + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
+    var type = WRITE_TYPES[String(tabKey || '').toLowerCase()];
+    // F216 (owner 22/11): an item picked for this learner wears a "Dành cho bạn" tag (the why is never shown)
+    var mine = it && it.forYou ? '<span class="jp-for-you" title="Mục này được chọn riêng cho bạn">Dành cho bạn</span>' : '';
+    var inner = mine + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
       + '<span class="jp-parts__pill-ja" lang="ja">' + esc(label) + '</span>'
-      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '')
-      + '</li>';
+      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '');
+    if (type && it && it.code) {
+      return '<li class="jp-parts__word-pill jp-parts__word-pill--write">'
+        + '<button type="button" class="jp-parts__pill-btn" title="Bấm để luyện viết" data-jpath-writing="'
+        + esc(JSON.stringify({ itemType: type, code: it.code })) + '">' + inner + '</button></li>';
+    }
+    return '<li class="jp-parts__word-pill">' + inner + '</li>';
   }
 
-  function pillsGridHtml(items, unit, expanded) {
+  function pillsGridHtml(items, unit, expanded, tabKey) {
     var arr = list(items);
     if (!arr.length) return '<p class="jp-parts__pop-empty">Chưa có mục nào trong phần này.</p>';
     var showAll = !!expanded || arr.length <= PILL_PREVIEW_COUNT;
@@ -546,7 +556,7 @@
         + '</button></li>'
       : '';
     return '<ul class="jp-parts__pills-grid jp-parts__items">'
-      + first.map(wordPillHtml).join('')
+      + first.map(function (it) { return wordPillHtml(it, tabKey); }).join('')
       + moreBtn
       + '</ul>';
   }
@@ -572,6 +582,16 @@
   function popoverSideForPos(pos) {
     return pos === 'right' ? 'left' : 'right';
   }
+
+  /** F226 (owner 22/11): "In cả phần" — the writing sheet of every item of the part, in a new tab. */
+  function printPartHtml(tab, index) {
+    return '<a class="jp-btn jp-btn--sm" target="_blank" rel="noopener" href="/learning/jlpt/print?scope=PART&tab='
+      + encodeURIComponent(tab) + '&part=' + encodeURIComponent(index) + '">In cả phần</a>';
+  }
+
+  // owner 24/11: set by mount — the tab is still closed behind the kana stage ("Sau chữ cái")
+  var lockedByKana = false;
+  var TAB_NAME = { vocab: 'Từ vựng', kanji: 'Kanji', grammar: 'Ngữ pháp' };
 
   function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
     var items = list(p.items).length ? list(p.items) : list(p.preview);
@@ -600,6 +620,7 @@
       statusIcon = svgLock();
     }
     var dateStr = p.day ? dayLabel(p.day) : (p.date ? dayLabel(p.date) : '');
+    var mineCount = items.filter(function (it) { return it && it.forYou; }).length;
     var doneItems = (isDone || isTodayDone) ? n : Math.min(n, Math.max(0, Number(p.learnedCount) || 0));
 
     var actions = '';
@@ -613,12 +634,18 @@
         + '" data-parts-count="' + n + '">Học lại phần này</button>'
         + '<span class="jp-parts__err" role="status" data-parts-relearn-error></span>' : '')
         + (p.day ? '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/day?d=' + esc(p.day) + '">Kết quả lần trước</a>' : '');
+    } else if (lockedByKana) {
+      // owner 24/11: the real reason — kanji and grammar open after the kana stage, not after today's part
+      actions = '<span class="jp-parts__locked-note">' + esc(TAB_NAME[String(tabKey || '').toLowerCase()] || 'Phần này')
+        + ' mở sau khi học xong Nhập môn (chữ cái)</span>'
+        + '<a class="jp-btn jp-btn--primary jp-parts__pop-main-btn" href="/learning?tab=kana">Học Nhập môn</a>';
     } else {
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
     }
     // owner 18/11: every vocab/kanji part can be studied with the team's flashcard (upcoming: set made on press)
     if (/^(vocab|kanji)$/i.test(String(tabKey || '')) && items.length) {
       actions += '<button type="button" class="jp-btn jp-btn--sm" data-parts-fc="' + esc(p.index) + '">Học bằng flashcard</button>'
+        + printPartHtml(String(tabKey).toUpperCase(), p.index)
         + '<span class="jp-parts__err" role="status" data-parts-fc-error></span>';
     }
 
@@ -631,13 +658,14 @@
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
       + (dateStr ? '<span class="jp-parts__pop-date">' + esc(dateStr) + '</span>' : '')
+      + (mineCount ? '<span class="jp-for-you">' + mineCount + ' mục dành cho bạn</span>' : '')
       + '</div>'
       + '<h3 class="jp-parts__pop-title">Phần ' + esc(p.index) + ' · ' + n + ' ' + esc(unit) + '</h3>'
       + '</div>'
       + '<button type="button" class="jp-parts__pop-close" data-parts-pop-close aria-label="Đóng bong bóng">×</button>'
       + '</div>'
       + '<div class="jp-parts__pop-body">'
-      + pillsGridHtml(items, unit, pillsExpanded)
+      + pillsGridHtml(items, unit, pillsExpanded, tabKey)
       + '</div>'
       + '<div class="jp-parts__pop-foot">'
       + '<div class="jp-parts__pop-actions">' + actions + '</div>'
@@ -960,6 +988,14 @@
       var weekOffset = w - currentWeekIdx;
       var startMs = baseMs + weekOffset * 7 * 86400000;
       var endMs = startMs + 6 * 86400000;
+      // parts already studied keep their real day: stretch the range so "Tuần 1 · 24/11–30/11" never holds a 15/11 part
+      for (var dj = 0; dj < normalized.length; dj++) {
+        var dIso = normalized[dj].day || normalized[dj].date;
+        var dMs = dIso ? Date.parse(String(dIso).slice(0, 10) + 'T00:00:00Z') : NaN;
+        if (isNaN(dMs)) continue;
+        if (dMs < startMs) startMs = dMs;
+        if (dMs > endMs) endMs = dMs;
+      }
       var dateRange = shortDdMm(startMs) + '–' + shortDdMm(endMs);
 
       weeks.push({
@@ -1111,6 +1147,15 @@
     return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + aheadHtml + stageHtml + '</div>';
   }
 
+  /** Owner 24/11: true when the node is hidden behind the fixed site header or below the screen. */
+  function nodeOffScreen(node) {
+    if (!node || typeof node.getBoundingClientRect !== 'function') return true;
+    var r = node.getBoundingClientRect();
+    var header = root.document.getElementById('jlabBaseHeader');
+    var top = header && typeof header.getBoundingClientRect === 'function' ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+    return r.bottom < top || r.top > (Number(root.innerHeight) || 760);
+  }
+
   /* Round 6 Bổ sung 1: Keep popover strictly inside viewport & below sticky banner so it is never covered */
   function adjustPopoverInViewport(partsEl) {
     if (!partsEl || !root || !root.document) return;
@@ -1132,8 +1177,17 @@
         bannerBottom = Math.max(bannerBottom, bRect.bottom);
       }
     }
-    var minTop = Math.min(vh * 0.42, bannerBottom + 10);
+    // owner 24/11 (reported many times): the site's fixed header counts too, so the popover never slides under it
+    var header = root.document.getElementById('jlabBaseHeader');
+    var headerBottom = 0;
+    if (header && typeof header.getBoundingClientRect === 'function') {
+      var hRect = header.getBoundingClientRect();
+      if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
+    }
+    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
     var maxBottom = vh - 14;
+    pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
+    pop.style.overflowY = 'auto';
     var rect = pop.getBoundingClientRect();
     var shiftY = 0;
 
@@ -1233,8 +1287,26 @@
         var activePartsEl = root.document && root.document.querySelector('[data-slot="parts"]');
         if (activePartsEl && activePartsEl.__selectedKey) adjustPopoverInViewport(activePartsEl);
       };
-      // Owner 18/11: the popover stays beside its node while scrolling — it is only fitted when opened or resized.
+      // Owner 18/11: the popover stays beside its node while scrolling. Owner 24/11: it never slides under the site
+      // header — while scrolling it is fitted again, and once its node is hidden behind the header or below the
+      // screen the popover closes.
       root.addEventListener('resize', onScrollOrResize, { passive: true });
+      var scrollFrame = 0;
+      root.addEventListener('scroll', function () {
+        if (scrollFrame || typeof root.requestAnimationFrame !== 'function') return;
+        scrollFrame = root.requestAnimationFrame(function () {
+          scrollFrame = 0;
+          var el = root.document && root.document.querySelector('[data-slot="parts"]');
+          if (!el || !el.__selectedKey) return;
+          if (nodeOffScreen(el.querySelector('[data-parts-node="' + String(el.__selectedKey).replace(/"/g, '') + '"]'))) {
+            el.__selectedKey = '';
+            el.__pillsExpanded = false;
+            if (el.__renderCurrent) el.__renderCurrent();
+            return;
+          }
+          adjustPopoverInViewport(el);
+        });
+      }, { passive: true });
     }
   }
 
@@ -1266,6 +1338,7 @@
     var key = String(tabKey || '').toLowerCase();
     var o = opts || {};
     var client = o.api || root.JpathApi;
+    lockedByKana = !!o.afterKana;
     if (!TABS[key] || o.ownLevel === false || !client) {
       partsEl.innerHTML = '';
       partsEl.hidden = true;
@@ -1308,6 +1381,14 @@
       partsEl.addEventListener('click', function (ev) {
         var t = ev.target;
         if (!t || typeof t.closest !== 'function') return;
+
+        // pills are drawn after the page's bind ran: wire the pressed one now and let its own handler open the dialog
+        var writeEl = t.closest('[data-jpath-writing]');
+        if (writeEl && writeEl.getAttribute('data-jpath-writing-bound') !== '1' && root.JpathWriting && root.JpathWriting.bind) {
+          root.JpathWriting.bind(writeEl);
+          writeEl.click();
+          return;
+        }
 
         var popClose = t.closest('[data-parts-pop-close]');
         if (popClose) {
@@ -1479,6 +1560,9 @@
   }
 
   return {
+    printPartHtml: printPartHtml,
+    wordPillHtml: wordPillHtml,
+    partPopoverHtml: partPopoverHtml,
     partsHtml: partsHtml,
     weeklyHtml: weeklyHtml,
     savedNoticeHtml: savedNoticeHtml,

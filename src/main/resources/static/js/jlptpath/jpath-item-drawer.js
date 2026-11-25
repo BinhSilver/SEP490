@@ -186,7 +186,7 @@
     html += section('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
     html += section('Mẹo nhớ', has(d.mnemonic) ? '<p>' + esc(d.mnemonic) + '</p>' : '');
     html += section('Dễ nhầm với', wordListHtml(d.confusables));
-    var writable = type === 'KANJI' || type === 'KANA' || (type === 'VOCAB' && kanjiInWord.length > 0);
+    /* owner 25/11: only kana and kanji have Luyện viết, never words */ var writable = type === 'KANJI' || type === 'KANA';
     if (writable && has(d.code)) {
       html += '<div class="jp-drawer__writing" data-jpath-writing="' + dataJson({ itemType: type, code: d.code }) + '"></div>';
     }

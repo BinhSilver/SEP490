@@ -291,3 +291,17 @@
 .jp-stepper .jp-step--done .jp-step__mark {
   color: var(--jp-ok) !important;
 }
+
+/* owner 23/11: "Luyện thêm" folded into the side menu; a triangle unfolds the tools */
+.jp-sidenav__extra:empty { display: none; }
+.jp-sidenav__extra { display: block; margin-top: 2px; }
+.jp-sidenav__more > summary { list-style: none; cursor: pointer; }
+.jp-sidenav__more > summary::-webkit-details-marker { display: none; }
+.jp-sidenav__more-toggle { display: flex; align-items: center; gap: 10px; }
+.jp-sidenav__tri { width: 0; height: 0; margin: 0 5px 0 4px; border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-left: 7px solid var(--color-outline); transition: transform .15s ease; flex: none; }
+.jp-sidenav__more[open] .jp-sidenav__tri { transform: rotate(90deg); }
+.jp-sidenav__more-list { display: grid; gap: 2px; padding: 2px 0 4px 26px; }
+.jp-sidenav__link--sub { font-size: .92em; }
+.jp-sidenav__link--sub.is-off { color: var(--color-outline); cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .jp-sidenav__tri { transition: none; } }

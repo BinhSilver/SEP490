@@ -455,7 +455,7 @@
       + extra
       // owner 17/11: no review button before anything is due (a new learner saw "Ôn tập hôm nay" on day one)
       + (typeof todayObj.reviewDue === 'number' && todayObj.reviewDue <= 0 ? ''
-        : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay'
+        : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn (sau 1, 3, 7, 14, 30 ngày) và mục trong Sổ tay">Ôn tập hôm nay'
           + (typeof todayObj.reviewDue === 'number' ? ' (' + todayObj.reviewDue + ')' : '') + '</a>')
       + '</div>';
 
@@ -835,8 +835,9 @@
     var p = pathData || {};
     var sec = p.secondary;
     var progress = p.progress || {};
-    var passed = Number(progress.passedTopics || 0);
-    var total = Number(progress.totalTopics || 0);
+    // walkthrough 25/11: the same count as the my-paths card ("Đã xong 2/7 tình huống", 29%), not passed topics
+    var passed = Number(progress.doneSituations || 0);
+    var total = Number(progress.totalSituations || 0);
     var pct = total ? Math.round(100 * passed / total) : 0;
     var fin = p.finished;
     var others = list(p.finishedPaths);
@@ -846,7 +847,7 @@
       + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp')
       + (fin && fin.finishedAt ? ' · xong ' + esc(fmtFullDate(fin.finishedAt)) : '') + '</span>'
       + '<a class="cp-goal-card__progress" href="' + esc(fin && fin.certificateUrl || '/learning/comm/certificate') + '" title="Xem chứng nhận">'
-      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
+      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' tình huống</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
       + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
       + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
@@ -953,8 +954,17 @@
         bannerBottom = Math.max(bannerBottom, bRect.bottom);
       }
     }
-    var minTop = Math.min(vh * 0.42, bannerBottom + 10);
+    // owner 24/11 (reported many times): the site's fixed header counts too, so the popover never slides under it
+    var header = root.document.getElementById('jlabBaseHeader');
+    var headerBottom = 0;
+    if (header && typeof header.getBoundingClientRect === 'function') {
+      var hRect = header.getBoundingClientRect();
+      if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
+    }
+    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
     var maxBottom = vh - 14;
+    pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
+    pop.style.overflowY = 'auto';
     var rect = pop.getBoundingClientRect();
     var shiftY = 0;
 
@@ -1179,6 +1189,27 @@
         renderAll();
       }
     });
+
+    // owner 24/11 (reported many times): while scrolling the popover is fitted again so it never slides under the site
+    // header; once its node is hidden behind the header or below the screen the popover closes
+    var scrollFrame = 0;
+    if (typeof root.addEventListener === 'function') root.addEventListener('scroll', function () {
+      if (scrollFrame || !state.selectedId || typeof root.requestAnimationFrame !== 'function') return;
+      scrollFrame = root.requestAnimationFrame(function () {
+        scrollFrame = 0;
+        if (!state.selectedId || !mapSlot) return;
+        var node = mapSlot.querySelector('[data-cp-node="' + String(state.selectedId).replace(/"/g, '') + '"]');
+        var header = root.document.getElementById('jlabBaseHeader');
+        var top = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+        var r = node && node.getBoundingClientRect();
+        if (!r || r.bottom < top || r.top > (Number(root.innerHeight) || 760)) {
+          state.selectedId = '';
+          renderAll();
+          return;
+        }
+        adjustPopoverInViewport(mapSlot);
+      });
+    }, { passive: true });
 
     planToday().then(function () { return Promise.all([
       root.JpathApi.get('/api/learning/comm/path'),

@@ -1,0 +1,152 @@
+/* [JLAS-W0108] "Lộ trình của tôi" (owner 24/11): dashboard /learning/my, the switcher bar on the path pages and
+   the side-menu link. Team UI standard: tokens only, weights 400/500/600, no arrows or emoji. */
+
+/* ---- Dashboard ---- */
+.mp-page { max-width: 960px; margin: 0 auto; padding: var(--space-6, 24px) var(--space-4, 16px) var(--space-10, 48px); display: grid; gap: 28px; }
+.mp-page__head h1 { margin: 0; font-size: var(--text-2xl, 1.6rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-root { display: grid; gap: 32px; }
+.mp-root[aria-busy="true"] { min-height: 320px; }
+
+.mp-today { position: relative; display: flex; gap: 16px 24px; align-items: center; flex-wrap: wrap;
+  padding: 20px 24px; border-radius: var(--radius-lg, 16px); background: var(--color-primary-fixed); color: var(--color-on-surface); overflow: hidden; }
+.mp-today.is-done { background: var(--color-success-bg); }
+.mp-today__fox { flex: none; width: 96px; height: 96px; object-fit: contain; }
+.mp-today__text { flex: 1 1 280px; display: grid; gap: 4px; }
+.mp-today__date { font-size: var(--text-sm, .875rem); font-weight: 500; color: var(--color-primary); }
+.mp-today.is-done .mp-today__date { color: var(--color-success); }
+.mp-today h2 { margin: 0; font-size: var(--text-xl, 1.3rem); font-weight: 500; color: var(--color-on-surface); }
+.mp-today h2 strong { font-weight: 600; color: var(--color-primary); }
+.mp-today p { margin: 0; color: var(--color-on-surface-variant); }
+.mp-today__cta { display: grid; gap: 6px; justify-items: end; }
+.mp-today__next { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-today__remind { font-weight: 500; color: var(--color-on-surface) !important; }
+.mp-today__warn { margin-top: 6px !important; padding-left: 10px; border-left: 3px solid var(--color-warning, var(--color-error));
+  color: var(--color-on-surface) !important; }
+
+.mp-list__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.mp-list__head h2 { margin: 0; font-size: var(--text-base, 1rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-count { margin-left: 6px; font-weight: 400; color: var(--color-on-surface-variant); }
+.mp-list__hint { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+.mp-kind--jlpt { --mp-accent: var(--color-primary); --mp-accent-bg: var(--color-primary-fixed); }
+.mp-kind--comm { --mp-accent: var(--color-secondary); --mp-accent-bg: var(--color-secondary-container); }
+.mp-card { position: relative; display: grid; gap: 12px; align-content: start; padding: 20px 20px 18px; border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--color-outline-variant); border-top: 4px solid var(--mp-accent, var(--color-primary));
+  background: var(--color-surface-lowest); color: var(--color-on-surface); }
+.mp-chip { justify-self: start; padding: 2px 10px; border-radius: 99px; font-size: var(--text-xs, .75rem); font-weight: 600;
+  background: var(--mp-accent-bg); color: var(--mp-accent); }
+.mp-steps { list-style: none; margin: 2px 0 0; padding: 0; display: flex; }
+.mp-steps__stop { position: relative; flex: 1; display: grid; justify-items: center; gap: 6px; font-size: var(--text-xs, .75rem);
+  color: var(--color-on-surface-variant); }
+.mp-steps__stop + .mp-steps__stop::before { content: ""; position: absolute; top: 6px; right: 50%; width: 100%; height: 2px;
+  background: var(--color-outline-variant); }
+.mp-steps__stop.is-passed::before, .mp-steps__stop.is-current::before { background: var(--mp-accent); }
+.mp-steps__dot { position: relative; z-index: 1; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--color-outline-variant);
+  background: var(--color-surface-lowest); }
+.mp-steps__stop.is-passed .mp-steps__dot { background: var(--mp-accent); border-color: var(--mp-accent); }
+.mp-steps__stop.is-current .mp-steps__dot { border-color: var(--mp-accent); box-shadow: 0 0 0 4px var(--mp-accent-bg); }
+.mp-steps__stop.is-current { font-weight: 600; color: var(--mp-accent); }
+.mp-card__head { display: grid; gap: 2px; }
+.mp-card__head h3 { margin: 0; font-size: var(--text-lg, 1.1rem); font-weight: 600; }
+.mp-card__kind { font-size: var(--text-xs, .75rem); font-weight: 500; color: var(--color-on-surface-variant); }
+.mp-card__today { margin: 0; font-weight: 500; }
+.mp-card__today.is-done { color: var(--color-success); }
+.mp-card__meta { margin: 0; font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+.mp-card__actions .jp-btn { min-height: 40px; }
+.mp-card__pause { margin-left: auto; }
+
+.mp-prog { display: flex; align-items: center; gap: 10px; }
+.mp-prog__bar { flex: 1; height: 6px; border-radius: 99px; background: var(--color-surface-container); overflow: hidden; }
+.mp-prog__bar i { display: block; height: 100%; border-radius: inherit; background: var(--mp-accent, var(--color-primary)); }
+.mp-prog__pct { font-size: var(--text-sm, .875rem); font-weight: 500; color: var(--color-on-surface-variant); min-width: 3ch; text-align: right; }
+
+.mp-link { padding: 6px 4px; border: 0; background: none; font: inherit; font-size: var(--text-sm, .875rem); font-weight: 500;
+  color: var(--color-on-surface-variant); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.mp-link:hover { color: var(--color-on-surface); }
+.mp-link:focus-visible { outline: 2px solid var(--color-focus, var(--color-primary)); outline-offset: 2px; border-radius: 4px; }
+
+/* owner 24/11: compact one-line row, not a tall empty card */
+.mp-add { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; text-decoration: none; font-weight: 500;
+  font-size: var(--text-sm, .875rem); border: 1px solid var(--color-outline-variant); border-radius: 99px; color: var(--color-primary); }
+.mp-list__head:has(.mp-add) { justify-content: flex-start; }
+.mp-list__head:has(.mp-add) .mp-list__hint { margin-left: auto; }
+.mp-add__plus { font-weight: 600; font-size: 1.1em; line-height: 1; }
+.mp-add:hover { border-color: var(--color-primary); background: var(--color-surface-container); }
+
+.mp-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-outline-variant); }
+.mp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px 16px; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--color-outline-variant); }
+.mp-row__name { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px 10px; font-weight: 500; color: var(--color-on-surface); min-width: 0; }
+.mp-row__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mp-accent); }
+.mp-row__bar { grid-column: 2; height: 4px; max-width: 220px; border-radius: 99px; background: var(--color-surface-container); overflow: hidden; }
+.mp-row__bar i { display: block; height: 100%; background: var(--mp-accent); }
+.mp-row__note { font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+.mp-row__act { display: flex; align-items: center; gap: 8px; justify-self: end; }
+.mp-row__act .jp-btn { min-height: 36px; }
+.mp-full { margin: 0; font-size: var(--text-sm, .875rem); color: var(--color-on-surface-variant); }
+
+.mp-error { padding: 24px; display: grid; gap: 10px; justify-items: start; }
+.mp-error h2 { margin: 0; font-size: var(--text-lg, 1.15rem); font-weight: 600; }
+.mp-error p { margin: 0; color: var(--color-on-surface-variant); }
+
+/* ---- Dialog "đang học đủ 2" (fixed, above the site header) ---- */
+.mp-dialog { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 16px; }
+.mp-dialog__backdrop { position: absolute; inset: 0; background: rgba(22, 29, 31, .45); }
+.mp-dialog__panel { position: relative; max-width: 460px; width: 100%; padding: 22px; border-radius: var(--radius-lg, 16px);
+  background: var(--color-surface-lowest); color: var(--color-on-surface); box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, .18)); }
+.mp-dialog__msg { margin: 0 0 16px; line-height: 1.55; }
+.mp-dialog__actions { display: grid; gap: 8px; }
+
+/* ---- Switcher bar on the path pages ---- */
+.mp-switch { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 16px; padding: 8px 10px;
+  border-radius: var(--radius-md, 12px); border: 1px solid var(--color-outline-variant); background: var(--color-surface-lowest); }
+.mp-switch__home { font-size: var(--text-sm, .875rem); font-weight: 500; color: var(--color-primary); text-decoration: none; padding: 6px 8px; border-radius: 8px; }
+.mp-switch__home:hover { background: var(--color-primary-fixed); }
+.mp-switch__tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 4px; border-radius: 10px; background: var(--color-surface-container); }
+.mp-switch__tab { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 8px; text-decoration: none;
+  font-weight: 500; color: var(--color-on-surface-variant); }
+.mp-switch__tab:hover { color: var(--color-on-surface); }
+.mp-switch__tab.is-current { background: var(--color-surface-lowest); color: var(--color-primary); font-weight: 600; }
+.mp-switch__done { font-size: var(--text-xs, .75rem); font-weight: 500; color: var(--color-success); }
+.mp-switch a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+@media (max-width: 640px) {
+  .mp-today__fox { width: 64px; height: 64px; }
+  .mp-today__cta { justify-items: stretch; width: 100%; }
+  .mp-today__cta .jp-btn { width: 100%; }
+  .mp-grid { grid-template-columns: 1fr; }
+  .mp-row { grid-template-columns: 1fr auto; }
+  .mp-row__note { grid-column: 1; grid-row: 2; }
+  .mp-row__act { grid-row: 1 / span 2; grid-column: 2; }
+}
+
+/* [JLAS-W0108] F240: entry and exit of a path on its card, and the level / need popup */
+.mp-io { margin: 0; padding: 10px 12px; display: grid; gap: 4px; border-radius: var(--radius-md, 10px);
+  background: var(--color-surface-container-low); font-size: var(--text-sm, .875rem); color: var(--color-on-surface); }
+.mp-io__row { margin: 0; }
+.mp-io__k { font-weight: 500; color: var(--color-on-surface-variant); }
+.mp-io__lv { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--color-primary);
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.mp-io__lv:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; border-radius: 4px; }
+.mp-io__progress { margin: 0; color: var(--color-on-surface-variant); }
+.mp-io__retest { justify-self: start; font-size: var(--text-sm, .875rem); }
+.mp-io__title { margin: 0 0 6px; font-size: var(--text-lg, 1.1rem); font-weight: 600; color: var(--color-on-surface); }
+.mp-io__counts { margin: 0 0 8px; color: var(--color-on-surface-variant); }
+.mp-io__cando { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 4px; color: var(--color-on-surface); }
+
+/* owner 25/11: the active cards line up: same height, actions pinned to the bottom of each card */
+.mp-card { grid-template-rows: auto; align-content: stretch; height: 100%; display: flex; flex-direction: column; }
+.mp-card__actions { margin-top: auto; padding-top: 12px; }
+
+/* owner 25/11: one sliding pill instead of a page-jump; the two path pages cross-fade without a white flash */
+.mp-switch__tabs { position: relative; }
+.mp-switch__tabs.has-pill .mp-switch__tab.is-current { background: transparent; }
+.mp-switch__tab { position: relative; z-index: 1; transition: color .2s ease; }
+.mp-switch__pill { position: absolute; z-index: 0; top: 4px; bottom: 4px; left: 0; border-radius: 8px;
+  background: var(--color-surface-lowest); box-shadow: 0 1px 2px color-mix(in srgb, var(--color-on-surface) 12%, transparent); }
+.mp-switch__pill.is-moving { transition: transform .22s ease, width .22s ease; }
+.mp-switch { view-transition-name: mp-switch; }
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) { .mp-switch__pill.is-moving { transition: none; } }

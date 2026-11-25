@@ -63,7 +63,7 @@
       next = '<p><strong>Bạn đã đạt mục tiêu.</strong> Muốn học tiếp, hãy đổi cấp mục tiêu trong '
         + '<a href="/learning/jlpt/settings">Cài đặt</a>.</p>';
     } else if (s.nextLevel) {
-      next = '<a class="jp-btn jp-btn--primary" href="/learning">Học tiếp ' + esc(s.nextLevel) + '</a>';
+      next = '<a class="jp-btn jp-btn--primary" href="/learning?view=jlpt">Học tiếp ' + esc(s.nextLevel) + '</a>';
     } else if (s.nextLevelComing) {
       next = '<p class="jp-muted">Cấp sau sắp có.</p>';
     }

@@ -2344,3 +2344,67 @@ html:has(.cp-sit-shell), html:has(.cp-core-cards) { scrollbar-gutter: stable; }
 
 /* bug 17: why the 7th rest day did not turn on */
 .cp-survey__hint { margin: 6px 0 0; font-size: 13px; font-weight: 400; color: var(--jp-muted, inherit); }
+
+/* [JLAS-W0108] owner 23/11: the communication flashcard uses the same mould as the Flashcard page's card
+   (672px wide, 320px tall, 24px corners, white, thin border, no shadow) */
+.cp-flashcard-clip { width: 100%; max-width: 672px; margin-inline: auto; border-radius: 24px; }
+.cp-flashcard { min-height: 320px; border-radius: 24px !important; border: 1px solid #cbc4d2 !important; background: #fff !important; box-shadow: none !important; }
+html[data-theme="dark"] .cp-flashcard { background: var(--color-surface-lowest) !important; border-color: var(--color-outline-variant) !important; }
+
+/* owner 25/11: situation page uses the JLPT study page's minimal frames — top bar and step tabs are bare lines, no box */
+.cp-sit-shell .cp-sit-topbar, .cp-page .cp-sit-topbar { padding: 0 2px; gap: 6px 10px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.cp-sit-shell .cp-sit-steps, .cp-page .cp-sit-steps { padding: 0; gap: 4px; border: 0; border-radius: 0; background: transparent; }
+.cp-sit-shell .cp-step-tab, .cp-page .cp-step-tab { min-height: 28px; padding: 2px 10px; border-radius: 999px; font-size: .82rem; }
+.cp-sit-shell .cp-sit-topbar .cp-btn-ghost, .cp-page .cp-sit-topbar .cp-btn-ghost { min-height: 28px; padding: 2px 10px; font-size: .8rem; }
+.cp-sit-title { font-size: 1rem; }
+
+/* [JLAS-W0108] owner 25/11: comm day page — blocks keep their gap, situation rows line up with one fixed-width button */
+.jp-dayd__hero-row { display: grid; gap: 12px; margin-bottom: 16px; justify-items: stretch; grid-template-columns: minmax(0, 1fr); }
+.jp-dayd__hero-row > .jp-dayd__mascot { width: auto; max-width: none; justify-self: stretch; }
+.jp-dayd__badge { display: inline-flex; margin: 0; }
+.jp-dayd__sum { margin: 0; }
+.jp-dayd__sec { margin-top: 0; }
+.jp-dayd__sec + .jp-dayd__sec, .jp-dayd__actions { margin-top: 16px; }
+.jp-dayd__sec .jp-todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jp-dayd__sec .jp-todo__item { display: grid; grid-template-columns: minmax(0, 1fr) 160px; align-items: center; gap: 16px;
+  padding: 12px 16px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md, 12px); }
+.jp-dayd__sec .jp-todo__item .jp-today__pill-body { min-width: 0; }
+.jp-dayd__sec .jp-todo__item > .cp-btn-primary { width: 160px; justify-self: end; text-align: center; }
+@media (max-width: 600px) {
+  .jp-dayd__sec .jp-todo__item { grid-template-columns: 1fr; }
+  .jp-dayd__sec .jp-todo__item > .cp-btn-primary { width: 100%; }
+}
+
+/* Owner 25/11: step 1 "Từ & mẫu câu" is a compact list, like the JLPT path word lists */
+.cp-wordlist { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 0; border: 1px solid var(--cp-line); border-radius: 12px; background: var(--cp-surface); }
+.cp-wordrow { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--cp-line); }
+.cp-wordrow:first-child { border-top: 0; }
+.cp-wordrow__main { flex: 1 1 auto; min-width: 0; display: grid; gap: 3px; }
+.cp-wordrow__ja { font-size: 1.25rem; font-weight: 600; color: var(--cp-ink); line-height: 1.5; }
+.cp-wordrow__ja ruby rt { font-size: .5em; font-weight: 500; }
+.cp-wordrow__ja .cp-flashcard__rd { margin-left: 8px; font-size: .9rem; }
+.cp-wordrow__vi { font-size: .95rem; font-weight: 500; color: var(--jp-c-purple-900); }
+.cp-wordrow__ex { display: grid; gap: 2px; margin-top: 2px; font-size: .88rem; color: var(--cp-ink); }
+.cp-wordrow__ex ruby rt { font-size: .6em; }
+.cp-wordrow__ex-vi { color: var(--cp-muted); font-size: .82rem; }
+.cp-wordrow__actions { flex: 0 0 auto; display: flex; gap: 6px; }
+.cp-sit-foot--end { justify-content: flex-end; }
+@media (max-width: 600px) {
+  .cp-wordrow { padding: 10px 12px; gap: 8px; }
+  .cp-wordrow__ja { font-size: 1.1rem; }
+  .cp-wordrow__actions { flex-direction: column; }
+}
+.cp-wordrow__actions .jp-save-btn { position: static; }
+
+/* [JLAS-W0108] walkthrough 25/11: the comm day page ends with one back link; it sits after the list instead of
+   floating over the last situation row */
+.jp-dayd__actions.cp-dayd__back { position: static; margin-top: 16px; padding: 12px 0 0; background: none; backdrop-filter: none; }
+
+/* owner 25/11: "nothing to do here yet" card (weekly check not open, nothing studied) */
+.cp-state-card { max-width: 480px; margin: 8vh auto 0; padding: 32px 24px; border-radius: 16px; background: var(--jp-surface, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .06); text-align: center; }
+.cp-state-card__pic { display: block; margin: 0 auto 12px; }
+.cp-state-card__title { margin: 0 0 8px; font-size: 1.25rem; font-weight: 600; }
+.cp-state-card__text { margin: 0 0 20px; color: var(--jp-muted, #555); line-height: 1.5; }
+.cp-state-card__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; text-decoration: none; }
+@media (max-width: 640px) { .cp-state-card { margin-top: 24px; padding: 24px 16px; } }

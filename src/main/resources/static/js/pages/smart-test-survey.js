@@ -43,6 +43,9 @@
   var kanaAutoFilled = false;
   var editParam = null;
   try { editParam = new URLSearchParams(window.location.search).get('edit'); } catch (ignore) { editParam = null; }
+  // [JLAS-W0108] owner 23/11: ?retake=1 (from the past-result page) shows the start card instead of the old result
+  var retakeParam = false;
+  try { retakeParam = new URLSearchParams(window.location.search).get('retake') === '1'; } catch (ignore) { retakeParam = false; }
 
   function checkedValue(name) {
     var input = form.querySelector('input[name="' + name + '"]:checked');
@@ -218,10 +221,13 @@
     var keepsPath = Boolean(afterSurveyTarget) && Flow.keepsPath(pathStatus);
     var resumesSmartTest = Boolean(afterSurveyTarget) && !keepsPath && !fromZero;
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
+    var hasResult = Boolean(entryStatus && entryStatus.smartTest && entryStatus.smartTest.status === 'SUBMITTED');
     if (keepsPath) {
-      document.getElementById('inviteTitle').textContent = 'Lộ trình JLPT của bạn vẫn được giữ!';
-      document.getElementById('inviteText').textContent = 'Tiến độ học vẫn được giữ nguyên. Bạn có thể làm lại Smart Test để đo trình độ hiện tại; '
-        + 'ở trang kết quả, KotsuKotsu so cấp mới với lộ trình và cho bạn đổi cấp nếu cần.';
+      document.getElementById('inviteTitle').textContent = hasResult ? 'Làm lại Smart Test?' : 'Đo trình độ bằng Smart Test';
+      document.getElementById('inviteText').textContent = (hasResult
+        ? 'Bài mới thay cho kết quả lần trước. '
+        : 'Lộ trình hiện tại được tạo từ khảo sát, bạn chưa làm Smart Test. ')
+        + 'Lộ trình và tiến độ giữ nguyên; xong bài, bạn so cấp mới với lộ trình và tự chọn có đổi cấp hay không.';
     } else if (resumesSmartTest) {
       document.getElementById('inviteTitle').textContent = 'Kitsu đã lưu lịch học của bạn!';
       document.getElementById('inviteText').textContent = 'Bạn đã có bài Smart Test. Tiếp tục để xem kết quả và xác nhận lộ trình JLPT.';
@@ -235,10 +241,13 @@
       document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
     }
+    // owner 23/11: a path learner without a Smart Test result sees where they started (from the survey), not an invite
+    renderEntrySummary(keepsPath && !hasResult ? { survey: survey, entry: entryStatus, fromZero: fromZero } : null);
     // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
-    startTest.hidden = needsPathOnly && !keepsPath;
+    // owner 23/11: a learner new to Japanese who keeps a path is not offered Smart Test (set after the summary)
+    startTest.hidden = (needsPathOnly && !keepsPath) || (keepsPath && !hasResult && fromZero);
     var startLabel = startTest.querySelector('span');
-    if (startLabel) startLabel.textContent = keepsPath ? 'Làm lại Smart Test' : 'Bắt đầu Smart Test';
+    if (startLabel) startLabel.textContent = keepsPath ? (hasResult ? 'Làm bài mới' : 'Làm Smart Test') : 'Bắt đầu Smart Test';
     noTest = needsPathOnly;
     goHome.textContent = needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
     goHome.classList.toggle('smart-test-primary', needsPathOnly);
@@ -249,6 +258,69 @@
     invitation.hidden = false;
     notice.hidden = true;
     (needsPathOnly ? goHome : startTest).focus();
+  }
+
+  var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy', SUN: 'Chủ nhật' };
+
+  /** Rows of the "where you started" summary for a path learner without a Smart Test result (owner 23/11). */
+  function entrySummaryRows(survey, entry, fromZero) {
+    var sv = survey || {};
+    var en = entry || {};
+    var self = sv.selfReportedLevel;
+    var selfText = self === 'FROM_ZERO' ? 'Chưa học tiếng Nhật'
+      : self === 'UNKNOWN' || !self ? 'Đã học, chưa rõ cấp' : 'Khoảng ' + self;
+    var days = function (list) {
+      return (list || []).map(function (c) { return DAY_NAMES[c] || c; }).join(', ');
+    };
+    var rows = [
+      ['Mục tiêu', 'JLPT ' + (sv.targetLevel || 'N5')],
+      ['Trình độ khi khảo sát', selfText],
+      ['Bắt đầu từ', fromZero ? 'Bảng chữ cái, rồi N5' : 'Cấp theo khảo sát']
+    ];
+    if (en.skillDays && en.skillDays.length) rows.push(['Ngày kỹ năng', days(en.skillDays)]);
+    rows.push(['Ngày nghỉ', en.restDays && en.restDays.length ? days(en.restDays) : 'Không có']);
+    if (!fromZero) rows.push(['Smart Test', 'Chưa làm (không bắt buộc)']);
+    return rows;
+  }
+
+  function renderEntrySummary(data) {
+    var old = document.getElementById('surveyEntrySummary');
+    if (old) old.remove();
+    var eyebrow = invitation.querySelector('.survey-eyebrow');
+    var actions = invitation.querySelector('.survey-invitation__actions');
+    if (!data) {
+      if (eyebrow) eyebrow.textContent = 'Kitsu đã ghi nhớ mục tiêu của bạn';
+      startTest.className = 'smart-test-primary';
+      if (actions && actions.firstElementChild !== startTest) actions.insertBefore(startTest, actions.firstChild);
+      return;
+    }
+    if (eyebrow) eyebrow.textContent = 'Điểm bắt đầu của bạn';
+    document.getElementById('inviteTitle').textContent = data.fromZero ? 'Bạn bắt đầu từ bảng chữ cái' : 'Lộ trình của bạn đến từ khảo sát';
+    // owner 23/11: a learner new to Japanese does not need Smart Test at all; never word it as a missing step
+    document.getElementById('inviteText').textContent = data.fromZero
+      ? 'Bạn chưa học tiếng Nhật nên lộ trình bắt đầu từ bảng chữ cái, không cần làm bài kiểm tra đầu vào.'
+      : 'Lộ trình dựa trên khảo sát của bạn. Nếu muốn biết mình đang ở cấp nào, bạn có thể làm Smart Test bất cứ lúc nào; lộ trình và tiến độ giữ nguyên.';
+    var dl = document.createElement('dl');
+    dl.id = 'surveyEntrySummary';
+    dl.className = 'survey-entry-summary';
+    entrySummaryRows(data.survey, data.entry, data.fromZero).forEach(function (row) {
+      var item = document.createElement('div');
+      var dt = document.createElement('dt'); dt.textContent = row[0];
+      var dd = document.createElement('dd'); dd.textContent = row[1];
+      if (row[0] === 'Mục tiêu') dd.setAttribute('data-entry-target', '');
+      item.append(dt, dd); dl.appendChild(item);
+    });
+    document.getElementById('inviteText').after(dl);
+    // the goal shown is the path's current one (settings may have changed it since the survey)
+    api('/api/learning/jlpt/path').then(function (path) {
+      var box = document.getElementById('surveyEntrySummary');
+      var cell = box && box.querySelector ? box.querySelector('[data-entry-target]') : null;
+      if (cell && path && path.targetLevel) cell.textContent = 'JLPT ' + path.targetLevel;
+    }).catch(function () {});
+    // the path is the main way on; Smart Test stays one click away, and is not offered to a learner new to Japanese
+    startTest.className = 'smart-test-secondary';
+    if (actions) actions.appendChild(startTest);
+    startTest.hidden = Boolean(data.fromZero);
   }
 
   function getVietnamToday() {
@@ -550,6 +622,10 @@
       if (startStep) {
         finishLoading();
         openWizard(startStep);
+      } else if (survey && !retakeParam && entryStatus && entryStatus.smartTest
+          && entryStatus.smartTest.status === 'SUBMITTED' && entryStatus.smartTest.attemptId) {
+        // owner 23/11: a learner who already took Smart Test sees that result first, not the start card
+        window.location.replace('/smart-test?attempt=' + encodeURIComponent(entryStatus.smartTest.attemptId));
       } else if (survey) {
         finishLoading();
         showInvitation(survey);
@@ -569,6 +645,7 @@
       getExamDateConstraints: getExamDateConstraints,
       initExamDateConstraints: initExamDateConstraints,
       fillSurvey: fillSurvey,
+      entrySummaryRows: entrySummaryRows,
       ready: initReady
     };
   }

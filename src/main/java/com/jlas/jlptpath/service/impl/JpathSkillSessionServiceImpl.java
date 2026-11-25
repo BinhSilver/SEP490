@@ -73,6 +73,9 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
     private ObjectProvider<JpathRewardHook> hooks;
     @Autowired
     private ObjectProvider<JpathDayCompletion> completion;
+    // F238: carried skill sessions (field-injected so the constructor stays as it was)
+    @Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathCalendarService calendar;
     private final TransactionTemplate tx;
     private final TransactionTemplate readTx;
 
@@ -127,7 +130,20 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         List<VisibleSet> sets;
         if (r.kind() == JpathSkillSessionKind.DAY) {
             if (plan.getDayKind() != JpathDayKind.SKILL) {
-                throw new ApiException(ErrorCode.JPATH_SKILL_NOT_SKILL_DAY);
+                // F238: a normal study day takes one session carried from earlier weeks, nothing else
+                JpathSkillCarry.Carry carry = carryOf(path, plan.getStudyDay());
+                if (!carry.offerToday() && carry.owed() <= 0) {
+                    throw new ApiException(ErrorCode.JPATH_SKILL_NOT_SKILL_DAY);
+                }
+                if (!carry.offerToday()) {
+                    Optional<JpathSkillSession> paidToday = sessions
+                            .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(userId,
+                                    plan.getId(), r.skill(), JpathSkillSessionKind.DAY);
+                    if (paidToday.isPresent()) {
+                        return paidToday.get().getId();
+                    }
+                    throw new ApiException(ErrorCode.JPATH_SKILL_NOT_SKILL_DAY);
+                }
             }
             Optional<JpathSkillSession> doneToday = sessions
                     .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(userId,
@@ -154,6 +170,36 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                 .reused(pick.reused()).studyDay(plan.getStudyDay()).startedAt(clock.now()).build());
         ensureTokens(s, true);
         return s.getId();
+    }
+
+    @Override
+    public com.jlas.jlptpath.dto.JpathSkillCarryView carry(Long userId) {
+        return readTx.execute(status -> {
+            JpathUserPath path = paths.findFirstByUserIdAndStatusAndArchivedAtIsNullOrderByIdDesc(userId,
+                    com.jlas.jlptpath.enums.JpathPathStatus.ACTIVE).orElse(null);
+            if (path == null) {
+                return new com.jlas.jlptpath.dto.JpathSkillCarryView(0, "READING", false, false);
+            }
+            java.time.LocalDate today = clock.today(userId);
+            JpathSkillCarry.Carry carry = carryOf(path, today);
+            JpathDailyPlan plan = plans == null ? null : plans.findByUserIdAndStudyDay(userId, today).orElse(null);
+            boolean studyDay = plan == null || plan.getDayKind() == JpathDayKind.STUDY;
+            return new com.jlas.jlptpath.dto.JpathSkillCarryView(carry.owed(), carry.skill().name(),
+                    studyDay && carry.offerToday(), carry.doneToday());
+        });
+    }
+
+    /** F238: carried skill sessions of the path on {@code day} (none without the calendar, e.g. hand-built tests). */
+    private JpathSkillCarry.Carry carryOf(JpathUserPath path, java.time.LocalDate day) {
+        if (calendar == null || plans == null || levels == null) {
+            return JpathSkillCarry.Carry.NONE;
+        }
+        com.jlas.jlptpath.enums.JpathStage stage = levels.findById(new com.jlas.jlptpath.entity.JpathUserLevelId(path.getId(), path.getOpenLevel()))
+                .map(com.jlas.jlptpath.entity.JpathUserLevel::getStage).orElse(null);
+        if (stage == null) {
+            return JpathSkillCarry.Carry.NONE;
+        }
+        return JpathSkillCarry.compute(calendar, plans, sessions, path, stage, day);
     }
 
     /** FREE: a visible type of the requested skill, at the open level or a lower one, whose lesson is visible. */
@@ -192,7 +238,14 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
                 case PRACTICE -> {
                     ensureTokens(s, false);
                     Optional<JpathCheckSet> practice = submitted(userId, s.getPracticeToken());
-                    if (practice.isPresent()) {
+                    if (practice.isPresent() && s.getKind() == JpathSkillSessionKind.DAY
+                            && pct(practice.get()) < JpathSkillPolicy.DAY_PASS_PCT) {
+                        // Q7 (owner 24/11): a skill day counts only from 50% on the practice; below it the learner
+                        // gets a fresh practice of the same sets (no limit), the failed score shown on the page
+                        s.setScorePct(java.math.BigDecimal.valueOf(pct(practice.get())));
+                        s.setPracticeToken(null);
+                        ensureTokens(s, false);
+                    } else if (practice.isPresent()) {
                         if (s.getSkill() == JpathSkill.LISTENING) {
                             s.setStep(JpathSkillStep.DICTATION);
                         } else {
@@ -282,6 +335,12 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         }
     }
 
+    private static int pct(JpathCheckSet c) {
+        if (c.getScorePct() != null) return c.getScorePct().intValue();
+        Integer total = c.getTotalCount(), ok = c.getCorrectCount();
+        return total == null || total == 0 || ok == null ? 100 : Math.round(100f * ok / total);
+    }
+
     private Optional<JpathCheckSet> submitted(Long userId, String token) {
         return checkSet(userId, token).filter(c -> SUBMITTED.equals(c.getStatus()));
     }
@@ -310,7 +369,12 @@ public class JpathSkillSessionServiceImpl implements JpathSkillSessionService {
         return new JpathSkillSessionView(s.getId(), s.getSkill(), s.getKind(), s.getTypeCode(), s.getStep(),
                 codes.size(), questions, dictation, s.isReused(), s.getPracticeToken(), s.getDictationToken(),
                 s.getCompletedAt() != null, s.getCpAwarded() == null ? 0 : s.getCpAwarded(), s.getStudyDay(),
-                practiceCorrect, dictationCorrect);
+                practiceCorrect, dictationCorrect,
+                s.getStep() == JpathSkillStep.PRACTICE && s.getKind() == JpathSkillSessionKind.DAY ? toInt(s.getScorePct()) : null);
+    }
+
+    private static Integer toInt(Number n) {
+        return n == null ? null : n.intValue();
     }
 
     private Optional<JpathCheckSet> checkSet(Long userId, String token) {

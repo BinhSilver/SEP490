@@ -55,20 +55,25 @@ public class JpathCalendarServiceImpl implements JpathCalendarService {
         Set<DayOfWeek> skill = JpathDays.parse(path.getSkillDays());
         Set<DayOfWeek> rest = JpathDays.parse(path.getRestDays());
         boolean skillPractice = stage == JpathStage.SKILL_PRACTICE;
-        DayOfWeek third = skillPractice ? resolveThirdDay(path.getThirdSkillDay(), skill, rest) : null;
-        return JpathCalendarService.kindOf(day, skill, rest, third, skillPractice, noNewItemsLeft);
+        DayOfWeek third = thirdDayOn(path, stage) ? resolveThirdDay(path.getThirdSkillDay(), skill, rest) : null;
+        return JpathCalendarService.kindOf(day, skill, rest, third, skillPractice || third != null, noNewItemsLeft && skillPractice);
     }
 
     @Override
     public Set<DayOfWeek> skillDays(JpathUserPath path, JpathStage stage) {
         EnumSet<DayOfWeek> skill = JpathDays.parse(path.getSkillDays());
-        if (stage == JpathStage.SKILL_PRACTICE) {
+        if (thirdDayOn(path, stage)) {
             DayOfWeek third = resolveThirdDay(path.getThirdSkillDay(), skill, JpathDays.parse(path.getRestDays()));
             if (third != null) {
                 skill.add(third);
             }
         }
         return skill;
+    }
+
+    /** The third skill day runs in skill practice, and from the study stage for a Q9 path (weak Reading/Listening). */
+    static boolean thirdDayOn(JpathUserPath path, JpathStage stage) {
+        return stage == JpathStage.SKILL_PRACTICE || path.isExtraSkillDay();
     }
 
     @Override

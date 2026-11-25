@@ -115,9 +115,34 @@
       + '</section>';
   }
 
+  /** Owner 24/11 "Lộ trình của tôi": paths are equal, so the settings box lists them and links to the dashboard. */
+  function myPathsPanelHtml(view) {
+    var label = { ACTIVE: 'Đang học', PAUSED: 'Tạm dừng', FINISHED: 'Đã xong' };
+    var list = view && Array.isArray(view.paths) ? view.paths : [];
+    var rows = list.length
+      ? '<ul class="jp-goals__paused">' + list.map(function (p) {
+        return '<li><strong>' + esc(p.title) + '</strong> · ' + esc(label[p.status] || p.status) + '</li>';
+      }).join('') + '</ul>'
+      : '<span class="jp-goals__none">Chưa có lộ trình nào</span>';
+    return '<section class="jp-card jp-goals" aria-labelledby="jpGoalsTitle">'
+      + '<h2 id="jpGoalsTitle" class="jp-goals__title">Lộ trình của tôi</h2>'
+      + row('Các lộ trình', rows, 'Học cùng lúc tối đa ' + (Number(view && view.maxActive) || 2)
+        + ' lộ trình, mỗi lộ trình giữ nhịp riêng. Tạm dừng lộ trình nào chỉ dừng lộ trình đó; Học tiếp mở lại đúng chỗ đã dừng.')
+      + '<div class="jp-goals__actions"><a class="jp-btn jp-btn--primary" href="/learning/my">Mở Lộ trình của tôi</a></div>'
+      + '</section>';
+  }
+
   function mount(el) {
     var client = root && root.JpathApi;
     if (!el || !client) return null;
+    // the "Lộ trình của tôi" API replaces the main/secondary overview; older servers keep the old box
+    return Promise.resolve(client.get('/api/learning/my-paths')).then(function (mine) {
+      el.innerHTML = myPathsPanelHtml(mine);
+      el.onclick = null;
+    }, function () { return mountOverview(el, client); });
+  }
+
+  function mountOverview(el, client) {
     return Promise.resolve(client.get(URL_OVERVIEW)).then(function (view) {
       el.innerHTML = panelHtml(view);
       var ask = root.JlasConfirm || function (msg) { return Promise.resolve(root.confirm(msg)); };
@@ -135,7 +160,7 @@
             : (jlptOpen ? client.send('POST', '/api/learning/jlpt/path/pause') : client.send('POST', '/api/learning/comm/goals/pause-for-jlpt'));
           Promise.resolve(req).then(function () {
             if (action === 'promote') { root.location.assign('/learning/comm/path?goalChanged=promote'); return; }
-            mount(el).then(function () {
+            mountOverview(el, client).then(function () {
               var m2 = el.querySelector('.jp-goals__msg');
               if (m2) { m2.hidden = false; m2.textContent = 'Đã tạm dừng. Tiến độ được giữ nguyên.'; }
             });
@@ -147,5 +172,5 @@
     }, function () { el.hidden = true; });
   }
 
-  return { panelHtml: panelHtml, changeText: changeText, mount: mount };
+  return { panelHtml: panelHtml, myPathsPanelHtml: myPathsPanelHtml, changeText: changeText, mount: mount };
 });

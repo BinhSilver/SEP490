@@ -82,6 +82,10 @@
       + '</section>';
   }
 
+  // [JLAS-W0108] Q2 24/11: the comm path reviews on a fixed schedule, said in one line on the review page
+  var REVIEW_SCHEDULE_NOTE = 'Lịch ôn của lộ trình giao tiếp cố định: mỗi tình huống được ôn lại sau 1, 3, 7, 14 và 30 ngày kể từ ngày học xong; mục trong Sổ tay được ôn mỗi ngày tới khi làm đúng.';
+  function scheduleNoteHtml() { return REVIEW ? '<p class="jp-muted" data-part="review-schedule">' + esc(REVIEW_SCHEDULE_NOTE) + '</p>' : ''; }
+
   // [JLAS-W0108] C3: one next step under the weekly score (weak items → notebook)
   function weekTipHtml(r) {
     if (REVIEW) return '';
@@ -128,9 +132,9 @@
     return '<section class="jp-result" aria-labelledby="cpWeeklyResult">'
       + '<div class="jp-result__score' + (ok ? ' jp-ok' : '') + '">' + esc(r.score) + '%</div>'
       + '<h2 id="cpWeeklyResult" class="jp-result__title" tabindex="-1">'
-      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu.' + (Number(r.correct) < Number(r.total) ? ' Mục sai đã vào Sổ tay.' : ' Không sai câu nào.')) : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : ''))
+      + esc(REVIEW ? ('Ôn xong: đúng ' + r.correct + '/' + r.total + ' câu.' + (Number(r.correct) < Number(r.total) ? ' Mục sai đã vào Sổ tay.' : ' Không sai câu nào.')) : ok ? ('Đạt kiểm tra tuần: đúng ' + r.correct + '/' + r.total + ' câu.' + (r.cp ? (' +' + r.cp + ' CP.') : r.cpLater ? (' +' + r.cpLater + ' CP cộng chung khi xong ngày học hôm nay.') : ''))
         : ('Đúng ' + r.correct + '/' + r.total + ' câu, cần từ 80% để đạt. Ôn lại các câu sai rồi làm lại nhé.')) + '</h2>'
-      + weekTipHtml(r)
+      + weekTipHtml(r) + scheduleNoteHtml()
       + '<ul class="jp-review">' + rows + '</ul>'
       + '<div class="jp-result__actions">'
       + (ok || REVIEW ? '' : '<button type="button" class="jp-btn" data-weekly-retry>Làm lại</button>')
@@ -138,9 +142,14 @@
       + '</section>';
   }
 
-  function infoHtml(text) {
-    return '<p class="jp-alert" role="status">' + esc(text) + '</p>'
-      + '<p><a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></p>';
+  function infoHtml(text, title) {
+    // owner 25/11: a plain line of text was not a page; the same card as the other "nothing here yet" screens
+    return '<section class="cp-state-card" role="status">'
+      + '<img class="cp-state-card__pic" src="/images/mascots/fox/kitsu-thinking-30-128.webp" alt="" width="112" height="112" loading="lazy">'
+      + '<h2 class="cp-state-card__title">' + esc(title || 'Kiểm tra tuần chưa mở') + '</h2>'
+      + '<p class="cp-state-card__text">' + esc(text) + '</p>'
+      + '<a class="cp-btn-primary cp-state-card__btn" href="/learning/comm/path">Về lộ trình giao tiếp</a>'
+      + '</section>';
   }
 
   function mount(el) {
@@ -247,7 +256,7 @@
             el.innerHTML = '<p>Hôm nay có câu nói cần ôn lại.</p><button type="button" class="jp-btn" data-weekly-speech-start>Bắt đầu phần Nói</button>';
             return;
           }
-          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.');
+          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.', REVIEW ? 'Chưa có mục cần ôn' : 'Chưa có bài kiểm tra tuần') + scheduleNoteHtml();
           return;
         }
         var qs = state.data.questions;
@@ -264,7 +273,20 @@
         }
         show();
       }, function (e) {
-        el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
+        el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.', 'Chưa tải được bài');
+      });
+    }
+
+    // walkthrough 25/11: keys 1–4 pick an answer, like the JLPT checks (the two paths behave the same)
+    if (root.document && root.document.addEventListener) {
+      root.document.addEventListener('keydown', function (ev) {
+        if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+        var tag = ev.target && ev.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        var n = Number(ev.key);
+        if (!(n >= 1 && n <= 4)) return;
+        var opts = el.querySelectorAll('[data-weekly-pick],[data-rp-pick]');
+        if (opts[n - 1] && !opts[n - 1].disabled) { ev.preventDefault(); opts[n - 1].click(); }
       });
     }
 
@@ -447,7 +469,7 @@
           + '<p class="jp-result__note">Chọn câu: ' + esc(result.choiceScore) + '%.'
           + (scope === 'situation' ? '' : result.speakingSkipped ? ' Chưa chấm phần nói; điểm chỉ tính phần chọn câu.'
             : ' Nói: ' + esc(result.speakingScore) + '%.')
-          + ' ' + (result.cp ? '+' + esc(result.cp) + ' CP.' : 'Bài này không cộng thêm CP.') + '</p>'
+          + ' ' + (result.cp ? '+' + esc(result.cp) + ' CP.' : result.cpLater ? '+' + esc(result.cpLater) + ' CP cộng chung khi xong ngày học hôm nay.' : 'Bài này không cộng thêm CP.') + '</p>'
           + '<p class="jp-result__note">' + (wrong ? 'Sai ' + wrong + ' câu — xem lại bên dưới.' : 'Không sai câu nào.') + '</p>'
           + roleplayReviewHtml(result.review, state.questions, state.answers)
           + (scope === 'goal' && result.passed ? '<nav class="jp-result__note" aria-label="Bước học tiếp"><h3>Gợi ý bước tiếp</h3>'
@@ -547,5 +569,5 @@
     return load();
   }
 
-  return { questionHtml: questionHtml, resultHtml: resultHtml, mount: mount };
+  return { questionHtml: questionHtml, resultHtml: resultHtml, mount: mount, REVIEW_SCHEDULE_NOTE: REVIEW_SCHEDULE_NOTE };
 });

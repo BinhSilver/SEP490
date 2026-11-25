@@ -37,7 +37,7 @@
     return /^\/(?!\/)/.test(s) || /^https:\/\//i.test(s) ? s : null;
   }
 
-  function adviceHref(action) { return ADVICE[action] || '/learning'; }
+  function adviceHref(action) { return ADVICE[action] || '/learning?view=jlpt'; }
 
   /** "HH:MM" (and the date when it is not today) of a server-local ISO time. */
   function retakeText(iso, today) {

@@ -42,7 +42,7 @@
   var MSG_DAYS_SAVED = 'Đã lưu. Ngày nghỉ và ngày kỹ năng mới áp dụng từ ngày mai. Nếu hôm nay bạn bỏ ngày nghỉ và chưa học gì, hôm nay thành ngày học ngay.';
   var BLOCKS = {
     target: ['targetLevel', 'examDate'],
-    schedule: ['dailyMinutes', 'skillDays', 'restDays', 'thirdSkillDay'],
+    schedule: ['vocabPerDay', 'skillDays', 'restDays', 'thirdSkillDay'],
     display: ['studyMode', 'furiganaHiddenAll', 'romajiMode', 'fontSize'],
     sound: ['soundOn', 'autoplayAudio', 'quizTimerOn', 'grammarTimerOn', 'reminderWeb', 'reminderEmail', 'reminderTime']
   };
@@ -81,6 +81,8 @@
       targetLevel: v.targetLevel || '',
       examDate: v.examDate || '',
       dailyMinutes: v.dailyMinutes,
+      // owner 22/11 (F230): the learner picks words per day; Kanji, grammar and the minutes follow
+      vocabPerDay: v.sliders && typeof v.sliders.vocab === 'number' ? v.sliders.vocab : null,
       skillDays: list(v.skillDays),
       restDays: list(v.restDays),
       thirdSkillDay: v.thirdSkillDayAuto || !v.thirdSkillDay ? '' : v.thirdSkillDay,
@@ -148,9 +150,28 @@
   function previewBody(view, state) {
     return {
       openLevel: view.openLevel, targetLevel: state.targetLevel, examDate: state.examDate || null,
-      dailyMinutes: state.dailyMinutes, skillDays: list(state.skillDays), restDays: list(state.restDays),
+      vocabPerDay: state.vocabPerDay, skillDays: list(state.skillDays), restDays: list(state.restDays),
       sliders: null, kanaTab: false, mode: view.studyMode || 'COMBINED'
     };
+  }
+
+  var WORD_OPTIONS = [5, 10, 15, 20, 25, 30, 40, 50];
+
+  /** Words-per-day choices inside the level's limits, with the current value kept (F230). */
+  function wordOptions(bounds, current) {
+    var b = bounds && bounds.VOCAB && typeof bounds.VOCAB.min === 'number' ? bounds.VOCAB : { min: 5, max: 50 };
+    var out = WORD_OPTIONS.filter(function (w) { return w >= b.min && w <= b.max; });
+    var c = Number(current);
+    if (current != null && isFinite(c) && out.indexOf(c) < 0) out.push(c);
+    return out.sort(function (x, y) { return x - y; });
+  }
+
+  /** '20 từ + 3 Kanji + 2 ngữ pháp mỗi ngày · khoảng 30 phút' from a pace with balanced counts; '' without. */
+  function dayLoadLine(pace) {
+    var b = pace && pace.balanced;
+    if (!b || b.vocab == null) return '';
+    return b.vocab + ' từ + ' + b.kanji + ' Kanji + ' + b.grammar + ' ngữ pháp mỗi ngày'
+      + (pace.estimatedMinutes ? ' · khoảng ' + pace.estimatedMinutes + ' phút' : '');
   }
 
   function paceTone(pace) {
@@ -245,7 +266,7 @@
 
     function readField(input) {
       if (input.type === 'checkbox') return input.checked;
-      if (input.dataset.field === 'dailyMinutes') return Number(input.value);
+      if (input.dataset.field === 'vocabPerDay') return Number(input.value);
       return input.value;
     }
 
@@ -277,11 +298,11 @@
       if (levels.indexOf(current.targetLevel) < 0 && current.targetLevel) levels.unshift(current.targetLevel);
       levels.forEach(function (level) { target.appendChild(option(level, level)); });
 
-      var minutes = el.querySelector('[data-field="dailyMinutes"]');
-      minutes.textContent = '';
-      var choices = list(view.minuteOptions);
-      if (choices.indexOf(current.dailyMinutes) < 0) choices.push(current.dailyMinutes);
-      choices.forEach(function (m) { minutes.appendChild(option(String(m), m + ' phút')); });
+      var words = el.querySelector('[data-field="vocabPerDay"]');
+      words.textContent = '';
+      wordOptions(view.sliders && view.sliders.bounds, current.vocabPerDay).forEach(function (w) {
+        words.appendChild(option(String(w), w + ' từ'));
+      });
     }
 
     function drawThirdDay() {
@@ -318,6 +339,8 @@
         if (w && w.messageVi && w.messageVi !== pace.messageVi) warnings.appendChild(make('li', null, w.messageVi));
       });
       warnings.hidden = !warnings.firstChild;
+      var load = part('day-load');
+      if (load) load.textContent = dayLoadLine(pace);
       var scheduleText = part('schedule-preview');
       if (scheduleText) {
         scheduleText.textContent = (preview ? 'Xem trước: ' : '') + (pace && pace.messageVi ? pace.messageVi : '');
@@ -432,7 +455,6 @@
 
     function previewPayload() {
       var base = previewBody(view, current);
-      base.pace = current.dailyMinutes;
       base.thirdSkillDay = current.thirdSkillDay || '';
       // F151 review: the server reads examDate null as "keep the saved date"; a cleared date must say so, as save does
       if (!current.examDate && original && original.examDate) base.clearExamDate = true;
@@ -663,9 +685,31 @@
       part('content').hidden = false;
     }
 
+    // Q9 (owner 24/11): third skill day each week from the study stage (weak Reading/Listening); its own save
+    function bindExtraSkillDay() {
+      var wrap = part('extra-skill-wrap');
+      var box = part('extra-skill');
+      if (!wrap || !box) return null;
+      return Promise.resolve(api.get(SETTINGS_URL + '/extra-skill-day')).then(function (v) {
+        box.checked = !!(v && v.on);
+        wrap.hidden = false;
+        box.addEventListener('change', function () {
+          var saved = part('extra-skill-saved');
+          box.disabled = true;
+          Promise.resolve(api.send('PUT', SETTINGS_URL + '/extra-skill-day', { on: box.checked })).then(function (r) {
+            box.checked = !!(r && r.on);
+            if (saved) { saved.textContent = box.checked ? 'Đã thêm, áp dụng từ ngày mai.' : 'Đã bỏ, áp dụng từ ngày mai.'; saved.hidden = false; }
+          }, function (e) {
+            box.checked = !box.checked;
+            if (saved) { saved.textContent = e && e.message ? e.message : 'Chưa lưu được, thử lại.'; saved.hidden = false; }
+          }).then(function () { box.disabled = false; });
+        });
+      }, function () { /* the block stays hidden */ });
+    }
+
     var historyRequest = api.get(SETTINGS_URL + '/slider-history').then(list, function () { return null; });
     return api.get(SETTINGS_URL).then(function (next) {
-      return historyRequest.then(function (history) { start(next, history); });
+      return historyRequest.then(function (history) { start(next, history); bindExtraSkillDay(); });
     }, function (error) {
       part('loading').hidden = true;
       message(el, 'error', error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
@@ -682,6 +726,8 @@
     settleThirdDay: settleThirdDay,
     previewBody: previewBody,
     paceTone: paceTone,
+    wordOptions: wordOptions,
+    dayLoadLine: dayLoadLine,
     historyLabel: historyLabel,
     adjustmentsLine: adjustmentsLine,
     lowerLevelText: lowerLevelText,

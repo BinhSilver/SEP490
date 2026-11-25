@@ -37,9 +37,13 @@
   var PATH_URL = '/api/learning/jlpt/path';
   var SKILLS_OVERVIEW_URL = '/api/learning/jlpt/skills/overview';
   var SKILL_SESSIONS_URL = '/api/learning/jlpt/skills/sessions';
+  var SKILL_CARRY_URL = '/api/learning/jlpt/skills/carry';
+  // owner 22/11 (F229): "Học hôm nay" on a skill day runs Đọc → Nghe → Ôn in a row; the run lives for this tab and day
+  var DAY_RUN_KEY = 'jlasDayRun';
+  var DAY_RUN_DELAY_MS = 2500;
   var TODAY_URL = '/api/learning/jlpt/today';
-  var ESTIMATE_URL = '/api/learning/jlpt/estimate';
-  var SLIDERS_URL = '/api/learning/jlpt/path/sliders';
+  // F237 (owner 23/11): today's words raised after missed study days, and its "Hoàn tác"
+  var AUTO_PACE_URL = '/api/learning/jlpt/auto-pace';
   var REBALANCE_URL = '/api/learning/jlpt/path/rebalance';
   var MODE_URL = '/api/learning/jlpt/path/mode';
   var REVIEW_DAY_URL = '/api/learning/jlpt/today/review-day';
@@ -49,7 +53,7 @@
   var VOLUME_UNIT = { kana: 'chữ', vocab: 'từ', kanji: 'chữ Kanji', grammar: 'mẫu' };
   var WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   var SKILL_OPENS_AT = 80;
-  var MSG_LOAD_FAILED = 'Không tải được lộ trình. Thử tải lại trang.';
+  var MSG_LOAD_FAILED = 'Không tải được lộ trình. Kiểm tra mạng rồi bấm Thử lại.';
 
   var C = (root && root.JpathPathControls)
     || (typeof require === 'function' ? require('./jpath-path-controls.js') : null);
@@ -205,7 +209,7 @@
 
   // ------------------------------------------------------------------------------------------------ levels
 
-  var LEVEL_STEP = { PASSED: 'done', OPEN: 'now', LOCKED: 'todo', COMING_SOON: 'off' };
+  var LEVEL_STEP = { PASSED: 'done', OPEN: 'now', NEXT_AFTER_KANA: 'todo', LOCKED: 'todo', COMING_SOON: 'off' };
 
   function levelCellHtml(cell) {
     var c = cell || {};
@@ -221,6 +225,7 @@
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
       + '<span class="jp-level-cell__bar" aria-hidden="true"><span style="width:' + Math.max(0, Math.min(100, Number(c.percent) || 0))
       + '%"></span></span>';
+    else if (state === 'NEXT_AFTER_KANA') sub = '<span class="jp-level-cell__state">Mở sau Nhập môn</span>';
     else if (state === 'LOCKED') sub = '<button type="button" class="jp-level-cell__preview" data-action="preview" data-preview-level="'
       + name + '">Xem trước</button>';
     else sub = '<button type="button" class="jp-level-cell__preview" data-action="coming-soon" data-coming-soon="' + name
@@ -230,6 +235,7 @@
     // a locked level already shows a "Xem trước" button: its note keeps only the condition ("Thi thử N5 để mở")
     var note = String(c.note || '').trim();
     if (state === 'LOCKED') note = note.replace(/^Xem trước\s*·\s*/, '');
+    if (state === 'NEXT_AFTER_KANA') note = '';
     if (note && note !== said) sub += '<span class="jp-level-cell__note">' + esc(note) + '</span>';
     var tipAttr = (state === 'LOCKED' && note && note !== said) ? ' data-tip="' + esc(note) + '" title="' + esc(note) + '"' : '';
     return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"' + (state === 'OPEN' ? ' aria-current="step"' : '') + tipAttr + '><span class="jp-step__mark" aria-hidden="true">' + mark
@@ -237,10 +243,25 @@
       + '</span>' + sub + '</span></li>';
   }
 
+  // walkthrough 24/11: while kana is being learned the bar said "N5 · Đang học 0%" but 'Lộ trình của tôi' said
+  // "Nhập môn"; the bar now shows Nhập môn as the level being studied and N5 as the next one
+  function kanaPhase(path) {
+    return !!(path && path.kanaTab && !path.kanaCompleted);
+  }
+
+  function kanaCellHtml(path) {
+    if (!kanaPhase(path)) return '';
+    return '<li class="jp-step jp-step--now jp-level-cell jp-level-cell--open" aria-current="step"><span class="jp-step__mark"'
+      + ' aria-hidden="true"></span><span class="jp-step__body"><span class="jp-level-cell__name">Nhập môn</span>'
+      + '<span class="jp-level-cell__state">Đang học · chữ cái</span></span></li>';
+  }
+
   function levelBarHtml(path) {
     return '<section class="jp-levels" data-tour="level" aria-labelledby="jp-levels-title">'
       + '<h2 class="jp-sidenav__title" id="jp-levels-title">Cấp độ của bạn</h2>'
-      + '<ol class="jp-stepper jp-stepper--vertical jp-level-bar">' + list(path && path.levels).map(levelCellHtml).join('')
+      + '<ol class="jp-stepper jp-stepper--vertical jp-level-bar">' + kanaCellHtml(path)
+      + list(path && path.levels).map(function (c) { return levelCellHtml(kanaPhase(path) && c && c.state === 'OPEN'
+        ? Object.assign({}, c, { state: 'NEXT_AFTER_KANA' }) : c); }).join('')
       + '</ol></section>';
   }
 
@@ -327,6 +348,83 @@
     return '';
   }
 
+  /**
+   * F216 (owner 22/11): "Vì sao hôm nay" — two to four plain reasons for today's plan, in the learner's words (the day,
+   * the pace toward the exam or finish date, the cards due, a schedule change). It never names a rule or a formula.
+   */
+  function whyTodayHtml(path, today, autoPace) {
+    var p = path || {};
+    var t = today || {};
+    var a = autoPace && autoPace.active ? autoPace : null;
+    if (!t.day) return '';
+    var fmt = function (iso) { return D() && D().fmtDate ? D().fmtDate(iso) : String(iso || ''); };
+    var tabs = list(t.tabs);
+    var fresh = tabs.reduce(function (n, x) { return n + (Number(x && x.newTarget) || 0); }, 0);
+    var due = tabs.reduce(function (n, x) { return n + (Number(x && x.reviewDue) || 0); }, 0);
+    var level = p.openLevel || '';
+    var out = [];
+    if (t.kanaPhase && !p.kanaCompleted) out.push('Bạn đang học bảng chữ cái trước, vì bạn chọn bắt đầu từ chữ cái. Xong chữ cái là vào từ vựng.');
+    if (t.kind === 'SKILL') {
+      out.push(t.skillMakeup ? 'Tuần này bạn lỡ ngày kỹ năng, nên hôm nay học bù Đọc và Nghe.'
+        : 'Hôm nay là ngày kỹ năng: luyện Đọc và Nghe bằng những gì bạn đã học, không có mục mới.');
+    } else if (t.kind === 'STUDY' && fresh > 0 && !t.kanaPhase) {
+      var goal = 'Hôm nay có ' + fresh + ' mục mới';
+      if (p.examDate && p.onTrack !== false) out.push(goal + ' để bạn kịp xong ' + level + ' trước ngày thi ' + fmt(p.examDate) + '.');
+      else if (p.examDate) out.push(goal + '. Với nhịp này bạn chưa kịp ngày thi ' + fmt(p.examDate) + '; có thể tăng số từ mỗi ngày trong Cài đặt lộ trình.');
+      else if (p.levelFinish) out.push(goal + ', giữ nhịp này bạn xong ' + level + ' khoảng ' + fmt(p.levelFinish) + '.');
+      else out.push(goal + '.');
+      if (a) {
+        out.push('Bạn lỡ ' + a.missedDays + ' ngày học gần đây nên hôm nay có ' + a.words + ' từ thay vì ' + a.chosenWords
+          + ' từ' + (a.milestone ? ', để ' + (a.reachable ? 'kịp ' : 'gần hơn ') + (a.examMilestone ? 'ngày thi ' : 'ngày xong dự kiến ')
+          + fmt(a.milestone) : '') + '.');
+      }
+    }
+    if (due > 0) out.push('Có ' + due + ' thẻ đến lúc ôn: ôn đúng lúc giúp bạn nhớ lâu hơn.');
+    var change = todayReason(p, t);
+    if (change) out.push(change);
+    if (t.allDone && out.length) out.push('Bạn đã xong hôm nay. Ngày mai lộ trình đi tiếp từ phần kế.');
+    if (!out.length) return '';
+    return '<section class="jp-card jp-why-today" aria-labelledby="jp-why-today-title">'
+      + '<h3 class="jp-why-today__title" id="jp-why-today-title">Vì sao hôm nay</h3><ul class="jp-why-today__list">'
+      + out.slice(0, 4).map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></section>';
+  }
+
+  /**
+   * F238 (owner 23/11): Đọc · Nghe sessions left from earlier weeks are carried, not dropped on Monday; a normal study
+   * day takes one of them after the main lesson. Empty when nothing is owed or today is not a normal study day.
+   */
+  function carryHtml(carry) {
+    var c = carry || {};
+    var owed = Number(c.owed) || 0;
+    if (owed <= 0 || (!c.offerToday && !c.doneToday)) return '';
+    var skillName = c.skill === 'LISTENING' ? 'Nghe hiểu' : 'Đọc hiểu';
+    if (!c.offerToday) {
+      return '<section class="jp-card jp-carry" aria-label="Bài kỹ năng còn nợ"><p class="jp-carry__text">Hôm nay bạn đã làm bù 1 bài kỹ năng. '
+        + 'Còn ' + owed + ' bài Đọc, Nghe từ tuần trước, ngày học sau làm tiếp.</p></section>';
+    }
+    return '<section class="jp-card jp-carry" aria-labelledby="jp-carry-title">'
+      + '<h3 class="jp-carry__title" id="jp-carry-title">Bù bài kỹ năng tuần trước</h3>'
+      + '<p class="jp-carry__text">Tuần trước còn ' + owed + ' bài Đọc, Nghe chưa làm. Mỗi ngày học bạn làm thêm 1 bài sau bài chính, '
+      + 'hôm nay là bài ' + skillName + '.</p>'
+      + '<button type="button" class="jp-btn jp-btn--sm" data-action="start-skill" data-skill="' + (c.skill === 'LISTENING' ? 'LISTENING' : 'READING')
+      + '">Làm bài ' + skillName + '</button></section>';
+  }
+
+  /**
+   * F237 (owner 23/11): the card of today's raise after missed study days — the server's sentence and "Hoàn tác", which
+   * keeps the learner's own words per day from now on. Empty when today has no raise.
+   */
+  function autoPaceHtml(autoPace) {
+    var a = autoPace || {};
+    if (!a.active || !a.message) return '';
+    return '<section class="jp-card jp-auto-pace" role="status" aria-labelledby="jp-auto-pace-title">'
+      + '<h3 class="jp-auto-pace__title" id="jp-auto-pace-title">Nhịp hôm nay</h3>'
+      + '<p class="jp-auto-pace__text">' + esc(a.message) + '</p>'
+      + '<div class="jp-auto-pace__foot"><button type="button" class="jp-btn jp-btn--ghost" data-action="auto-pace-off">Hoàn tác</button>'
+      + '<span class="jp-auto-pace__hint">' + esc('Hoàn tác: mỗi ngày giữ đúng ' + a.chosenWords + ' từ như bạn chọn.') + '</span></div>'
+      + '<p class="jp-alert" data-part="auto-pace-error" role="alert" hidden></p></section>';
+  }
+
   function weekGuideHtml(path, today) {
     var p = path || {};
     var skill = list(p.skillDays);
@@ -338,10 +436,10 @@
         + (Number(s.kanji) || 0) + ' Kanji, ' + (Number(s.grammar) || 0) + ' mẫu ngữ pháp') + ', rồi ôn các thẻ đến hạn.</li>'
       + '<li><strong>Ngày kỹ năng</strong>' + esc(names(skill)) + ': không học mới; làm 1 buổi Đọc và 1 buổi Nghe, ôn các thẻ đến hạn.</li>'
       + (rest.length ? '<li><strong>Ngày nghỉ</strong>' + esc(names(rest)) + ': không có bài.</li>' : '')
-      + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù.</li>';
+      + '<li>Bỏ lỡ ngày kỹ năng thì ngày học kế tiếp trong tuần thành ngày kỹ năng bù. Hết tuần vẫn còn thì sang tuần sau, mỗi ngày học làm thêm 1 bài.</li>';
     return '<details class="jp-weekguide"><summary>Mỗi ngày học gì?</summary><ul class="jp-weekguide__list">' + items + '</ul>'
-      + '<p class="jp-muted">Đổi ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
-      + 'Cài đặt lộ trình</a>; số mục mới mỗi ngày đổi ở "Nhịp học và ngày nghỉ" phía trên.</p></details>';
+      + '<p class="jp-muted">Đổi số từ mới mỗi ngày, ngày học, ngày kỹ năng, ngày nghỉ ở <a href="/learning/jlpt/settings#jp-settings-schedule-title">'
+      + 'Cài đặt lộ trình</a>.</p></details>';
   }
 
   // ------------------------------------------------------------------------------------------------ numbers
@@ -462,31 +560,20 @@
     var loc = d.location || root.location;
     var doc = d.document || root.document;
     var rendered = d.rendered || function (el) { D().rendered(el); };
-    var state = { path: null, today: null, todayFailed: false, tab: null, draft: null, viewLevel: null };
+    var state = { path: null, today: null, todayFailed: false, tab: null, draft: null, viewLevel: null, autoPace: null };
     var env = { location: loc, history: d.history || root.history };
-    var estimateTimer = null;
-    var estimateSeq = 0;
 
     function paintControls() {
       var p = state.path;
-      setSlot(rootEl, 'slider', C.sliderHtml(p.sliders, state.tab, p.openLevel, state.draft) + C.warningsHtml(p.warnings));
-      // the pace panel is folded; a pace warning (behind, rebalance) opens it so it is not missed
-      var pace = part(rootEl, 'pace');
-      if (pace && list(p.warnings).length) pace.open = true;
-      // owner 18/11: once the level's lessons are learned the daily-amount slider changes nothing, so it goes
-      var tools = rootEl.querySelector ? rootEl.querySelector('[data-jp-tools]') : null;
-      if (tools) {
-        var learning = !p.stage || p.stage === 'STUDY';
-        var paceChip = tools.querySelector('[data-tool="pace"]');
-        var pacePanel = tools.querySelector('[data-tool-panel="pace"]');
-        if (paceChip) paceChip.hidden = !learning;
-        if (pacePanel && !learning) pacePanel.hidden = true;
-        var skipChip = tools.querySelector('[data-tool="skip"]');
-        tools.hidden = !learning && (!skipChip || skipChip.hidden);
+      // F227 (owner 22/11): pace and week-skip moved to Cài đặt lộ trình; the path keeps a nudge with a reason only
+      if (root.JpathToolsNudge && typeof root.JpathToolsNudge.paint === 'function') {
+        root.JpathToolsNudge.paint(slot(rootEl, 'tools-nudge'), { warnings: p.warnings, learning: !p.stage || p.stage === 'STUDY', doc: doc });
       }
+      // F216: the schedule-change line moved into the "Vì sao hôm nay" card under the today block
       setSlot(rootEl, 'today', C.todayHtml(state.today, p, state.tab,
-        { skills: state.skills, why: todayReason(p, state.today),
-          side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') }));
+        { skills: state.skills, why: '',
+          side: stageLineHtml(p).replace('jp-stepper jp-stage__steps', 'jp-stepper jp-stepper--vertical jp-stage__steps') })
+        + autoPaceHtml(state.autoPace) + whyTodayHtml(p, state.today, state.autoPace) + carryHtml(state.carry));
       filterWeeklyButtons(slot(rootEl, 'today'), p, state.today);
     }
 
@@ -507,7 +594,8 @@
       // Owner 05/11: V/K/G tabs open on their study parts; the whole list waits behind "Xem toàn bộ"
       if (root.JpathParts && typeof root.JpathParts.mount === 'function') {
         root.JpathParts.mount(slot(rootEl, 'parts'), el, state.tab, {
-          api: apiClient, ownLevel: !state.viewLevel || state.viewLevel === p.openLevel, week: p.week });
+          api: apiClient, ownLevel: !state.viewLevel || state.viewLevel === p.openLevel, week: p.week,
+          afterKana: !!(tabInfo(p, state.tab) && tabInfo(p, state.tab).open === false) });
       }
     }
 
@@ -573,6 +661,12 @@
       return Promise.resolve().then(function () { return apiClient.get(TODAY_URL); }).then(function (t) {
         state.today = t;
         state.todayFailed = false;
+        state.carry = null;
+        // F238: a normal study day may carry one Đọc · Nghe session left from earlier weeks
+        if (t && t.kind === 'STUDY' && !t.kanaPhase) {
+          return Promise.resolve().then(function () { return apiClient.get(SKILL_CARRY_URL); })
+            .then(function (c) { state.carry = c || null; state.skills = null; }, function () { state.carry = null; state.skills = null; });
+        }
         // a skill day lists its Reading and Listening sessions: their type of the day and state come from the overview
         if (!t || t.kind !== 'SKILL') { state.skills = null; return null; }
         return Promise.resolve().then(function () { return apiClient.get(SKILLS_OVERVIEW_URL); })
@@ -580,27 +674,18 @@
       }, function () { state.todayFailed = true; });
     }
 
+    // F237: the raise card is extra; without it the page still loads
+    function loadAutoPace() {
+      return Promise.resolve().then(function () { return apiClient.get(AUTO_PACE_URL); })
+        .then(function (a) { state.autoPace = a || null; }, function () { state.autoPace = null; });
+    }
+
     function reload() {
-      return Promise.all([apiClient.get(PATH_URL), loadToday()]).then(function (res) {
+      return Promise.all([apiClient.get(PATH_URL), loadToday(), loadAutoPace()]).then(function (res) {
         state.path = res[0] || {};
         state.draft = C.newDraft(state.path.sliders);
         paintAll();
       });
-    }
-
-    function scheduleEstimate() {
-      if (estimateTimer) clearTimeout(estimateTimer);
-      estimateTimer = setTimeout(function () {
-        var seq = ++estimateSeq;
-        apiClient.send('POST', ESTIMATE_URL, C.estimateBody(state.path, state.draft)).then(function (pace) {
-          if (seq !== estimateSeq || !pace) return;
-          var wrap = part(rootEl, 'minutes-wrap');
-          if (wrap) wrap.innerHTML = C.minutesLine(pace);
-          state.path.estimates = pace.tabFinish || state.path.estimates;
-          state.path.levelFinish = pace.levelFinish || state.path.levelFinish;
-          setHtml(rootEl, 'numbers', numbersHtml(state.path, state.tab, state.today));
-        }, function () { /* the saved estimate stays */ });
-      }, 300);
     }
 
     function failInto(name, btn) {
@@ -610,10 +695,76 @@
       };
     }
 
+    // owner 23/11: "Học hôm nay (Gộp)" took ~5 s with no sign of life; one start at a time, the button says so
     function start(req, btn) {
-      if (btn) btn.disabled = true;
+      if (state.starting) return Promise.resolve(null);
+      state.starting = true;
+      setBusy(btn, true);
       return Promise.resolve().then(function () { return api.onStart(req, { api: apiClient }); })
-        .catch(failInto('today-error', btn));
+        .catch(function (e) {
+          state.starting = false;
+          setBusy(btn, false);
+          failInto('today-error', btn)(e);
+        });
+    }
+
+    var later = d.setTimeout || function (fn, ms) { return root.setTimeout(fn, ms); };
+
+    var runTimer = null;
+    var session = d.sessionStorage !== undefined ? d.sessionStorage
+      : (function () { try { return root.sessionStorage; } catch (e) { return null; } })();
+
+    function dayRun(day) {
+      try {
+        if (!session) return null;
+        if (day === undefined) return session.getItem(DAY_RUN_KEY);
+        if (day) session.setItem(DAY_RUN_KEY, String(day)); else session.removeItem(DAY_RUN_KEY);
+      } catch (e) { /* private mode: the run simply is not continued */ }
+      return null;
+    }
+
+    function runStep(step, btn) {
+      if (btn) btn.disabled = true;
+      var go = d.navigate || function (u) { root.location.assign(u); };
+      if (step.key === 'REVIEW') { start({ tab: 'SKILL', mode: 'TODAY' }, btn); return; }
+      if (step.openSessionId != null) { go('/learning/jlpt/skills/session/' + encodeURIComponent(step.openSessionId)); return; }
+      apiClient.send('POST', SKILL_SESSIONS_URL, { skill: step.key, kind: 'DAY' }).then(function (v) {
+        if (v && v.id != null) go('/learning/jlpt/skills/session/' + encodeURIComponent(v.id));
+      }).catch(failInto('today-error', btn));
+    }
+
+    /** Back on the path page during a run: the next step starts by itself after a short notice ("Dừng" ends the run). */
+    function continueDayRun() {
+      var t = state.today;
+      var day = dayRun();
+      if (!day) return;
+      if (!t || t.kind !== 'SKILL' || String(t.day) !== day) { dayRun(null); return; }
+      var steps = C.skillDaySteps(t, { skills: state.skills });
+      var host = slot(rootEl, 'today');
+      if (!steps.length) {
+        dayRun(null);
+        return;
+      }
+      if (!host || !host.querySelector) return;
+      var go = host.querySelector('.jp-today__go');
+      if (!go) return;
+      var box = doc.createElement('p');
+      box.className = 'jp-today__run';
+      box.setAttribute('role', 'status');
+      box.setAttribute('data-part', 'day-run');
+      box.textContent = 'Tiếp theo: ' + steps[0].label + ' · tự bắt đầu sau vài giây. ';
+      var stop = doc.createElement('button');
+      stop.type = 'button';
+      stop.className = 'jp-link-btn';
+      stop.setAttribute('data-action', 'stop-day-run');
+      stop.textContent = 'Dừng';
+      box.appendChild(stop);
+      go.parentNode.insertBefore(box, go.nextSibling);
+      if (runTimer) clearTimeout(runTimer);
+      runTimer = setTimeout(function () {
+        runTimer = null;
+        if (dayRun() === day) runStep(steps[0], go.querySelector('[data-action="run-day"]'));
+      }, DAY_RUN_DELAY_MS);
     }
 
     function openDialog(html, opener) {
@@ -636,6 +787,23 @@
           if (v && v.id != null) (deps.navigate || function (u) { root.location.assign(u); })('/learning/jlpt/skills/session/' + encodeURIComponent(v.id));
         }).catch(failInto('today-error', el));
       },
+      'run-day': function (el) {
+        var steps = C.skillDaySteps(state.today, { skills: state.skills });
+        if (!steps.length) return;
+        dayRun(state.today && state.today.day);
+        runStep(steps[0], el);
+      },
+      'stop-day-run': function () {
+        dayRun(null);
+        if (runTimer) clearTimeout(runTimer);
+        runTimer = null;
+        var box = rootEl.querySelector && rootEl.querySelector('[data-part="day-run"]');
+        if (box) box.remove();
+      },
+      'auto-pace-off': function (el) {
+        el.disabled = true;
+        apiClient.send('POST', AUTO_PACE_URL + '/off').then(reload).catch(failInto('auto-pace-error', el));
+      },
       'start-skill-review': function (el) {
         start({ tab: 'SKILL', mode: 'TODAY' }, el);
       },
@@ -649,15 +817,6 @@
           return;
         }
         start(C.startRequest('TAB', key), el);
-      },
-      'save-sliders': function (el) {
-        el.disabled = true;
-        apiClient.send('PUT', SLIDERS_URL, C.sliderBody(state.draft)).then(function (view) {
-          // the PUT answer carries appliesFromTomorrow, which GET /path does not: keep it and refetch only /today
-          if (view) state.path.sliders = view;
-          state.draft = C.newDraft(state.path.sliders);
-          return loadToday();
-        }).then(paintAll).catch(failInto('slider-error', el));
       },
       'rebalance': function (el) {
         el.disabled = true;
@@ -699,19 +858,6 @@
       var el = t.closest('[data-action]');
       var handler = el && actions[el.getAttribute('data-action')];
       if (handler) handler(el);
-    });
-
-    rootEl.addEventListener('input', function (ev) {
-      var t = ev.target;
-      if (!t || typeof t.getAttribute !== 'function' || !t.getAttribute('data-slider') || !state.path) return;
-      var c = t.getAttribute('data-slider');
-      state.draft = C.changeDraft(state.draft, c, t.value);
-      var label = part(rootEl, 'slider-value');
-      if (label) label.textContent = 'Mỗi ngày học ' + state.draft.values[c] + ' ' + C.UNIT[c];
-      t.setAttribute('aria-valuetext', C.valueText(c, state.draft.values[c]));
-      var save = rootEl.querySelector('[data-action="save-sliders"]');
-      if (save) save.disabled = !state.draft.dirty;
-      scheduleEstimate();
     });
 
     rootEl.addEventListener('keydown', function (ev) {
@@ -776,8 +922,16 @@
       });
     }
 
+    // owner 23/11: back with the browser's Back button the page came from the cache with yesterday's numbers (the
+    // "Tự chọn bài" lists too): such a page loads again
+    if (typeof root.addEventListener === 'function' && !rootEl.__jpathPageshow) {
+      rootEl.__jpathPageshow = true;
+      root.addEventListener('pageshow', function (ev) { if (ev && ev.persisted && loc && loc.reload) loc.reload(); });
+    }
+
+    function firstLoad(attempt) {
     var pathLoad = Promise.resolve().then(function () { return apiClient.get(PATH_URL); });
-    return Promise.all([pathLoad, loadToday()]).then(function (res) {
+    return Promise.all([pathLoad, loadToday(), loadAutoPace()]).then(function (res) {
       state.path = res[0] || {};
       state.draft = C.newDraft(state.path.sliders);
       state.tab = resolveTab(readParam(loc) || (rootEl.getAttribute && rootEl.getAttribute('data-jpath-tab')), state.path);
@@ -788,17 +942,55 @@
       rendered(rootEl);
       startTour();
       premiumBox(rootEl, apiClient);
+      continueDayRun();
     }, function () {
-      setHtml(rootEl, 'hero', '<p class="jp-alert" role="alert">' + esc(MSG_LOAD_FAILED) + '</p>');
+      // owner 23/11: a short network hiccup showed a dead error: one quiet retry, then a Thử lại button
+      if (!attempt) {
+        return new Promise(function (resolve) { later(resolve, LOAD_RETRY_MS); }).then(function () { return firstLoad(1); });
+      }
+      setHtml(rootEl, 'hero', loadFailedHtml());
       rootEl.setAttribute('aria-busy', 'false');
+      var btn = rootEl.querySelector && rootEl.querySelector('[data-jpath-load-retry]');
+      if (btn && typeof btn.addEventListener === 'function') {
+        btn.addEventListener('click', function () {
+          btn.disabled = true;
+          rootEl.setAttribute('aria-busy', 'true');
+          firstLoad(1);
+        });
+      }
+      return null;
     });
+    }
+    return firstLoad(d.noLoadRetry ? 1 : 0);
+  }
+
+  var LOAD_RETRY_MS = 1500;
+
+  function loadFailedHtml() {
+    return '<div class="jp-alert" role="alert"><p>' + esc(MSG_LOAD_FAILED) + '</p>'
+      + '<button type="button" class="jp-btn jp-btn--primary" data-jpath-load-retry>Thử lại</button></div>';
+  }
+
+  /** A start button while its session opens: disabled, aria-busy, "Đang mở…" (the label comes back on failure). */
+  function setBusy(btn, on) {
+    if (!btn) return;
+    btn.disabled = !!on;
+    if (typeof btn.setAttribute !== 'function' || typeof btn.getAttribute !== 'function') return;
+    btn.setAttribute('aria-busy', on ? 'true' : 'false');
+    var saved = btn.getAttribute('data-label');
+    if (on) {
+      if (saved === null || saved === undefined) btn.setAttribute('data-label', btn.textContent);
+      btn.textContent = 'Đang mở…';
+    } else if (saved !== null && saved !== undefined) {
+      btn.textContent = saved;
+    }
   }
 
   /** F5 (owner 11/11): N4–N1 need Premium; a locked learner sees an upgrade box above the path. */
   function premiumBoxHtml(gate) {
     if (!gate || !gate.locked) return '';
     return '<section class="jp-premium-box" role="note">'
-      + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+      + '<img src="/images/mascots/fox/kitsu-announcing.webp" alt="" width="56" height="56">'
       + '<div><p class="jp-premium-box__title">' + esc(gate.level || 'N4') + ' dành cho tài khoản Premium</p>'
       + '<p class="jp-premium-box__text">N5 học miễn phí. Từ N4 đến N1, hãy nâng cấp Premium để mở bài học hằng ngày.</p></div>'
       + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>';
@@ -813,10 +1005,10 @@
   }
 
   var api = Object.assign({}, C, {
-    premiumBoxHtml: premiumBoxHtml,
+    premiumBoxHtml: premiumBoxHtml, setBusy: setBusy, loadFailedHtml: loadFailedHtml,
     TAB_KEY: TAB_KEY, resolveTab: resolveTab, menuHtml: menuHtml, withoutTour: withoutTour, tabsBarHtml: tabsBarHtml, heroHtml: heroHtml,
     levelBarHtml: levelBarHtml, levelCellHtml: levelCellHtml, stageLineHtml: stageLineHtml, weekHtml: weekHtml, weekGuideHtml: weekGuideHtml, todayReason: todayReason,
-    estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
+    whyTodayHtml: whyTodayHtml, carryHtml: carryHtml, autoPaceHtml: autoPaceHtml, estimateHtml: estimateHtml, volumeHtml: volumeHtml, skillsTabHtml: skillsTabHtml, activateTab: activateTab,
     filterWeeklyButtons: filterWeeklyButtons,
     displayTarget: displayTarget, writeUrl: writeUrl, crumbsHtml: crumbsHtml, mount: mount, current: null
   });
