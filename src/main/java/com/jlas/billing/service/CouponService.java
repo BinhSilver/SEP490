@@ -16,7 +16,7 @@ import java.util.Locale;
 
 @Service @RequiredArgsConstructor
 public class CouponService {
-    // PayOS requires a payable bank-transfer amount; 2,000 VND is the minimum for this checkout.
+    // PayOS requires at least 2,000 VND for paid orders; a full discount is granted without PayOS.
     public static final BigDecimal MIN_PAYABLE = new BigDecimal("2000");
     private final CouponRepository coupons;
     private final BillingPaymentRepository payments;
@@ -77,8 +77,8 @@ public class CouponService {
             discount = discount.min(coupon.getMaxDiscount());
         discount = discount.min(original);
         BigDecimal payable = original.subtract(discount);
-        if (payable.stripTrailingZeros().scale() > 0 || payable.compareTo(MIN_PAYABLE) < 0)
-            throw invalid("Số tiền sau giảm giá phải là số VND nguyên và ít nhất 2.000 VND.");
+        if (payable.stripTrailingZeros().scale() > 0 || payable.signum() != 0 && payable.compareTo(MIN_PAYABLE) < 0)
+            throw invalid("Số tiền sau giảm giá phải là 0đ hoặc số VND nguyên từ 2.000đ.");
         return new Quote(code, original, discount, payable, coupon);
     }
 

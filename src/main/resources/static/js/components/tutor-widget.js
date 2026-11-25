@@ -172,8 +172,7 @@
   }
 
   function introMarkup() {
-    return '<div class="tutor-intro"><p>Hỏi mình về từ vựng, kanji, ngữ pháp trong giáo trình J-LAS. ' +
-      'Mình trả lời kèm nguồn để bạn kiểm tra lại.</p><div class="tutor-examples">' +
+    return '<div class="tutor-intro"><div class="tutor-examples">' +
       EXAMPLES.map(function (q) {
         return '<button type="button" data-tutor-example="' + escapeHtml(q) + '" lang="ja">' + escapeHtml(q) + '</button>';
       }).join('') + '</div></div>';
@@ -245,7 +244,7 @@
     wrap.className = 'tutor-widget no-inline-dictionary';
     wrap.innerHTML =
       '<section class="tutor-panel" id="jlasTutorPanel" role="dialog" aria-label="Gia sư J-LAS" hidden>' +
-      '<header class="tutor-panel__head"><div><strong>Gia sư J-LAS</strong><small>Trả lời từ giáo trình J-LAS</small></div>' +
+      '<header class="tutor-panel__head"><div><strong>Gia sư J-LAS</strong></div>' +
       '<button type="button" class="tutor-icon-btn" data-tutor-reset title="Cuộc trò chuyện mới" aria-label="Cuộc trò chuyện mới">' +
       icon(ICONS.reset) + '</button>' +
       '<button type="button" class="tutor-icon-btn" data-tutor-close title="Đóng" aria-label="Đóng">' +

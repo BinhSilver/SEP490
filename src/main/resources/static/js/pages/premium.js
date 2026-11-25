@@ -64,10 +64,13 @@
 
     function premiumPlan() { return period === 'year' ? yearly : monthly; }
 
+    function yearlyOriginal() {
+      return monthly && yearly ? Number(monthly.price) * Math.round(yearly.durationDays / monthly.durationDays) : 0;
+    }
+
     function savings() {
       if (!monthly || !yearly) return '';
-      var full = Number(monthly.price) * Math.round(yearly.durationDays / monthly.durationDays);
-      var saved = full - Number(yearly.price);
+      var saved = yearlyOriginal() - Number(yearly.price);
       return saved > 0 ? '<span class="pm-save">Tiết kiệm ' + vnd(saved) + '</span>' : '';
     }
 
@@ -92,7 +95,7 @@
         '</header>' +
         '<div class="pm-plans">' +
           '<article class="pm-plan">' +
-            '<div><h2>Miễn phí</h2><p class="pm-plan__desc">Học đầy đủ với hạn mức AI cơ bản.</p></div>' +
+            '<div><h2>Miễn phí</h2></div>' +
             '<div class="pm-price"><strong>0đ</strong></div>' +
             '<ul class="pm-features">' +
               '<li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Gọi AI luyện hội thoại ' + freeDaily +
@@ -102,8 +105,10 @@
             (current && !current.premiumActive ? '<button class="btn btn--secondary" type="button" disabled>Gói hiện tại của bạn</button>' : '') +
           '</article>' +
           (plan ? '<article class="pm-plan pm-plan--featured"><span class="pm-plan__tag">Khuyên dùng</span>' +
-            '<div><h2>Premium</h2><p class="pm-plan__desc">' + esc(plan.description || 'Thêm thời gian luyện hội thoại với AI.') + '</p></div>' +
-            '<div class="pm-price"><strong>' + vnd(plan.price) + '</strong><span>/ ' + (period === 'year' ? 'năm' : plan.durationDays + ' ngày') + '</span>' +
+            '<div><h2>Premium</h2>' + (plan.description ? '<p class="pm-plan__desc">' + esc(plan.description) + '</p>' : '') + '</div>' +
+            '<div class="pm-price">' + (period === 'year' && yearlyOriginal() > Number(plan.price)
+              ? '<s class="pm-price__original">' + vnd(yearlyOriginal()) + '</s>' : '') +
+              '<strong>' + vnd(plan.price) + '</strong><span>/ ' + (period === 'year' ? 'năm' : plan.durationDays + ' ngày') + '</span>' +
               (period === 'year' ? '<span>(≈ ' + vnd(Math.round(Number(plan.price) / 12)) + '/tháng)</span>' : '') + '</div>' +
             '<ul class="pm-features">' +
               '<li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Gọi AI luyện hội thoại ' + minutes(q.premiumDailyMinutes) +
@@ -333,13 +338,20 @@
 
   async function credits() {
     var data = await api('GET', '/api/credits/packages');
-    root.innerHTML = '<header class="pm-hero"><h1>Mua CP</h1><p>CP hiện có: <strong>' + (data.balance == null ? 'Đăng nhập để xem' : data.balance) + '</strong></p></header>' +
-      '<div class="pm-plans">' + data.packages.map(function (p) {
-        return '<article class="pm-plan"><h2>' + esc(p.name) + '</h2><p>' + esc(p.description || '') + '</p>' +
-          '<div class="pm-price"><strong>' + p.creditAmount + ' CP</strong><span>' + vnd(p.price) + '</span></div>' +
-          (data.paymentsEnabled ? '<button type="button" class="btn btn--primary" data-buy-credit="' + p.id + '">Mua CP</button>' : '<button type="button" disabled>Thanh toán đang bảo trì</button>') +
-          '<p class="pm-error" data-error-for="' + p.id + '"></p></article>';
-      }).join('') + '</div><p><a href="/premium/billing">Lịch sử mua CP và thanh toán</a></p>';
+    root.innerHTML = '<header class="pm-credits-head"><h1>Mua CP</h1>' +
+      '<span class="pm-credits-balance"><span class="pm-credits-coin" aria-hidden="true"></span>' +
+      (data.balance == null ? 'Đăng nhập để xem số dư' : '<strong>' + Number(data.balance).toLocaleString('vi-VN') + '</strong> CP') + '</span></header>' +
+      '<div class="pm-credits-grid">' + data.packages.map(function (p) {
+        var description = (p.description || '').trim();
+        var repeated = [p.creditAmount + ' cp', 'gói ' + p.creditAmount + ' cp'].includes(description.replace(/\s+/g, ' ').replace(/[.!。]+$/, '').toLowerCase());
+        return '<article class="pm-credits-card"><div class="pm-credits-card__art">' +
+          '<span class="pm-credits-coin pm-credits-coin--large" aria-hidden="true"></span><span>+' + p.creditAmount + ' CP</span></div>' +
+          '<div class="pm-credits-card__body"><h2>' + esc(p.name) + '</h2>' +
+          (description && !repeated ? '<p class="pm-credits-card__desc">' + esc(description) + '</p>' : '') +
+          '<div class="pm-credits-card__foot"><span class="pm-credits-price">' + vnd(p.price) + '</span>' +
+          (data.paymentsEnabled ? '<button type="button" class="btn btn--primary" data-buy-credit="' + p.id + '">Mua gói</button>' : '<button type="button" class="btn btn--primary" disabled>Thanh toán đang bảo trì</button>') +
+          '<p class="pm-error" data-error-for="' + p.id + '" aria-live="assertive"></p></div></div></article>';
+      }).join('') + '</div><p class="pm-credits-history"><a href="/premium/billing">Lịch sử mua CP và thanh toán</a></p>';
     root.addEventListener('click', async function (event) {
       var button = event.target.closest('[data-buy-credit]');
       if (!button) return;

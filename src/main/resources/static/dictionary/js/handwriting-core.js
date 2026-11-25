@@ -16,6 +16,7 @@
   var MAX_STROKES = 30;
   var MAX_POINTS = 500;
   var SIMPLIFY_EPSILON = 1.5; // px canvas
+  var MIN_STROKE_LENGTH = 5; // px canvas; ignore taps and accidental tiny drags
   var DEFAULT_DELAY_MS = 150;
 
   function perpendicularDistance(p, a, b) {
@@ -51,12 +52,21 @@
 
   function clamp(value, max) { return Math.min(Math.max(value, 0), max); }
 
+  function isRealStroke(points) {
+    if (!points || points.length < 2) return false;
+    var length = 0;
+    for (var i = 1; i < points.length; i++) {
+      length += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
+    }
+    return length >= MIN_STROKE_LENGTH;
+  }
+
   /** Dựng body cho POST /api/dictionary/handwriting/recognize từ các nét thô. */
   function buildPayload(strokes, width, height) {
     return {
       width: width,
       height: height,
-      strokes: strokes.map(function (stroke) {
+      strokes: strokes.filter(isRealStroke).map(function (stroke) {
         var simplified = simplify(stroke, SIMPLIFY_EPSILON);
         if (simplified.length > MAX_POINTS) {
           var step = (simplified.length - 1) / (MAX_POINTS - 1);
@@ -139,7 +149,7 @@
     return {
       /** @returns {boolean} false nếu nét bị từ chối (rỗng hoặc đã đủ số nét tối đa). */
       addStroke: function (points) {
-        if (!points || !points.length || strokes.length >= MAX_STROKES) return false;
+        if (!isRealStroke(points) || strokes.length >= MAX_STROKES) return false;
         strokes.push(points.slice(0, 5000)); // chặn cứng bộ nhớ nếu một nét quá dài
         schedule();
         return true;
@@ -162,6 +172,7 @@
     MAX_STROKES: MAX_STROKES,
     MAX_POINTS: MAX_POINTS,
     simplify: simplify,
+    isRealStroke: isRealStroke,
     buildPayload: buildPayload,
     createSession: createSession
   };

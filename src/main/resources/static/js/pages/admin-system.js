@@ -1509,7 +1509,7 @@
             : field('Name', 'Tên gói', p && p.name) + field('Description', 'Mô tả', p && p.description) +
               field('Credits', 'Số CP', p && p.creditAmount, 'number') + field('Price', 'Giá VND', p && p.price, 'number');
           var pending = A.decide({ title: p ? 'Sửa' : 'Tạo mới', confirmText: 'Lưu', maxLength: 500,
-            extraHtml: (coupon ? '<p class="adm-form-note">Số tiền khách trả sau giảm phải còn ít nhất 2.000đ (yêu cầu của PayOS), nên không thể giảm 100% về 0đ.</p>' : '') +
+            extraHtml: (coupon ? '<p class="adm-form-note">Đơn giảm còn 0đ được cấp ngay, không cần thanh toán. Đơn còn tiền phải trả từ 2.000đ.</p>' : '') +
               '<div class="adm-form-grid">' + html + '</div>',
             collect: function (modal) {
               var value = function (id) { return modal.querySelector('#cat' + id).value.trim(); };

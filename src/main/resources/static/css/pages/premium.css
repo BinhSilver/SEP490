@@ -25,6 +25,7 @@
 #jlabBaseContent .pm-price { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
 #jlabBaseContent .pm-price strong { font: 700 36px/1 "Hanken Grotesk", var(--font-body); }
 #jlabBaseContent .pm-price span, #jlabBaseContent .pm-muted { color: var(--color-on-surface-variant); font-size: 14px; }
+#jlabBaseContent .pm-price .pm-price__original { width: 100%; color: var(--color-on-surface-variant); font-size: 15px; }
 #jlabBaseContent .pm-features { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 15px; }
 #jlabBaseContent .pm-features li { display: flex; gap: 10px; align-items: flex-start; }
 #jlabBaseContent .pm-features i { margin-top: 3px; color: var(--color-primary); }
@@ -74,9 +75,35 @@
 #jlabBaseContent .pm-stack { display: grid; gap: 20px; }
 #jlabBaseContent .pm-error { color: var(--color-error); }
 
+/* CP packages follow the game shop's art, price and action rhythm. */
+#jlabBaseContent .pm-credits-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+#jlabBaseContent .pm-credits-head h1 { margin: 0; font: 700 clamp(28px, 4vw, 40px)/1.15 "Hanken Grotesk", var(--font-body); }
+#jlabBaseContent .pm-credits-balance { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-full); background: var(--color-surface-lowest); font-weight: 600; }
+#jlabBaseContent .pm-credits-coin { display: inline-block; flex: none; width: 18px; height: 18px; border: 2px solid #b8861c; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3c4, #f3c85a 50%, #c89422); box-shadow: 0 2px 0 #8a6210; }
+#jlabBaseContent .pm-credits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+#jlabBaseContent .pm-credits-card { display: flex; flex-direction: column; overflow: hidden; border: 2px solid var(--color-outline-variant); border-radius: var(--radius-lg); background: var(--color-surface-lowest); box-shadow: var(--shadow-1); transition: transform .2s, border-color .2s; }
+#jlabBaseContent .pm-credits-card:hover { transform: translateY(-2px); border-color: var(--color-primary); }
+#jlabBaseContent .pm-credits-card__art { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 150px; border-bottom: 2px solid var(--color-outline-variant); background: radial-gradient(circle at 50% 65%, var(--color-surface-lowest), var(--color-secondary-container)); color: var(--color-on-surface); font: 700 27px/1 "Hanken Grotesk", var(--font-body); }
+#jlabBaseContent .pm-credits-coin--large { width: 58px; height: 58px; border-width: 4px; box-shadow: 0 5px 0 #8a6210; }
+#jlabBaseContent .pm-credits-card__body { display: flex; flex: 1; flex-direction: column; padding: 16px; }
+#jlabBaseContent .pm-credits-card h2 { margin: 0 0 6px; font: 700 20px/1.2 "Hanken Grotesk", var(--font-body); }
+#jlabBaseContent .pm-credits-card__desc { margin: 0 0 14px; color: var(--color-on-surface-variant); font-size: 14px; }
+#jlabBaseContent .pm-credits-card__foot { display: grid; gap: 10px; margin-top: auto; }
+#jlabBaseContent .pm-credits-price { justify-self: start; padding: 5px 10px; border-radius: var(--radius-full); background: var(--color-secondary-container); color: var(--color-on-surface); font-weight: 800; }
+#jlabBaseContent .pm-credits-card .btn { width: 100%; justify-content: center; }
+#jlabBaseContent .pm-credits-card .pm-error { margin: 0; }
+#jlabBaseContent .pm-credits-card .pm-error:empty { display: none; }
+#jlabBaseContent .pm-credits-history { margin: 24px 0 0; }
+
 @media (max-width: 760px) {
   #jlabBaseContent .pm-plans, #jlabBaseContent .pm-checkout { grid-template-columns: 1fr; }
   #jlabBaseContent .pm-plan { padding: 22px; }
+}
+@media (max-width: 520px) {
+  #jlabBaseContent .pm-credits-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #jlabBaseContent .pm-credits-card__body { padding: 12px; }
+  #jlabBaseContent .pm-credits-card__art { flex-direction: column; gap: 8px; min-height: 130px; font-size: 22px; }
+  #jlabBaseContent .pm-credits-card .btn { min-width: 0; padding-inline: 8px; white-space: normal; }
 }
 #jlabBaseContent .pm-coupon { margin: 20px 0 4px; text-align: left; }
 #jlabBaseContent .pm-coupon label { display: block; margin-bottom: 8px; font-weight: 600; }
