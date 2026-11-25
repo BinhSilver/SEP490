@@ -6,7 +6,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/><link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/><link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/><link rel="stylesheet" th:href="@{/css/app.css(v=20261125-phase1)}"/><link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/><link rel="stylesheet" th:href="@{/css/aicall-cases.css}"/><link rel="stylesheet" th:href="@{/css/aicall-stages.css}"/><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
-</head><body data-mobile-adapt="owned" id="jlabBasePage"><div id="jlabBaseShellMount"></div><main id="jlabBaseContent" class="aicall-case-page">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261124-ui-standard">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
+</head><body data-mobile-adapt="owned" id="jlabBasePage" class="aicall-standard jl-ui-kit"><div id="jlabBaseShellMount"></div><main id="jlabBaseContent" class="aicall-case-page">
     <section class="container" style="padding:36px 0 64px;max-width:1000px">
         <h1><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Lịch sử luyện hội thoại</h1><p th:if="${#lists.isEmpty(attempts)}" class="stage-review-notice">Bạn chưa có lượt luyện nào. Chọn màn đầu tiên trên lộ trình để bắt đầu.</p>
         <ol class="stage-history"><li th:each="attempt : ${attempts}" class="stage-history-row">

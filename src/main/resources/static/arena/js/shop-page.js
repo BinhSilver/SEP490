@@ -23,6 +23,7 @@
   };
 
   var state = { shop: null, frames: null, game: null, busy: false, pending: null };
+  var tabMarkup = '';
 
   function toast(message, type) {
     if (window.JlasUI) window.JlasUI.toast(message, type || 'info');
@@ -44,14 +45,26 @@
   function render() {
     var shop = state.shop;
     el.tabs.hidden = false;
-    el.tabs.innerHTML = shop.sections.map(function (item) {
-      var selected = item.gameType === state.game;
-      return '<button type="button" role="tab" aria-selected="' + selected + '" data-game="' + esc(item.gameType) + '">'
-        + esc(item.gameName) + ' · ' + esc(item.title) + '</button>';
-    }).join('') + (state.frames
-      ? '<button type="button" role="tab" aria-selected="' + (state.game === FRAMES) + '" data-game="' + FRAMES + '">'
-        + 'Hồ sơ · Khung avatar</button>'
-      : '');
+    var tabs = shop.sections.map(function (item) {
+      return [item.gameType, item.gameName + ' · ' + item.title];
+    });
+    if (state.frames) tabs.push([FRAMES, 'Hồ sơ · Khung avatar']);
+    var markup = tabs.map(function (tab) {
+      var game = esc(tab[0]);
+      var label = esc(tab[1]);
+      return '<button type="button" role="tab" id="ar-shop-tab-' + game + '" aria-controls="ar-shop-panel"'
+        + ' data-game="' + game + '" title="' + label + '">'
+        + label + '</button>';
+    }).join('');
+    if (markup !== tabMarkup) {
+      el.tabs.querySelectorAll('button').forEach(function (button) { button.remove(); });
+      el.tabs.insertAdjacentHTML('beforeend', markup);
+      tabMarkup = markup;
+    }
+    el.tabs.querySelectorAll('button').forEach(function (button) {
+      button.setAttribute('aria-selected', String(button.dataset.game === state.game));
+    });
+    el.grid.setAttribute('aria-labelledby', 'ar-shop-tab-' + state.game);
 
     if (state.game === FRAMES && state.frames) {
       el.grid.hidden = false;
@@ -98,11 +111,11 @@
       price = '<span class="ar-shop-item__owned">Đã có</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" data-equip="' + esc(frame.code) + '">Dùng</button>';
     } else if (balance >= frame.price) {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + frame.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + frame.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--primary ar-btn--block" data-buy="' + esc(frame.code) + '">'
         + 'Mua · ' + frame.price + ' CP</button>';
     } else {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + frame.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + frame.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" disabled>Cần thêm ' + (frame.price - balance) + ' CP</button>';
     }
     return '<article class="ar-shop-item' + (frame.equipped ? ' is-equipped' : '') + '">'
@@ -139,11 +152,11 @@
       price = '<span class="ar-shop-item__owned">' + (item.starter ? 'Có sẵn' : 'Đã có') + '</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" data-equip="' + esc(item.code) + '">Dùng</button>';
     } else if (balance >= item.price) {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + item.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + item.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--primary ar-btn--block" data-buy="' + esc(item.code) + '">'
         + 'Mua · ' + item.price + ' CP</button>';
     } else {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + item.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + item.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" disabled>Cần thêm ' + (item.price - balance) + ' CP</button>';
     }
     return '<article class="ar-shop-item' + (item.equipped ? ' is-equipped' : '') + (item.tier ? ' ar-shop-item--' + esc(item.tier.toLowerCase()) : '') + '">'

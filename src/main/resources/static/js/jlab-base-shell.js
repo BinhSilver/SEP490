@@ -12,6 +12,13 @@
 (function () {
   'use strict';
 
+  // Standalone feature pages also share the CP currency treatment.
+  if (!window.JlasCpUnit && !document.querySelector('script[src*="/js/components/cp-unit.js"]')) {
+    var cpUnitScript = document.createElement('script');
+    cpUnitScript.src = '/js/components/cp-unit.js?v=20261123-gold';
+    document.head.appendChild(cpUnitScript);
+  }
+
   // Set the active theme before first paint to avoid a light→dark flash.
   // The theme switch is mounted separately by theme.js. Resolve the same
   // saved/system preference here before the shared navigation is mounted.
@@ -276,7 +283,8 @@
     replaceIcon(ids.streakIcon, 'flame');
     replaceIcon(ids.notebookIcon, 'book');
     replaceIcon(ids.premiumIcon, 'award');
-    replaceIcon(ids.creditsIcon, 'coins');
+    var creditsIcon = byId(ids.creditsIcon);
+    if (creditsIcon) creditsIcon.outerHTML = '<span id="' + ids.creditsIcon + '" class="jlas-cp-icon" aria-hidden="true"></span>';
     replaceIcon(ids.rewardStreakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tạo bài học | KotsuKotsu Shadowing</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/tokens.css?v=20261125-largescreen"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
@@ -19,16 +19,19 @@
     <link rel="stylesheet" href="/css/components/cp-confirm.css?v=20261031-pro-cp"/>
     <link rel="stylesheet" href="/css/components/select.css?v=20261125-largescreen">
     <script defer src="/js/components/select.js?v=20261125-icons-vi"></script>
+    <link rel="stylesheet" href="/shadowing/css/creator-standard.css?v=20261123-gold-modes">
+    <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+    <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-create">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="shadowing-creator-standard jl-ui-kit page-shadowing page-shadowing-create">
     <div id="jlabBaseShellMount"></div>
 
     <main id="jlabBaseContent" class="container">
         <section>
             <header class="section-header">
-                <h1 class="hero-display">Tạo bài học mới.</h1>
+                <h1 class="hero-display">Tạo bài học mới</h1>
                 <button id="create-guide-open" class="page-guide-button" type="button" disabled><i class="fa-regular fa-circle-question" aria-hidden="true"></i> Hướng dẫn</button>
-                <p id="create-quota" class="caption create-quota" aria-live="polite"></p>
+                <div id="create-quota" class="create-quota" aria-live="polite"></div>
             </header>
 
             <div class="create-mode-tabs" role="tablist">
@@ -197,7 +200,8 @@
     <script src="/shadowing/js/confirm-modal.js?v=20261116-bin-cycle"></script>
     <script src="/js/components/cp-confirm.js?v=20261103-auto"></script>
     <script src="/js/components/cp-auto-pay.js?v=20261116-minutes"></script>
-    <script src="/shadowing/js/upload.js?v=20261117-upload-20min"></script>
+    <script src="/js/components/quota-meter.js?v=20261123-remaining"></script>
+    <script src="/shadowing/js/upload.js?v=20261123-gold-modes"></script>
     <script src="/js/components/page-guide.js?v=20261117-bullets"></script>
     <script src="/shadowing/js/create-guide.js?v=20261117-keep-ai2"></script>
 </body>

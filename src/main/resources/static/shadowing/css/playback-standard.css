@@ -1,0 +1,166 @@
+@import url("../../css/dark-page.css");
+@import url("../../css/components/ui-kit.css");
+
+/* Player and listening exercises share component styling; their media and workspace grids stay intact. */
+#jlabBasePage.shadowing-playback-standard.jl-ui-kit {
+  --font-headline: var(--font-body);
+  --font-family: var(--font-body);
+  --color-bg: var(--color-background);
+  --color-card: var(--color-surface-lowest);
+  --color-text: var(--color-on-surface);
+  --color-text-secondary: var(--color-on-surface-variant);
+  --color-text-muted: var(--color-on-surface-variant);
+  --color-border: var(--color-outline-variant);
+  --color-divider: var(--color-outline-variant);
+  --color-primary-soft: var(--color-primary-fixed);
+  --color-primary-hover: var(--color-primary-container);
+  --color-danger: var(--color-error);
+  --radius-sm: .375rem;
+  --radius-md: .75rem;
+  --radius-lg: 1rem;
+  background: var(--color-background) !important;
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  font-weight: 400;
+  letter-spacing: normal;
+
+  #jlabBaseContent {
+    :is(h1,h2,h3) { font-family: var(--font-body); color: var(--color-on-surface); font-weight: 600; letter-spacing: normal; text-transform: none; }
+    :is(#lesson-title,#exercise-video-title) { font-size: var(--text-3xl); font-weight: 600; line-height: 1.3; }
+    :is(h2,.player-section-title) { font-size: var(--text-xl); }
+    h3 { font-size: var(--text-lg); }
+    :is(strong,b,button,a,label) { font-weight: 500; }
+    :is(button,a,textarea) { font-family: var(--font-body); letter-spacing: normal; text-transform: none; }
+    :is(.sub-jp,.viewer-japanese,[lang="ja"],.pronunciation-word) { font-family: var(--font-jp); }
+    :is(.sub-jp,.subtitle-item.active .sub-jp,#viewer-japanese,#exercise-live-japanese,#exercise-prompt,#exercise-review-prompt) { font-weight: 400; }
+    :is(.caption,.badge,.sub-num,.sub-time,.transcript-count,.avg-star-label,.sub-pronunciation-score-label,.sub-pronunciation-history-heading,.sub-pronunciation-history-meta,.sub-pronunciation-confidence,.sub-pronunciation-time,#exercise-mode-label,#exercise-transcript-head,#exercise-review-label,.exercise-transcript-time,.exercise-transcript-badge,#exercise-complete > div > span) { font-family: var(--font-body); font-size: var(--text-xs); font-weight: 500; letter-spacing: normal; text-transform: none; }
+    :is(.caption,.sub-time,.avg-star-label,.sub-pronunciation-time,.sub-pronunciation-confidence,.exercise-transcript-time) { color: var(--color-on-surface-variant); }
+    :is(.viewer-translation,.sub-tr,.comment-content,#exercise-waiting-text,#exercise-explanation,#exercise-status,#exercise-review-explanation) { color: var(--color-on-surface-variant); font-size: var(--text-sm); font-weight: 400; }
+    :is(.comments-panel,.transcript-column,#exercise-media-panel,#exercise-transcript-box,#exercise-answer-box,#exercise-complete) { border-color: var(--color-outline-variant); border-radius: var(--radius-lg); background: var(--color-surface-lowest); box-shadow: none; }
+    :is(#player-shell,#large-subtitle-viewer,#exercise-live-subtitle) { background: var(--color-surface-lowest); box-shadow: none; border-color: var(--color-outline-variant); border-radius: var(--radius-lg); }
+    :is(.player-header-actions .pill-btn,.sub-card-actions .sub-action-btn) { border: 0; background: transparent; box-shadow: none; color: var(--color-on-surface-variant); }
+    :is(.player-header-actions .pill-btn,.sub-card-actions .sub-action-btn):hover { background: transparent; box-shadow: none; transform: none; color: var(--color-primary); }
+    :is(#favorite-btn.active,.sub-action-btn.favorited) { color: var(--color-star); }
+    :is(.badge-lesson,.badge-green,.badge-age,.transcript-count,.sub-time,.sub-pron-score-badge,.exercise-transcript-badge) { background: transparent; border-color: transparent; box-shadow: none; border-radius: var(--radius-sm); font-weight: 500; }
+    :is(.badge-lesson,.badge-green,.transcript-count,.sub-pron-score-badge,.exercise-transcript-badge) { color: var(--color-primary); }
+    .badge-age { color: var(--color-warning); }
+    :is(.subtitle-item,.subtitle-item.active) { border-color: var(--color-outline-variant); border-radius: var(--radius-lg); background: var(--color-surface-lowest); box-shadow: none; transform: none; }
+    .subtitle-item.active { border-color: var(--color-primary); }
+    .subtitle-item.active::before { content: none; }
+    .sub-tr { border-top: 0; margin-top: var(--space-2); padding-top: 0; }
+    .sub-card-actions { border-top: 0; margin-top: var(--space-2); padding-top: 0; }
+    .sub-card-actions > button { height: 36px; min-height: 36px; }
+    .transcript-header { border-bottom: 0; }
+    .transcript-collapse-btn { width: auto; min-width: 36px; min-height: 36px; padding: 0 var(--space-2); border: 0; border-radius: var(--radius-control); background: transparent; color: var(--color-primary); font-size: var(--text-xs); font-weight: 500; }
+    #player-quick-controls :is(.control-btn,.pill-btn,[data-media-action],[data-shadowing-focus]) { height: 36px; min-height: 36px; border-radius: var(--radius-control); box-shadow: none; font-weight: 500; }
+    #player-quick-controls :is(.control-btn,.pill-btn) { color: var(--color-on-surface-variant); background: transparent; border-color: transparent; }
+    #player-quick-controls :is(.control-btn,.pill-btn):is(:hover,.active) { color: var(--color-primary); background: transparent; box-shadow: none; transform: none; }
+    #player-quick-controls #play-btn { color: var(--color-on-primary); background: var(--color-primary); }
+    #player-quick-controls #play-btn:hover { background: var(--color-primary-container); }
+    #player-quick-controls :is(.control-btn,.pill-btn).recording { color: var(--color-error); }
+    :is(.toolbar-divider,.sub-card-actions::before) { background: transparent; border-color: transparent; }
+    #speed-menu { border-color: var(--color-outline-variant); border-radius: var(--radius-md); background: var(--color-surface-lowest); box-shadow: var(--shadow-2); }
+    #speed-menu .speed-btn { border: 0; background: transparent; color: var(--color-on-surface-variant); font-size: var(--text-sm); font-weight: 500; box-shadow: none; }
+    #speed-menu .speed-btn:is(:hover,.active) { color: var(--color-primary); background: var(--color-primary-fixed); transform: none; }
+    #subtitle-list :is(.sub-pronunciation-panel,.sub-pronunciation-focus,.sub-pronunciation-tip,.sub-pronunciation-metrics > span) { border-color: var(--color-outline-variant); background: transparent; box-shadow: none; border-radius: var(--radius-input); }
+    #subtitle-list :is(.pronunciation-word,.sub-pronunciation-mora) { background: transparent; border-color: currentColor; border-radius: var(--radius-sm); font-size: var(--text-xs); font-weight: 500; box-shadow: none; }
+    #subtitle-list .pronunciation-word:is(:hover,[aria-pressed="true"]) { background: transparent; box-shadow: none; transform: none; border-color: var(--color-primary); }
+    #subtitle-list :is(.pronunciation-word small,.sub-pronunciation-mora small,.sub-pronunciation-focus-heading small,.sub-pronunciation-confidence,.sub-pronunciation-tip p) { font-family: var(--font-body); font-size: var(--text-xs); font-weight: 400; opacity: 1; }
+    #subtitle-list :is(.sub-pronunciation-mora strong,.sub-pronunciation-focus-heading > span,.sub-pronunciation-result strong,.sub-pronunciation-history-meta strong) { font-weight: 500; }
+    #subtitle-list :is(.sub-pronunciation-focus-heading strong,.sub-pronunciation-focus-heading > span) { font-size: var(--text-sm); }
+    #subtitle-list :is(.pronunciation-word,.sub-pronunciation-mora,.sub-pron-score-badge,[data-pronunciation-score],[data-pronunciation-focus-score],.sub-pronunciation-history-meta span)[data-grade="good"] { color: var(--color-success); background: transparent; }
+    #subtitle-list :is(.pronunciation-word,.sub-pronunciation-mora,.sub-pron-score-badge,[data-pronunciation-score],[data-pronunciation-focus-score],.sub-pronunciation-history-meta span)[data-grade="fair"] { color: var(--color-warning); background: transparent; }
+    #subtitle-list :is(.pronunciation-word,.sub-pronunciation-mora,.sub-pron-score-badge,[data-pronunciation-score],[data-pronunciation-focus-score],.sub-pronunciation-history-meta span)[data-grade="weak"] { color: var(--color-error); background: transparent; }
+    #subtitle-list :is(.sub-pronunciation-details-btn,.sub-pronunciation-compare-actions button,.sub-pronunciation-play-btn) { border-color: var(--color-outline-variant); border-radius: var(--radius-control); color: var(--color-primary); background: transparent; font-size: var(--text-xs); font-weight: 500; box-shadow: none; }
+    #subtitle-list :is(.sub-pronunciation-history-meta small,.sub-pronunciation-history-heading) { color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 500; }
+    .sub-pron-score-badge::before { color: currentColor; }
+    :is(.button-primary,#exercise-submit,#exercise-next,#exercise-restart) { background: var(--color-primary); color: var(--color-on-primary); border-color: transparent; border-radius: var(--radius-control); font-family: var(--font-body); font-weight: 500; box-shadow: none; }
+    :is(.button-primary,#exercise-submit,#exercise-next,#exercise-restart):hover { background: var(--color-primary-container); transform: none; box-shadow: none; }
+    :is(.button-secondary,.text-link,.comment-action,.page-guide-button,#exercise-back-link,#exercise-retry,#exercise-reveal,#exercise-review-back,#exercise-transcript-toggle) { color: var(--color-primary); background: transparent; border-color: var(--color-outline-variant); border-radius: var(--radius-control); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; box-shadow: none; }
+    :is(.button-secondary,.text-link,.comment-action,.page-guide-button,#exercise-retry,#exercise-reveal,#exercise-review-back,#exercise-transcript-toggle):hover { background: var(--color-primary-fixed); transform: none; box-shadow: none; }
+    :is(.comment-item,.comment-reply-form) { background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-input); }
+    :is(.comment-react-picker,.comment-react-picker button) { color: var(--color-on-surface-variant); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); }
+    .comment-react-picker { box-shadow: var(--shadow-2); border-radius: var(--radius-md); }
+    .comment-react-picker button { box-shadow: none; transform: none; }
+    :is(.comment-react-btn,.comment-reaction-summary) { display: inline-flex; align-items: center; gap: var(--space-1); }
+    :is(.comment-input,.comment-reply-input,.form-input,#exercise-answer) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline); border-radius: var(--radius-input); font-weight: 400; caret-color: var(--color-primary); }
+    #exercise-answer { font-family: var(--font-jp); }
+    #exercise-answer.is-incorrect { border-color: var(--color-error); background: var(--color-surface-lowest); }
+    #exercise-answer.is-correct { border-color: var(--color-success); background: var(--color-surface-lowest); }
+    :is(#exercise-waiting-state,#exercise-kitsu-tip,#exercise-partial-feedback,#exercise-review,#exercise-review-answer) { border-color: var(--color-outline-variant); background: transparent; box-shadow: none; }
+    #exercise-waiting-state > i { color: var(--color-primary); background: transparent; }
+    :is(#exercise-waiting-title,#exercise-partial-feedback strong,#exercise-review-answer > span) { color: var(--color-on-surface); font-family: var(--font-body); font-weight: 500; }
+    .exercise-transcript-row { color: var(--color-on-surface); border-color: transparent; border-radius: var(--radius-input); background: transparent; }
+    .exercise-transcript-row:is(:hover,:focus-visible,.is-active) { color: var(--color-primary); background: transparent; }
+    .exercise-transcript-row.is-active { outline: 1px solid var(--color-primary); outline-offset: -1px; }
+    .exercise-transcript-row.is-question .exercise-transcript-badge { color: var(--color-warning); }
+    .exercise-transcript-row.is-done .exercise-transcript-badge { color: var(--color-success); background: transparent; }
+    :is(.exercise-choice,.exercise-choice.is-selected) { color: var(--color-on-surface); background: transparent; border-color: var(--color-outline-variant); border-radius: var(--radius-input); font-family: var(--font-jp); font-weight: 400; box-shadow: none; }
+    .exercise-choice:is(:hover,.is-selected) { background: transparent; border-color: var(--color-primary); transform: none; }
+    .exercise-choice.is-correct { color: var(--color-success); border-color: var(--color-success); background: transparent; }
+    .exercise-choice.is-incorrect { color: var(--color-error); border-color: var(--color-error); background: transparent; }
+    .exercise-answer-slot.is-revealed { color: var(--color-success); background: transparent; font-weight: 500; }
+    #exercise-media-controls > button, #exercise-media-controls .shadowing-speed-toggle { height: 36px; min-height: 36px; border-radius: var(--radius-control); box-shadow: none; color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); }
+    #exercise-media-controls > button:hover, #exercise-media-controls .shadowing-speed-toggle:hover { color: var(--color-primary); background: var(--color-primary-fixed); box-shadow: none; transform: none; }
+    #exercise-media-controls :is(#exercise-listen-button,.exercise-media-toggle.is-active) { color: var(--color-on-primary); background: var(--color-primary); border-color: transparent; }
+    #exercise-media-controls :is(#exercise-listen-button,.exercise-media-toggle.is-active):hover { background: var(--color-primary-container); }
+    #exercise-media-controls #exercise-listen-button { border: 0; }
+    #exercise-speed-menu { background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-md); box-shadow: var(--shadow-2); }
+    #exercise-speed-menu button { color: var(--color-on-surface); background: transparent; font-size: var(--text-sm); font-weight: 500; }
+    #exercise-speed-menu button:is(:hover,.is-active) { color: var(--color-primary); background: var(--color-primary-fixed); }
+    #exercise-actions > button { min-height: 44px; font-size: var(--text-sm); font-weight: 500; }
+    #exercise-transcript-head { color: var(--color-on-surface-variant); }
+    #exercise-load-error { margin: var(--space-4) 0 0; color: var(--color-error); font-size: var(--text-sm); font-weight: 400; }
+    #exercise-explanation { border: 0; background: transparent; padding: 0; }
+  }
+
+  :is(.confirm-modal,.cp-confirm__dialog,.age-gate-dialog,.inline-dict,.page-guide) {
+    color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 400;
+    :is(h2,h3) { color: var(--color-on-surface); font-family: var(--font-body); font-size: var(--text-lg); font-weight: 600; letter-spacing: normal; }
+    :is(strong,b,label,button,a) { font-family: var(--font-body); font-weight: 500; }
+    :is(p,small,.cp-confirm__summary dt) { color: var(--color-on-surface-variant); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 400; }
+    :is(button,a) { border-radius: var(--radius-control); box-shadow: none; }
+    :is(button,a):hover { box-shadow: none; transform: none; }
+    :is(.button-primary,.cp-confirm__primary,.age-gate-submit,[data-guide-next]) { color: var(--color-on-primary); background: var(--color-primary); border-color: transparent; }
+    :is(.button-primary,.cp-confirm__primary,.age-gate-submit,[data-guide-next]):hover { background: var(--color-primary-container); }
+  }
+  :is(.confirm-modal-icon,.report-reason,.report-reason:has(input:checked),.cp-confirm__summary,.inline-dict__jlpt,.inline-dict__example) { background: transparent; box-shadow: none; }
+  .report-reason:has(input:checked) { border-color: var(--color-primary); }
+  .report-reason small { font-size: var(--text-xs); }
+  .inline-dict__word strong { font-family: var(--font-jp); font-size: var(--text-2xl); font-weight: 600; }
+  .inline-dict__word .inline-dict__jlpt { color: var(--color-primary); background: transparent; font-size: var(--text-xs); font-weight: 500; border-radius: var(--radius-sm); }
+  .inline-dict__actions :is(button,a) { min-height: 36px; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; }
+  .inline-dict__notebook-list button { color: var(--color-on-surface); background: transparent; border-color: var(--color-outline-variant); }
+  :is(.report-error,.age-gate-error,.cp-confirm__short) { color: var(--color-error); }
+  :is(button,a,[tabindex="0"]):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  :is(input[type="checkbox"],input[type="radio"]) { accent-color: var(--color-primary); }
+}
+
+/* Audio has no video canvas: keep the lyrics compact and use the page's readable text palette. */
+#jlabBasePage.shadowing-playback-standard.jl-ui-kit.audio-mode {
+  --player-panel-height: clamp(320px, 42vh, 400px);
+  #jlabBaseContent {
+    .player-layout { grid-template-rows: auto auto auto auto; }
+    .player-stage-layout { height: auto; align-self: start; }
+    #player-shell { height: auto; max-height: none; flex: none; }
+    .video-column { height: auto; flex: none; }
+    #large-subtitle-viewer { height: auto; min-height: 200px; max-height: none; flex: none; padding: var(--space-6) var(--space-5); }
+    #large-subtitle-viewer .viewer-japanese { color: var(--color-on-surface); text-shadow: none; font-weight: 400; }
+    #large-subtitle-viewer .viewer-translation { color: var(--color-on-surface-variant); text-shadow: none; }
+  }
+}
+
+html[data-theme="dark"] #jlabBasePage.shadowing-playback-standard {
+  --color-on-error: var(--dark-on-button);
+  --shadow-1: 0 4px 20px var(--dark-shadow);
+  --shadow-2: 0 10px 40px var(--dark-shadow);
+}
+html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.shadowing-playback-standard :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea,#exercise-answer,.jl-select__trigger):focus { outline: 2px solid var(--color-focus) !important; outline-offset: -2px; box-shadow: none !important; }
+html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.shadowing-playback-standard :is(.confirm-modal-danger,.report-send) { background: var(--color-error) !important; border-color: var(--color-error) !important; color: var(--color-on-error, var(--color-on-primary)) !important; }
+html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.shadowing-playback-standard.jl-ui-kit :is(input,textarea,#exercise-answer,.jl-select__trigger):is([aria-invalid="true"],.is-incorrect) { border-color: var(--color-error) !important; outline-color: var(--color-error) !important; }
+
+@media (max-width: 900px) {
+  #jlabBasePage.shadowing-playback-standard.jl-ui-kit #jlabBaseContent #large-subtitle-viewer .subtitle-item.active { width: 100%; min-width: 0; }
+  #jlabBasePage.shadowing-playback-standard.jl-ui-kit #jlabBaseContent :is(#lesson-title,#exercise-video-title) { font-size: var(--text-2xl); }
+  #jlabBasePage.shadowing-playback-standard.jl-ui-kit.audio-mode #jlabBaseContent #large-subtitle-viewer { min-height: 160px; padding: var(--space-5) var(--space-4); }
+}

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện nghe điền từ | KotsuKotsu</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tokens.css?v=20261125-largescreen">
     <link rel="stylesheet" href="/css/theme-bridge.css">
@@ -18,8 +18,11 @@
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
     <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
     <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261116-no-age-picker">
+    <link rel="stylesheet" href="/shadowing/css/playback-standard.css?v=20261124-audio-contrast">
+    <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+    <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing-exercise">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="shadowing-playback-standard jl-ui-kit page-shadowing-exercise">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent">
     <input id="exercise-session-id" type="hidden" th:value="${sessionId}">
@@ -34,6 +37,7 @@
                 <button id="exercise-pause-button" type="button"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tạm dừng</button>
                 <button id="exercise-resume-button" type="button" hidden><i class="fa-solid fa-play" aria-hidden="true"></i> Tiếp tục</button>
             </div>
+            <p id="exercise-load-error" role="alert" hidden></p>
         </header>
 
         <section id="exercise-workspace" hidden>
@@ -148,7 +152,7 @@
 <script src="/shadowing/js/subtitle-display.js?v=20261012-7"></script>
 <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
 <script src="/shadowing/js/youtube-media.js?v=20261109-file-first"></script>
-<script src="/shadowing/js/exercise.js?v=20261117-no-reveal-line"></script>
+<script src="/shadowing/js/exercise.js?v=20261124-visible-load-error"></script>
 <script src="/js/components/page-guide.js?v=20261117-bullets"></script>
 <script src="/shadowing/js/exercise-guide.js?v=20261117-bullets"></script>
 </body>

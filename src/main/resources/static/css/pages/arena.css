@@ -1487,7 +1487,7 @@ html:has(.arena-body),
   flex-direction: column;
 }
 
-.ar-step--deck [data-deck-picker] {
+.ar-step--deck .ar-setup-picker:not([hidden]) {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -1572,6 +1572,11 @@ html:has(.arena-body),
 .ar-step--deck .ar-deck__thumb {
   width: 44px;
   height: 44px;
+}
+
+.ar-step--deck [data-level-list] .ar-deck__thumb {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .ar-step--deck .ar-deck__count {
@@ -1931,20 +1936,13 @@ html:has(.arena-body),
   gap: 8px;
 }
 
-/* Hai mục chia đều và phủ hết bề ngang. */
-.ar-seg.ar-shop-tabs {
-  display: grid;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  width: 100%;
+/* Kiểu tab lấy từ UI kit, chỉ đặt khoảng cách với lưới sản phẩm. */
+.ar-shop-tabs {
   margin-bottom: 20px;
 }
 
-.ar-shop-tabs button {
-  min-height: 46px;
-  padding: 6px 12px;
-  white-space: normal;
-  line-height: 1.2;
+#jlabBasePage.arena-standard.jl-ui-kit .ar-shop-tabs button:focus-visible {
+  outline-offset: -3px;
 }
 
 .ar-shop-grid {
@@ -3162,11 +3160,23 @@ html[data-theme="dark"] .ar-shop-item__art--frames {
 }
 
 .ar-setup-game__art {
+  position: relative;
   grid-column: 1 / -1;
   min-height: 0;
   overflow: hidden;
   border-bottom: 2px solid var(--ar-line);
   background: var(--game-soft);
+}
+
+.ar-setup-game__art::before {
+  content: "";
+  display: block;
+  aspect-ratio: 23 / 10;
+}
+
+.ar-setup-game__art .ar-preview {
+  position: absolute;
+  inset: 0;
 }
 
 .ar-setup-game__art .ar-preview,
@@ -3210,10 +3220,10 @@ html[data-theme="dark"] .ar-shop-item__art--frames {
   text-decoration: underline;
 }
 
-/* Three modes as large choices, each with one line saying what it does. */
+/* Modes share the same row. The available choices fill its width. */
 .ar-mode-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--ar-mode-count, 3), minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -3293,6 +3303,8 @@ html[data-theme="dark"] .ar-shop-item__art--frames {
     border-right: 2px solid var(--ar-line);
     border-bottom: 0;
   }
+
+  .ar-setup-game__art::before { display: none; }
 
   .ar-setup-game__text {
     padding: 10px 12px;

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head th:replace="~{fragments/head :: standard(${pageTitle}, 'arena')}"></head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body arena-body">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body arena-body arena-standard jl-ui-kit">
+<link rel="stylesheet" href="/arena/css/arena-standard.css?v=20261124-ui-standard">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="ar-page ar-setup">
@@ -15,7 +16,7 @@
         </header>
         <p class="ar-error-text" data-setup-error role="alert" hidden></p>
 
-        <!-- The game is chosen on /games; here only the mode, then the deck. -->
+        <!-- Các game dùng chung hai bước: chế độ, rồi nguồn học liệu. -->
         <div class="ar-setup-flow">
             <div class="ar-setup-top">
                 <section class="ar-step ar-card ar-step--mode" aria-labelledby="ar-step-mode" data-step-mode>
@@ -32,14 +33,18 @@
                         </button>
                         <button type="button" role="radio" aria-checked="false" data-value="SOLO">
                             <i class="fa-solid fa-user" aria-hidden="true"></i>
-                            <span><strong>Luyện tập một mình</strong><small>Chơi thử, tự chọn phần hỏi và phần đáp.</small></span>
+                            <span><strong>Luyện tập một mình</strong><small data-solo-copy>Chơi thử, tự chọn phần hỏi và phần đáp.</small></span>
                         </button>
                     </div>
                 </section>
 
                 <section class="ar-step ar-card ar-step--deck" aria-labelledby="ar-step-deck" data-step-deck>
-                    <h2 id="ar-step-deck" tabindex="-1"><span class="ar-step__no">2</span> Chọn bộ flashcard</h2>
-                    <div data-deck-picker></div>
+                    <h2 id="ar-step-deck" tabindex="-1"><span class="ar-step__no">2</span> <span data-source-heading>Chọn bộ flashcard</span></h2>
+                    <div class="ar-setup-picker" data-deck-picker></div>
+                    <div class="ar-setup-picker" data-level-picker hidden>
+                        <ul class="ar-deck-list" id="ar-setup-jlpt" role="radiogroup"
+                            aria-label="Cấp JLPT" data-level-list></ul>
+                    </div>
                     <div class="ar-setup-actions">
                         <p class="ar-summary__problem" data-summary-problem role="status" hidden></p>
                         <button type="button" class="ar-btn ar-btn--primary ar-btn--lg ar-btn--block" data-submit disabled>Tìm đối thủ</button>
@@ -71,5 +76,6 @@
 <script th:src="@{/arena/js/game-previews.js}"></script>
 <script th:src="@{/arena/js/lobby-page.js(v='20261111-two-steps')}"></script>
 <script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<script defer src="/arena/js/standard-tabs.js?v=20261124-ui-standard"></script>
 </body>
 </html>

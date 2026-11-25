@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head th:replace="~{fragments/head :: standard(${pageTitle}, 'arena')}"></head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body arena-body">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="app-body arena-body arena-standard jl-ui-kit">
+<link rel="stylesheet" href="/arena/css/arena-standard.css?v=20261124-ui-standard">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="ar-page ar-shop">
@@ -16,13 +17,15 @@
             </div>
         </header>
 
-        <div class="ar-seg ar-shop-tabs" role="tablist" aria-label="Chọn game" data-shop-tabs hidden></div>
+        <div class="jl-tabs ar-shop-tabs" role="tablist" aria-label="Danh mục cửa hàng" data-shop-tabs hidden>
+            <span class="jl-tabs__ind" aria-hidden="true"></span>
+        </div>
 
         <div class="ar-card ar-panel" data-shop-status role="status">
             <p class="ar-muted">Đang mở cửa hàng…</p>
         </div>
 
-        <section class="ar-shop-grid" data-shop-grid aria-live="polite" hidden></section>
+        <section id="ar-shop-panel" class="ar-shop-grid" role="tabpanel" data-shop-grid aria-live="polite" hidden></section>
     </div>
 
     <dialog class="ar-dialog ar-shop-confirm" data-confirm aria-labelledby="ar-confirm-title">
@@ -45,5 +48,6 @@
 <script th:src="@{/arena/js/character-skin-preview.js(v='20261106-shared-art')}"></script>
 <script th:src="@{/arena/js/shop-page.js(v='20261106-shared-art')}"></script>
 <script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<script defer src="/arena/js/standard-tabs.js?v=20261125-shop-tabs"></script>
 </body>
 </html>

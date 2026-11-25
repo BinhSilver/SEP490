@@ -6,14 +6,14 @@
 
 <!-- The lesson's practice quiz on its own page; the lesson page links here. The attempt opens on load
      and resumes after a reload, because the learner already chose to start on the lesson page. -->
-<main id="jlabBaseContent" class="oy-page" th:with="done=${lesson.status == 'COMPLETED'}">
+<main id="jlabBaseContent" class="jl-ui-kit oy-page" th:with="done=${lesson.status == 'COMPLETED'}">
     <div class="oy-practice">
         <nav class="oy-breadcrumb" aria-label="Breadcrumb">
             <a th:href="@{/learning/onyomi}">Onyomi</a>
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <span class="oy-breadcrumb__separator" aria-hidden="true">/</span>
             <a th:href="@{/learning/onyomi/lessons/{id}(id=${lesson.lessonId})}"
                th:text="'Giai đoạn ' + ${lesson.stageOrder} + ' · Bài ' + ${lesson.order}">Bài 1</a>
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <span class="oy-breadcrumb__separator" aria-hidden="true">/</span>
             <span aria-current="page">Luyện tập</span>
         </nav>
 
@@ -40,7 +40,7 @@
 </main>
 
 <script th:src="@{/js/pages/onyomi-page.js(v=20261107-practice-page)}"></script>
-<script th:src="@{/js/pages/onyomi-quiz.js(v=20261116-next-mobile)}"></script>
+<script th:src="@{/js/pages/onyomi-quiz.js(v=20261123-ui-standard)}"></script>
 <script th:src="@{/js/pages/onyomi-demo-panel.js(v=20261106-demo-panel)}"></script>
 <script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 </body>

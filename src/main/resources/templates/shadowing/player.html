@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện shadowing | KotsuKotsu Shadowing</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/tokens.css?v=20261125-largescreen"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
@@ -23,8 +23,11 @@
     <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261116-no-age-picker">
     <link rel="stylesheet" href="/css/components/select.css?v=20261125-largescreen">
     <script defer src="/js/components/select.js?v=20261125-icons-vi"></script>
+    <link rel="stylesheet" href="/shadowing/css/playback-standard.css?v=20261124-audio-contrast">
+    <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+    <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="page-player page-shadowing page-shadowing-player">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="shadowing-playback-standard jl-ui-kit page-player page-shadowing page-shadowing-player">
     <div id="jlabBaseShellMount"></div>
     <main id="jlabBaseContent">
 
@@ -36,7 +39,7 @@
     <div class="container" id="player-container">
         <header class="player-page-header">
             <div class="player-header-top">
-                <h1 class="player-title" id="lesson-title"><span class="player-title-prefix">Tiêu đề: </span><span id="lesson-title-text">…</span></h1>
+                <h1 class="player-title" id="lesson-title"><span id="lesson-title-text">…</span></h1>
                 <div class="player-header-actions">
                     <button id="favorite-btn" class="pill-btn toggle-btn" title="Yêu thích" aria-label="Yêu thích"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
                     <button id="share-btn" class="pill-btn toggle-btn" title="Chia sẻ" aria-label="Chia sẻ"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i></button>
@@ -234,7 +237,7 @@
                     <div class="transcript-header-actions">
                         <span class="transcript-count" id="transcript-count">0 câu</span>
                         <button type="button" id="transcript-collapse-btn" class="transcript-collapse-btn" aria-controls="subtitle-list" aria-expanded="true" aria-label="Thu gọn phụ đề" title="Thu gọn phụ đề">
-                            <i class="fa-solid fa-angles-right" aria-hidden="true"></i>
+                            Ẩn
                         </button>
                     </div>
                 </div>
@@ -261,9 +264,9 @@
     <script src="/shadowing/js/focus-mode.js?v=20261012-focus-romaji"></script>
     <script src="/shadowing/js/listen-record.js?v=20261012-mic-tools"></script>
     <script src="/shadowing/js/youtube-media.js?v=20261109-file-first"></script>
-    <script src="/shadowing/js/transcript-collapse.js?v=20261109-1"></script>
-    <script src="/shadowing/js/app.js?v=20261116-no-age-picker"></script>
-    <script src="/shadowing/js/video-report.js?v=20261021-report-3"></script>
+    <script src="/shadowing/js/transcript-collapse.js?v=20261124-text-label"></script>
+    <script src="/shadowing/js/app.js?v=20261124-ui-standard"></script>
+    <script src="/shadowing/js/video-report.js?v=20261124-report-copy"></script>
     <script src="/shadowing/js/player-timeline.js?v=20261012-mic-tools"></script>
     <script src="/shadowing/js/player-mobile.js?v=20261012-5"></script>
     <!-- Chỉ hoạt động khi chạy local với Spring Boot DevTools. -->

@@ -1,3 +1,4 @@
+import { useGameConfirmation } from './MemoryConfirm'
 import { PlayerPanel, ResultPanel } from './MemoryEffects';
 import { CoinTossOverlay } from './CoinTossOverlay'
 import { fitBoard, lastRowShift } from './boardFit'
@@ -69,6 +70,7 @@ function PlayerChip({ player, isMe }: { player: MemoryPlayer; isMe: boolean }) {
 }
 
 export default function App({ sessionId, backUrl }: { sessionId: string; backUrl: string }) {
+  const confirmation = useGameConfirmation()
   const reduceMotion = useReducedMotion()
   const storeRef = useRef<MemoryStoreLike | null>(null)
   const feedbackTimerRef = useRef<number | null>(null)
@@ -185,10 +187,11 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
       setVolumeOpen(false)
     }
     const onPointerDown = (event: PointerEvent) => {
+      if (document.querySelector('dialog[open]')) return
       if (event.target instanceof Node && !settingsRef.current?.contains(event.target)) closeSettings()
     }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
+      if (event.key !== 'Escape' || document.querySelector('dialog[open]')) return
       event.preventDefault()
       closeSettings()
       settingsToggleRef.current?.focus()
@@ -371,7 +374,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   const [surrendering, setSurrendering] = useState(false)
   const surrender = async () => {
     if (!state || state.playMode !== 'MULTIPLAYER' || state.status === 'FINISHED' || state.status === 'ABORTED') return
-    if (!window.confirm('Đầu hàng sẽ xử thua ván này. Bạn vẫn ở lại bàn để xem kết quả.')) return
+    if (!await confirmation.confirm('Đầu hàng sẽ xử thua ván này. Bạn vẫn ở lại bàn để xem kết quả.', 'Xác nhận đầu hàng')) return
     setSurrendering(true)
     try {
       await window.JlasArena.api.leaveSession(sessionId)
@@ -386,7 +389,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
   const leaveBoard = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!state || state.playMode !== 'MULTIPLAYER' || state.status === 'FINISHED' || state.status === 'ABORTED') return
     event.preventDefault()
-    if (!window.confirm('Rời bàn bây giờ sẽ bị xử thua ván này. Bạn chắc chắn muốn rời?')) return
+    if (!await confirmation.confirm('Rời bàn bây giờ sẽ bị xử thua ván này. Bạn chắc chắn muốn rời?')) return
     try {
       await window.JlasArena.api.leaveSession(sessionId)
     } catch {
@@ -633,6 +636,7 @@ export default function App({ sessionId, backUrl }: { sessionId: string; backUrl
             onDone={() => setShowCoinToss(false)} onLeave={() => { void backFromSetup() }} />
         )}
       </AnimatePresence>
-    </main>
+    {confirmation.dialog}
+</main>
   )
 }

@@ -12,11 +12,11 @@
       var d = data.data;
       var html = '';
       if (typeof d.dailyMinutes === 'number') {
-        html += '<li>Hôm nay: <strong>' + d.dailyMinutes.toFixed(1) + '</strong>/' +
+        html += '<li data-call-quota="daily">Hôm nay: <strong>' + d.dailyMinutes.toFixed(1) + '</strong>/' +
                 (d.dailyLimitMin != null && d.dailyLimitMin < 1e9 ? d.dailyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.monthlyMinutes === 'number') {
-        html += '<li>Tháng này: <strong>' + d.monthlyMinutes.toFixed(1) + '</strong>/' +
+        html += '<li data-call-quota="monthly">Tháng này: <strong>' + d.monthlyMinutes.toFixed(1) + '</strong>/' +
                 (d.monthlyLimitMin != null && d.monthlyLimitMin < 1e9 ? d.monthlyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.creditBalance === 'number') {
@@ -33,6 +33,18 @@
         }
       }
       usage.innerHTML = html;
+      if (window.JlasQuotaMeter) {
+        [['daily', d.dailyMinutes, d.dailyLimitMin, 'Còn hôm nay'],
+         ['monthly', d.monthlyMinutes, d.monthlyLimitMin, 'Còn tháng này']].forEach(function (item) {
+          var target = usage.querySelector('[data-call-quota="' + item[0] + '"]');
+          if (!target) return;
+          var original = target.textContent;
+          window.JlasQuotaMeter.mount(target, {label: item[3], caption: item[3]}).update({
+            used: item[1], limit: item[2], unlimited: item[2] == null || item[2] >= 1e9,
+            description: original
+          });
+        });
+      }
     }
     modal.hidden = false;
     var close = document.getElementById('btnCloseQuota');
@@ -44,7 +56,7 @@
       var canPay = data && data.code === 'QUOTA_EXCEEDED' && typeof cost === 'number' && cost > 0
         && typeof d2.creditBalance === 'number' && d2.creditBalance >= cost;
       useCp.hidden = !canPay;
-      if (canPay) useCp.innerHTML = '<i class="fa-solid fa-coins"></i> Dùng ' + cost + ' CP cho lượt này';
+      if (canPay) useCp.textContent = 'Dùng ' + cost + ' CP cho lượt này';
       var autoWrap = document.getElementById('quotaAutoWrap');
       var autoBox = document.getElementById('quotaAutoCredit');
       var autoCap = document.getElementById('quotaAutoCap');
@@ -60,7 +72,11 @@
     var buy = document.getElementById('btnQuotaBuy');
     if (buy) buy.onclick = function () { window.location.href = '/credits'; };
     var up = document.getElementById('btnQuotaUpgrade');
-    if (up) up.onclick = function () { window.location.href = '/premium'; };
+    if (up) {
+      up.classList.toggle('button-primary', !canPay);
+      up.classList.toggle('button-secondary', !!canPay);
+      up.onclick = function () { window.location.href = '/premium'; };
+    }
   }
 
   function showMuteModal(data) {
@@ -902,7 +918,7 @@
       }
       // 409: lượt trước chưa xong / đang xử lý; 503: quá tải (chưa bị tính phí).
       if (!res.ok) {
-        addChargeNote(learnerRow, '⚠️ ' + ((data && (data.message || data.error)) || 'Không gửi được, thử lại nhé.'), true);
+        addChargeNote(learnerRow, '' + ((data && (data.message || data.error)) || 'Không gửi được, thử lại nhé.'), true);
         return;
       }
 
@@ -915,7 +931,7 @@
           // hiện lỗi kỹ thuật nhỏ dưới bubble (không giả làm thoại AI)
           const note = document.createElement('div');
           note.style.cssText = 'font-size:.78rem;color:var(--wrong, #b42318);margin-top:4px;';
-          note.textContent = '⚠️ ' + data.error;
+          note.textContent = '' + data.error;
           row.querySelector('.msg-col').appendChild(note);
         }
         if (data.sceneTransition) addSceneTransition(data.sceneTransition);
