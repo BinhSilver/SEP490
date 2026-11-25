@@ -1,0 +1,37 @@
+#jlabBaseContent .sr-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  min-height: 62px;
+  margin: 28px 0 0;
+  cursor: text;
+}
+#jlabBaseContent .sr-slot {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--color-outline);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  font-size: 27px;
+  line-height: 1;
+}
+#jlabBaseContent .sr-slot [lang="ja"] { font-family: var(--font-jp); }
+#jlabBaseContent .sr-slot small { display: none; }
+#jlabBaseContent .sr-slot.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-container); }
+#jlabBaseContent .sr-slot.is-correct { color: var(--color-success); border-color: var(--color-success); background: var(--color-success-bg); }
+#jlabBaseContent .sr-slot.is-wrong { color: var(--color-on-error-container); border-color: var(--color-error); background: var(--color-error-container); }
+#jlabBaseContent .sr-typing-capture { position: absolute; width: 1px; height: 1px; margin: -1px; opacity: 0; }
+#jlabBaseContent .sr-ime-preview { flex-basis: 100%; min-width: 0; overflow-wrap: anywhere; color: var(--color-on-surface-variant); font-size: 16px; line-height: 1.5; }
+
+@media (max-width: 600px) {
+  #jlabBaseContent .sr-slot { width: 48px; height: 48px; font-size: 23px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #jlabBaseContent .sr-slots.is-mistake { animation: sr-slot-mistake var(--dur-short) var(--ease-out); }
+}
+@keyframes sr-slot-mistake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
