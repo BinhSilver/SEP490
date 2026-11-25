@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block');
 @import url('./sakura-background.css');
 @import url('./components/dropdowns.css');
-@import url('./components/user-menu.css?v=20261125-phase1');
+@import url('./components/user-menu.css?v=20261125-largescreen');
 @import url('./components/scrollbar.css');
 
 *,
@@ -147,4 +147,21 @@ select option,
   .container {
     padding-inline: var(--space-5);
   }
+}
+
+/* Large screens (2K, 2.5K, 4K): grow the root size so rem-based type, spacing and controls scale
+   with the screen and the page keeps its Full HD proportions. (CSS zoom would also scale vh/vw
+   units and break full-height layouts, so it is not used.) Games, the Kanji map and the home page
+   keep their own sizing. */
+@media (min-width: 2000px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 18px; }
+}
+@media (min-width: 2300px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 20px; }
+}
+@media (min-width: 2500px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 21.33px; }
+}
+@media (min-width: 3200px) {
+  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 26.66px; }
 }

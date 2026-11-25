@@ -15,7 +15,7 @@
   left: 0;
   right: 0;
   z-index: var(--z-header, 100);
-  height: 72px;
+  height: 4.5rem;
   display: flex;
   align-items: center;
   background: var(--color-surface-lowest) !important;
@@ -27,7 +27,7 @@
 
 /* Ensure all page content starts cleanly below fixed 72px header on non-home pages */
 body:not(.page-home) {
-  padding-top: 80px !important;
+  padding-top: 5rem !important;
 }
 
 /* Non-home pages need an opaque fixed bar so scrolling content never shows through it. */
@@ -57,7 +57,7 @@ body:not(.page-home) .site-header {
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .site-header__brand span.tm {
@@ -69,7 +69,7 @@ body:not(.page-home) .site-header {
 .site-header__nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 2rem;
 }
 
 .site-header__nav a,
@@ -101,7 +101,7 @@ body:not(.page-home) .site-header {
 .nav-link::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: -0.25rem;
   left: 0;
   width: 0;
   height: 1px;
@@ -122,8 +122,8 @@ body:not(.page-home) .site-header {
 .nav-tools-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 0;
+  gap: 0.4375rem;
+  padding: 0.5rem 0;
   border: 0;
   background: transparent;
   color: var(--color-on-surface-variant);
@@ -149,18 +149,18 @@ body:not(.page-home) .site-header {
 }
 
 .nav-tools-menu {
-  top: calc(100% + 10px);
+  top: calc(100% + 0.625rem);
   right: auto;
   left: 0;
-  min-width: 184px;
+  min-width: 11.5rem;
 }
 
 .nav-tools-menu .dropdown__item {
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .nav-tools-menu .dropdown__item i {
-  width: 18px;
+  width: 1.125rem;
   color: inherit;
   text-align: center;
 }
@@ -168,7 +168,7 @@ body:not(.page-home) .site-header {
 .site-header__actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .site-header__spacer {
