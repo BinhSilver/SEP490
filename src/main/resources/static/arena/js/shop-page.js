@@ -98,11 +98,11 @@
       price = '<span class="ar-shop-item__owned">Đã có</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" data-equip="' + esc(frame.code) + '">Dùng</button>';
     } else if (balance >= frame.price) {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + frame.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + frame.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--primary ar-btn--block" data-buy="' + esc(frame.code) + '">'
         + 'Mua · ' + frame.price + ' CP</button>';
     } else {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + frame.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + frame.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" disabled>Cần thêm ' + (frame.price - balance) + ' CP</button>';
     }
     return '<article class="ar-shop-item' + (frame.equipped ? ' is-equipped' : '') + '">'
@@ -139,11 +139,11 @@
       price = '<span class="ar-shop-item__owned">' + (item.starter ? 'Có sẵn' : 'Đã có') + '</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" data-equip="' + esc(item.code) + '">Dùng</button>';
     } else if (balance >= item.price) {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + item.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + item.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--primary ar-btn--block" data-buy="' + esc(item.code) + '">'
         + 'Mua · ' + item.price + ' CP</button>';
     } else {
-      price = '<span class="ar-shop-item__price"><span class="ar-coin" aria-hidden="true"></span>' + item.price + ' CP</span>';
+      price = '<span class="ar-shop-item__price"><span class="jlas-cp-icon" aria-hidden="true"></span>' + item.price + ' CP</span>';
       action = '<button type="button" class="ar-btn ar-btn--block" disabled>Cần thêm ' + (item.price - balance) + ' CP</button>';
     }
     return '<article class="ar-shop-item' + (item.equipped ? ' is-equipped' : '') + (item.tier ? ' ar-shop-item--' + esc(item.tier.toLowerCase()) : '') + '">'
