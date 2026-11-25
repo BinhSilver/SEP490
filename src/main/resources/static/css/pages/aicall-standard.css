@@ -1,0 +1,117 @@
+@import url('../dark-page.css');
+@import url('../components/ui-kit.css');
+
+/* Scoped to the AI Call templates: map coordinates, chat scrolling and speech controls keep their layout. */
+#jlabBasePage.aicall-standard.jl-ui-kit {
+  --bg: var(--color-background);
+  --surface: var(--color-surface-lowest);
+  --surface-2: var(--color-surface-container);
+  --panel: var(--color-surface-lowest);
+  --card: var(--color-surface-lowest);
+  --text: var(--color-on-surface);
+  --text-secondary: var(--color-on-surface-variant);
+  --muted: var(--color-on-surface-variant);
+  --accent: var(--color-primary);
+  --accent-hover: var(--color-primary-container);
+  --accent-soft: var(--color-primary-fixed);
+  --border: var(--color-outline-variant);
+  --correct: var(--color-success);
+  --wrong: var(--color-error);
+  --tree-paper: var(--color-surface-lowest);
+  --tree-node: var(--color-surface-lowest);
+  --tree-grid: var(--color-surface-container);
+  --tree-ink: var(--color-on-surface);
+  --tree-muted: var(--color-on-surface-variant);
+  --tree-accent: var(--color-primary);
+  --tree-line: var(--color-outline);
+  --tree-border: var(--color-outline-variant);
+  --tree-tint: var(--color-primary-fixed);
+  --tree-shadow: none;
+  --font-headline: var(--font-body);
+  color: var(--color-on-surface);
+  background: var(--color-background) !important;
+  font-family: var(--font-body);
+  font-weight: 400;
+  #jlabBaseContent {
+    &.aicall-case-page,&.aicall-topic-list,.stage-map { --tree-paper: var(--color-surface-lowest); --tree-node: var(--color-surface-lowest); --tree-grid: var(--color-surface-container); --tree-ink: var(--color-on-surface); --tree-muted: var(--color-on-surface-variant); --tree-accent: var(--color-primary); --tree-line: var(--color-outline); --tree-border: var(--color-outline-variant); --tree-tint: var(--color-primary-fixed); --tree-shadow: none; }
+    :is(h1,h2,h3,h4) { font-family: var(--font-body); color: var(--color-on-surface); letter-spacing: normal; text-transform: none; font-weight: 600; }
+    h1 { font-size: var(--text-3xl); line-height: 1.3; }
+    h2 { font-size: var(--text-xl); }
+    h3 { font-size: var(--text-lg); }
+    :is(p,li,dd,.sub,.meta,.exp,.reading,.meaning,.reason,.topics-empty) { font-weight: 400; }
+    :is(strong,b,a,button,label,summary) { font-weight: 500; letter-spacing: normal; text-transform: none; }
+    :is(.panel,.card,.cv-main,.side-card,.case-context,.case-objectives,.case-resource,.case-practice-inner,.stage-story,.stage-map-frame,.stage-history-row,.topic-accordion,.topic-scenario-link) { background: var(--color-surface-lowest); color: var(--color-on-surface); border-color: var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: none; }
+    :is(.card,.topic-scenario-link,.case-resource,.stage-history-row):hover { transform: none; box-shadow: none; border-color: var(--color-primary); }
+    :is(.cat-icon,.topic-icon,.case-heading-icon,.case-goal-icon,.case-flow-icon,.case-resource-icon,.case-coach-icon,.scenario-icon) { background: transparent; color: var(--color-primary); box-shadow: none; }
+    :is(.badge,.topic-count,.topic-scenario-level,.topic-scenario-path,.case-path-badge,.case-optional,.stage-history-label,.stage-card-status,.stage-card-number,.case-step) { background: transparent; color: var(--color-primary); border-color: transparent; border-radius: var(--radius-sm); box-shadow: none; font-family: var(--font-body); font-size: var(--text-xs); font-weight: 500; text-shadow: none; }
+    .mode-card .badge { background: transparent !important; border-color: transparent; box-shadow: none; }
+    :is(.topic-japanese,.case-reading,.msg-meta,.sub,.stage-map-footer,.case-word-label,.case-location dt,.case-word-details dt,.case-roles dt) { color: var(--color-on-surface-variant); font-size: var(--text-sm); font-weight: 400; }
+    :is(.jp,[lang='ja'],ruby,.case-word-term strong,.pattern) { font-family: var(--font-jp); }
+    :is(.btn,.case-start,.case-sample-open,.stage-history-row > a,.cv-guide-trigger,.cv-settings-trigger,.btn-mic,.btn-send,.btn-tts-test) { min-height: 44px; border-radius: var(--radius-control); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; letter-spacing: normal; text-transform: none; box-shadow: none; text-shadow: none; }
+    :is(.btn-primary,.case-start,.btn-send) { background: var(--color-primary); color: var(--color-on-primary); border-color: transparent; }
+    :is(.btn-primary,.case-start,.btn-send):hover { background: var(--color-primary-container); color: var(--color-on-primary); transform: none; box-shadow: none; }
+    :is(.btn-secondary,.case-sample-open,.cv-guide-trigger,.cv-settings-trigger,.btn-mic,.btn-tts-test,.stage-history-row > a) { color: var(--color-primary); border-color: var(--color-outline-variant); background: var(--color-surface-lowest); }
+    :is(.btn-secondary,.case-sample-open,.cv-guide-trigger,.cv-settings-trigger,.btn-mic,.btn-tts-test,.stage-history-row > a):hover { background: var(--color-primary-fixed); transform: none; box-shadow: none; }
+    .btn-ghost { background: transparent; color: var(--color-on-surface-variant); border-color: transparent; }
+    :is(.stage-map-action,.stage-map-zoom button) { width: 36px; height: 36px; min-height: 36px; border-radius: var(--radius-control); color: var(--color-primary); border-color: var(--color-outline-variant); background: var(--color-surface-lowest); box-shadow: none; }
+    :is(.stage-card,.stage-card-select,.stage-card-detail) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-input); box-shadow: none; text-shadow: none; }
+    .stage-card { border-radius: var(--radius-lg); }
+    .stage-card.is-selected { border-color: var(--color-primary); box-shadow: none; }
+    .stage-card--passed .stage-card-status { color: var(--color-success); }
+    .stage-card--locked :is(.stage-card-status,.stage-card-number) { color: var(--color-on-surface-variant); }
+    :is(.stage-story-step,.stage-story-step-copy,.stage-story-steps li) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); box-shadow: none; }
+    :is(.stage-review-notice,.stage-locked-message) { background: transparent; border-color: var(--color-outline-variant); color: var(--color-on-surface-variant); font-weight: 400; }
+    :is(.cv-main-top,.cv-compose) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); box-shadow: none; }
+    :is(.bubble,.msg-row.user .bubble,.msg-row.assistant .bubble) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: none; }
+    .msg-row.user .bubble { border-color: var(--color-primary); }
+    :is(.bubble-text,.word,.pattern) { color: var(--color-on-surface); font-weight: 400; text-shadow: none; }
+    .translation-line { color: var(--color-on-surface-variant); font-size: var(--text-sm); font-weight: 400; }
+    :is(.tool-chip,.suggest-chip,.tts-gender-btn) { min-height: 32px; color: var(--color-primary); background: transparent; border-color: var(--color-outline-variant); border-radius: var(--radius-input); box-shadow: none; font-size: var(--text-sm); font-weight: 500; }
+    :is(.tool-chip,.suggest-chip,.tts-gender-btn):hover { background: transparent; color: var(--color-primary); border-color: var(--color-primary); transform: none; box-shadow: none; }
+    :is(.tool-chip.active,.tts-gender-btn[aria-pressed='true']) { color: var(--color-primary); background: transparent; border-color: var(--color-primary); }
+    :is(.feedback-card,.feedback-card.is-vocab-help) { background: transparent; border-color: var(--color-outline-variant); border-radius: var(--radius-input); box-shadow: none; }
+    .feedback-card .bad { color: var(--color-error); background: transparent; }
+    .feedback-card .ok { color: var(--color-success); background: transparent; }
+    :is(.feedback-card .reason,.scene-transition,.typing,.charge-note) { color: var(--color-on-surface-variant); font-weight: 400; }
+    :is(.vocab-item,.grammar-item,.tts-settings,.freechat-topic-dropdown) { background: transparent; border-color: var(--color-outline-variant); border-radius: var(--radius-input); box-shadow: none; }
+    .progress-bar { height: 8px; background: var(--color-surface-container); border: 0; }
+    .progress-bar > i { background: var(--color-primary); box-shadow: none; }
+    .mission-list li { background: transparent; border-color: var(--color-outline-variant); color: var(--color-on-surface-variant); }
+    .mission-list li.done { color: var(--color-success); }
+    .switch { background: var(--color-outline); border-color: transparent; box-shadow: none; }
+    .switch.on { background: var(--color-primary); }
+    .switch::after { background: var(--color-surface-lowest); box-shadow: none; }
+    :is(.avatar,.avatar.ai) { color: var(--color-primary); background: var(--color-primary-fixed); box-shadow: none; }
+    :is(#messageInput,.freechat-field select,.tts-field select) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline); border-radius: var(--radius-input); font-family: var(--font-body); font-weight: 400; caret-color: var(--color-primary); }
+    #messageInput { min-height: 48px; }
+    .compose-row :is(.btn-mic,.btn-send) { height: 48px; min-height: 48px; }
+    .compose-error { color: var(--color-error); }
+    :is(.sample-audio-player,.sample-audio-controls) { color: var(--color-on-surface); background: transparent; border-color: var(--color-outline-variant); box-shadow: none; }
+    .case-sample-audio-actions { --jl-button-min-height: 48px; }
+    .case-sample-audio-actions :is(.tool-chip,.jl-select__trigger) { min-height: 48px; height: 48px; }
+  }
+  :is(.modal,.word-modal,.complete-card,.cv-settings-dialog,.aicall-guide,.inline-dict) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); font-family: var(--font-body); }
+  .aicall-guide :is(h2,p,small,button) { font-family: var(--font-body); letter-spacing: normal; font-weight: 400; color: var(--color-on-surface); }
+  .aicall-guide h2 { font-size: var(--text-lg); font-weight: 600; }
+  .aicall-guide [data-guide-next] { background: var(--color-primary); color: var(--color-on-primary); border-color: transparent; font-weight: 500; }
+  .aicall-guide button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .quota-usage { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+  .quota-usage > li:not([data-call-quota]) { width: 100%; }
+  .word-modal .badge { color: var(--color-primary); background: transparent; border-color: transparent; font-size: var(--text-xs); font-weight: 500; }
+  .complete-card .badge { color: var(--color-success); background: transparent; border-color: transparent; box-shadow: none; font-size: var(--text-xs); font-weight: 500; }
+  :is(.modal,.word-modal,.complete-card,.cv-settings-dialog,.cv-guide-dialog) :is(h2,h3) { color: var(--color-on-surface); font-family: var(--font-body); font-size: var(--text-lg); font-weight: 600; letter-spacing: normal; text-transform: none; }
+  :is(.modal,.word-modal,.complete-card,.cv-settings-dialog) :is(p,li,.muted) { color: var(--color-on-surface-variant); font-size: var(--text-sm); font-weight: 400; }
+  :is(.button-primary,.complete-card .btn-primary) { color: var(--color-on-primary); background: var(--color-primary); border-color: transparent; box-shadow: none; }
+  :is(.button-secondary,.btn-icon,.cv-settings-close) { color: var(--color-primary); background: transparent; border-color: var(--color-outline-variant); box-shadow: none; }
+  :is(button,a) { text-shadow: none; }
+  :is(button,a):hover { transform: none; }
+  :is(button,a,[tabindex='0']):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  :is(input[type='checkbox'],input[type='radio']) { accent-color: var(--color-primary); }
+  ::selection { background: var(--color-primary-fixed); color: var(--color-on-surface); }
+}
+html #jlabBasePage.aicall-standard #jlabBaseContent [style*='font-weight:800'],
+html #jlabBasePage.aicall-standard #jlabBaseContent [style*='font-weight:700'],
+html #jlabBasePage.aicall-standard #jlabBaseContent [style*='font-weight:600'] { font-weight: 500 !important; }
+html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.aicall-standard :is(input:not([type='checkbox']):not([type='radio']):not([type='range']),textarea,.jl-select__trigger):focus { outline: 2px solid var(--color-focus) !important; outline-offset: -2px; box-shadow: none !important; }
+html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.aicall-standard :is(input,textarea,.jl-select__trigger)[aria-invalid='true'] { border-color: var(--color-error) !important; outline-color: var(--color-error) !important; }
+@media(max-width:600px) { #jlabBasePage.aicall-standard.jl-ui-kit #jlabBaseContent h1 { font-size: var(--text-2xl); } }

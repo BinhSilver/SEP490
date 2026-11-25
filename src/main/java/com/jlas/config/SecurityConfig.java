@@ -69,6 +69,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/games/sphinx/**", "/games/picture-rebus/**", "/games/draw-guess/**",
+                                "/api/games/puzzles/**").hasRole("ADMIN")
                         // [JLAS2-270] Learners submit; only content creators/admins review learning error reports.
                         .requestMatchers("/admin/learning-content-reports", "/api/admin/learning-content-reports", "/api/admin/learning-content-reports/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")

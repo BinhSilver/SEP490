@@ -17,3 +17,5 @@ if (!sessionId) {
 createRoot(rootElement).render(
   <App sessionId={sessionId} backUrl={rootElement.dataset.backUrl || '/games'} />
 )
+
+import '../../shared/game-ui.css';

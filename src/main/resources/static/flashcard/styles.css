@@ -28,10 +28,6 @@
   --shadow-md: none;
   --shadow-lg: none;
   --shadow-glow: 0 0 20px rgba(79, 55, 138, 0.16);
-  --color-primary: #4f378a;
-  --color-secondary: #494551;
-  --color-surface: #f4fafd;
-  --color-on-surface: #161d1f;
 }
 
 [data-theme="dark"] {
@@ -57,8 +53,6 @@
   --shadow-md: none;
   --shadow-lg: none;
   --shadow-glow: 0 0 20px rgba(79, 55, 138, 0.16);
-  --color-surface: #f4fafd;
-  --color-on-surface: #161d1f;
 }
 
 :root {
@@ -78,11 +72,6 @@
   --r-xl: 1rem;
   --r-full: 9999px;
 
-  --font-display: "Hanken Grotesk", system-ui, sans-serif;
-  --font-headline: "Hanken Grotesk", system-ui, sans-serif;
-  --font-body: -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-jp: "Noto Sans JP", "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", "DM Mono", ui-monospace, monospace;
 
   --t-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --t-normal: 280ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -1991,82 +1980,78 @@ kbd {
 /* ── Flashcard editor: spreadsheet workspace ─────────────── */
 .editor-sheet {
   max-width: 1240px;
-  color: #24151b;
-  --bg-base: #fff8fa;
-  --bg-surface: #ffffff;
-  --bg-elevated: #fff1f5;
-  --bg-sidebar: #ffffff;
-  --accent: #e85d8c;
-  --accent-soft: rgba(232, 93, 140, 0.14);
-  --correct: #247a58;
-  --correct-bg: rgba(36, 122, 88, 0.1);
-  --wrong: #c52f5a;
-  --wrong-bg: rgba(197, 47, 90, 0.09);
-  --warning: #b7671b;
+  color: var(--color-on-surface);
+  --bg-base: var(--color-background);
+  --bg-surface: var(--color-surface-lowest);
+  --bg-elevated: var(--color-surface-container);
+  --bg-sidebar: var(--color-surface-lowest);
+  --accent: var(--color-primary);
+  --accent-soft: var(--color-primary-fixed);
+  --correct: var(--color-success);
+  --correct-bg: var(--color-success-bg);
+  --wrong: var(--color-error);
+  --wrong-bg: var(--color-error-container);
+  --warning: var(--color-warning);
   --star: var(--color-star, #f5a400);
-  --text-primary: #24151b;
-  --text-secondary: #6f5961;
-  --text-muted: #967984;
-  --border: #f0d6df;
-  --border-strong: #d8aebe;
+  --text-primary: var(--color-on-surface);
+  --text-secondary: var(--color-on-surface-variant);
+  --text-muted: var(--color-on-surface-variant);
+  --border: var(--color-outline-variant);
+  --border-strong: var(--fc-field-line);
   --overlay: rgba(36, 21, 27, 0.4);
-  --shadow-sm: 0 2px 7px rgba(110, 40, 67, 0.06);
-  --shadow-md: 0 12px 28px rgba(110, 40, 67, 0.1);
-  --shadow-lg: 0 18px 42px rgba(110, 40, 67, 0.14);
-  --shadow-glow: 0 0 0 4px rgba(232, 93, 140, 0.13);
-  --color-primary: #e85d8c;
-  --color-secondary: #6f5961;
-  --color-surface: #fff8fa;
-  --color-on-surface: #24151b;
+  --shadow-sm: var(--shadow-1);
+  --shadow-md: var(--shadow-1);
+  --shadow-lg: var(--shadow-2);
+  --shadow-glow: none;
 }
 
 /* Editor overlays live outside .editor-sheet, so they need the palette directly. */
 #import-modal,
 #appeal-modal {
-  --bg-base: #fff8fa;
-  --bg-surface: #ffffff;
-  --bg-elevated: #fff1f5;
-  --accent: #e85d8c;
-  --accent-soft: rgba(232, 93, 140, 0.14);
-  --text-primary: #24151b;
-  --text-secondary: #6f5961;
-  --text-muted: #967984;
-  --border: #f0d6df;
-  --border-strong: #d8aebe;
-  --wrong: #c52f5a;
-  --wrong-bg: rgba(197, 47, 90, 0.09);
-  --shadow-lg: 0 24px 60px rgba(85, 30, 49, 0.2);
-  background: rgba(66, 27, 41, 0.38);
+  --bg-base: var(--color-background);
+  --bg-surface: var(--color-surface-lowest);
+  --bg-elevated: var(--color-surface-container);
+  --accent: var(--color-primary);
+  --accent-soft: var(--color-primary-fixed);
+  --text-primary: var(--color-on-surface);
+  --text-secondary: var(--color-on-surface-variant);
+  --text-muted: var(--color-on-surface-variant);
+  --border: var(--color-outline-variant);
+  --border-strong: var(--fc-field-line);
+  --wrong: var(--color-error);
+  --wrong-bg: var(--color-error-container);
+  --shadow-lg: var(--shadow-2);
+  background: color-mix(in srgb, var(--color-inverse-surface) 45%, transparent);
   backdrop-filter: blur(5px);
 }
 
 #import-modal .modal,
 #appeal-modal .modal {
-  color: #24151b;
-  border-color: #efc6d4;
-  border-radius: 18px;
-  background: #ffffff;
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-lowest);
 }
 
 #import-modal .modal-header,
 #appeal-modal .modal-header {
-  background: linear-gradient(135deg, #fff7fa, #fff0f5);
-  border-bottom-color: #f0d6df;
+  background: var(--color-surface-lowest);
+  border-bottom-color: var(--color-outline-variant);
 }
 
 #import-modal .modal-header h3,
 #appeal-modal .modal-header h3 {
-  color: #24151b;
+  color: var(--color-on-surface);
 }
 
 #import-modal .modal-header i {
-  color: #e85d8c;
+  color: var(--color-on-surface-variant);
 }
 
 #import-modal .modal-footer,
 #appeal-modal .modal-footer {
-  background: #fffafb;
-  border-top-color: #f0d6df;
+  background: var(--color-surface-lowest);
+  border-top-color: var(--color-outline-variant);
 }
 
 #import-modal .modal-body code,
@@ -2078,14 +2063,13 @@ kbd {
 
 #import-modal .input-wrap,
 #appeal-modal .input-wrap {
-  border-color: #d8aebe;
-  background: #fffafd;
+  border-color: var(--fc-field-line);
+  background: var(--fc-field-fill);
 }
 
 #import-modal .input-wrap:focus-within,
 #appeal-modal .input-wrap:focus-within {
-  border-color: #e85d8c;
-  box-shadow: 0 0 0 4px rgba(232, 93, 140, 0.13);
+  border-color: var(--color-on-surface-variant);
 }
 
 #toast {
@@ -3300,30 +3284,6 @@ body,
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
-html[data-theme="dark"] {
     --bg-base: var(--dm-flashcard-bg);
     --bg-surface: var(--dm-flashcard-surface);
     --bg-elevated: var(--dm-flashcard-raised);
@@ -3682,5 +3642,5 @@ html[data-theme="dark"] .table-icon-btn--danger:hover {
 
 /* Dark interaction and state pairs for this page. */
 html[data-theme="dark"]{--color-background:var(--dm-flashcard-bg);--color-surface:var(--dm-flashcard-bg);--color-surface-lowest:var(--dm-flashcard-surface);--color-surface-low:var(--dm-flashcard-raised);--color-surface-mid:var(--dm-flashcard-raised);--color-surface-high:var(--dm-flashcard-raised);--color-surface-container:var(--dm-flashcard-raised);--color-surface-container-high:var(--dm-flashcard-raised);--color-on-surface:var(--dm-flashcard-ink);--color-on-surface-variant:var(--dm-flashcard-muted);--color-secondary:var(--dm-flashcard-muted);--color-outline:var(--dm-flashcard-muted);--color-outline-variant:var(--dm-flashcard-line);--color-primary:var(--dm-flashcard-accent);--color-primary-container:var(--dm-flashcard-action);--color-on-primary:var(--dm-flashcard-on-accent);--color-on-primary-container:var(--dm-flashcard-ink);--color-primary-fixed:var(--dm-flashcard-accent-soft);--color-on-primary-fixed:var(--dm-flashcard-accent);--color-secondary-container:var(--dm-flashcard-accent-soft);--color-secondary-fixed:var(--dm-flashcard-accent-soft);--color-success:var(--dm-flashcard-success);--color-success-bg:var(--dm-flashcard-success-bg);--color-error:var(--dm-flashcard-danger);--color-error-container:var(--dm-flashcard-danger-bg);--color-on-error-container:var(--dm-flashcard-danger);--color-tertiary:var(--dm-flashcard-warning);--color-tertiary-container:var(--dm-flashcard-warning-bg);--color-on-tertiary-container:var(--dm-flashcard-warning);--color-focus:var(--dm-flashcard-accent);--jlab-base-page-background:var(--dm-flashcard-bg);--bg-base:var(--dm-flashcard-bg);--bg-surface:var(--dm-flashcard-surface);--bg-elevated:var(--dm-flashcard-raised);--bg-sidebar:var(--dm-flashcard-surface);--text-primary:var(--dm-flashcard-ink);--text-secondary:var(--dm-flashcard-muted);--text-muted:var(--dm-flashcard-muted);--correct:var(--dm-flashcard-success);--correct-bg:var(--dm-flashcard-success-bg);--wrong:var(--dm-flashcard-danger);--wrong-bg:var(--dm-flashcard-danger-bg);--star:var(--dm-flashcard-warning);--accent:var(--dm-flashcard-accent);--accent-soft:var(--dm-flashcard-accent-soft);}
-html[data-theme="dark"] .btn-primary{background:var(--dm-flashcard-action)!important;color:var(--dm-flashcard-ink)!important;}
+html[data-theme="dark"] .btn-primary{background:var(--color-primary)!important;color:var(--color-on-primary)!important;}
 html[data-theme="dark"] .btn-primary:hover{background:#8063cc!important;}
