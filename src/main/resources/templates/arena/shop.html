@@ -17,13 +17,15 @@
             </div>
         </header>
 
-        <div class="ar-seg ar-shop-tabs" role="tablist" aria-label="Chọn game" data-shop-tabs hidden></div>
+        <div class="jl-tabs ar-shop-tabs" role="tablist" aria-label="Danh mục cửa hàng" data-shop-tabs hidden>
+            <span class="jl-tabs__ind" aria-hidden="true"></span>
+        </div>
 
         <div class="ar-card ar-panel" data-shop-status role="status">
             <p class="ar-muted">Đang mở cửa hàng…</p>
         </div>
 
-        <section class="ar-shop-grid" data-shop-grid aria-live="polite" hidden></section>
+        <section id="ar-shop-panel" class="ar-shop-grid" role="tabpanel" data-shop-grid aria-live="polite" hidden></section>
     </div>
 
     <dialog class="ar-dialog ar-shop-confirm" data-confirm aria-labelledby="ar-confirm-title">
@@ -44,8 +46,8 @@
 
 <script th:src="@{/arena/js/arena-client.js(v='20261119-leave-fast')}"></script>
 <script th:src="@{/arena/js/character-skin-preview.js(v='20261124-ui-standard')}"></script>
-<script th:src="@{/arena/js/shop-page.js(v='20261124-ui-standard')}"></script>
+<script th:src="@{/arena/js/shop-page.js(v='20261125-shop-tabs')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
-<script defer src="/arena/js/standard-tabs.js?v=20261124-ui-standard"></script>
+<script defer src="/arena/js/standard-tabs.js?v=20261125-shop-tabs"></script>
 </body>
 </html>

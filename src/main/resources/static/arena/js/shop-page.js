@@ -23,6 +23,7 @@
   };
 
   var state = { shop: null, frames: null, game: null, busy: false, pending: null };
+  var tabMarkup = '';
 
   function toast(message, type) {
     if (window.JlasUI) window.JlasUI.toast(message, type || 'info');
@@ -44,14 +45,26 @@
   function render() {
     var shop = state.shop;
     el.tabs.hidden = false;
-    el.tabs.innerHTML = shop.sections.map(function (item) {
-      var selected = item.gameType === state.game;
-      return '<button type="button" role="tab" aria-selected="' + selected + '" data-game="' + esc(item.gameType) + '">'
-        + esc(item.gameName) + ' · ' + esc(item.title) + '</button>';
-    }).join('') + (state.frames
-      ? '<button type="button" role="tab" aria-selected="' + (state.game === FRAMES) + '" data-game="' + FRAMES + '">'
-        + 'Hồ sơ · Khung avatar</button>'
-      : '');
+    var tabs = shop.sections.map(function (item) {
+      return [item.gameType, item.gameName + ' · ' + item.title];
+    });
+    if (state.frames) tabs.push([FRAMES, 'Hồ sơ · Khung avatar']);
+    var markup = tabs.map(function (tab) {
+      var game = esc(tab[0]);
+      var label = esc(tab[1]);
+      return '<button type="button" role="tab" id="ar-shop-tab-' + game + '" aria-controls="ar-shop-panel"'
+        + ' data-game="' + game + '" title="' + label + '">'
+        + label + '</button>';
+    }).join('');
+    if (markup !== tabMarkup) {
+      el.tabs.querySelectorAll('button').forEach(function (button) { button.remove(); });
+      el.tabs.insertAdjacentHTML('beforeend', markup);
+      tabMarkup = markup;
+    }
+    el.tabs.querySelectorAll('button').forEach(function (button) {
+      button.setAttribute('aria-selected', String(button.dataset.game === state.game));
+    });
+    el.grid.setAttribute('aria-labelledby', 'ar-shop-tab-' + state.game);
 
     if (state.game === FRAMES && state.frames) {
       el.grid.hidden = false;
