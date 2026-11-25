@@ -66,7 +66,7 @@
   var MSG_SEND_FAILED = 'Chưa gửi được câu trả lời. Hãy thử lại.';
   var MSG_TIMEOUT_FAILED = 'Hết giờ nhưng chưa gửi được. Kiểm tra kết nối rồi bấm Thử lại.';
   var CLOSED_HTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
-    + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+    + '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a></div>';
   var MSG_LOCKED_ELSEWHERE = 'Câu này đã được trả lời ở cửa sổ khác — đáp án hiển thị là đáp án đã khóa.';
   var BOARD_HINT = 'Chọn 1 ô trái rồi 1 ô phải. Sai thì nháy đỏ, tính 1 lỗi, chọn lại.';
 
@@ -541,17 +541,17 @@
   }
 
   function checkMascotHtml(q, st) {
-    var img = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+    var img = '/images/mascots/fox/kitsu-thinking-30.webp';
     var speech = 'Suy nghĩ kỹ nhé!';
     var mood = 'think';
     if (isBoard(q)) {
       var b = st.board || emptyBoard();
       if (b.flash) {
-        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        img = '/images/mascots/fox/kitsu-confused-30.webp';
         speech = 'Tiếc quá, chọn lại cặp khác nhé!';
         mood = 'bad';
       } else if (Object.keys(b.matched || {}).length > 0) {
-        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        img = '/images/mascots/fox/kitsu-cheer-30.webp';
         speech = 'Đúng rồi, nối tiếp nào!';
         mood = 'ok';
       } else {
@@ -559,11 +559,11 @@
       }
     } else if (st.answer) {
       if (st.answer.correct) {
-        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        img = '/images/mascots/fox/kitsu-cheer-30.webp';
         speech = 'Đúng rồi, tuyệt lắm!';
         mood = 'ok';
       } else {
-        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        img = '/images/mascots/fox/kitsu-confused-30.webp';
         speech = st && st.hasNext === false ? 'Tiếc quá, xem kỹ đáp án nhé!' : 'Tiếc quá, cố lên ở câu sau nhé!';
         mood = 'bad';
       }
@@ -604,7 +604,7 @@
     var e = err || {};
     if (e.code === 'JPATH_CHECK_NOT_FOUND') {
       return '<div class="jp-check__error jp-card" role="alert"><p>' + esc(MSG_NOT_FOUND) + '</p>'
-        + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+        + '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a></div>';
     }
     return '<div class="jp-check__error jp-card" role="alert"><p>' + esc(MSG_LOAD_FAILED) + '</p>'
       + '<button type="button" class="jp-btn" data-action="reload">Thử lại</button></div>';
@@ -640,8 +640,8 @@
   }
 
   function safeReturn(v) {
-    if (typeof v !== 'string') return '/learning';
-    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning';
+    if (typeof v !== 'string') return '/learning?view=jlpt';
+    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning?view=jlpt';
     return v;
   }
 
@@ -666,7 +666,7 @@
     if (/^\d+$/.test(p.session || '')) return '/learning/jlpt/study?session=' + p.session;
     // F180 (AI test L20): back on the tab the check was about; plain /learning opened the Chữ cái tab during the kana phase
     var key = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana' }[String(tab || '').toUpperCase()];
-    return key ? '/learning?tab=' + key : '/learning';
+    return key ? '/learning?view=jlpt&tab=' + key : '/learning?view=jlpt';
   }
 
   /** The check page of a new token, keeping ?session= and ?return= of the current page. */
@@ -707,8 +707,8 @@
 
   function celebrateArtHtml(passed) {
     var img = passed === false
-      ? '/images/mascots/kitsu/kitsu-encouraging.webp'
-      : '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+      ? '/images/mascots/fox/kitsu-encouraging.webp'
+      : '/images/mascots/fox/kitsu-celebrate-30.webp';
     var speech = passed === false
       ? 'Đừng nản, ôn lại chút là vượt qua ngay!'
       : 'Xuất sắc! Bạn làm rất tốt!';
@@ -753,7 +753,8 @@
     var kind = check && check.kind;
     var o = opts || {};
     var pct = Number(r.scorePercent) || 0;
-    var mood = kind === 'FREE_QUIZ' && isWeekly(check) ? pct >= PASS_PERCENT : r.passed;
+    // owner 25/11: a free quiz under 50% is never praised
+    var mood = kind === 'FREE_QUIZ' ? pct >= (isWeekly(check) ? PASS_PERCENT : 50) : r.passed;
     var celCls = mood === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
     var html = '<section class="jp-result jp-card' + celCls + '" aria-labelledby="jp-result-title">'
       + celebrateArtHtml(mood);
@@ -777,7 +778,7 @@
       html += weeklySummaryHtml(r, check, pct);
     } else if (kind === 'FREE_QUIZ') {
       html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
-        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
+        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu.' + (pct < 50 ? ' Cần từ 50% để tính là đã ôn xong: xem lại câu sai rồi làm lại.' : '') + '</p>';
     } else {
       html += '<div class="jp-result__score' + tone + '">' + esc(pct) + '%</div><p class="jp-result__title" id="jp-result-title" tabindex="-1">';
       if (r.passed === true) html += '<b>Đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
@@ -792,8 +793,11 @@
     var n = r.next;
     // The server decides: RETRY = a new set is offered; every other next (also a wrong SKIP_ONE kept on its card) continues.
     var failed = !!(n && n.action === 'RETRY');
+    // walkthrough 25/11: a quiz under 50% does not count, so "Làm lại" leads and moving on is the quiet choice
+    var lowQuiz = kind === 'FREE_QUIZ' && !isWeekly(check) && pct < 50 && !failed && !o.embedded;
+    if (lowQuiz) html += '<button type="button" class="jp-btn jp-btn--primary" data-action="retry">Làm lại quiz</button>';
     if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
-      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + '</button>';
+      html += '<button type="button" class="jp-btn' + (lowQuiz ? '' : ' jp-btn--primary') + '" data-action="continue">' + esc(n.label || 'Tiếp tục') + '</button>';
     }
     if (failed && !o.embedded) {
       html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
@@ -803,7 +807,7 @@
       html += '<button type="button" class="jp-link-btn" data-action="review-wrong" aria-expanded="' + (o.reviewOpen ? 'true' : 'false')
         + '">Xem lại câu sai</button>';
     }
-    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning">Về lộ trình học</a>';
+    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a>';
     return html + '</div><p class="jp-status" role="status" data-part="result-status"></p></section>';
   }
 
@@ -1320,20 +1324,33 @@
     return mount(el, token, o);
   }
 
+  /**
+   * One back action on the check page. Owner 22/11: the crumb "Quay về Lộ trình JLPT" already goes back to the path,
+   * so the extra button is hidden. Owner 23/11: inside a study round the crumb itself goes back to the round
+   * ("Quay lại buổi học") instead of a second button next to "Quay về Lộ trình JLPT".
+   */
+  function setBackLinks(d, search) {
+    var backUrl = nextHref(null, search);
+    var exitLink = d.querySelector('[data-check-exit]');
+    if (exitLink) exitLink.hidden = true;
+    if (!/\/learning\/jlpt\/study/.test(backUrl)) return;
+    var crumb = d.querySelector('.jp-check-topBar .jp-back');
+    if (crumb) {
+      crumb.setAttribute('href', backUrl);
+      var label = crumb.querySelector('span');
+      if (label) label.textContent = 'Quay lại buổi học';
+    } else if (exitLink) {
+      exitLink.setAttribute('href', backUrl);
+      exitLink.textContent = 'Quay lại buổi học';
+      exitLink.hidden = false;
+    }
+  }
+
   function mountPage(doc) {
     var d = doc || (root && root.document);
     var el = d && d.getElementById && d.getElementById('jpathCheckRoot');
     if (!el) return null;
-    if (d && d.querySelector && root && root.location) {
-      var exitLink = d.querySelector('[data-check-exit]');
-      if (exitLink) {
-        var backUrl = nextHref(null, root.location.search);
-        exitLink.setAttribute('href', backUrl);
-        if (/\/learning\/jlpt\/study/.test(backUrl)) {
-          exitLink.textContent = '← Quay lại buổi học';
-        }
-      }
-    }
+    if (d && d.querySelector && root && root.location) setBackLinks(d, root.location.search);
     return mount(el, el.getAttribute('data-check-token') || '', {});
   }
 
@@ -1344,7 +1361,7 @@
 
   return { KIND_TITLE: KIND_TITLE, initState: initState, parts: parts, headerHtml: headerHtml, boardReduce: boardReduce,
     answerReduce: answerReduce, orderReduce: orderReduce, questionState: questionState, questionHtml: questionHtml,
-    timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
+    setBackLinks: setBackLinks, timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
     timerOffPatch: timerOffPatch, audioUrl: audioUrl, questionStart: questionStart, submitKey: submitKey, resultHtml: resultHtml,
     reviewWrongHtml: reviewWrongHtml, retryRequest: retryRequest, nextHref: nextHref, checkPageUrl: checkPageUrl,
     safeReturn: safeReturn, skillSessionHref: skillSessionHref, wrongLine: wrongLine, mount: mount, mountPage: mountPage, mountInline: mountInline };

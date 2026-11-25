@@ -20,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
  * [JLAS-W0108] Owner 18/11: a communication situation's phrases and words are studied with the team flashcard.
  * One private set per learner per situation (like the JLPT parts, so the team's access rule stays as it is), in the
  * folder "Lộ trình giao tiếp · goal"; only learners with a path of that goal get one.
+ *
+ * <p>Owner 24/11 Q1: the flashcard counts in the path. Once every card of the set has a grade (✓/✗ or 0–5), the
+ * situation's step 1 (Từ và mẫu câu) is done, like finishing it on the situation page; the later steps and the
+ * checks stay as they are.
  */
 @Service
 public class CpathFlashcardService {
@@ -33,6 +37,18 @@ public class CpathFlashcardService {
     private final JdbcTemplate db;
     private final FlashcardService flashcards;
     private volatile boolean tableReady;
+    private CpathService paths;
+    private org.springframework.transaction.PlatformTransactionManager txManager;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setTxManager(org.springframework.transaction.PlatformTransactionManager txManager) {
+        this.txManager = txManager;
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setPaths(@org.springframework.context.annotation.Lazy CpathService paths) {
+        this.paths = paths;
+    }
 
     public CpathFlashcardService(JdbcTemplate db, FlashcardService flashcards) {
         this.db = db;
@@ -60,12 +76,41 @@ public class CpathFlashcardService {
         out.put("situation", situation);
         out.put("setId", setId);
         if (setId != null) {
+            out.put("wordsStepDone", syncWordsStep(userId, situation, setId));
             StudySummaryDto sum = flashcards.summary(setId, userId);
             out.put("remembered", sum.getRemembered());
             out.put("total", sum.getTotal());
             out.put("url", "/flashcard/study.html?setId=" + setId + "&from=comm");
         }
         return out;
+    }
+
+    /** Q1: every card graded → step 1 done (once); a situation the learner may not start yet is left alone. */
+    boolean syncWordsStep(Long userId, String situation, Long setId) {
+        List<String> steps = db.queryForList("SELECT us.steps_done FROM cpath_user_situation us JOIN cpath_user_path p ON p.id = us.path_id"
+                + " WHERE p.user_id = ? AND us.situation_code = ?", String.class, userId, situation);
+        if (steps.stream().anyMatch(CpathFlashcardService::hasWords)) return true;
+        Integer open = db.queryForObject("SELECT COUNT(*) FROM flashcard_card c LEFT JOIN flashcard_card_progress p"
+                + " ON p.card_id = c.id AND p.user_id = ? WHERE c.set_id = ? AND (p.last_reviewed_at IS NULL OR p.last_quality IS NULL)",
+                Integer.class, userId, setId);
+        Integer cards = db.queryForObject("SELECT COUNT(*) FROM flashcard_card WHERE set_id = ?", Integer.class, setId);
+        if (paths == null || txManager == null || open == null || open > 0 || cards == null || cards == 0) return false;
+        try {
+            // own transaction: a refused step (situation locked for now) must not roll back this read
+            org.springframework.transaction.support.TransactionTemplate tx =
+                    new org.springframework.transaction.support.TransactionTemplate(txManager);
+            tx.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+            tx.executeWithoutResult(st -> paths.step(userId, situation, "WORDS", null));
+            return true;
+        } catch (ApiException e) {
+            return false; // not a situation the learner can start now: the flashcard stays free study
+        }
+    }
+
+    static boolean hasWords(String stepsDone) {
+        if (stepsDone == null) return false;
+        for (String x : stepsDone.split(",")) if ("WORDS".equals(x.trim())) return true;
+        return false;
     }
 
     private Long make(Long userId, Map<String, Object> s, String key) {

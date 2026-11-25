@@ -117,8 +117,6 @@
 
   function lessonRow(lesson, index) {
     var meta = [];
-    if (lesson.skill) meta.push('<span class="tb-badge">' + escapeHtml(SKILL_LABELS[lesson.skill] || lesson.skill) + '</span>');
-    if (lesson.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + lesson.estimatedMinutes + ' phút</span>');
     meta.push(statusToggle('lesson', lesson.id, lesson.status));
     return '' +
       '<li>' +

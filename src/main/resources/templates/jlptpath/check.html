@@ -10,7 +10,7 @@
     <div class="jp-check-topBar jp-page-head">
         <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Bài kiểm tra')}"></th:block>
         <div class="jp-check-topBar__actions" data-jpath-furi-slot>
-            <a class="jp-check-back" href="/learning" data-check-exit>Quay lại lộ trình</a>
+            <a class="jp-check-back" href="/learning?view=jlpt" data-check-exit>Quay lại lộ trình</a>
         </div>
     </div>
     <div id="jpathCheckRoot" class="jp-check-root" aria-busy="true"
@@ -25,5 +25,6 @@
 <script th:src="@{/js/jlptpath/jpath-auto-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

@@ -52,7 +52,7 @@ public class JpathLearnerPageController {
             return blocked;
         }
         if (token == null || !CHECK_TOKEN.matcher(token).matches()) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("layoutMode", "app");
         model.addAttribute("checkToken", token);
@@ -68,7 +68,7 @@ public class JpathLearnerPageController {
             return blocked;
         }
         if (session == null || session <= 0) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("layoutMode", "app");
         model.addAttribute("sessionId", session);
@@ -91,7 +91,7 @@ public class JpathLearnerPageController {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public String malformedAddress() {
-        return "redirect:/learning";
+        return "redirect:/learning?view=jlpt";
     }
 
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
@@ -100,7 +100,7 @@ public class JpathLearnerPageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         return null;
     }

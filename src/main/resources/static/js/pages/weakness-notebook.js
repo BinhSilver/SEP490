@@ -138,7 +138,7 @@
       var results = await Promise.all([request('/notebooks/' + book.id + '/entries'),request('/notebooks/' + book.id + '/kanji')]);
       var entries = results[0];
       if (requestId !== state.requestId) return;
-      state.active = book;
+      state.active = book; $('notebookDetail').dataset.book = String(book.id); // [JLAS-W0108] Q6: lets jpath-grammar-mistakes.js find the 'Lộ trình học' book
       state.entries = entries; state.kanji = results[1]; state.selectedEntries.clear(); state.selectionMode=false;
       $('notebookQuery').value = '';
       state.sort = 'newest';

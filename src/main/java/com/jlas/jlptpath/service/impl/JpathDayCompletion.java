@@ -147,16 +147,16 @@ public class JpathDayCompletion {
         if (hook != null) {
             if (tabPays) {
                 hook.onTabDayCompleted(userId, day, touched.getTab(), rewardEligible);
-                cp += rewardEligible ? JpathRewardPolicy.TAB_DAY : 0;
+                // owner 25/11: no CP for a part; paid with the day
             }
             if (reviewsCleared) {
                 hook.onReviewsCleared(userId, day);
-                cp += JpathRewardPolicy.REVIEW_DAY;
+                // owner 25/11: paid with the day
             }
             if (dayCompleted) {
                 hook.onDayCompleted(userId, day, plan.getDayKind(), dayEligible);
                 if (dayEligible) {
-                    cp += plan.getDayKind() == JpathDayKind.SKILL ? JpathRewardPolicy.SKILL_DAY : JpathRewardPolicy.DAY;
+                    cp += JpathRewardPolicy.dayTotal(plan.getDayKind());
                 }
             }
             hook.onProgressChanged(userId);

@@ -54,14 +54,15 @@
 
             <section class="jp-card" data-block="schedule" aria-labelledby="jp-settings-schedule-title">
                 <h2 class="jp-settings-card__title" id="jp-settings-schedule-title">Nhịp học và lịch tuần</h2>
-                <p class="jp-settings-muted">Số phút mỗi ngày, ngày kỹ năng và ngày nghỉ. Xem trước ngày hoàn thành trước khi lưu; lưu xong vẫn hoàn tác được.</p>
+                <p class="jp-settings-muted">Số từ mới mỗi ngày, ngày kỹ năng và ngày nghỉ. Xem trước ngày hoàn thành trước khi lưu; lưu xong vẫn hoàn tác được.</p>
                 <div class="jp-settings-fields">
                     <label class="jp-settings-field">
-                        <span class="jp-settings-field__label">Thời gian rảnh mỗi ngày</span>
-                        <select class="jp-settings-input" data-field="dailyMinutes"></select>
-                        <span class="jp-settings-muted">Đổi số phút sẽ đặt lại số mục mới mỗi ngày theo gợi ý cho số phút đó (từ, Kanji, ngữ pháp).</span>
+                        <span class="jp-settings-field__label">Số từ mới mỗi ngày</span>
+                        <select class="jp-settings-input" data-field="vocabPerDay"></select>
+                        <span class="jp-settings-muted">Kanji và ngữ pháp mỗi ngày tự tính theo số từ, để cả 3 phần xong cùng ngày.</span>
                     </label>
                 </div>
+                <p class="jp-settings-load" role="status" data-role="day-load"></p>
                 <div class="jp-settings-days" data-role="days"></div>
                 <p class="jp-settings-muted" role="status" data-role="schedule-preview">Đổi nhịp hoặc ngày nghỉ để xem trước ngày hoàn thành.</p>
                 <ul class="jp-settings-warnings" data-role="schedule-warnings" hidden></ul>
@@ -70,6 +71,11 @@
                     <span class="jp-settings-field__label">Ngày kỹ năng thứ 3 (giai đoạn Rèn)</span>
                     <select class="jp-settings-input" data-field="thirdSkillDay"></select>
                 </label>
+                <div class="jp-settings-checks" data-role="extra-skill-wrap" hidden>
+                    <label class="jp-settings-check"><input type="checkbox" data-role="extra-skill" /> Thêm 1 ngày kỹ năng Đọc · Nghe mỗi tuần (3 thay vì 2)</label>
+                    <span class="jp-settings-muted">Được bật sẵn khi Smart Test cho thấy Đọc hoặc Nghe còn yếu. Số từ mỗi ngày không đổi; ngày kỹ năng thêm thay cho một ngày học từ.</span>
+                    <span class="jp-settings-saved" role="status" data-role="extra-skill-saved" hidden></span>
+                </div>
                 <p class="jp-settings-error" role="alert" data-role="block-error" hidden></p>
                 <div class="jp-settings-save">
                     <button type="button" class="jp-settings-btn jp-settings-btn--primary" data-role="save" disabled aria-disabled="true">Lưu lịch tuần</button>
@@ -78,12 +84,17 @@
                 </div>
             </section>
 
+            <section class="jp-card" data-block="skip" aria-labelledby="jp-settings-skip-title">
+                <h2 class="jp-settings-card__title" id="jp-settings-skip-title">Đã biết trước? Kiểm tra để bỏ qua</h2>
+                <p class="jp-settings-muted">Nếu đã biết các mục của tuần tới, làm bài kiểm tra ngắn (tối đa 20 câu). Đúng từ 90% thì tuần đó được bỏ qua trên lộ trình.</p>
+                <div data-slot="week-skip" aria-live="polite"><p class="jp-settings-muted">Đang tìm tuần có thể bỏ qua…</p></div>
+            </section>
+
             <section class="jp-card" data-block="sliders" aria-labelledby="jp-settings-sliders-title">
                 <h2 class="jp-settings-card__title" id="jp-settings-sliders-title">Mỗi ngày học</h2>
-                <p class="jp-settings-muted">Số mục mới mỗi ngày của từng tab. Kéo thanh ở trang lộ trình để đổi.</p>
+                <p class="jp-settings-muted">Số mục mới mỗi ngày của từng phần, tự tính từ số từ mới mỗi ngày ở mục Nhịp học để cả 3 phần xong cùng ngày.</p>
                 <p class="jp-settings-strong" data-role="slider-values"></p>
                 <p data-role="adjustments"></p>
-                <p class="jp-settings-muted"><a class="jp-settings-link" href="/learning">Đổi tại trang lộ trình</a>.</p>
                 <details class="jp-settings-detail">
                     <summary>Lịch sử chỉnh</summary>
                     <ul class="jp-settings-history" data-role="history"></ul>
@@ -190,10 +201,14 @@
     </div>
 </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-day-picker.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-goals.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-settings.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-tools-nudge.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-week-skip.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body>
 </html>

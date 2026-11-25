@@ -178,6 +178,11 @@ public class JpathPathServiceImpl implements JpathPathService {
                 : JpathModeRule.suggest(minutes, snapshot.modeVocab(), snapshot.modeKanji(),
                         snapshot.modeGrammar(), true);
         JpathSliderValues sliders = JpathPacingEngine.recommend(openLevel, minutes);
+        if (summary != null) {
+            int words = com.jlas.learning.pace.LearningPaceRule.initialJlptWords(sliders.vocab(),
+                    snapshot.vocabScore(), snapshot.kanjiScore(), snapshot.grammarScore());
+            sliders = new JpathSliderValues(words, sliders.kanji(), sliders.grammar());
+        }
         LocalDate today = clock.today(userId);
         LocalDate surveyExam = survey.map(UserLearningSurvey::getExamDate).orElse(null);
         JpathPaceView pace = paceService.pace(userId, new JpathPaceService.Query(today, openLevel, targetLevel,
@@ -185,7 +190,7 @@ public class JpathPathServiceImpl implements JpathPathService {
                 suggestion.mode(), null, true, null));
 
         return new JpathConfirmationView(source, attemptId, inProgress, summary, openLevel, levelNote, targetLevel,
-                JpathPathRules.targetOptions(catalog, openLevel), JpathPaceService.usableExamDate(surveyExam, today),
+                JpathPathRules.targetOptions(catalog, openLevel, targetLevel), JpathPaceService.usableExamDate(surveyExam, today),
                 minutes, JpathPacingEngine.MINUTE_OPTIONS, JpathDays.codes(skillDays), JpathDays.codes(restDays),
                 kanaTab, sliders, JpathPathRules.bounds(openLevel), pace, suggestion);
     }
@@ -227,6 +232,12 @@ public class JpathPathServiceImpl implements JpathPathService {
     @Transactional(readOnly = true)
     public JpathPathView current(Long userId) {
         return views.view(requireActive(userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public JpathPathView paused(Long userId) {
+        return paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.PAUSED).map(views::view).orElse(null);
     }
 
     @Override

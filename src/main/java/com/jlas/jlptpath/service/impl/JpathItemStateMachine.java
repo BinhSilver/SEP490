@@ -173,6 +173,22 @@ public class JpathItemStateMachine {
     }
 
     /**
+     * Q5 (owner 24/11): an item missed in a failed weekly check comes back in the daily review a week later; it does
+     * not enter the notebook. A KNOWN item goes back to LEARNING; a notebook item keeps its place (hits reset).
+     */
+    public void dueNextWeek(JpathUserItem i) {
+        if (i.getState() == JpathItemState.NOTEBOOK) {
+            i.setNotebookHits(0);
+        } else if (i.getState() == JpathItemState.KNOWN) {
+            i.setState(JpathItemState.LEARNING);
+            i.setKnownAt(null);
+            i.setKnownSource(null);
+        }
+        i.setNextReviewAt(startOfToday(i.getUserId()).plusDays(7));
+        items.save(i);
+    }
+
+    /**
      * Puts a VOCAB/KANJI item in the notebook, due no later than the start of today. Owner 20/11: a GRAMMAR pattern
      * only enters it from a Smart Test import (source SMART_TEST); it then leaves after the usual hits.
      */

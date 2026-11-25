@@ -124,8 +124,54 @@
     return envelope.data === undefined || envelope.data === null ? null : envelope.data;
   }
 
+  // perf 24/11: a path page fires ~10 Learning GETs at once while the server has 10 DB connections, so the map and
+  // today (what the page draws first) waited behind side panels for 6-10 s. Those two go first; any other GET made
+  // while they are running waits for them (at most 4 s). The same GET already running is shared, not sent twice.
+  var CRITICAL = /^\/api\/learning\/(jlpt\/(path|today|auto-pace)|comm\/(path|map|today))(\?|$)/;
+  var criticalRunning = 0;
+  var waiting = [];
+  var inFlight = {};
+
+  function releaseWaiting() {
+    if (criticalRunning > 0) return;
+    var list = waiting;
+    waiting = [];
+    list.forEach(function (go) { go(); });
+  }
+
+  function afterCritical() {
+    // side panels are often asked for a few ms before the map in the same boot: look once the boot tick is over
+    var tick = new Promise(function (resolve) { if (root.setTimeout) root.setTimeout(resolve, 0); else resolve(); });
+    return tick.then(waitCritical);
+  }
+
+  function waitCritical() {
+    if (criticalRunning === 0) return Promise.resolve();
+    return new Promise(function (resolve) {
+      var done = false;
+      function go() { if (!done) { done = true; resolve(); } }
+      waiting.push(go);
+      if (root.setTimeout) root.setTimeout(go, 4000);
+    });
+  }
+
   function get(url) {
-    return send('GET', url);
+    var key = String(url);
+    if (inFlight[key]) return inFlight[key];
+    var critical = CRITICAL.test(key);
+    var request;
+    if (critical) {
+      criticalRunning++;
+      request = send('GET', url);
+      var settle = function () { criticalRunning = Math.max(0, criticalRunning - 1); releaseWaiting(); };
+      request.then(settle, settle);
+    } else {
+      request = afterCritical().then(function () { return send('GET', url); });
+    }
+    inFlight[key] = request;
+    var clear = function () { if (inFlight[key] === request) delete inFlight[key]; };
+    request.then(clear, clear);
+    return request;
   }
 
   /** POST of a FormData (a recording): the auth headers without the JSON Content-Type, so the browser sets the boundary. */

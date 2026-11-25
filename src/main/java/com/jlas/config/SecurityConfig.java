@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/community/posts/*/remove", "/api/community/comments/*/remove")
                         .hasAnyRole("MODERATOR", "ADMIN", "CONTENT_CREATOR")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error", "/about", "/policy").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
                         .requestMatchers("/search", "/search/**", "/dictionary/index.html",
                                 "/dictionary/css/**", "/dictionary/js/**").permitAll()

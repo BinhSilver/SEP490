@@ -69,6 +69,15 @@ public class JpathDailyPlan {
     @Column(name = "cp_awarded", nullable = false)
     private Integer cpAwarded = 0;
 
+    /** F237: words of the day raised after missed days (null = the chosen words per day). */
+    @JdbcTypeCode(SqlTypes.SMALLINT)
+    @Column(name = "auto_words")
+    private Integer autoWords;
+
+    /** F237: the later finish told when even the full raise cannot keep the milestone (null = it keeps it). */
+    @Column(name = "auto_finish")
+    private LocalDate autoFinish;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

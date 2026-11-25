@@ -2,6 +2,7 @@ package com.jlas.jlptpath.service.impl;
 
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathStudySession;
@@ -74,6 +75,9 @@ public class JpathDailyPlanInserter {
     // Plan 3: which skills have visible content at a level; field-injected so the constructor stays as it was
     @Autowired
     private ObjectProvider<JpathSkillPicker> skillPicker;
+    // F237: today's words raised after missed study days; optional so unit wiring stays as it was
+    @Autowired(required = false)
+    private ObjectProvider<JpathAutoPaceService> autoPace;
 
     public JpathDailyPlanInserter(JpathUserPathRepository paths, JpathUserLevelRepository levels,
             JpathDailyPlanRepository plans, JpathDailyTabRepository dailyTabs, JpathStudySessionRepository sessions,
@@ -153,20 +157,71 @@ public class JpathDailyPlanInserter {
         }
     }
 
+    /** Kana is over: stamped on the path, or all {@link JpathTabCountsReader#KANA_ROWS} rows passed (same rule as the path page). */
+    boolean kanaFinished(Long userId, JpathUserPath path) {
+        return path.isKanaTab() && (path.getKanaCompletedAt() != null
+                || kanaRows.countCompletedRows(userId) >= JpathTabCountsReader.KANA_ROWS);
+    }
+
+    /** {@link #kanaFinished} for the learner's active path (false without one). */
+    @Transactional(readOnly = true)
+    public boolean kanaFinished(Long userId) {
+        return pathService.findActive(userId).map(p -> kanaFinished(userId, p)).orElse(false);
+    }
+
     private void insert(Long userId, LocalDate day) {
         JpathUserPath path = paths.findActiveForUpdate(userId)
                 .orElseThrow(() -> new ApiException(ErrorCode.JPATH_NO_ACTIVE_PATH));
-        if (plans.findByUserIdAndStudyDay(userId, day).isPresent()) {
+        java.util.Optional<JpathDailyPlan> existing = plans.findByUserIdAndStudyDay(userId, day);
+        if (existing.isPresent()) {
+            // bug 25/11: a day planned while kana was still running keeps "học chữ cái" after kana is done; rebuild it
+            // when nothing of it was studied yet, so the new words open on the first day after kana
+            if (existing.get().isKanaPhase() && kanaFinished(userId, path)) {
+                if (path.getKanaCompletedAt() == null) {
+                    path.setKanaCompletedAt(clock.now()); // all 36 rows passed but the moment was never stamped
+                }
+                JpathUserLevel level = lockLevel(path);
+                plans.findForUpdate(userId, day).ifPresent(plan -> {
+                    List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
+                    boolean started = (plan.getCpAwarded() != null && plan.getCpAwarded() > 0)
+                            || tabs.stream().anyMatch(t -> t.getNewDone() > 0 || t.getExtraDone() > 0 || t.getReviewDone() > 0);
+                    // a kana day already begun is rebuilt too (no kana row is left to learn): the reviews and
+                    // extra cards done today carry over, so nothing studied is lost
+                    // only a kana STUDY day not finished yet: a skill day or a finished day keeps what it earned
+                    if (plan.getDayKind() != JpathDayKind.STUDY || plan.getAllDoneAt() != null) {
+                        return;
+                    }
+                    java.util.Map<JpathTab, int[]> kept = new java.util.EnumMap<>(JpathTab.class);
+                    for (JpathDailyTab t : tabs) {
+                        kept.put(t.getTab(), new int[] {t.getReviewDone(), t.getExtraDone(),
+                                t.getTab() == JpathTab.KANA ? 0 : t.getNewDone()});
+                    }
+                    if (rebuildForSchedule(path, level, plan, tabs) && started) {
+                        for (JpathDailyTab t : dailyTabs.findForUpdateByPlanId(plan.getId())) {
+                            int[] k = kept.get(t.getTab());
+                            if (k == null) continue;
+                            t.setReviewDone(k[0]);
+                            t.setExtraDone(k[1]);
+                            t.setNewDone(k[2]);
+                        }
+                        dailyTabs.flush();
+                    }
+                });
+            }
             return;
         }
         progress.reevaluateStage(userId);
+        if (path.getKanaCompletedAt() == null && kanaFinished(userId, path)) {
+            path.setKanaCompletedAt(clock.now());
+        }
         pathService.refreshPacing(userId);
         JpathUserLevel level = lockLevel(path);
         JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, day);
         JpathDailyPlan plan = plans.save(JpathDailyPlan.builder().userId(userId).pathId(path.getId()).studyDay(day)
                 .level(level.getLevel()).dayKind(dayPlan.kind()).kanaPhase(dayPlan.kanaPhase())
                 .skillMakeup(dayPlan.skillMakeup()).build());
-        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, level, clock.now()));
+        JpathSliderValues sliders = autoSliders(plan, path, level);
+        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, sliders, clock.now()));
         JpathDayCompletion days = completion.getIfAvailable();
         if (days != null) {
             days.settleWithoutReward(userId, plan, saved);
@@ -182,14 +237,15 @@ public class JpathDailyPlanInserter {
 
     /** The tab rows of a new plan of {@code dayPlan}'s kind, linked to {@code plan}. */
     private List<JpathDailyTab> freshTabs(JpathDailyPlan plan, JpathDayRules.DayPlan dayPlan, JpathUserPath path,
-            JpathUserLevel level, LocalDateTime now) {
+            JpathSliderValues sliders, LocalDateTime now) {
+        String levelCode = plan.getLevel();
         List<JpathDailyTab> tabs = JpathDayRules.tabRows(dayPlan.kind(), dayPlan.kanaPhase(), path.isKanaTab(),
-                path.getStudyMode(), level, path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay()));
+                path.getStudyMode(), sliders, path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay()));
         for (JpathDailyTab tab : tabs) {
             tab.setPlanId(plan.getId());
             JpathDayRules.markZeroTargetDone(tab, now);
             if (tab.getTab() == JpathTab.SKILL) {
-                int skills = skillsWithContent(level.getLevel());
+                int skills = skillsWithContent(levelCode);
                 tab.setNewTarget(skills);
                 if (skills == 0) {
                     tab.setDoneAt(now); // no visible skill content: the skill day is done by its reviews
@@ -197,6 +253,12 @@ public class JpathDailyPlanInserter {
             }
         }
         return tabs;
+    }
+
+    /** F237: the sliders of the plan's tabs (raised after missed study days when due); the raise is kept on it. */
+    JpathSliderValues autoSliders(JpathDailyPlan plan, JpathUserPath path, JpathUserLevel level) {
+        JpathAutoPaceService auto = autoPace == null ? null : autoPace.getIfAvailable();
+        return auto == null ? JpathAutoPaceService.chosen(level) : auto.applyTo(plan, path, level);
     }
 
     /** True when a skill session (open or done) runs on the plan; false without the skill module. */
@@ -212,7 +274,9 @@ public class JpathDailyPlanInserter {
      */
     boolean rebuildForSchedule(JpathUserPath path, JpathUserLevel level, JpathDailyPlan plan, List<JpathDailyTab> tabs) {
         JpathDayRules.DayPlan dayPlan = JpathDayRules.dayPlan(content, calendar, plans, path, level, plan.getStudyDay());
-        boolean levelChanged = !java.util.Objects.equals(level.getLevel(), plan.getLevel());
+        // bug 25/11: kana finished after this plan was made → rebuild at once, like a new level (new words open today)
+        boolean levelChanged = !java.util.Objects.equals(level.getLevel(), plan.getLevel())
+                || (plan.isKanaPhase() && !dayPlan.kanaPhase());
         if (!levelChanged && dayPlan.kind() == plan.getDayKind() && dayPlan.skillMakeup() == plan.isSkillMakeup()) {
             return false;
         }
@@ -230,7 +294,8 @@ public class JpathDailyPlanInserter {
         plan.setKanaPhase(dayPlan.kanaPhase());
         plan.setAllDoneAt(null);
         plan.setReviewsClearedAt(null);
-        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, level, clock.now()));
+        JpathSliderValues sliders = autoSliders(plan, path, level);
+        List<JpathDailyTab> saved = dailyTabs.saveAll(freshTabs(plan, dayPlan, path, sliders, clock.now()));
         dailyTabs.flush();
         JpathDayCompletion days = completion.getIfAvailable();
         if (days != null) {

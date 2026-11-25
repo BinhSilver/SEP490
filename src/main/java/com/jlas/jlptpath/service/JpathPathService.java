@@ -55,6 +55,11 @@ public interface JpathPathService {
     /** The active path view; JPATH_NO_ACTIVE_PATH when there is none. */
     JpathPathView current(Long userId);
 
+    /** The view of the paused path (the my-paths card keeps its progress while paused); null without one. */
+    default JpathPathView paused(Long userId) {
+        return null;
+    }
+
     /** The open level row of the active path; JPATH_NO_ACTIVE_PATH when there is none. */
     JpathUserLevel openLevelState(Long userId);
 

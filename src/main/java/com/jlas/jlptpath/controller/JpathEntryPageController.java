@@ -1,6 +1,7 @@
 package com.jlas.jlptpath.controller;
 
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.jlptpath.service.JpathEntryRoute;
 import com.jlas.jlptpath.service.JpathEntryRouter;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -23,17 +24,30 @@ public class JpathEntryPageController {
     private static final Pattern TOPIC = Pattern.compile("^[a-z0-9-]{1,60}$");
 
     private final JpathEntryRouter router;
+    private final org.springframework.beans.factory.ObjectProvider<com.jlas.mypaths.MyPathsService> myPaths;
 
     @GetMapping("/learning")
     public String learning(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam(required = false) String tab,
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) String view,
             Model model) {
         if (user == null) {
             return "redirect:/login"; // I21: no learning page for a guest
         }
-        switch (router.route(user.userId())) {
+        // Owner 24/11 "Lộ trình của tôi": with two or more paths the plain /learning opens the dashboard; the JLPT
+        // card links to ?view=jlpt, and deep links (tab / topic / word) keep going to the path page as before
+        boolean forceJlpt = "jlpt".equalsIgnoreCase(view);
+        boolean deepLink = tab != null || topic != null || q != null;
+        if (!forceJlpt && !deepLink && myPathCount(user.userId()) >= 2) {
+            return "redirect:/learning/my";
+        }
+        JpathEntryRoute route = router.route(user.userId());
+        if ((forceJlpt || deepLink) && route == JpathEntryRoute.COMM && myPaths.getIfAvailable() != null && myPaths.getObject().jlptActive(user.userId())) {
+            route = JpathEntryRoute.JPATH_PAGE;
+        }
+        switch (route) {
             case JPATH_START:
                 return "redirect:/learning/jlpt/start";
             case COMM:
@@ -62,5 +76,10 @@ public class JpathEntryPageController {
         }
         String lower = tab.toLowerCase(Locale.ROOT);
         return TABS.contains(lower) ? lower : null;
+    }
+
+    private int myPathCount(Long userId) {
+        com.jlas.mypaths.MyPathsService m = myPaths.getIfAvailable();
+        return m == null ? 0 : m.pathCount(userId);
     }
 }

@@ -40,6 +40,28 @@ public class JpathSettingsController {
     private final JpathSettingsService settingsService;
     private final JpathPathService pathService;
     private final JpathDailyPlanService dailyPlans;
+    private final com.jlas.jlptpath.service.impl.JpathExtraSkillDayService extraSkillDay;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
+
+    /** Q9 (owner 24/11): the third skill day each week from the study stage (weak Reading/Listening). */
+    @GetMapping("/settings/extra-skill-day")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> extraSkillDay(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", extraSkillDay.get(user.userId())));
+    }
+
+    @PutMapping("/settings/extra-skill-day")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Object>>> setExtraSkillDay(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody java.util.Map<String, Object> body) {
+        boolean on = body != null && Boolean.TRUE.equals(body.get("on"));
+        try {
+            dailyPlans.ensurePlanExists(user.userId()); // F130: today keeps the week it was made with
+        } catch (ApiException e) {
+            // no active path: the service answers for it
+        }
+        return ResponseEntity.ok(ApiResponse.ok(on ? "Đã thêm ngày kỹ năng thứ 3 mỗi tuần." : "Đã bỏ ngày kỹ năng thứ 3.",
+                extraSkillDay.set(user.userId(), on)));
+    }
 
     @GetMapping("/settings")
     public ResponseEntity<ApiResponse<JpathSettingsView>> get(@AuthenticationPrincipal UserPrincipal user) {
@@ -66,7 +88,10 @@ public class JpathSettingsController {
                 // no active path: the update below answers for it
             }
         }
-        return ResponseEntity.ok(ApiResponse.ok("Đã lưu cài đặt.", settingsService.update(user.userId(), request)));
+        JpathSettingsView saved = settingsService.update(user.userId(), request);
+        if (learningPace != null && request != null && request.vocabPerDay() != null)
+            learningPace.manualChange(user.userId(), "JLPT");
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu cài đặt.", saved));
     }
 
     @GetMapping("/settings/slider-history")

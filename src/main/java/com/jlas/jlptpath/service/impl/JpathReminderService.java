@@ -77,6 +77,14 @@ public class JpathReminderService {
         this.props = props;
     }
 
+    /** Owner 24/11 "Lộ trình của tôi": the reminder also names communication paths with study left today. */
+    private com.jlas.cpath.CpathService comm;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setComm(com.jlas.cpath.CpathService comm) {
+        this.comm = comm;
+    }
+
     /** Sends today's reminder when it is due; true when at least one channel went out (and the day was logged). */
     @Transactional
     public boolean remind(JpathUserPath path, JpathUserSettings settings) {
@@ -103,7 +111,7 @@ public class JpathReminderService {
         if (!web && !email) {
             return false;
         }
-        JpathReminderMessage msg = JpathReminderComposer.compose(facts(path, kind, today, now));
+        JpathReminderMessage msg = withCommPaths(userId, JpathReminderComposer.compose(facts(path, kind, today, now)));
         List<String> channels = new ArrayList<>(2);
         if (web) {
             notifications.notifyUser(userId, TYPE, msg.title(), msg.message(), TARGET_URL, EVENT_PREFIX + today);
@@ -118,6 +126,20 @@ public class JpathReminderService {
         logs.save(JpathReminderLog.builder().userId(userId).reminderDay(today).sentAt(clock.now())
                 .channels(String.join(",", channels)).build());
         return true;
+    }
+
+    private JpathReminderMessage withCommPaths(Long userId, JpathReminderMessage msg) {
+        if (comm == null) return msg;
+        try {
+            List<String> left = new ArrayList<>();
+            for (java.util.Map<String, Object> p : comm.myPathsRows(userId)) {
+                if ("ACTIVE".equals(p.get("status")) && ((Number) p.get("todayMinutesLeft")).intValue() > 0) left.add((String) p.get("title"));
+            }
+            if (left.isEmpty()) return msg;
+            return new JpathReminderMessage(msg.title(), msg.message() + " Hôm nay còn: " + String.join(", ", left) + ".");
+        } catch (RuntimeException e) {
+            return msg; // the JLPT reminder still goes out
+        }
     }
 
     private JpathStage openStage(JpathUserPath path) {

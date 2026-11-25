@@ -160,7 +160,7 @@ public class JpathSettingsServiceImpl implements JpathSettingsService {
         DayOfWeek stored = JpathPathViewAssembler.storedThirdDay(path);
         boolean thirdAuto = stored == null;
         DayOfWeek third = thirdAuto ? JpathCalendarService.autoThirdDay(p.skillDays(), p.restDays()) : stored;
-        return new JpathSettingsView(path.getTargetLevel(), JpathPathRules.targetOptions(catalog, open),
+        return new JpathSettingsView(path.getTargetLevel(), JpathPathRules.targetOptions(catalog, open, path.getTargetLevel()),
                 JpathPaceService.usableExamDate(path.getExamDate(), p.today()), p.pace(), path.getDailyMinutes(),
                 JpathPacingEngine.MINUTE_OPTIONS, JpathDays.codes(p.skillDays()), JpathDays.codes(p.restDays()),
                 third == null ? null : JpathDays.format(List.of(third)), thirdAuto, level.getStage(), p.mode(),

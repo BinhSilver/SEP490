@@ -10,6 +10,8 @@
     <link rel="stylesheet" th:href="@{/css/pages/jpath-extras.css(v=${jpathAssetVersion})}" />
     <!-- Workspace layout + navigation kit (back link, stepper, progress, flow buttons, pager, accordion, toc). -->
     <link rel="stylesheet" th:href="@{/css/pages/jpath-nav.css(v=${jpathAssetVersion})}" />
+    <!-- owner 24/11: "Lộ trình của tôi" link + switcher bar on every path page -->
+    <link rel="stylesheet" th:href="@{/css/pages/my-paths.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
           th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
 </th:block>
@@ -38,6 +40,9 @@
     <script th:src="@{/js/jlptpath/jpath-extra-links.js(v=${jpathAssetVersion})}"></script>
     <!-- [JLAS-W0108] F36/F37: AI giải thích & hỏi đáp câu hỏi đã trả lời trong Lộ trình JLPT + Giao tiếp. -->
     <script th:src="@{/js/jlptpath/jpath-ai-explain.js(v=${jpathAssetVersion})}"></script>
+    <!-- owner 24/11: "Lộ trình của tôi" — side-menu link and switcher between the paths being studied -->
+    <script th:src="@{/js/learning/my-paths-core.js(v=${jpathAssetVersion})}"></script>
+    <script th:src="@{/js/learning/my-paths-nav.js(v=${jpathAssetVersion})}"></script>
 </th:block>
 
 
@@ -48,10 +53,7 @@
         <!-- F174 (owner 15/11): on a phone the links fold behind one button instead of a sideways-scrolling row -->
         <details class="jp-sidenav__fold" open>
         <summary class="jp-sidenav__toggle"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg><span class="jp-sidenav__toggle-text">Trang của lộ trình</span><span class="jp-sidenav__chev" aria-hidden="true">▾</span></summary>
-        <a class="jp-sidenav__link" href="/learning" th:attr="aria-current=${current == '/learning'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg>Lộ trình</a>
-        <a class="jp-sidenav__link" href="/learning/jlpt/history" th:attr="aria-current=${current == '/learning/jlpt/history'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg>Lịch sử học</a>
-        <a class="jp-sidenav__link" href="/learning/jlpt/stats" th:attr="aria-current=${current == '/learning/jlpt/stats'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-chart-no-axes-combined"/></svg>Thống kê</a>
-        <a class="jp-sidenav__link" href="/learning/jlpt/known" th:attr="aria-current=${current == '/learning/jlpt/known'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-check"/></svg>Kho đã biết</a>
+        <a class="jp-sidenav__link" href="/learning?view=jlpt" th:attr="aria-current=${current == '/learning'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg>Lộ trình</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/notebook" th:attr="aria-current=${current == '/learning/jlpt/notebook'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg>Sổ tay</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/confusables" th:attr="aria-current=${current == '/learning/jlpt/confusables'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-git-compare-arrows"/></svg>Phân biệt dễ nhầm</a>
         <a class="jp-sidenav__link" href="/learning/jlpt/settings" th:attr="aria-current=${current == '/learning/jlpt/settings'} ? 'page' : null"><svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg>Cài đặt lộ trình</a>
@@ -84,7 +86,7 @@
 </th:block>
 
 <th:block th:fragment="crumbs(here)">
-    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình JLPT', '/learning')}"></th:block>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình JLPT', '/learning?view=jlpt')}"></th:block>
 </th:block>
 
 </html>

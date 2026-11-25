@@ -95,6 +95,18 @@ public interface JpathUserItemRepository extends JpaRepository<JpathUserItem, Lo
                             @Param("now") LocalDateTime now, Pageable p);
 
     /**
+     * Q8 (owner 24/11): items started before {@code before} whose part check was never passed (counted_at empty),
+     * oldest first — the unfinished part of an earlier study day, put first in today's lesson.
+     */
+    @Query("""
+            select i.itemCode from JpathUserItem i where i.userId = :userId and i.itemType = :t and i.level = :level
+            and i.state = com.jlas.jlptpath.enums.JpathItemState.LEARNING and i.firstLearnedAt is not null
+            and i.firstLearnedAt < :before and i.countedAt is null order by i.firstLearnedAt, i.id""")
+    List<String> unfinishedBefore(@Param("userId") Long userId, @Param("t") JpathItemType t,
+            @Param("level") String level, @Param("before") java.time.LocalDateTime before,
+            org.springframework.data.domain.Pageable page);
+
+    /**
      * Restart: bulk-deletes every item row of the learner and returns the row count (managed entities are not
      * detached).
      */

@@ -42,7 +42,7 @@ public class JpathFlashcardController {
         try {
             return JpathTab.valueOf(tab.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chỉ từ vựng và Kanji có flashcard.");
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chỉ chữ cái, từ vựng, Kanji và ngữ pháp có flashcard.");
         }
     }
 }

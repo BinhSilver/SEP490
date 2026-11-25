@@ -1,5 +1,6 @@
 package com.jlas.jlptpath.service.impl;
 
+import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.entity.JpathUserLevel;
@@ -50,6 +51,11 @@ final class JpathDayRules {
         boolean kanaPhase = path.isKanaTab() && path.getKanaCompletedAt() == null;
         boolean noNewLeft = noNewItemsLeft(content, path, level);
         JpathDayKind kind = calendar.dayKind(path, stage, day, noNewLeft);
+        // walkthrough 24/11: kana comes first; a Reading/Listening day before the kana stage is done cannot be read,
+        // so a calendar skill day in the kana phase is a study (kana) day and owes nothing later
+        if (kanaPhase) {
+            return new DayPlan(kind == JpathDayKind.SKILL ? JpathDayKind.STUDY : kind, false, true, noNewLeft);
+        }
         if (kind == JpathDayKind.STUDY && owedSkillDays(calendar, plans, path, stage, day) > 0) {
             return new DayPlan(JpathDayKind.SKILL, true, kanaPhase, noNewLeft);
         }
@@ -68,10 +74,17 @@ final class JpathDayRules {
      */
     static int owedSkillDays(JpathCalendarService calendar, JpathDailyPlanRepository plans, JpathUserPath path,
             JpathStage stage, LocalDate day) {
+        if (path.isKanaTab() && path.getKanaCompletedAt() == null) {
+            return 0; // kana phase: no skill day is owed (dayPlan), nor warned about on the path page
+        }
         LocalDate monday = day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate from = monday;
         if (path.getCreatedAt() != null && path.getCreatedAt().toLocalDate().isAfter(from)) {
             from = path.getCreatedAt().toLocalDate();
+        }
+        // skill days of the kana phase are not owed (see dayPlan)
+        if (path.isKanaTab() && path.getKanaCompletedAt() != null && path.getKanaCompletedAt().toLocalDate().isAfter(from)) {
+            from = path.getKanaCompletedAt().toLocalDate();
         }
         int scheduled = 0;
         for (LocalDate d = from; d.isBefore(day); d = d.plusDays(1)) {
@@ -108,9 +121,16 @@ final class JpathDayRules {
 
     static List<JpathDailyTab> tabRows(JpathDayKind kind, boolean kanaPhase, boolean kanaTab, JpathStudyMode mode,
             JpathUserLevel level, int minutes, int kanaRows) {
-        int v = level.getSliderVocab();
-        int k = level.getSliderKanji();
-        int g = level.getSliderGrammar();
+        return tabRows(kind, kanaPhase, kanaTab, mode, new JpathSliderValues(level.getSliderVocab(),
+                level.getSliderKanji(), level.getSliderGrammar()), minutes, kanaRows);
+    }
+
+    /** F237: the table rows with {@code sliders} instead of the level's (today's words raised after missed days). */
+    static List<JpathDailyTab> tabRows(JpathDayKind kind, boolean kanaPhase, boolean kanaTab, JpathStudyMode mode,
+            JpathSliderValues sliders, int minutes, int kanaRows) {
+        int v = sliders.vocab();
+        int k = sliders.kanji();
+        int g = sliders.grammar();
         List<JpathDailyTab> out = new ArrayList<>(5);
         switch (kind) {
             case STUDY -> {

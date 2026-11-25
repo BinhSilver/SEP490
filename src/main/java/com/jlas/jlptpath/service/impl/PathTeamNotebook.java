@@ -71,6 +71,11 @@ public class PathTeamNotebook {
         });
     }
 
+    /** F224 (owner 22/11): the id of the learner's "Lộ trình học" notebook; null before it is made. Reads only. */
+    public Long notebookIdFor(Long userId) {
+        return settings.findById(userId).map(JpathUserSettings::getTeamNotebookId).orElse(null);
+    }
+
     public void addWords(Long userId, Collection<Long> vocabularyIds) {
         guarded(userId, "add words", () -> {
             if (vocabularyIds.isEmpty()) return;
