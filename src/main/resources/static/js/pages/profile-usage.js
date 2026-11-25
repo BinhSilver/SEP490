@@ -1,6 +1,6 @@
 /*
  * Popup "Mức sử dụng hôm nay" trong trang hồ sơ (GET /api/profile/usage), mở từ nút "Mức sử dụng" ở menu hồ sơ:
- * AI Call (tính theo lượt), chấm phát âm và tra từ nhanh, theo hạn mức của gói Free / Pro.
+ * AI Call (tính theo lượt), chấm phát âm, tra từ nhanh và tạo video Shadowing, theo hạn mức của gói Free / Pro.
  */
 (function (root, factory) {
   'use strict';
@@ -46,16 +46,12 @@
     } else {
       var usedToday = turns(call.minutesToday, call.minutesPerTurn);
       var dailyTurns = turns(call.dailyLimitMinutes, call.minutesPerTurn);
-      var monthly = call.monthlyLimitMinutes == null ? 'không giới hạn'
-        : turns(call.monthlyLimitMinutes, call.minutesPerTurn) + ' lượt';
+      // Chỉ báo giá khi đã hết lượt miễn phí; còn lượt thì thanh và số "x/y" đã đủ.
       list.push({
         key: 'aiCall', label: 'AI Call hôm nay',
         value: usedToday + '/' + dailyTurns + ' lượt',
         percent: percent(usedToday, dailyTurns),
-        detail: (call.turnsLeft > 0
-          ? 'Còn ' + call.turnsLeft + ' lượt miễn phí'
-          : 'Hết lượt miễn phí, mỗi lượt ' + call.creditPerTurn + ' CP')
-          + ' · Tháng này ' + turns(call.minutesThisMonth, call.minutesPerTurn) + '/' + monthly,
+        detail: call.turnsLeft > 0 ? '' : 'Hết lượt miễn phí, mỗi lượt ' + call.creditPerTurn + ' CP',
         full: !(call.turnsLeft > 0)
       });
     }
@@ -65,7 +61,7 @@
       key: 'pronunciation', label: 'Chấm phát âm hôm nay',
       value: (checks.usedToday || 0) + '/' + (checks.dailyLimit || 0) + ' lần',
       percent: percent(checks.usedToday, checks.dailyLimit),
-      detail: left > 0 ? 'Còn ' + left + ' lần miễn phí' : 'Hết lượt miễn phí, mỗi lần ' + checks.creditPrice + ' CP',
+      detail: left > 0 ? '' : 'Hết lượt miễn phí, mỗi lần ' + checks.creditPrice + ' CP',
       full: left === 0
     });
 
@@ -76,6 +72,20 @@
         detail: lookups.packPrice + ' CP / ' + lookups.packLookups + ' lượt',
         full: !(lookups.remaining > 0)
       });
+
+    var videos = usage.shadowingCreate;
+    if (videos && videos.unlimited) {
+      list.push({ key: 'shadowingCreate', label: 'Tạo video Shadowing tuần này', value: 'Không giới hạn' });
+    } else if (videos) {
+      var minutesLeft = Math.max(0, (videos.weeklyMinutes || 0) - (videos.usedMinutes || 0));
+      list.push({
+        key: 'shadowingCreate', label: 'Tạo video Shadowing tuần này',
+        value: (videos.usedMinutes || 0) + '/' + (videos.weeklyMinutes || 0) + ' phút',
+        percent: percent(videos.usedMinutes, videos.weeklyMinutes),
+        detail: minutesLeft > 0 ? '' : 'Hết phút miễn phí, mỗi phút vượt ' + videos.creditPerMinute + ' CP',
+        full: minutesLeft === 0
+      });
+    }
     return list;
   }
 
@@ -119,8 +129,12 @@
     try {
       // JlasAuth has no authFetch: send its Bearer header when it is loaded; the login cookie also signs the request.
       var headers = window.JlasAuth && typeof window.JlasAuth.authHeaders === 'function' ? window.JlasAuth.authHeaders() : {};
+      // "Không hỏi lại hôm nay" may have been changed on another device: read the account's choices first.
+      var synced = window.JlasCpAutoPay && typeof window.JlasCpAutoPay.sync === 'function'
+        ? window.JlasCpAutoPay.sync() : null;
       var response = await fetch('/api/profile/usage', { headers: headers, credentials: 'same-origin' });
       var payload = await response.json().catch(function () { return {}; });
+      await synced;
       if (!response.ok || !payload.success) throw new Error(payload.message || 'Không tải được mức sử dụng.');
       body.innerHTML = markup(payload.data);
     } catch (error) {

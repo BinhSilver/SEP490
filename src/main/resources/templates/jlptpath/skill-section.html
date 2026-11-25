@@ -11,9 +11,11 @@
     <th:block th:replace="~{jlptpath/fragments/jpath :: crumbsIn('Đọc · Nghe', '/learning?tab=skills', 'Luyện thi theo phần')}"></th:block>
     <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title" data-role="title">Luyện thi theo phần</h1></header>
     <div class="jp-section-timer" data-role="timer" role="timer" aria-live="off" hidden></div>
-    <p class="jp-muted" role="status" data-role="status">Đang tải bài…</p>
+    <p class="jp-muted jp-skel jp-skel--lesson" role="status" data-role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     <div data-role="body"></div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <!-- Furigana toggle: generated readings for passages, questions, options and lines (POST /api/learning/jlpt/furigana). -->
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>

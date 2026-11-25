@@ -17,6 +17,10 @@ public interface JpathSkillSessionRepository extends JpaRepository<JpathSkillSes
     Optional<JpathSkillSession> findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(
             Long userId, Long planId, JpathSkill skill, JpathSkillSessionKind kind);
 
+    /** F177: the open free session of one type (a learner may leave several types half done). */
+    Optional<JpathSkillSession> findFirstByUserIdAndPlanIdAndSkillAndKindAndTypeCodeAndCompletedAtIsNullOrderByIdDesc(
+            Long userId, Long planId, JpathSkill skill, JpathSkillSessionKind kind, String typeCode);
+
     /** The latest completed session of (plan, skill, kind), if any. */
     Optional<JpathSkillSession> findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(
             Long userId, Long planId, JpathSkill skill, JpathSkillSessionKind kind);
@@ -24,6 +28,10 @@ public interface JpathSkillSessionRepository extends JpaRepository<JpathSkillSes
     /** Completed sessions of one kind with {@code from <= study_day <= to}. */
     long countByUserIdAndKindAndStudyDayBetweenAndCompletedAtIsNotNull(Long userId, JpathSkillSessionKind kind,
             LocalDate from, LocalDate to);
+
+    /** F238: completed sessions of one kind with {@code from <= study_day <= to} (owed skill sessions). */
+    List<JpathSkillSession> findByUserIdAndKindAndStudyDayBetweenAndCompletedAtIsNotNull(Long userId,
+            JpathSkillSessionKind kind, LocalDate from, LocalDate to);
 
     /** The session when it is the learner's (another learner's id reads as absent). */
     Optional<JpathSkillSession> findByIdAndUserId(Long id, Long userId);

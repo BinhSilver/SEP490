@@ -12,11 +12,11 @@
       var d = data.data;
       var html = '';
       if (typeof d.dailyMinutes === 'number') {
-        html += '<li>Hôm nay: <strong>' + d.dailyMinutes.toFixed(1) + '</strong>/' +
+        html += '<li data-call-quota="daily">Hôm nay: <strong>' + d.dailyMinutes.toFixed(1) + '</strong>/' +
                 (d.dailyLimitMin != null && d.dailyLimitMin < 1e9 ? d.dailyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.monthlyMinutes === 'number') {
-        html += '<li>Tháng này: <strong>' + d.monthlyMinutes.toFixed(1) + '</strong>/' +
+        html += '<li data-call-quota="monthly">Tháng này: <strong>' + d.monthlyMinutes.toFixed(1) + '</strong>/' +
                 (d.monthlyLimitMin != null && d.monthlyLimitMin < 1e9 ? d.monthlyLimitMin.toFixed(0) : '∞') + ' phút</li>';
       }
       if (typeof d.creditBalance === 'number') {
@@ -33,6 +33,18 @@
         }
       }
       usage.innerHTML = html;
+      if (window.JlasQuotaMeter) {
+        [['daily', d.dailyMinutes, d.dailyLimitMin, 'Còn hôm nay'],
+         ['monthly', d.monthlyMinutes, d.monthlyLimitMin, 'Còn tháng này']].forEach(function (item) {
+          var target = usage.querySelector('[data-call-quota="' + item[0] + '"]');
+          if (!target) return;
+          var original = target.textContent;
+          window.JlasQuotaMeter.mount(target, {label: item[3], caption: item[3]}).update({
+            used: item[1], limit: item[2], unlimited: item[2] == null || item[2] >= 1e9,
+            description: original
+          });
+        });
+      }
     }
     modal.hidden = false;
     var close = document.getElementById('btnCloseQuota');
@@ -44,7 +56,7 @@
       var canPay = data && data.code === 'QUOTA_EXCEEDED' && typeof cost === 'number' && cost > 0
         && typeof d2.creditBalance === 'number' && d2.creditBalance >= cost;
       useCp.hidden = !canPay;
-      if (canPay) useCp.innerHTML = '<i class="fa-solid fa-coins"></i> Dùng ' + cost + ' CP cho lượt này';
+      if (canPay) useCp.textContent = 'Dùng ' + cost + ' CP cho lượt này';
       var autoWrap = document.getElementById('quotaAutoWrap');
       var autoBox = document.getElementById('quotaAutoCredit');
       var autoCap = document.getElementById('quotaAutoCap');
@@ -60,7 +72,11 @@
     var buy = document.getElementById('btnQuotaBuy');
     if (buy) buy.onclick = function () { window.location.href = '/credits'; };
     var up = document.getElementById('btnQuotaUpgrade');
-    if (up) up.onclick = function () { window.location.href = '/premium'; };
+    if (up) {
+      up.classList.toggle('button-primary', !canPay);
+      up.classList.toggle('button-secondary', !!canPay);
+      up.onclick = function () { window.location.href = '/premium'; };
+    }
   }
 
   function showMuteModal(data) {
@@ -735,7 +751,8 @@
         const chip = e.target.closest('.suggest-chip');
         if (!chip) return;
         input.value = chip.textContent;
-        input.focus();
+        // On a phone, focus opens the keyboard and scrolls the page for it, although nothing needs typing.
+        if (!coarsePointer()) input.focus();
       });
     }
     if (btnMic && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
@@ -743,17 +760,28 @@
       const rec = new SR();
       rec.lang = 'ja-JP';
       rec.interimResults = false;
+      // Một lần nói tối đa voiceMaxSeconds giây và chữ nhận được không vượt maxlength của ô nhập (kế hoạch Pro/CP).
+      const voiceMaxMs = (Number(input.dataset.voiceMaxSeconds) || 30) * 1000;
+      const maxChars = Number(input.getAttribute('maxlength')) || 0;
+      let voiceTimer = null;
+      const stopVoiceTimer = function () {
+        if (voiceTimer) clearTimeout(voiceTimer);
+        voiceTimer = null;
+        btnMic.classList.remove('recording');
+      };
       btnMic.addEventListener('click', function () {
         try {
           rec.start();
           btnMic.classList.add('recording');
+          voiceTimer = setTimeout(function () { try { rec.stop(); } catch (e) {} }, voiceMaxMs);
         } catch (e) {}
       });
       rec.onresult = function (ev) {
-        input.value = (ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || input.value;
+        const heard = (ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || input.value;
+        input.value = maxChars > 0 ? Array.from(heard).slice(0, maxChars).join('') : heard;
       };
-      rec.onend = function () { btnMic.classList.remove('recording'); };
-      rec.onerror = function () { btnMic.classList.remove('recording'); };
+      rec.onend = stopVoiceTimer;
+      rec.onerror = stopVoiceTimer;
     } else if (btnMic) {
       btnMic.title = 'Trình duyệt không hỗ trợ nhận giọng nói';
       btnMic.disabled = true;
@@ -867,7 +895,7 @@
         return;
       }
 
-      if (!res.ok && data.code === 'AICALL_JAPANESE_REQUIRED') {
+      if (!res.ok && (data.code === 'AICALL_JAPANESE_REQUIRED' || data.code === 'AICALL_MESSAGE_TOO_LONG')) {
         if (learnerRow) learnerRow.remove();
         if (!input.value) input.value = text;
         showComposeError(data.message || 'AI Call chỉ nhận tiếng Nhật.');
@@ -890,7 +918,7 @@
       }
       // 409: lượt trước chưa xong / đang xử lý; 503: quá tải (chưa bị tính phí).
       if (!res.ok) {
-        addChargeNote(learnerRow, '⚠️ ' + ((data && (data.message || data.error)) || 'Không gửi được, thử lại nhé.'), true);
+        addChargeNote(learnerRow, '' + ((data && (data.message || data.error)) || 'Không gửi được, thử lại nhé.'), true);
         return;
       }
 
@@ -903,7 +931,7 @@
           // hiện lỗi kỹ thuật nhỏ dưới bubble (không giả làm thoại AI)
           const note = document.createElement('div');
           note.style.cssText = 'font-size:.78rem;color:var(--wrong, #b42318);margin-top:4px;';
-          note.textContent = '⚠️ ' + data.error;
+          note.textContent = '' + data.error;
           row.querySelector('.msg-col').appendChild(note);
         }
         if (data.sceneTransition) addSceneTransition(data.sceneTransition);
@@ -956,8 +984,13 @@
     } finally {
       busy = false;
       if (!input.disabled) btnSend.disabled = false;
-      input.focus();
+      if (!coarsePointer()) input.focus();
     }
+  }
+
+  /** Touch screens: focusing the input would pop the keyboard up and push the page up for it. */
+  function coarsePointer() {
+    return typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches;
   }
 
   // Người học chủ động kết thúc phiên (JLAS-W0205): kịch bản thì chấm điểm rồi sang trang kết quả.

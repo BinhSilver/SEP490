@@ -1,0 +1,173 @@
+/* Step-by-step page guide (js/components/page-guide.js) and its "Hướng dẫn" button. */
+.page-guide-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid #ccd5e0;
+  border-radius: 12px;
+  background: #fff;
+  color: #643396;
+  cursor: pointer;
+  font: 700 14px/1 Inter, sans-serif;
+  white-space: nowrap;
+}
+
+.page-guide-button:hover:not(:disabled) {
+  border-color: #8065ba;
+  background: #f5f1fc;
+}
+
+.page-guide-button:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+.page-guide-button:focus-visible,
+.page-guide button:focus-visible {
+  outline: 3px solid #c084fc;
+  outline-offset: 3px;
+}
+
+/* Dark layer over the page with a hole at the part being explained; clicks outside the hole do nothing. */
+.page-guide-blocker {
+  position: fixed;
+  z-index: 5000;
+  inset: 0;
+  background: #07101bab;
+}
+
+.page-guide-spot {
+  position: fixed;
+  z-index: 5001;
+  border-radius: 12px;
+  outline: 3px solid #c084fc;
+  pointer-events: none;
+  transition: left .2s ease, top .2s ease, width .2s ease, height .2s ease;
+}
+
+.page-guide {
+  position: fixed;
+  z-index: 5002;
+  box-sizing: border-box;
+  width: min(380px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid #c9c1d3;
+  border-radius: 18px;
+  background: #fff;
+  color: #1c2634;
+  box-shadow: 0 18px 60px #0005;
+  font-family: Inter, "Noto Sans JP", sans-serif;
+  text-align: left;
+}
+
+.page-guide small {
+  color: #643396;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.page-guide h2 {
+  margin: 8px 0;
+  color: inherit;
+  font: 700 20px/1.3 "Hanken Grotesk", sans-serif;
+}
+
+.page-guide p {
+  margin: 0 0 16px;
+  color: #52647b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.page-guide ul {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: #52647b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.page-guide li::marker {
+  color: #7335a6;
+}
+
+.page-guide li strong {
+  color: #1c2634;
+  font-weight: 700;
+}
+
+.page-guide nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-guide button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #c9c1d3;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 15px;
+}
+
+.page-guide button[hidden] {
+  display: none;
+}
+
+.page-guide button[data-guide-back],
+.page-guide button[data-guide-back][hidden] + button[data-guide-next] {
+  margin-left: auto;
+}
+
+.page-guide button[data-guide-next] {
+  border-color: #7335a6;
+  background: #7335a6;
+  color: #fff;
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .page-guide-button {
+  border-color: var(--dark-line);
+  background: var(--dark-surface);
+  color: var(--dark-ink);
+}
+
+html[data-theme="dark"] .page-guide {
+  border-color: var(--dark-line);
+  background: var(--dark-raised);
+  color: var(--dark-ink);
+}
+
+html[data-theme="dark"] .page-guide p,
+html[data-theme="dark"] .page-guide ul {
+  color: var(--dark-muted);
+}
+
+html[data-theme="dark"] .page-guide li strong {
+  color: var(--dark-ink);
+}
+
+html[data-theme="dark"] .page-guide li::marker {
+  color: var(--dark-accent);
+}
+
+html[data-theme="dark"] .page-guide small {
+  color: var(--dark-accent);
+}
+
+html[data-theme="dark"] .page-guide button {
+  border-color: var(--dark-input-line);
+}
+
+html[data-theme="dark"] .page-guide button[data-guide-next] {
+  border-color: #7335a6;
+}

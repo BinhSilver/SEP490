@@ -49,18 +49,25 @@
   'use strict';
 
   var BASE = '/api/learning/jlpt';
-  var FLASH_MS = 600;
+  var FLASH_MS = 900;
   var BOARD_DONE_MS = 450;
   var KIND_TITLE = Object.freeze({
     MICRO_CHECK: 'Micro-check', GROUP_EXERCISE: 'Bài tập nhóm', SKIP_ONE: 'Kiểm 1 câu',
-    TOPIC_KNOWN: 'Tôi biết chủ đề này', FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt chữ dễ nhầm',
+    TOPIC_KNOWN: 'Tôi biết chủ đề này', FREE_QUIZ: 'Quiz tự do', CONFUSABLE: 'Phân biệt dễ nhầm',
     KANA_ROW: 'Kiểm hàng chữ', GRAMMAR_PRACTICE: 'Luyện ngay', GRAMMAR_EXTRA: 'Luyện thêm', GRAMMAR_REVIEW: 'Ôn ngữ pháp',
     WEEK_KNOWN: 'Tôi biết tuần này'
   });
-  var DIRECTION_LABEL = { JA_VI: 'NHẬT → VIỆT · CHỌN NGHĨA ĐÚNG', VI_JA: 'VIỆT → NHẬT · CHỌN TỪ ĐÚNG' };
+  var RETRY_PRACTICE_KINDS = Object.freeze({ MICRO_CHECK: true, GROUP_EXERCISE: true, CONFUSABLE: true,
+    GRAMMAR_PRACTICE: true, GRAMMAR_EXTRA: true, GRAMMAR_REVIEW: true, SKILL_LESSON: true,
+    SKILL_PRACTICE: true, SKILL_DICTATION: true });
+  var DIRECTION_LABEL = { JA_VI: 'Nhật sang Việt · Chọn nghĩa đúng', VI_JA: 'Việt sang Nhật · Chọn từ đúng' };
   var MSG_NOT_FOUND = 'Không tìm thấy bài kiểm tra này.';
   var MSG_LOAD_FAILED = 'Chưa tải được bài kiểm tra. Thử lại sau.';
   var MSG_SEND_FAILED = 'Chưa gửi được câu trả lời. Hãy thử lại.';
+  var MSG_TIMEOUT_FAILED = 'Hết giờ nhưng chưa gửi được. Kiểm tra kết nối rồi bấm Thử lại.';
+  var CLOSED_HTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
+    + '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a></div>';
+  var MSG_LOCKED_ELSEWHERE = 'Câu này đã được trả lời ở cửa sổ khác — đáp án hiển thị là đáp án đã khóa.';
   var BOARD_HINT = 'Chọn 1 ô trái rồi 1 ô phải. Sai thì nháy đỏ, tính 1 lỗi, chọn lại.';
 
   function D() { return root && root.JpathDisplay; }
@@ -87,7 +94,7 @@
 
   // ---- state ------------------------------------------------------------------------------------------------
 
-  function emptyBoard() { return { matched: {}, errors: 0, selLeft: null, selRight: null, flash: null, pending: false }; }
+  function emptyBoard() { return { matched: {}, rightMatched: {}, errors: 0, selLeft: null, selRight: null, inFlight: null, queue: [], flash: null }; }
 
   function boardComplete(q, b) {
     return !!(b && q.board && Object.keys(b.matched).length >= (q.board.left || []).length);
@@ -108,6 +115,7 @@
     var byId = {};
     var state = { token: check && check.token, kind: check && check.kind, tab: check && check.tab,
       timerOn: !!(check && check.timerOn), questions: qs, types: {}, boards: {}, answers: {}, pending: {}, placed: {},
+      stalled: {},
       qStartedMs: now || 0, index: 0 };
     qs.forEach(function (q) {
       byId[q.id] = q;
@@ -119,7 +127,9 @@
       if (!q) return;
       if (isBoard(q)) {
         var b = state.boards[q.board.boardId];
-        (a.matchedPairs || []).forEach(function (p) { if (p && p.length === 2) b.matched[p[0]] = p[1]; });
+        (a.matchedPairs || []).forEach(function (p) {
+          if (p && p.length === 2) { b.matched[p[0]] = p[1]; b.rightMatched[p[1]] = p[0]; }
+        });
         b.errors = a.errors || 0;
       } else {
         state.answers[q.id] = { value: a.value, correct: !!a.correct, correctValue: a.correctValue,
@@ -162,7 +172,9 @@
 
   function timerActive(check, state) {
     var q = current(state);
-    return !!(state.timerOn && q && !isBoard(q) && q.timerSec && !state.answers[q.id]);
+    // F138: a question whose TIMEOUT could not be sent is not timed any more — the learner retries by hand.
+    return !!(state.timerOn && q && !isBoard(q) && q.timerSec && !state.answers[q.id]
+      && !(state.stalled && state.stalled[q.id]));
   }
 
   var START_PREFIX = 'jpath.qstart.';
@@ -182,6 +194,12 @@
     return now;
   }
 
+  function restartQuestionTimer(storage, token, questionId, now) {
+    var key = START_PREFIX + token + '.' + questionId;
+    try { if (storage) storage.setItem(key, String(now)); else startMemory[key] = now; }
+    catch (e) { startMemory[key] = now; }
+  }
+
   function timerRemaining(timerSec, startedMs, nowMs) {
     return Math.max(0, Math.ceil((Number(timerSec) * 1000 - (Number(nowMs) - Number(startedMs))) / 1000));
   }
@@ -191,7 +209,7 @@
     var ps = parts(check);
     var idx = Math.min(state.index, qs.length - 1);
     var q = qs[idx];
-    var bits = [kindTitle(check.kind)];
+    var bits = [check.kind === 'FREE_QUIZ' && isWeekly(check) ? 'Kiểm tra tuần' : kindTitle(check.kind)]; // F179 (AI test L17): the weekly test said "Quiz tự do"
     var pi = -1;
     ps.forEach(function (p, i) { if (p.indexes.indexOf(idx) >= 0) pi = i; });
     if (q && pi >= 0) {
@@ -219,6 +237,8 @@
     s.boards = copy(state.boards);
     var b = copy(state.boards[boardId] || emptyBoard());
     b.matched = copy(b.matched);
+    b.rightMatched = copy(b.rightMatched);
+    b.queue = Array.isArray(b.queue) ? b.queue.slice() : [];
     s.boards[boardId] = b;
     var out = fn(b, s) || {};
     out.state = s;
@@ -226,41 +246,92 @@
   }
 
   function rightTaken(b, rightId) {
-    return Object.keys(b.matched).some(function (l) { return b.matched[l] === rightId; });
+    return !!(b && b.rightMatched && b.rightMatched[rightId])
+      || Object.keys((b && b.matched) || {}).some(function (l) { return b.matched[l] === rightId; });
+  }
+
+  function inPair(pair, isLeft, id) {
+    return !!(pair && (isLeft ? pair.leftId === id : pair.rightId === id));
+  }
+
+  function boardCellQueued(b, isLeft, id) {
+    return inPair(b && b.inFlight, isLeft, id)
+      || (Array.isArray(b && b.queue) && b.queue.some(function (p) { return inPair(p, isLeft, id); }));
+  }
+
+  function findBoardQuestion(state, boardId) {
+    var qs = (state && state.questions) || [];
+    for (var i = 0; i < qs.length; i++) {
+      if (isBoard(qs[i]) && qs[i].board.boardId === boardId) return qs[i];
+    }
+    return null;
   }
 
   function boardReduce(state, ev) {
     var e = ev || {};
     if (!state.boards[e.boardId]) return { state: state };
-    return withBoard(state, e.boardId, function (b) {
+    return withBoard(state, e.boardId, function (b, s) {
       if (e.type === 'PICK_LEFT' || e.type === 'PICK_RIGHT') {
-        if (b.pending) return null;
         if (e.type === 'PICK_LEFT') {
-          if (b.matched[e.leftId]) { b.selLeft = null; return null; }
+          if (!e.leftId || b.matched[e.leftId] || boardCellQueued(b, true, e.leftId)) {
+            if (b.selLeft === e.leftId) b.selLeft = null;
+            return null;
+          }
           b.selLeft = b.selLeft === e.leftId ? null : e.leftId;
         } else {
-          if (rightTaken(b, e.rightId)) { b.selRight = null; return null; }
+          if (!e.rightId || rightTaken(b, e.rightId) || boardCellQueued(b, false, e.rightId)) {
+            if (b.selRight === e.rightId) b.selRight = null;
+            return null;
+          }
           b.selRight = b.selRight === e.rightId ? null : e.rightId;
         }
         b.flash = null;
         if (b.selLeft && b.selRight) {
-          b.pending = true;
-          return { request: { boardId: e.boardId, leftId: b.selLeft, rightId: b.selRight } };
+          var pair = { boardId: e.boardId, leftId: b.selLeft, rightId: b.selRight };
+          b.selLeft = null;
+          b.selRight = null;
+          if (!b.inFlight) {
+            b.inFlight = pair;
+            return { request: pair };
+          }
+          b.queue.push(pair);
         }
         return null;
       }
       if (e.type === 'PICK_RESULT') {
         var r = e.result || {};
-        b.pending = false;
-        b.selLeft = null;
-        b.selRight = null;
+        b.inFlight = null;
         if (typeof r.errors === 'number') b.errors = r.errors;
-        if (r.correct) b.matched[e.leftId] = e.rightId;
-        else b.flash = { leftId: e.leftId, rightId: e.rightId };
+        if (r.correct) {
+          b.matched[e.leftId] = e.rightId;
+          b.rightMatched[e.rightId] = e.leftId;
+          if (b.selLeft && b.matched[b.selLeft]) b.selLeft = null;
+          if (b.selRight && rightTaken(b, b.selRight)) b.selRight = null;
+        } else {
+          b.flash = { leftId: e.leftId, rightId: e.rightId };
+        }
+        var q = findBoardQuestion(s, e.boardId);
+        if (b.queue.length > 0 && (!q || !boardComplete(q, b))) {
+          b.inFlight = b.queue.shift();
+          return { request: b.inFlight };
+        }
+        b.queue = [];
         return null;
       }
-      if (e.type === 'PICK_FAIL') { b.pending = false; b.selLeft = null; b.selRight = null; return null; }
-      if (e.type === 'FLASH_END') { b.flash = null; return null; }
+      if (e.type === 'PICK_FAIL') {
+        b.inFlight = null;
+        var qFail = findBoardQuestion(s, e.boardId);
+        if (b.queue.length > 0 && (!qFail || !boardComplete(qFail, b))) {
+          b.inFlight = b.queue.shift();
+          return { request: b.inFlight };
+        }
+        b.queue = [];
+        return null;
+      }
+      if (e.type === 'FLASH_END') {
+        if (!e.leftId || (b.flash && b.flash.leftId === e.leftId && b.flash.rightId === e.rightId)) b.flash = null;
+        return null;
+      }
       return null;
     });
   }
@@ -301,12 +372,30 @@
     if (e.type === 'RESULT') {
       var r = e.result || {};
       s.answers = copy(state.answers);
-      s.answers[qid] = { value: state.pending[qid] === undefined ? null : state.pending[qid], correct: !!r.correct,
+      if (!r.correct && r.correctValue == null && RETRY_PRACTICE_KINDS[state.kind]
+          && !r.checkClosed && r.lockedValue == null) {
+        delete s.pending[qid];
+        s.placed = copy(state.placed);
+        delete s.placed[qid];
+        s.qStartedMs = e.nowMs || state.qStartedMs;
+        return { state: s };
+      }
+      // probe L2: a question already locked (another tab) comes back with lockedValue — draw that answer, not the local pick
+      var mine = state.pending[qid] === undefined ? null : state.pending[qid];
+      var locked = r.lockedValue !== undefined && r.lockedValue !== null
+        && String(r.lockedValue) !== String(mine == null ? '' : mine);
+      s.answers[qid] = { value: locked ? r.lockedValue : mine, correct: !!r.correct, lockedElsewhere: locked,
         correctValue: r.correctValue, explanation: r.explanation, compare: r.compare || null, report: r.report || null };
+      delete s.pending[qid];
+      if (state.stalled && state.stalled[qid]) { s.stalled = copy(state.stalled); delete s.stalled[qid]; }
+      return { state: s };
+    }
+    if (e.type === 'FAIL') {
+      // F138: a failed TIMEOUT (value null) stalls the question so the ticker does not send it again and again.
+      if (state.pending[qid] === null) { s.stalled = copy(state.stalled || {}); s.stalled[qid] = true; }
       delete s.pending[qid];
       return { state: s };
     }
-    if (e.type === 'FAIL') { delete s.pending[qid]; return { state: s }; }
     return { state: state };
   }
 
@@ -328,7 +417,8 @@
   function questionState(state, q) {
     return { token: state.token, board: isBoard(q) ? state.boards[q.board.boardId] : null,
       answer: state.answers[q.id] || null, pending: Object.prototype.hasOwnProperty.call(state.pending, q.id),
-      placed: state.placed[q.id] || [] };
+      placed: state.placed[q.id] || [],
+      hasNext: Array.isArray(state.questions) ? (state.index + 1 < state.questions.length) : true };
   }
 
   function boardHtml(q, b) {
@@ -337,11 +427,13 @@
     function cell(side, o) {
       var isLeft = side === 'left';
       var matched = isLeft ? !!st.matched[o.id] : rightTaken(st, o.id);
+      var pending = boardCellQueued(st, isLeft, o.id);
       var flash = st.flash && (isLeft ? st.flash.leftId === o.id : st.flash.rightId === o.id);
       var sel = isLeft ? st.selLeft === o.id : st.selRight === o.id;
-      var cls = 'jp-pair' + (matched ? ' jp-ok' : '') + (flash ? ' jp-bad' : '') + (sel ? ' jp-sel' : '');
+      var disabled = matched || pending;
+      var cls = 'jp-pair' + (matched ? ' jp-ok' : '') + (pending ? ' jp-pending' : '') + (flash ? ' jp-bad' : '') + (sel ? ' jp-sel' : '');
       return '<button type="button" class="' + cls + '" data-board="' + esc(bid) + '" data-' + side + '="' + esc(o.id) + '"'
-        + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (matched ? ' disabled' : '')
+        + ' aria-pressed="' + (sel ? 'true' : 'false') + '"' + (pending ? ' aria-busy="true"' : '') + (disabled ? ' disabled' : '')
         + '>' + (isLeft ? '<span lang="ja">' + esc(o.label) + '</span>' : esc(o.label)) + (matched ? ' ' + icon('circle-check') : '') + (flash ? ' ' + icon('circle-x') : '') + '</button>';
     }
     return '<div class="jp-board" data-board-id="' + esc(bid) + '" title="' + esc(BOARD_HINT) + '">'
@@ -366,7 +458,7 @@
       + (a.correct ? 'Đúng rồi!' : (a.value === null ? 'Hết giờ.' : 'Chưa đúng.')) + (extra || '') + '</div>';
     if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
     html += compareHtml(a.compare);
-    return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp ' + icon('arrow-right') + '</button>';
+    return html + '<button type="button" class="jp-btn jp-btn--primary jp-check__next" data-action="next">Tiếp</button>';
   }
 
   function cleanDirectionLabel(q) {
@@ -449,17 +541,17 @@
   }
 
   function checkMascotHtml(q, st) {
-    var img = '/images/mascots/kitsu/kitsu-thinking-30.webp';
+    var img = '/images/mascots/fox/kitsu-thinking-30.webp';
     var speech = 'Suy nghĩ kỹ nhé!';
     var mood = 'think';
     if (isBoard(q)) {
       var b = st.board || emptyBoard();
       if (b.flash) {
-        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
+        img = '/images/mascots/fox/kitsu-confused-30.webp';
         speech = 'Tiếc quá, chọn lại cặp khác nhé!';
         mood = 'bad';
       } else if (Object.keys(b.matched || {}).length > 0) {
-        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        img = '/images/mascots/fox/kitsu-cheer-30.webp';
         speech = 'Đúng rồi, nối tiếp nào!';
         mood = 'ok';
       } else {
@@ -467,12 +559,12 @@
       }
     } else if (st.answer) {
       if (st.answer.correct) {
-        img = '/images/mascots/kitsu/kitsu-cheer-30.webp';
+        img = '/images/mascots/fox/kitsu-cheer-30.webp';
         speech = 'Đúng rồi, tuyệt lắm!';
         mood = 'ok';
       } else {
-        img = '/images/mascots/kitsu/kitsu-confused-30.webp';
-        speech = 'Tiếc quá, cố lên ở câu sau nhé!';
+        img = '/images/mascots/fox/kitsu-confused-30.webp';
+        speech = st && st.hasNext === false ? 'Tiếc quá, xem kỹ đáp án nhé!' : 'Tiếc quá, cố lên ở câu sau nhé!';
         mood = 'bad';
       }
     }
@@ -482,10 +574,17 @@
       + '<span class="jp-check__flag-slot" data-report-slot></span></div>';
   }
 
+  function aiSlotHtml(token, qId) {
+    if (!token || !qId) return '';
+    return '<div class="jp-ai-slot" data-jpath-ai-explain="'
+      + esc(JSON.stringify({ source: 'JPATH_CHECK', checkToken: String(token), questionId: String(qId) })) + '"></div>';
+  }
+
   function questionHtml(q, qs, display) {
     var st = qs || {};
     if (!q) return '';
-    var html = '<section class="jp-check__q" data-qid="' + esc(q.id) + '" data-type="' + esc(q.type) + '">'
+    var html = '<section class="jp-check__q" data-qid="' + esc(q.id) + '" data-type="' + esc(q.type)
+      + '" data-furi-answer-state="' + (st.answer ? 'answered' : 'pending') + '">'
       + checkMascotHtml(q, st);
     if (isBoard(q)) return html + boardHtml(q, st.board) + '</section>';
     html += promptHtml(q);
@@ -496,6 +595,7 @@
     else if (q.type === 'FILL_TEXT') html += fillHtml(q, st);
     else if (q.options && q.options.length) html += optionsHtml(q, st) + feedbackHtml(st.answer);
     else html += '<p class="jp-status">Dạng câu này chưa hiển thị được.</p>';
+    if (st.answer) html += aiSlotHtml(st.token || (qs && qs.token), q.id);
     void display;
     return html + '</section>';
   }
@@ -504,7 +604,7 @@
     var e = err || {};
     if (e.code === 'JPATH_CHECK_NOT_FOUND') {
       return '<div class="jp-check__error jp-card" role="alert"><p>' + esc(MSG_NOT_FOUND) + '</p>'
-        + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+        + '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a></div>';
     }
     return '<div class="jp-check__error jp-card" role="alert"><p>' + esc(MSG_LOAD_FAILED) + '</p>'
       + '<button type="button" class="jp-btn" data-action="reload">Thử lại</button></div>';
@@ -540,8 +640,8 @@
   }
 
   function safeReturn(v) {
-    if (typeof v !== 'string') return '/learning';
-    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning';
+    if (typeof v !== 'string') return '/learning?view=jlpt';
+    if (!/^\/learning(?:[/?#]|$)/.test(v) || v.indexOf('//') >= 0 || v.indexOf('\\') >= 0) return '/learning?view=jlpt';
     return v;
   }
 
@@ -558,13 +658,15 @@
   }
 
   /** next.url → ?return= (only /learning…) → the study round of ?session= → /learning. */
-  function nextHref(result, search) {
+  function nextHref(result, search, tab) {
     var n = result && result.next;
     if (n && typeof n.url === 'string' && safeReturn(n.url) === n.url) return n.url;
     var p = searchParams(search);
     if (has(p['return'])) return safeReturn(p['return']);
     if (/^\d+$/.test(p.session || '')) return '/learning/jlpt/study?session=' + p.session;
-    return '/learning';
+    // F180 (AI test L20): back on the tab the check was about; plain /learning opened the Chữ cái tab during the kana phase
+    var key = { VOCAB: 'vocab', KANJI: 'kanji', GRAMMAR: 'grammar', KANA: 'kana' }[String(tab || '').toUpperCase()];
+    return key ? '/learning?view=jlpt&tab=' + key : '/learning?view=jlpt';
   }
 
   /** The check page of a new token, keeping ?session= and ?return= of the current page. */
@@ -574,6 +676,14 @@
     if (/^\d+$/.test(p.session || '')) q.push('session=' + p.session);
     if (has(p['return'])) q.push('return=' + encodeURIComponent(safeReturn(p['return'])));
     return '/learning/jlpt/check/' + encodeURIComponent(String(token || '')) + (q.length ? '?' + q.join('&') : '');
+  }
+
+  /** probe L4: a Reading/Listening practice or dictation check belongs to its skill session page. */
+  function skillSessionHref(check) {
+    var k = check && check.kind;
+    var id = check && check.skill && check.skill.skillSessionId;
+    if ((k !== 'SKILL_PRACTICE' && k !== 'SKILL_DICTATION') || id == null) return null;
+    return '/learning/jlpt/skills/session/' + encodeURIComponent(String(id));
   }
 
   function retryRequest(check) { return copy((check && check.issue) || {}); }
@@ -588,16 +698,17 @@
     if (kind !== 'GROUP_EXERCISE' && kind !== 'TOPIC_KNOWN' && kind !== 'WEEK_KNOWN') {
       var vk = items.some(function (w) { return w.itemType === 'VOCAB' || w.itemType === 'KANJI'; });
       var review = items.some(function (w) { return w.itemType !== 'KANA'; });
-      if (vk) suffix = ' → đã vào Ôn lại và Sổ tay';
-      else if (review) suffix = ' → đã vào Ôn lại';
+      if (vk) suffix = ' · đã vào Ôn lại và Sổ tay';
+      else if (review) suffix = ' · đã vào Ôn lại';
     }
-    return '<p class="jp-result__wrong">Sai ' + items.length + ': <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
+    // probe L9: misses are items (a word missed both ways counts once), not questions
+    return '<p class="jp-result__wrong">' + items.length + ' mục sai: <span lang="ja">' + esc(names) + '</span>' + esc(suffix) + '</p>';
   }
 
   function celebrateArtHtml(passed) {
     var img = passed === false
-      ? '/images/mascots/kitsu/kitsu-encouraging.webp'
-      : '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+      ? '/images/mascots/fox/kitsu-encouraging.webp'
+      : '/images/mascots/fox/kitsu-celebrate-30.webp';
     var speech = passed === false
       ? 'Đừng nản, ôn lại chút là vượt qua ngay!'
       : 'Xuất sắc! Bạn làm rất tốt!';
@@ -619,14 +730,34 @@
       + '</div>';
   }
 
+  // [JLAS-W0108] C3: the weekly test (a FREE_QUIZ with source WEEK) ends with a short summary in place:
+  // score, the weak items of this week and one next step (no separate summary page, owner 05/11)
+  var TAB_VI = { VOCAB: 'Từ vựng', KANJI: 'Kanji', GRAMMAR: 'Ngữ pháp' };
+  function isWeekly(check) { return !!(check && check.issue && check.issue.source === 'WEEK'); }
+  function weeklySummaryHtml(r, check, pct) {
+    var wrong = (r.wrongItems || []).length;
+    var tabName = TAB_VI[check.tab || (check.issue && check.issue.tab)] || '';
+    var strong = pct >= PASS_PERCENT;
+    var tip = !wrong ? 'Tuần này bạn nắm chắc hết. Cứ giữ nhịp học như hiện tại nhé.'
+      : strong ? 'Tuần này khá vững. Ôn nhanh ' + wrong + ' mục sai trong Sổ tay là đủ.'
+      : 'Nên ôn lại ' + wrong + ' mục sai trong Sổ tay trước khi học mục mới.';
+    return '<div class="jp-result__score' + (strong ? ' jp-ok' : ' jp-bad') + '">' + esc(pct) + '%</div>'
+      + '<h2 class="jp-result__title" id="jp-result-title" tabindex="-1">Tổng kết tuần' + (tabName ? ' · ' + esc(tabName) : '')
+      + ': đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu</h2>'
+      + '<p class="jp-result__note" data-part="week-tip">' + esc(tip)
+      + (wrong ? ' <a href="/learning/jlpt/notebook">Mở Sổ tay</a>' : '') + '</p>';
+  }
+
   function resultHtml(result, check, opts) {
     var r = result || {};
     var kind = check && check.kind;
     var o = opts || {};
     var pct = Number(r.scorePercent) || 0;
-    var celCls = r.passed === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
+    // owner 25/11: a free quiz under 50% is never praised
+    var mood = kind === 'FREE_QUIZ' ? pct >= (isWeekly(check) ? PASS_PERCENT : 50) : r.passed;
+    var celCls = mood === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
     var html = '<section class="jp-result jp-card' + celCls + '" aria-labelledby="jp-result-title">'
-      + celebrateArtHtml(r.passed);
+      + celebrateArtHtml(mood);
     var tone = r.passed === true ? ' jp-ok' : (r.passed === false ? ' jp-bad' : '');
     if (kind === 'GROUP_EXERCISE') {
       html += '<h2 class="jp-result__title" id="jp-result-title" tabindex="-1">Xong bài tập nhóm. Câu sai sẽ được ôn lại trong lượt này.</h2>'
@@ -643,9 +774,11 @@
         + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">' + (wk
           ? esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu: tuần này được bỏ qua. Mục trả lời đúng vào Đã biết, mục chưa hỏi tới sẽ được ôn sớm để xác nhận.')
           : esc('Bạn đúng ' + r.correct + '/' + r.total + ' câu, chưa tới 90% nên tuần này vẫn học như bình thường.')) + '</p>';
+    } else if (kind === 'FREE_QUIZ' && isWeekly(check)) {
+      html += weeklySummaryHtml(r, check, pct);
     } else if (kind === 'FREE_QUIZ') {
       html += '<div class="jp-result__score">' + esc(pct) + '%</div>'
-        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu. Quiz tự do không tính tiến độ và CP.</p>';
+        + '<p class="jp-result__title" id="jp-result-title" tabindex="-1">Đúng ' + esc(r.correct) + '/' + esc(r.total) + ' câu.' + (pct < 50 ? ' Cần từ 50% để tính là đã ôn xong: xem lại câu sai rồi làm lại.' : '') + '</p>';
     } else {
       html += '<div class="jp-result__score' + tone + '">' + esc(pct) + '%</div><p class="jp-result__title" id="jp-result-title" tabindex="-1">';
       if (r.passed === true) html += '<b>Đạt</b> (cần ≥ ' + PASS_PERCENT + '%)';
@@ -660,8 +793,11 @@
     var n = r.next;
     // The server decides: RETRY = a new set is offered; every other next (also a wrong SKIP_ONE kept on its card) continues.
     var failed = !!(n && n.action === 'RETRY');
+    // walkthrough 25/11: a quiz under 50% does not count, so "Làm lại" leads and moving on is the quiet choice
+    var lowQuiz = kind === 'FREE_QUIZ' && !isWeekly(check) && pct < 50 && !failed && !o.embedded;
+    if (lowQuiz) html += '<button type="button" class="jp-btn jp-btn--primary" data-action="retry">Làm lại quiz</button>';
     if (!o.embedded && n && n.action !== 'RETRY' && !failed && (n.url || !o.inline)) {
-      html += '<button type="button" class="jp-btn jp-btn--primary" data-action="continue">' + esc(n.label || 'Tiếp tục') + ' ' + icon('arrow-right') + '</button>';
+      html += '<button type="button" class="jp-btn' + (lowQuiz ? '' : ' jp-btn--primary') + '" data-action="continue">' + esc(n.label || 'Tiếp tục') + '</button>';
     }
     if (failed && !o.embedded) {
       html += '<button type="button" class="jp-btn" data-action="review-cards">Xem lại thẻ các mục sai</button>'
@@ -671,7 +807,7 @@
       html += '<button type="button" class="jp-link-btn" data-action="review-wrong" aria-expanded="' + (o.reviewOpen ? 'true' : 'false')
         + '">Xem lại câu sai</button>';
     }
-    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning">Về lộ trình học</a>';
+    if (!n && !failed && !o.inline && !o.embedded) html += '<a class="jp-btn" href="/learning?view=jlpt">Về lộ trình học</a>';
     return html + '</div><p class="jp-status" role="status" data-part="result-status"></p></section>';
   }
 
@@ -728,6 +864,7 @@
         }
       }
       if (has(a.explanation)) html += '<p class="jp-check__explain">' + esc(a.explanation) + '</p>';
+      html += aiSlotHtml(check && check.token, q.id);
       html += '</li>';
     });
     if (!boardNotes.length && !html) return '<p class="jp-status">Không có câu sai.</p>';
@@ -803,7 +940,7 @@
     var reviewOpen = false;
 
     el.setAttribute('aria-busy', 'true');
-    el.innerHTML = '<p class="jp-status" role="status">Đang tải bài kiểm tra…</p>';
+    el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài kiểm tra…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
 
     function saver() {
       if (!env.saver && D()) env.saver = D().createSaver({ send: function (m, u, b) { return env.api.send(m, u, b); } });
@@ -819,6 +956,9 @@
       if (!d || typeof d.createElement !== 'function' || !el.parentNode || !el.parentNode.insertBefore) return null;
       var p = d.createElement('p');
       p.className = 'jp-sr-only';
+      // probe L3: hidden even where the page's sr-only rule is missing or overridden
+      p.setAttribute('style', 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;'
+        + 'clip:rect(0 0 0 0);white-space:nowrap;border:0');
       p.setAttribute('aria-live', 'polite');
       p.setAttribute('data-jpath-check-live', '');
       el.parentNode.insertBefore(p, el.nextSibling || null);
@@ -868,8 +1008,13 @@
       if (state.index >= state.questions.length) { stopTicker(); submit(); return; }
       var q = current(state);
       if (q && !finished(state, q)) state.qStartedMs = questionStart(env.storage, token, q.id, state.qStartedMs);
+      var stalledHtml = q && state.stalled && state.stalled[q.id] && !state.answers[q.id]
+        && !Object.prototype.hasOwnProperty.call(state.pending, q.id)
+        ? '<div class="jp-check__error" role="alert" data-part="timeout-failed"><p>' + esc(MSG_TIMEOUT_FAILED) + '</p>'
+          + '<button type="button" class="jp-btn jp-btn--primary" data-action="timeout-retry">Thử lại</button></div>'
+        : '';
       el.innerHTML = '<div class="jp-check">' + headerHtml(check, state) + questionHtml(q, questionState(state, q), display)
-        + '<p class="jp-status" role="status" data-part="status"></p></div>';
+        + stalledHtml + '<p class="jp-status" role="status" data-part="status"></p></div>';
       el.setAttribute('aria-busy', 'false');
       if (D()) D().rendered(el, env.doc);
       restoreFocus();
@@ -898,15 +1043,68 @@
       draw();
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/answers', r.request).then(function (res) {
         if (!alive) return;
-        announce(res && res.correct ? 'Đúng rồi!' : (r.request.value === null ? 'Hết giờ.' : 'Chưa đúng.'));
-        state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res }).state;
-        env.tone(res && res.correct ? 'correct' : 'wrong', display);
+        var retryPractice = res && !res.correct && res.correctValue == null && RETRY_PRACTICE_KINDS[state.kind]
+          && !res.checkClosed && res.lockedValue == null;
+        if (retryPractice) restartQuestionTimer(env.storage, token, r.request.questionId, env.now());
+        state = answerReduce(state, { type: 'RESULT', questionId: r.request.questionId, result: res,
+          nowMs: env.now() }).state;
+        var lockedElsewhere = !!(state.answers[r.request.questionId] || {}).lockedElsewhere;
+        var said = lockedElsewhere ? MSG_LOCKED_ELSEWHERE
+          : (res && res.correct ? 'Đúng rồi!' : (r.request.value === null ? 'Hết giờ.' : 'Chưa đúng.'));
+        announce(said);
+        if (!lockedElsewhere) env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
-      }, function () {
+        if (retryPractice) status('Chưa đúng. Hãy chọn lại để tiếp tục.');
+        if (lockedElsewhere) {
+          status(MSG_LOCKED_ELSEWHERE);
+          // the other tab may have submitted already — then the result is shown here too
+          if (res && res.checkClosed) { showClosed(); }
+        }
+      }, function (err) {
         if (!alive) return;
         state = answerReduce(state, { type: 'FAIL', questionId: r.request.questionId }).state;
+        if (err && err.code === 'JPATH_CHECK_CLOSED') { showClosed(); return; }
+        draw();
+        if (r.request.value !== null) status(MSG_SEND_FAILED);
+      });
+    }
+
+    /** F138: the check was submitted elsewhere (another tab) or its time is over — stop and say so once. */
+    function showClosed() {
+      stopTicker();
+      stopKeys();
+      el.setAttribute('aria-busy', 'false');
+      el.innerHTML = CLOSED_HTML;
+    }
+
+    function sendPick(req) {
+      env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/pick', req).then(function (res) {
+        if (!alive) return;
+        announce(res && res.correct ? 'Đúng một cặp.' : 'Sai cặp, chọn lại.');
+        var out = boardReduce(state, { type: 'PICK_RESULT', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId,
+          result: res });
+        state = out.state;
+        env.tone(res && res.correct ? 'correct' : 'wrong', display);
+        draw();
+        if (res && !res.correct) {
+          env.setTimeout(function () {
+            if (!alive) return;
+            state = boardReduce(state, { type: 'FLASH_END', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId }).state;
+            draw();
+          }, FLASH_MS);
+        }
+        if (finished(state, current(state))) {
+          env.setTimeout(function () { if (alive) next(); }, BOARD_DONE_MS);
+        } else if (out.request) {
+          sendPick(out.request);
+        }
+      }, function () {
+        if (!alive) return;
+        var out = boardReduce(state, { type: 'PICK_FAIL', boardId: req.boardId });
+        state = out.state;
         draw();
         status(MSG_SEND_FAILED);
+        if (out.request) sendPick(out.request);
       });
     }
 
@@ -914,26 +1112,7 @@
       var r = boardReduce(state, ev);
       state = r.state;
       draw();
-      if (!r.request) return;
-      var req = r.request;
-      env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/pick', req).then(function (res) {
-        if (!alive) return;
-        announce(res && res.correct ? 'Đúng một cặp.' : 'Sai cặp, chọn lại.');
-        state = boardReduce(state, { type: 'PICK_RESULT', boardId: req.boardId, leftId: req.leftId, rightId: req.rightId,
-          result: res }).state;
-        env.tone(res && res.correct ? 'correct' : 'wrong', display);
-        draw();
-        if (res && !res.correct) {
-          env.setTimeout(function () { if (!alive) return; state = boardReduce(state, { type: 'FLASH_END', boardId: req.boardId }).state; draw(); }, FLASH_MS);
-        } else if (finished(state, current(state))) {
-          env.setTimeout(function () { if (alive) next(); }, BOARD_DONE_MS);
-        }
-      }, function () {
-        if (!alive) return;
-        state = boardReduce(state, { type: 'PICK_FAIL', boardId: req.boardId }).state;
-        draw();
-        status(MSG_SEND_FAILED);
-      });
+      if (r.request) sendPick(r.request);
     }
 
     function next() {
@@ -960,6 +1139,7 @@
       if (!(n = closestAttr(target, 'data-action', el))) return;
       var action = n.getAttribute('data-action');
       if (action === 'next') return next();
+      if (action === 'timeout-retry') return sendAnswer({ type: 'TIMEOUT', questionId: q.id, nowMs: env.now() });
       if (action === 'play-audio') return env.playAudio(n.getAttribute('data-audio'));
       if (action === 'submit-order') return sendAnswer({ type: 'CHOOSE', questionId: q.id, value: (state.placed[q.id] || []).join(','), nowMs: env.now() });
       if (action === 'submit-fill') {
@@ -976,6 +1156,7 @@
 
     function onKey(ev) {
       if (!state || state.index >= state.questions.length) return;
+      if (ev.isComposing || ev.keyCode === 229) return;
       if (env.inline && env.doc && el.contains && !el.contains(env.doc.activeElement)) return;
       var t = ev.target;
       var tag = t && t.tagName ? String(t.tagName).toUpperCase() : '';
@@ -1001,14 +1182,22 @@
 
     function load() {
       el.setAttribute('aria-busy', 'true');
+      // probe L8: the check is drawn as soon as it arrives; the display settings are applied when they come
       var settings = env.api.get(BASE + '/settings').then(null, function () { return null; });
-      return Promise.all([env.api.get(BASE + '/checks/' + encodeURIComponent(token)), settings]).then(function (res) {
+      return env.api.get(BASE + '/checks/' + encodeURIComponent(token)).then(function (got) {
         if (!alive) return;
-        check = res[0] || {};
-        display = (res[1] && res[1].display) || {};
-        if (D()) D().applyDisplay(el, display);
+        check = got || {};
+        var back = skillSessionHref(check);
+        if (back && !env.embedded && !env.inline) { env.navigate(back); return; }
+        display = {};
         state = initState(check, env.now());
         draw();
+        return Promise.resolve(settings).then(function (st) {
+          if (!alive || !st || !st.display) return;
+          display = st.display;
+          if (D()) D().applyDisplay(el, display);
+          if (!result && !submitting) draw();
+        });
       }, function (err) {
         if (!alive) return;
         el.setAttribute('aria-busy', 'false');
@@ -1027,7 +1216,7 @@
       submitting = true;
       if (retryTimer !== null) { env.clearTimeout(retryTimer); retryTimer = null; }
       el.setAttribute('aria-busy', 'true');
-      el.innerHTML = '<p class="jp-status" role="status">Đang nộp bài…</p>';
+      el.innerHTML = '<div class="jp-card jp-check__submitting" role="status"><p class="jp-status">Đang nộp bài…</p></div>';
       var body = { submitKey: submitKey(token, env.storage, env.uuid) };
       env.api.send('POST', BASE + '/checks/' + encodeURIComponent(token) + '/submit', body).then(function (res) {
         if (!alive) return;
@@ -1049,8 +1238,7 @@
         } else if (err && err.code === 'JPATH_CHECK_INCOMPLETE') {
           load();
         } else if (err && err.code === 'JPATH_CHECK_CLOSED') {
-          el.innerHTML = '<div class="jp-check__error jp-card" role="alert"><p>Bài kiểm tra này đã đóng.</p>'
-            + '<a class="jp-btn" href="/learning">Về lộ trình học</a></div>';
+          el.innerHTML = CLOSED_HTML;
         } else {
           el.innerHTML = errorHtml(err);
         }
@@ -1058,6 +1246,7 @@
     }
 
     function drawResult() {
+      announce('');
       var html = resultHtml(result, check, { inline: env.inline, embedded: env.embedded, reviewOpen: reviewOpen });
       if (reviewOpen) html += reviewWrongHtml(check, state);
       el.innerHTML = '<div class="jp-check jp-check--result">' + html + '</div>';
@@ -1070,6 +1259,9 @@
       stopKeys();
       el.setAttribute('aria-busy', 'false');
       drawResult();
+      if (Number(res && res.cpAwarded) > 0 && root && root.RewardFX && typeof root.RewardFX.refreshChip === 'function') {
+        root.RewardFX.refreshChip(true);
+      }
       if (env.onDone) env.onDone(res);
       if (env.onResult) env.onResult(res);
       resolveDone(res);
@@ -1091,13 +1283,16 @@
       }).catch(function (err) {
         if (button) button.disabled = false;
         var p = el.querySelector && el.querySelector('[data-part="result-status"]');
-        if (p) p.textContent = (err && err.message) || MSG_LOAD_FAILED;
+        if (p) p.textContent = (err && (err.code || err.status) && err.message) || MSG_LOAD_FAILED;
       });
     }
 
     function resultAction(n) {
       var action = n.getAttribute('data-action');
-      if (action === 'continue') env.navigate(nextHref(result, env.location && env.location.search));
+      if (action === 'continue') {
+        env.navigate(nextHref(result, env.location && env.location.search,
+          check && (check.tab || (check.issue && check.issue.tab))));
+      }
       else if (action === 'review-wrong') { reviewOpen = !reviewOpen; drawResult(); }
       else if (action === 'review-cards') {
         var dlg = root && root.JpathDialog;
@@ -1129,20 +1324,33 @@
     return mount(el, token, o);
   }
 
+  /**
+   * One back action on the check page. Owner 22/11: the crumb "Quay về Lộ trình JLPT" already goes back to the path,
+   * so the extra button is hidden. Owner 23/11: inside a study round the crumb itself goes back to the round
+   * ("Quay lại buổi học") instead of a second button next to "Quay về Lộ trình JLPT".
+   */
+  function setBackLinks(d, search) {
+    var backUrl = nextHref(null, search);
+    var exitLink = d.querySelector('[data-check-exit]');
+    if (exitLink) exitLink.hidden = true;
+    if (!/\/learning\/jlpt\/study/.test(backUrl)) return;
+    var crumb = d.querySelector('.jp-check-topBar .jp-back');
+    if (crumb) {
+      crumb.setAttribute('href', backUrl);
+      var label = crumb.querySelector('span');
+      if (label) label.textContent = 'Quay lại buổi học';
+    } else if (exitLink) {
+      exitLink.setAttribute('href', backUrl);
+      exitLink.textContent = 'Quay lại buổi học';
+      exitLink.hidden = false;
+    }
+  }
+
   function mountPage(doc) {
     var d = doc || (root && root.document);
     var el = d && d.getElementById && d.getElementById('jpathCheckRoot');
     if (!el) return null;
-    if (d && d.querySelector && root && root.location) {
-      var exitLink = d.querySelector('[data-check-exit]');
-      if (exitLink) {
-        var backUrl = nextHref(null, root.location.search);
-        exitLink.setAttribute('href', backUrl);
-        if (/\/learning\/jlpt\/study/.test(backUrl)) {
-          exitLink.textContent = '← Quay lại buổi học';
-        }
-      }
-    }
+    if (d && d.querySelector && root && root.location) setBackLinks(d, root.location.search);
     return mount(el, el.getAttribute('data-check-token') || '', {});
   }
 
@@ -1153,8 +1361,8 @@
 
   return { KIND_TITLE: KIND_TITLE, initState: initState, parts: parts, headerHtml: headerHtml, boardReduce: boardReduce,
     answerReduce: answerReduce, orderReduce: orderReduce, questionState: questionState, questionHtml: questionHtml,
-    timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
+    setBackLinks: setBackLinks, timerRemaining: timerRemaining, timerActive: timerActive, advance: advance, errorHtml: errorHtml,
     timerOffPatch: timerOffPatch, audioUrl: audioUrl, questionStart: questionStart, submitKey: submitKey, resultHtml: resultHtml,
     reviewWrongHtml: reviewWrongHtml, retryRequest: retryRequest, nextHref: nextHref, checkPageUrl: checkPageUrl,
-    safeReturn: safeReturn, mount: mount, mountPage: mountPage, mountInline: mountInline };
+    safeReturn: safeReturn, skillSessionHref: skillSessionHref, wrongLine: wrongLine, mount: mount, mountPage: mountPage, mountInline: mountInline };
 });

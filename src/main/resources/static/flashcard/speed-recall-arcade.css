@@ -65,7 +65,7 @@
 #jlabBasePage.speed-recall-page #jlabBaseContent #playing[data-feedback="TIMEOUT"] .sr-feedback { background: #fff3da; border-color: #dfb457; color: #70400b; }
 #jlabBasePage.speed-recall-page #jlabBaseContent #playing[data-feedback="WRONG"] .sr-feedback { background: #fff0ef; border-color: #e5a19b; color: #90261e; }
 #jlabBasePage.speed-recall-page #jlabBaseContent #playing #feedback-title { font-size: 18px; }
-#jlabBasePage.speed-recall-page #jlabBaseContent #playing #feedback-score { font-weight: 700; }
+#jlabBasePage.speed-recall-page #jlabBaseContent #playing #feedback-score { font-weight: 600; }
 #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next { background: var(--sr-violet); border-color: var(--sr-violet); box-shadow: 0 3px 0 #34205f; }
 #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-next:hover { color: #fff; background: #6750a4; }
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-game-next kbd { padding: 2px 5px; color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.4); border-radius: 4px; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1.4; }
@@ -211,30 +211,6 @@
 /* Page-owned dark mode: flashcard/speed-recall-arcade.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent {
     --sr-violet: var(--dm-flashcard-accent);
     --sr-violet-light: var(--dm-flashcard-accent);
@@ -538,7 +514,7 @@ html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #setup 
   background: var(--filter-surface);
   border: 1px solid var(--filter-line);
   border-radius: 12px;
-  font: 500 16px/1.4 "Plus Jakarta Sans", sans-serif;
+  font: 500 16px/1.4 var(--font-body);
   text-align: left;
   cursor: pointer;
 }
@@ -568,13 +544,13 @@ html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #setup 
   background: transparent;
   border: 0;
   border-radius: 8px;
-  font: 500 14px/1.5 "Plus Jakarta Sans", sans-serif;
+  font: 500 14px/1.5 var(--font-body);
   text-align: left;
   overflow-wrap: anywhere;
   cursor: pointer;
 }
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__option:is(:hover, .is-focused, [aria-selected="true"]) { color: var(--filter-accent); background: var(--filter-active); }
-#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__option[aria-selected="true"] { font-weight: 700; }
+#jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__option[aria-selected="true"] { font-weight: 600; }
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter__trigger:focus-visible { outline: 3px solid var(--filter-accent); outline-offset: 2px; }
 html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-filter {
   --filter-surface: var(--dm-flashcard-surface, #171b26);
@@ -593,3 +569,18 @@ html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-fil
   #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__help { padding-top: 12px; }
   #jlabBasePage.speed-recall-page #jlabBaseContent #setup .sr-setup__segments button { min-width: 0; overflow-wrap: anywhere; }
 }
+
+/* Dark: no light "clay lip" under the boxes. Those 2–5px bands are lilac on white, but on the plum page they read
+   as white underlines (play card, timer, letter slots, answer box, result stats, review rows). Soft shadows stay. */
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing { box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22); }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-correct,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-stats,
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #result .sr-review li { box-shadow: none; }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slot.is-active { box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+/* The answer box is an input: palette input fill and border (it was the old navy flashcard surface). */
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-free-answer { background: var(--dark-input); border-color: var(--dark-input-line); }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-slots.is-free.is-mistake .sr-free-answer { border-color: var(--dark-danger-line); }
+html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent #playing .sr-game-timer { background: var(--dark-surface); border-color: var(--dark-line); }

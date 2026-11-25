@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * [JLAS-W0108] Plan 3 pages of Đọc · Nghe: the skill session ({@code /learning/jlpt/skills/session/{id}}) and the timed
@@ -33,7 +35,7 @@ public class JpathSkillPageController {
             return blocked;
         }
         if (id <= 0) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("sessionId", id);
         return "jlptpath/skill-session";
@@ -46,10 +48,19 @@ public class JpathSkillPageController {
             return blocked;
         }
         if (token == null || !TOKEN.matcher(token).matches()) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("token", token);
         return "jlptpath/skill-section";
+    }
+
+    /**
+     * F142: a malformed id in the address ({@code ?session=abc}, {@code /session/abc}) goes back to the path instead
+     * of the raw 400 JSON envelope of the API handler.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public String malformedAddress() {
+        return "redirect:/learning?view=jlpt";
     }
 
     String guard(UserPrincipal user) {
@@ -57,7 +68,7 @@ public class JpathSkillPageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         return null;
     }

@@ -3,6 +3,24 @@
   if (!document.getElementById('verbApp')) return;
   if (window.JlasAuth && !window.JlasAuth.requireLogin('/practice/verbs')) return;
   var $ = function (id) { return document.getElementById(id); };
+  var ruleTabs = Array.from(document.querySelectorAll('.vp-rules-tabs [role="tab"]'));
+  function selectRuleTab(tab, focus) {
+    ruleTabs.forEach(function (item) {
+      var selected = item === tab;
+      item.setAttribute('aria-selected', String(selected)); item.tabIndex = selected ? 0 : -1;
+      $(item.getAttribute('aria-controls')).hidden = !selected;
+    });
+    if (focus) tab.focus();
+  }
+  $('vpOpenRules').addEventListener('click', function () { $('vpRulesDialog').showModal(); });
+  ruleTabs.forEach(function (tab, index) {
+    tab.addEventListener('click', function () { selectRuleTab(tab, false); });
+    tab.addEventListener('keydown', function (event) {
+      var next = event.key === 'ArrowRight' ? (index + 1) % ruleTabs.length : event.key === 'ArrowLeft' ? (index + ruleTabs.length - 1) % ruleTabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? ruleTabs.length - 1 : -1;
+      if (next < 0) return;
+      event.preventDefault(); selectRuleTab(ruleTabs[next], true);
+    });
+  });
   // Inline icons keep the practice interface usable without an external icon font.
   function renderIcons(root) {
     var paths = {
@@ -45,6 +63,10 @@
   ];
   var state = { mode: 'INPUT', forms: ['MASU','TE','NAI','TA'], data: null, session: null, question: null,
     feedback: false, finishFailed: false, sending: false, choice: '', timer: null, deadline: 0, lastSettings: null, view: 'home' };
+  var initialForms = Array.from(document.querySelectorAll('.vp-form-chips input')).map(function (input) {
+    return { id: input.value, label: input.nextElementSibling.textContent, description: input.parentElement.title, advanced: input.closest('#vpAdvancedForms') !== null };
+  });
+  function availableForms() { return state.data ? state.data.forms : initialForms; }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function mode(id) { return modes.find(function(m) { return m.id === id; }) || modes[1]; }
   function notice(message) { $('vpNotice').textContent = message || ''; $('vpNotice').hidden = !message; }
@@ -57,18 +79,22 @@
     return result.data;
   }
   function renderModes() {
-    $('vpModes').innerHTML = modes.map(function(m) { return '<button type="button" class="vp-mode" data-mode="' + m.id + '" aria-pressed="' + (state.mode === m.id) + '"><span class="vp-icon ' + m.color + '"><i class="fa-solid fa-' + m.icon + '" aria-hidden="true"></i></span><div><strong>' + m.name + '</strong><small>' + m.hint + '</small></div><i class="fa-solid fa-circle-check vp-mode-check" aria-hidden="true"></i></button>'; }).join('');
+    var canReview = state.data && state.data.mistakes > 0;
+    if (state.data && !canReview && state.mode === 'REVIEW') state.mode = 'INPUT';
+    $('vpModes').innerHTML = modes.map(function (item) {
+      var disabled = item.id === 'REVIEW' && !canReview;
+      return '<option value="' + item.id + '"' + (state.mode === item.id ? ' selected' : '') +
+        (disabled ? ' disabled' : '') + '>' + item.name + (disabled && state.data ? ' (chưa có lỗi sai)' : '') + '</option>';
+    }).join('');
     $('vpModeName').textContent = mode(state.mode).name;
     $('vpModeHint').textContent = state.mode === 'SPEED' ? '60 giây, không giới hạn ở số lượt đã chọn.' : state.mode === 'CHAIN' ? 'Các thể đã chọn xuất hiện lần lượt cho mỗi động từ.' : mode(state.mode).hint;
     $('vpCount').disabled = state.mode === 'SPEED';
-    renderIcons($('vpModes'));
   }
   function renderForms() {
-    if (!state.data) return;
     [false,true].forEach(function(advanced) {
-      $(advanced ? 'vpAdvancedForms' : 'vpBasicForms').innerHTML = state.data.forms.filter(function(f) { return f.advanced === advanced; }).map(function(f) { return '<label title="' + esc(f.description) + '"><input type="checkbox" value="' + f.id + '" ' + (state.forms.indexOf(f.id) >= 0 ? 'checked' : '') + ' /><span>' + esc(f.label) + '</span></label>'; }).join('');
+      $(advanced ? 'vpAdvancedForms' : 'vpBasicForms').innerHTML = availableForms().filter(function(f) { return f.advanced === advanced; }).map(function(f) { return '<label title="' + esc(f.description) + '"><input type="checkbox" value="' + f.id + '" ' + (state.forms.indexOf(f.id) >= 0 ? 'checked' : '') + ' /><span>' + esc(f.label) + '</span></label>'; }).join('');
     });
-    $('vpSelectAll').textContent = state.forms.length === state.data.forms.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả';
+    $('vpSelectAll').textContent = state.forms.length === availableForms().length ? 'Bỏ chọn tất cả' : 'Chọn tất cả';
   }
   function ring(id, percent) { $(id).style.setProperty('--percent', Math.max(0,Math.min(100,percent)) + '%'); }
   function renderDashboard(d) {
@@ -76,19 +102,51 @@
       var option=Array.from($('vpLevel').options).find(function(o){return o.value===level.id;});
       if(option)option.textContent=level.id;
     });
-    $('vpToday').textContent = d.today;
-    ring('vpTodayRing',d.today / 20 * 100);
-    $('vpTodayRing').setAttribute('aria-valuenow',Math.min(20,d.today));
-    $('vpTodayHint').textContent = d.today >= 20 ? 'Bạn đã hoàn thành nhịp luyện hôm nay. Thật đều đặn!' : 'Thêm ' + (20-d.today) + ' lượt để chạm mốc hôm nay.';
-    var weak = d.forms.filter(function(f) { return f.attempts > 0; }).sort(function(a,b) { return a.correct/a.attempts - b.correct/b.attempts; }).slice(0,3);
-    $('vpWeakForms').innerHTML = weak.length ? weak.map(function(f) { var p = Math.round(f.correct/f.attempts*100); return '<div class="vp-weak-item"><div><span>' + esc(f.label) + '</span><b>' + p + '% · ' + f.attempts + ' lượt</b></div><div class="vp-progress-track"><i style="width:' + p + '%"></i></div></div>'; }).join('') : '<p class="vp-muted">Tiến độ sẽ xuất hiện sau vòng luyện đầu tiên. Bắt đầu nhẹ nhàng với thể て nhé.</p>';
     $('vpResume').hidden = !d.active;
     renderForms(); renderModes();
   }
   async function load() {
     $('vpReload').hidden = true;
-    try { state.data = await api(''); renderDashboard(state.data); $('vpSetupFields').disabled = false; notice(''); }
+    $('vpSetupForm').setAttribute('aria-busy', 'true');
+    $('vpStart').disabled = true; $('vpStart').textContent = 'Đang chuẩn bị…';
+    try {
+      state.data = await api(''); renderDashboard(state.data); applyPreset();
+      if ($('vpSetupFields')) $('vpSetupFields').disabled = false;
+      notice('');
+    }
     catch (e) { notice(e.message); $('vpReload').hidden = false; }
+    finally {
+      $('vpSetupForm').setAttribute('aria-busy', 'false');
+      $('vpStart').disabled = !state.data;
+      $('vpStart').textContent = 'Bắt đầu luyện';
+    }
+  }
+  // [JLAS-W0108] learning path link: ?forms=TE,NAI&level=N5&back=/learning/... preselects the forms and level
+  // of the grammar lesson and shows a way back; the practice itself is unchanged
+  var preset = (function () {
+    var q = new URLSearchParams(window.location.search);
+    var back = q.get('back') || '';
+    if (!/^\/learning(\/|\?|$)/.test(back) || back.indexOf('//') >= 0) back = '';
+    return { forms: (q.get('forms') || '').split(',').map(function (f) { return f.trim().toUpperCase(); }).filter(Boolean),
+      level: (q.get('level') || '').toUpperCase(), back: back, label: q.get('from') || '' };
+  })();
+  function backLink() {
+    var a = document.createElement('a');
+    a.className = 'vp-path-back'; a.href = preset.back;
+    a.style.cssText = 'display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:8px 14px;border-radius:999px;border:1px solid currentColor;font-weight:600;text-decoration:none;';
+    a.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về lộ trình' + (preset.label ? ' · ' + esc(preset.label) : '');
+    return a;
+  }
+  function applyPreset() {
+    if (preset.applied) return; preset.applied = true;
+    var known = (state.data.forms || []).map(function (f) { return f.id; });
+    var forms = preset.forms.filter(function (f) { return known.indexOf(f) >= 0; });
+    if (forms.length) { state.forms = forms; renderForms(); }
+    if (preset.level && Array.from($('vpLevel').options).some(function (o) { return o.value === preset.level; })) $('vpLevel').value = preset.level;
+    if (preset.back) {
+      var setup = $('vpSetupForm'); if (setup) setup.parentNode.insertBefore(backLink(), setup);
+      var res = $('vpResultList'); if (res && res.parentNode) res.parentNode.appendChild(backLink());
+    }
   }
   function show(view) {
     state.view = view;
@@ -97,7 +155,7 @@
   }
   function settings() { return { mode: state.mode, forms: state.forms.slice(), group: Number($('vpGroup').value), level: $('vpLevel').value, count: Number($('vpCount').value) }; }
   async function start(custom) {
-    if (state.sending) return;
+    if (state.sending || !state.data) return;
     var config = custom || settings();
     if (!config.forms.length) { notice('Chọn ít nhất một thể để bắt đầu nhé.'); return; }
     state.sending = true; $('vpStart').disabled = true; $('vpAgain').disabled = true; $('vpReviewMistakes').disabled = true; notice('');
@@ -128,6 +186,7 @@
     $('vpSessionCorrect').textContent = s.correct + ' đúng';
     $('vpProgressBar').style.width = (s.mode === 'SPEED' ? Math.min(100,s.answered/20*100) : s.answered/s.total*100) + '%';
     $('vpQuestionGroup').textContent = 'Nhóm ' + q.group + ' · ' + q.level;
+    if(window.LearningReport)$('vpReport').innerHTML=window.LearningReport.buttonHtml('verb-question',q.id,'Báo cáo câu luyện chia thể');
     $('vpChainHint').textContent = s.mode === 'CHAIN' ? 'Chia lần lượt từng thể' : '';
     $('vpTargetForm').textContent = q.formLabel;
     $('vpWord').textContent = q.word; $('vpReading').textContent = q.reading; $('vpReading').hidden = !$('vpShowReading').checked;
@@ -142,6 +201,7 @@
     $('vpAnswerActions').hidden = false; $('vpFeedback').hidden = true; $('vpNext').hidden = true;
     setTimer();
     if (choice) $('vpWord').focus({preventScroll:true}); else $('vpAnswer').focus({preventScroll:true});
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }
   async function submit(skip) {
     if (state.sending || state.feedback || state.view !== 'play') return;
@@ -185,9 +245,12 @@
     $('vpResultList').innerHTML = s.results.length ? s.results.map(function(a) { return '<div class="vp-result-row ' + (a.correct ? '' : 'is-wrong') + '"><span aria-label="' + (a.correct ? 'Đúng' : 'Sai') + '">' + (a.correct ? '✓' : '↻') + '</span><div><b lang="ja">' + esc(a.verb) + '</b><small>' + esc(a.form) + '</small></div><div>' + (!a.correct ? '<del lang="ja">' + esc(a.supplied) + '</del>' : '') + '<p lang="ja">' + esc(a.expected) + '</p><small lang="ja">' + esc(a.expectedReading) + '</small></div></div>'; }).join('') : '<p class="vp-muted">Bạn chưa trả lời câu nào trong vòng này.</p>';
     $('vpResultTitle').focus({preventScroll:true});
   }
-  $('vpModes').addEventListener('click',function(e) { var button=e.target.closest('[data-mode]'); if(button){state.mode=button.dataset.mode;renderModes();} });
-  $('vpSetupForm').addEventListener('change',function(e) { if (e.target.matches('.vp-form-chips input')) { state.forms=Array.from(document.querySelectorAll('.vp-form-chips input:checked')).map(function(i){return i.value;}); $('vpSelectAll').textContent=state.forms.length===state.data.forms.length?'Bỏ chọn tất cả':'Chọn tất cả'; } });
-  $('vpSelectAll').addEventListener('click',function() { state.forms=state.forms.length===state.data.forms.length?[]:state.data.forms.map(function(f){return f.id;});renderForms(); });
+  $('vpModes').addEventListener('change', function () {
+    state.mode = $('vpModes').value;
+    renderModes();
+  });
+  $('vpSetupForm').addEventListener('change',function(e) { if (e.target.matches('.vp-form-chips input')) { state.forms=Array.from(document.querySelectorAll('.vp-form-chips input:checked')).map(function(i){return i.value;}); $('vpSelectAll').textContent=state.forms.length===availableForms().length?'Bỏ chọn tất cả':'Chọn tất cả'; } });
+  $('vpSelectAll').addEventListener('click',function() { state.forms=state.forms.length===availableForms().length?[]:availableForms().map(function(f){return f.id;});renderForms(); });
   $('vpSetupForm').addEventListener('submit',function(e) { e.preventDefault();start(); });
   $('vpAnswerForm').addEventListener('submit',function(e) { e.preventDefault();submit(false); });
   $('vpAnswer').addEventListener('keydown',function(e) { if(e.key==='Enter'&&(e.isComposing||e.keyCode===229))e.preventDefault(); });
@@ -205,4 +268,5 @@
   document.addEventListener('keydown',function(e){if(state.view!=='play'||state.sending||e.isComposing||$('vpExitDialog').open)return;if(state.feedback&&e.key==='Enter'&&e.target!==$('vpNext')){e.preventDefault();$('vpNext').click();}else if(!state.feedback&&state.session.mode==='CHOICE'&&/^[1-4]$/.test(e.key)){var b=$('vpChoices').children[Number(e.key)-1];if(b)b.click();}});
   window.addEventListener('pagehide',clearTimer);
   renderIcons($('verbApp'));renderModes();load();
+  if(window.LearningReport)window.LearningReport.register('verb-question',function(id){return state.view==='play'&&state.session&&state.question&&state.question.id===id?{targetType:'VERB_QUESTION',page:'VERB_PRACTICE',sessionId:state.session.id,questionId:id,label:state.question.word+' → '+state.question.formLabel}:null;});
 })();

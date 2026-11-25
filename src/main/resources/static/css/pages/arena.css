@@ -1487,7 +1487,7 @@ html:has(.arena-body),
   flex-direction: column;
 }
 
-.ar-step--deck [data-deck-picker] {
+.ar-step--deck .ar-setup-picker:not([hidden]) {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -1572,6 +1572,11 @@ html:has(.arena-body),
 .ar-step--deck .ar-deck__thumb {
   width: 44px;
   height: 44px;
+}
+
+.ar-step--deck [data-level-list] .ar-deck__thumb {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .ar-step--deck .ar-deck__count {
@@ -1931,20 +1936,13 @@ html:has(.arena-body),
   gap: 8px;
 }
 
-/* Hai mục chia đều và phủ hết bề ngang. */
-.ar-seg.ar-shop-tabs {
-  display: grid;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  width: 100%;
+/* Kiểu tab lấy từ UI kit, chỉ đặt khoảng cách với lưới sản phẩm. */
+.ar-shop-tabs {
   margin-bottom: 20px;
 }
 
-.ar-shop-tabs button {
-  min-height: 46px;
-  padding: 6px 12px;
-  white-space: normal;
-  line-height: 1.2;
+#jlabBasePage.arena-standard.jl-ui-kit .ar-shop-tabs button:focus-visible {
+  outline-offset: -3px;
 }
 
 .ar-shop-grid {
@@ -2113,6 +2111,16 @@ html:has(.arena-body),
   flex: 1;
   flex-direction: column;
   padding: 14px 16px 16px;
+}
+
+/* Two cards per row on a phone leave ~145px: the action wraps instead of running past the card edge. */
+.ar-shop-item__body .ar-btn {
+  min-width: 0;
+  max-width: 100%;
+  padding-inline: 10px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
 }
 
 .ar-shop-item h2 {
@@ -2686,8 +2694,17 @@ html[data-theme="dark"] .pv-card__front {
     background: linear-gradient(160deg, var(--dm-arena-action), var(--dm-arena-action));
     color:var(--dark-on-button)
 }
+/* A matched pair turns dark green, so its text goes light (it stayed the dark button ink: black on green). */
 html[data-theme="dark"] .pv-card.is-matched .pv-card__front {
-    background: linear-gradient(160deg, var(--dm-arena-success-bg), var(--dm-arena-success-bg))
+    border-color: var(--dm-arena-success-line);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--dm-arena-success-line) 55%, var(--dm-arena-success-bg)), var(--dm-arena-success-bg));
+    color: var(--dark-ink)
+}
+/* ❄ is a blue colour emoji on Windows that ignores color; draw its shape in the lilac accent through a shadow
+   (a filter would also recolour the plum card behind it). */
+html[data-theme="dark"] .pv-card__back {
+    color: transparent;
+    text-shadow: 0 0 0 var(--dm-arena-accent)
 }
 html[data-theme="dark"] .ar-preview--air-defense::before {
     background-image: radial-gradient(1.5px 1.5px at 20px 30px, var(--dm-arena-surface), transparent),
@@ -2788,7 +2805,8 @@ html[data-theme="dark"] .arena-body .ar-btn--primary:hover{background:#8468c8;co
   }
   .ar-hub .ar-join__row .ar-btn:focus-visible { outline: 2px solid currentColor; outline-offset: -5px; }
   .ar-hub .ar-join__submit-text { display: none; }
-  .ar-hub .ar-join__submit-icon { display: block; width: 20px; height: 20px; }
+  /* The global svg max-width: 100% resolved against the padded button and left the icon 0px wide (empty button). */
+  .ar-hub .ar-join__submit-icon { display: block; flex: none; width: 20px; max-width: none; height: 20px; }
   .ar-hub .ar-join__row .ar-btn[data-loading="true"] .ar-join__submit-icon { display: none; }
   .ar-hub .ar-join > .ar-error-text { margin-top: 6px; }
 }
@@ -2863,4 +2881,754 @@ html[data-theme="dark"] .ar-shop-item__art--frames {
 }
 .vs__avatar-host.has-frame {
   margin: 0 10px;
+}
+
+/* ================= /games: two sections — play alone (Kana Connect) and play with others ================= */
+.ar-hub-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-bottom: 28px;
+}
+
+.ar-hub-head h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 1.3rem + 1.6vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.ar-hub-section + .ar-hub-section {
+  margin-top: 40px;
+}
+
+.ar-hub-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 32px;
+  margin-bottom: 16px;
+}
+
+.ar-hub-section__title {
+  margin: 0 0 16px;
+  font-size: clamp(1.25rem, 1.05rem + .7vw, 1.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ar-hub-section__head .ar-hub-section__title {
+  margin-bottom: 0;
+}
+
+/* Kana Connect: one wide card; the art is a small kana board with "かな" picked out, as in the game. */
+.ar-solo-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px 28px;
+  padding: 20px 24px 20px 20px;
+  border: 2px solid var(--ar-line);
+  border-radius: var(--ar-radius);
+  background: var(--ar-paper);
+  box-shadow: var(--ar-clay);
+  color: var(--ar-ink);
+  text-decoration: none;
+  transition: transform 180ms var(--ar-ease), border-color 180ms var(--ar-ease);
+}
+
+.ar-solo-card:hover {
+  border-color: var(--ar-accent);
+  transform: translateY(-2px);
+}
+
+.ar-solo-card:focus-visible {
+  outline: none;
+  box-shadow: var(--ar-focus);
+}
+
+.ar-solo-card__art {
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  gap: 6px;
+  padding: 10px;
+  border-radius: var(--ar-radius-md);
+  background: var(--ar-accent-soft);
+}
+
+.ar-solo-card__art span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--ar-paper);
+  color: var(--ar-ink);
+  font-family: var(--ar-jp);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ar-solo-card__art span:nth-child(-n+2) {
+  background: var(--ar-accent);
+  color: var(--ar-on-accent);
+}
+
+.ar-solo-card__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ar-solo-card .ar-game-card__tag {
+  color: var(--ar-accent);
+}
+
+.ar-solo-card__name {
+  font-family: var(--ar-display);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ar-solo-card__text {
+  max-width: 62ch;
+  color: var(--ar-muted);
+  line-height: 1.5;
+}
+
+.ar-solo-card__cta {
+  min-width: 120px;
+  pointer-events: none;
+}
+
+/* Multiplayer games: the whole card opens that game's lobby. */
+.ar-game-card--link .ar-game-card__tag {
+  display: block;
+}
+
+.ar-game-card--link {
+  color: var(--ar-ink);
+  text-decoration: none;
+  transition: transform 180ms var(--ar-ease), border-color 180ms var(--ar-ease);
+}
+
+.ar-game-card--link:hover {
+  border-color: var(--game);
+  transform: translateY(-3px);
+}
+
+.ar-game-card--link:focus-visible {
+  outline: none;
+  box-shadow: var(--ar-focus);
+}
+
+.ar-game-card__name {
+  display: block;
+  margin: 0 0 6px;
+  font-family: var(--ar-display);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ar-game-card__modes {
+  color: var(--ar-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1024px) {
+  .ar-game-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .ar-hub-section + .ar-hub-section {
+    margin-top: 28px;
+  }
+
+  .ar-hub-section__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ar-hub .ar-hub-section__head .ar-join {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .ar-hub-head {
+    margin-bottom: 20px;
+  }
+
+  .ar-solo-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px 16px;
+    padding: 14px;
+  }
+
+  .ar-solo-card__art {
+    grid-template-columns: repeat(3, 26px);
+    gap: 4px;
+    padding: 6px;
+    border-radius: 12px;
+  }
+
+  .ar-solo-card__art span {
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .ar-solo-card__name {
+    font-size: var(--text-xl);
+  }
+
+  .ar-solo-card__text {
+    font-size: 14px;
+  }
+
+  .ar-solo-card__cta {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .ar-game-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  /* Phones: a compact row per game (picture left, name right) so all three fit without long scrolling. */
+  .ar-game-card--link {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .ar-game-card--link .ar-game-card__art {
+    height: 100%;
+    min-height: 92px;
+    aspect-ratio: auto;
+    border-right: 2px solid var(--ar-line);
+    border-bottom: 0;
+  }
+
+  .ar-game-card--link .ar-game-card__body {
+    padding: 12px 14px;
+  }
+
+  .ar-game-card--link .ar-game-card__name {
+    font-size: var(--text-xl);
+    margin-bottom: 2px;
+  }
+
+  .ar-game-card--link .ar-game-card__modes {
+    font-size: 13px;
+  }
+}
+
+/* ================= /games/lobby: the game is fixed; step 1 = mode, step 2 = deck ================= */
+.ar-step--mode {
+  gap: 0;
+}
+
+.ar-setup-game {
+  --game: var(--ar-accent);
+  --game-soft: var(--ar-accent-soft);
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(180px, 1fr) auto;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 2px solid var(--ar-line);
+  border-radius: var(--ar-radius-md);
+  background: var(--ar-paper);
+}
+
+.ar-setup-game--neko { --game: var(--ar-neko); --game-soft: var(--ar-neko-soft); }
+.ar-setup-game--memory { --game: var(--ar-memory); --game-soft: var(--ar-memory-soft); }
+.ar-setup-game--air-defense { --game: var(--ar-air); --game-soft: var(--ar-air-soft); }
+
+.ar-setup-game:empty {
+  display: none;
+}
+
+.ar-setup-game__art {
+  position: relative;
+  grid-column: 1 / -1;
+  min-height: 0;
+  overflow: hidden;
+  border-bottom: 2px solid var(--ar-line);
+  background: var(--game-soft);
+}
+
+.ar-setup-game__art::before {
+  content: "";
+  display: block;
+  aspect-ratio: 23 / 10;
+}
+
+.ar-setup-game__art .ar-preview {
+  position: absolute;
+  inset: 0;
+}
+
+.ar-setup-game__art .ar-preview,
+.ar-setup-game__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ar-setup-game__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+.ar-setup-game__tag {
+  color: var(--game);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ar-setup-game__text strong {
+  font-family: var(--ar-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+.ar-setup-game__change {
+  align-self: center;
+  margin-right: 16px;
+  color: var(--ar-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ar-setup-game__change:hover {
+  text-decoration: underline;
+}
+
+/* Modes share the same row. The available choices fill its width. */
+.ar-mode-list {
+  display: grid;
+  grid-template-columns: repeat(var(--ar-mode-count, 3), minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ar-mode-list button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-height: 72px;
+  margin: 0;
+  padding: 14px;
+  border: 2px solid var(--ar-line);
+  border-radius: 14px;
+  background: var(--ar-paper);
+  color: var(--ar-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms var(--ar-ease), background-color 160ms var(--ar-ease);
+}
+
+.ar-mode-list button:hover {
+  border-color: var(--ar-line-strong);
+}
+
+.ar-mode-list button i {
+  width: 22px;
+  margin-top: 2px;
+  text-align: center;
+  color: var(--ar-accent);
+  font-size: 18px;
+}
+
+.ar-mode-list button strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.ar-mode-list button small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ar-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ar-mode-list button[aria-checked="true"] {
+  border-color: var(--ar-accent);
+  background: var(--ar-accent-soft);
+}
+
+.ar-mode-list button:focus-visible {
+  outline: none;
+  box-shadow: var(--ar-focus);
+}
+
+@media (max-width: 1180px) {
+  .ar-mode-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Phones and tablets: one step per screen; the game is a short banner above the modes. */
+@media (max-width: 900px) {
+  .ar-setup-game {
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    align-items: center;
+    flex: none;
+  }
+
+  .ar-setup-game__art {
+    grid-column: auto;
+    height: 72px;
+    border-right: 2px solid var(--ar-line);
+    border-bottom: 0;
+  }
+
+  .ar-setup-game__art::before { display: none; }
+
+  .ar-setup-game__text {
+    padding: 10px 12px;
+  }
+
+  .ar-setup-game__text strong {
+    font-size: var(--text-lg, 1.125rem);
+  }
+
+  /* The small banner only needs the name; the tagline wrapped to three lines there. */
+  .ar-setup-game__tag {
+    display: none;
+  }
+
+  .ar-setup-game__change {
+    margin-right: 12px;
+    font-size: 14px;
+  }
+
+  .ar-mode-list button {
+    min-height: 64px;
+  }
+}
+
+/* Kana Connect card: the board plays itself like the real game (game-previews.js, scene "kana-connect").
+   Same look as /kana-connect: white cells in a beige frame, a purple snake with chevrons while dragging, a lime
+   snake and filled word slots once a word is found. Colours mirror the --kc-* tokens of kana-connect.css. */
+.ar-solo-card__art.ar-preview--kana-connect {
+  --pv-kc-wall: #d8d3cb;
+  --pv-kc-frame-edge: #8e8981;
+  --pv-kc-cell: #ffffff;
+  --pv-kc-grid: #e6e2dc;
+  --pv-kc-ink: #1d1a24;
+  --pv-kc-accent: #6544cf;
+  --pv-kc-active: #e4dafd;
+  --pv-kc-active-edge: #8e6ff0;
+  --pv-kc-found: #b5d33f;
+  --pv-kc-found-edge: #8cad22;
+  --pv-kc-found-ink: #26330a;
+  --pv-kc-slot: #e9e5df;
+  --pv-kc-cell-size: 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  overflow: hidden;
+}
+
+html[data-theme="dark"] .ar-solo-card__art.ar-preview--kana-connect {
+  --pv-kc-wall: var(--dark-raised, #3a2f45);
+  --pv-kc-frame-edge: var(--dark-line, #5a4a66);
+  --pv-kc-cell: var(--dark-surface, #2b2233);
+  --pv-kc-grid: rgba(255, 255, 255, .09);
+  --pv-kc-ink: var(--dark-ink, #f3ecf7);
+  --pv-kc-accent: var(--dark-accent, #dcaee8);
+  --pv-kc-active: rgb(220 174 232 / 30%);
+  --pv-kc-active-edge: var(--dark-accent, #dcaee8);
+  --pv-kc-found: #9cbd2c;
+  --pv-kc-found-edge: #c4e05a;
+  --pv-kc-found-ink: #172005;
+  --pv-kc-slot: rgba(255, 255, 255, .1);
+}
+
+.pv-kc-frame {
+  flex: none;
+  padding: 5px;
+  border: 2px solid var(--pv-kc-frame-edge);
+  border-radius: 10px;
+  background: var(--pv-kc-wall);
+}
+
+.pv-kc-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, var(--pv-kc-cell-size));
+  grid-template-rows: repeat(3, var(--pv-kc-cell-size));
+}
+
+/* Cells touch, with thin grid lines, as on the real board. The letter sits above the snake, the white cell below. */
+.ar-solo-card__art .pv-kc-tile,
+.ar-solo-card__art .pv-kc-tile:nth-child(-n+2) {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: var(--pv-kc-cell);
+  box-shadow: inset 0 0 0 .5px var(--pv-kc-grid), 0 0 0 .5px var(--pv-kc-grid);
+  color: var(--pv-kc-ink);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.pv-kc-tile b {
+  position: relative;
+  z-index: 3;
+  font-weight: inherit;
+}
+
+.pv-kc-tile.is-picked {
+  color: var(--pv-kc-ink);
+}
+
+/* Dark mode: the dragged snake is light lavender, so its letters go dark to stay readable. */
+html[data-theme="dark"] .pv-kc-tile.is-picked {
+  color: #1d1a24;
+}
+
+.pv-kc-tile.is-found {
+  color: var(--pv-kc-found-ink);
+}
+
+.pv-kc-snakes {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pv-kc-snakes polyline {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pv-kc-snake__edge { stroke-width: 80; }
+.pv-kc-snake__fill { stroke-width: 72; }
+.pv-kc-snake--active .pv-kc-snake__edge { stroke: var(--pv-kc-active-edge); }
+.pv-kc-snake--active .pv-kc-snake__fill { stroke: var(--pv-kc-active); }
+.pv-kc-snake--found .pv-kc-snake__edge { stroke: var(--pv-kc-found-edge); }
+.pv-kc-snake--found .pv-kc-snake__fill { stroke: var(--pv-kc-found); }
+
+.pv-kc-snake__arrow {
+  stroke: var(--pv-kc-found-ink);
+  stroke-width: 5;
+  opacity: .7;
+}
+
+.pv-kc-snake--active .pv-kc-snake__arrow {
+  stroke: var(--pv-kc-accent);
+}
+
+.pv-kc-snake--found {
+  animation: pv-kc-found 360ms ease-out;
+}
+
+@keyframes pv-kc-found {
+  0% { opacity: .4; }
+  100% { opacity: 1; }
+}
+
+.ar-preview--kana-connect.is-complete .pv-kc-board {
+  animation: pv-kc-cheer 600ms ease-out;
+}
+
+@keyframes pv-kc-cheer {
+  0%, 100% { transform: none; }
+  40% { transform: scale(1.04); }
+}
+
+/* The finger: a soft dot that follows the drag. (The card styles every span of the art as a tile; reset that.) */
+.ar-solo-card__art .pv-kc-finger {
+  display: block;
+  aspect-ratio: auto;
+  font-size: 0;
+  position: absolute;
+  z-index: 4;
+  width: 20px;
+  height: 20px;
+  margin: 4px 0 0 4px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: rgba(30, 20, 50, .45);
+  box-shadow: 0 3px 10px rgba(30, 20, 50, .35);
+  opacity: 0;
+  pointer-events: none;
+  transition: left 280ms ease, top 280ms ease, opacity 200ms ease;
+}
+
+.pv-kc-finger.is-on {
+  opacity: 1;
+}
+
+.ar-preview--kana-connect.is-paused .pv-kc-finger {
+  opacity: 0;
+}
+
+/* Beside the board: progress or the kana being dragged, the word slots, and the meaning of the last word. */
+.pv-kc-side {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  min-width: 78px;
+}
+
+.pv-kc-status {
+  color: var(--ar-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.pv-kc-status.is-selecting {
+  color: var(--pv-kc-accent);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 15px;
+  letter-spacing: .06em;
+}
+
+.pv-kc-status.is-done {
+  color: var(--pv-kc-found-edge);
+}
+
+.pv-kc-words {
+  display: grid;
+  gap: 5px;
+}
+
+.pv-kc-word {
+  display: flex;
+  gap: 3px;
+}
+
+.ar-solo-card__art .pv-kc-slot,
+.ar-solo-card__art .pv-kc-slot:nth-child(-n+2) {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  aspect-ratio: auto;
+  border-radius: 5px;
+  background: var(--pv-kc-slot);
+  color: var(--pv-kc-found-ink);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ar-solo-card__art .pv-kc-slot.is-found {
+  background: var(--pv-kc-found);
+  box-shadow: inset 0 0 0 1.5px var(--pv-kc-found-edge);
+}
+
+.pv-kc-gloss {
+  min-height: 15px;
+  color: var(--ar-muted);
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.pv-kc-gloss b {
+  color: var(--ar-ink);
+  font-family: "Yu Gothic", "Meiryo", var(--ar-jp), sans-serif;
+  font-size: 12px;
+}
+
+.pv-kc-gloss.is-on {
+  animation: pv-kc-gloss 1000ms ease-out forwards;
+}
+
+@keyframes pv-kc-gloss {
+  0% { opacity: 0; transform: translateY(3px); }
+  20%, 100% { opacity: 1; transform: none; }
+}
+
+@media (max-width: 640px) {
+  .ar-solo-card__art.ar-preview--kana-connect {
+    --pv-kc-cell-size: 28px;
+    gap: 8px;
+    padding: 6px 8px 6px 6px;
+  }
+
+  .ar-solo-card__art .pv-kc-tile,
+  .ar-solo-card__art .pv-kc-tile:nth-child(-n+2) {
+    font-size: 14px;
+  }
+
+  .pv-kc-frame {
+    padding: 3px;
+    border-radius: 8px;
+  }
+
+  .ar-solo-card__art .pv-kc-finger {
+    width: 14px;
+    height: 14px;
+    margin: 2px 0 0 2px;
+    border-width: 2px;
+  }
+
+  .pv-kc-side {
+    gap: 4px;
+    min-width: 46px;
+  }
+
+  .pv-kc-status {
+    font-size: 10px;
+  }
+
+  .pv-kc-status.is-selecting {
+    font-size: 12px;
+  }
+
+  .ar-solo-card__art .pv-kc-slot,
+  .ar-solo-card__art .pv-kc-slot:nth-child(-n+2) {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    font-size: 8px;
+  }
+
+  .pv-kc-words {
+    gap: 3px;
+  }
+
+  .pv-kc-gloss {
+    display: none;
+  }
 }

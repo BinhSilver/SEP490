@@ -4,7 +4,7 @@
  * saves tourDone through PUT /api/learning/jlpt/settings when it ends (done or skipped) and drops tour=1.
  *
  * window.JpathTour:
- *   STEPS                               4 frozen steps {target, text}: level, slider, today, skills
+ *   STEPS                               4 frozen steps {target, text}: level, settings, today, skills
  *   shouldStart(path, search)           !path.tourDone || /(^|[?&])tour=1(&|$)/.test(search)
  *   stepHtml(step, i, n)                role="dialog" box: "Bước i/n", text, "Bỏ qua", "Tiếp" / "Xong" on the last step
  *   create({doc, steps, onFinish, reducedMotion}) → {start, next, skip, index}
@@ -24,8 +24,8 @@
   var STEPS = Object.freeze([
     Object.freeze({ target: '[data-tour="level"]',
       text: 'Đây là cấp của bạn: học cấp đang mở, cấp dưới để ôn, cấp trên mở bằng Thi thử JLPT.' }),
-    Object.freeze({ target: '[data-tour="slider"]',
-      text: 'Kéo để chọn số mục mới mỗi ngày cho từng tab; bạn được cập nhật 2 lần mỗi cấp.' }),
+    Object.freeze({ target: '[data-tour="settings"]',
+      text: 'Số từ mới mỗi ngày, ngày nghỉ và bài kiểm tra bỏ qua tuần đã biết nằm trong Cài đặt lộ trình.' }),
     Object.freeze({ target: '[data-tour="today"]',
       text: 'Bấm Học hôm nay để học liền một lượt, hoặc học riêng từng tab nếu muốn chia nhỏ.' }),
     Object.freeze({ target: '[data-tour="skills"]',
@@ -75,6 +75,7 @@
     var at = -1;
     var finished = false;
     var layer = null;
+    var sizeWatch = null;
     var lit = null;
     var back = null;
     var scrim = null;
@@ -99,6 +100,28 @@
       hole.style.left = (r.left - PAD) + 'px';
       hole.style.width = (r.width + 2 * PAD) + 'px';
       hole.style.height = (r.height + 2 * PAD) + 'px';
+      anchorBox(r);
+    }
+
+    // AI 1 #10: on a wide screen the step box sits right next to the lit target (below it, or above when there
+    // is no room), so a new learner sees what the dimmed page is waiting for; phones keep the bottom sheet
+    function anchorBox(r) {
+      var box = layer && layer.querySelector ? layer.querySelector('.jp-tour__box') : null;
+      var vw = win.innerWidth || 0, vh = win.innerHeight || 0;
+      if (!box || !box.style || !win) return;
+      if (!r || vw <= 720) {
+        if (layer.classList) layer.classList.remove('jp-tour--anchored');
+        box.style.top = ''; box.style.left = '';
+        return;
+      }
+      if (layer.classList) layer.classList.add('jp-tour--anchored');
+      var bw = box.offsetWidth || 380, bh = box.offsetHeight || 160, gap = PAD + 12;
+      var top = r.bottom + gap;
+      if (top + bh > vh - 8) top = r.top - gap - bh;
+      if (top < 8) top = Math.max(8, Math.min(vh - bh - 8, r.top + 8));
+      var left = Math.max(8, Math.min(vw - bw - 8, r.left));
+      box.style.top = top + 'px';
+      box.style.left = left + 'px';
     }
 
     /** Re-finds the current target (the page may have repainted it) and re-measures the cut-out. */
@@ -141,6 +164,10 @@
       at = i;
       var step = live[i];
       var el = targetOf(step);
+      // owner 17/11: a step in the hidden mode (Học hôm nay / Tự chọn bài) opens that mode first
+      var part = el && el.closest ? el.closest('[data-mode-part]') : null;
+      var modeCtl = root && root.JpathMode && root.JpathMode.current;
+      if (part && modeCtl && modeCtl.get() !== part.getAttribute('data-mode-part')) modeCtl.set(part.getAttribute('data-mode-part'), false);
       if (el && el.classList) { el.classList.add(TARGET_CLASS); lit = el; }
       if (el && typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' });
@@ -155,6 +182,7 @@
       if (finished) return;
       finished = true;
       unlight();
+      if (sizeWatch) { try { sizeWatch.disconnect(); } catch (e) { /* gone */ } sizeWatch = null; }
       if (doc) doc.removeEventListener('keydown', onKey, true);
       if (win && typeof win.removeEventListener === 'function') {
         win.removeEventListener('resize', place);
@@ -189,6 +217,11 @@
       if (win && typeof win.addEventListener === 'function') {
         win.addEventListener('resize', place);
         win.addEventListener('scroll', place, true);
+      }
+      // owner 17/11: content loading after the guide opened (week-skip box, skeletons) moved the target while the
+      // highlight stayed put — follow any size change of the page
+      if (win && typeof win.ResizeObserver === 'function' && doc.body) {
+        try { sizeWatch = new win.ResizeObserver(function () { place(); }); sizeWatch.observe(doc.body); } catch (e) { sizeWatch = null; }
       }
       doc.addEventListener('keydown', onKey, true);
       show(0);

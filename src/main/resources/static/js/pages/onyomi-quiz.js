@@ -164,6 +164,20 @@
         (feedback.explanation ? '<p>' + escapeHtml(feedback.explanation) + '</p>' : '') + '</div>';
     }
 
+    // Phones keep the question list in a popup, so an answered question offers the way on right under it:
+    // the next question, or back to one still open when this is the last. "Xem kết quả" covers a finished quiz.
+    function nextHtml() {
+      var total = state.questions.length;
+      if (state.index < total - 1) {
+        return '<div class="oy-quiz__next-row"><button class="oy-button oy-button--primary oy-quiz__next--page" type="button"' +
+          ' data-action="forward"><span>Câu tiếp theo</span></button></div>';
+      }
+      var open = state.questions.findIndex(function (question) { return !state.feedback[question.questionId]; });
+      if (open < 0) return '';
+      return '<div class="oy-quiz__next-row"><button class="oy-button oy-button--primary oy-quiz__next--page" type="button"' +
+        ' data-action="go" data-index="' + open + '"><span>Về câu chưa làm</span></button></div>';
+    }
+
     // holds the place of the explanation until the question is answered
     function hintHtml() {
       return '<div class="oy-quiz__hint"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i>' +
@@ -193,9 +207,9 @@
         '<nav class="oy-quiz__steps" aria-label="Chọn câu hỏi">' + steps + '</nav>' +
         '<div class="oy-quiz__nav">' +
         '<button class="oy-button" type="button" data-action="prev" aria-label="Câu trước"' + (state.index === 0 ? ' disabled' : '') + '>' +
-        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Câu trước</span></button>' +
+        '<span>Câu trước</span></button>' +
         '<button class="oy-button" type="button" data-action="forward" aria-label="Câu sau"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
-        '<span>Câu sau</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
+        '<span>Câu sau</span></button>' +
         restartHtml(total - left) + '</div>' +
         (left ? '<p class="oy-quiz__left">Còn ' + left + ' câu chưa làm</p>' : finish) +
         '</aside>' +
@@ -255,9 +269,9 @@
         '<li><i class="oy-exam__swatch is-current"></i>Đang chọn</li></ul>' +
         '<div class="oy-quiz__nav">' +
         '<button class="oy-button" type="button" data-action="prev"' + (state.index === 0 ? ' disabled' : '') + '>' +
-        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Câu trước</span></button>' +
+        '<span>Câu trước</span></button>' +
         '<button class="oy-button oy-button--primary" type="button" data-action="forward"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
-        '<span>Câu sau</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
+        '<span>Câu sau</span></button></div>' +
         submitArea + '</aside>';
     }
 
@@ -293,7 +307,7 @@
         (question.focus ? '<div class="oy-quiz__focus" lang="ja">' + escapeHtml(question.focus) + '</div>' : '') +
         '<p class="oy-quiz__question">' + escapeHtml(question.questionText) + '</p>' +
         (question.questionType === 'FILL_BLANK' ? typingHtml(question, feedback) : optionsHtml(question, feedback)) +
-        (feedback ? feedbackHtml(feedback) : hintHtml()) +
+        (feedback ? feedbackHtml(feedback) + nextHtml() : hintHtml()) +
         '<p class="oy-quiz__alert" role="alert" hidden></p>') +
         sideHtml() + '</div>', true);
       syncPopup(false);

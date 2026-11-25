@@ -13,5 +13,11 @@ import java.util.List;
  */
 public record LaunchRequest(String sessionId, PlayMode mode, String roomId, String roomCode, Long matchId,
                             Long deckId, String deckTitle, DeckField questionField, DeckField answerField,
-                            GameOptions options, List<PlayerSeat> seats, List<GameWord> words) {
+                            GameOptions options, List<PlayerSeat> seats, List<GameWord> words, String jlpt) {
+    public LaunchRequest(String sessionId, PlayMode mode, String roomId, String roomCode, Long matchId,
+                         Long deckId, String deckTitle, DeckField questionField, DeckField answerField,
+                         GameOptions options, List<PlayerSeat> seats, List<GameWord> words) {
+        this(sessionId, mode, roomId, roomCode, matchId, deckId, deckTitle, questionField, answerField,
+                options, seats, words, null);
+    }
 }

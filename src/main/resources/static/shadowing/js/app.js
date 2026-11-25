@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const lessonCategoryBadge = document.getElementById('lesson-category-badge');
     const lessonViewsBadge = document.getElementById('lesson-views-badge');
     const lessonAgeBadge = document.getElementById('lesson-age-badge');
-    const ageRatingSelect = document.getElementById('age-rating-select');
-    const ageRatingStatus = document.getElementById('age-rating-status');
     const transcriptCount = document.getElementById('transcript-count');
     const favoriteBtn = document.getElementById('favorite-btn');
     const shareBtn = document.getElementById('share-btn');
@@ -60,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : `/api/videos/${videoId}/stream`;
     }
 
-    /** Age badge for everyone; the picker exists only for the owner and moderators (canRateAge). */
+    /** Age badge for everyone; the owner changes the rating on the subtitle editor page. */
     function applyAgeRating(minAge) {
         const age = Number(minAge) || 0;
         if (lessonAgeBadge) {
@@ -68,32 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lessonAgeBadge.textContent = age ? age + '+' : '';
             lessonAgeBadge.title = age ? `Dành cho người từ ${age} tuổi trở lên` : '';
         }
-        if (ageRatingSelect) {
-            ageRatingSelect.value = String(age);
-            ageRatingSelect.dataset.saved = String(age);
-        }
     }
-
-    ageRatingSelect?.addEventListener('change', async () => {
-        ageRatingSelect.disabled = true;
-        ageRatingStatus.textContent = 'Đang lưu…';
-        try {
-            const res = await fetch(`/api/videos/${videoId}/age-rating`, {
-                method: 'PUT',
-                headers: headers(),
-                body: JSON.stringify({ minAge: Number(ageRatingSelect.value) })
-            });
-            const body = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(body.message || body.error || 'Chưa lưu được nhãn độ tuổi.');
-            applyAgeRating(body.minAge);
-            ageRatingStatus.textContent = 'Đã lưu';
-        } catch (e) {
-            ageRatingSelect.value = ageRatingSelect.dataset.saved || '0';
-            ageRatingStatus.textContent = e.message;
-        } finally {
-            ageRatingSelect.disabled = false;
-        }
-    });
 
     let videoMeta = null;
     let isFavorited = false;
@@ -245,14 +218,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** Reactions a learner can leave on a comment (same list as CommentThreadRepository.REACTIONS). */
     const COMMENT_REACTIONS = [
-        { key: 'LIKE', emoji: '👍', label: 'Thích' },
-        { key: 'LOVE', emoji: '❤️', label: 'Yêu thích' },
-        { key: 'HAHA', emoji: '😂', label: 'Haha' },
-        { key: 'WOW', emoji: '😮', label: 'Wow' },
-        { key: 'SAD', emoji: '😢', label: 'Buồn' },
-        { key: 'CLAP', emoji: '👏', label: 'Hoan hô' }
+        { key: 'LIKE', icon: 'fa-thumbs-up', label: 'Thích' },
+        { key: 'LOVE', icon: 'fa-heart', label: 'Yêu thích' },
+        { key: 'HAHA', icon: 'fa-face-laugh-squint', label: 'Haha' },
+        { key: 'WOW', icon: 'fa-face-surprise', label: 'Wow' },
+        { key: 'SAD', icon: 'fa-face-sad-tear', label: 'Buồn' },
+        { key: 'CLAP', icon: 'fa-hands-clapping', label: 'Hoan hô' }
     ];
     const reactionOf = key => COMMENT_REACTIONS.find(r => r.key === key);
+    const reactionIcon = reaction => reaction ? `<i class="fa-solid ${reaction.icon}" aria-hidden="true"></i>` : '';
 
     function renderComments(comments) {
         if (!commentList) return;
@@ -293,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="comment-react">
                     <button type="button" class="comment-action comment-react-btn" aria-haspopup="true" aria-expanded="false"></button>
                     <div class="comment-react-picker" role="group" aria-label="Thả cảm xúc" hidden>
-                        ${COMMENT_REACTIONS.map(r => `<button type="button" data-reaction="${r.key}" title="${r.label}" aria-label="${r.label}">${r.emoji}</button>`).join('')}
+                        ${COMMENT_REACTIONS.map(r => `<button type="button" data-reaction="${r.key}" title="${r.label}" aria-label="${r.label}">${reactionIcon(r)}</button>`).join('')}
                     </div>
                 </div>
                 <button type="button" class="comment-action comment-reply-btn">Trả lời</button>
@@ -350,16 +324,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function paintReactions(item, reactions, mine) {
         const button = item.querySelector('.comment-react-btn');
         const chosen = reactionOf(mine);
-        button.textContent = chosen ? `${chosen.emoji} ${chosen.label}` : '👍 Thích';
+        button.innerHTML = `${reactionIcon(chosen || reactionOf('LIKE'))}<span>${chosen ? chosen.label : 'Thích'}</span>`;
         button.classList.toggle('is-active', Boolean(chosen));
         item.querySelectorAll('.comment-react-picker [data-reaction]').forEach(b => {
             b.setAttribute('aria-pressed', String(b.dataset.reaction === mine));
         });
         const total = Object.values(reactions).reduce((n, v) => n + Number(v || 0), 0);
         const top = Object.entries(reactions).sort((a, b) => b[1] - a[1]).slice(0, 3)
-            .map(([key]) => reactionOf(key)?.emoji || '').join('');
+            .map(([key]) => reactionIcon(reactionOf(key))).join('');
         const summary = item.querySelector('.comment-reaction-summary');
-        summary.textContent = total ? `${top} ${total}` : '';
+        summary.innerHTML = total ? `${top}<span>${total}</span>` : '';
         summary.title = Object.entries(reactions).map(([key, n]) => `${reactionOf(key)?.label || key}: ${n}`).join(' · ');
     }
 

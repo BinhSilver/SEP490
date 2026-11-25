@@ -58,6 +58,26 @@
     'SERVICE-BOOKING': 'Đặt bàn & đặt phòng'
   };
 
+  // First published situation of each topic in communication-compiled/*.json (owner 11/11, F55).
+  var TOPIC_EXAMPLES = {
+    AIR: 'Làm thủ tục ở sân bay', TRAIN: 'Đổi tàu', HOTEL: 'Nhận phòng khách sạn',
+    FOOD: 'Gọi món ở nhà hàng', SHOP: 'Mua sắm và miễn thuế', TROUBLE: 'Khi bị lạc đường',
+    HOME: 'Thuê phòng', MARKET: 'Đi siêu thị', PUBLIC: 'Làm thủ tục ngân hàng',
+    HEALTH: 'Khám bệnh', SCHOOL: 'Báo nghỉ học', SOCIAL: 'Chuyện hàng xóm',
+    TIME: 'Hỏi giờ mở cửa', PM: 'Báo cáo tiến độ trong họp định kỳ',
+    COM: 'Chào hỏi lần đầu gặp khách hàng', REQ: 'Xác nhận điểm chưa rõ trong đặc tả',
+    DEV: 'Tiếp nhận góp ý code review', TEST: 'Báo cáo kết quả kiểm thử',
+    BUG: 'Tiếp nhận báo lỗi từ khách hàng', OPS: 'Báo cáo sơ bộ sự cố production',
+    'OFFICE-GREETING': 'Chào buổi sáng', 'OFFICE-REPORT': 'Báo cáo tiến độ',
+    'OFFICE-LEAVE': 'Xin nghỉ phép', 'OFFICE-PHONE': 'Nhận điện thoại',
+    'OFFICE-MEETING': 'Chuẩn bị họp', 'FACTORY-SAFETY': 'Đeo đồ bảo hộ',
+    'FACTORY-SHIFT': 'Xác nhận ca làm', 'FACTORY-INSTRUCTION': 'Xác nhận quy trình',
+    'FACTORY-ERROR': 'Báo máy hỏng', 'FACTORY-5S': 'Chỉ thị sắp xếp gọn gàng',
+    'SERVICE-RECEPTION': 'Đón khách đến cửa hàng', 'SERVICE-PRODUCT': 'Giới thiệu sản phẩm mới',
+    'SERVICE-PAYMENT': 'Phương thức thanh toán', 'SERVICE-COMPLAINT': 'Phàn nàn hàng lỗi',
+    'SERVICE-BOOKING': 'Đặt phòng'
+  };
+
   var STEP_META = {
     goal: {
       kitsu: 'kitsu-cheer-30.webp',
@@ -91,6 +111,12 @@
   var IT_FIELD = 'IT_BRSE';
   var BA_TOPICS = ['PM', 'COM', 'REQ', 'DEV', 'TEST', 'BUG', 'OPS'];
   function isJob(goal) { return goal === 'BA' || goal === 'WORK' || goal === JOB; }
+  /** True when {@code goal} (a card code, JOB covers BA/WORK) is the learner's current main comm goal. */
+  function isMainGoal(state, goal) {
+    var main = state && state.secondaryPath ? state.mainGoal : null;
+    if (!main) return false;
+    return goal === JOB || isJob(goal) ? isJob(main) : goal === main;
+  }
   function isOffice(code) { return /OFFICE$/.test(String(code || '')); }
 
   /** The goal cards: Du lịch, Đời sống and one "Công việc" card standing for BA + WORK. */
@@ -138,6 +164,21 @@
     }
   ];
 
+  /** F70: "Mới bắt đầu" also says whether they can read Hiragana/Katakana; not yet = Kana suggestion + full romaji. */
+  function kanaQuestionHtml(state) {
+    if ((state.selfLevel || 'BEGINNER') !== 'BEGINNER') return '';
+    var yes = state.knowsKana === true, no = state.knowsKana === false;
+    return '<fieldset class="cp-survey__kana"><legend>Bạn đã đọc được chữ cái tiếng Nhật (Hiragana, Katakana) chưa?</legend>'
+      + '<div class="cp-survey__kana-opts">'
+      + '<button type="button" class="cp-rest-chip" data-cp-kana="yes" aria-pressed="' + (yes ? 'true' : 'false') + '"><span>Đã đọc được</span></button>'
+      + '<button type="button" class="cp-rest-chip" data-cp-kana="no" aria-pressed="' + (no ? 'true' : 'false') + '"><span>Chưa đọc được</span></button>'
+      + '</div>'
+      + (no ? '<p class="cp-survey__kana-tip">Nên học bảng chữ cái trước, khoảng 1–2 tuần. '
+        + '<a href="/kana-connect" target="_blank" rel="noopener">Mở trò chơi chữ cái</a>. '
+        + 'Nếu bỏ qua, cả lộ trình sẽ hiện <strong>romaji đầy đủ</strong> dưới mọi câu và mọi từ; tắt được trong Cài đặt khi bạn đã đọc được chữ.</p>' : '')
+      + '</fieldset>';
+  }
+
   var DAYS_OF_WEEK = [
     { code: 'MON', label: 'T2', full: 'Thứ hai' },
     { code: 'TUE', label: 'T3', full: 'Thứ ba' },
@@ -155,7 +196,7 @@
   }
 
   function kitsuImgSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function svgCheck() {
@@ -187,7 +228,13 @@
       + '</svg>';
   }
 
-  function topicLabel(code) {
+  function topicLabel(code, goals) {
+    for (var i = 0; i < (goals || []).length; i++) {
+      var topics = goals[i].topics || [];
+      for (var j = 0; j < topics.length; j++) {
+        if (topics[j].code === code && topics[j].nameVi) return topics[j].nameVi;
+      }
+    }
     return TOPIC_LABELS_FALLBACK[code] || code;
   }
 
@@ -207,7 +254,7 @@
       add(['HOME', 'MARKET', 'PUBLIC', 'HEALTH', 'SCHOOL', 'SOCIAL', 'TIME']);
     }
     return codes.map(function (c) {
-      return { code: c, labelVi: topicLabel(c) };
+      return { code: c, labelVi: topicLabel(c, goals), exampleVi: TOPIC_EXAMPLES[c] || '' };
     });
   }
 
@@ -221,11 +268,13 @@
       role: state.secondaryPath ? 'SECONDARY' : 'MAIN',
       fields: fields,
       priorityTopics: (state.priorityTopics || []).slice(),
-      selfLevel: state.selfLevel || 'ELEMENTARY',
-      dailySituations: Number(state.dailySituations) === 1 ? 1 : 2,
+      selfLevel: state.selfLevel || 'BEGINNER',
+      dailySituations: Math.min(4, Math.max(1, Number(state.dailySituations) || 2)),
       restDays: (state.restDays || []).slice()
     };
     if (state.finishDate) payload.finishDate = state.finishDate;
+    // F70 (owner 12/11): a beginner who cannot read Kana yet gets full romaji on the whole path
+    if ((state.selfLevel || 'BEGINNER') === 'BEGINNER' && state.knowsKana === false) payload.knowsKana = false;
     return payload;
   }
 
@@ -235,6 +284,14 @@
     var kind = list[step - 1];
     var total = list.length;
     var meta = STEP_META[kind];
+    if (kind === 'goal' && state.secondaryPath) {
+      meta = {
+        kitsu: STEP_META.goal.kitsu,
+        title: 'Thêm mục tiêu phụ để học tự do',
+        sub: 'Lộ trình chính (' + (state.mainNameVi || state.mainGoal || 'Giao tiếp') + ') vẫn giữ nguyên lịch học hằng ngày. '
+          + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.'
+      };
+    }
     var pct = Math.round((step / total) * 100);
 
     var dotsHtml = list.map(function (k, i) {
@@ -248,13 +305,18 @@
     if (kind === 'goal') {
       var goalCards = displayGoals(goals).map(function (g) {
         var sel = g.goal === JOB ? isJob(state.goal) : state.goal === g.goal;
+        // secondary goal: the main goal cannot be picked again (mentor 11/11)
+        var isMain = isMainGoal(state, g.goal);
+        if (isMain) sel = false;
         var desc = g.goal === 'TRAVEL'
           ? (g.topicCount + ' chủ đề · Sân bay, tàu điện, khách sạn, ăn uống, mua sắm')
           : (g.goal === 'DAILY_LIFE'
             ? (g.topicCount + ' chủ đề · Nhà cửa, siêu thị, hành chính, bệnh viện, trường học')
             : (g.topicCount + ' chủ đề · IT / BrSE, Văn phòng, Nhà máy, Dịch vụ'));
+        if (isMain) desc = 'Đang là lộ trình chính · ' + desc;
         return '<button type="button" class="cp-pill' + (sel ? ' is-selected' : '') + '"'
-          + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '">'
+          + ' data-cp-goal="' + esc(g.goal) + '" aria-pressed="' + (sel ? 'true' : 'false') + '"'
+          + (isMain ? ' disabled title="Đây là lộ trình chính của bạn"' : '') + '>'
           + '<span class="cp-pill__icon">' + svgGoalIcon(g.goal) + '</span>'
           + '<span class="cp-pill__body">'
           + '<span class="cp-pill__label">' + esc(g.nameVi) + '</span>'
@@ -292,7 +354,7 @@
           + '<span class="cp-pill__icon">' + svgTopicIcon() + '</span>'
           + '<span class="cp-pill__body">'
           + '<span class="cp-pill__label">' + esc(t.labelVi) + '</span>'
-          + '<span class="cp-pill__desc">3 tình huống hội thoại</span>'
+          + '<span class="cp-pill__desc">' + esc(t.exampleVi ? 'Ví dụ: ' + t.exampleVi : 'Tình huống hội thoại') + '</span>'
           + '</span>'
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
           + '</button>';
@@ -317,10 +379,12 @@
           + '<span class="cp-pill__check">' + svgCheck() + '</span>'
           + '</button>';
       }).join('');
-      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>';
+      bodyHtml = '<div class="cp-survey__grid" role="group" aria-label="Tự đánh giá trình độ">' + lvCards + '</div>'
+        + kanaQuestionHtml(state);
     } else {
-      var pace1 = Number(state.dailySituations) === 1;
-      var pace2 = Number(state.dailySituations) !== 1;
+      // owner 18/11: 15 phút = 1 tình huống, tối đa 60 phút = 4 (chỉ là ước lượng)
+      var paceN = Math.min(4, Math.max(1, Number(state.dailySituations) || 2));
+      var PACES = [{ n: 1, d: 'Nhẹ nhàng, đều đặn' }, { n: 2, d: 'Vừa sức' }, { n: 3, d: 'Tiến bộ nhanh' }, { n: 4, d: 'Học dồn' }];
       var restChips = DAYS_OF_WEEK.map(function (d) {
         var isRest = state.restDays.indexOf(d.code) >= 0;
         return '<button type="button" class="cp-rest-chip" data-cp-rest="' + d.code + '" aria-pressed="' + (isRest ? 'true' : 'false') + '" title="' + esc(d.full) + '">'
@@ -330,34 +394,43 @@
       }).join('');
       bodyHtml = '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Số tình huống học mỗi ngày</span>'
+        + '<p class="cp-survey__hint">Gợi ý theo trình độ bạn chọn và thời gian rảnh. Bạn có thể chọn nhịp khác.</p>'
         + '<div class="cp-pace-grid">'
-        + '<button type="button" class="cp-pill' + (pace1 ? ' is-selected' : '') + '" data-cp-daily="1" aria-pressed="' + (pace1 ? 'true' : 'false') + '">'
-        + '<span class="cp-pill__body"><span class="cp-pill__label">1 tình huống / ngày</span><span class="cp-pill__desc">Khoảng 15 phút · Nhẹ nhàng, đều đặn</span></span>'
-        + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-        + '</button>'
-        + '<button type="button" class="cp-pill' + (pace2 ? ' is-selected' : '') + '" data-cp-daily="2" aria-pressed="' + (pace2 ? 'true' : 'false') + '">'
-        + '<span class="cp-pill__body"><span class="cp-pill__label">2 tình huống / ngày</span><span class="cp-pill__desc">Khoảng 30 phút · Tiến bộ nhanh</span></span>'
-        + '<span class="cp-pill__check">' + svgCheck() + '</span>'
-        + '</button>'
+        + PACES.map(function (pc) {
+          var on = paceN === pc.n;
+          return '<button type="button" class="cp-pill' + (on ? ' is-selected' : '') + '" data-cp-daily="' + pc.n + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+            + '<span class="cp-pill__body"><span class="cp-pill__label">' + pc.n + ' tình huống / ngày</span><span class="cp-pill__desc">Khoảng ' + (pc.n * 15) + ' phút · ' + pc.d + '</span></span>'
+            + '<span class="cp-pill__check">' + svgCheck() + '</span></button>';
+        }).join('')
         + '</div>'
         + '</div>'
         + '<div class="cp-survey__row">'
         + '<span class="cp-survey__label">Chọn ngày nghỉ trong tuần (bấm để bật/tắt ngày nghỉ)</span>'
         + '<div class="cp-rest-days" role="group" aria-label="Ngày nghỉ trong tuần">' + restChips + '</div>'
+        + (state.restNote ? '<p class="cp-survey__hint" role="status">' + esc(state.restNote) + '</p>' : '')
         + '</div>'
         + '<div class="cp-survey__row">'
         + '<label class="cp-survey__label" for="cpFinishDateInput">Hạn muốn hoàn thành (tùy chọn)</label>'
-        + '<input id="cpFinishDateInput" type="date" class="cp-survey__date-input" data-cp-finish-date value="' + esc(state.finishDate || '') + '" />'
+        + '<input id="cpFinishDateInput" type="date" class="cp-survey__date-input" data-cp-finish-date min="' + (function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() + '" value="' + esc(state.finishDate || '') + '" />'
         + '</div>';
     }
 
+    // owner 17/11: a learner coming from the goal step (no path yet) goes back to that step, not to a path they lack
+    var topBack = typeof document !== 'undefined' && document.querySelector ? document.querySelector('.jp-back') : null;
+    if (topBack && !state.secondaryPath) {
+      topBack.setAttribute('href', '/survey?edit=goal');
+      var lbl = topBack.querySelector('span');
+      if (lbl) lbl.textContent = 'Quay lại chọn mục tiêu';
+    }
     var prevBtn = step > 1
-      ? '<button type="button" class="cp-btn-ghost" data-cp-prev>‹ Quay lại</button>'
-      : '<span></span>';
+      ? '<button type="button" class="cp-btn-ghost" data-cp-prev>Quay lại</button>'
+      // step 1 still goes back: a secondary goal returns to the path, otherwise to the general survey (owner 11/11)
+      : '<a class="cp-btn-ghost" data-cp-back-out href="' + (state.secondaryPath ? '/learning/comm/path' : '/survey?edit=goal') + '">Quay lại</a>';
     var nextBtn = step < total
-      ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục ›</button>'
+      ? '<button type="button" class="cp-btn-primary" data-cp-next>Tiếp tục</button>'
       : '<button type="button" class="cp-btn-primary" data-cp-submit' + (state.submitting ? ' disabled' : '') + '>'
-        + (state.submitting ? 'Đang tạo lộ trình…' : 'Bắt đầu lộ trình giao tiếp') + '</button>';
+        + (state.submitting ? (state.secondaryPath ? 'Đang thêm mục tiêu phụ…' : 'Đang tạo lộ trình…')
+          : (state.secondaryPath ? 'Thêm mục tiêu phụ' : 'Bắt đầu lộ trình giao tiếp')) + '</button>';
 
     return '<section class="cp-survey__card" aria-labelledby="cpSurveyTitle">'
       + '<div class="cp-survey__top">'
@@ -380,6 +453,12 @@
       + '</section>';
   }
 
+  function suggestedDaily(minutes, level) {
+    var base = minutes > 0 ? Math.round(minutes / 15) : 2;
+    var offset = level === 'BEGINNER' ? -1 : level === 'INTERMEDIATE' ? 1 : 0;
+    return Math.max(1, Math.min(4, base + offset));
+  }
+
   function mount(targetEl) {
     var doc = root && root.document;
     var el = targetEl || (doc && doc.getElementById && doc.getElementById('cpathSurveyRoot'));
@@ -391,8 +470,10 @@
       presetGoal: false,
       fields: [],
       priorityTopics: [],
-      selfLevel: 'ELEMENTARY',
-      dailySituations: 2,
+      selfLevel: 'BEGINNER',
+      dailySituations: suggestedDaily(null, 'BEGINNER'),
+      baseMinutes: null,
+      dailyTouched: false,
       restDays: ['SUN'],
       finishDate: '',
       submitting: false,
@@ -409,7 +490,32 @@
       }
     }
 
+    function syncSecondaryGoal() {
+      // F170: changing the secondary goal starts on the one the learner has now (it used to preselect the first other goal)
+      var cur = state.currentSecondary;
+      if (cur && !state.secondaryPicked && !isMainGoal(state, cur)
+          && goalsData.some(function (g) { return g.goal === cur || (isJob(cur) && g.goal === JOB); })) {
+        state.secondaryPicked = true;
+        if (state.goal !== cur) { state.goal = cur; state.fields = []; state.priorityTopics = []; }
+      }
+      if (isMainGoal(state, isJob(state.goal) ? JOB : state.goal)) {
+        var other = displayGoals(goalsData).filter(function (g) { return !isMainGoal(state, g.goal); })[0];
+        if (other) {
+          state.goal = other.goal === JOB ? 'WORK' : other.goal;
+          state.fields = [];
+          state.priorityTopics = [];
+        }
+      }
+      syncDefaultTopics();
+    }
+
+    // [JLAS-W0108] F155: wait for both /comm/goals and /comm/path so neither main-goal flash nor empty goal grid renders
+    var goalsLoaded = false;
+    var pathChecked = false;
+    var loadFailed = false;
+    var redirected = false;
     function render() {
+      if (!goalsLoaded || !pathChecked || loadFailed || redirected) return;
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = surveyHtml(goalsData, state);
     }
@@ -427,7 +533,7 @@
       }
 
       var goalBtn = t.closest('[data-cp-goal]');
-      if (goalBtn) {
+      if (goalBtn && !goalBtn.disabled && !(goalBtn.hasAttribute && goalBtn.hasAttribute('disabled'))) {
         var picked = goalBtn.getAttribute('data-cp-goal') || 'TRAVEL';
         // "Công việc" starts on WORK (office only); the field step picks IT / BrSE or the industries
         if (picked === JOB) { if (!isJob(state.goal)) { state.goal = 'WORK'; state.fields = []; } }
@@ -479,16 +585,25 @@
         return;
       }
 
+      var kanaBtn = t.closest('[data-cp-kana]');
+      if (kanaBtn) {
+        state.knowsKana = kanaBtn.getAttribute('data-cp-kana') === 'yes';
+        render();
+        return;
+      }
+
       var lvBtn = t.closest('[data-cp-level]');
       if (lvBtn) {
-        state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'ELEMENTARY';
+        state.selfLevel = lvBtn.getAttribute('data-cp-level') || 'BEGINNER';
+        if (!state.dailyTouched) state.dailySituations = suggestedDaily(state.baseMinutes, state.selfLevel);
         render();
         return;
       }
 
       var dailyBtn = t.closest('[data-cp-daily]');
       if (dailyBtn) {
-        state.dailySituations = Number(dailyBtn.getAttribute('data-cp-daily')) === 1 ? 1 : 2;
+        state.dailySituations = Math.min(4, Math.max(1, Number(dailyBtn.getAttribute('data-cp-daily')) || 2));
+        state.dailyTouched = true;
         render();
         return;
       }
@@ -499,6 +614,8 @@
         var rIdx = state.restDays.indexOf(dCode);
         if (rIdx >= 0) state.restDays.splice(rIdx, 1);
         else if (state.restDays.length < 6) state.restDays.push(dCode);
+        // bug 17: the 7th day stays a study day; say why instead of ignoring the click
+        state.restNote = rIdx < 0 && state.restDays.indexOf(dCode) < 0 ? 'Cần giữ ít nhất một ngày học trong tuần.' : '';
         render();
         return;
       }
@@ -532,7 +649,7 @@
           if (root.location) root.location.href = '/learning/comm/path';
         }, function (err) {
           state.submitting = false;
-          state.errorMsg = (err && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
+          state.errorMsg = (err && (err.code || err.status) && err.message) ? err.message : 'Chưa tạo được lộ trình. Vui lòng thử lại.';
           render();
         });
       }
@@ -546,6 +663,7 @@
     });
 
     function failLoad() {
+      loadFailed = true;
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = '<section class="cp-survey__card"><p class="jp-alert" role="alert">Chưa tải được danh sách mục tiêu.</p>'
         + '<p><button type="button" class="cp-btn-primary" data-cp-reload>Thử lại</button></p></section>';
@@ -554,52 +672,98 @@
       if (ev.target && ev.target.closest && ev.target.closest('[data-cp-reload]') && root.location) root.location.reload();
     });
 
+    var urlGoal = null;
+    var forceSecondary = false;
+    try {
+      var params = new (root.URLSearchParams || URLSearchParams)(String((root.location && root.location.search) || ''));
+      urlGoal = params.get('goal');
+      forceSecondary = params.get('secondary') === '1';
+    } catch (e) {
+      urlGoal = null;
+      forceSecondary = false;
+    }
+
     root.JpathApi.get('/api/learning/comm/goals').then(function (data) {
       goalsData = Array.isArray(data) ? data : [];
       if (!goalsData.length) { failLoad(); return; }
+      goalsLoaded = true;
       // ?goal= from the general survey (BA = "Công việc", TRAVEL, DAILY_LIFE): that goal is not asked again
-      var want = null;
-      try { want = new root.URLSearchParams(String(root.location.search || '')).get('goal'); } catch (e) { want = null; }
+      var want = urlGoal;
       var has = function (c) { return goalsData.some(function (g) { return g.goal === c; }); };
       function applyPresetGoal() {
-      if (want && isJob(want) && (has('WORK') || has('BA'))) {
-        state.goal = has('WORK') ? 'WORK' : 'BA';
-        state.presetGoal = true;
-      } else if (want && has(want)) {
-        state.goal = want;
-        state.presetGoal = true;
-      }
-      syncDefaultTopics();
-      render();
+        // adding a secondary goal always starts on the goal step; the saved survey goal is the main one
+        if (state.secondaryPath) { syncSecondaryGoal(); render(); return; }
+        if (want && isJob(want) && (has('WORK') || has('BA'))) {
+          state.goal = has('WORK') ? 'WORK' : 'BA';
+          state.presetGoal = true;
+        } else if (want && has(want)) {
+          state.goal = want;
+          state.presetGoal = true;
+        }
+        syncDefaultTopics();
+        render();
       }
       applyPresetGoal();
-      if (!want) {
-        Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
-          var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
-          var saved = savedSurvey && savedSurvey.goal;
-          if (!saved) return;
-          want = saved;
-          applyPresetGoal();
-        }).catch(function () {});
-      }
+      Promise.resolve(root.JpathApi.get('/api/assessment/survey')).then(function (survey) {
+        var savedSurvey = survey && (survey.survey || (survey.data && survey.data.survey));
+        state.baseMinutes = savedSurvey && Number(savedSurvey.dailyStudyMinutes);
+        if (!state.dailyTouched) state.dailySituations = suggestedDaily(state.baseMinutes, state.selfLevel);
+        var saved = savedSurvey && savedSurvey.goal;
+        if (!want && !forceSecondary && saved) { want = saved; applyPresetGoal(); }
+        render();
+      }).catch(function () {});
     }, failLoad);
 
-    // a learner who already has a main goal adds a secondary one here (free study, no daily plan)
+    // [JLAS-W0108] F152/F155: distinguish secondary-goal add (?secondary=1 or plain /survey with existing path)
+    // from main-goal edit (/survey?edit=goal -> /learning/comm/survey?goal=...)
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
-      if (!p || !p.goal) return;
+      if (!p || !p.goal) {
+        pathChecked = true;
+        render();
+        return;
+      }
+      if (!forceSecondary && urlGoal) {
+        if (urlGoal === p.goal || (urlGoal === 'BA' && isJob(p.goal))) {
+          redirected = true;
+          if (root.location) {
+            if (typeof root.location.replace === 'function') root.location.replace('/learning/comm/path');
+            else root.location.href = '/learning/comm/path';
+          }
+          return;
+        }
+        pathChecked = true;
+        render();
+        return;
+      }
       state.secondaryPath = true;
       state.presetGoal = false;
-      STEP_META.goal.title = 'Thêm mục tiêu phụ để học tự do';
-      STEP_META.goal.sub = 'Lộ trình chính (' + (p.nameVi || p.goal) + ') vẫn giữ nguyên lịch học hằng ngày. '
-        + 'Mục tiêu phụ không giao bài theo ngày, bạn học khi muốn; chọn mục tiêu phụ mới sẽ thay mục tiêu phụ cũ.';
+      state.mainGoal = p.goal;
+      state.mainNameVi = p.nameVi || p.goal;
+      state.currentSecondary = p.secondary && p.secondary.goal ? p.secondary.goal : null;
+      if (p.selfLevel === 'BEGINNER' || p.selfLevel === 'ELEMENTARY' || p.selfLevel === 'INTERMEDIATE') {
+        state.selfLevel = p.selfLevel;
+        if (!state.dailyTouched) state.dailySituations = suggestedDaily(state.baseMinutes, state.selfLevel);
+      }
+      if (p.display && typeof p.display.fullRomaji === 'boolean') {
+        state.knowsKana = !p.display.fullRomaji;
+      }
+      state.step = 1;
+      state.errorMsg = '';
+      if (goalsData.length) syncSecondaryGoal();
+      pathChecked = true;
       render();
-    }, function () { /* no main goal yet: this survey makes it */ });
+    }).catch(function () { /* no main goal yet: this survey makes it */ }).then(function () {
+      if (pathChecked || redirected) return;
+      pathChecked = true;
+      render();
+    });
   }
 
   return {
     surveyHtml: surveyHtml,
     buildPayload: buildPayload,
     getAvailableTopics: getAvailableTopics,
+    suggestedDaily: suggestedDaily,
     steps: steps,
     displayGoals: displayGoals,
     mount: mount

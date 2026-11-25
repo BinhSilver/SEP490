@@ -10,13 +10,6 @@
   var arena = global.JlasArena;
   var esc = arena.esc;
   var FIELDS = ['KANJI', 'HIRAGANA', 'MEANING', 'HAN_VIET'];
-  var FIELD_SHORT = { KANJI: 'Kanji', HIRAGANA: 'Đọc', MEANING: 'Nghĩa', HAN_VIET: 'Hán Việt' };
-  var FIELD_HINT = {
-    KANJI: 'Chữ Kanji (hoặc từ tiếng Nhật ở mặt trước thẻ)',
-    HIRAGANA: 'Cách đọc bằng hiragana',
-    MEANING: 'Nghĩa tiếng Việt',
-    HAN_VIET: 'Âm Hán Việt (thẻ nào có thì dùng)'
-  };
   var TABS = [
     { key: 'MINE', label: 'Bộ của tôi' },
     { key: 'RECENT', label: 'Xem gần đây' },
@@ -138,7 +131,7 @@
       + '  </label>'
       + '  <label class="ar-deck-filter" title="Nguồn bộ flashcard: Bộ của tôi">'
       + '    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16l-6 7v7l-4 2v-9L4 4z"/></svg>'
-      + '    <select aria-label="Lọc nguồn bộ flashcard" data-deck-filter>'
+      + '    <select aria-label="Lọc nguồn bộ flashcard" data-deck-filter data-jl-select data-variant="overlay">'
       + TABS.map(function (tab) {
         return '<option value="' + tab.key + '"' + (tab.key === self.tab ? ' selected' : '') + '>' + esc(tab.label) + '</option>';
       }).join('')
@@ -240,11 +233,6 @@
     }
     list.innerHTML = shown.map(function (deck) {
       var checked = self.selected && self.selected.id === deck.id;
-      var coverage = FIELDS.map(function (field) {
-        var count = (deck.coverage && deck.coverage[field]) || 0;
-        return '<span class="ar-chip' + (count ? '' : ' ar-chip--muted') + '" title="' + esc(FIELD_HINT[field]) + '">'
-          + esc(FIELD_SHORT[field]) + ' ' + count + '</span>';
-      }).join('');
       var meta = [];
       meta.push(deck.ownedByMe ? 'Bộ của bạn' : 'của ' + esc(deck.ownerName || '—'));
       meta.push(deck.visibility === 'PUBLIC' ? '<i class="fa-solid fa-earth-asia" aria-hidden="true"></i> Công khai'
@@ -259,8 +247,7 @@
         + '<span class="ar-deck__thumb" aria-hidden="true">' + thumb + '</span>'
         + '<span class="ar-deck__main"><span class="ar-deck__title">' + esc(deck.title) + '</span>'
         + '<span class="ar-deck__meta">' + meta.join(' · ') + '</span>'
-        + '<span class="ar-coverage">' + coverage + '</span></span>'
-        + '<span class="ar-deck__count"><strong>' + deck.cardCount + '</strong> thẻ</span>'
+        + '<span class="ar-coverage"><span class="ar-chip">' + (deck.cardCount || 0) + ' từ</span></span></span>'
         + '</button></li>';
     }).join('');
   };
@@ -351,11 +338,11 @@
     container.innerHTML = ''
       + '<div class="ar-fields">'
       + '  <div><label class="ar-label" for="ar-q-field">Nội dung câu hỏi</label>'
-      + '    <select id="ar-q-field" class="ar-select" data-q>' + options(config.question, null) + '</select></div>'
+      + '    <select id="ar-q-field" class="ar-select" data-q data-jl-select>' + options(config.question, null) + '</select></div>'
       + '  <button type="button" class="ar-icon-btn ar-swap" data-swap aria-label="Đổi chỗ câu hỏi và đáp án" title="Đổi chỗ câu hỏi và đáp án">'
       + '    <i class="fa-solid fa-right-left" aria-hidden="true"></i></button>'
       + '  <div><label class="ar-label" for="ar-a-field">Nội dung đáp án</label>'
-      + '    <select id="ar-a-field" class="ar-select" data-a>' + options(config.answer, config.question) + '</select></div>'
+      + '    <select id="ar-a-field" class="ar-select" data-a data-jl-select>' + options(config.answer, config.question) + '</select></div>'
       + '</div>'
       + (detail ? '<p class="ar-pair-note' + (enough ? '' : ' is-bad') + '" role="status">'
         + (enough

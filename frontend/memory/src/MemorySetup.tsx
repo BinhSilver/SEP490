@@ -19,14 +19,19 @@ function recommendTime(pairs: number): number {
     .reduce((best, s) => (Math.abs(s - target) < Math.abs(best - target) ? s : best))
 }
 
-/** Ô chọn thả xuống (tự vẽ, không dùng <select> mặc định); mức gợi ý có nhãn "Gợi ý". */
-function Dropdown<T extends string | number | null>({ label, value, options, format, onChange, recommended }: {
+/**
+ * Ô chọn thả xuống (tự vẽ, không dùng <select> mặc định); mức gợi ý có nhãn "Gợi ý".
+ * disabledReason: lựa chọn không dùng được bị khoá và ghi lý do ngay dưới. plain: chỉ nhãn + ô, không bọc khung nhóm.
+ */
+function Dropdown<T extends string | number | null>({ label, value, options, format, onChange, recommended, disabledReason, plain = false }: {
   label: string
   value: T
   options: T[]
   format: (option: T) => string
   onChange: (option: T) => void
   recommended?: T
+  disabledReason?: (option: T) => string | null
+  plain?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -44,9 +49,19 @@ function Dropdown<T extends string | number | null>({ label, value, options, for
 
   const tag = (option: T) => recommended !== undefined && option === recommended
     ? <span className="memory-setup__tag">Gợi ý</span> : null
+  const reasonOf = (option: T) => (disabledReason && option !== value ? disabledReason(option) : null)
   const choose = (option: T) => {
+    if (reasonOf(option)) return
     onChange(option)
     setOpen(false)
+  }
+  /** Next usable option from `from` in direction `step` (skips disabled ones). */
+  const nextUsable = (from: number, step: number) => {
+    for (let n = 1; n <= options.length; n += 1) {
+      const index = (from + step * n + options.length * n) % options.length
+      if (!reasonOf(options[index])) return index
+    }
+    return from
   }
   const onKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Escape') { setOpen(false); return }
@@ -54,7 +69,7 @@ function Dropdown<T extends string | number | null>({ label, value, options, for
       event.preventDefault()
       const step = event.key === 'ArrowDown' ? 1 : -1
       if (!open) { setOpen(true); setActive(Math.max(0, options.indexOf(value))); return }
-      setActive((index) => (index + step + options.length) % options.length)
+      setActive((index) => nextUsable(index, step))
       return
     }
     if (event.key === 'Enter' || event.key === ' ') {
@@ -64,8 +79,8 @@ function Dropdown<T extends string | number | null>({ label, value, options, for
     }
   }
 
-  return (
-    <div className="memory-setup__group">
+  const field = (
+    <>
       <span className="memory-setup__label" id={`${listId}-label`}>{label}</span>
       <div className="memory-dd" ref={rootRef}>
         <button type="button" className="memory-dd__trigger" aria-haspopup="listbox" aria-expanded={open}
@@ -76,18 +91,23 @@ function Dropdown<T extends string | number | null>({ label, value, options, for
         </button>
         {open && (
           <ul className="memory-dd__list" role="listbox" id={listId} aria-labelledby={`${listId}-label`}>
-            {options.map((option, index) => (
-              <li key={String(option)} role="option" aria-selected={option === value}
-                className={`${option === value ? 'is-selected' : ''} ${index === active ? 'is-active' : ''}`}
-                onMouseEnter={() => setActive(index)} onMouseDown={(event) => { event.preventDefault(); choose(option) }}>
-                {format(option)}{tag(option)}
-              </li>
-            ))}
+            {options.map((option, index) => {
+              const reason = reasonOf(option)
+              return (
+                <li key={String(option)} role="option" aria-selected={option === value} aria-disabled={reason ? true : undefined}
+                  className={`${option === value ? 'is-selected' : ''} ${index === active ? 'is-active' : ''} ${reason ? 'is-disabled' : ''}`}
+                  onMouseEnter={() => { if (!reason) setActive(index) }} onMouseDown={(event) => { event.preventDefault(); choose(option) }}>
+                  {format(option)}{tag(option)}
+                  {reason && <small className="memory-dd__hint">{reason}</small>}
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>
-    </div>
+    </>
   )
+  return plain ? field : <div className="memory-setup__group">{field}</div>
 }
 
 /** Cảnh báo khi bấm Bắt đầu; kèm cài đặt nên đổi sang (nếu có). */
@@ -107,45 +127,6 @@ function fieldValue(card: DeckCardView, field: DeckField): string | null {
     case 'MEANING': return card.meaning
     default: return card.hanViet
   }
-}
-
-function OptionGroup<T extends string | number | null>({ label, value, options, format, onChange, disabledReason, recommended, stretch = false }: {
-  label: string
-  value: T
-  options: T[]
-  format: (option: T) => string
-  onChange: (option: T) => void
-  disabledReason?: (option: T) => string | null
-  recommended?: T
-  /** Các nút chia đều hết bề ngang, không để khoảng trống. */
-  stretch?: boolean
-}) {
-  return (
-    <div className="memory-setup__group">
-      <span className="memory-setup__label">{label}</span>
-      <div className={`memory-setup__options${stretch ? ' memory-setup__options--stretch' : ''}`} role="radiogroup" aria-label={label}>
-        {options.map((option) => {
-          const selected = option === value
-          const reason = disabledReason ? disabledReason(option) : null
-          return (
-            <button
-              key={String(option)}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              disabled={!!reason && !selected}
-              title={reason ?? undefined}
-              className={selected ? 'is-selected' : ''}
-              onClick={() => onChange(option)}
-            >
-              {format(option)}
-              {recommended !== undefined && option === recommended && <span className="memory-setup__tag">Gợi ý</span>}
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
 }
 
 /**
@@ -236,7 +217,7 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
       <section className="memory-setup__panel" aria-labelledby="memory-setup-title">
         <header className="memory-setup__head">
           <button type="button" className="memory-setup__back" onClick={onBack}>
-            <i className="fa-solid fa-chevron-left" aria-hidden="true" /> Quay về
+            Quay về
           </button>
           <div>
             <p className="memory-kicker">Luyện tập một mình</p>
@@ -246,21 +227,17 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
         </header>
 
         <div className="memory-setup__row memory-setup__row--2">
-          <OptionGroup<DeckField> label="Hỏi bằng" value={question} options={FIELDS} format={(field) => FIELD_LABELS[field]}
+          <Dropdown<DeckField> label="Hỏi bằng" value={question} options={FIELDS} format={(field) => FIELD_LABELS[field]}
             disabledReason={(field) => fieldReason(field, answer)} onChange={setQuestion} />
-          <OptionGroup<DeckField> label="Đáp bằng" value={answer} options={FIELDS} format={(field) => FIELD_LABELS[field]}
+          <Dropdown<DeckField> label="Đáp bằng" value={answer} options={FIELDS} format={(field) => FIELD_LABELS[field]}
             disabledReason={(field) => fieldReason(field, question)} onChange={setAnswer} />
         </div>
 
         <div className="memory-setup__group memory-color-choice">
           <div className="memory-color-choice__row">
-            <label htmlFor="memory-color-mode" className="memory-setup__label">Màu thẻ</label>
-            <select id="memory-color-mode" value={distinguishCardTypes ? 'DISTINCT' : 'SAME'}
-              onChange={(event) => setDistinguishCardTypes(event.target.value === 'DISTINCT')}
-              aria-describedby="memory-color-help">
-              <option value="SAME">Cùng màu</option>
-              <option value="DISTINCT">Hai màu</option>
-            </select>
+            <Dropdown<'SAME' | 'DISTINCT'> plain label="Màu thẻ" value={distinguishCardTypes ? 'DISTINCT' : 'SAME'}
+              options={['SAME', 'DISTINCT']} format={(mode) => (mode === 'DISTINCT' ? 'Hai màu' : 'Cùng màu')}
+              onChange={(mode) => setDistinguishCardTypes(mode === 'DISTINCT')} />
           </div>
           <p id="memory-color-help" className="memory-color-choice__help">
             {distinguishCardTypes

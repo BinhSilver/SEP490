@@ -120,7 +120,7 @@
                                         <span class="material-symbols-outlined" aria-hidden="true">upload</span>
                                         Tải ảnh lên
                                     </button>
-                                    <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn">Gỡ ảnh</button>
+                                    <button type="button" class="btn btn--ghost btn--sm" id="removeAvatarBtn" hidden style="display:none">Gỡ ảnh</button>
                                 </div>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                             </div>
                             <div class="field">
                                 <label class="field__label" for="gender">Giới tính</label>
-                                <select class="select" id="gender">
+                                <select class="select" id="gender" data-jl-select>
                                     <option value="">Chưa chọn</option>
                                     <option value="MALE">Nam</option>
                                     <option value="FEMALE">Nữ</option>
@@ -153,13 +153,13 @@
                             </div>
                             <div class="field">
                                 <label class="field__label" for="japaneseLevel">Mục tiêu trình độ JLPT</label>
-                                <select class="select" id="japaneseLevel">
-                                    <option value="UNKNOWN">Chưa xác định</option>
-                                    <option value="N5">N5</option>
-                                    <option value="N4">N4</option>
-                                    <option value="N3">N3</option>
-                                    <option value="N2">N2</option>
-                                    <option value="N1">N1</option>
+                                <select class="select" id="japaneseLevel" data-jl-select>
+                                    <option value="UNKNOWN" data-tag="?" data-hint="Làm Smart Test sau để biết trình độ của bạn">Chưa xác định</option>
+                                    <option value="N5" data-tag="N5" data-label="Sơ cấp" data-hint="Đọc được hiragana, katakana và câu chào hỏi đơn giản">N5</option>
+                                    <option value="N4" data-tag="N4" data-label="Cơ bản" data-hint="Hiểu hội thoại chậm về chủ đề hằng ngày">N4</option>
+                                    <option value="N3" data-tag="N3" data-label="Trung cấp" data-hint="Đọc bài viết ngắn, theo kịp hội thoại gần tốc độ thật">N3</option>
+                                    <option value="N2" data-tag="N2" data-label="Trung cao cấp" data-hint="Đọc báo, nghe hiểu tin tức và hội thoại tự nhiên">N2</option>
+                                    <option value="N1" data-tag="N1" data-label="Cao cấp" data-hint="Hiểu văn bản phức tạp, trừu tượng ở mọi chủ đề">N1</option>
                                 </select>
                             </div>
                             <div class="field profile-details-form__email">
@@ -523,7 +523,7 @@
     </div>
 </div>
 
-<!-- Popup mức sử dụng theo gói: AI Call, chấm phát âm, tra từ nhanh (js/pages/profile-usage.js) -->
+<!-- Popup mức sử dụng theo gói: AI Call, chấm phát âm, tra từ nhanh, tạo video Shadowing (js/pages/profile-usage.js) -->
 <div class="profile-modal" id="profileUsageModal" hidden>
     <div class="profile-modal__backdrop" data-usage-close></div>
     <div class="profile-card profile-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="profileUsageTitle">
@@ -551,7 +551,7 @@
     window.INITIAL_SECURITY_SECTION = /*[[${securitySection}]]*/ 'home';
 </script>
 <script th:src="@{/js/pages/profile-navigation.js?v=20261011-mobile-popup}"></script>
-<script defer th:src="@{/js/pages/profile-usage.js?v=20261103-auto}"></script>
+<script defer th:src="@{/js/pages/profile-usage.js?v=20261116-no-left}"></script>
 <script th:src="@{/js/components/date-wheel.js?v=20261105-age-range}"></script>
 <script>
 (function () {
@@ -569,12 +569,34 @@
         try { return new Date(iso).toLocaleString('vi-VN'); } catch (e) { return iso; }
     }
 
+    /** Thời gian Pro còn lại: "Còn 22 ngày 5 giờ", "Còn 5 giờ", "Còn dưới 1 giờ" hoặc "Đã hết hạn". */
+    function premiumLeft(iso, now) {
+        if (!iso) return '—';
+        var end = new Date(iso).getTime();
+        if (isNaN(end)) return '—';
+        var hours = Math.floor((end - (now || Date.now())) / 3600000);
+        if (end <= (now || Date.now())) return 'Đã hết hạn';
+        if (hours < 1) return 'Còn dưới 1 giờ';
+        var days = Math.floor(hours / 24);
+        var rest = hours % 24;
+        return 'Còn ' + (days > 0 ? days + ' ngày' + (rest > 0 ? ' ' : '') : '') + (rest > 0 ? rest + ' giờ' : '');
+    }
+
     function completion(user) {
         var fields = [user.fullName, user.email, user.phoneNumber, user.gender, user.japaneseLevel, user.avatar];
         var filled = fields.filter(function (v) {
             return v != null && String(v).trim() !== '' && v !== 'UNKNOWN' && v !== 'PREFER_NOT_TO_SAY';
         }).length;
         return Math.round((filled / fields.length) * 100);
+    }
+
+    /** "Gỡ ảnh" only shows while there is an avatar to remove. */
+    function syncRemoveAvatar() {
+        var btn = document.getElementById('removeAvatarBtn');
+        if (!btn) return;
+        var has = !!document.getElementById('avatarUrl').value.trim();
+        btn.hidden = !has;
+        btn.style.display = has ? '' : 'none';
     }
 
     function fillUser(user) {
@@ -591,7 +613,10 @@
         var banEl = document.getElementById('stBan');
         banEl.textContent = user.isBan ? 'Đã khóa' : 'Hoạt động';
         banEl.className = 'status-pill ' + (user.isBan ? 'status-pill--warn' : 'status-pill--ok');
-        document.getElementById('stPremium').textContent = fmtDate(user.premiumExpiredAt);
+        var premiumEl = document.getElementById('stPremium');
+        premiumEl.textContent = premiumLeft(user.premiumExpiredAt);
+        // Ngày giờ hết hạn đầy đủ khi rê chuột vào.
+        premiumEl.title = user.premiumExpiredAt ? 'Hết hạn lúc ' + fmtDate(user.premiumExpiredAt) : '';
 
         var pct = completion(user);
         document.getElementById('completionPct').textContent = pct + '%';
@@ -605,6 +630,7 @@
         document.getElementById('jlptSealLevel').textContent = user.japaneseLevel && user.japaneseLevel !== 'UNKNOWN'
             ? user.japaneseLevel : '—';
         document.getElementById('avatarUrl').value = user.avatar || '';
+        syncRemoveAvatar();
         document.getElementById('emailReadonly').value = user.email || '';
 
         var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
@@ -742,7 +768,10 @@
     }
 
     document.getElementById('removeAvatarBtn').addEventListener('click', function () {
+        // Nothing to remove without an avatar (the button is hidden then; this guards a stale click).
+        if (!document.getElementById('avatarUrl').value.trim()) return;
         document.getElementById('avatarUrl').value = '';
+        syncRemoveAvatar();
         if (window.JlasUI) JlasUI.toast('Đã gỡ ảnh đại diện (nhấn Lưu thay đổi để xác nhận)', 'info');
     });
 
@@ -860,6 +889,6 @@
 <script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
 <script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
 <script th:src="@{/js/pages/profile-cosmetics.js?v=20261031-popup}"></script>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
 </body>
 </html>

@@ -114,9 +114,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathCheckServiceImpl implements JpathCheckService {
 
+    /** Q5: pass mark of the weekly check, the same as the comm path (CpathService.WEEKLY_PASS). */
+    static final int WEEKLY_PASS_PCT = 80;
+
     static final String ISSUED = "ISSUED";
     static final String SUBMITTED = "SUBMITTED";
     static final String EXPIRED = "EXPIRED";
+    /** Zone of the server timestamp columns (issued_at, submitted_at), as {@link JpathClock#now()} writes them. */
+    private static final java.time.ZoneId SERVER_ZONE = java.time.ZoneId.of("Asia/Ho_Chi_Minh");
     static final String CHECK_ANSWER = "CHECK_ANSWER";
     static final String SKILL_REVIEW = "skillReview";
     static final String SKILL_DAY = "skillDay";
@@ -127,6 +132,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     static final int SKILL_QUIZ_SIZE = 10;
     /** Grammar reviews outside a TODAY round (no plan cap). */
     static final int REVIEW_ROOM_DEFAULT = 10;
+    /** F137: topic/week-known checks allowed per learner study day. */
+    static final int KNOWN_CHECKS_PER_DAY = 3;
     /** Grace on top of the question timer for network latency. */
     static final long TIMER_GRACE_MS = 2000;
 
@@ -136,11 +143,16 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     private static final Set<JpathCheckKind> FREE_KINDS = EnumSet.of(JpathCheckKind.SKIP_ONE,
             JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.FREE_QUIZ, JpathCheckKind.CONFUSABLE,
             JpathCheckKind.GRAMMAR_PRACTICE, JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.WEEK_KNOWN);
+    private static final Set<JpathCheckKind> RETRY_PRACTICE_KINDS = EnumSet.of(JpathCheckKind.MICRO_CHECK,
+            JpathCheckKind.GROUP_EXERCISE, JpathCheckKind.CONFUSABLE, JpathCheckKind.GRAMMAR_PRACTICE,
+            JpathCheckKind.GRAMMAR_EXTRA, JpathCheckKind.GRAMMAR_REVIEW, JpathCheckKind.SKILL_LESSON,
+            JpathCheckKind.SKILL_PRACTICE, JpathCheckKind.SKILL_DICTATION);
     /** Plan 3 skill checks: no item rows, no plan, their own session page. */
     static final Set<JpathCheckKind> SKILL_KINDS = EnumSet.of(JpathCheckKind.SKILL_PRACTICE,
             JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
     /** Plan 3 #40: a timed section refuses answers this long after its deadline (network latency). */
     static final long SECTION_GRACE_SECONDS = 5;
+    static final int SKILL_DAY_QUIZ_PCT = 50;
     static final String SKILL_SESSION_URL = "/learning/jlpt/skills/session/";
     private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
     /** Kinds bound to one item of the step: a check of another item is never reused for them. */
@@ -181,7 +193,18 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
     }
 
-    record Answer(String value, boolean correct, Long elapsedMs) {
+    /**
+     * resolved (F147): a practice question first answered wrong and then answered right. The first miss stays the
+     * stored answer — it is what scores, rates and sends the item to the notebook; resolved only lets the page move on.
+     */
+    record Answer(String value, boolean correct, Long elapsedMs, Boolean resolved) {
+        Answer(String value, boolean correct, Long elapsedMs) {
+            this(value, correct, elapsedMs, null);
+        }
+
+        boolean isResolved() {
+            return Boolean.TRUE.equals(resolved);
+        }
     }
 
     /** matched / wrongLeft: left ids; errors = wrong picks. */
@@ -228,6 +251,10 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     void setPartsService(ObjectProvider<JpathPartsService> partsService) {
         this.partsService = partsService;
     }
+
+    /** F133: Premium for the free checks of N4+ (optional so tests building the service without it still work). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.service.JpathPremiumGate premiumGate;
 
     public JpathCheckServiceImpl(JpathCheckSetRepository checks, JpathUserPathRepository paths,
                                  JpathUserLevelRepository levels, JpathStudySessionRepository sessions,
@@ -280,8 +307,21 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         }
         levels.findForUpdate(path.getId(), path.getOpenLevel());
         Spec spec = free ? freeSpec(userId, path, r, old) : sessionSpec(userId, path, session, r);
+        if (free && old == null && premiumGate != null) {
+            // F133: a free check moves the progress of its level (the open one when it names none): Premium for N4+
+            premiumGate.requireLevel(userId, spec.level() != null ? spec.level() : path.getOpenLevel());
+        }
         if (spec.skip()) {
             return skipStep(userId, spec);
+        }
+
+        if (free && (spec.kind() == JpathCheckKind.TOPIC_KNOWN || spec.kind() == JpathCheckKind.WEEK_KNOWN)) {
+            long usedToday = checks.countByUserIdAndKindInAndIssuedAtGreaterThanEqual(userId,
+                    List.of(JpathCheckKind.TOPIC_KNOWN, JpathCheckKind.WEEK_KNOWN), serverStartOfToday(userId));
+            if (usedToday >= KNOWN_CHECKS_PER_DAY) {
+                throw new ApiException(ErrorCode.CONFLICT,
+                        "Bạn đã dùng đủ 3 lượt 'Tôi biết chủ đề/tuần này' hôm nay. Ngày mai thử lại nhé.");
+            }
         }
 
         JpathCheckSet previous = null;
@@ -301,6 +341,17 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                     writeToken(spec, previous.getToken());
                 }
                 return view(previous);
+            }
+        }
+
+        if (spec.kind() == JpathCheckKind.SKIP_ONE) {
+            JpathCheckSet open = requireOneTryToday(userId,
+                    spec.session() != null ? spec.step().itemCode() : r.itemCode());
+            if (open != null && spec.session() == null) {
+                // F131: a second click or tab gets the open check of the item, so one wrong answer is the day's try;
+                // nothing was answered on it yet, so its question time starts again now
+                open.setIssuedAt(clock.now());
+                return view(open);
             }
         }
 
@@ -480,7 +531,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 level = level == null ? open : level;
             }
             case WEEK_KNOWN -> {
-                JpathCheckPicker.sliderType(tab);
+                if (tab != JpathTab.KANA) JpathCheckPicker.sliderType(tab);
                 level = open;
             }
             case FREE_QUIZ -> {
@@ -503,7 +554,11 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
             default -> { }
         }
-        if (level != null && r.kind() != JpathCheckKind.FREE_QUIZ && r.kind() != JpathCheckKind.CONFUSABLE
+        // F134: a free quiz of every item (source ALL) keeps to the opened levels too; one of the learner's own rows
+        // (LEARNED, NOTEBOOK, WEEK) may sit on any level
+        boolean levelBound = r.kind() != JpathCheckKind.CONFUSABLE
+                && (r.kind() != JpathCheckKind.FREE_QUIZ || source == JpathCheckSource.ALL);
+        if (level != null && levelBound
                 && JpathPathRules.LEVELS.indexOf(level) > JpathPathRules.LEVELS.indexOf(open)) {
             throw new ApiException(ErrorCode.JPATH_LEVEL_LOCKED);
         }
@@ -553,11 +608,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
             case WEEK_KNOWN -> {
                 JpathPartsService parts = partsService == null ? null : partsService.getIfAvailable();
-                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab());
+                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count(),
+                        spec.tab() == JpathTab.KANA ? r.topicKey() : null);
                 if (w == null || !w.offer()) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra bỏ qua tuần chưa mở cho bạn.");
                 }
-                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed);
+                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed,
+                        spec.tab() == JpathTab.KANA && r.topicKey() != null);
             }
             case FREE_QUIZ -> picker.freeQuiz(userId, spec.tab(), spec.level(), open, e.topicKey(), e.unitNo(),
                     e.source(), e.count(), e.direction(), timerOn, seed);
@@ -618,6 +675,49 @@ public class JpathCheckServiceImpl implements JpathCheckService {
 
     private static boolean isNew(JpathQueueStep st, JpathTab tab) {
         return st.kind() == JpathStepKind.NEW && !st.repeat() && st.tab() == tab && st.itemCode() != null;
+    }
+
+    /**
+     * F117 (owner 14/11, same rule as F111): "Đã biết" / "Tôi biết mẫu này" is one try per item a learner day. A
+     * failed try already showed the answer, so a new SKIP_ONE for that item waits until tomorrow. F131: a try is a
+     * SKIP_ONE of the item submitted and failed today, or one still open with a wrong answer (the answer was shown
+     * even if it was never submitted). Returns the open free check of the item with no answer yet (null when none),
+     * for the caller to hand back instead of a new one.
+     */
+    private JpathCheckSet requireOneTryToday(Long userId, String itemCode) {
+        if (itemCode == null) {
+            return null;
+        }
+        LocalDateTime since = serverStartOfToday(userId);
+        boolean tried = checks.findByUserIdAndKindAndStatusAndPassedAndSubmittedAtGreaterThanEqual(userId,
+                        JpathCheckKind.SKIP_ONE, SUBMITTED, Boolean.FALSE, since).stream()
+                .anyMatch(c -> readList(c.getItemCodesJson()).contains(itemCode));
+        JpathCheckSet open = null;
+        for (JpathCheckSet c : checks.findByUserIdAndKindAndStatusAndIssuedAtGreaterThanEqualOrderByIdAsc(userId,
+                JpathCheckKind.SKIP_ONE, ISSUED, since)) {
+            if (!readList(c.getItemCodesJson()).contains(itemCode)) {
+                continue;
+            }
+            Map<String, Answer> answers = readProgress(c).answers();
+            if (answers.values().stream().anyMatch(a -> !a.correct())) {
+                tried = true;
+            } else if (answers.isEmpty() && c.getSessionId() == null) {
+                open = c;
+            }
+        }
+        if (tried) {
+            throw new ApiException(ErrorCode.CONFLICT,
+                    "Hôm nay bạn đã thử mục này rồi. Ngày mai thử lại nhé, hoặc học như bình thường.");
+        }
+        return open;
+    }
+
+    /**
+     * F143: the start of the learner's today as server time (Asia/Ho_Chi_Minh, like {@code issued_at} and
+     * {@code submitted_at}), so a learner outside the server's zone gets their own day, as the history page does.
+     */
+    private LocalDateTime serverStartOfToday(Long userId) {
+        return clock.today(userId).atStartOfDay(clock.zone(userId)).withZoneSameInstant(SERVER_ZONE).toLocalDateTime();
     }
 
     /**
@@ -682,13 +782,18 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 continue;
             }
             Answer a = p.answers().get(qv.id());
+            if (a != null && retryOpen(set, a)) {
+                continue; // F147: an open practice miss is drawn again as a question, not as an answer
+            }
             if (a != null) {
-                answered.add(new JpathAnsweredView(qv.id(), a.value(), a.correct(), correctValue(qv, key),
+                // A resolved practice miss is complete in the learner's view; retain the first miss for scoring.
+                answered.add(new JpathAnsweredView(qv.id(), a.isResolved() ? correctValue(qv, key) : a.value(),
+                        a.isResolved() || a.correct(), correctValue(qv, key),
                         key.explanation(), null, 0, report(key, keys.questionCode(qv.id()))));
             }
         }
         JpathSkillCheckView skill = SKILL_KINDS.contains(set.getKind())
-                ? skillPractice.getObject().view(set, answeredValues(p)) : null;
+                ? skillPractice.getObject().view(set, answeredValues(set, p, questions, keys)) : null;
         return new JpathCheckView(set.getToken(), set.getKind(), set.getTab(), set.getAttemptNo(), set.isTimerOn(),
                 set.getStatus(), read(set.getIssueJson(), JpathCheckIssueRequest.class), questions, answered, null,
                 skill);
@@ -785,8 +890,27 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         String questionCode = keys.questionCode(qv.id());
         Progress p = readProgress(set);
         Answer done = p.answers().get(qv.id());
-        if (done != null) {
-            return result(set, qv, key, questionCode, done);
+        // F147: a practice question answered wrong stays open for a retry until it is answered right.
+        boolean retry = done != null && retryOpen(set, done);
+        if (done != null && done.isResolved()) {
+            String right = correctValue(qv, key);
+            return new JpathAnswerResult(true, right, key.explanation(), null, report(key, questionCode),
+                    right == null ? "" : right, !ISSUED.equals(set.getStatus()));
+        }
+        if (done != null && !retry) {
+            // probe L2: a replay (e.g. from another tab) says which answer is kept and whether the check is closed
+            JpathAnswerResult kept = result(set, qv, key, questionCode, done);
+            return new JpathAnswerResult(kept.correct(), kept.correctValue(), kept.explanation(), kept.compare(),
+                    kept.report(), done.value() == null ? "" : done.value(), !ISSUED.equals(set.getStatus()));
+        }
+        if (r.value() != null && r.value().length() > 1000) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời quá dài.");
+        }
+        // a timed check sends a blank answer when the question's timer runs out: that one counts wrong (bug 91 only
+        // refuses blanks the learner could still answer)
+        if (("MCQ".equals(qv.type()) || "AUDIO_MCQ".equals(qv.type()))
+                && (r.value() == null || r.value().isBlank()) && !set.isTimerOn()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn đáp án trước khi nộp.");
         }
         requireOpen(set);
         LocalDateTime now = clock.now();
@@ -802,14 +926,37 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         boolean timedOut = r.value() == null || r.value().isBlank()
                 || (qv.timerSec() != null && elapsed > qv.timerSec() * 1000L + TIMER_GRACE_MS);
         boolean correct = !timedOut && correct(qv, key, r.value());
+        set.setLastAnswerAt(now);
+        if (retry) {
+            // A retry never scores again: the first miss is kept; a right retry only marks it resolved.
+            if (!correct) {
+                return retryResult(key, questionCode);
+            }
+            p.answers().put(qv.id(), new Answer(done.value(), false, done.elapsedMs(), true));
+            set.setProgressJson(json(p));
+            return new JpathAnswerResult(true, correctValue(qv, key), key.explanation(), null,
+                    report(key, questionCode));
+        }
         Answer a = new Answer(r.value(), correct, elapsed);
         p.answers().put(qv.id(), a);
         set.setProgressJson(json(p));
-        set.setLastAnswerAt(now);
         if (key.itemCode() != null) {
             event(set, "c" + set.getId() + "-" + qv.id(), key.itemType(), key.itemCode(), correct, elapsed);
         }
+        if (!correct && RETRY_PRACTICE_KINDS.contains(set.getKind())) {
+            return retryResult(key, questionCode); // the right answer stays hidden until the learner finds it
+        }
         return result(set, qv, key, questionCode, a);
+    }
+
+    /** F147: a practice miss still open for a retry (the set is open and the question not yet answered right). */
+    private static boolean retryOpen(JpathCheckSet set, Answer a) {
+        return !a.correct() && !a.isResolved() && RETRY_PRACTICE_KINDS.contains(set.getKind())
+                && ISSUED.equals(set.getStatus());
+    }
+
+    private JpathAnswerResult retryResult(AnswerKey key, String questionCode) {
+        return new JpathAnswerResult(false, null, null, null, report(key, questionCode));
     }
 
     private JpathAnswerResult result(JpathCheckSet set, JpathQuestionView qv, AnswerKey key, String questionCode,
@@ -919,7 +1066,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         StoredKeys keys = readKeys(set);
         Progress p = readProgress(set);
         // a timed section may be handed in unfinished once its time is up: what is not answered counts wrong
-        if (!complete(questions, keys, p) && !pastDeadline(set, clock.now())) {
+        if (!complete(set, questions, keys, p) && !pastDeadline(set, clock.now())) {
             throw new ApiException(ErrorCode.JPATH_CHECK_INCOMPLETE);
         }
         if (path == null) {
@@ -940,7 +1087,8 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 Board b = p.boards().get(qv.board().boardId());
                 int pairs = key.pairs().size();
                 total += pairs;
-                correct += Math.max(0, pairs - b.errors());
+                // F147: a pair missed once costs one unit, however many wrong picks it took (wrongLeft is distinct).
+                correct += Math.max(0, pairs - b.wrongLeft().size());
                 b.wrongLeft().forEach(l -> wrong.add(key.pairItems().get(l)));
                 continue;
             }
@@ -961,7 +1109,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
         int percent = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
-        Boolean passed = passed(set.getKind(), correct, total);
+        // owner 18/11 kana stage: the kana skip test passes at 80% like the kana row check
+        Boolean passed = set.getKind() == JpathCheckKind.WEEK_KNOWN && set.getTab() == JpathTab.KANA
+                ? passed(JpathCheckKind.KANA_ROW, correct, total) : passed(set.getKind(), correct, total);
         LocalDateTime last = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : now;
         long spentMs = Duration.between(set.getIssuedAt(), last).toMillis();
         boolean tooFast = total > 0 && spentMs < (long) JpathCheckSizing.TOO_FAST_MS_PER_UNIT * total;
@@ -972,7 +1122,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         // #25 / D4: only a quiz of ≥ 10 questions on LEARNED or NOTEBOOK items counts for the skill day.
         // The server-chosen skill-day step counts whatever its size (its pool may give fewer than 10 questions).
         // Plan 3 Task 16 removed rule #25: a free quiz never completes a skill day any more
-        boolean skillDayQuiz = false;
+        // Q5 (owner 24/11): the weekly check (FREE_QUIZ source WEEK, 10+ questions, not a redo) — 80% pays CP
+        boolean weeklyCheck = set.getKind() == JpathCheckKind.FREE_QUIZ
+                && JpathStudyServiceImpl.weekly(set.getIssueJson());
+        // Q7 (owner 24/11) + bug 25/11: the skill day's quiz counts at 50%+ (JpathDayCompletion still waits for it;
+        // it was switched off, so a skill day never finished and every next day became a make-up skill day)
+        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ && !weeklyCheck
+                && percent >= SKILL_DAY_QUIZ_PCT;
 
         List<String> itemCodes = readList(set.getItemCodesJson());
         JpathStudySession session = set.getSessionId() == null ? null
@@ -989,9 +1145,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 tabs = dailyTabs.findForUpdateByPlanId(today.getId());
             }
         }
+        // only the quiz step of today's skill-day session ("Ôn và quiz") takes it; a free quiz from a list never does
+        skillDayQuiz = skillDayQuiz && session != null && today != null && today.getDayKind() == JpathDayKind.SKILL;
         JpathCheckEffects.Applied applied = effects.apply(set,
                 new JpathCheckEffects.Scored(passed, tooFast, itemCodes, wrong, grammarRatings, keys.pending(),
-                        skillReview, skillDayQuiz), session, today, tabs);
+                        skillReview, skillDayQuiz, weeklyCheck, weeklyCheck && percent >= WEEKLY_PASS_PCT),
+                session, today, tabs);
 
         boolean rewardEligible = !tooFast && applied.dayCredit();
         boolean skillKind = SKILL_KINDS.contains(set.getKind());
@@ -1053,9 +1212,20 @@ public class JpathCheckServiceImpl implements JpathCheckService {
     }
 
     /** Locked question id → the value given (insertion order kept). */
-    private static Map<String, String> answeredValues(Progress p) {
+    private static Map<String, String> answeredValues(JpathCheckSet set, Progress p,
+                                                       List<JpathQuestionView> questions, StoredKeys keys) {
         Map<String, String> out = new LinkedHashMap<>();
-        p.answers().forEach((id, a) -> out.put(id, a.value()));
+        for (JpathQuestionView q : questions) {
+            Answer a = p.answers().get(q.id());
+            if (a == null || retryOpen(set, a)) continue;
+            AnswerKey key = keys.keys().get(q.id());
+            String resolvedValue = key == null ? a.value() : correctValue(q, key);
+            if (a.isResolved() && key != null && JpathSkillCheckBuilder.DICTATION.equals(q.type())) {
+                resolvedValue = json(JpathSkillCheckBuilder.blanks(key.text()).stream()
+                        .map(JpathSkillCheckBuilder.Blank::answer).toList());
+            }
+            out.put(q.id(), a.isResolved() ? resolvedValue : a.value());
+        }
         return out;
     }
 
@@ -1063,7 +1233,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         return JpathSrsPolicy.quality(a) <= JpathSrsPolicy.quality(b) ? a : b;
     }
 
-    private static boolean complete(List<JpathQuestionView> questions, StoredKeys keys, Progress p) {
+    private static boolean complete(JpathCheckSet set, List<JpathQuestionView> questions, StoredKeys keys, Progress p) {
         for (JpathQuestionView qv : questions) {
             AnswerKey key = keys.keys().get(qv.id());
             if (key == null) {
@@ -1074,7 +1244,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 if (b == null || b.matched().size() < key.pairs().size()) {
                     return false;
                 }
-            } else if (!p.answers().containsKey(qv.id())) {
+            } else if (!p.answers().containsKey(qv.id()) || retryOpen(set, p.answers().get(qv.id()))) {
                 return false;
             }
         }

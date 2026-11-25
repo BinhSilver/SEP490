@@ -87,6 +87,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     static final int UPCOMING = 20;
     static final int EXTRA_COUNT = 5;
     static final int LIST_COUNT = 10;
+    static final int EXTRA_BROWSE_DAILY_LIMIT = 20;
     static final int KANA_ROWS_DEFAULT = 1;
     /** Due cards read per tab; hard cards go past the review cap, so more than the cap is read. */
     static final int DUE_PAGE = 500;
@@ -221,18 +222,39 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         boolean skillDay = plan.getDayKind() == JpathDayKind.SKILL;
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
+        JpathDailyTab kanaTab = tabs.get(JpathTab.KANA);
+        int kanaRemaining = st == JpathSessionTab.COMBINED && plan.isKanaPhase() && kanaTab != null
+                ? Math.max(0, dailyPlans.effectiveTarget(plan, kanaTab) - kanaTab.getNewDone())
+                : 0;
         for (JpathTab t : newTabs(st, plan.isKanaPhase())) {
             JpathDailyTab row = tabs.get(t);
             int remaining = row == null ? 0 : Math.max(0, dailyPlans.effectiveTarget(plan, row) - row.getNewDone());
             if (t == JpathTab.KANA) {
                 rows = nextKanaRows(userId, remaining);
             } else {
-                newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                        remaining, rows));
+                newCodes.put(t, withUnfinished(userId, plan, t, remaining, newCodes(userId, plan.getLevel(), t,
+                        plan.isKanaPhase(), open.isPriorityMode(), remaining - unfinished(userId, plan, t, remaining).size(),
+                        kanaRemaining)));
             }
         }
-        // Plan 3 Task 16: the skill-day quiz (#25) is gone; skill days are done by skill sessions
-        boolean skillQuizNeeded = false;
+        // Q8: an unfinished item brought back as a new card is not also asked as a review card
+        for (Map.Entry<JpathTab, List<String>> e : newCodes.entrySet()) {
+            Set<String> again = new HashSet<>(e.getValue());
+            if (again.isEmpty()) continue;
+            if (e.getKey() == JpathTab.GRAMMAR) {
+                grammarDue = grammarDue.stream().filter(c -> !again.contains(c)).toList();
+            } else if (due.containsKey(e.getKey())) {
+                due.put(e.getKey(), due.get(e.getKey()).stream().filter(d -> !again.contains(d.code())).toList());
+            }
+        }
+        // Plan 3 Task 16: Reading and Listening are skill sessions. QA 20/11: the day completion still waits for the
+        // skill-day quiz (#25, bug 95) whenever the path has a quiz source, so the review round must offer it, else the
+        // day can never be finished ("Ôn và quiz" opened an empty round)
+        JpathDailyTab skillTab = tabs.get(JpathTab.SKILL);
+        boolean skillQuizNeeded = skillDay && skillTab != null && skillTab.getCheckPassedAt() == null
+                && (st == JpathSessionTab.COMBINED || st == JpathSessionTab.SKILL)
+                && JpathPathRules.skillQuizSource(userItems, kanaRows, userId, plan.getLevel(), plan.isKanaPhase())
+                        .isPresent();
         List<JpathQueueStep> q = JpathQueueBuilder.build(new JpathQueueInput(st, JpathSessionMode.TODAY,
                 plan.getDayKind(), plan.isKanaPhase(), due, room, grammarDue, newCodes,
                 practiceCodes(newCodes.getOrDefault(JpathTab.GRAMMAR, List.of())), rows, skillQuizNeeded));
@@ -241,6 +263,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         }
         q = heroFirst(q, r.startItemCode());
         if (q.isEmpty()) {
+            settleUnreachableTargets(userId, plan, tabs, st, newCodes);
             // nothing left today on this tab: answer with the last finished session instead of a new empty one
             Optional<JpathStudySession> done = sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, COMPLETED,
                     JpathSessionMode.TODAY.name()).stream()
@@ -252,6 +275,86 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         return save(userId, plan.getId(), st, JpathSessionMode.TODAY, q);
     }
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private JpathDayCompletion dayCompletion;
+
+    /**
+     * Walkthrough 25/11: a day planned for 20 words where only 17 could still be queued (the rest learned or known
+     * meanwhile) stayed "17/20" for ever and "Học hôm nay" opened nothing. When the queue is empty, a tab with new
+     * items still owed and none to give is lowered to what was done, and the day is evaluated again.
+     */
+    private void settleUnreachableTargets(Long userId, JpathDailyPlan plan, Map<JpathTab, JpathDailyTab> tabs,
+            JpathSessionTab st, Map<JpathTab, List<String>> newCodes) {
+        if (plan.getAllDoneAt() != null || plan.getDayKind() != JpathDayKind.STUDY) return;
+        JpathTab lowered = null;
+        for (JpathTab t : newTabs(st, plan.isKanaPhase())) {
+            JpathDailyTab row = tabs.get(t);
+            if (t == JpathTab.KANA || row == null || row.getDoneAt() != null) continue;
+            if (row.getNewDone() < row.getNewTarget() && newCodes.getOrDefault(t, List.of()).isEmpty()) {
+                row.setNewTarget(row.getNewDone());
+                dailyTabs.save(row);
+                lowered = t;
+            }
+        }
+        if (lowered != null && dayCompletion != null) {
+            dailyTabs.flush();
+            dayCompletion.evaluate(userId, plan, new ArrayList<>(tabs.values()), lowered, true);
+        }
+    }
+
+    /** F65 (owner 11/11): extra sessions a tab allows before a passed weekly check (≈ one week ahead). */
+    static final int EXTRA_BEFORE_CHECK = 7;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.jlptpath.repository.JpathCheckSetRepository checkSets;
+
+    /** F135: questions a weekly check asks (jpath-parts.js / jpath-done.js send count 10). */
+    static final int WEEKLY_CHECK_COUNT = 10;
+    private static final com.fasterxml.jackson.databind.ObjectMapper ISSUE_JSON =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+
+    /**
+     * Learning far ahead needs proof: after {@link #EXTRA_BEFORE_CHECK} extra sessions, a weekly check at 80%+.
+     * F135: only the weekly check counts (a free quiz of source WEEK asking {@link #WEEKLY_CHECK_COUNT}+ questions),
+     * not a short quiz, a notebook quiz, a redo or a quiz of an easier level.
+     */
+    private void requireCheckBeforeMoreExtra(Long userId, JpathTab t) {
+        if (jdbc == null || t == JpathTab.KANA) return;
+        java.time.LocalDateTime since = lastWeeklyCheckPassed(userId, t);
+        Integer n = jdbc.queryForObject("SELECT COUNT(*) FROM jpath_study_session s WHERE s.user_id = ? AND s.tab = ? "
+                + "AND s.mode = 'EXTRA' AND s.started_at > ?", Integer.class, userId, t.name(),
+                since == null ? java.time.LocalDateTime.of(1970, 1, 1, 0, 0) : since);
+        if (n != null && n >= EXTRA_BEFORE_CHECK) throw new ApiException(ErrorCode.JPATH_EXTRA_CHECK_REQUIRED);
+    }
+
+    /** Submit time of the latest weekly check of {@code t} passed at 80%+; null when none. */
+    private java.time.LocalDateTime lastWeeklyCheckPassed(Long userId, JpathTab t) {
+        if (checkSets == null) return null;
+        for (com.jlas.jlptpath.entity.JpathCheckSet c : checkSets
+                .findTop50ByUserIdAndTabAndKindAndStatusAndScorePctGreaterThanEqualOrderBySubmittedAtDescIdDesc(userId,
+                        t, com.jlas.jlptpath.enums.JpathCheckKind.FREE_QUIZ, "SUBMITTED",
+                        java.math.BigDecimal.valueOf(80))) {
+            if (c.getSubmittedAt() != null && weekly(c.getIssueJson())) {
+                return c.getSubmittedAt();
+            }
+        }
+        return null;
+    }
+
+    static boolean weekly(String issueJson) {
+        if (issueJson == null) return false;
+        try {
+            com.fasterxml.jackson.databind.JsonNode issue = ISSUE_JSON.readTree(issueJson);
+            return "WEEK".equals(issue.path("source").asText(null)) && !issue.hasNonNull("redoOf")
+                    && issue.path("count").asInt(0) >= WEEKLY_CHECK_COUNT;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            return false;
+        }
+    }
+
     private JpathStudySession extra(Long userId, JpathDailyPlan plan, JpathUserLevel open,
             JpathSessionStartRequest r) {
         JpathTab t = cardTab(r.tab());
@@ -259,13 +362,15 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         if (row == null || row.getDoneAt() == null) {
             throw new ApiException(ErrorCode.JPATH_EXTRA_NOT_READY);
         }
+        requireCheckBeforeMoreExtra(userId, t);
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
         if (t == JpathTab.KANA) {
-            rows = nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count());
+            rows = limitKanaRows(userId, nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count()));
         } else {
+            int count = limitedExtraBrowseCount(userId, r.count() == null ? EXTRA_COUNT : r.count());
             newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                    r.count() == null ? EXTRA_COUNT : r.count(), List.of()));
+                    count, 0));
         }
         return save(userId, plan.getId(), r.tab(), JpathSessionMode.EXTRA, newsQueue(r, newCodes, rows));
     }
@@ -296,9 +401,12 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         Map<JpathTab, List<String>> newCodes = new EnumMap<>(JpathTab.class);
         List<KanaRowPlan> rows = List.of();
         if (t == JpathTab.KANA) {
-            rows = r.startItemCode() == null ? nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count())
+            List<KanaRowPlan> selected = r.startItemCode() == null
+                    ? nextKanaRows(userId, r.count() == null ? KANA_ROWS_DEFAULT : r.count())
                     : List.of(kanaRowPlan(userId, kanaRowCode(r.startItemCode())));
+            rows = limitKanaRows(userId, selected);
         } else {
+            count = limitedExtraBrowseCount(userId, count);
             String level = r.level() == null ? open.getLevel() : level(r.level());
             if (level == null) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED);
@@ -310,6 +418,96 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             newCodes.put(t, browseCodes(userId, level, t, r, count));
         }
         return save(userId, null, r.tab(), JpathSessionMode.BROWSE, newsQueue(r, newCodes, rows));
+    }
+
+    /**
+     * F136: BROWSE and EXTRA share a daily allowance. Already learned items in an open round do not reserve another
+     * slot; unfinished NEW cards reserve one so opening another tab/session cannot exceed the account-wide limit.
+     */
+    private int limitedExtraBrowseCount(Long userId, int requested) {
+        int available = Math.max(0, EXTRA_BROWSE_DAILY_LIMIT - extraBrowseItemsInUse(userId));
+        if (available == 0) {
+            throw new ApiException(ErrorCode.JPATH_EXTRA_DAILY_LIMIT_REACHED);
+        }
+        return Math.min(requested, available);
+    }
+
+    private List<KanaRowPlan> limitKanaRows(Long userId, List<KanaRowPlan> requested) {
+        if (requested.isEmpty()) {
+            return requested;
+        }
+        int available = Math.max(0, EXTRA_BROWSE_DAILY_LIMIT - extraBrowseItemsInUse(userId));
+        List<KanaRowPlan> allowed = new ArrayList<>();
+        for (KanaRowPlan row : requested) {
+            int size = row.kanaCodes().size();
+            if (size > available) {
+                if (allowed.isEmpty()) {
+                    throw new ApiException(ErrorCode.JPATH_EXTRA_DAILY_LIMIT_REACHED);
+                }
+                break;
+            }
+            allowed.add(row);
+            available -= size;
+        }
+        return allowed;
+    }
+
+    private int extraBrowseItemsInUse(Long userId) {
+        Set<String> used = new HashSet<>();
+        java.time.LocalDate studyDay = clock.today(userId);
+        if (jdbc != null) {
+            List<Map<String, Object>> started = jdbc.queryForList("""
+                    SELECT DISTINCT e.item_type, e.item_code
+                    FROM jpath_study_event e
+                    JOIN jpath_study_session s ON s.id = e.session_id
+                    WHERE e.user_id = ? AND e.study_day = ? AND e.action = 'FIRST_RATE'
+                      AND s.mode IN ('EXTRA', 'BROWSE')
+                      AND e.id = (
+                        SELECT MIN(first_event.id) FROM jpath_study_event first_event
+                        WHERE first_event.user_id = e.user_id AND first_event.item_type = e.item_type
+                          AND first_event.item_code = e.item_code AND first_event.study_day = e.study_day
+                          AND first_event.action = 'FIRST_RATE'
+                      )
+                    """, userId, studyDay);
+            for (Map<String, Object> row : started) {
+                JpathItemType type = JpathItemType.valueOf(String.valueOf(row.get("item_type")));
+                String code = String.valueOf(row.get("item_code"));
+                userItems.findByUserIdAndItemTypeAndItemCode(userId, type, code).ifPresent(item -> {
+                    if (item.getFirstLearnedAt() != null && studyDay.equals(item.getFirstLearnedAt().toLocalDate())) {
+                        used.add(extraBrowseKey(type, code));
+                    }
+                });
+            }
+        }
+        for (String mode : List.of(JpathSessionMode.EXTRA.name(), JpathSessionMode.BROWSE.name())) {
+            for (JpathStudySession session : sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, OPEN, mode)) {
+                if (session.getStartedAt() == null || !studyDay.equals(session.getStartedAt()
+                        .atZone(java.time.ZoneId.of("Asia/Ho_Chi_Minh"))
+                        .withZoneSameInstant(clock.zone(userId)).toLocalDate())) {
+                    continue;
+                }
+                List<JpathQueueStep> queue = parse(session.getQueueJson());
+                int from = Math.max(0, session.getPosition() == null ? 0 : session.getPosition());
+                for (int i = from; i < queue.size(); i++) {
+                    JpathQueueStep step = queue.get(i);
+                    if (step.kind() != JpathStepKind.NEW || step.repeat() || step.itemType() == null
+                            || step.itemCode() == null) {
+                        continue;
+                    }
+                    Optional<JpathUserItem> row = userItems.findByUserIdAndItemTypeAndItemCode(userId,
+                            step.itemType(), step.itemCode());
+                    if (row.isEmpty() || row.get().getFirstLearnedAt() == null
+                            && row.get().getState() != JpathItemState.KNOWN) {
+                        used.add(extraBrowseKey(step.itemType(), step.itemCode()));
+                    }
+                }
+            }
+        }
+        return used.size();
+    }
+
+    private static String extraBrowseKey(JpathItemType type, String code) {
+        return type.name() + '\u001f' + code;
     }
 
     private JpathStudySession notebook(Long userId, JpathSessionStartRequest r) {
@@ -424,34 +622,49 @@ public class JpathStudyServiceImpl implements JpathStudyService {
     }
 
     /**
-     * Next new codes of a V/K/G tab (codes with a learner row are never picked). Kana-phase vocabulary: kana-only
-     * words written with the kana learned so far plus those of the rows queued in this session.
+     * [JLAS-W0108] F148: Next new codes of a V/K/G tab (codes with a learner row are never picked). Kana-phase
+     * vocabulary in COMBINED mode includes words written with today's remaining planned kana rows (studied first in the
+     * queue), whereas SPLIT VOCAB-only uses {@link JpathContentReader#learnedKana} until those rows are completed.
      */
     private List<String> newCodes(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priorityMode,
-            int limit, List<KanaRowPlan> queuedRows) {
+            int limit, int plannedKanaRows) {
         if (limit <= 0) {
             return List.of();
         }
         if (tab == JpathTab.VOCAB && kanaPhase) {
-            return content.nextKanaOnlyVocab(userId, level, limit, learnedKana(userId, queuedRows));
+            Set<String> kana = plannedKanaRows > 0
+                    ? content.learnedOrPlannedKana(userId, plannedKanaRows)
+                    : content.learnedKana(userId);
+            return content.nextKanaOnlyVocab(userId, level, limit, kana);
         }
         return content.nextNewCodes(userId, level, JpathItemType.valueOf(tab.name()), limit, priorityMode, null);
     }
 
-    private Set<String> learnedKana(Long userId, List<KanaRowPlan> queuedRows) {
-        if (queuedRows.isEmpty()) {
-            return content.learnedKana(userId);
+    /**
+     * Q8 (owner 24/11): a study day counts only once its check is passed. Items of an earlier day that were learned
+     * but never passed their check come first today and take places of today's new items, so the day's minutes stay
+     * the same and nothing new comes before the unfinished part. Not in the kana stage (its own row order).
+     */
+    private List<String> unfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit) {
+        if (limit <= 0 || plan.isKanaPhase() || plan.getDayKind() != JpathDayKind.STUDY) {
+            return List.of();
         }
-        Map<String, String> chars = content.kana(null).stream()
-                .collect(Collectors.toMap(JpathKana::getCode, JpathKana::getKana, (a, b) -> a));
-        Set<String> learned = new HashSet<>();
-        userItems.findByUserIdAndItemType(userId, JpathItemType.KANA).stream()
-                .filter(i -> i.getCountedAt() != null)
-                .map(i -> chars.get(i.getItemCode())).filter(Objects::nonNull).forEach(learned::add);
-        Set<String> rowCodes = queuedRows.stream().map(KanaRowPlan::rowCode).collect(Collectors.toSet());
-        content.kana(null).stream().filter(k -> rowCodes.contains(k.getRowCode()))
-                .map(JpathKana::getKana).forEach(learned::add);
-        return JpathKanaText.expandLearned(learned);
+        LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
+        return userItems.unfinishedBefore(userId, JpathItemType.valueOf(t.name()), plan.getLevel(), startOfToday,
+                PageRequest.of(0, limit));
+    }
+
+    private List<String> withUnfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit, List<String> fresh) {
+        List<String> carried = unfinished(userId, plan, t, limit);
+        if (carried.isEmpty()) {
+            return fresh;
+        }
+        List<String> out = new ArrayList<>(carried);
+        for (String c : fresh) {
+            if (out.size() >= limit) break;
+            if (!out.contains(c)) out.add(c);
+        }
+        return out;
     }
 
     /** Patterns with a visible ORDER and a visible FILL exercise get the GRAMMAR_PRACTICE step. */
@@ -599,7 +812,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         boolean empty = q.isEmpty();
         return sessions.save(JpathStudySession.builder().userId(userId).planId(planId).tab(tab.name())
                 .mode(mode.name()).status(empty ? COMPLETED : OPEN).queueJson(write(q)).position(0).total(q.size())
-                .completedAt(empty ? clock.now() : null).build());
+                .startedAt(clock.now()).completedAt(empty ? clock.now() : null).build());
     }
 
     private static JpathTab cardTab(JpathSessionTab tab) {
@@ -781,12 +994,17 @@ public class JpathStudyServiceImpl implements JpathStudyService {
 
     /**
      * Segments of the queue in order of first appearance: REVIEW (reviews, retypes, the grammar review),
-     * SKILL_QUIZ (skill-day check), otherwise the step's tab; done = steps before {@code position}.
+     * SKILL_QUIZ (skill-day check), otherwise the step's tab; done = steps before {@code position}. Owner 23/11: KANA
+     * counts kana rows (its KANA_ROW checks), the unit of the path page ("Chữ cái 1/4 hàng"), not the letters.
      */
-    private static List<JpathCombinedStep> segments(List<JpathQueueStep> q, int position) {
+    static List<JpathCombinedStep> segments(List<JpathQueueStep> q, int position) {
         Map<String, int[]> counts = new LinkedHashMap<>();
         for (int i = 0; i < q.size(); i++) {
-            int[] c = counts.computeIfAbsent(segment(q.get(i)), x -> new int[2]);
+            String seg = segment(q.get(i));
+            int[] c = counts.computeIfAbsent(seg, x -> new int[2]);
+            if ("KANA".equals(seg) && q.get(i).checkKind() != JpathCheckKind.KANA_ROW) {
+                continue;
+            }
             c[1]++;
             if (i < position) {
                 c[0]++;

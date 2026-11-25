@@ -89,7 +89,8 @@ public class JpathSmartTestReader {
         return new JpathSmartTestSnapshot(attempt.getId(), attempt.getStatus(), response.goal(), result.abilityBand(),
                 result.estimatedOverallLevel(), score(skills, "VOCABULARY"), score(skills, "KANJI"),
                 score(skills, "GRAMMAR"), result.partial(), modeScore(skills, "VOCABULARY"),
-                modeScore(skills, "KANJI"), modeScore(skills, "GRAMMAR"));
+                modeScore(skills, "KANJI"), modeScore(skills, "GRAMMAR"), score(skills, "READING"),
+                score(skills, "LISTENING"));
     }
 
     private static final List<String> LEVEL_ORDER = List.of("N5", "N4", "N3", "N2", "N1");

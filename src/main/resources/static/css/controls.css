@@ -21,7 +21,7 @@ html:not(#_):not(#_):not(#_) :is(.btn, .button-primary, .button-secondary, .ar-b
 }
 html:not(#_):not(#_):not(#_) :is(.btn, .button-primary, .button-secondary, .ar-btn, .oy-button, .gp-primary-btn, .gp-soft-btn):not(.btn--sm, .btn-sm, .ar-btn--sm, .btn--ghost, .btn-ghost) {
   height: auto !important;
-  min-height: 44px !important;
+  min-height: var(--jl-button-min-height, 44px) !important;
   padding: 10px 24px !important;
 }
 html:not(#_):not(#_):not(#_) :is(.btn--ghost, .btn-ghost, .gp-ghost-btn):not(.btn--sm, .btn-sm) {
@@ -121,11 +121,11 @@ html:not(#_):not(#_):not(#_) textarea:is(.input, .form-input, .textarea) {
 
 /* Selects and inputs: dark colours. Focus and errors come after, so they still show. */
 html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, .select, .form-select, .ar-select, #jlabBaseContent select, textarea.form-input, textarea.input, .textarea):not(.otp-digit, .otp-input) {
-  border-color: var(--dark-input-line) !important;
+  border-color: var(--jl-field-border, var(--dark-input-line)) !important;
   color: var(--dark-ink) !important;
   background-color: var(--dark-input) !important;
 }
-html[data-theme="dark"]:not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, .select, .form-select, .ar-select, #jlabBaseContent select, textarea.form-input, textarea.input, .textarea):focus {
+html[data-theme="dark"]:not(:has(body.jlas-ui-owned)):not(#_):not(#_):not(#_) :is(.input, .form-input, .search-input, .ar-input, .oy-quiz__input, .select, .form-select, .ar-select, #jlabBaseContent select, textarea.form-input, textarea.input, .textarea):focus {
   border-color: var(--dark-focus) !important;
   box-shadow: 0 0 0 3px var(--dark-focus-ring) !important;
 }

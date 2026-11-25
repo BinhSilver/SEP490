@@ -397,6 +397,7 @@ public class DictionaryMapper {
     public VocabularyResponse toVocabularyResponse(VocabularyEntry entry,
                                                      List<SenseResponse> senses,
                                                      List<KanjiCompositionResponse> composition) {
+        String kanjiLevel = composition != null && composition.size() == 1 ? composition.get(0).getJlptLevel() : null;
         return VocabularyResponse.builder()
                 .id(entry.getId())
                 .expression(entry.getExpression())
@@ -405,13 +406,20 @@ public class DictionaryMapper {
                 .hanViet(entry.getHanViet())
                 .meaning(entry.getMeaning())
                 .wordType(entry.getWordType())
-                .jlptLevel(entry.getJlptLevel())
+                .jlptLevel(vocabularyLevel(entry, kanjiLevel))
                 .exampleJa(entry.getExampleJa())
                 .exampleVi(entry.getExampleVi())
                 .usageScope(entry.getUsageScope())
                 .senses(senses == null ? List.of() : senses)
                 .kanjiComposition(composition == null ? List.of() : composition)
                 .build();
+    }
+
+    /** A single Kanji entry inherits its character's level when the vocabulary has none. */
+    public static String vocabularyLevel(VocabularyEntry entry, String kanjiLevel) {
+        String expression = entry.getExpression();
+        return entry.getJlptLevel() != null ? entry.getJlptLevel()
+                : expression != null && expression.codePointCount(0, expression.length()) == 1 ? kanjiLevel : null;
     }
 
     public SenseResponse toSenseResponse(VocabularySense sense, List<String> partsOfSpeech,

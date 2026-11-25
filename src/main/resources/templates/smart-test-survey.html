@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Khảo sát học tập - KotsuKotsu', 'smart-test')}"></head>
-<body id="jlabBasePage" class="app-body smart-test-body journey-ui"><link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css?v=20261106-r6}" /><div id="jlabBaseShellMount"></div>
+<body id="jlabBasePage" class="app-body smart-test-body"><link rel="stylesheet" th:href="@{/css/pages/jpath-day-picker.css?v=20261106-r6}" /><div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="survey-page">
     <div id="surveyWizard" class="survey-wizard">
         <header class="survey-progress-header">
             <button id="surveyBackButton" class="survey-back" type="button" aria-label="Quay lại"><span class="material-symbols-outlined">arrow_back</span></button>
             <div class="survey-progress-track"><div id="surveyProgress" class="survey-progress-value"></div></div>
-            <span id="surveyStepCounter" class="survey-step-counter">1/7</span>
+            <span id="surveyStepCounter" class="survey-step-counter">Bước 1</span>
+            <!-- [JLAS-W0108] A8: the survey is optional outside the learning path -->
+            <a id="surveyLater" class="survey-later" href="/">Để sau</a>
         </header>
         <div id="surveyNotice" class="smart-test-notice" role="alert" hidden></div>
+        <p id="surveyLoading" class="st-note" role="status">Đang tải khảo sát…</p>
         <section id="surveyInvitation" class="survey-invitation" hidden aria-live="polite">
             <div class="survey-invitation__mascot"><img class="survey-fox" src="/images/mascots/kitsu/kitsu-celebrate-30.webp" alt="" width="112" height="112" aria-hidden="true"></div>
             <div class="survey-invitation__content">
@@ -23,18 +26,18 @@
                 <button id="surveyEdit" class="survey-edit-link" type="button">Chỉnh lại khảo sát</button>
             </div>
         </section>
-        <form id="smartTestSurveyForm" novalidate>
+        <form id="smartTestSurveyForm" novalidate hidden>
             <div class="survey-shared-mascot" aria-hidden="true">
-                <img class="survey-fox survey-fox--goal" src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--studied" src="/images/mascots/kitsu/kitsu-waving.svg?v=20261009-native-mascots" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--duration" src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--kana" src="/images/mascots/kitsu/kitsu-preparing.webp" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--level" src="/images/mascots/kitsu/kitsu-thinking-30.webp" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--target" src="/images/mascots/kitsu/kitsu-encouraging.webp" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--minutes" src="/images/mascots/kitsu/kitsu-resting-30.webp" alt="" width="64" height="64">
-                <img class="survey-fox survey-fox--days" src="/images/mascots/kitsu/kitsu-cheer-30.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--goal" src="/images/mascots/fox/kitsu-announcing.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--studied" src="/images/mascots/fox/kitsu-waving.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--duration" src="/images/mascots/fox/kitsu-thinking-30.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--kana" src="/images/mascots/fox/kitsu-preparing.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--level" src="/images/mascots/fox/kitsu-thinking-30.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--target" src="/images/mascots/fox/kitsu-encouraging.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--minutes" src="/images/mascots/fox/kitsu-resting-30.webp" alt="" width="64" height="64">
+                <img class="survey-fox survey-fox--days" src="/images/mascots/fox/kitsu-cheer-30.webp" alt="" width="64" height="64">
             </div>
-            <section class="survey-slide is-active" data-survey-step="studied">
+            <section class="survey-slide" data-survey-step="studied">
                 <div class="survey-question"><div><span class="survey-eyebrow">Khởi đầu</span><h1>Bạn đã từng học tiếng Nhật chưa?</h1><p>Chọn câu trả lời để Kitsu gợi ý điểm bắt đầu phù hợp.</p></div></div>
                 <div class="survey-options">
                     <label class="survey-option"><input type="radio" name="studied" value="YES"><span class="survey-option__icon"><svg class="jp-survey-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v15.5H6.5A2.5 2.5 0 0 0 4 22V6.5Zm16 0A2.5 2.5 0 0 0 17.5 4H12v15.5h5.5A2.5 2.5 0 0 1 20 22V6.5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>Rồi, mình đã học</strong><small>Mình sẽ chọn cấp độ hiện tại</small></span><i class="survey-radio"></i></label>
@@ -69,7 +72,7 @@
                     <label class="survey-option"><input type="radio" name="selfLevel" value="N1"><span class="level-bars level-bars--4">▂▄▆█</span><span><strong>Thành thạo · N1</strong><small>Sử dụng tiếng Nhật thành thạo, chuyên sâu</small></span><i class="survey-radio"></i></label>
                 </div>
             </section>
-            <section class="survey-slide" data-survey-step="goal">
+            <section class="survey-slide is-active" data-survey-step="goal">
                 <div class="survey-question"><div><span class="survey-eyebrow">Mục tiêu học tập</span><h1>Bạn học tiếng Nhật để làm gì?</h1><p>Chọn mục tiêu gần nhất với kế hoạch của bạn.</p></div></div>
                 <div class="survey-options survey-options--grid">
                     <label class="survey-option"><input type="radio" name="goal" value="JLPT"><span class="survey-option__icon"><svg class="jp-survey-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="10" r="5.5" stroke="currentColor" stroke-width="1.75"/><path d="M9 14.8 7.5 20l4.5-2.2L16.5 20 15 14.8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>Thi JLPT</strong><small>Chuẩn bị cho kỳ thi năng lực</small></span><i class="survey-radio"></i></label>
@@ -110,6 +113,7 @@
                     <label class="survey-option"><input type="radio" name="minutes" value="60"><span class="time-ring">1</span><span><strong>1 tiếng</strong><small>Học sâu và chuyên tâm hơn</small></span><i class="survey-radio"></i></label>
                     <label class="survey-option"><input type="radio" name="minutes" value="90"><span class="time-ring">1.5</span><span><strong>1 tiếng rưỡi (90 phút)</strong><small>Tập trung cao độ để tăng tốc</small></span><i class="survey-radio"></i></label>
                     <label class="survey-option" data-jpath-only hidden><input type="radio" name="minutes" value="120"><span class="time-ring">2</span><span><strong>2 tiếng (120 phút)</strong><small>Học dồn để về đích sớm</small></span><i class="survey-radio"></i></label>
+                    <label class="survey-option" data-jpath-only hidden><input type="radio" name="minutes" value="180"><span class="time-ring">3</span><span><strong>3 tiếng (180 phút)</strong><small>Học chuyên sâu, kịp kỳ thi gần</small></span><i class="survey-radio"></i></label>
                 </div>
             </section>
             <section class="survey-slide" data-survey-step="days">
@@ -121,5 +125,6 @@
         </form>
     </div>
 </main>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script><script th:src="@{/js/pages/smart-test-survey-targets.js?v=20261021-od34}"></script><script th:src="@{/js/jlptpath/jpath-day-picker.js?v=20261102-jpath2}"></script><script th:src="@{/js/jlptpath/jpath-survey-flow.js?v=20261107-r9}"></script><script th:src="@{/js/pages/smart-test-survey.js?v=20261109-kotsu}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script><script th:src="@{/js/pages/smart-test-survey-targets.js?v=20261021-od34}"></script><script th:src="@{/js/jlptpath/jpath-day-picker.js?v=20261102-jpath2}"></script><script th:src="@{/js/jlptpath/jpath-survey-flow.js?v=20261107-r9}"></script><script th:src="@{/js/pages/smart-test-survey.js?v=20261109-kotsu}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body></html>

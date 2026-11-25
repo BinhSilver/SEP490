@@ -161,16 +161,16 @@
       item.classList.toggle('is-active', item.getAttribute('data-sidebar-tab') === state.tab);
     });
     if (state.tab === 'my') {
-      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-folder-open"></i></span> Bộ thẻ của tôi';
+      document.getElementById('library-heading').textContent = 'Bộ thẻ của tôi';
       document.getElementById('library-subheading').textContent = 'Bản nháp và các bộ thẻ được sắp xếp theo thư mục của bạn.';
     } else if (state.tab === 'favorites') {
-      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-heart"></i></span> Bộ thẻ yêu thích';
+      document.getElementById('library-heading').textContent = 'Bộ thẻ yêu thích';
       document.getElementById('library-subheading').textContent = 'Các bộ thẻ bạn đã bấm tim. Bấm tim lần nữa để bỏ khỏi danh sách.';
     } else if (state.tab === 'history') {
-      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-solid fa-clock-rotate-left"></i></span> Lịch sử';
+      document.getElementById('library-heading').textContent = 'Lịch sử';
       document.getElementById('library-subheading').textContent = 'Các bộ thẻ bạn đã mở, lần gần nhất ở trên.';
     } else {
-      document.getElementById('library-heading').innerHTML = '<span class="library-results-heading__icon"><i class="fa-regular fa-rectangle-list"></i></span> Bộ thẻ công khai';
+      document.getElementById('library-heading').textContent = 'Bộ thẻ công khai';
       document.getElementById('library-subheading').textContent = 'Khám phá các bộ thẻ được chia sẻ bởi cộng đồng.';
     }
   }
@@ -477,7 +477,7 @@
             '<h3 class="lib-card__title"><a href="' + setHref + '">' +
               FlashShell.esc(setTitle) + '</a></h3>' +
             '<div class="lib-card__count">' + totalCards + ' từ</div>' +
-            (s.ownedByMe && state.tab === 'my' ? '<label class="lib-folder-select"><span>Thư mục</span><select data-move-set="' + s.id + '">' + folderOptions(s.folderId) + '</select></label>' : '') +
+            (s.ownedByMe && state.tab === 'my' ? '<label class="lib-folder-select"><span>Thư mục</span><select data-jl-select data-move-set="' + s.id + '">' + folderOptions(s.folderId) + '</select></label>' : '') +
             '<div class="lib-card__actions">' +
               (s.draft
                 ? '<a class="btn btn--primary btn-primary btn-sm lib-icon-action" href="/flashcard/editor.html?id=' + s.id + '" title="Tiếp tục soạn" aria-label="Tiếp tục soạn"><i class="fa-solid fa-pen" aria-hidden="true"></i></a>'

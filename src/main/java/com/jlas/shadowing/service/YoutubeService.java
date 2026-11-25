@@ -44,6 +44,13 @@ public class YoutubeService {
     @Value("${yt-dlp.js-runtime:}")
     private String jsRuntime;
 
+    /**
+     * Netscape cookies.txt of a signed-in YouTube account. YouTube asks servers in a data centre to
+     * "confirm you're not a bot"; passing these cookies to every YouTube call gets past that check.
+     */
+    @Value("${yt-dlp.cookies-file:}")
+    private String cookiesFile;
+
     @Value("${yt-dlp.download.helper-path:}")
     private String downloadHelperPath;
 
@@ -127,6 +134,8 @@ public class YoutubeService {
                 if (jsRuntime != null && !jsRuntime.isBlank()) {
                     cmd.addAll(List.of("--js-runtime", jsRuntime.trim()));
                 }
+                String cookies = cookiesPath();
+                if (cookies != null) cmd.addAll(List.of("--cookies", cookies));
                 runCommand(cmd, timeout);
                 if (Files.isRegularFile(Path.of(outPath)) && Files.size(Path.of(outPath)) > 0) {
                     return outPath;
@@ -457,8 +466,20 @@ public class YoutubeService {
         if (jsRuntime != null && !jsRuntime.isBlank()) {
             cmd.addAll(List.of("--js-runtimes", jsRuntime.trim()));
         }
+        String cookies = cookiesPath();
+        if (cookies != null) cmd.addAll(List.of("--cookies", cookies));
         cmd.addAll(List.of(args));
         return cmd;
+    }
+
+    /** The configured cookies file, or null when none is set; a set but missing file is a setup error worth saying. */
+    private String cookiesPath() throws IOException {
+        if (cookiesFile == null || cookiesFile.isBlank()) return null;
+        Path file = Path.of(cookiesFile.trim());
+        if (!Files.isRegularFile(file)) {
+            throw new IOException("Không tìm thấy file cookie YouTube đã cấu hình (YT_DLP_COOKIES_FILE).");
+        }
+        return file.toAbsolutePath().toString();
     }
 
     /** Resolve yt-dlp executable; falls back to python -m yt_dlp on Windows. */
@@ -466,7 +487,7 @@ public class YoutubeService {
         if (pythonBin != null && !pythonBin.isBlank()) {
             String python = resolvePython();
             if (python != null) return List.of(python, "-m", "yt_dlp");
-            throw new IOException("Python đã cấu hình chưa cài yt-dlp. Cài yt-dlp[default] trong môi trường đó.");
+            throw new IOException(YTDLP_PYTHON_MISSING_MESSAGE);
         }
         if (ytdlpBin != null && !ytdlpBin.isBlank()) {
             File bin = new File(ytdlpBin);
@@ -481,12 +502,30 @@ public class YoutubeService {
         if (python != null) {
             return List.of(python, "-m", "yt_dlp");
         }
-        throw new IOException(
-                "Không tìm thấy yt-dlp. Cài: pip install yt-dlp "
-                        + "và đặt yt-dlp.bin.path trong application.properties.");
+        throw new IOException(YTDLP_MISSING_MESSAGE);
     }
 
+    /** Shown in the analyze popup: yt-dlp runs on the server, so the fix is a server install. */
+    static final String YTDLP_MISSING_MESSAGE = """
+            Máy chủ chưa cài yt-dlp (công cụ tải video YouTube). Người quản trị cần cài trên máy chủ chạy J-LAS:
+            • Linux: sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux \
+            -o /usr/local/bin/yt-dlp && sudo chmod a+rx /usr/local/bin/yt-dlp
+            • Windows: winget install yt-dlp.yt-dlp
+            • Hoặc nếu máy chủ có Python: python -m pip install -U "yt-dlp[default]"
+            Nếu yt-dlp không nằm trong PATH của ứng dụng, đặt biến môi trường YT_DLP_BIN_PATH \
+            bằng đường dẫn đầy đủ tới file yt-dlp. Sau đó khởi động lại ứng dụng.""";
+
+    static final String YTDLP_PYTHON_MISSING_MESSAGE = """
+            Python khai báo trong YT_DLP_PYTHON_PATH chưa có yt-dlp. Người quản trị cần chạy trên máy chủ:
+            <python đó> -m pip install -U "yt-dlp[default]"
+            rồi khởi động lại ứng dụng.""";
+
+    /** The Python found to have yt-dlp; checked once, since importing yt-dlp takes seconds. */
+    private volatile String resolvedPython;
+
     private String resolvePython() {
+        String known = resolvedPython;
+        if (known != null) return known;
         String[] candidates = pythonBin != null && !pythonBin.isBlank()
                 ? new String[]{pythonBin.trim()} : new String[]{"python", "python3"};
         for (String candidate : candidates) {
@@ -494,7 +533,10 @@ public class YoutubeService {
                 Process p = new ProcessBuilder(candidate, "-c", "import yt_dlp")
                         .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                         .redirectError(ProcessBuilder.Redirect.DISCARD).start();
-                if (p.waitFor(5, TimeUnit.SECONDS) && p.exitValue() == 0) {
+                // Importing yt-dlp takes 1-3 s on a warm machine and much longer while the app or a virus scan is
+                // busy; a short wait made an installed yt-dlp look missing.
+                if (p.waitFor(30, TimeUnit.SECONDS) && p.exitValue() == 0) {
+                    resolvedPython = candidate;
                     return candidate;
                 }
                 terminate(p);

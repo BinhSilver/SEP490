@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -50,7 +52,7 @@ public class JpathLearnerPageController {
             return blocked;
         }
         if (token == null || !CHECK_TOKEN.matcher(token).matches()) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("layoutMode", "app");
         model.addAttribute("checkToken", token);
@@ -66,22 +68,30 @@ public class JpathLearnerPageController {
             return blocked;
         }
         if (session == null || session <= 0) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("layoutMode", "app");
         model.addAttribute("sessionId", session);
         return "jlptpath/study";
     }
 
-    /** "Xong hôm nay" page; jpath-done.js draws it from {@code GET /api/learning/jlpt/today/summary}. */
+    /**
+     * AI 1 #14: owner 05/11 dropped the separate "Xong hôm nay" page; a finished session already returns to
+     * {@code /learning?saved=1}, so an old link or bookmark to /done goes there too.
+     */
     @GetMapping("/learning/jlpt/done")
-    public String done(@AuthenticationPrincipal UserPrincipal user, Model model) {
+    public String done(@AuthenticationPrincipal UserPrincipal user) {
         String blocked = guard(user);
-        if (blocked != null) {
-            return blocked;
-        }
-        model.addAttribute("layoutMode", "app");
-        return "jlptpath/done";
+        return blocked != null ? blocked : "redirect:/learning?saved=1";
+    }
+
+    /**
+     * F142: a malformed id in the address ({@code ?session=abc}, {@code /session/abc}) goes back to the path instead
+     * of the raw 400 JSON envelope of the API handler.
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public String malformedAddress() {
+        return "redirect:/learning?view=jlpt";
     }
 
     /** {@code null} when the learner may open the page, otherwise the redirect to send. */
@@ -90,7 +100,7 @@ public class JpathLearnerPageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         return null;
     }

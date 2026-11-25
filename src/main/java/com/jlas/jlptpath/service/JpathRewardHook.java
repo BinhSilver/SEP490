@@ -27,4 +27,8 @@ public interface JpathRewardHook {
     /** Plan 3 #44: a DAY skill session of {@code skill} done on {@code day} (the learner's today); +2 once a day. */
     default void onSkillSessionDone(Long userId, LocalDate day, JpathSkill skill) {
     }
+
+    /** Q5 (owner 24/11): a weekly check of {@code tab} passed at 80%+ on {@code day}; +2 once per tab and week. */
+    default void onWeeklyCheckPassed(Long userId, LocalDate day, JpathTab tab) {
+    }
 }

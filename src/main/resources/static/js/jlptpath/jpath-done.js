@@ -49,7 +49,7 @@
     if (!s.allDone) {
       return '<section class="jp-done jp-card" aria-labelledby="jp-done-title"><h1 class="jp-done__title" id="jp-done-title">'
         + 'Phần hôm nay chưa xong</h1><p>Học nốt các phần còn lại trong lộ trình để hoàn thành ngày hôm nay.</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình học</a></section>';
+        + '<a class="jp-btn jp-btn--primary" href="/learning?view=jlpt">Về lộ trình học</a></section>';
     }
     // Owner 05/11 (approved mock-up): everything visible, a clear "what next" row, a way back and the day's detail.
     var before = num(s.levelPercentBefore);
@@ -68,13 +68,15 @@
       + '<div class="jp-done__bar" aria-hidden="true"><span style="width:' + Math.max(1, Math.min(100, after)) + '%"></span></div></div>';
     var wrong = (s.wrongItems || []).filter(function (w) { return w && (w.expression || w.code); });
     if (wrong.length) {
-      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay điểm yếu</p>'
+      html += '<div class="jp-done__wrongbox"><p class="jp-done__label">Mục sai hôm nay (' + wrong.length + ') · đã vào Sổ tay</p>'
         + '<ul class="jp-done__wrong">' + wrong.map(function (w) {
           return '<li lang="ja">' + esc(w.expression || w.code) + '</li>';
         }).join('') + '</ul></div>';
     }
+    // owner 17/11: learn the day again / redo a check / history, right here (jpath-revisit.js)
+    if (s.day && s.kind !== 'SKILL') html += '<div data-jpath-revisit="' + esc(s.day) + '"></div>';
     html += '<p class="jp-done__label">Tiếp theo</p><div class="jp-done__actions">'
-      + '<a class="jp-btn jp-btn--primary" href="/learning">Về lộ trình</a>'
+      + '<a class="jp-btn jp-btn--primary" href="/learning?view=jlpt">Về lộ trình</a>'
       + '<a class="jp-btn" href="/learning/jlpt/day' + (s.day ? '?d=' + esc(s.day) : '') + '">Xem chi tiết ngày</a>'
       + (wrong.length ? '<a class="jp-btn" href="/learning/jlpt/notebook">Ôn lại ' + wrong.length + ' mục sai</a>' : '')
       + '<button type="button" class="jp-btn" data-jpath-writing="' + dataJson({ today: 'KANJI' }) + '">Luyện viết kanji</button>'
@@ -123,7 +125,7 @@
 
     function load() {
       el.setAttribute('aria-busy', 'true');
-      el.innerHTML = '<p class="jp-status" role="status">Đang tải…</p>';
+      el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
       return api.get(BASE + '/today/summary').then(function (summary) {
         el.innerHTML = summaryHtml(summary);
         el.setAttribute('aria-busy', 'false');
@@ -148,7 +150,18 @@
         }).catch(function (err) {
           busy = false;
           setChips(false, n);
-          status((err && err.message) || MSG_EXTRA_FAILED);
+          if (err && err.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
+            // F65: far ahead → the weekly check of this tab first
+            var tab = n.getAttribute('data-extra-tab');
+            status(err.message);
+            api.send('POST', '/api/learning/jlpt/checks', { kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
+              direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false }).then(function (res) {
+              var token = res && (res.token || res.checkToken);
+              if (token) navigate('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning%2Fjlpt%2Fdone');
+            }, function () { /* the message stays */ });
+            return;
+          }
+          status((err && (err.code || err.status) && err.message) || MSG_EXTRA_FAILED);
         });
         return;
       }

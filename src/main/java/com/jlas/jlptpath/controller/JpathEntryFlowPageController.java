@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -35,6 +36,9 @@ public class JpathEntryFlowPageController {
 
     @GetMapping("/learning/jlpt/start")
     public String start(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            return "redirect:/login"; // I21: no page for a guest
+        }
         if (!feature.enabled()) {
             return "redirect:" + JpathStartRedirect.resolve(
                     new JpathStartRedirect.StartState(false, false, null, false, null, null, null, null));
@@ -42,9 +46,27 @@ public class JpathEntryFlowPageController {
         return "redirect:" + JpathStartRedirect.resolve(startState(pathService.entryStatus(user.userId())));
     }
 
-    /** Resumes the paused path; without one, /learning decides where the learner belongs. */
+    /**
+     * I4 (bug 55): opening the link only shows a "Học tiếp" screen; it never changes the path, so a prefetch or a link
+     * from another page cannot make the path ACTIVE. Without a paused path, /learning decides where the learner belongs.
+     */
     @GetMapping("/learning/jlpt/resume")
+    public String resumePage(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            return "redirect:/login"; // I21: no page for a guest
+        }
+        if (pathService.entryStatus(user.userId()).pathStatus() != JpathPathStatus.PAUSED) {
+            return LEARNING;
+        }
+        return "jlptpath/resume";
+    }
+
+    /** Resumes the paused path (button on the resume screen). */
+    @PostMapping("/learning/jlpt/resume")
     public String resume(@AuthenticationPrincipal UserPrincipal user) {
+        if (user == null) {
+            return "redirect:/login"; // I21: no page for a guest
+        }
         try {
             pathService.resumePaused(user.userId());
         } catch (ApiException e) {
@@ -66,6 +88,9 @@ public class JpathEntryFlowPageController {
             @RequestParam(required = false) String source,
             @RequestParam(required = false) String assessmentAttemptId,
             Model model) {
+        if (user == null) {
+            return "redirect:/login"; // I21: no page for a guest
+        }
         JpathEntrySource entrySource = parseSource(source);
         Long attemptId = parseAttemptId(assessmentAttemptId);
         boolean attemptGiven = assessmentAttemptId != null && !assessmentAttemptId.isBlank();

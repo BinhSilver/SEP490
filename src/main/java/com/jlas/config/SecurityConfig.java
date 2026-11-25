@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((request, response, exception) ->
                                 handleAccessDenied(request, response)))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/dev/**").hasRole("ADMIN")
                         // Arena SSE completes through an async dispatch of an authenticated request.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
                         .requestMatchers("/admin/kanji-map", "/api/admin/kanji-map/**").hasRole("CONTENT_CREATOR")
@@ -68,14 +69,31 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/games/sphinx/**", "/games/picture-rebus/**", "/games/draw-guess/**",
+                                "/api/games/puzzles/**").hasRole("ADMIN")
+                        // [JLAS2-270] Learners submit; only content creators/admins review learning error reports.
+                        .requestMatchers("/admin/learning-content-reports", "/api/admin/learning-content-reports", "/api/admin/learning-content-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
                         .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        // Duyệt nội dung do gia sư AI tạo ra: hàng chờ người biên soạn.
+                        .requestMatchers("/admin/tutor-review", "/admin/tutor-review/**", "/api/admin/tutor-review/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        // Báo cáo Cộng đồng: người biên soạn (content admin) xử lý mọi báo cáo bài viết / bình luận.
+                        .requestMatchers("/admin/community-reports", "/api/admin/community-reports", "/api/admin/community-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "MODERATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
+                        // [JLAS2-37] Gỡ trực tiếp bài viết / bình luận cộng đồng: chặn theo vai trò TRƯỚC khi đọc và kiểm
+                        // tra body, để người không phải MODERATOR/ADMIN/CONTENT_CREATOR luôn nhận 403 (không phải 400 vì thiếu lý do).
+                        .requestMatchers(HttpMethod.POST, "/api/community/posts/*/remove", "/api/community/comments/*/remove")
+                        .hasAnyRole("MODERATOR", "ADMIN", "CONTENT_CREATOR")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error", "/about", "/policy").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
+                        .requestMatchers("/search", "/search/**", "/dictionary/index.html",
+                                "/dictionary/css/**", "/dictionary/js/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
                                 "/arena/js/**", "/arena/images/**", "/arena/app/**", "/arena/audio/memory/**",
                                 "/videos/**", "/voices/**", "/audio/**", "/JLPT/**", "/flashcard/**", "/shadowing/css/**",
@@ -84,6 +102,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                 "/api/auth/logout", "/api/auth/verify-email", "/api/auth/resend-verification",
                                 "/api/auth/forgot-password", "/api/auth/verify-reset-otp", "/api/auth/reset-password", "/api/auth/google").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/dictionary/handwriting/recognize").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/learning/lessons/*/quiz").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/premium/plans", "/api/credits/packages", "/api/dictionary/**", "/api/assessment/**",
                                 "/api/learning/curriculum", "/api/learning/lessons/**",

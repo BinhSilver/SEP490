@@ -1,8 +1,9 @@
 /**
- * Trang thiết lập trận (/games/lobby?game=…&mode=QUICK|VERSUS|SOLO&setId=…):
- * - QUICK: chọn game + bộ rồi tìm đối thủ cùng bộ; cài đặt do hai bên tung đồng xu trong phòng.
- * - VERSUS: chọn game + bộ rồi tạo phòng, gửi mã cho bạn bè; đủ hai người thì tung đồng xu chọn cài đặt.
- * - SOLO: chỉ chọn game + bộ; hỏi – đáp, thẻ và tuỳ chọn chọn ở màn chuẩn bị trong game.
+ * Trang thiết lập trận (/games/lobby?game=…&mode=QUICK|VERSUS|SOLO&setId=…). Game đã chọn ở /games;
+ * ở đây chỉ còn hai bước: chế độ rồi bộ flashcard.
+ * - QUICK: tìm đối thủ cùng bộ; cài đặt do hai bên tung đồng xu trong phòng.
+ * - VERSUS: tạo phòng, gửi mã cho bạn bè; đủ hai người thì tung đồng xu chọn cài đặt.
+ * - SOLO: hỏi – đáp, thẻ và tuỳ chọn chọn ở màn chuẩn bị trong game.
  */
 (function () {
   'use strict';
@@ -17,6 +18,7 @@
     gameType: params.get('game') || 'NEKO_CATCH',
     mode: ['VERSUS', 'SOLO'].indexOf(params.get('mode')) >= 0 ? params.get('mode') : 'QUICK',
     deck: null,
+    jlpt: params.get('jlpt'),
     detail: null,
     question: 'KANJI',
     answer: 'MEANING',
@@ -30,22 +32,25 @@
   var picker = null;
   var mobile = window.matchMedia('(max-width: 900px)');
   var savedHistory = window.history.state || {};
-  // Nút trên thẻ game đã chọn cả game lẫn chế độ: mở thẳng bộ thẻ trên mobile.
-  var entryStep = params.get('game') && ['QUICK', 'VERSUS', 'SOLO'].indexOf(params.get('mode')) >= 0 ? 3 : 1;
-  var mobileStep = [1, 2, 3].indexOf(savedHistory.jlasArenaSetupStep) >= 0 ? savedHistory.jlasArenaSetupStep : entryStep;
+  // Đường dẫn đã có chế độ (vd. quay lại từ phòng): mở thẳng bước chọn bộ trên mobile.
+  var entryStep = ['QUICK', 'VERSUS', 'SOLO'].indexOf(params.get('mode')) >= 0 ? 2 : 1;
+  var mobileStep = [1, 2].indexOf(savedHistory.jlasArenaSetupStep) >= 0 ? savedHistory.jlasArenaSetupStep : entryStep;
   var historyId = savedHistory.jlasArenaSetupId || Date.now().toString(36) + Math.random().toString(36).slice(2);
 
   var el = {
     title: document.querySelector('[data-setup-title]'),
     modeSeg: document.querySelector('[data-mode-seg]'),
-    gamePicker: document.querySelector('[data-game-picker]'),
+    game: document.querySelector('[data-setup-game]'),
+    crumb: document.querySelector('[data-crumb-game]'),
     deckPicker: document.querySelector('[data-deck-picker]'),
+    levelPicker: document.querySelector('[data-level-picker]'),
+    level: document.getElementById('ar-setup-jlpt'),
+    sourceHeading: document.querySelector('[data-source-heading]'),
+    soloCopy: document.querySelector('[data-solo-copy]'),
     problem: document.querySelector('[data-summary-problem]'),
     submits: document.querySelectorAll('[data-submit]'),
     stepMode: document.querySelector('[data-step-mode]'),
-    stepGame: document.querySelector('[data-step-game]'),
     stepDeck: document.querySelector('[data-step-deck]'),
-    mobileMode: document.querySelector('[data-mobile-mode]'),
     mobileBar: document.querySelector('.ar-mobile-bar'),
     mobileSubmit: document.querySelector('.ar-mobile-bar [data-submit]'),
     error: document.querySelector('[data-setup-error]'),
@@ -57,29 +62,18 @@
     searchCancel: document.querySelector('[data-search-cancel]')
   };
 
-  var TITLES = { QUICK: 'Ghép trận nhanh', VERSUS: 'Phòng với bạn bè', SOLO: 'Chơi luyện tập' };
   var SUBMIT_LABELS = { QUICK: 'Tìm đối thủ', VERSUS: 'Tạo phòng', SOLO: 'Bắt đầu luyện tập' };
+  var LEVEL_LABELS = { N5: 'Sơ cấp', N4: 'Sơ cấp nâng cao', N3: 'Trung cấp', N2: 'Trung cao cấp', N1: 'Cao cấp' };
 
+  /** The game from the link, even one this device cannot play (problem() then says why). */
   function item() {
-    var games = availableGames();
+    var games = state.catalog.games;
     return games.find(function (game) { return game.type === state.gameType; }) || games[0];
   }
 
-  function availableGames() {
-    return state.catalog.games.filter(function (game) { return arena.canPlayGame(game.type); });
-  }
-
+  // Game cần bàn phím trên điện thoại: giữ nguyên game; dòng báo ở bước bộ thẻ nói vì sao chưa chơi được.
   arena.phoneMedia.addEventListener('change', function () {
-    if (!state.catalog) return;
-    if (!arena.canPlayGame(state.gameType)) {
-      state.gameType = availableGames()[0].type;
-      state.options = {};
-      if (picker) picker.setGame(state.gameType);
-      mobileStep = 2;
-      if (mobile.matches) window.history.replaceState(stepHistory(mobileStep), '');
-      normalize();
-    }
-    render();
+    if (state.catalog) render();
   });
 
   function syncUrl() {
@@ -87,6 +81,7 @@
     next.set('game', state.gameType);
     next.set('mode', state.mode);
     if (state.deck) next.set('setId', state.deck.id);
+    if (state.catalog && item().usesDeck === false && state.jlpt) next.set('jlpt', state.jlpt);
     window.history.replaceState(window.history.state, '', window.location.pathname + '?' + next.toString());
   }
 
@@ -95,8 +90,11 @@
   }
 
   function renderMode() {
-    el.title.textContent = TITLES[state.mode];
+    var game = state.catalog && item();
+    el.modeSeg.style.setProperty('--ar-mode-count', game && game.usesDeck === false ? (game.supportsSolo ? 2 : 1) : 3);
     el.modeSeg.querySelectorAll('[data-value]').forEach(function (button) {
+      button.hidden = !!game && (button.dataset.value === 'QUICK' && game.usesDeck === false
+        || button.dataset.value === 'SOLO' && game.supportsSolo === false);
       var checked = button.dataset.value === state.mode;
       button.setAttribute('aria-checked', String(checked));
       button.tabIndex = checked ? 0 : -1;
@@ -106,34 +104,61 @@
     });
   }
 
-  /** Mobile dùng lại các bộ chọn hiện có để giữ nguyên lựa chọn khi quay lại hoặc đổi kích thước. */
+  function renderSource() {
+    var game = item();
+    var puzzle = game.usesDeck === false;
+    el.deckPicker.hidden = puzzle;
+    el.levelPicker.hidden = !puzzle;
+    el.sourceHeading.textContent = puzzle ? 'Chọn cấp JLPT' : 'Chọn bộ flashcard';
+    el.soloCopy.textContent = puzzle ? 'Tự giải câu đố theo cấp độ của bạn.' : 'Chơi thử, tự chọn phần hỏi và phần đáp.';
+    if (!puzzle || el.level.dataset.game === game.type) return;
+    var levels = game.choices.jlpt;
+    if (!levels.includes(state.jlpt)) state.jlpt = levels[0] || null;
+    el.level.dataset.game = game.type;
+    el.level.innerHTML = levels.map(function (level) {
+      var value = esc(level);
+      var label = esc(LEVEL_LABELS[level] || level);
+      var checked = level === state.jlpt;
+      return '<li role="presentation"><button type="button" class="ar-deck" role="radio" data-jlpt="' + value + '"'
+        + ' aria-label="' + value + ' · ' + label + '" aria-checked="' + checked + '" tabindex="' + (checked ? 0 : -1) + '">'
+        + '<span class="ar-deck__thumb" aria-hidden="true">' + value + '</span>'
+        + '<span class="ar-deck__main"><span class="ar-deck__title">' + label + '</span></span></button></li>';
+    }).join('');
+  }
+
+  function selectLevel(button) {
+    if (!button || state.submitting) return;
+    state.jlpt = button.dataset.jlpt;
+    el.level.querySelectorAll('[data-jlpt]').forEach(function (choice) {
+      var current = choice === button;
+      choice.setAttribute('aria-checked', String(current));
+      choice.tabIndex = current ? 0 : -1;
+    });
+    renderSummary();
+    syncUrl();
+  }
+
+  /** Mobile: mỗi màn một bước (1 chế độ, 2 bộ thẻ); Back của máy quay lại bước trước mà giữ lựa chọn. */
   function renderWizard() {
     var isMobile = mobile.matches;
     if (isMobile && (!window.history.state || window.history.state.jlasArenaSetupId !== historyId)) {
       window.history.replaceState(stepHistory(mobileStep), '');
     }
-    var modeParent = isMobile ? el.mobileMode : el.stepGame;
-    if (el.modeSeg.parentElement !== modeParent) {
-      modeParent.insertBefore(el.modeSeg, isMobile ? null : el.gamePicker);
-    }
-    el.stepMode.hidden = !isMobile || mobileStep !== 1;
-    el.stepGame.hidden = isMobile && mobileStep !== 2;
-    el.stepDeck.hidden = isMobile && mobileStep !== 3;
-    el.stepGame.querySelector('.ar-step__no').textContent = isMobile ? '2' : '1';
-    el.stepDeck.querySelector('.ar-step__no').textContent = isMobile ? '3' : '2';
-    el.mobileBar.hidden = !isMobile || mobileStep !== 3;
-    el.mobileSubmit.hidden = !isMobile || mobileStep !== 3;
+    el.stepMode.hidden = isMobile && mobileStep !== 1;
+    el.stepDeck.hidden = isMobile && mobileStep !== 2;
+    el.mobileBar.hidden = !isMobile || mobileStep !== 2;
+    el.mobileSubmit.hidden = !isMobile || mobileStep !== 2;
   }
 
   function focusStep() {
-    var heading = [el.stepMode, el.stepGame, el.stepDeck][mobileStep - 1].querySelector('h2');
+    var heading = [el.stepMode, el.stepDeck][mobileStep - 1].querySelector('h2');
     heading.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   function changeStep(step) {
     if (!mobile.matches || state.submitting) return;
-    var nextStep = Math.max(1, Math.min(3, step));
+    var nextStep = Math.max(1, Math.min(2, step));
     if (nextStep === mobileStep) return;
     mobileStep = nextStep;
     window.history.pushState(stepHistory(mobileStep), '', window.location.href);
@@ -156,24 +181,21 @@
     if (mobile.matches && active && active.closest('[hidden]')) focusStep();
   });
 
-  /** Dựng thẻ game một lần (cảnh xem trước chạy liên tục); các lần sau chỉ đổi trạng thái chọn. */
-  function renderGames() {
-    if (!el.gamePicker.childElementCount) {
-      el.gamePicker.innerHTML = state.catalog.games.map(function (game) {
-        return '<button type="button" class="ar-game-option ar-game-option--' + esc(game.slug) + '" role="radio"'
-          + ' aria-checked="false" tabindex="-1" data-game="' + esc(game.type) + '">'
-          + '<span class="ar-game-option__art"><span class="ar-preview" data-game-preview="' + esc(game.slug) + '">'
-          + '<img src="' + esc(game.image) + '" alt="" width="960" height="600"></span></span>'
-          + '<span><strong>' + esc(game.name) + '</strong><span>' + esc(game.tagline) + '</span></span></button>';
-      }).join('');
-      if (window.JlasGamePreviews) window.JlasGamePreviews.mountAll(el.gamePicker);
-    }
-    el.gamePicker.querySelectorAll('[data-game]').forEach(function (button) {
-      button.hidden = !arena.canPlayGame(button.dataset.game);
-      var checked = button.dataset.game === state.gameType;
-      button.setAttribute('aria-checked', String(checked));
-      button.tabIndex = checked ? 0 : -1;
-    });
+  /** Game đã chọn ở /games: hiện như thẻ tóm tắt (cảnh xem trước chạy liên tục), kèm đường quay lại đổi game. */
+  function renderGame() {
+    var game = item();
+    el.title.textContent = game.name;
+    el.crumb.textContent = game.name;
+    document.title = game.name + ' - Trò chơi - KotsuKotsu';
+    if (el.game.dataset.game === game.type) return;
+    el.game.dataset.game = game.type;
+    el.game.className = 'ar-setup-game ar-setup-game--' + game.slug;
+    el.game.innerHTML = '<span class="ar-setup-game__art"><span class="ar-preview" data-game-preview="' + esc(game.slug) + '">'
+      + '<img src="' + esc(game.image) + '" alt="" width="960" height="600"></span></span>'
+      + '<span class="ar-setup-game__text"><span class="ar-setup-game__tag">' + esc(game.tagline) + '</span>'
+      + '<strong>' + esc(game.name) + '</strong></span>'
+      + '<a class="ar-setup-game__change" href="/games">Đổi game</a>';
+    if (window.JlasGamePreviews) window.JlasGamePreviews.mountAll(el.game);
   }
 
   /** Ghép nhanh chỉ cần bộ có ít nhất một cặp hỏi–đáp đủ thẻ; cặp cụ thể sẽ tung đồng xu chọn. */
@@ -183,6 +205,7 @@
 
   function problem() {
     if (!arena.canPlayGame(state.gameType)) return 'Bắn máy bay cần bàn phím. Hãy mở game trên máy tính.';
+    if (item().usesDeck === false) return state.jlpt ? null : 'Chọn cấp JLPT để tiếp tục.';
     if (!state.deck) return 'Chọn một bộ flashcard để tiếp tục.';
     if (state.deck.draft) return 'Bộ này đang là bản nháp; xuất bản bộ ở trang Flashcard rồi mới chơi được.';
     if (state.mode !== 'SOLO') {
@@ -216,7 +239,6 @@
     if (!active || !active.dataset) return null;
     var seg = active.closest('[data-seg]');
     if (seg && active.dataset.value) return '[data-seg="' + seg.dataset.seg + '"] [data-value="' + active.dataset.value + '"]';
-    if (active.dataset.game) return '[data-game="' + active.dataset.game + '"]';
     if (active.closest('[data-mode-seg]') && active.dataset.value) return '[data-mode-seg] [data-value="' + active.dataset.value + '"]';
     if (active.id) return '#' + active.id;
     return null;
@@ -226,7 +248,8 @@
     var key = focusKey();
     renderMode();
     renderWizard();
-    renderGames();
+    renderGame();
+    renderSource();
     renderSummary();
     syncUrl();
     if (key) {
@@ -236,6 +259,10 @@
   }
 
   function normalize() {
+    if (item().usesDeck === false) {
+      if (state.mode === 'QUICK' || state.mode === 'SOLO' && item().supportsSolo === false) state.mode = 'VERSUS';
+      return;
+    }
     state.options = setup.normalizeOptions(item(), state.mode, state.options, state.detail, state.question, state.answer);
     // Luyện tập không có bước hỏi – đáp: tự lấy cặp chơi được (người chơi đổi lại ở màn chuẩn bị).
     if (state.mode === 'SOLO' && state.detail
@@ -262,10 +289,10 @@
   }
 
   function submit() {
-    if (problem() || state.submitting || (mobile.matches && mobileStep !== 3)) return;
+    if (problem() || state.submitting || (mobile.matches && mobileStep !== 2)) return;
     state.submitting = true;
     renderSummary();
-    var settings = {
+    var settings = item().usesDeck === false ? { jlpt: state.jlpt } : {
       setId: state.deck.id,
       questionField: state.question,
       answerField: state.answer,
@@ -371,7 +398,7 @@
 
   el.modeSeg.addEventListener('click', function (event) {
     var button = event.target.closest('[data-value]');
-    if (!button) return;
+    if (!button || button.hidden) return;
     selectMode(button.dataset.value);
     changeStep(2);
   });
@@ -379,7 +406,7 @@
   el.modeSeg.addEventListener('keydown', function (event) {
     if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].indexOf(event.key) < 0) return;
     event.preventDefault();
-    var buttons = Array.prototype.slice.call(el.modeSeg.querySelectorAll('[data-value]'));
+    var buttons = Array.prototype.slice.call(el.modeSeg.querySelectorAll('[data-value]:not([hidden])'));
     var index = buttons.indexOf(event.target.closest('[data-value]'));
     var direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
     var next = buttons[(index + direction + buttons.length) % buttons.length];
@@ -387,50 +414,31 @@
     next.focus();
   });
 
-  el.gamePicker.addEventListener('click', function (event) {
-    var button = event.target.closest('[data-game]');
-    if (!button || !arena.canPlayGame(button.dataset.game)) return;
-    if (button.dataset.game !== state.gameType) {
-      state.gameType = button.dataset.game;
-      state.options = {};
-      if (picker) picker.setGame(state.gameType);
-      normalize();
-      render();
-    }
-    changeStep(3);
-  });
-
-  el.gamePicker.addEventListener('keydown', function (event) {
-    if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].indexOf(event.key) < 0) return;
-    event.preventDefault();
-    var games = availableGames();
-    var index = games.findIndex(function (game) { return game.type === state.gameType; });
-    var step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1;
-    state.gameType = games[(index + step + games.length) % games.length].type;
-    state.options = {};
-    if (picker) picker.setGame(state.gameType);
-    normalize();
-    render();
-    var focused = el.gamePicker.querySelector('[aria-checked="true"]');
-    if (focused) focused.focus();
-  });
-
   el.submits.forEach(function (button) { button.addEventListener('click', submit); });
+  el.level.addEventListener('click', function (event) { selectLevel(event.target.closest('[data-jlpt]')); });
+  el.level.addEventListener('keydown', function (event) {
+    var delta = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+    if (delta === undefined || state.submitting) return;
+    var choices = Array.from(el.level.querySelectorAll('[data-jlpt]'));
+    var current = choices.indexOf(event.target);
+    if (current === -1) return;
+    event.preventDefault();
+    var next = choices[(current + delta + choices.length) % choices.length];
+    selectLevel(next);
+    next.focus();
+  });
 
   renderMode();
   renderWizard();
 
   arena.api.catalog().then(function (catalog) {
     state.catalog = catalog;
-    if (!availableGames().some(function (game) { return game.type === state.gameType; })) {
-      state.gameType = availableGames()[0].type;
-      if (mobileStep === 3) {
-        mobileStep = 2;
-        if (mobile.matches) window.history.replaceState(stepHistory(mobileStep), '');
-      }
+    if (!catalog.games.some(function (game) { return game.type === state.gameType; })) {
+      state.gameType = catalog.games[0].type;
     }
     normalize();
     render();
+    if (item().usesDeck === false) return;
     picker = new setup.DeckPicker(el.deckPicker, { onSelect: onDeckSelected, gameType: state.gameType });
     picker.load(true);
     var setId = params.get('setId');

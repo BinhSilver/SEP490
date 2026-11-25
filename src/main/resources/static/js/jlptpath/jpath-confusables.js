@@ -1,7 +1,7 @@
 /* [JLAS-W0108] jpath-confusables.js — "Phân biệt chữ dễ nhầm" page of the JLPT path (plan Task 68).
  *
  * window.JpathConfusables = { pairMarkup(pair), mount() }
- *   - Tabs Từ vựng / Kanji: GET /api/learning/jlpt/confusables?tab= lists the pairs the learner has learned on both
+ *   - Tabs Từ vựng / Kanji: GET /api/learning/jlpt/confusables?tab= (&preview=true: every pair, "Xem trước tất cả") lists the pairs the learner has learned on both
  *     sides, most mistakes first. "Luyện 10 câu" → POST /checks {kind:'CONFUSABLE', tab, count:10} →
  *     /learning/jlpt/check/{token}; without a pair the button is off with "Bạn cần học cả hai mục của một cặp trước".
  *     The practice does not count towards progress.
@@ -20,6 +20,12 @@
 
   var BASE = '/api/learning/jlpt';
   var NO_PAIR = 'Bạn cần học cả hai mục của một cặp trước';
+  // an empty tab says why: a pair shows once both of its sides are learned
+  var EMPTY = {
+    VOCAB: 'Chưa có cặp nào: một cặp từ dễ nhầm hiện ở đây khi bạn đã học cả hai từ.',
+    KANJI: 'Chưa có cặp nào: một cặp Kanji dễ nhầm hiện ở đây khi bạn đã học cả hai chữ.',
+    GRAMMAR: 'Chưa có cặp nào: một cặp mẫu ngữ pháp dễ nhầm (kèm giải thích, ví dụ và câu luyện) hiện ở đây khi bạn đã học cả hai mẫu.'
+  };
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -76,16 +82,24 @@
     var search = main.querySelector('[data-role="search"]');
     var pager = main.querySelector('[data-role="pager"]');
     var tab = 'VOCAB';
+    var mode = 'mine';
     var pairs = [];
     var shown = [];
     var page = 0;
 
+    // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
+    function foldSearch(v) {
+      var s = String(v == null ? '' : v);
+      if (typeof s.normalize === 'function') s = s.normalize('NFKC');
+      return s.trim().toLocaleLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    }
+
     function draw() {
-      var term = (search.value || '').trim().toLocaleLowerCase();
+      var term = foldSearch(search.value);
       var filtered = pairs.filter(function (p) {
         return !term || [p.a, p.b].some(function (s) {
           return s && [s.expression, s.reading, s.meaning].some(function (v) {
-            return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+            return foldSearch(v).indexOf(term) >= 0;
           });
         });
       });
@@ -97,28 +111,34 @@
       pager.querySelector('[data-page="prev"]').disabled = page === 0;
       pager.querySelector('[data-page="next"]').disabled = page + 1 >= pages;
       pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (page + 1) + '/' + pages;
-      status.textContent = filtered.length ? filtered.length + ' cặp' : (pairs.length ? 'Không tìm thấy cặp phù hợp.' : NO_PAIR);
+      status.textContent = filtered.length ? (mode === 'preview' ? 'Xem trước · ' : '') + filtered.length + ' cặp'
+        : (pairs.length ? 'Không tìm thấy cặp phù hợp.' : (EMPTY[tab] || NO_PAIR) + (mode === 'mine' ? ' Bấm "Xem trước tất cả" để xem các cặp sẽ gặp.' : ''));
     }
 
     function load() {
       main.querySelectorAll('[data-tab]').forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-tab') === tab));
       });
+      main.querySelectorAll('[data-mode]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode));
+      });
       status.textContent = 'Đang tải…';
       start.disabled = true;
-      api.get(BASE + '/confusables?tab=' + tab).then(function (result) {
+      api.get(BASE + '/confusables?tab=' + tab + (mode === 'preview' ? '&preview=true' : '')).then(function (result) {
         pairs = Array.isArray(result) ? result : [];
         page = 0;
         // grammar pairs are practised inline (each pair has its own question); the 10-question check is for words
-        start.hidden = tab === 'GRAMMAR';
+        start.hidden = tab === 'GRAMMAR' || mode === 'preview';
         start.disabled = !pairs.length;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được các cặp dễ nhầm.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được các cặp dễ nhầm.'; });
     }
 
     main.addEventListener('click', function (e) {
       var t = e.target.closest('[data-tab]');
       if (t) { tab = t.getAttribute('data-tab'); search.value = ''; load(); return; }
+      var m = e.target.closest('[data-mode]');
+      if (m) { mode = m.getAttribute('data-mode'); search.value = ''; load(); return; }
       var pick = e.target.closest('[data-quiz-pick]');
       if (pick) {
         var box = pick.closest('[data-quiz]');
@@ -141,7 +161,7 @@
           else start.disabled = false;
         }, function (err) {
           start.disabled = false;
-          status.textContent = (err && err.message) || 'Chưa mở được bài luyện.';
+          status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa mở được bài luyện.';
         });
       }
     });

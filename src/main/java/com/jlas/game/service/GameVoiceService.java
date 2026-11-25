@@ -8,6 +8,7 @@ import com.jlas.game.runtime.GameRoom;
 import com.jlas.game.runtime.GameSession;
 import com.jlas.game.runtime.GameSessionRegistry;
 import com.jlas.game.runtime.RoomRegistry;
+import com.jlas.game.util.GameRules;
 import io.livekit.server.AccessToken;
 import io.livekit.server.CanPublish;
 import io.livekit.server.CanPublishData;
@@ -83,13 +84,18 @@ public class GameVoiceService {
 
     private static RoomServiceClient createClient(GameVoiceProperties properties) {
         if (properties.enabled()) {
+            boolean loopback = properties.allowInsecureLocalhost()
+                    && properties.url().matches("ws://(?:localhost|127\\.0\\.0\\.1)(?::[0-9]{1,5})?/?")
+                    && Arrays.stream(properties.allowedOrigins().split(",", -1)).map(String::trim)
+                    .allMatch(origin -> origin.matches("https?://(?:localhost|127\\.0\\.0\\.1)(?::[0-9]{1,5})?"));
             if (properties.url().isBlank() || properties.apiKey().isBlank() || properties.apiSecret().isBlank()
                     || properties.allowedOrigins().isBlank() || properties.tokenTtlSeconds() < 30
                     || properties.tokenTtlSeconds() > 600 || properties.tokensPerMinute() < 1
-                    || !properties.url().startsWith("wss://")) {
-                throw new IllegalStateException("game.voice requires a wss URL, credentials, allowed origins and valid limits");
+                    || (!loopback && !properties.url().startsWith("wss://"))) {
+                throw new IllegalStateException("game.voice requires a wss URL (or explicitly enabled loopback transport), credentials, allowed origins and valid limits");
             }
-            String apiUrl = "https://" + properties.url().substring("wss://".length());
+            String apiUrl = loopback ? "http://" + properties.url().substring("ws://".length())
+                    : "https://" + properties.url().substring("wss://".length());
             return RoomServiceClient.createClient(apiUrl, properties.apiKey(), properties.apiSecret());
         }
         return null;
@@ -155,6 +161,7 @@ public class GameVoiceService {
 
     private GameRoom requireMember(long userId, String roomId, String sessionId) {
         GameRoom room = rooms.require(roomId);
+        GameRules.requireAccess(room.getGameType());
         boolean allowed = room.withLock(() -> !room.isClosed() && room.playersByUserId().containsKey(userId));
         if (!allowed) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không ở trong phòng này");

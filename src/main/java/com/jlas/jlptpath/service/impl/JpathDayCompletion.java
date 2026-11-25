@@ -6,6 +6,7 @@ import com.jlas.jlptpath.entity.JpathDailyTab;
 import com.jlas.jlptpath.enums.JpathDayKind;
 import com.jlas.jlptpath.enums.JpathItemType;
 import com.jlas.jlptpath.enums.JpathTab;
+import com.jlas.jlptpath.repository.JpathKanaRowRepository;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
 import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
@@ -33,12 +34,21 @@ public class JpathDayCompletion {
     private final JpathUserItemRepository userItems;
     private final ObjectProvider<JpathRewardHook> hooks;
     private final JpathClock clock;
+    /** Null only in unit tests built without it: then the skill-day quiz is not waited for. */
+    private final JpathKanaRowRepository kanaRows;
 
     public JpathDayCompletion(JpathDailyPlanService planService, JpathUserItemRepository userItems, ObjectProvider<JpathRewardHook> hooks, JpathClock clock) {
+        this(planService, userItems, hooks, clock, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public JpathDayCompletion(JpathDailyPlanService planService, JpathUserItemRepository userItems,
+            ObjectProvider<JpathRewardHook> hooks, JpathClock clock, JpathKanaRowRepository kanaRows) {
         this.planService = planService;
         this.userItems = userItems;
         this.hooks = hooks;
         this.clock = clock;
+        this.kanaRows = kanaRows;
     }
 
     /**
@@ -94,7 +104,9 @@ public class JpathDayCompletion {
             int target = skill ? touched.getNewTarget() : planService.effectiveTarget(plan, touched);
             // Plan 3 Task 16: the SKILL tab is done by its DAY sessions (one per skill); it pays no tab CP (#44 pays
             // each skill session apart)
-            boolean complete = skill ? touched.getNewDone() >= target
+            // Bug 95: a skill day with a skill quiz (policy #25) is done only once that quiz is passed, never right after
+            // Reading + Listening (that paid "Xong buổi Nghe" and "Xong ngày kỹ năng" in the same step)
+            boolean complete = skill ? touched.getNewDone() >= target && (checked || !skillQuizRequired(userId, plan))
                     : touched.getNewDone() >= target && (target == 0 || checked);
             if (complete) {
                 touched.setDoneAt(now);
@@ -107,6 +119,11 @@ public class JpathDayCompletion {
             int target = t.getTab() == JpathTab.SKILL ? t.getNewTarget() : planService.effectiveTarget(plan, t);
             if (t != touched && t.getDoneAt() == null && target == 0) {
                 t.setDoneAt(now);
+            } else if (t.getDoneAt() != null && t.getTab() != JpathTab.SKILL && target > t.getNewDone()
+                    && plan.getAllDoneAt() == null) {
+                // [JLAS-W0108] F148: reopen tab if effective target grew above newDone (e.g. after Kana rows unlocked words);
+                // never once the day is complete: a finished day stays finished and its tab is not paid twice
+                t.setDoneAt(null);
             }
         }
 
@@ -130,22 +147,28 @@ public class JpathDayCompletion {
         if (hook != null) {
             if (tabPays) {
                 hook.onTabDayCompleted(userId, day, touched.getTab(), rewardEligible);
-                cp += rewardEligible ? JpathRewardPolicy.TAB_DAY : 0;
+                // owner 25/11: no CP for a part; paid with the day
             }
             if (reviewsCleared) {
                 hook.onReviewsCleared(userId, day);
-                cp += JpathRewardPolicy.REVIEW_DAY;
+                // owner 25/11: paid with the day
             }
             if (dayCompleted) {
                 hook.onDayCompleted(userId, day, plan.getDayKind(), dayEligible);
                 if (dayEligible) {
-                    cp += plan.getDayKind() == JpathDayKind.SKILL ? JpathRewardPolicy.SKILL_DAY : JpathRewardPolicy.DAY;
+                    cp += JpathRewardPolicy.dayTotal(plan.getDayKind());
                 }
             }
             hook.onProgressChanged(userId);
             plan.setCpAwarded(plan.getCpAwarded() + cp);
         }
         return new JpathCompletionOutcome(tabCompleted, dayCompleted, reviewsCleared, cp);
+    }
+
+    /** The skill day has a skill quiz to pass ({@link JpathPathRules#skillQuizSource} not empty). */
+    private boolean skillQuizRequired(Long userId, JpathDailyPlan plan) {
+        return kanaRows != null && JpathPathRules.skillQuizSource(userItems, kanaRows, userId, plan.getLevel(),
+                plan.isKanaPhase()).isPresent();
     }
 
     /** Every V/K/G/KANA tab has reached its review cap or has no card due now. */

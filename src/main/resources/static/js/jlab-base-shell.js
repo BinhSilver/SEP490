@@ -12,6 +12,13 @@
 (function () {
   'use strict';
 
+  // Standalone feature pages also share the CP currency treatment.
+  if (!window.JlasCpUnit && !document.querySelector('script[src*="/js/components/cp-unit.js"]')) {
+    var cpUnitScript = document.createElement('script');
+    cpUnitScript.src = '/js/components/cp-unit.js?v=20261123-gold';
+    document.head.appendChild(cpUnitScript);
+  }
+
   // Set the active theme before first paint to avoid a light→dark flash.
   // The theme switch is mounted separately by theme.js. Resolve the same
   // saved/system preference here before the shared navigation is mounted.
@@ -55,9 +62,8 @@
     homeLink: 'jlabBaseHomeLink',
     homeIcon: 'jlabBaseHomeIcon',
     homeLabel: 'jlabBaseHomeLabel',
-    learningPathLink: 'jlabBaseLearningPathLink',
-    learningPathIcon: 'jlabBaseLearningPathIcon',
-    learningPathLabel: 'jlabBaseLearningPathLabel',
+    onyomiItem: 'jlabBaseOnyomiItem',
+    onyomiIcon: 'jlabBaseOnyomiIcon',
     textbooksLink: 'jlabBaseTextbooksLink',
     textbooksIcon: 'jlabBaseTextbooksIcon',
     textbooksLabel: 'jlabBaseTextbooksLabel',
@@ -251,7 +257,7 @@
 
   function replaceShellIcons() {
     replaceIcon(ids.homeIcon, 'home');
-    replaceIcon(ids.learningPathIcon, 'route');
+    replaceIcon(ids.onyomiIcon, 'route');
     replaceIcon(ids.textbooksIcon, 'book');
     replaceIcon(ids.lookupIcon, 'search');
     replaceIcon(ids.gameIcon, 'game');
@@ -277,7 +283,8 @@
     replaceIcon(ids.streakIcon, 'flame');
     replaceIcon(ids.notebookIcon, 'book');
     replaceIcon(ids.premiumIcon, 'award');
-    replaceIcon(ids.creditsIcon, 'coins');
+    var creditsIcon = byId(ids.creditsIcon);
+    if (creditsIcon) creditsIcon.outerHTML = '<span id="' + ids.creditsIcon + '" class="jlas-cp-icon" aria-hidden="true"></span>';
     replaceIcon(ids.rewardStreakIcon, 'flame');
     replaceIcon(ids.logoutIcon, 'logout');
 
@@ -297,9 +304,6 @@
             '<a id="' + ids.homeLink + '" href="/" title="Trang chủ KotsuKotsu">' +
               '<i id="' + ids.homeIcon + '" aria-hidden="true"></i><span id="' + ids.homeLabel + '">Trang ch\u1ee7</span>' +
             '</a>' +
-            '<a id="' + ids.learningPathLink + '" href="/learning/onyomi" title="Lộ trình Hán Việt → On">' +
-              '<i id="' + ids.learningPathIcon + '" aria-hidden="true"></i><span id="' + ids.learningPathLabel + '">Onyomi</span>' +
-            '</a>' +
             '<a id="' + ids.textbooksLink + '" href="/textbooks" title="Giáo trình số hoá theo cấp độ">' +
               '<i id="' + ids.textbooksIcon + '" aria-hidden="true"></i><span id="' + ids.textbooksLabel + '">Giáo trình</span>' +
             '</a>' +
@@ -311,8 +315,8 @@
               '<div id="' + ids.examsMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 '<a id="' + ids.smartTestLink + '" class="dropdown__item" href="/survey" role="menuitem"><i id="' + ids.examSmartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span></a>' +
                 '<a id="' + ids.learnPathItem + '" class="dropdown__item" href="/learning" role="menuitem"><i id="' + ids.learnPathItemIcon + '" aria-hidden="true"></i><span id="' + ids.learnPathItemLabel + '">Lộ Trình học</span></a>' +
+                '<a id="' + ids.onyomiItem + '" class="dropdown__item" href="/learning/onyomi" role="menuitem"><i id="' + ids.onyomiIcon + '" aria-hidden="true"></i><span>Onyomi</span></a>' +
                 '<a id="' + ids.jlptLink + '" class="dropdown__item" href="/jlpt" role="menuitem"><i id="jlabBaseExamJlptIcon" aria-hidden="true"></i><span>JLPT</span></a>' +
-                '<a id="' + ids.jlptPracticeLink + '" class="dropdown__item" href="/jlpt/practice" role="menuitem"><i id="jlabBaseExamJlptPracticeIcon" aria-hidden="true"></i><span>Luyện theo dạng</span></a>' +
                 '<a id="jlabBaseVerbPracticeLink" class="dropdown__item" href="/practice/verbs" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseKanjiMapLink" class="dropdown__item" href="/dictionary/kanji-map" role="menuitem"><span aria-hidden="true">木</span><span>Lược đồ Kanji</span></a>' +
               '</div>' +
@@ -325,10 +329,11 @@
               '<div id="' + ids.testBuilderMenu + '" class="dropdown__menu nav-tools-menu" role="menu" hidden>' +
                 // TODO(Smart Test): khi có trang thật → đổi <button … aria-disabled="true"> thành
                 //   <a id="…" class="dropdown__item" href="/…" role="menuitem">, xoá <span class="nav-soon">; không sửa gì khác.
-                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span id="' + ids.smartTestLabel + '">Smart Test</span><span class="nav-soon">sắp có</span></button>' +
+                '<button id="' + ids.smartTestItem + '" class="dropdown__item" type="button" role="menuitem" aria-disabled="true" title="Sắp có"><i id="' + ids.smartTestIcon + '" aria-hidden="true"></i><span>Soạn đề Smart Test</span><span class="nav-soon">sắp có</span></button>' +
                 '<a id="' + ids.jlptItem + '" class="dropdown__item" href="/admin/jlpt" role="menuitem"><i id="' + ids.jlptIcon + '" aria-hidden="true"></i><span id="' + ids.jlptLabel + '">JLPT</span></a>' +
                 '<a id="jlabBaseVerbPracticeAdminLink" class="dropdown__item" href="/admin/verb-practice" role="menuitem"><span aria-hidden="true">あ</span><span>Luyện chia động từ</span></a>' +
                 '<a id="jlabBaseJpathReportsAdminLink" class="dropdown__item" href="/admin/learning-path/reports" role="menuitem"><span aria-hidden="true">⚑</span><span>Báo sai lộ trình</span></a>' +
+                '<a id="jlabBaseTutorReviewAdminLink" class="dropdown__item" href="/admin/tutor-review" role="menuitem"><span aria-hidden="true">AI</span><span>Duyệt câu trả lời AI</span></a>' +
                 '<a id="jlabBaseKanjiMapAdminLink" class="dropdown__item" href="/admin/kanji-map" role="menuitem"><span aria-hidden="true">字</span><span>Lược đồ Kanji</span></a>' +
               '</div>' +
             '</div>' +
@@ -352,7 +357,7 @@
                 '<a id="' + ids.shadowingLink + '" class="dropdown__item" href="/shadowing" role="menuitem"><i id="' + ids.shadowingIcon + '" aria-hidden="true"></i><span id="' + ids.shadowingLabel + '">Shadowing</span></a>' +
               '</div>' +
             '</div>' +
-            '<a id="' + ids.aboutLink + '" href="/#about" aria-label="Giới thiệu">' + icon('', 'info') + '<span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
+            '<a id="' + ids.aboutLink + '" href="/about" aria-label="Giới thiệu">' + icon('', 'info') + '<span id="' + ids.aboutLabel + '">Giới thiệu</span></a>' +
           '</nav>' +
           '<div id="' + ids.actions + '" class="site-header__actions">' +
             '<div id="' + ids.guestActions + '" class="user-actions" data-auth-guest>' +
@@ -482,13 +487,13 @@
       path.indexOf('/flashcard/study/') === 0;
     var isShadowing = path === '/shadowing' || path.indexOf('/shadowing/') === 0;
     var isSmartTest = path === '/smart-test' || path === '/survey';
-    var isJlpt = path === '/jlpt' || (path.indexOf('/jlpt/') === 0 && path !== '/jlpt/practice');
+    var isJlpt = path === '/jlpt' || path.indexOf('/jlpt/') === 0;
     var isJlptPractice = path === '/jlpt/practice';
     var isGoals = path === '/goals' || path === '/learning/goals' || path === '/streak';
 
     markCurrent(ids.homeLink, isHome);
     markCurrent(ids.textbooksLink, isTextbooks);
-    markCurrent(ids.learningPathLink, isOnyomi);
+    markCurrent(ids.onyomiItem, isOnyomi);
     markCurrent(ids.lookupLink, isDictionary);
     markCurrent(ids.gameLink, isGame);
     markCurrent(ids.communityLink, isCommunity);
@@ -517,7 +522,7 @@
     }
     markCurrent('jlabBaseVerbPracticeLink', path === '/practice/verbs');
     markCurrent('jlabBaseKanjiMapLink', isKanjiMap);
-    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isJlpt || isJlptPractice || path === "/practice/verbs" || isKanjiMap);
+    markCurrent(ids.examsButton, isSmartTest || isLearningPath || isOnyomi || isJlpt || isJlptPractice || path === "/practice/verbs" || isKanjiMap);
   }
 
   function fallbackUser() {
@@ -838,7 +843,8 @@
   // Icon per notification type; unknown types fall back to the bell.
   var NOTIFICATION_ICONS = {
     MODERATION_CONTENT: 'shield', MODERATION_SANCTION: 'shield', MODERATION_APPEAL: 'shield',
-    SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message',
+    SECURITY: 'shield', DICTIONARY_CONTRIBUTION: 'layers', FLASHCARD_COMMENT: 'message', COMMUNITY_COMMENT: 'message',
+    COMMUNITY_REMOVED: 'shield',
     SHADOWING_COMMENT: 'message', SHADOWING_VIDEO_READY: 'headphones', SHADOWING_VIDEO_FAILED: 'info',
     WELCOME: 'home'
   };
@@ -1057,7 +1063,7 @@
         bottomNav.insertBefore(byId(ids.gameLink), byId(ids.bottomAccountButton));
         bottomNav.insertBefore(byId(ids.textbooksLink), byId(ids.bottomAccountButton));
       } else {
-        nav.insertBefore(byId(ids.homeLink), byId(ids.learningPathLink));
+        nav.insertBefore(byId(ids.homeLink), byId(ids.examsWrapper));
         nav.insertBefore(byId(ids.textbooksLink), byId(ids.examsWrapper));
         nav.insertBefore(byId(ids.gameLink), byId(ids.toolsWrapper));
       }
@@ -1078,7 +1084,7 @@
       var willOpen = !state.mobileNavOpen;
       closeAllMenus();
       setMobileNavigation(willOpen);
-      if (state.mobileNavOpen) byId(ids.learningPathLink).focus();
+      if (state.mobileNavOpen) byId(ids.examsButton).focus();
     });
     nav.addEventListener('click', function (event) {
       var link = event.target.closest('a[href]');

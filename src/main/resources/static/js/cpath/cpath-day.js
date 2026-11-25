@@ -37,7 +37,7 @@
   function list(v) { return Array.isArray(v) ? v : []; }
 
   function kitsuSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function pageUrl(page, params) {
@@ -88,7 +88,7 @@
     return out;
   }
 
-  function weekStripHtml(day, today, isDone) {
+  function weekStripHtml(day, today, isDone, weekStatus) {
     var days = weekDays(day);
     if (!days.length) return '';
     var cells = days.map(function (di, idx) {
@@ -98,7 +98,9 @@
       var isCurrent = di === day;
       var isToday = di === today;
       var isFuture = today && di > today;
-      var isPastDone = (!isFuture && !isCurrent) || (isCurrent && isDone);
+      // F176: a past day is ticked only when the server says all its situations were finished (empty days too before)
+      var st = weekStatus && weekStatus[di];
+      var isPastDone = st ? (!isFuture && st === 'DONE') : ((!isFuture && !isCurrent) || (isCurrent && isDone));
       var cls = 'jp-dayd__node'
         + (isCurrent ? ' is-current' : '')
         + (isToday ? ' is-today' : '')
@@ -133,13 +135,14 @@
     var scores = list(x.scores);
     var allDone = situations.length > 0 && situations.every(function (s) { return s.status === 'DONE' || s.status === 'TODAY_DONE'; });
 
-    var strip = weekStripHtml(day, today, allDone);
+    var strip = weekStripHtml(day, today, allDone, x.weekStatus);
     var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác">'
-      + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">‹ Hôm trước</a>'
-      + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau ›</a>' : '')
+      + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">Hôm trước</a>'
+      + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau</a>' : '')
       + '</nav>';
 
-    var statusText = allDone ? 'Đã xong ngày' : (situations.length ? 'Đang học trong ngày' : 'Ngày này chưa có bài');
+    var restEmpty = !situations.length && x.restDay === true; // F116
+    var statusText = allDone ? 'Đã xong ngày' : (situations.length ? 'Đang học trong ngày' : (restEmpty ? 'Ngày nghỉ' : 'Ngày này chưa có bài'));
     var statusCls = allDone ? 'jp-dayd__badge jp-dayd__badge--done' : 'jp-dayd__badge jp-dayd__badge--pending';
     var cpBadge = Number(x.cp) > 0
       ? ' <span class="jp-dayd__points-sep">·</span> <span class="jp-dayd__badge jp-dayd__badge--cp">+' + esc(x.cp) + ' CP</span>'
@@ -148,7 +151,8 @@
     var kitsuImg = allDone ? 'kitsu-celebrate-30.webp' : (situations.length ? 'kitsu-cheer-30.webp' : 'kitsu-resting-30.webp');
     var kitsuSpeech = allDone
       ? 'Bạn đã hoàn thành đầy đủ các tình huống giao tiếp của ngày này!'
-      : (situations.length ? 'Cùng hoàn thành nốt các bước hội thoại trong ngày nhé!' : 'Ngày này chưa có lịch học.');
+      : (situations.length ? 'Cùng hoàn thành nốt các bước hội thoại trong ngày nhé!'
+        : (restEmpty ? (day === today ? 'Hôm nay là ngày nghỉ của bạn. Muốn học thêm thì về lộ trình bấm "Học thêm 1 tình huống".' : 'Đây là ngày nghỉ của bạn.') : 'Ngày này chưa có lịch học.'));
 
     var sitItemsHtml = situations.map(function (s) {
       var st = s.steps || {};
@@ -161,7 +165,7 @@
         + '<span class="jp-today__pill-count">' + esc(s.topicNameVi || s.topicCode || '') + (s.score != null ? (' · ' + s.score + ' điểm') : '') + '</span>'
         + '</div>'
         + '<div class="cp-survey__sub">'
-        + 'Từ & mẫu câu: <strong>' + (st.words ? 'Xong' : 'Chưa') + '</strong> · '
+        + (data && data.goal === 'TRAVEL' ? 'Nghe & chọn nghĩa' : 'Từ & mẫu câu') + ': <strong>' + (st.words ? 'Xong' : 'Chưa') + '</strong> · '
         + 'Nghe: <strong>' + (st.listen ? 'Xong' : 'Chưa') + '</strong> · '
         + 'Nhập vai: <strong>' + (st.roleplay ? 'Xong' : 'Chưa') + '</strong> · '
         + 'Nói: <strong>' + (st.speak ? 'Xong' : 'Chưa') + '</strong>'
@@ -204,7 +208,7 @@
           + '<ul class="cp-survey__grid" style="list-style:none;padding:0;margin:0;">' + scoreRowsHtml + '</ul>'
           + '</section>'
         : '')
-      + '<div class="jp-dayd__actions" style="margin-top:12px;">'
+      + '<div class="jp-dayd__actions cp-dayd__back">'
       + '<a class="cp-btn-primary" href="' + esc(pageUrl('path')) + '">Về lộ trình giao tiếp</a>'
       + '</div>';
   }
@@ -218,22 +222,45 @@
     var search = (root && root.location && root.location.search) ? String(root.location.search) : '';
     var m = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(search);
     var day = m ? m[1] : null;
+    // F185: a wrong or future ?d= opened today silently; say so and fix the address bar
+    var notice = (!m && /[?&]d=/.test(search)) ? 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.' : '';
+    // F94: ?d=2026-02-31 / 2026-13-01 match the pattern but are no real day; the server answers 400
+    // and "Thử lại" would ask the same bad day forever, so open today instead
+    if (day) {
+      var probe = new Date(day + 'T00:00:00Z');
+      if (isNaN(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) {
+        day = null;
+        notice = 'Ngày trên đường dẫn không hợp lệ nên đang mở hôm nay.';
+      }
+    }
+
+
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+    }
 
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
-      root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : '')).then(function (data) {
+      (day ? Promise.resolve(null) : planToday()).then(function () {
+        return root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : ''));
+      }).then(function (data) {
         if (!data) throw new Error('Chưa tải được dữ liệu ngày học.');
         var today = String(data.today || data.day || '').slice(0, 10);
         if (!day || day > today) {
           // no day asked, or a day after today: show today
-          if (day && day > today) { day = today; load(); return; }
+          if (day && day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
           day = String(data.day || today).slice(0, 10);
         }
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = dayHtml(data, day, today);
+        el.innerHTML = (notice ? '<p class="jp-day-notice" role="status">' + esc(notice) + '</p>' : '') + dayHtml(data, day, today);
+        if (notice && root.history && root.history.replaceState) {
+          try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
+        }
       }).catch(function (error) {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Chưa tải được chi tiết ngày.')
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Chưa tải được chi tiết ngày.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         var retry = el.querySelector('[data-cp-retry]');
         if (retry) retry.addEventListener('click', load);

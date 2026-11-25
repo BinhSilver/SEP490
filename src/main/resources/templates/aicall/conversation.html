@@ -10,7 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261105-plum')}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261116-ios-space')}"/>
     <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
@@ -18,8 +18,14 @@
     <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
     <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261103-nav-hover-2')}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+    <link rel="stylesheet" href="/css/pages/aicall-guide.css?v=20261112-guide">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261124-ui-standard">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" th:class="${freeChat} ? 'mode-free-chat show-feedback' : 'show-furigana show-feedback show-suggestions'"
       th:attr="data-session-id=${chatSession.id},
@@ -32,7 +38,7 @@
                data-category-url=${freeChat} ? @{/ai-call} : @{/category/{id}(id=${scenario.category.id})},
                data-home-url=@{/ai-call},
                data-result-url=@{/conversation/{id}/result(id=${chatSession.id})},
-               data-background-url=${scenarioBackgroundUrl}">
+               data-background-url=${scenarioBackgroundUrl}" th:classappend="'aicall-standard jl-ui-kit'">
 
 <div id="jlabBaseShellMount"></div>
 
@@ -51,10 +57,15 @@
                         <span data-current-speaker th:text="${aiRoleName}">AI</span> · Bạn: <span th:text="${userRoleName}">Học viên</span>
                 </div>
             </div>
-            <button type="button" class="cv-settings-trigger" id="btnConversationSettings"
-                    aria-haspopup="dialog" aria-controls="conversationSettingsDialog" aria-expanded="false" hidden>
-                <i class="fa-solid fa-sliders" aria-hidden="true"></i> Cài đặt
-            </button>
+            <div class="cv-top-actions">
+                <button type="button" class="cv-guide-trigger" id="btnConversationGuide" aria-expanded="false" aria-label="Hướng dẫn dùng AI Call">
+                    <i class="fa-regular fa-circle-question" aria-hidden="true"></i><span>Hướng dẫn</span>
+                </button>
+                <button type="button" class="cv-settings-trigger" id="btnConversationSettings"
+                        aria-haspopup="dialog" aria-controls="conversationSettingsDialog" aria-expanded="false" hidden>
+                    <i class="fa-solid fa-sliders" aria-hidden="true"></i> Cài đặt
+                </button>
+            </div>
         </div>
 
         <div class="cv-messages" id="chatMessages" data-inline-dictionary role="log" aria-live="polite" aria-relevant="additions">
@@ -85,11 +96,10 @@
                         <div class="bubble-text jp msg-text"
                              th:if="${furiganaByMessageId[m.id] == null}"
                              th:text="${m.content}">tin nhắn</div>
+                        <!-- Token elements stay adjacent and the box itself does not keep whitespace (white-space: normal),
+                             so phones with a minimum font size (iOS) show no blank lines or indent before the text. -->
                         <div class="bubble-text bubble-text--tokens jp msg-text"
-                             th:unless="${furiganaByMessageId[m.id] == null}">
-                            <!-- Keep token elements adjacent: bubble-text uses pre-wrap, so
-                                 formatting whitespace here would become visible line breaks. -->
-                            <th:block th:each="token : ${furiganaByMessageId[m.id]}"><ruby th:if="${token.ruby}"
+                             th:unless="${furiganaByMessageId[m.id] == null}"><th:block th:each="token : ${furiganaByMessageId[m.id]}"><ruby th:if="${token.ruby}"
                                       th:class="${token.fromVocabDb} ? 'token token--dictionary' : 'token-fragment'"
                                       th:attr="data-surface=${token.surface}, data-reading=${token.reading},
                                                data-meaning=${token.meaning}, data-pos=${token.partOfSpeech},
@@ -98,8 +108,7 @@
                                       th:attr="data-surface=${token.surface}, data-reading=${token.reading},
                                                data-meaning=${token.meaning}, data-pos=${token.partOfSpeech},
                                                data-jlpt=${token.jlptLevel}"
-                                      th:text="${token.surface}"></span></th:block>
-                        </div>
+                                      th:text="${token.surface}"></span></th:block></div>
                         <div class="translation-line" hidden></div>
                         <div class="bubble-tools" th:if="${m.role == 'assistant'}">
                             <button type="button" class="tool-chip btn-tts" title="Phát âm"><i class="fa-solid fa-volume-high"></i> Phát</button>
@@ -149,6 +158,7 @@
                 <input type="text" id="messageInput"
                        placeholder="Nhập tiếng Nhật…"
                        autocomplete="off"
+                       th:attr="maxlength=${messageMaxChars},data-voice-max-seconds=${voiceMaxSeconds}"
                        th:disabled="${inProgress != true}" aria-label="Ô nhập tin nhắn tiếng Nhật" aria-describedby="composeError"/>
                 <button type="button" class="btn-send" id="btnSend" th:disabled="${inProgress != true}"
                         aria-label="Gửi">
@@ -254,7 +264,7 @@
             <h3><i class="fa-solid fa-user-gear"></i> Phong cách AI</h3>
             <div class="freechat-settings-grid">
             <label class="freechat-field" for="fcPersonality">Tính cách
-                <select id="fcPersonality">
+                <select id="fcPersonality" data-jl-select>
                     <option value="friendly">Thân thiện</option>
                     <option value="friend">Bạn bè</option>
                     <option value="teacher">Giáo viên</option>
@@ -265,7 +275,7 @@
                 </select>
             </label>
             <label class="freechat-field" for="fcLevel">Trình độ
-                <select id="fcLevel">
+                <select id="fcLevel" data-jl-select>
                     <option value="n5">N5</option>
                     <option value="n4">N4</option>
                     <option value="n3" selected>N3</option>
@@ -275,7 +285,7 @@
                 </select>
             </label>
             <label class="freechat-field" for="fcStyle">Giọng nói
-                <select id="fcStyle">
+                <select id="fcStyle" data-jl-select>
                     <option value="casual" selected>Thân mật</option>
                     <option value="polite">Lịch sự</option>
                     <option value="keigo">Kính ngữ (Keigo)</option>
@@ -284,7 +294,7 @@
                 </select>
             </label>
             <label class="freechat-field" for="fcInitiative">Mức chủ động
-                <select id="fcInitiative">
+                <select id="fcInitiative" data-jl-select>
                     <option value="low">Thấp</option>
                     <option value="medium" selected>Vừa</option>
                     <option value="high">Cao</option>
@@ -318,10 +328,10 @@
             </div>
             <div class="tts-settings tts-settings--compact" id="ttsSettings">
                 <label class="freechat-field" for="ttsGenderSelect">Giọng đọc
-                    <select id="ttsGenderSelect"><option value="female">Nữ</option><option value="male">Nam</option></select>
+                    <select id="ttsGenderSelect" data-jl-select><option value="female">Nữ</option><option value="male">Nam</option></select>
                 </label>
                 <label class="freechat-field" for="ttsRateRange">Tốc độ
-                    <select id="ttsRateRange" aria-label="Tốc độ đọc">
+                    <select id="ttsRateRange" data-jl-select aria-label="Tốc độ đọc">
                         <option value="0.5">0.5×</option>
                         <option value="0.6">0.6×</option>
                         <option value="0.7">0.7×</option>
@@ -407,8 +417,8 @@
         <span>Không hỏi lại hôm nay (tự dùng CP, tối đa <span id="quotaAutoCap">100</span> CP/ngày)</span>
       </label>
       <div class="quota-actions">
-        <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden><i class="fa-solid fa-coins"></i> Dùng CP cho lượt này</button>
-        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Nạp CP</button>
+        <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden> Dùng CP cho lượt này</button>
+        <button class="button-secondary btn-sm" id="btnQuotaBuy"> Nạp CP</button>
         <button class="button-primary btn-sm" id="btnQuotaUpgrade"><i class="fa-solid fa-crown"></i> Nâng cấp Premium</button>
       </div>
     </div>
@@ -426,12 +436,15 @@
   </div>
 </div>
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/components/cp-auto-pay.js(v=20261103-auto)}"></script>
+<script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
 <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261103-auto')}"></script>
+<script src="/js/components/quota-meter.js?v=20261123-remaining"></script>
+<script th:src="@{/js/conversation.js(v='20261124-ui-standard')}"></script>
+<script defer src="/js/pages/aicall-standard-ui.js?v=20261124-ui-standard"></script>
 <script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
+<script src="/js/pages/aicall-guide.js?v=20261112-guide"></script>
 </body>
 </html>

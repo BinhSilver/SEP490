@@ -33,6 +33,9 @@
     PROVISIONAL: function () { return 'Đây là kết quả tạm tính — hãy hoàn thành đủ kỹ năng để nhận đánh giá chính xác hơn.'; }
   };
   var state = { attemptId: null, currentQuestion: null, goal: null, result: null };
+  var existingPathUrl = null;
+  var pathLookupState = 'unknown';
+  var pathLookupVersion = 0;
   var timer = { interval: null, fallback: null, remaining: 0, started: false };
   var questionView = document.getElementById('questionView');
   var resultView = document.getElementById('resultView');
@@ -283,6 +286,30 @@
     if (focusTarget && !firstQuestion) focusTarget.focus({ preventScroll: true });
   }
 
+  // F240 (owner 24/11): entry and exit of the JLPT path with this result, plus the stages in between
+  function renderPathIo() {
+    var box = document.getElementById('pathIoPreview');
+    if (!box || !window.PathIoCore || !state.attemptId) return;
+    api('/api/learning/path-io?attemptId=' + encodeURIComponent(state.attemptId)).then(function (data) {
+      var p = data && data.preview;
+      if (!p || !p.entry || !p.exit) return;
+      var esc = window.PathIoCore.esc;
+      var steps = (p.steps || []).map(function (s) { return '<span class="result-io__step">' + esc(s) + '</span>'; }).join('');
+      box.innerHTML = '<h2 id="pathIoTitle" class="result-io__title">Lộ trình JLPT với kết quả này</h2>'
+        + window.PathIoCore.lineHtml(Object.assign({}, p, { retestUrl: null }))
+        + (steps ? '<div class="result-io__steps" aria-label="Các chặng">' + steps + '</div>' : '')
+        + (p.hasPath ? '<p class="result-io__note">Bạn đã có lộ trình JLPT. Kết quả mới chỉ đổi lộ trình khi bạn chọn cập nhật.</p>' : '');
+      box.hidden = false;
+      box.addEventListener('click', function (e) {
+        var lv = e.target.closest('[data-io-level]');
+        if (!lv) return;
+        var info = box.querySelector('[data-io-info]');
+        if (!info) { info = document.createElement('div'); info.setAttribute('data-io-info', ''); info.className = 'result-io__info'; box.appendChild(info); }
+        info.innerHTML = window.PathIoCore.popupHtml(lv.getAttribute('data-io-level'), data.levels);
+      });
+    }, function () { /* the result page works without it */ });
+  }
+
   function renderResult(result) {
     clearTimer();
     var skillsByName = {};
@@ -296,6 +323,7 @@
       ? positions.reduce(function (sum, value) { return sum + value; }, 0) / positions.length
       : 0;
     document.getElementById('overallLevel').textContent = result.estimatedOverallLevel || '—';
+    renderPathIo();
     var overallBand = document.getElementById('overallBand');
     overallBand.textContent = masteryStage(result.estimatedOverallLevel, overallPosition);
     overallBand.hidden = false;
@@ -325,6 +353,131 @@
     renderFeedback(result);
     renderReview(result.review);
     show(resultView);
+    refreshPathActions();
+  }
+
+  function smartTestConfirmUrl() {
+    var handoff = window.JpathSurveyFlow && window.JpathSurveyFlow.smartTestHandoffUrl(jpathConfig, state.goal, state.attemptId);
+    return handoff || (state.attemptId
+      ? '/learning/path?assessmentAttemptId=' + encodeURIComponent(state.attemptId)
+      : '/learning');
+  }
+
+  function updatePathActions() {
+    var createButton = document.getElementById('createPathButton');
+    var updateButton = document.getElementById('updatePathButton');
+    if (!createButton) return;
+    createButton.querySelector('span').textContent = existingPathUrl ? 'Vào lộ trình học'
+      : pathLookupState === 'none' ? 'Tạo lộ trình học' : 'Vào trang học';
+    createButton.href = existingPathUrl || (pathLookupState === 'none' ? smartTestConfirmUrl() : '/learning');
+    createButton.hidden = pathLookupState === 'none' && Boolean(window.SmartTestResultRoute && window.SmartTestResultRoute.notice(state.result).blockCreate);
+    if (updateButton) {
+      updateButton.hidden = !existingPathUrl || !state.attemptId;
+      // The confirm page only serves learners without an ACTIVE path, so a learner who already has a JLPT path
+      // updates it right here: the result level is compared with the path and the matching level move is offered.
+      if (!updateButton.hidden) {
+        updateButton.href = '#';
+        updateButton.onclick = function (e) { e.preventDefault(); planPathUpdate(); };
+      }
+    }
+  }
+
+  var LEVEL_ORDER = ['N5', 'N4', 'N3', 'N2', 'N1'];
+
+  /** Pure: what the result means for an existing path, from GET /api/learning/jlpt/settings. */
+  function pathUpdatePlan(resultLevel, view) {
+    var v = view || {};
+    var open = v.openLevel || null;
+    var lvl = resultLevel ? String(resultLevel).toUpperCase() : null;
+    if (!lvl || LEVEL_ORDER.indexOf(lvl) < 0 || !open) return { kind: 'unknown', level: lvl, open: open };
+    if (lvl === open) return { kind: 'same', level: lvl, open: open };
+    if ((v.lowerLevels || []).indexOf(lvl) >= 0) return { kind: 'lower', level: lvl, open: open, url: '/api/learning/jlpt/path/lower-level' };
+    if ((v.returnLevels || []).indexOf(lvl) >= 0) return { kind: 'return', level: lvl, open: open, url: '/api/learning/jlpt/path/return-level' };
+    return { kind: LEVEL_ORDER.indexOf(lvl) > LEVEL_ORDER.indexOf(open) ? 'higher' : 'unavailable', level: lvl, open: open };
+  }
+
+  function pathUpdateText(plan) {
+    switch (plan.kind) {
+      case 'same': return 'Kết quả ' + plan.level + ' khớp với cấp bạn đang học. Lộ trình hiện tại đã đúng, không cần đổi.';
+      case 'lower': return 'Kết quả ' + plan.level + ' thấp hơn cấp đang học (' + plan.open + '). Chuyển sang học ' + plan.level
+        + ' trước; tiến độ ' + plan.open + ' vẫn được giữ để quay lại sau.';
+      case 'return': return 'Kết quả ' + plan.level + ' khớp với cấp bạn từng đạt. Có thể quay lại học ' + plan.level + ' ngay.';
+      case 'higher': return 'Kết quả ' + plan.level + ' cao hơn cấp đang học (' + plan.open + '). Lên cấp mới cần qua bài kiểm tra tổng kết cấp '
+        + plan.open + ' trên lộ trình, để tiến độ không bị bỏ sót.';
+      case 'unavailable': return 'Cấp ' + plan.level + ' hiện chưa mở cho lộ trình của bạn. Bạn vẫn học tiếp cấp ' + plan.open + '.';
+      default: return 'Chưa xác định được cấp từ kết quả này. Bạn có thể đổi cấp trong Cài đặt lộ trình.';
+    }
+  }
+
+  function planPathUpdate() {
+    var box = document.getElementById('pathUpdateBox');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'pathUpdateBox';
+      box.className = 'smart-test-path-update';
+      box.setAttribute('role', 'status');
+      var actions = document.querySelector('.result-actions');
+      if (actions) actions.insertAdjacentElement('afterend', box); else return;
+    }
+    box.textContent = 'Đang so kết quả với lộ trình của bạn…';
+    fetch('/api/learning/jlpt/settings', { headers: window.JlasAuth.authHeaders() })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('Chưa đọc được lộ trình hiện tại.')); })
+      .then(function (payload) {
+        var plan = pathUpdatePlan(state.result && state.result.estimatedOverallLevel, payload && payload.data);
+        box.innerHTML = '';
+        var p = document.createElement('p'); p.textContent = pathUpdateText(plan); box.appendChild(p);
+        var row = document.createElement('div'); row.className = 'result-actions';
+        if (plan.url) {
+          var go = document.createElement('button');
+          go.type = 'button'; go.className = 'smart-test-primary';
+          go.textContent = plan.kind === 'lower' ? 'Chuyển sang học ' + plan.level : 'Quay lại học ' + plan.level;
+          go.addEventListener('click', function () {
+            go.disabled = true;
+            fetch(plan.url, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+              body: JSON.stringify({ level: plan.level }) })
+              .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { if (!r.ok) throw new Error(b.message || 'Chưa đổi được cấp.'); }); })
+              .then(function () { window.location.assign('/learning'); })
+              .catch(function (err) { go.disabled = false; p.textContent = err.message; });
+          });
+          row.appendChild(go);
+        }
+        var open = document.createElement('a'); open.className = 'smart-test-secondary'; open.href = '/learning'; open.textContent = 'Vào lộ trình';
+        row.appendChild(open);
+        if (plan.kind === 'unknown' || plan.kind === 'unavailable') {
+          var st = document.createElement('a'); st.className = 'smart-test-secondary'; st.href = '/learning/jlpt/settings'; st.textContent = 'Cài đặt lộ trình';
+          row.appendChild(st);
+        }
+        box.appendChild(row);
+      })
+      .catch(function (err) { box.textContent = err.message || 'Chưa đọc được lộ trình hiện tại.'; });
+  }
+  if (typeof window !== 'undefined') window.SmartTestPathUpdate = { plan: pathUpdatePlan, text: pathUpdateText };
+
+  function refreshPathActions() {
+    var version = ++pathLookupVersion;
+    existingPathUrl = null;
+    pathLookupState = 'unknown';
+    updatePathActions();
+    Promise.all([
+      fetch('/api/learning/jlpt/path', { headers: window.JlasAuth.authHeaders() }),
+      fetch('/api/learning/comm/path', { headers: window.JlasAuth.authHeaders() })
+    ]).then(function (responses) {
+      if (version !== pathLookupVersion) return;
+      if (responses[0].ok) existingPathUrl = '/learning';
+      else if (responses[1].ok) existingPathUrl = '/learning/comm/path';
+      else if (responses[0].status === 404 && responses[1].status === 404) {
+        return fetch('/api/learning/jlpt/entry-status', { headers: window.JlasAuth.authHeaders() })
+          .then(function (statusResponse) { return statusResponse.ok ? statusResponse.json() : null; })
+          .then(function (payload) {
+            if (version !== pathLookupVersion) return;
+            var status = payload && payload.data && payload.data.pathStatus;
+            if (status === 'ACTIVE' || status === 'PAUSED') existingPathUrl = '/learning';
+            else if (payload) pathLookupState = 'none';
+            updatePathActions();
+          });
+      }
+      updatePathActions();
+    }).catch(function () { /* Keep the current action until path state can be checked. */ });
   }
 
   function renderFeedback(result) {
@@ -739,19 +892,26 @@
       if (controller) controller.abort();
     }, 45000);
 
-    var url = '/api/learning/paths/estimate?assessmentAttemptId=' + encodeURIComponent(attemptId) +
-      '&entryChoice=STUDY_WEAK_LEVEL' +
-      (kanaKnown !== null && kanaKnown !== undefined ? '&kanaKnown=' + encodeURIComponent(kanaKnown) : '');
-
-    var fetchOpts = controller ? { signal: controller.signal } : {};
-    notice._estimatePromise = api(url, fetchOpts)
+    // [JLAS-W0108] the estimate comes from the JLPT path (its own data source), not the retired v1 path
+    var minutes = Number(notice.minutesPerDay) || 30;
+    var fetchOpts = Object.assign({
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, window.JlasAuth.authHeaders()),
+      body: JSON.stringify({ openLevel: notice.weakLevel, targetLevel: notice.weakLevel, dailyMinutes: minutes,
+        kanaTab: kanaKnown === false, skillDays: ['WED', 'SAT'], restDays: ['SUN'] })
+    }, controller ? { signal: controller.signal } : {});
+    notice._estimatePromise = api('/api/learning/jlpt/estimate', fetchOpts)
       .then(function (data) {
         clearTimeout(timeoutId);
         notice.estimating = false;
         notice._estimateDone = true;
-        if (data && data.estimatedDays != null && data.minutesPerDay != null) {
-          notice.estimatedDays = data.estimatedDays;
-          notice.minutesPerDay = data.minutesPerDay;
+        var finish = data && (data.levelFinish || data.targetFinish);
+        if (finish) {
+          var days = Math.round((Date.parse(finish + 'T00:00:00Z') - Date.parse(new Date().toISOString().slice(0, 10) + 'T00:00:00Z')) / 86400000);
+          if (days > 0) {
+            notice.estimatedDays = days;
+            notice.minutesPerDay = data.dailyMinutes || minutes;
+          }
         }
         var confirmCard = document.getElementById('smartConfirm');
         if (messageEl && confirmCard && !confirmCard.hidden) {
@@ -856,6 +1016,7 @@
   var createPathButton = document.getElementById('createPathButton');
   if (createPathButton) {
     createPathButton.addEventListener('click', async function (event) {
+      if (pathLookupState !== 'none') return;
       event.preventDefault();
       // [JLAS-W0108] Decision 34: a JLPT learner with the path on goes straight to the confirmation page, never
       // through the old entry questions below.
@@ -867,18 +1028,39 @@
     });
   }
 
+  function markPastResult(data) {
+    if (!data || data.status !== 'SUBMITTED') return;
+    var eyebrow = document.querySelector('#resultView .result-eyebrow');
+    if (eyebrow) eyebrow.textContent = 'Kết quả Smart Test gần nhất';
+    var restartLabel = document.querySelector('#restartButton span');
+    if (restartLabel) restartLabel.textContent = 'Làm lại Smart Test';
+    pastResultShown = true;
+  }
+  var pastResultShown = false;
+
   document.getElementById('restartButton').addEventListener('click', function () {
+    if (pastResultShown) { window.location.assign('/survey?retake=1'); return; }
     state = { attemptId: null, currentQuestion: null, goal: null, result: null }; localStorage.removeItem(ACTIVE_ATTEMPT_KEY); window.location.assign('/survey');
   });
 
   // [JLAS-W0108] JLPT path flag for the "Tạo lộ trình" hand-off; any failure keeps the old flow.
   var jpathConfig = { enabled: false };
   if (window.JpathSurveyFlow) {
-    api('/api/learning/jlpt/config').then(function (c) { if (c) jpathConfig = c; }).catch(function () {});
+    api('/api/learning/jlpt/config').then(function (c) {
+      if (c) jpathConfig = c;
+      if (state.result) updatePathActions();
+    }).catch(function () {});
   }
 
+  // [JLAS-W0108] owner 23/11: /smart-test?attempt=<id> reopens a finished attempt (the newest result of a returning learner)
+  var pastAttempt = null;
+  try { pastAttempt = new URLSearchParams(window.location.search).get('attempt'); } catch (ignore) { pastAttempt = null; }
   var activeAttempt = localStorage.getItem(ACTIVE_ATTEMPT_KEY);
-  if (activeAttempt) {
+  if (pastAttempt && /^\d+$/.test(pastAttempt)) {
+    api('/api/assessment/smart-tests/' + pastAttempt)
+      .then(function (data) { markPastResult(data); render(data); })
+      .catch(function () { show(emptyView); });
+  } else if (activeAttempt) {
     api('/api/assessment/smart-tests/' + activeAttempt)
       .then(render)
       .catch(function () { localStorage.removeItem(ACTIVE_ATTEMPT_KEY); show(emptyView); });

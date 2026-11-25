@@ -679,3 +679,251 @@ html.dark .cp-page {
   --cp-done: #b37cf5 !important;
   --cp-done-soft: rgba(179, 124, 245, 0.24) !important;
 }
+/* [JLAS-W0108] AI 1 #16: the "Báo sai" flag sits at the right edge of a bank row; keep room so it never covers
+   "Luyện viết" / "Bỏ khỏi sổ tay", and centre it on the row */
+.jp-bank-row { padding-right: 52px !important; }
+.jp-bank-row > .jp-report-btn { top: 50%; right: 4px; transform: translateY(-50%); }
+@media (max-width: 640px) { .jp-bank-row > .jp-report-btn { top: 6px; transform: none; } }
+
+/* === ROUND 9 DAY DETAIL READABILITY & CARD HIERARCHY === */
+.jp-dayd__banner {
+  border-radius: 16px;
+  border: 1px solid var(--jp-dayd-banner-border);
+  box-shadow: 0 2px 8px rgb(85 33 181 / 7%);
+  margin-bottom: 16px;
+}
+
+.jp-dayd__step::before {
+  background: color-mix(in srgb, var(--jp-c-purple-500) 24%, var(--jp-dayd-line));
+}
+.jp-dayd__step.is-done::before,
+.jp-dayd__step.is-current::before {
+  background: var(--jp-c-purple-500);
+}
+
+/* Clear contrast for past/future day circles in the week strip */
+.jp-dayd__node.is-past:not(.is-done):not(.is-current) .jp-dayd__circle {
+  background: var(--jp-dayd-surface);
+  border: 1.5px solid color-mix(in srgb, var(--jp-c-purple-500) 32%, var(--jp-dayd-line));
+  color: var(--jp-dayd-ink);
+}
+.jp-dayd__node.is-future {
+  opacity: .88;
+}
+.jp-dayd__node.is-future .jp-dayd__circle {
+  background: var(--jp-dayd-surface);
+  border: 1.5px dashed color-mix(in srgb, var(--jp-c-purple-500) 30%, var(--jp-dayd-line));
+  color: var(--jp-dayd-muted);
+}
+
+/* Unified Hero Summary Card */
+.jp-dayd__hero-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--jp-dayd-banner-border);
+  background: var(--jp-dayd-surface);
+  box-shadow: 0 2px 10px rgb(15 23 42 / 4%);
+}
+.jp-dayd__head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--jp-dayd-line);
+}
+.jp-dayd__head .jp-page-head__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--jp-dayd-ink);
+}
+.jp-dayd__nav-btn {
+  min-height: 38px !important;
+  padding: 6px 14px !important;
+  border-radius: 10px !important;
+  font-size: .9rem !important;
+}
+.jp-dayd__hero-row {
+  margin: 0 !important;
+  align-items: center;
+}
+.jp-dayd__badge--count {
+  background: color-mix(in srgb, var(--jp-c-purple-100) 55%, var(--jp-dayd-surface));
+  color: var(--jp-c-purple-900);
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 28%, var(--jp-dayd-line));
+}
+.jp-dayd__mascot {
+  background: color-mix(in srgb, var(--jp-c-purple-100) 38%, var(--jp-dayd-surface));
+  border-color: color-mix(in srgb, var(--jp-c-purple-500) 24%, var(--jp-dayd-line));
+  border-radius: 14px;
+  padding: 8px 16px 8px 10px;
+  box-shadow: none;
+}
+.jp-dayd__mascot-img {
+  width: 64px !important;
+  height: 64px !important;
+}
+
+/* Structured Section Cards for Chữ cái / Từ vựng / Kanji / Ngữ pháp / Ôn thẻ */
+.jp-dayd__sections {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.jp-dayd__sec {
+  margin: 0 !important;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--jp-dayd-line);
+  background: var(--jp-dayd-surface);
+  box-shadow: 0 1px 4px rgb(15 23 42 / 3%);
+}
+.jp-dayd__sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--jp-dayd-line);
+}
+.jp-dayd__h {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+.jp-dayd__h-title {
+  color: var(--jp-c-purple-900);
+}
+.jp-dayd__sec-hint {
+  font-size: .82rem;
+  color: var(--jp-dayd-muted);
+}
+
+/* Item Cards inside each Section */
+.jp-dayd__list.jp-parts__items {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important;
+  gap: 10px 12px !important;
+}
+.jp-dayd__list--kana.jp-parts__items {
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)) !important;
+}
+.jp-dayd__list .jp-dayd__item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  width: 100% !important;
+  min-height: 54px;
+  padding: 10px 14px !important;
+  border: 1px solid var(--jp-dayd-line) !important;
+  border-radius: 12px !important;
+  background: color-mix(in srgb, var(--jp-c-slate-100) 55%, var(--jp-dayd-surface)) !important;
+  white-space: normal !important;
+  transition: transform .14s ease, border-color .14s ease, background-color .14s ease, box-shadow .14s ease !important;
+}
+.jp-dayd__list--kana .jp-dayd__item {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 48px;
+  padding: 8px 12px !important;
+}
+.jp-dayd__item-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 8px;
+  width: 100%;
+}
+.jp-dayd__list--kana .jp-dayd__item-top {
+  justify-content: center;
+}
+.jp-dayd__ja {
+  font-size: 1.28rem !important;
+  font-weight: 700 !important;
+  color: var(--jp-dayd-ink);
+  line-height: 1.25;
+}
+.jp-dayd__rd {
+  font-size: .88rem !important;
+  font-weight: 500 !important;
+  color: var(--jp-dayd-muted);
+}
+.jp-dayd__mn {
+  display: block;
+  font-size: .88rem;
+  font-weight: 500;
+  color: var(--jp-dayd-muted);
+  line-height: 1.35;
+}
+.jp-dayd__mn[hidden] {
+  display: none !important;
+}
+.jp-dayd__list button.jp-dayd__item:hover {
+  transform: translateY(-1px);
+  border-color: var(--jp-c-purple-500) !important;
+  background: color-mix(in srgb, var(--jp-c-purple-100) 42%, var(--jp-dayd-surface)) !important;
+  box-shadow: 0 3px 8px rgb(85 33 181 / 10%);
+}
+.jp-dayd__list .jp-dayd__item.is-wrong {
+  background: var(--jp-c-coral-100) !important;
+  border-color: color-mix(in srgb, var(--jp-c-coral-500) 60%, var(--jp-dayd-line)) !important;
+  color: var(--jp-c-coral-900) !important;
+}
+.jp-dayd__list .jp-dayd__item.is-wrong .jp-dayd__ja,
+.jp-dayd__list .jp-dayd__item.is-wrong .jp-dayd__rd,
+.jp-dayd__list .jp-dayd__item.is-wrong .jp-dayd__mn {
+  color: var(--jp-c-coral-900) !important;
+}
+.jp-dayd__wrong-dot {
+  width: auto !important;
+  height: auto !important;
+  padding: 2px 7px;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--jp-c-coral-500) 16%, var(--jp-dayd-surface)) !important;
+  border: 1px solid color-mix(in srgb, var(--jp-c-coral-500) 45%, transparent);
+  color: var(--jp-c-coral-500);
+  font-size: .72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-left: auto;
+}
+
+/* Action bar */
+.jp-dayd__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  margin-top: 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--jp-dayd-line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--jp-dayd-surface) 94%, transparent);
+}
+.jp-dayd__actions-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+.jp-dayd__footnote {
+  margin: 8px 4px 0;
+  font-size: .85rem;
+}
+
+@media (max-width: 640px) {
+  .jp-dayd__hero-card,
+  .jp-dayd__sec {
+    padding: 14px;
+  }
+  .jp-dayd__list.jp-parts__items {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+  }
+}

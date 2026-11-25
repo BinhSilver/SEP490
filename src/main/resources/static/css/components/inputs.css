@@ -7,7 +7,7 @@ select {
   width: 100%;
   padding: 10px 16px;
   background: var(--color-surface-lowest) !important;
-  border: 1px solid var(--color-outline-variant) !important;
+  border: 1px solid var(--jl-field-border, var(--color-outline-variant)) !important;
   border-radius: var(--radius-md) !important;
   color: var(--color-on-surface) !important;
   font-family: var(--font-body);
@@ -29,10 +29,10 @@ select option {
   color: var(--color-outline) !important;
 }
 
-.input:focus,
-.select:focus,
-.textarea:focus,
-select:focus {
+html:not(:has(body.jlas-ui-owned)) .input:focus,
+html:not(:has(body.jlas-ui-owned)) .select:focus,
+html:not(:has(body.jlas-ui-owned)) .textarea:focus,
+html:not(:has(body.jlas-ui-owned)) select:focus {
   outline-color: var(--color-focus) !important;
   background: var(--color-surface-low) !important;
   border-color: var(--color-primary) !important;

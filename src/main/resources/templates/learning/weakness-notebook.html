@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Sổ tay của tôi - KotsuKotsu', 'weakness-notebook')}"></head>
-<body id="jlabBasePage" class="app-body">
+<body id="jlabBasePage" class="app-body jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main id="notebookApp" class="notebook-page" data-inline-dictionary>
     <section id="notebookOverview" aria-labelledby="notebookHeading">
         <header class="notebook-heading">
-            <div><h1 id="notebookHeading">Sổ tay của tôi</h1><p>Quản lý từ vựng và Kanji đã lưu</p></div>
+            <div><h1 id="notebookHeading">Sổ tay của tôi</h1><p>Quản lý các từ đã lưu</p></div>
             <button id="notebookCreate" class="notebook-primary" type="button">＋ Tạo sổ tay</button>
         </header>
         <p id="notebookNotice" class="notebook-notice" role="status" hidden></p>
@@ -14,89 +14,31 @@
     </section>
 
     <section id="notebookDetail" hidden aria-labelledby="notebookTitle">
-        <button id="notebookBack" class="notebook-back" type="button">‹ &nbsp;Quay lại danh sách</button>
         <header class="notebook-detail-heading">
             <span class="notebook-detail-icon material-symbols-outlined" aria-hidden="true">menu_book</span>
             <div class="notebook-detail-title"><h1 id="notebookTitle"></h1><p id="notebookTotal"></p></div>
             <div id="notebookManage" class="notebook-manage" hidden>
+                <button id="notebookChooseFlashcards" type="button" aria-controls="notebookFlashcardToolbar" aria-expanded="false" hidden>Tạo flashcard</button>
                 <button id="notebookRename" type="button" aria-label="Đổi tên sổ tay" title="Đổi tên sổ tay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4L16.5 3.5Z"/></svg></button>
                 <button id="notebookDelete" type="button" aria-label="Xóa sổ tay" title="Xóa sổ tay"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 14h10l1-14M9 7V4h6v3"/></svg></button>
             </div>
         </header>
-        <div id="notebookLearningProgress" class="notebook-learning-progress" hidden>
-            <div class="notebook-progress-heading"><strong>Tiến độ học <small id="notebookProgressTotal"></small></strong><span title="Từ đã học được chia theo số lần ôn thành công">ⓘ</span></div>
-            <button id="notebookStudyStart" class="notebook-study-launch" type="button"><span class="material-symbols-outlined" aria-hidden="true">layers</span> Học / ôn flashcard</button>
-            <div id="notebookProgressTrack" class="notebook-progress-track" role="progressbar" aria-label="Tỉ lệ từ đã học" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="notebookProgressFill"></span></div>
-            <div class="notebook-progress-legend"><span class="notebook-status-deep">Ghi nhớ sâu <b id="notebookDeepCount">0</b></span><span class="notebook-status-good">Nhớ khá <b id="notebookGoodCount">0</b></span><span class="notebook-status-learning">Đang học <b id="notebookLearningCount">0</b></span><span class="notebook-status-new">Chưa học <b id="notebookNewCount">0</b></span></div>
+        <div id="notebookFlashcardToolbar" class="notebook-flashcard-toolbar" role="group" aria-label="Tạo flashcard từ sổ tay" hidden>
+            <div class="notebook-selection-tools">
+                <span id="notebookSelectedCount" role="status" aria-live="polite">Chưa chọn từ</span>
+                <button id="notebookSelectWords" type="button">Chọn tất cả từ</button>
+                <button id="notebookClearSelection" type="button" disabled hidden>Bỏ chọn</button>
+            </div>
+            <div class="notebook-selection-actions">
+                <button id="notebookCancelSelection" type="button">Hủy</button>
+                <button id="notebookCreateFlashcards" class="notebook-primary" type="button" disabled>Tạo bộ thẻ</button>
+            </div>
         </div>
-        <div class="notebook-vocabulary-heading"><strong>NỘI DUNG ĐÃ LƯU <span id="notebookEntryCount">0</span></strong><div class="notebook-sort"><button id="notebookSortToggle" type="button" aria-label="Sắp xếp nội dung đã lưu" aria-haspopup="true" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg><span id="notebookSortLabel">Mới nhất</span><svg class="notebook-sort-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="notebookSortMenu" class="notebook-sort-menu" hidden><button type="button" data-sort="newest" aria-pressed="true">Mới nhất</button><button type="button" data-sort="oldest" aria-pressed="false">Cũ nhất</button></div></div></div>
-        <div id="notebookEntryFilters" class="notebook-entry-filters" role="group" aria-label="Lọc loại nội dung">
-            <button type="button" data-entry-filter="all" aria-pressed="true">Tất cả <span>0</span></button>
-            <button type="button" data-entry-filter="vocabulary" aria-pressed="false">Từ vựng <span>0</span></button>
-            <button type="button" data-entry-filter="kanji" aria-pressed="false">Kanji <span>0</span></button>
-        </div>
+        <div class="notebook-vocabulary-heading"><div class="notebook-sort"><button id="notebookSortToggle" type="button" aria-label="Sắp xếp nội dung đã lưu" aria-haspopup="true" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg><span id="notebookSortLabel">Mới nhất</span><svg class="notebook-sort-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="notebookSortMenu" class="notebook-sort-menu" hidden><button type="button" data-sort="newest" aria-pressed="true">Mới nhất</button><button type="button" data-sort="oldest" aria-pressed="false">Cũ nhất</button></div></div></div>
         <label class="notebook-search"><span class="notebook-sr">Tìm trong sổ tay</span><input id="notebookQuery" type="search" maxlength="200" placeholder="Tìm từ, cách đọc hoặc nghĩa…"></label>
         <p id="notebookDetailNotice" class="notebook-notice" role="status" hidden></p>
         <div id="notebookEntries" class="notebook-entries" aria-live="polite" aria-busy="false"></div>
 
-    </section>
-
-    <section id="notebookStudy" class="notebook-study" hidden aria-labelledby="notebookStudyTitle">
-        <div class="notebook-study-shell">
-            <header class="notebook-study-topbar">
-                <button id="notebookStudyBack" class="notebook-study-back" type="button" aria-label="Quay lại sổ tay">‹</button>
-                <h1 id="notebookStudyTitle">Ôn flashcard</h1>
-                <details class="notebook-study-options">
-                    <summary aria-label="Tùy chọn học thẻ" title="Tùy chọn học thẻ">ⓘ</summary>
-                    <div class="notebook-study-options-panel">
-                        <label class="notebook-study-limit">Thẻ mới mỗi ngày · từ vựng và Kanji
-                            <select id="notebookStudyLimit">
-                                <option value="10">10 thẻ</option><option value="20">20 thẻ</option><option value="30">30 thẻ</option>
-                                <option value="50">50 thẻ</option><option value="100">100 thẻ</option>
-                            </select>
-                        </label>
-                        <p>Ngày nghỉ không bị phạt. Thẻ đến hạn vẫn chờ bạn ôn; mục tiêu thẻ mới không cộng dồn.</p>
-                    </div>
-                </details>
-            </header>
-            <div class="notebook-study-progress-row">
-                <div id="notebookStudyProgress" class="notebook-study-progress" role="progressbar" aria-label="Tiến độ phiên học" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="notebookStudyProgressFill"></span></div>
-                <span id="notebookStudyPosition">0 / 0</span>
-            </div>
-            <p id="notebookStudyCount" class="notebook-study-count"></p>
-            <p id="notebookStudyNotice" class="notebook-notice" role="status" hidden></p>
-            <article id="notebookCard" class="notebook-card" tabindex="-1" aria-label="Flashcard" hidden>
-                <button id="notebookCardFlip" class="notebook-card-corner" type="button" aria-label="Lật sang mặt đáp án" aria-pressed="false" title="Lật thẻ">⟳</button>
-                <div id="notebookCardFront" class="notebook-card-face notebook-card-front"><small id="notebookCardType">TỪ VỰNG</small><strong id="notebookCardWord" lang="ja"></strong><span class="notebook-card-hint">Chạm hoặc nhấn Space để lật</span></div>
-                <div id="notebookCardBack" class="notebook-card-face notebook-card-back" hidden>
-                    <div class="notebook-card-answer"><small>MẶT SAU</small><strong id="notebookCardAnswer" lang="ja"></strong><span id="notebookCardReading"></span><span id="notebookCardMeaning"></span></div>
-                    <div id="notebookCardExample" class="notebook-card-example" hidden><span id="notebookCardExampleJa" lang="ja"></span><span id="notebookCardExampleVi"></span></div>
-                    <section id="notebookKanjiStudy" class="notebook-kanji-study" aria-label="Âm đọc, cách viết và liên kết Kanji" hidden>
-                        <div class="notebook-kanji-readings-grid"><div><small>ÂM ON</small><p id="notebookKanjiOn" lang="ja"></p></div><div><small>ÂM KUN</small><p id="notebookKanjiKun" lang="ja"></p></div></div>
-                        <p id="notebookKanjiHint" class="notebook-kanji-memory" hidden></p>
-                        <div class="notebook-kanji-explore">
-                            <details id="notebookKanjiWriting" class="notebook-kanji-writing"><summary>Thứ tự nét</summary>
-                                <svg id="notebookKanjiStrokes" viewBox="0 0 109 109" role="img" aria-label="Thứ tự nét Kanji"></svg>
-                                <button id="notebookKanjiReplay" type="button">↻ Phát lại</button>
-                                <p id="notebookKanjiNoStrokes" hidden>Chưa có dữ liệu nét viết.</p>
-                            </details>
-                            <section class="notebook-kanji-structure" aria-labelledby="notebookKanjiDiagramTitle"><div class="notebook-kanji-diagram-heading"><h2 id="notebookKanjiDiagramTitle">Sơ đồ liên kết</h2><button id="notebookKanjiMotion" class="notebook-diagram-motion" type="button" data-diagram-motion aria-label="Tạm dừng chuyển động sơ đồ" aria-pressed="false"></button></div>
-                                <div id="notebookKanjiDiagram" class="km-detail-graph notebook-component-diagram" role="group" aria-label="Các thành phần nối vào Kanji đang học"></div>
-                                <p id="notebookKanjiNoRelations" hidden>Chưa có dữ liệu liên kết cho chữ này.</p>
-                            </section>
-                        </div>
-                    </section>
-                </div>
-            </article>
-            <div id="notebookRatings" class="notebook-ratings" hidden>
-                <button type="button" data-rating="AGAIN"><span>Quên</span><small id="notebookAgainTime"></small></button>
-                <button type="button" data-rating="HARD"><span>Khó</span><small id="notebookHardTime"></small></button>
-                <button type="button" data-rating="GOOD"><span>Nhớ</span><small id="notebookGoodTime"></small></button>
-                <button type="button" data-rating="EASY"><span>Dễ</span><small id="notebookEasyTime"></small></button>
-            </div>
-            <p id="notebookStudyDone" class="notebook-study-done" hidden></p>
-            <button id="notebookStudyRefresh" class="notebook-primary" type="button" hidden>Kiểm tra thẻ đến hạn</button>
-        </div>
     </section>
 
     <dialog id="notebookCreateDialog" class="notebook-dialog" aria-labelledby="notebookDialogTitle">
@@ -124,9 +66,10 @@
         <div class="notebook-dialog-actions"><button id="notebookDeleteCancel" type="button">Hủy</button><button id="notebookDeleteConfirm" class="notebook-primary" type="button">Xóa sổ tay</button></div>
     </dialog>
 </main>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
-<script th:src="@{/js/pages/kanji-map-diagram.js}"></script>
-<script th:src="@{/js/pages/notebook-kanji-card.js(v='20261027-component-diagram')}"></script>
-<script th:src="@{/js/pages/weakness-notebook.js(v='20261027-component-diagram')}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
+<script th:src="@{/js/pages/notebook-flashcards.js(v=20261119-unified-polish)}"></script>
+<script th:src="@{/js/pages/weakness-notebook.js(v=20261124-gm)}"></script>
+<link rel="stylesheet" th:href="@{/css/pages/jpath-grammar-mistakes.css(v=20261124)}">
+<script th:src="@{/js/jlptpath/jpath-grammar-mistakes.js(v=20261124)}"></script>
 </body>
 </html>

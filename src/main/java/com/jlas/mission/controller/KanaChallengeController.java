@@ -20,7 +20,7 @@ public class KanaChallengeController {
     @GetMapping("/today")
     public ResponseEntity<ApiResponse<Today>> today(@AuthenticationPrincipal UserPrincipal user,
                                                     @RequestParam(required = false) String level) {
-        return ResponseEntity.ok(ApiResponse.ok("Thử thách hôm nay", service.today(user.userId(), level)));
+        return ResponseEntity.ok(ApiResponse.ok("Thử thách tuần này", service.today(user.userId(), level)));
     }
 
     /** Reveals the kana in the empty slot the learner picked; available every 30 seconds of play. */
@@ -31,7 +31,14 @@ public class KanaChallengeController {
                 request.wordId(), request.index())));
     }
 
-    /** Stops this board's clock while the learner is away; opening the board again resumes it. */
+    /** Bắt đầu / Tiếp tục: starts this board's clock and returns it with its kana. */
+    @PostMapping("/start")
+    public ResponseEntity<ApiResponse<Today>> start(@AuthenticationPrincipal UserPrincipal user,
+                                                    @Valid @RequestBody HintRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok("Bắt đầu tính giờ", service.start(user.userId(), request.challengeId())));
+    }
+
+    /** Stops this board's clock while the learner is away; pressing Tiếp tục starts it again. */
     @PostMapping("/pause")
     public ResponseEntity<ApiResponse<Void>> pause(@AuthenticationPrincipal UserPrincipal user,
                                                    @Valid @RequestBody HintRequest request) {

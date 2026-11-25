@@ -5,6 +5,7 @@ import com.jlas.shadowing.dto.LibraryPageDto;
 import com.jlas.shadowing.dto.SeriesSummaryDto;
 import com.jlas.shadowing.util.LibraryFilters;
 import com.jlas.shadowing.util.LibraryPopularity;
+import com.jlas.shadowing.util.LibrarySearch;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -75,7 +76,7 @@ public class ShadowingLibraryCatalog {
         LibraryPageDto.validate(page, size);
         Set<String> genres = LibraryFilters.values(genre);
         Snapshot catalog = snapshot();
-        Set<Long> matches = matchingVideoIds(query);
+        Map<Long, Integer> relevance = relevance(LibrarySearch.of(query), catalog.entries());
         Set<Long> favoriteIds = favorites && userId != null ? new HashSet<>(jdbc.queryForList(
                 "SELECT video_id FROM video_user_state WHERE user_id=? AND is_favorite=1", Long.class, userId)) : Set.of();
         Set<String> categories = LibraryFilters.values(category), levels = LibraryFilters.values(level);
@@ -83,16 +84,19 @@ public class ShadowingLibraryCatalog {
         boolean history = "history".equals(scope);
         Map<Long, LocalDateTime> viewed = history && userId != null
                 ? new ViewHistoryRepository(jdbc).recent(userId, ViewHistoryRepository.Item.SHADOWING_VIDEO) : Map.of();
-        Comparator<Entry> order = history
+        Comparator<Entry> chosen = history
                 ? Comparator.comparing((Entry v) -> viewed.get(v.id()), Comparator.reverseOrder())
                 : order(sort, Entry::metrics, Entry::duration, Entry::title, Entry::createdAt, Entry::id, catalog.caps());
+        // With a keyword the best match comes first; the chosen sort only orders equally relevant videos.
+        Comparator<Entry> order = relevance == null ? chosen
+                : Comparator.<Entry>comparingInt(v -> relevance.get(v.id())).reversed().thenComparing(chosen);
         List<Entry> filtered = catalog.entries().stream()
                 .filter(v -> !com.jlas.shadowing.util.ShadowingModerationState.isRemoved(v.moderation()))
                 .filter(v -> history ? viewed.containsKey(v.id()) && (v.publicReady() || Objects.equals(userId, v.ownerId()))
                         : "my".equals(scope) ? userId != null && Objects.equals(userId, v.ownerId())
                         : "all".equals(scope) ? v.publicReady() || userId != null && Objects.equals(userId, v.ownerId()) : v.publicReady())
                 .filter(v -> status == null || status.isBlank() || status.equals(v.status()))
-                .filter(v -> matches == null || matches.contains(v.id()))
+                .filter(v -> relevance == null || relevance.containsKey(v.id()))
                 .filter(v -> !favorites || favoriteIds.contains(v.id()))
                 .filter(v -> categories.isEmpty() || v.tags().stream().anyMatch(t -> categories.contains(t.toLowerCase(Locale.ROOT))))
                 .filter(v -> v.genres().containsAll(genres))
@@ -148,31 +152,53 @@ public class ShadowingLibraryCatalog {
         // Series have their own global P95 distribution; filters never change the caps.
         var caps = LibraryPopularity.caps(metrics.values());
         Set<String> categories = LibraryFilters.values(category), levels = LibraryFilters.values(level);
-        String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        LibrarySearch search = LibrarySearch.of(query);
+        Map<Long, Integer> relevance = new HashMap<>();
+        if (search != null) rows.forEach(s -> {
+            int score = search.score(s.getTitle(), List.of(), s.getDescription() == null ? List.of() : List.of(s.getDescription()));
+            if (score > 0) relevance.put(s.getId(), score);
+        });
+        Comparator<SeriesSummaryDto> chosen = order(sort, s -> metrics.get(s.getId()), SeriesSummaryDto::getDuration,
+                SeriesSummaryDto::getTitle, SeriesSummaryDto::getCreatedAt, SeriesSummaryDto::getId, caps);
+        Comparator<SeriesSummaryDto> ranked = search == null ? chosen
+                : Comparator.<SeriesSummaryDto>comparingInt(s -> relevance.get(s.getId())).reversed().thenComparing(chosen);
         List<SeriesSummaryDto> filtered = rows.stream()
-                .filter(s -> q.isBlank() || Arrays.stream(q.split("\\s+")).anyMatch(term ->
-                        (s.getTitle() + " " + Objects.toString(s.getDescription(), "")).toLowerCase(Locale.ROOT).contains(term)))
+                .filter(s -> search == null || relevance.containsKey(s.getId()))
                 .filter(s -> categories.isEmpty() || s.getCategories().stream().anyMatch(c -> categories.contains(c.toLowerCase(Locale.ROOT))))
                 .filter(s -> seriesGenres.getOrDefault(s.getId(), Set.of()).containsAll(genres))
                 .filter(s -> levels.isEmpty() || s.getEstimatedLevel() != null && levels.contains(s.getEstimatedLevel().toLowerCase(Locale.ROOT)))
-                .sorted(order(sort, s -> metrics.get(s.getId()), SeriesSummaryDto::getDuration, SeriesSummaryDto::getTitle,
-                        SeriesSummaryDto::getCreatedAt, SeriesSummaryDto::getId, caps)).toList();
+                .sorted(ranked).toList();
         return LibraryPageDto.from(filtered, page, size);
     }
 
-    private Set<Long> matchingVideoIds(String query) {
-        if (query == null || query.isBlank()) return null;
-        String[] terms = query.trim().toLowerCase(Locale.ROOT).split("\\s+");
-        Set<Long> ids = new HashSet<>();
-        for (String term : terms) {
-            String pattern = "%" + term + "%";
-            ids.addAll(jdbc.queryForList("""
-                    SELECT v.id FROM video v WHERE LOWER(v.title) LIKE ?
-                    OR EXISTS (SELECT 1 FROM video_tag vt JOIN tag t ON t.id=vt.tag_id WHERE vt.video_id=v.id AND LOWER(t.name) LIKE ?)
-                    OR EXISTS (SELECT 1 FROM subtitle s WHERE s.video_id=v.id AND LOWER(s.text) LIKE ?)
-                    """, Long.class, pattern, pattern, pattern));
+    /**
+     * Relevance of every matching video, or null without a keyword. Titles and tags come from the snapshot; subtitle
+     * lines are pre-filtered in SQL per word, then {@link LibrarySearch} applies the whole-word rule and the score.
+     */
+    private Map<Long, Integer> relevance(LibrarySearch search, List<Entry> entries) {
+        if (search == null) return null;
+        // The Japanese line and its Vietnamese translation are both searched ("cảm ơn vì đã vất vả" finds
+        // お疲れ様でした through its translation). They are kept as separate texts so a phrase never spans the two.
+        Map<Long, Map<String, String>> lines = new HashMap<>();
+        for (String term : search.terms()) {
+            String like = "%" + term + "%";
+            jdbc.query("SELECT id, video_id, text, translation FROM subtitle WHERE LOWER(text) LIKE ? OR LOWER(translation) LIKE ?",
+                    rs -> {
+                        Map<String, String> own = lines.computeIfAbsent(rs.getLong("video_id"), k -> new HashMap<>());
+                        long id = rs.getLong("id");
+                        own.put("ja:" + id, rs.getString("text"));
+                        String translation = rs.getString("translation");
+                        if (translation != null && !translation.isBlank()) own.put("vi:" + id, translation);
+                    },
+                    like, like);
         }
-        return ids;
+        Map<Long, Integer> scores = new HashMap<>();
+        for (Entry entry : entries) {
+            Map<String, String> own = lines.get(entry.id());
+            int score = search.score(entry.title(), entry.tags(), own == null ? List.of() : own.values());
+            if (score > 0) scores.put(entry.id(), score);
+        }
+        return scores;
     }
 
     public static <T> Comparator<T> order(String sort, Function<T, LibraryPopularity.Metrics> metrics,

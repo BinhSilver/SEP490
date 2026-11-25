@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] Bug 55: "Học tiếp" screen for a paused JLPT path (GET /learning/jlpt/resume). Opening it changes
+     nothing; only the button (POST /learning/jlpt/resume) makes the path active again. -->
+<head th:replace="~{fragments/head :: standard('Học tiếp lộ trình JLPT - KotsuKotsu', null)}"></head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<!-- owner 24/11: same paused card as the communication path (cpath/paused.html) -->
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
+    <section class="cp-paused-card jp-card" role="status">
+        <img class="cp-paused-card__pic" src="/images/mascots/fox/kitsu-thinking-30-128.webp" alt="" width="120" height="120"
+             onerror="this.remove()" />
+        <h1 class="cp-paused-card__title">Lộ trình JLPT đang tạm dừng</h1>
+        <p class="cp-paused-card__text">Tiến độ của bạn vẫn được giữ. Bấm Học tiếp để quay lại đúng chỗ đã dừng.</p>
+        <form class="cp-paused-card__actions" method="post" th:action="@{/learning/jlpt/resume}">
+            <button type="submit" class="jp-btn jp-btn--primary">Học tiếp</button>
+            <a class="jp-btn" th:href="@{/}" title="Về trang chủ">Để sau</a>
+        </form>
+    </section>
+</main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
+</body>
+</html>

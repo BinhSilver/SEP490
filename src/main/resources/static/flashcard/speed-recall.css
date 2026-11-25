@@ -1,4 +1,6 @@
 /* Hallmark · macrostructure: Game Session · tone: playful utilitarian · anchor hue: existing primary · pre-emit critique: P4 H5 E4 S5 R4 V4 */
+@import url('./typing-slots.css');
+
 #jlabBasePage.speed-recall-page {
   --jlab-base-page-background: var(--color-surface);
 }
@@ -19,7 +21,7 @@
 }
 
 #jlabBaseContent [hidden] { display: none !important; }
-#jlabBaseContent [lang="ja"] { font-family: "Noto Sans JP", sans-serif; }
+#jlabBaseContent [lang="ja"] { font-family: var(--font-jp); }
 #jlabBaseContent button,
 #jlabBaseContent input,
 #jlabBaseContent select { font: inherit; }
@@ -48,7 +50,7 @@
 #jlabBaseContent #setup .sr-set-title {
   color: var(--color-on-surface);
   font-size: clamp(36px, 5vw, 52px);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   margin: 0 0 20px;
 }
@@ -138,7 +140,7 @@
   color: var(--color-on-surface);
   cursor: pointer;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   transition: transform var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
 }
 #jlabBaseContent .sr-game-control:hover,
@@ -170,34 +172,6 @@
 #jlabBaseContent #time-left { color: var(--color-on-surface); font-size: 18px; font-variant-numeric: tabular-nums; }
 #jlabBaseContent .sr-game-timer__track { height: 8px; margin-top: 10px; overflow: hidden; border-radius: var(--radius-full); background: var(--color-surface-high); }
 #jlabBaseContent #timer-bar { height: 100%; background: var(--color-primary); transform-origin: left; transition: transform var(--dur-short) var(--ease-out); }
-#jlabBaseContent .sr-slots {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  min-height: 62px;
-  margin: 28px 0 0;
-  cursor: text;
-}
-#jlabBaseContent .sr-slot {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border: 2px solid var(--color-outline);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-lowest);
-  color: var(--color-on-surface);
-  font-size: 27px;
-  line-height: 1;
-}
-#jlabBaseContent .sr-slot small { display: none; }
-#jlabBaseContent .sr-slot.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-container); }
-#jlabBaseContent .sr-slot.is-correct { color: var(--color-success); border-color: var(--color-success); background: var(--color-success-bg); }
-#jlabBaseContent .sr-slot.is-wrong { color: var(--color-on-error-container); border-color: var(--color-error); background: var(--color-error-container); }
-#jlabBaseContent .sr-typing-capture { position: absolute; width: 1px; height: 1px; margin: -1px; opacity: 0; }
-#jlabBaseContent .sr-slots.is-mistake { animation: sr-slot-mistake var(--dur-short) var(--ease-out); }
-@keyframes sr-slot-mistake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
 #jlabBaseContent .sr-feedback {
   max-width: 640px;
@@ -248,38 +222,11 @@
   #jlabBaseContent .sr-game-hud__actions { flex: 1 0 100%; margin-left: 0; }
   #jlabBaseContent .sr-game-control { flex: 1 1 0; padding-inline: 10px; }
   #jlabBaseContent .sr-stats { grid-template-columns: repeat(2, 1fr); }
-  #jlabBaseContent .sr-slot { width: 48px; height: 48px; font-size: 23px; }
 }
 
 
-/* IME fragments stay outside the answer slots until Japanese conversion is confirmed. */
-#jlabBaseContent .sr-ime-preview { flex-basis:100%; min-width:0; overflow-wrap:anywhere; color:var(--color-on-surface-variant); font-size:16px; line-height:1.5; }
 
 /* Page-owned dark mode: flashcard/speed-recall.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 

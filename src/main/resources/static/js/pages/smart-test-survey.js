@@ -5,14 +5,26 @@
   var nextButton = document.getElementById('surveyNextButton');
   var backButton = document.getElementById('surveyBackButton');
   var notice = document.getElementById('surveyNotice');
+  var loading = document.getElementById('surveyLoading');
   var currentIndex = 0;
   var savedSurvey = null;
   var wizard = document.getElementById('surveyWizard');
   var form = document.getElementById('smartTestSurveyForm');
   var progressHeader = document.querySelector('.survey-progress-header');
   var invitation = document.getElementById('surveyInvitation');
+  if (form) form.hidden = true;
+  if (progressHeader) progressHeader.hidden = true;
   var startTest = document.getElementById('surveyStartTest');
   var goHome = document.getElementById('surveyGoHome');
+  // [JLAS-W0108] A8: "Để sau" returns to the page the learner came from (same site, not the survey itself).
+  var later = document.getElementById('surveyLater');
+  if (later) {
+    try {
+      var ref = document.referrer ? new URL(document.referrer) : null;
+      if (ref && ref.origin === window.location.origin && ref.pathname.indexOf('/survey') !== 0
+          && ref.pathname.indexOf('/learning') !== 0) later.href = ref.pathname + ref.search;
+    } catch (e) { /* keep the home link */ }
+  }
   var noTest = false;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin('/survey')) return;
 
@@ -31,6 +43,9 @@
   var kanaAutoFilled = false;
   var editParam = null;
   try { editParam = new URLSearchParams(window.location.search).get('edit'); } catch (ignore) { editParam = null; }
+  // [JLAS-W0108] owner 23/11: ?retake=1 (from the past-result page) shows the start card instead of the old result
+  var retakeParam = false;
+  try { retakeParam = new URLSearchParams(window.location.search).get('retake') === '1'; } catch (ignore) { retakeParam = false; }
 
   function checkedValue(name) {
     var input = form.querySelector('input[name="' + name + '"]:checked');
@@ -117,7 +132,8 @@
     slides.forEach(function (slide) { slide.classList.toggle('is-active', slide === active); });
     var progress = ((currentIndex + 1) / activeSlides.length) * 100;
     document.getElementById('surveyProgress').style.width = progress + '%';
-    document.getElementById('surveyStepCounter').textContent = (currentIndex + 1) + '/' + activeSlides.length;
+    // [JLAS-W0108] F11: the total depends on the answers (branches), so only the step number is shown
+    document.getElementById('surveyStepCounter').textContent = 'Bước ' + (currentIndex + 1);
     backButton.disabled = currentIndex === 0;
     nextButton.disabled = !hasAnswer(active);
     nextButton.querySelector('span').textContent =
@@ -165,8 +181,7 @@
   async function refreshTargetOptions() {
     var request = ++targetOptionsRequest;
     var studied = document.querySelector('input[name="studied"]:checked');
-    // The JLPT path does not ask the level step, so an old hidden answer must not steer the targets.
-    var selfLevel = jpathOn && checkedValue('goal') === 'JLPT' ? null : document.querySelector('input[name="selfLevel"]:checked');
+    var selfLevel = document.querySelector('input[name="selfLevel"]:checked');
     var assessed = window.SmartTestSurveyTargets.assessedLevelFor({
       studied: studied ? studied.value : null, selfLevel: selfLevel ? selfLevel.value : null });
     try {
@@ -178,13 +193,18 @@
   }
 
   function showError(message) { notice.textContent = message || 'Không thể tạo bài kiểm tra. Vui lòng thử lại.'; notice.hidden = false; }
-  async function api(url, options) { var response = await fetch(url, Object.assign({ headers: window.JlasAuth.authHeaders() }, options || {})); var payload; try { payload = await response.json(); } catch (ignore) { payload = null; } if (!response.ok || !payload || !payload.success) throw new Error(payload && payload.message ? payload.message : 'Không thể kết nối tới máy chủ.'); return payload.data; }
+  async function api(url, options) { var response = await httpFetch(url, Object.assign({ headers: window.JlasAuth.authHeaders() }, options || {})); var payload; try { payload = await response.json(); } catch (ignore) { payload = null; } if (!response.ok || !payload || !payload.success) throw new Error(payload && payload.message ? payload.message : 'Không thể kết nối tới máy chủ.'); return payload.data; }
 
   function showInvitation(survey, justSaved) {
     savedSurvey = survey;
-    if (commOn && survey && (survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')) {
-      // no in-between screen: a new answer opens the communication survey, a returning learner their path
-      window.location.assign(justSaved ? '/learning/comm/survey?goal=' + encodeURIComponent(survey.goal) : '/learning/comm');
+    if (justSaved && commOn && survey && survey.goal === 'JLPT') {
+      // owner 17/11: one main goal — JLPT as the main goal pauses the communication paths (progress kept)
+      api('/api/learning/comm/goals/pause-for-jlpt', { method: 'POST' }).catch(function () { /* nothing to pause */ });
+    }
+    if (justSaved && commOn && survey && (survey.goal === 'BA' || survey.goal === 'TRAVEL' || survey.goal === 'DAILY_LIFE')) {
+      // a new communication answer goes straight to the communication survey; a returning learner who opened
+      // Smart Test from the menu stays here (owner 17/11: the menu entry must not bounce them to the path)
+      window.location.assign('/learning/comm/survey?goal=' + encodeURIComponent(survey.goal));
       return;
     }
     var fromZero = survey.selfReportedLevel === 'FROM_ZERO';
@@ -201,9 +221,13 @@
     var keepsPath = Boolean(afterSurveyTarget) && Flow.keepsPath(pathStatus);
     var resumesSmartTest = Boolean(afterSurveyTarget) && !keepsPath && !fromZero;
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
+    var hasResult = Boolean(entryStatus && entryStatus.smartTest && entryStatus.smartTest.status === 'SUBMITTED');
     if (keepsPath) {
-      document.getElementById('inviteTitle').textContent = 'Lộ trình JLPT của bạn vẫn được giữ!';
-      document.getElementById('inviteText').textContent = 'Bạn đã có lộ trình nên không cần làm lại Smart Test. Tiến độ học vẫn được giữ nguyên.';
+      document.getElementById('inviteTitle').textContent = hasResult ? 'Làm lại Smart Test?' : 'Đo trình độ bằng Smart Test';
+      document.getElementById('inviteText').textContent = (hasResult
+        ? 'Bài mới thay cho kết quả lần trước. '
+        : 'Lộ trình hiện tại được tạo từ khảo sát, bạn chưa làm Smart Test. ')
+        + 'Lộ trình và tiến độ giữ nguyên; xong bài, bạn so cấp mới với lộ trình và tự chọn có đổi cấp hay không.';
     } else if (resumesSmartTest) {
       document.getElementById('inviteTitle').textContent = 'Kitsu đã lưu lịch học của bạn!';
       document.getElementById('inviteText').textContent = 'Bạn đã có bài Smart Test. Tiếp tục để xem kết quả và xác nhận lộ trình JLPT.';
@@ -217,7 +241,13 @@
       document.getElementById('inviteTitle').textContent = 'Sẵn sàng khám phá trình độ của bạn?';
       document.getElementById('inviteText').textContent = 'Làm Smart Test cùng Kitsu để tìm điểm bắt đầu phù hợp. Nếu chưa sẵn sàng, bạn có thể làm bài sau.';
     }
-    startTest.hidden = needsPathOnly;
+    // owner 23/11: a path learner without a Smart Test result sees where they started (from the survey), not an invite
+    renderEntrySummary(keepsPath && !hasResult ? { survey: survey, entry: entryStatus, fromZero: fromZero } : null);
+    // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
+    // owner 23/11: a learner new to Japanese who keeps a path is not offered Smart Test (set after the summary)
+    startTest.hidden = (needsPathOnly && !keepsPath) || (keepsPath && !hasResult && fromZero);
+    var startLabel = startTest.querySelector('span');
+    if (startLabel) startLabel.textContent = keepsPath ? (hasResult ? 'Làm bài mới' : 'Làm Smart Test') : 'Bắt đầu Smart Test';
     noTest = needsPathOnly;
     goHome.textContent = needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
     goHome.classList.toggle('smart-test-primary', needsPathOnly);
@@ -228,6 +258,69 @@
     invitation.hidden = false;
     notice.hidden = true;
     (needsPathOnly ? goHome : startTest).focus();
+  }
+
+  var DAY_NAMES = { MON: 'Thứ Hai', TUE: 'Thứ Ba', WED: 'Thứ Tư', THU: 'Thứ Năm', FRI: 'Thứ Sáu', SAT: 'Thứ Bảy', SUN: 'Chủ nhật' };
+
+  /** Rows of the "where you started" summary for a path learner without a Smart Test result (owner 23/11). */
+  function entrySummaryRows(survey, entry, fromZero) {
+    var sv = survey || {};
+    var en = entry || {};
+    var self = sv.selfReportedLevel;
+    var selfText = self === 'FROM_ZERO' ? 'Chưa học tiếng Nhật'
+      : self === 'UNKNOWN' || !self ? 'Đã học, chưa rõ cấp' : 'Khoảng ' + self;
+    var days = function (list) {
+      return (list || []).map(function (c) { return DAY_NAMES[c] || c; }).join(', ');
+    };
+    var rows = [
+      ['Mục tiêu', 'JLPT ' + (sv.targetLevel || 'N5')],
+      ['Trình độ khi khảo sát', selfText],
+      ['Bắt đầu từ', fromZero ? 'Bảng chữ cái, rồi N5' : 'Cấp theo khảo sát']
+    ];
+    if (en.skillDays && en.skillDays.length) rows.push(['Ngày kỹ năng', days(en.skillDays)]);
+    rows.push(['Ngày nghỉ', en.restDays && en.restDays.length ? days(en.restDays) : 'Không có']);
+    if (!fromZero) rows.push(['Smart Test', 'Chưa làm (không bắt buộc)']);
+    return rows;
+  }
+
+  function renderEntrySummary(data) {
+    var old = document.getElementById('surveyEntrySummary');
+    if (old) old.remove();
+    var eyebrow = invitation.querySelector('.survey-eyebrow');
+    var actions = invitation.querySelector('.survey-invitation__actions');
+    if (!data) {
+      if (eyebrow) eyebrow.textContent = 'Kitsu đã ghi nhớ mục tiêu của bạn';
+      startTest.className = 'smart-test-primary';
+      if (actions && actions.firstElementChild !== startTest) actions.insertBefore(startTest, actions.firstChild);
+      return;
+    }
+    if (eyebrow) eyebrow.textContent = 'Điểm bắt đầu của bạn';
+    document.getElementById('inviteTitle').textContent = data.fromZero ? 'Bạn bắt đầu từ bảng chữ cái' : 'Lộ trình của bạn đến từ khảo sát';
+    // owner 23/11: a learner new to Japanese does not need Smart Test at all; never word it as a missing step
+    document.getElementById('inviteText').textContent = data.fromZero
+      ? 'Bạn chưa học tiếng Nhật nên lộ trình bắt đầu từ bảng chữ cái, không cần làm bài kiểm tra đầu vào.'
+      : 'Lộ trình dựa trên khảo sát của bạn. Nếu muốn biết mình đang ở cấp nào, bạn có thể làm Smart Test bất cứ lúc nào; lộ trình và tiến độ giữ nguyên.';
+    var dl = document.createElement('dl');
+    dl.id = 'surveyEntrySummary';
+    dl.className = 'survey-entry-summary';
+    entrySummaryRows(data.survey, data.entry, data.fromZero).forEach(function (row) {
+      var item = document.createElement('div');
+      var dt = document.createElement('dt'); dt.textContent = row[0];
+      var dd = document.createElement('dd'); dd.textContent = row[1];
+      if (row[0] === 'Mục tiêu') dd.setAttribute('data-entry-target', '');
+      item.append(dt, dd); dl.appendChild(item);
+    });
+    document.getElementById('inviteText').after(dl);
+    // the goal shown is the path's current one (settings may have changed it since the survey)
+    api('/api/learning/jlpt/path').then(function (path) {
+      var box = document.getElementById('surveyEntrySummary');
+      var cell = box && box.querySelector ? box.querySelector('[data-entry-target]') : null;
+      if (cell && path && path.targetLevel) cell.textContent = 'JLPT ' + path.targetLevel;
+    }).catch(function () {});
+    // the path is the main way on; Smart Test stays one click away, and is not offered to a learner new to Japanese
+    startTest.className = 'smart-test-secondary';
+    if (actions) actions.appendChild(startTest);
+    startTest.hidden = Boolean(data.fromZero);
   }
 
   function getVietnamToday() {
@@ -282,7 +375,7 @@
     };
     var jpathJlpt = Boolean(jpathOn && Flow && goal === 'JLPT');
     // [JLAS-W0108] The JLPT path has no level step: a learner who studied is UNKNOWN (Smart Test finds the level).
-    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied);
+    if (jpathJlpt) body.selfReportedLevel = Flow.selfReportedLevelFor(studied, selfLevelEl ? selfLevelEl.value : null);
 
     if (goal === 'JLPT') {
       var dateStr = examDateInput && examDateInput.value ? examDateInput.value.trim() : '';
@@ -332,7 +425,7 @@
       localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
       window.location.assign('/smart-test');
     } catch (error) { showError(error.message); }
-    finally { startTest.disabled = false; startTest.querySelector('span').textContent = 'Bắt đầu Smart Test'; }
+    finally { startTest.disabled = false; }
   }
 
   startTest.addEventListener('click', function () { if (savedSurvey) beginTest(savedSurvey); });
@@ -343,6 +436,27 @@
     // [JLAS-W0108] Owner 07/11: only the new paths remain; /learning routes to the JLPT or communication path.
     window.location.assign('/learning');
   });
+  /** Owner 17/11 (mentor review): changing the main goal says up front what happens to the current paths. */
+  function showGoalChangeNote() {
+    var slide = form.querySelector('[data-survey-step="goal"]');
+    if (!slide || slide.querySelector('.survey-goal-change')) return;
+    var note = document.createElement('div');
+    note.className = 'survey-goal-change';
+    note.setAttribute('role', 'note');
+    note.setAttribute('data-notice-keep', '');
+    note.innerHTML = '<strong>Bạn đang đổi mục tiêu chính.</strong> '
+      + '<span data-goal-change-detail>Lộ trình đang học sẽ tạm dừng, tiến độ giữ nguyên; chọn lại mục tiêu cũ là học tiếp.</span>';
+    slide.insertBefore(note, slide.firstChild);
+    api('/api/learning/comm/goals/overview').then(function (v) {
+      var parts = [];
+      if (v && v.main) parts.push('Mục tiêu chính hiện tại: ' + (v.main.kind === 'JLPT' ? 'Lộ trình ' : 'Giao tiếp · ') + v.main.nameVi + ' — sẽ tạm dừng, tiến độ giữ nguyên.');
+      if (v && v.secondary) parts.push('Mục tiêu phụ: Giao tiếp · ' + v.secondary.nameVi + ' — chọn mục tiêu này thì nó được nâng lên làm chính và giữ tiến độ.');
+      parts.push('Chọn lại một mục tiêu đã học trước đây là học tiếp từ chỗ cũ.');
+      var d = note.querySelector('[data-goal-change-detail]');
+      if (d) d.textContent = ' ' + parts.join(' ');
+    }, function () { /* the short note stays */ });
+  }
+
   function openWizard(startStep) {
     if (savedSurvey) fillSurvey(savedSurvey);
     // An old answer only the legacy survey offers (duration 3 "Dưới 6 tháng") stays visible so the step reads answered.
@@ -352,6 +466,7 @@
       });
     }
     applyEntryStatus();
+    if (editParam === 'goal') showGoalChangeNote();
     invitation.hidden = true;
     form.hidden = false;
     progressHeader.hidden = false;
@@ -443,41 +558,84 @@
       }
     });
   }
-  function loadJpathConfig() {
-    if (!Flow) return Promise.resolve();
-    var comm = fetch('/api/learning/comm/goals', { headers: window.JlasAuth.authHeaders() })
-      .then(function (r) { commOn = r.ok; }, function () { commOn = false; });
-    return api('/api/learning/jlpt/config').then(function (config) {
-      if (config) jpathConfig = config;
-    }).catch(function () { jpathConfig = { enabled: false }; }).then(function () {
-      jpathOn = Boolean(jpathConfig && jpathConfig.enabled);
-      return comm;
-    });
+  function httpFetch(url, options) {
+    var fn = (typeof window !== 'undefined' && typeof window.fetch === 'function')
+      ? window.fetch.bind(window)
+      : (typeof fetch === 'function' ? fetch : null);
+    return fn ? fn(url, options) : Promise.reject(new Error('Không thể kết nối tới máy chủ.'));
   }
 
-  function loadSurvey() {
-    return api('/api/assessment/survey').then(async function (data) {
-      var survey = data && data.completed && data.survey ? data.survey : null;
-      if (jpathOn) {
-        try { entryStatus = await api('/api/learning/jlpt/entry-status'); } catch (ignore) { entryStatus = null; }
+  function finishLoading() {
+    if (loading) loading.hidden = true;
+  }
+
+  function showFormReady() {
+    finishLoading();
+    if (form) form.hidden = false;
+    if (progressHeader) progressHeader.hidden = false;
+    render();
+  }
+
+  function initSurvey() {
+    var canFetch = (typeof window !== 'undefined' && typeof window.fetch === 'function') || typeof fetch === 'function';
+    if (!canFetch) {
+      applyFlagVisibility();
+      setupDayPicker();
+      showFormReady();
+      return Promise.resolve();
+    }
+    var configPromise = Flow
+      ? api('/api/learning/jlpt/config').then(function (config) {
+          if (config) jpathConfig = config;
+        }).catch(function () { jpathConfig = { enabled: false }; })
+      : Promise.resolve();
+    var commPromise = Flow
+      ? httpFetch('/api/learning/comm/goals', { headers: window.JlasAuth.authHeaders() })
+          .then(function (r) { commOn = !!(r && r.ok); }, function () { commOn = false; })
+      : Promise.resolve();
+    var surveyPromise = api('/api/assessment/survey').catch(function (error) { return { __error: error }; });
+    var entryPromise = Flow
+      ? api('/api/learning/jlpt/entry-status').catch(function () { return null; })
+      : Promise.resolve(null);
+
+    return Promise.all([configPromise, commPromise, surveyPromise, entryPromise]).then(function (results) {
+      jpathOn = Boolean(jpathConfig && jpathConfig.enabled);
+      var surveyRes = results[2];
+      entryStatus = jpathOn ? (results[3] || null) : null;
+
+      applyFlagVisibility();
+      setupDayPicker();
+
+      if (surveyRes && surveyRes.__error) {
+        showFormReady();
+        showError(surveyRes.__error.message);
+        return;
       }
+
+      var survey = surveyRes && surveyRes.completed && surveyRes.survey ? surveyRes.survey : null;
       // ?edit=1|goal (settings: restart / change goal) and ?edit=days (start route without entry answers, C7).
-      var startStep = jpathOn ? Flow.editStartStep(editParam, {
+      var startStep = jpathOn && Flow ? Flow.editStartStep(editParam, {
         studied: survey ? (survey.selfReportedLevel === 'FROM_ZERO' ? 'NO' : 'YES') : null,
         kanaChoice: entryStatus && entryStatus.preferenceDone ? entryStatus.kanaChoice : null
       }) : null;
       if (survey) savedSurvey = survey;
-      if (startStep) openWizard(startStep);
-      else if (survey) showInvitation(survey);
-    }).catch(function (error) { showError(error.message); });
+      if (startStep) {
+        finishLoading();
+        openWizard(startStep);
+      } else if (survey && !retakeParam && entryStatus && entryStatus.smartTest
+          && entryStatus.smartTest.status === 'SUBMITTED' && entryStatus.smartTest.attemptId) {
+        // owner 23/11: a learner who already took Smart Test sees that result first, not the start card
+        window.location.replace('/smart-test?attempt=' + encodeURIComponent(entryStatus.smartTest.attemptId));
+      } else if (survey) {
+        finishLoading();
+        showInvitation(survey);
+      } else {
+        showFormReady();
+      }
+    });
   }
 
-  loadJpathConfig().then(function () {
-    applyFlagVisibility();
-    setupDayPicker();
-    render();
-    return loadSurvey();
-  });
+  var initReady = initSurvey();
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -486,7 +644,9 @@
       formatDateISO: formatDateISO,
       getExamDateConstraints: getExamDateConstraints,
       initExamDateConstraints: initExamDateConstraints,
-      fillSurvey: fillSurvey
+      fillSurvey: fillSurvey,
+      entrySummaryRows: entrySummaryRows,
+      ready: initReady
     };
   }
 })();

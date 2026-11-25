@@ -7,11 +7,13 @@ import com.jlas.jlptpath.service.JpathBadgeService;
 import com.jlas.jlptpath.service.JpathRewardService;
 import com.jlas.jlptpath.util.JpathRewardPolicy;
 import com.jlas.mission.service.CreditAwardService;
+import com.jlas.mission.service.DailyGoalService;
 import com.jlas.mission.service.StreakService;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,9 @@ public class JpathRewardServiceImpl implements JpathRewardService {
     /** Transaction resource marking that the after-commit apply is already registered. */
     private static final Object APPLY_KEY = JpathRewardServiceImpl.class;
 
+    /** Transaction resource marking that the after-commit daily-goal check is already registered (F128). */
+    static final Object DAILY_GOAL_KEY = DailyGoalService.class.getName() + "#jpath";
+
     private final CreditAwardService awards;
     private final StreakService streaks;
     private final JpathBadgeService badges;
@@ -43,18 +48,13 @@ public class JpathRewardServiceImpl implements JpathRewardService {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onTabDayCompleted(Long userId, LocalDate day, JpathTab tab, boolean rewardEligible) {
-        if (tab == JpathTab.SKILL || !rewardEligible) {
-            return;
-        }
-        pay(userId, JpathRewardPolicy.TAB_DAY, JpathRewardPolicy.REF_TAB_DAY, JpathRewardPolicy.tabDayRef(day, tab),
-                "Xong phần " + label(tab) + " hôm nay");
+        // owner 25/11: no CP for a part of the day; the day lump is paid in onDayCompleted
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onReviewsCleared(Long userId, LocalDate day) {
-        pay(userId, JpathRewardPolicy.REVIEW_DAY, JpathRewardPolicy.REF_REVIEW_DAY, day.toEpochDay(),
-                "Ôn hết thẻ đến hạn hôm nay");
+        // owner 25/11: paid with the whole day
     }
 
     @Override
@@ -66,14 +66,19 @@ public class JpathRewardServiceImpl implements JpathRewardService {
         streaks.recordCompletion(userId, day);
         // A streak milestone may queue CP inside recordCompletion, even on a day that is not reward eligible.
         applyAfterCommit(userId);
+        // owner 25/11: a weekly check passed while the day was still open is paid with the day, in one gift
+        int owed = takeOwedWeekCp(userId, day);
+        String with = owed > 0 ? " (kèm kiểm tra tuần)" : "";
         if (rewardEligible) {
             if (kind == JpathDayKind.SKILL) {
-                pay(userId, JpathRewardPolicy.SKILL_DAY, JpathRewardPolicy.REF_SKILL_DAY, day.toEpochDay(),
-                        "Xong ngày kỹ năng");
+                pay(userId, JpathRewardPolicy.dayTotal(kind) + owed, JpathRewardPolicy.REF_SKILL_DAY, day.toEpochDay(),
+                        "Xong ngày kỹ năng " + day.format(DAY_MONTH) + with);
             } else {
-                pay(userId, JpathRewardPolicy.DAY, JpathRewardPolicy.REF_DAY, day.toEpochDay(),
-                        "Xong cả phần hôm nay");
+                pay(userId, JpathRewardPolicy.dayTotal(kind) + owed, JpathRewardPolicy.REF_DAY, day.toEpochDay(),
+                        "Xong ngày học " + day.format(DAY_MONTH) + with);
             }
+        } else if (owed > 0) {
+            pay(userId, owed, JpathRewardPolicy.REF_WEEK_CHECK, day.toEpochDay(), "Đạt kiểm tra tuần " + day.format(DAY_MONTH));
         }
         evaluateBadges(userId);
     }
@@ -81,16 +86,82 @@ public class JpathRewardServiceImpl implements JpathRewardService {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onSkillSessionDone(Long userId, LocalDate day, JpathSkill skill) {
-        String ref = skill == JpathSkill.LISTENING ? JpathRewardPolicy.REF_SKILL_LISTENING
-                : JpathRewardPolicy.REF_SKILL_READING;
-        pay(userId, JpathRewardPolicy.SKILL_SESSION, ref, day.toEpochDay(),
-                skill == JpathSkill.LISTENING ? "Xong buổi Nghe" : "Xong buổi Đọc");
+        // owner 25/11: the two sessions are paid with the skill day, not one by one
+    }
+
+    @Override
+    public void onWeeklyCheckPassed(Long userId, LocalDate day, JpathTab tab) {
+        if (jdbc != null && jdbc.update("UPDATE jpath_daily_plan SET week_cp_owed = week_cp_owed + ? WHERE user_id = ? "
+                + "AND study_day = ? AND day_kind <> 'REST' AND all_done_at IS NULL", JpathRewardPolicy.WEEK_CHECK, userId, day) > 0) {
+            return; // paid with today's lump (onDayCompleted)
+        }
+        pay(userId, JpathRewardPolicy.WEEK_CHECK, JpathRewardPolicy.REF_WEEK_CHECK,
+                JpathRewardPolicy.weekCheckRef(day, tab), "Đạt kiểm tra tuần " + label(tab));
+    }
+
+    private static final java.time.format.DateTimeFormatter DAY_MONTH = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
+
+    /** Optional: without it a weekly check is paid at once, as before. */
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    @Autowired(required = false)
+    void setJdbc(org.springframework.jdbc.core.JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+
+    private int takeOwedWeekCp(Long userId, LocalDate day) {
+        if (jdbc == null) return 0;
+        java.util.List<Integer> owed = jdbc.queryForList("SELECT week_cp_owed FROM jpath_daily_plan WHERE user_id = ? AND study_day = ? FOR UPDATE",
+                Integer.class, userId, day);
+        int n = owed.isEmpty() || owed.get(0) == null ? 0 : owed.get(0);
+        if (n > 0) jdbc.update("UPDATE jpath_daily_plan SET week_cp_owed = 0 WHERE user_id = ? AND study_day = ?", userId, day);
+        return n;
+    }
+
+    /** Optional: without the mission daily goal the path pays as before. */
+    private DailyGoalService dailyGoal;
+
+    @Autowired(required = false)
+    void setDailyGoal(DailyGoalService dailyGoal) {
+        this.dailyGoal = dailyGoal;
     }
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void onProgressChanged(Long userId) {
         evaluateBadges(userId);
+        refreshDailyGoalAfterCommit(userId);
+    }
+
+    /**
+     * [JLAS-W0108] F128: the learner's own daily goal counts the path study (new items, checks, minutes) read from the
+     * committed rows, so it is checked after commit, once per transaction, in its own transaction. A goal met there
+     * queues its reward, which is applied right away; a failure is logged and the path step stays saved.
+     */
+    private void refreshDailyGoalAfterCommit(Long userId) {
+        DailyGoalService goal = dailyGoal;
+        if (goal == null || !TransactionSynchronizationManager.isSynchronizationActive()
+                || TransactionSynchronizationManager.getResource(DAILY_GOAL_KEY) != null) {
+            return;
+        }
+        TransactionSynchronizationManager.bindResource(DAILY_GOAL_KEY, userId);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    if (goal.refreshToday(userId)) {
+                        awards.applyOpenAwards(userId);
+                    }
+                } catch (RuntimeException ex) {
+                    log.error("Could not re-check the daily goal for user {}", userId, ex);
+                }
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                TransactionSynchronizationManager.unbindResourceIfPossible(DAILY_GOAL_KEY);
+            }
+        });
     }
 
     private void evaluateBadges(Long userId) {

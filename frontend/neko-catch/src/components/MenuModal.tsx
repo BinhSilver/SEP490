@@ -80,6 +80,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({
       <div
         ref={ref}
         role="dialog"
+        data-game-ui-panel
         aria-modal="true"
         aria-labelledby="menu-modal-title"
         className="p-5 sm:p-6 rounded-3xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto custom-scrollbar"
@@ -125,6 +126,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({
                 type="button"
                 data-autofocus
                 onClick={onClose}
+                data-game-ui-primary
                 className="flex-1 min-w-[140px] py-3.5 min-h-[44px] rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2 uppercase tracking-widest transition-all hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-amber-300"
                 style={{ fontFamily: DISPLAY_FONT_STACK, background: 'linear-gradient(135deg, #2ECC71, #27AE60)', boxShadow: '0 0 20px rgba(46,204,113,0.4)' }}
               >

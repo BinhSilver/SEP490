@@ -5,7 +5,7 @@
 <div id="jlabBaseShellMount"></div>
 <div th:replace="~{learning/fragments/welcome-modal :: welcome-modal}"></div>
 
-<main id="jlabBaseContent" class="oy-page">
+<main id="jlabBaseContent" class="jl-ui-kit oy-page">
     <div class="oy-shell">
         <div class="oy-notice" th:if="${course.unrestricted}" role="status">
             <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
@@ -50,8 +50,6 @@
                             <span class="oy-lesson-card__number" th:text="'Bài ' + ${card.order}">Bài 1</span>
                             <span th:if="${done}" class="oy-pill oy-pill--done"><i class="fa-solid fa-check" aria-hidden="true"></i> Hoàn thành</span>
                             <span th:if="${card.status == 'IN_PROGRESS'}" class="oy-pill oy-pill--active">Đang học</span>
-                            <span th:if="${locked and card.proOnly}" class="oy-pill oy-pill--pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span>
-                            <span th:if="${locked and !card.proOnly}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
                         </div>
                         <h3 class="oy-lesson-card__title" th:text="${card.title}">Âm đầu C, K, QU → K</h3>
                         <ul class="oy-sounds" th:if="${!#lists.isEmpty(card.sounds)}" aria-label="Quy tắc">

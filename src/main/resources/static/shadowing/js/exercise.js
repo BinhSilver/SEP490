@@ -50,6 +50,13 @@
   const liveJapanese = document.getElementById('exercise-live-japanese');
   const liveTranslation = document.getElementById('exercise-live-translation');
   const transcript = document.getElementById('exercise-transcript');
+  const reviewCard = document.getElementById('exercise-review');
+  const reviewLabel = document.getElementById('exercise-review-label');
+  const reviewPrompt = document.getElementById('exercise-review-prompt');
+  const reviewExpected = document.getElementById('exercise-review-expected');
+  const reviewMine = document.getElementById('exercise-review-mine');
+  const reviewExplanation = document.getElementById('exercise-review-explanation');
+  const reviewBack = document.getElementById('exercise-review-back');
 
   let session = null;
   let question = null;
@@ -71,6 +78,9 @@
   let resumePlaybackAfterPause = false;
   let pausedAnswerControls = null;
   let submittingAnswer = false;
+  // A finished stop the learner reopened from the transcript or timeline; the current question stays untouched.
+  let reviewing = null;
+  let reviewRequest = 0;
 
   function headers() {
     return window.authHeaders ? window.authHeaders(true) : { 'Content-Type': 'application/json' };
@@ -220,6 +230,13 @@
     const blank = /[＿_]{3,}/.exec(promptText);
     if (!blank) {
       prompt.textContent = promptText || expectedAnswer || '';
+      // "Write the sentence you heard": the instruction alone does not show what the sentence was.
+      if (promptText && expectedAnswer && expectedAnswer !== promptText && !isChoiceQuestion()) {
+        const answer = document.createElement('span');
+        answer.className = 'exercise-expected-answer';
+        answer.textContent = expectedAnswer;
+        prompt.appendChild(answer);
+      }
       return;
     }
 
@@ -249,7 +266,7 @@
         + ' · ' + stop.difficultyLabel;
       marker.addEventListener('click', function (event) {
         event.stopPropagation();
-        seekTo(Number(stop.startTime), true);
+        openStop(stop, Number(stop.startTime));
       });
       stopMarkers.appendChild(marker);
     });
@@ -273,12 +290,12 @@
       }
 
       row.addEventListener('click', function () {
-        seekTo(Number(subtitle.startTime), true);
+        openStop(stop, Number(subtitle.startTime));
       });
       row.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          seekTo(Number(subtitle.startTime), true);
+          openStop(stop, Number(subtitle.startTime));
         }
       });
 
@@ -300,6 +317,97 @@
       transcriptRows.set(subtitleId, row);
     });
   }
+
+  function isPastStop(stop) {
+    return Boolean(stop && session && stop.number <= session.currentPosition);
+  }
+
+  /** Plays from a line; a finished stop also shows its question and answer again instead of the current one. */
+  function openStop(stop, time) {
+    if (sessionPaused) return;
+    if (isPastStop(stop)) {
+      // Remember where the current question was before the seek moves the video.
+      if (!reviewing) reviewing = {
+        returnTime: Number(media.currentTime) || 0,
+        dockHidden: answerDock.hidden,
+        waitingHidden: waitingState.hidden
+      };
+      openReview(stop);
+    } else {
+      closeReview(false);
+    }
+    seekTo(time, true);
+  }
+
+  async function openReview(stop) {
+    const ticket = ++reviewRequest;
+    try {
+      const response = await fetch('/api/shadowing-practice/sessions/' + encodeURIComponent(sessionId)
+        + '/stops/' + encodeURIComponent(stop.number), { headers: headers() });
+      const data = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(data.message || data.error || 'Không mở lại được câu này');
+      if (ticket === reviewRequest) showReview(data);
+    } catch (error) {
+      if (ticket !== reviewRequest) return;
+      closeReview(false);
+      setStatus(error.message || 'Không mở lại được câu này', true);
+    }
+  }
+
+  function showReview(item) {
+    if (!reviewing) {
+      reviewing = {
+        returnTime: Number(media.currentTime) || 0,
+        dockHidden: answerDock.hidden,
+        waitingHidden: waitingState.hidden
+      };
+    }
+    reviewing.item = item;
+    const answer = item.previousAnswer || {};
+    const choice = Boolean(item.kind && item.kind !== 'GAP');
+    reviewLabel.textContent = 'Xem lại câu #' + item.number + (item.difficultyLabel ? ' · ' + item.difficultyLabel : '');
+    const promptText = item.promptText || '';
+    const blank = /[＿_]{3,}/.exec(promptText);
+    reviewPrompt.textContent = blank
+      ? promptText.slice(0, blank.index) + (answer.expectedAnswer || '') + promptText.slice(blank.index + blank[0].length)
+      : promptText;
+    // A filled blank already shows the answer inside the sentence; otherwise show the Japanese answer itself.
+    reviewExpected.parentElement.hidden = Boolean(blank) || !answer.expectedAnswer;
+    reviewExpected.textContent = answer.expectedAnswer || '';
+    reviewMine.textContent = answer.result === 'REVEALED'
+      ? 'Bạn đã xem đáp án' + (answer.userAnswer ? ' · lần cuối bạn trả lời: ' + answer.userAnswer : '') + '.'
+      : 'Bạn trả lời đúng' + (answer.userAnswer ? ': ' + answer.userAnswer : '') + '.';
+    const note = choice ? answer.explanation : (answer.translation || item.translation);
+    reviewExplanation.hidden = !note;
+    reviewExplanation.textContent = note || '';
+    reviewBack.querySelector('span').textContent = question
+      ? 'Quay lại câu #' + question.number : 'Quay lại phần đang nghe';
+    answerDock.hidden = true;
+    waitingState.hidden = true;
+    reviewCard.hidden = false;
+    reviewCard.scrollTop = 0;
+  }
+
+  /** Hides the review; with returnToCurrent the video goes back to where the learner left the current question. */
+  function closeReview(returnToCurrent) {
+    reviewRequest++;
+    if (!reviewing) return;
+    const saved = reviewing;
+    reviewing = null;
+    reviewCard.hidden = true;
+    answerDock.hidden = saved.dockHidden;
+    waitingState.hidden = saved.waitingHidden;
+    if (!returnToCurrent) return;
+    media.pause();
+    const back = stoppedAtQuestion && question
+      ? Math.max(Number(question.startTime), Number(question.endTime) - 0.02) : saved.returnTime;
+    try { media.currentTime = back; } catch (_) { /* metadata is loaded */ }
+    updateVideoProgress();
+  }
+
+  reviewBack.addEventListener('click', function () {
+    closeReview(true);
+  });
 
   function subtitleAt(time) {
     return subtitles.find(function (subtitle) {
@@ -336,6 +444,7 @@
   }
 
   function updatePreparationTip(subtitle) {
+    if (reviewing) return;
     const pendingStop = stops.find(function (stop) { return !isStopDone(stop); });
     const pendingIndex = pendingStop
       ? subtitles.findIndex(function (item) { return Number(item.id) === Number(pendingStop.subtitleId); })
@@ -473,6 +582,7 @@
   }
 
   function resetQuestionUi() {
+    closeReview(false);
     stoppedAtQuestion = false;
     replayMode = false;
     finishingRemainder = false;
@@ -550,6 +660,7 @@
 
   function unlockAnswer() {
     if (!question || question.answered || finishingRemainder || submittingAnswer) return;
+    closeReview(false);
     stoppedAtQuestion = true;
     replayMode = false;
     media.pause();
@@ -588,7 +699,7 @@
       media.pause();
       return;
     }
-    if (finishingRemainder) {
+    if (finishingRemainder || reviewing) {
       const request = media.play();
       if (request?.catch) request.catch(function () { setStatus('Không thể phát video lúc này.', true); });
       return;
@@ -740,7 +851,15 @@
       if (!question.answered) unlockAnswer();
       return;
     }
-    if (!question.answered && !stoppedAtQuestion && reachedEnd) unlockAnswer();
+    if (!question.answered && reachedEnd) {
+      if (!stoppedAtQuestion) unlockAnswer();
+      else if (!media.paused) {
+        closeReview(false);
+        media.pause();
+        try { media.currentTime = Math.max(Number(question.startTime), questionEnd - 0.02); }
+        catch (_) { /* no-op */ }
+      }
+    }
   });
   media.addEventListener('ended', function () {
     updateVideoProgress();
@@ -750,6 +869,7 @@
   });
 
   function renderResult(result) {
+    closeReview(false);
     const incorrect = result.result === 'INCORRECT';
     if (question) question.answered = !incorrect;
     questionPanel.classList.remove('is-waiting');
@@ -774,7 +894,8 @@
     const explanationText = isChoiceQuestion() ? result.explanation : result.translation;
     explanation.hidden = incorrect || !explanationText;
     explanation.textContent = explanationText || '';
-    setStatus(incorrect && !isChoiceQuestion() ? '' : (result.feedback || ''), incorrect);
+    // A wrong or revealed answer shows no line of text: the colours and the buttons already say what happened.
+    setStatus(incorrect || result.result === 'REVEALED' ? '' : (result.feedback || ''), incorrect);
     renderMarkers();
     renderTranscript();
     showLiveSubtitle(subtitles.find(function (item) { return Number(item.id) === Number(question?.subtitleId); }));
@@ -931,6 +1052,7 @@
   });
 
   function renderRemainder(view, resumeFrom) {
+    closeReview(false);
     session = view;
     sessionActions.hidden = false;
     question = null;
@@ -964,6 +1086,7 @@
   }
 
   function renderComplete(view) {
+    closeReview(false);
     media.pause();
     sessionActions.hidden = true;
     finishingRemainder = false;
@@ -993,12 +1116,104 @@
       renderSession(view, false, null);
     } catch (error) {
       setStatus(error.message || 'Không tải được phiên học', true);
+      const loadError = document.getElementById('exercise-load-error');
+      if (loadError) {
+        loadError.textContent = error.message || 'Không tải được phiên học. Hãy tải lại trang.';
+        loadError.hidden = false;
+        document.getElementById('exercise-video-title').textContent = 'Luyện nghe';
+      }
       workspace.hidden = true;
     }
   }
 
   pauseButton.addEventListener('click', pauseSession);
   resumeButton.addEventListener('click', resumeSession);
+
+  // --- Subtitle list can be folded away so the question below gets its space ---
+  const transcriptToggle = document.getElementById('exercise-transcript-toggle');
+  const TRANSCRIPT_KEY = 'jlas.shadowing.exercise.transcriptCollapsed';
+
+  function setTranscriptCollapsed(collapsed) {
+    questionPanel.classList.toggle('is-transcript-collapsed', collapsed);
+    transcript.hidden = collapsed;
+    transcriptToggle.setAttribute('aria-expanded', String(!collapsed));
+    transcriptToggle.innerHTML = collapsed
+      ? '<i class="fa-solid fa-chevron-down" aria-hidden="true"></i> <span>Hiện</span>'
+      : '<i class="fa-solid fa-chevron-up" aria-hidden="true"></i> <span>Ẩn</span>';
+    if (!collapsed) {
+      const active = transcript.querySelector('.exercise-transcript-row.is-active');
+      if (active) active.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  if (transcriptToggle) {
+    let startCollapsed = false;
+    try { startCollapsed = localStorage.getItem(TRANSCRIPT_KEY) === '1'; } catch (_) { /* storage blocked */ }
+    setTranscriptCollapsed(startCollapsed);
+    transcriptToggle.addEventListener('click', function () {
+      const collapsed = !questionPanel.classList.contains('is-transcript-collapsed');
+      setTranscriptCollapsed(collapsed);
+      try { localStorage.setItem(TRANSCRIPT_KEY, collapsed ? '1' : '0'); } catch (_) { /* storage blocked */ }
+    });
+  }
+
+  // --- PC layout: fixed panel sizes, long text gets smaller instead of the panel getting taller ---
+  const desktopLayout = window.matchMedia('(min-width: 861px)');
+  const liveSubtitleBox = document.getElementById('exercise-live-subtitle');
+  const answerBox = document.getElementById('exercise-answer-box');
+  const MIN_LIVE_FONT_PX = 14;
+  const MIN_ANSWER_SCALE = 0.6;
+  let fitFrame = 0;
+
+  function overflows(box) {
+    return box.scrollHeight > box.clientHeight + 1;
+  }
+
+  function fitLiveSubtitle() {
+    liveJapanese.style.fontSize = '';
+    if (!desktopLayout.matches || mediaPanel.classList.contains('is-subtitle-hidden')) return;
+    let size = parseFloat(getComputedStyle(liveJapanese).fontSize);
+    while (overflows(liveSubtitleBox) && size > MIN_LIVE_FONT_PX) {
+      size = Math.max(MIN_LIVE_FONT_PX, size - 1);
+      liveJapanese.style.fontSize = size + 'px';
+    }
+  }
+
+  function fitAnswer() {
+    answerBox.style.removeProperty('--exercise-answer-scale');
+    if (!desktopLayout.matches) return;
+    let scale = 1;
+    while (overflows(answerBox) && scale > MIN_ANSWER_SCALE) {
+      scale = Math.max(MIN_ANSWER_SCALE, Math.round((scale - 0.05) * 100) / 100);
+      answerBox.style.setProperty('--exercise-answer-scale', String(scale));
+    }
+  }
+
+  function fitPanels() {
+    fitFrame = 0;
+    fitLiveSubtitle();
+    fitAnswer();
+  }
+
+  function scheduleFit() {
+    if (!fitFrame) fitFrame = requestAnimationFrame(fitPanels);
+  }
+
+  // Text, shown/hidden parts and panel sizes all change from many places; watch them instead of hooking each one.
+  const fitObserver = new MutationObserver(scheduleFit);
+  [liveSubtitleBox, answerBox].forEach(function (box) {
+    fitObserver.observe(box, { childList: true, subtree: true, characterData: true,
+      attributes: true, attributeFilter: ['hidden', 'class'] });
+  });
+  fitObserver.observe(mediaPanel, { attributes: true, attributeFilter: ['class'] });
+  fitObserver.observe(workspace, { attributes: true, attributeFilter: ['hidden'] });
+  if (window.ResizeObserver) {
+    const sizeObserver = new ResizeObserver(scheduleFit);
+    sizeObserver.observe(liveSubtitleBox);
+    sizeObserver.observe(answerBox);
+  }
+  window.addEventListener('resize', scheduleFit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFit);
 
   loadSession();
 }());

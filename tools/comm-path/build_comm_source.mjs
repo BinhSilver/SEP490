@@ -10,6 +10,7 @@ import path from 'node:path';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '../..');
 const BASE = path.join(ROOT, 'data/learning-path/communication');
 const ADD = path.join(ROOT, 'data/learning-path/communication-additions');
+const OVERRIDES = path.join(ROOT, 'data/learning-path/communication-overrides');
 const OUT = path.join(ROOT, 'data/learning-path/communication-compiled');
 export const GOALS = ['TRAVEL', 'DAILY_LIFE', 'BA', 'WORK'];
 export const MIN = Object.freeze({ words: 25, phrases: 8, situations: 3 });
@@ -21,6 +22,7 @@ const byId = list => new Map((list ?? []).map(x => [x.id ?? x.code, x]));
 function merged(goal) {
   const base = read(path.join(BASE, `${goal}.json`)) ?? {};
   const add = read(path.join(ADD, `${goal}.json`)) ?? {};
+  const overrides = read(path.join(OVERRIDES, `${goal}.json`)) ?? {};
   const join = key => {
     const out = byId(base[key]);
     for (const x of add[key] ?? []) if (!out.has(x.id ?? x.code)) out.set(x.id ?? x.code, x);
@@ -31,28 +33,39 @@ function merged(goal) {
     survey: base.survey?.length ? base.survey : (add.survey ?? []),
     topicOf: base.policy?.dialogueTopics ?? {},
     topics: join('topics'), vocabulary: join('vocabulary'), phrases: join('phrases'), dialogues: join('dialogues'),
+    dialogueLineTranslations: overrides.dialogue_line_translations ?? [],
   };
 }
 
 export function compileGoal(goal) {
   const m = merged(goal);
-  const topicCode = d => d.topic_code ?? m.topicOf[d.id] ?? null;
-  const topics = [...m.topics].sort((a, b) => (LEVEL_RANK[a.level] ?? 9) - (LEVEL_RANK[b.level] ?? 9));
   const problems = [];
+  const topicCode = d => d.topic_code ?? m.topicOf[d.id] ?? null;
+  const translationFixes = new Map(m.dialogueLineTranslations.map(x => [`${x.dialogue_id}:${x.order}`, x.vi]));
+  for (const fix of m.dialogueLineTranslations) {
+    const dialogue = m.dialogues.find(d => d.id === fix.dialogue_id);
+    if (!dialogue || !(dialogue.lines ?? []).some(line => line.order === fix.order)) {
+      problems.push({ goal, what: 'dialogue line translation target missing', id: fix.dialogue_id, order: fix.order });
+    }
+  }
+  const topics = [...m.topics].sort((a, b) => (LEVEL_RANK[a.level] ?? 9) - (LEVEL_RANK[b.level] ?? 9));
   const out = topics.map((t, i) => {
     const situations = m.dialogues.filter(d => topicCode(d) === t.code).map((d, k) => ({
       id: d.id, order: k + 1, title_ja: d.title_ja ?? null, title_vi: d.title_vi ?? null,
       situation_vi: d.situation_vi ?? null, level: d.level ?? t.level ?? null,
-      lines: (d.lines ?? []).map(l => ({ order: l.order, speaker: l.speaker, ja: l.ja, vi: l.vi ?? null })),
+      lines: (d.lines ?? []).map(l => ({ order: l.order, speaker: l.speaker, ja: l.ja,
+        vi: translationFixes.get(`${d.id}:${l.order}`) ?? l.vi ?? null })),
       furigana: d.dialogue_aids?.furigana ?? null,
       challenge: d.dialogue_aids?.challenge ?? null,
       phrase_ids: m.phrases.filter(p => p.dialogue_id === d.id).map(p => p.id),
     }));
+    const situationLevels = new Set(situations.map(s => s.level).filter(Boolean));
+    const level = t.level ?? (situationLevels.size === 1 ? [...situationLevels][0] : null);
     const words = m.vocabulary.filter(v => v.topic === t.code);
     const phrases = m.phrases.filter(p => situations.some(s => s.id === p.dialogue_id));
     for (const [what, n, min] of [['words', words.length, MIN.words], ['phrases', phrases.length, MIN.phrases],
       ['situations', situations.length, MIN.situations]]) if (n < min) problems.push({ goal, topic: t.code, what, n, min });
-    return { code: t.code, order: i + 1, level: t.level ?? null, name_ja: t.name_ja ?? null, name_vi: t.name_vi ?? null,
+    return { code: t.code, order: i + 1, level, name_ja: t.name_ja ?? null, name_vi: t.name_vi ?? null,
       situations, words: words.map(v => ({ id: v.id, word: v.word, reading: v.reading, meaning_vi: v.meaning_vi })),
       phrases: phrases.map(p => ({ id: p.id, ja: p.ja, reading: p.reading, vi: p.vi, note: p.note ?? null, dialogue_id: p.dialogue_id })) };
   });

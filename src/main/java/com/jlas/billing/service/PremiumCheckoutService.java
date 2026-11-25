@@ -141,6 +141,10 @@ public class PremiumCheckoutService {
 
     public record CouponPreview(String code, BigDecimal originalAmount, BigDecimal discountAmount, BigDecimal finalAmount) { }
     public CouponPreview preview(Long userId, String code, String productType, Long productId) {
+        return preview(userId, code, productType, productId, false);
+    }
+
+    private CouponPreview preview(Long userId, String code, String productType, Long productId, boolean replacingSameCoupon) {
         BigDecimal amount;
         if ("PREMIUM".equals(productType)) {
             PremiumPlan p = plans.findById(productId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy gói Premium."));
@@ -153,7 +157,9 @@ public class PremiumCheckoutService {
             amount = p.getPrice();
         } else throw new ApiException(ErrorCode.BAD_REQUEST, "Loại sản phẩm không hợp lệ.");
         vnd(amount);
-        var q = coupons.preview(code, productType, amount, userId);
+        // This buyer's pending order already holds one use of the same coupon.
+        var q = replacingSameCoupon ? coupons.quoteForReuse(code, productType, amount, userId)
+                : coupons.preview(code, productType, amount, userId);
         return new CouponPreview(q.code(), q.originalAmount(), q.discountAmount(), q.finalAmount());
     }
 
@@ -196,8 +202,11 @@ public class PremiumCheckoutService {
                             && java.util.Objects.equals(p.getCouponCodeSnapshot(), reuseQuote.code())).findFirst();
             if (reusable.isPresent()) return reusable.get();
             var quote = coupons.reserve(normalized, "PREMIUM", plan.getPrice(), userId);
-            return openOrder(userId, plan, null, quote, now);
+            Payment opened = openOrder(userId, plan, null, quote, now);
+            if (quote.finalAmount().signum() == 0) grant(opened, null, now);
+            return opened;
         });
+        if ("PAID".equals(payment.getStatus())) return OrderView.from(payment);
         if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
         return createLink(payment, DESCRIPTION);
     }
@@ -216,8 +225,11 @@ public class PremiumCheckoutService {
                             && java.util.Objects.equals(p.getCouponCodeSnapshot(), reuseQuote.code())).findFirst();
             if (reusable.isPresent()) return reusable.get();
             var quote = coupons.reserve(normalized, "CREDIT", pack.getPrice(), userId);
-            return openOrder(userId, null, pack, quote, now);
+            Payment opened = openOrder(userId, null, pack, quote, now);
+            if (quote.finalAmount().signum() == 0) grantCredit(opened, null, now);
+            return opened;
         });
+        if ("PAID".equals(payment.getStatus())) return OrderView.from(payment);
         if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
         return createLink(payment, "KOTSU CP");
     }
@@ -253,6 +265,25 @@ public class PremiumCheckoutService {
         }
         check(payment.getId());
         return OrderView.from(owned(userId, orderCode));
+    }
+
+    /** Replace a pending PayOS link only after the coupon is valid for its product. */
+    public OrderView applyCoupon(Long userId, long orderCode, String code) {
+        Payment payment = owned(userId, orderCode);
+        if (!"PENDING".equals(payment.getStatus())) return OrderView.from(payment);
+        String normalized = CouponService.normalize(code);
+        if (normalized == null) throw new ApiException(ErrorCode.BAD_REQUEST, "Vui lòng nhập mã giảm giá.");
+        boolean credit = "CREDIT".equals(payment.getProductType());
+        Long productId = credit ? payment.getCreditPackage().getId() : payment.getPremiumPlan().getId();
+        preview(userId, normalized, payment.getProductType(), productId,
+                normalized.equals(payment.getCouponCodeSnapshot()) && payment.getExpiresAt() != null
+                        && payment.getExpiresAt().isAfter(LocalDateTime.now()));
+
+        OrderView cancelled = cancel(userId, orderCode);
+        if ("PAID".equals(cancelled.status())) return cancelled;
+        if (!"CANCELLED".equals(cancelled.status()) && !"EXPIRED".equals(cancelled.status()))
+            throw new ApiException(ErrorCode.CONFLICT, "Không thể đổi mã giảm giá cho đơn này. Vui lòng tải lại trang.");
+        return credit ? startCredit(userId, productId, normalized) : start(userId, productId, normalized);
     }
 
     /** Server-side polling for buyers who closed the page: asks PayOS about pending orders. */
@@ -314,13 +345,15 @@ public class PremiumCheckoutService {
         user.setPremiumPlan(payment.getPremiumPlan());
         user.setPremiumExpiredAt(until);
         payment.setStatus("PAID");
-        payment.setResponseCode("00");
+        boolean free = payment.getAmountPaid().signum() == 0;
+        payment.setResponseCode(free ? "COUPON_FREE" : "00");
         payment.setPaidAt(now);
         // PayOS's payment link id is unique per order (the column is unique); the bank reference is only logged.
-        payment.setProviderTransactionId(payment.getPaymentLinkId());
-        log.info("PayOS order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
+        payment.setProviderTransactionId(free ? "COUPON-" + payment.getOrderCode() : payment.getPaymentLinkId());
+        if (free) log.info("Coupon order {} granted", payment.getOrderCode());
+        else log.info("PayOS order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
         payment.setPremiumUntil(until);
-        notifications.notifyUser(user.getId(), "PREMIUM", "Thanh toán thành công",
+        notifications.notifyUser(user.getId(), "PREMIUM", free ? "Đã kích hoạt Premium" : "Thanh toán thành công",
                 "Gói " + payment.getPlanNameSnapshot() + " có hiệu lực đến " + DATE.format(until) + ".",
                 "/premium/billing", "PREMIUM_PAID_" + payment.getOrderCode());
     }
@@ -329,12 +362,15 @@ public class PremiumCheckoutService {
         credits.earn(payment.getUser().getId(), payment.getCreditAmountSnapshot(), CreditReason.CREDIT_PURCHASE,
                 "PAYMENT", payment.getId(), "Mua " + payment.getCreditAmountSnapshot() + " CP");
         payment.setStatus("PAID");
-        payment.setResponseCode("00");
+        boolean free = payment.getAmountPaid().signum() == 0;
+        payment.setResponseCode(free ? "COUPON_FREE" : "00");
         payment.setPaidAt(now);
-        payment.setProviderTransactionId(payment.getPaymentLinkId());
-        log.info("PayOS CP order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
+        payment.setProviderTransactionId(free ? "COUPON-" + payment.getOrderCode() : payment.getPaymentLinkId());
+        if (free) log.info("Coupon CP order {} granted", payment.getOrderCode());
+        else log.info("PayOS CP order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
         notifications.notifyUser(payment.getUser().getId(), "CREDIT", "Đã cộng " + payment.getCreditAmountSnapshot() + " CP",
-                "Thanh toán gói " + payment.getPlanNameSnapshot() + " thành công.",
+                (free ? "Đã áp dụng mã giảm giá cho gói " : "Thanh toán gói ") + payment.getPlanNameSnapshot()
+                        + (free ? "." : " thành công."),
                 "/premium/billing", "CREDIT_PAID_" + payment.getOrderCode());
     }
 

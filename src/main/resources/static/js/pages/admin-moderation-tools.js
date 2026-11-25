@@ -20,7 +20,7 @@
               '<div class="field"><label class="field__label" for="admTerm">Từ khoá</label>' +
                 '<input class="input jp" id="admTerm" maxlength="255" placeholder="Ví dụ: spam link"></div>' +
               '<div class="field"><label class="field__label" for="admAction">Hành động</label>' +
-                '<select class="select" id="admAction"><option value="BLOCK">Chặn, không cho đăng</option>' +
+                '<select class="select" id="admAction" data-jl-select><option value="BLOCK">Chặn, không cho đăng</option>' +
                 '<option value="REVIEW">Cần xem lại, đưa vào hàng đợi</option></select></div>' +
               '<label class="adm-check"><input type="checkbox" id="admAccent"> Phân biệt dấu tiếng Việt (dùng cho từ ngắn dễ trùng)</label>' +
               '<div class="field"><label class="field__label" for="admAddReason">Lý do</label>' +
@@ -133,7 +133,7 @@
           confirmText: 'Lưu thay đổi',
           extraHtml:
             '<div class="field"><label class="field__label" for="admEditAction">Hành động</label>' +
-              '<select class="select" id="admEditAction" data-autofocus>' +
+              '<select class="select" id="admEditAction" data-autofocus data-jl-select>' +
                 '<option value="BLOCK"' + (term.action === 'BLOCK' ? ' selected' : '') + '>Chặn</option>' +
                 '<option value="REVIEW"' + (term.action === 'REVIEW' ? ' selected' : '') + '>Cần xem lại</option></select></div>' +
             '<label class="adm-check"><input type="checkbox" id="admEditAccent"' + (term.accentSensitive ? ' checked' : '') + '> Phân biệt dấu tiếng Việt</label>' +
@@ -236,7 +236,7 @@
             title: 'Áp chế tài cho ' + (found.user.fullName || found.user.email) + '?',
             danger: true, confirmText: 'Áp chế tài', maxLength: 500, userVisible: true,
             extraHtml: '<div class="field"><label class="field__label" for="admApplyType">Loại chế tài</label>' +
-              '<select class="select" id="admApplyType" data-autofocus>' + A.sanctionOptions(false) + '</select></div>',
+              '<select class="select" id="admApplyType" data-autofocus data-jl-select>' + A.sanctionOptions(false) + '</select></div>',
             collect: function (modal) { return A.parseSanction(modal.querySelector('#admApplyType').value); }
           });
           if (!decision) return;
@@ -274,6 +274,7 @@
   // ── Audit trail ────────────────────────────────────────────────────────
   var AUDIT_ACTIONS = {
     REPORT_VALID: 'Báo cáo đúng, gỡ nội dung', REPORT_INVALID: 'Báo cáo sai, khôi phục',
+    COMMUNITY_REMOVE: 'Gỡ trực tiếp (Cộng đồng)',
     QUEUE_APPROVE: 'Hàng đợi: cho phép', QUEUE_REJECT: 'Hàng đợi: ẩn nội dung',
     DICTIONARY_APPROVE: 'Duyệt đóng góp từ điển', DICTIONARY_REJECT: 'Từ chối đóng góp từ điển',
     APPEAL_APPROVE: 'Chấp nhận kháng nghị', APPEAL_REJECT: 'Từ chối kháng nghị',

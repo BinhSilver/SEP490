@@ -96,7 +96,7 @@ def probe(path, expected_duration=None, max_height=720):
     return {'duration':duration,'height':video['height'],'video_codec':'h264','audio_codec':'aac'}
 
 
-def download(url, output, max_height=720, timeout=900, js_runtime=None):
+def download(url, output, max_height=720, timeout=900, js_runtime=None, cookies=None):
     import yt_dlp
     parsed = urllib.parse.urlparse(url)
     video_id = urllib.parse.parse_qs(parsed.query).get('v',[''])[0]
@@ -116,6 +116,9 @@ def download(url, output, max_height=720, timeout=900, js_runtime=None):
     if js_runtime:
         name,_,path=js_runtime.partition(':')
         opts['js_runtimes']={name:{'path':path} if path else {}}
+    if cookies:
+        # A cloud server is often asked to "confirm you're not a bot"; a signed-in cookies.txt gets past it.
+        opts['cookiefile']=str(cookies)
     with yt_dlp.YoutubeDL(opts) as ydl:
         info=ydl.extract_info(url,download=False)
         expected=float(info['duration'])
@@ -184,6 +187,7 @@ if __name__=='__main__':
     parser.add_argument('--max-height',type=int,choices=(360,480,720,1080),default=720)
     parser.add_argument('--timeout',type=int,default=900)
     parser.add_argument('--js-runtime')
+    parser.add_argument('--cookies',help='Netscape cookies.txt of a signed-in YouTube account')
     args=parser.parse_args()
-    result=download(args.url,args.output,args.max_height,args.timeout,args.js_runtime)
+    result=download(args.url,args.output,args.max_height,args.timeout,args.js_runtime,args.cookies)
     print(json.dumps({'output':str(args.output.resolve()),**result}),flush=True)

@@ -77,7 +77,6 @@ export class GameEffectsAudio {
         intro_boot: () => air.playIntroLaunch(), intro_warp: () => air.playWarpDrive(), intro_ready: () => air.playIntroLaunch(),
         wave_clear: () => air.playWaveClear(), wave_incoming: () => air.playWarpDrive(),
         combo_gain: () => air.playComboDing(3), combo_break: () => air.playComboBreak(),
-        augment_hover: () => air.playAugmentHover(), augment_select: () => air.playAugmentSelect(),
         bgm_lobby: () => air.switchBgm('lobby'), bgm_battle: () => air.switchBgm('battle'), bgm_boss: () => air.switchBgm('boss')
       };
       if (/^combo(?:5|10|20|50)$/.test(action)) air.playComboMilestone(Number(action.slice(5)));

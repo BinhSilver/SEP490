@@ -91,8 +91,8 @@ const OFFLINE_POLL_MS = 5000;
 /** A catch/miss reply that takes longer than this unlocks the round and re-syncs (fetch has no timeout). */
 const LOCK_TIMEOUT_MS = 8000;
 
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Animations always play, whatever the device's reduced-motion setting (project rule).
+const prefersReducedMotion = () => false;
 
 function roundFor(state: NekoStateView, me: NekoPlayerView): NekoRoundView | null {
   const count = state.rounds.length;
@@ -1004,9 +1004,10 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
             pregameCountRef.current = n;
             setPregameCountdown(n);
           }
-          if (!countdownBeepRef.current && msLeft <= 3200 && msLeft > 1000) {
+          if (!countdownBeepRef.current && msLeft <= 3200 && msLeft > 300) {
             countdownBeepRef.current = true;
-            soundManager.playSFX('countdown');
+            // Arriving late (slow load): start the 3-2-1 sound where the number on screen already is.
+            soundManager.playCountdown(Math.max(0, 3200 - msLeft) / 1000);
           }
         }
       }
@@ -1252,7 +1253,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       target instanceof HTMLElement &&
       (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
     const down = (event: KeyboardEvent) => {
-      if (menuOpenRef.current || helpOpenRef.current || isFormField(event.target)) return;
+      if (menuOpenRef.current || helpOpenRef.current || document.querySelector('dialog[open]') || isFormField(event.target)) return;
       const key = event.key;
       if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
         keyStateRef.current.left = true;
@@ -1402,6 +1403,9 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
         if (step.caught) {
           const item = step.caught;
           sendActionRef.current('catch', item.roundId, item.choiceId, { x: item.x, y: item.y });
+          // One catch per round, right or wrong: the other answers leave at once, so nobody can
+          // catch a wrong fish and then dash over to the right one (or the other way round).
+          if (lockRef.current?.roundId === item.roundId) clearAnswerFish();
         }
         if (step.exhausted && roundId) {
           if (lockRef.current?.roundId === roundId) {
@@ -1808,7 +1812,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       {/* ═══ ERROR ═══ */}
       {phase === 'error' && (
         <div className="absolute inset-0 z-30 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md">
-          <div role="alert" className="w-full max-w-sm flex flex-col items-center gap-3 p-6 rounded-3xl text-center" style={panelStyle}>
+          <div role="alert" data-game-ui-panel className="w-full max-w-sm flex flex-col items-center gap-3 p-6 rounded-3xl text-center" style={panelStyle}>
             <h2 className="text-xl font-black text-white uppercase tracking-widest" style={{ fontFamily: DISPLAY_FONT_STACK }}>
               Không vào được trận
             </h2>

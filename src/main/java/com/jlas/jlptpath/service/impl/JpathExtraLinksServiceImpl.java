@@ -47,13 +47,12 @@ public class JpathExtraLinksServiceImpl implements JpathExtraLinksService {
                 mockOpen ? open("MOCK", "Thi thử " + level, mock.url(), null)
                         : new JpathExtraLink("MOCK", level == null ? "Thi thử" : "Thi thử " + level, null, false,
                                 NOT_OPEN),
-                open("CONFUSABLES", "Phân biệt chữ dễ nhầm", "/learning/jlpt/confusables", null),
+                open("CONFUSABLES", "Phân biệt dễ nhầm", "/learning/jlpt/confusables", null),
                 // Plan 3 Task 24: the skills tab of the path page
                 open("READ_LISTEN", "Đọc · Nghe", "/learning?tab=skills", null));
         List<JpathExtraLink> pages = List.of(
-                open("HISTORY", "Lịch sử học", "/learning/jlpt/history", null),
-                open("STATS", "Thống kê", "/learning/jlpt/stats", null),
-                open("KNOWN", "Kho đã biết", "/learning/jlpt/known", null),
+                open("HISTORY", "Lịch sử và thống kê", "/learning/jlpt/history", null),
+                open("KNOWN", "Đã biết trước", "/learning/jlpt/history?filter=known", null),
                 open("NOTEBOOK", "Sổ tay", "/learning/jlpt/notebook", null));
         return new JpathExtraLinksView(level, links, pages);
     }

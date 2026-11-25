@@ -4,7 +4,7 @@ import { romajiToHiragana } from './romaji.js';
 import { normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
-import { bindSetupUi } from './setup-ui.js?v=20261011';
+import { bindSetupUi } from './setup-ui.js?v=20261123-heading-inside';
 import '../card-selection.js?v=20261015-pager';
 
 const params = new URLSearchParams(location.search);
@@ -14,7 +14,7 @@ let sessionId = params.get('sessionId'), page = 0, options, retryOperation;
 let pendingEnterQuestionId, compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false;
 const api = createApi(setId), engine = new RecallEngine(), timer = createTimer();
 const events = new AbortController();
-bindSetupUi(events.signal);
+bindSetupUi();
 const studyUrl = '/flashcard/speed-recall.html?setId=' + encodeURIComponent(setId || '');
 const setUrl = '/flashcard/study.html?setId=' + encodeURIComponent(setId || '');
 const terminal = state => ['FINISHED', 'ABANDONED', 'EXPIRED'].includes(state);
@@ -38,8 +38,11 @@ const ANSWER_HINTS = {
   MEANING: 'Gõ nghĩa, có dấu hay không dấu đều được', HAN_VIET: 'Gõ âm Hán Việt, có dấu hay không dấu đều được'
 };
 const MODE_KEY = 'jlas.speedRecall.mode';
+const TIME_KEY = 'jlas.speedRecall.timeLimit';
 let mode = { question: 'KANJI', answer: 'HIRAGANA' };
 let selectedCardIds = null, randomSelection = null;
+// Filter + usable cards the count was last set for; when they change the count goes back to "all of them".
+let countKey = '';
 // The original mode is named KANJI_TO_READING, so a Hiragana answer is "READING" on the wire.
 function modeName(m = mode) { return m.question + '_TO_' + (m.answer === 'HIRAGANA' ? 'READING' : m.answer); }
 function parseMode(name) {
@@ -54,7 +57,7 @@ function modeCount(m) {
 function validMode(m) { return m.question !== m.answer && modeCount(m) > 0; }
 function modeLabel(name) {
   const m = parseMode(name);
-  return FIELD_NAMES[m.question] + ' → ' + FIELD_NAMES[m.answer];
+  return FIELD_NAMES[m.question] + ' sang ' + FIELD_NAMES[m.answer];
 }
 /** Closest usable mode: keep the question if possible, else the first question that has any answer. */
 function nearestMode(preferred) {
@@ -72,23 +75,41 @@ function loadSavedMode() {
   } catch (e) { /* storage may be blocked */ }
 }
 function saveMode() { try { localStorage.setItem(MODE_KEY, modeName()); } catch (e) { /* optional */ } }
+/** Seconds per word picked on the setup form, remembered for the next session; null keeps the automatic time. */
+function timeLimitSeconds() {
+  const value = Number($('time-limit')?.value);
+  return Number.isInteger(value) && value > 0 ? value : null;
+}
+function loadSavedTimeLimit() {
+  const select = $('time-limit');
+  if (!select) return;
+  try {
+    const saved = localStorage.getItem(TIME_KEY);
+    if (saved && Array.from(select.options).some(option => option.value === saved)) select.value = saved;
+  } catch (e) { /* storage may be blocked */ }
+}
+/** Hỏi bằng / Đáp bằng are dropdowns; an option that cannot be played is disabled and says why on its second line. */
 function renderModePicker() {
-  document.querySelectorAll('[data-question]').forEach(button => {
-    const q = button.dataset.question, on = q === mode.question;
-    button.classList.toggle('is-active', on); button.setAttribute('aria-pressed', String(on));
-    const usable = FIELDS.some(a => validMode({ question: q, answer: a }));
-    button.disabled = !usable;
-    button.title = usable ? '' : 'Bộ thẻ chưa có thẻ nào đủ ' + FIELD_LABELS[q] + ' để hỏi';
-  });
-  document.querySelectorAll('[data-answer]').forEach(button => {
-    const a = button.dataset.answer, on = a === mode.answer;
-    button.classList.toggle('is-active', on); button.setAttribute('aria-pressed', String(on));
-    const same = a === mode.question, usable = validMode({ question: mode.question, answer: a });
-    button.disabled = !usable;
-    button.title = same ? 'Không thể hỏi và đáp cùng một nội dung'
-      : usable ? '' : 'Không có thẻ nào có đủ ' + FIELD_LABELS[mode.question] + ' và ' + FIELD_LABELS[a];
-  });
-  text('mode-summary', 'Nhìn ' + FIELD_LABELS[mode.question] + ', gõ ' + FIELD_LABELS[mode.answer] + '.');
+  const question = $('question-field'), answer = $('answer-field');
+  if (question) {
+    Array.from(question.options).forEach(option => {
+      const usable = FIELDS.some(a => validMode({ question: option.value, answer: a }));
+      option.disabled = !usable;
+      if (usable) delete option.dataset.hint;
+      else option.dataset.hint = 'Bộ thẻ chưa có thẻ nào đủ ' + FIELD_LABELS[option.value] + ' để hỏi';
+    });
+    question.value = mode.question;
+  }
+  if (answer) {
+    Array.from(answer.options).forEach(option => {
+      const a = option.value, same = a === mode.question, usable = validMode({ question: mode.question, answer: a });
+      option.disabled = !usable;
+      if (usable) delete option.dataset.hint;
+      else option.dataset.hint = same ? 'Không thể hỏi và đáp cùng một nội dung'
+        : 'Không có thẻ nào có đủ ' + FIELD_LABELS[mode.question] + ' và ' + FIELD_LABELS[a];
+    });
+    answer.value = mode.answer;
+  }
   text('answer-hint', ANSWER_HINTS[mode.answer]);
 }
 async function changeMode(next) {
@@ -105,7 +126,7 @@ function applySessionMode(name) {
   engine.type = ANSWER_TYPES[m.answer];
   if (!$('playing') || !$('typing-input')) return; // result/history pages have no play surface
   // Read by CSS (::before / ::after) for the mode chip and the footer line.
-  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name).replace(' → ', '  →  ');
+  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name);
   $('playing').dataset.answerHint = ANSWER_HINTS[m.answer] + ' để trả lời';
   $('question-word').lang = m.question === 'KANJI' || m.question === 'HIRAGANA' ? 'ja' : 'vi';
   const input = $('typing-input');
@@ -179,12 +200,17 @@ function optionSummary() {
   else selectedCardIds.forEach(id => { if (!eligible.has(id)) selectedCardIds.delete(id); });
   const total = available(), count = $('count');
   const current = Number(count.value);
+  const key = $('filter').value + ':' + selectionPool().map(card => card.id).join(',');
+  const reset = key !== countKey;
+  countKey = key;
   count.max = String(total);
-  count.readOnly = $('filter').value !== 'RANDOM';
-  count.value = String(count.readOnly ? total : Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
+  // Only "Chọn cặp từ tùy ý" is fixed: there the ticked cards are the count. Other filters take any count up to
+  // the usable cards (the server draws that many at random).
+  count.readOnly = $('filter').value === 'CUSTOM';
+  count.value = String(count.readOnly || (reset && $('filter').value !== 'RANDOM') ? total
+    : Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
   text('count-label', 'Số câu');
   text('count-suffix', '/ ' + total + ' thẻ');
-  text('eligible-count', total + ' thẻ sẵn sàng');
   renderSelection();
   controls();
 }
@@ -337,6 +363,16 @@ function updateInput(event, commitRomaji = false) {
   controls();
   queueEnterCheck();
 }
+/**
+ * The capture input is 1px wide and invisible, so the end is the only place its caret can mean anything. A caret
+ * moved elsewhere (a click on the field, a refocus) put the next letters before the first one: "ninki" became
+ * "inkin". Never moved during an IME composition, which owns the caret until it commits.
+ */
+function caretToEnd(event) {
+  if (event?.isComposing || engine.composing) return;
+  const input = $('typing-input'), end = input.value.length;
+  if (input.selectionStart !== end || input.selectionEnd !== end) input.setSelectionRange?.(end, end);
+}
 /** Wait for compositionend and the final input event before checking an IME Enter. */
 function queueEnterCheck() {
   const questionId = pendingEnterQuestionId;
@@ -455,11 +491,13 @@ on('setup-form', 'submit', event => {
   if (!available()) return;
   const count = validQuestionCount(true);
   if (count === null) return;
-  const body = { requestId: crypto.randomUUID(), filter: $('filter').value, count, autoSubmit: false, mode: modeName() };
+  const body = { requestId: crypto.randomUUID(), filter: $('filter').value, count, autoSubmit: false, mode: modeName(),
+    timeLimitSeconds: timeLimitSeconds() };
   if (['CUSTOM', 'RANDOM'].includes(body.filter)) body.selectedCardIds = sessionCards().map(card => card.id);
   void run(async () => accept(await api.create(body)));
 });
 on('filter', 'change', optionSummary);
+on('time-limit', 'change', () => { try { localStorage.setItem(TIME_KEY, $('time-limit').value); } catch (e) { /* optional */ } });
 on('count', 'input', () => { if (validQuestionCount(false) !== null) renderSelection(); });
 on('selection-list', 'change', event => {
   const input = event.target.closest('[data-selection-card]');
@@ -480,12 +518,14 @@ on('typing-input', 'compositionstart', () => {
 });
 on('typing-input', 'compositionend', event => { engine.composing = false; compositionEnded = performance.now(); updateInput(event); });
 on('typing-input', 'input', updateInput);
+// Registered before checkTypedAnswer, so an edit key also acts at the end.
+on('typing-input', 'keydown', caretToEnd);
 on('typing-input', 'keydown', checkTypedAnswer);
+on('typing-input', 'focus', caretToEnd);
+on('typing-input', 'click', caretToEnd);
 
-document.querySelectorAll('[data-question]').forEach(button =>
-  button.addEventListener('click', () => void changeMode({ question: button.dataset.question, answer: mode.answer }), { signal: events.signal }));
-document.querySelectorAll('[data-answer]').forEach(button =>
-  button.addEventListener('click', () => void changeMode({ question: mode.question, answer: button.dataset.answer }), { signal: events.signal }));
+on('question-field', 'change', () => void changeMode({ question: $('question-field').value, answer: mode.answer }));
+on('answer-field', 'change', () => void changeMode({ question: mode.question, answer: $('answer-field').value }));
 on('typing-slots', 'click', () => $('typing-input').focus({ preventScroll: true }));
 on('typing-slots', 'keydown', event => {
   if (event.key === 'Enter' && engine.view?.state === 'ANSWER_FEEDBACK') {
@@ -559,6 +599,7 @@ links();
 void run(async () => {
   if (!setId || !/^\d+$/.test(setId)) throw new Error('Đường dẫn thiếu mã bộ thẻ hợp lệ.');
   loadSavedMode();
+  loadSavedTimeLimit();
   options = await api.options(modeName());
   // The remembered mode may have no usable card in this set: fall back to the closest one that has.
   if (!validMode(mode)) { mode = nearestMode(mode); options = await api.options(modeName()); }
@@ -568,6 +609,7 @@ void run(async () => {
   else if (autoStart) {
     const count = available();
     if (!count) throw new Error('Bộ thẻ này chưa có thẻ hợp lệ để luyện phản xạ.');
-    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: false, mode: modeName() }));
+    accept(await api.create({ requestId: crypto.randomUUID(), filter: 'ALL', count, autoSubmit: false, mode: modeName(),
+      timeLimitSeconds: timeLimitSeconds() }));
   } else section('setup');
 });

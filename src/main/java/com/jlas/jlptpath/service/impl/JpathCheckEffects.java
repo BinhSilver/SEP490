@@ -20,14 +20,19 @@ import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.jlptpath.service.JpathDailyPlanService;
 import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathProgressService;
+import com.jlas.jlptpath.service.JpathRewardHook;
+import com.jlas.jlptpath.util.JpathRewardPolicy;
 import com.jlas.jlptpath.util.JpathQueueBuilder;
 import com.jlas.jlptpath.util.JpathQueueStep;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +87,13 @@ public class JpathCheckEffects {
     private final JpathProgressService progress;
     private final JpathPathService pathService;
     private final JpathClock clock;
+    /** Q5: pays the weekly check CP; optional so hand-built instances (unit tests) work without it. */
+    private ObjectProvider<JpathRewardHook> rewards;
+
+    @Autowired(required = false)
+    void setRewards(ObjectProvider<JpathRewardHook> rewards) {
+        this.rewards = rewards;
+    }
 
     public JpathCheckEffects(JpathItemStateMachine items, JpathUserItemRepository userItems,
                              JpathDayCompletion completion, JpathDailyPlanService planService,
@@ -104,14 +116,21 @@ public class JpathCheckEffects {
      */
     public record Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
                          Map<String, JpathRating> grammarRatings, List<String> pendingCodes, boolean skillReview,
-                         boolean skillDayQuiz) {
+                         boolean skillDayQuiz, boolean weeklyCheck, boolean weeklyPassed) {
         public Scored {
             pendingCodes = pendingCodes == null ? List.of() : pendingCodes;
         }
 
         public Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
+                      Map<String, JpathRating> grammarRatings, List<String> pendingCodes, boolean skillReview,
+                      boolean skillDayQuiz) {
+            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, pendingCodes, skillReview, skillDayQuiz,
+                    false, false);
+        }
+
+        public Scored(Boolean passed, boolean tooFast, List<String> itemCodes, Set<String> wrongCodes,
                       Map<String, JpathRating> grammarRatings) {
-            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, List.of(), false, false);
+            this(passed, tooFast, itemCodes, wrongCodes, grammarRatings, List.of(), false, false, false, false);
         }
     }
 
@@ -151,8 +170,12 @@ public class JpathCheckEffects {
                     advance = true;
                 } else {
                     rows.forEach(items::count);
-                    cp = kanaRowDone(userId, today, tabs, s.tooFast());
-                    credit = today != null;
+                    // owner 18/11: a kana answered wrong goes to the daily review (due today, streak 0), not the notebook
+                    rows.stream().filter(r -> s.wrongCodes().contains(r.getItemCode()))
+                            .forEach(r -> items.wrongInCheck(r, JpathNotebookSource.QUIZ));
+                    boolean deferKana = hasRemainingKanaSteps(session, set.getToken());
+                    cp = kanaRowDone(userId, today, tabs, s.tooFast(), deferKana);
+                    credit = today != null && !deferKana;
                     reevaluate(userId);
                     advance = true;
                 }
@@ -187,10 +210,24 @@ public class JpathCheckEffects {
                 advance = true;
             }
             case FREE_QUIZ -> {
+                // Q5 (owner 24/11): a failed weekly check puts its wrong items in the daily review of next week
+                // (no notebook, nothing blocked); a passed one keeps the usual notebook rule and pays the week CP.
+                boolean weeklyFailed = s.weeklyCheck() && !s.weeklyPassed();
                 for (String code : s.itemCodes()) {
                     if (s.wrongCodes().contains(code)) {
-                        items.wrongInCheck(items.ensureRow(userId, type, code, set.getLevel()),
-                                JpathNotebookSource.QUIZ);
+                        JpathUserItem row = quizRow(userId, set, type, code);
+                        if (weeklyFailed) {
+                            items.dueNextWeek(row);
+                        } else {
+                            items.wrongInCheck(row, JpathNotebookSource.QUIZ);
+                        }
+                    }
+                }
+                if (s.weeklyCheck() && s.weeklyPassed() && !s.tooFast() && rewards != null) {
+                    JpathRewardHook hook = rewards.getIfAvailable();
+                    if (hook != null) {
+                        hook.onWeeklyCheckPassed(userId, clock.today(userId), set.getTab());
+                        cp += JpathRewardPolicy.WEEK_CHECK;
                     }
                 }
                 if (s.skillDayQuiz()) {
@@ -262,6 +299,23 @@ public class JpathCheckEffects {
                 items.count(row);
             }
         }
+        if (type == JpathItemType.KANA) {
+            for (String code : s.wrongCodes()) {
+                // the table is skipped, so the kana counts; the wrong one still comes back in the daily review
+                JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                items.count(row);
+                items.wrongInCheck(row, JpathNotebookSource.QUIZ);
+            }
+            // owner 18/11: passing the skip test of a table skips the whole table — the kana not asked count as known
+            for (String code : s.pendingCodes()) {
+                JpathUserItem row = items.ensureRow(userId, type, code, set.getLevel());
+                if (row.getCountedAt() == null) {
+                    items.markKnown(row, TOPIC_CHECK);
+                    items.count(row);
+                }
+            }
+            return;
+        }
         for (String code : s.pendingCodes()) {
             if (userItems.findByUserIdAndItemTypeAndItemCode(userId, type, code).isPresent()) {
                 continue;
@@ -274,6 +328,21 @@ public class JpathCheckEffects {
     }
 
     // ---- items ---------------------------------------------------------------------------------------------
+
+    /**
+     * Walkthrough 25/11: the skill day's quiz mixes words, kanji and grammar under the SKILL tab, which maps to KANA —
+     * so a missed word got a stray kana row and never reached the notebook. A free quiz asks items already learned:
+     * use the learner's own row of that code (any type), and fall back to the tab's type only when none exists.
+     */
+    private JpathUserItem quizRow(Long userId, JpathCheckSet set, JpathItemType tabType, String code) {
+        if (set.getTab() == JpathTab.SKILL) {
+            for (JpathItemType t : List.of(JpathItemType.VOCAB, JpathItemType.KANJI, JpathItemType.GRAMMAR, JpathItemType.KANA)) {
+                Optional<JpathUserItem> own = userItems.findByUserIdAndItemTypeAndItemCode(userId, t, code);
+                if (own.isPresent()) return own.get();
+            }
+        }
+        return items.ensureRow(userId, tabType, code, set.getLevel());
+    }
 
     static JpathItemType itemType(JpathCheckSet set) {
         if (set.getKind() == JpathCheckKind.GROUP_EXERCISE) {
@@ -322,7 +391,8 @@ public class JpathCheckEffects {
         return outcome.cpExpected();
     }
 
-    private int kanaRowDone(Long userId, JpathDailyPlan today, List<JpathDailyTab> tabs, boolean tooFast) {
+    private int kanaRowDone(Long userId, JpathDailyPlan today, List<JpathDailyTab> tabs, boolean tooFast,
+                            boolean deferCompletion) {
         JpathDailyTab row = tab(tabs, JpathTab.KANA);
         if (today == null || row == null) {
             return 0;
@@ -337,7 +407,28 @@ public class JpathCheckEffects {
         if (row.getCheckPassedAt() == null) {
             row.setCheckPassedAt(clock.now());
         }
+        if (deferCompletion) {
+            // [JLAS-W0108] F149: session still has uncompleted KANA steps ahead; defer KANA tab reward until finished
+            completion.evaluate(userId, today, tabs, null, true);
+            return 0;
+        }
         return completion.evaluate(userId, today, tabs, JpathTab.KANA, !tooFast).cpExpected();
+    }
+
+    private static boolean hasRemainingKanaSteps(JpathStudySession session, String token) {
+        if (session == null) {
+            return false;
+        }
+        List<JpathQueueStep> q = parse(session.getQueueJson());
+        int at = stepOf(q, token);
+        int nextPos = at >= 0 && at == session.getPosition() ? at + 1 : session.getPosition();
+        for (int i = Math.max(0, nextPos); i < q.size(); i++) {
+            JpathQueueStep st = q.get(i);
+            if (st.tab() == JpathTab.KANA && st.kind() == JpathStepKind.NEW) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Skill day (#25): the SKILL tab's check is done; evaluation pays the skill day when the reviews are done. */
@@ -420,6 +511,19 @@ public class JpathCheckEffects {
         write(session, JpathQueueBuilder.insertAfter(q, at, repeats));
     }
 
+    /** L20: back to the tab just studied; a combined session keeps the plain path page. */
+    static String doneUrl(String tab) {
+        String t = tab == null ? null : switch (tab) {
+            case "VOCAB" -> "vocab";
+            case "KANJI" -> "kanji";
+            case "GRAMMAR" -> "grammar";
+            case "KANA" -> "kana";
+            case "SKILL" -> "skills";
+            default -> null;
+        };
+        return t == null ? DONE_URL : "/learning?tab=" + t + "&saved=1";
+    }
+
     /** Moves the session past the check step (when it is the current one) and describes what comes next. */
     private JpathCheckNext advance(JpathStudySession session, String token) {
         List<JpathQueueStep> q = parse(session.getQueueJson());
@@ -439,25 +543,49 @@ public class JpathCheckEffects {
                 session.setStatus("COMPLETED");
                 session.setCompletedAt(clock.now());
             }
-            return new JpathCheckNext("DONE", "Xong lượt học", DONE_URL, null, null, session.getId());
+            return new JpathCheckNext("DONE", "Xong lượt học", doneUrl(session.getTab()), null, null, session.getId());
         }
         JpathQueueStep next = q.get(session.getPosition());
         String url = STUDY_URL + session.getId();
         if (next.kind() == JpathStepKind.NEW) {
-            int count = 0;
-            for (int i = session.getPosition(); i < q.size(); i++) {
-                JpathQueueStep st = q.get(i);
-                if (st.kind() == JpathStepKind.NEW && st.tab() == next.tab() && !st.repeat()) {
-                    count++;
-                } else if (st.kind() == JpathStepKind.NEW && st.tab() != next.tab()) {
-                    break;
-                }
-            }
-            String label = count > 0 ? "Tiếp: " + tabLabel(next.tab()) + " mới (" + count + ")" : "Tiếp tục";
+            int count = remainingNew(q, session.getPosition(), next.tab());
+            String label = count > 0 ? "Tiếp: " + tabLabel(next.tab()) + " mới · còn " + count + " " + unit(next.tab())
+                    : "Tiếp tục";
             return new JpathCheckNext("CONTINUE", label, url, next.tab(), count > 0 ? count : null,
                     session.getId());
         }
         return new JpathCheckNext("CONTINUE", "Tiếp tục", url, next.tab(), null, session.getId());
+    }
+
+    /**
+     * Owner 23/11: what is left of the run of {@code tab} from {@code from}, in the unit of the study page step bar:
+     * kana rows (KANA_ROW checks) for Chữ cái — "Chữ cái mới (13)" counted letters while the bar counted rows —,
+     * new items (repeats left out) otherwise.
+     */
+    static int remainingNew(List<JpathQueueStep> q, int from, JpathTab tab) {
+        int count = 0;
+        for (int i = Math.max(0, from); i < q.size(); i++) {
+            JpathQueueStep st = q.get(i);
+            if (st.kind() == JpathStepKind.NEW && st.tab() != tab) {
+                break;
+            }
+            boolean counts = tab == JpathTab.KANA ? st.checkKind() == JpathCheckKind.KANA_ROW
+                    : st.kind() == JpathStepKind.NEW && st.tab() == tab && !st.repeat();
+            if (counts) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    static String unit(JpathTab tab) {
+        return switch (tab) {
+            case VOCAB -> "từ";
+            case KANJI -> "chữ";
+            case GRAMMAR -> "mẫu";
+            case KANA -> "hàng";
+            case SKILL -> "phần";
+        };
     }
 
     static String tabLabel(JpathTab tab) {

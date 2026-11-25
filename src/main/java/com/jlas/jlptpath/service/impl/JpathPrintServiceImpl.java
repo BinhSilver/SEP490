@@ -62,16 +62,25 @@ public class JpathPrintServiceImpl implements JpathPrintService {
     private final JpathClock clock;
     private final JpathStrokeSvgIndex svgIndex;
     private final org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.service.JpathHistoryService> history;
+    private final org.springframework.beans.factory.ObjectProvider<JpathPartsService> partsService;
 
     public JpathPrintServiceImpl(JpathListService lists, JpathDailyPlanService dailyPlan, JpathContentReader content,
                                  JpathUserPathRepository paths, JpathClock clock, JpathStrokeSvgIndex svgIndex) {
         this(lists, dailyPlan, content, paths, clock, svgIndex, null);
     }
 
-    @org.springframework.beans.factory.annotation.Autowired
     public JpathPrintServiceImpl(JpathListService lists, JpathDailyPlanService dailyPlan, JpathContentReader content,
                                  JpathUserPathRepository paths, JpathClock clock, JpathStrokeSvgIndex svgIndex,
                                  org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.service.JpathHistoryService> history) {
+        this(lists, dailyPlan, content, paths, clock, svgIndex, history, null);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public JpathPrintServiceImpl(JpathListService lists, JpathDailyPlanService dailyPlan, JpathContentReader content,
+                                 JpathUserPathRepository paths, JpathClock clock, JpathStrokeSvgIndex svgIndex,
+                                 org.springframework.beans.factory.ObjectProvider<com.jlas.jlptpath.service.JpathHistoryService> history,
+                                 org.springframework.beans.factory.ObjectProvider<JpathPartsService> partsService) {
+        this.partsService = partsService;
         this.lists = lists;
         this.dailyPlan = dailyPlan;
         this.content = content;
@@ -102,6 +111,7 @@ public class JpathPrintServiceImpl implements JpathPrintService {
         return switch (scope) {
             case "KANA" -> kanaSheet(request, date);
             case "TODAY", "LIST", "DAY" -> itemSheet(userId, scope, request, date);
+            case "PART" -> partSheet(userId, request, date);
             default -> throw invalid("Phạm vi in không hợp lệ.");
         };
     }
@@ -173,6 +183,51 @@ public class JpathPrintServiceImpl implements JpathPrintService {
                 + " · " + ("TODAY".equals(scope) ? "Hôm nay" : "DAY".equals(scope)
                         ? "Ngày " + printedDay.format(DATE_VI) : "Danh sách đang chọn");
         return sheet(title, date, scope, truncated, rows);
+    }
+
+    /**
+     * F226 (owner 22/11): "In cả phần" — every item of one study part on the map (Từ vựng, Kanji) or of one part of the
+     * kana stage, in the part's own order.
+     */
+    private JpathPrintSheet partSheet(Long userId, JpathPrintRequest request, String date) {
+        String tabName = upper(request.tab());
+        int index;
+        try {
+            index = Integer.parseInt(String.valueOf(request.part()).trim());
+        } catch (RuntimeException e) {
+            throw invalid("Phần in không hợp lệ.");
+        }
+        JpathPartsService service = partsService == null ? null : partsService.getIfAvailable();
+        if (index < 1 || service == null) {
+            throw invalid("Phần in không hợp lệ.");
+        }
+        if ("KANA".equals(tabName)) {
+            JpathPartsService.KanaPart part = service.kanaStage(userId).parts().stream()
+                    .filter(p -> p.index() == index).findFirst()
+                    .orElseThrow(() -> invalid("Phần in không hợp lệ."));
+            Set<String> labels = part.items().stream().map(JpathPartsService.Item::label)
+                    .collect(java.util.stream.Collectors.toSet());
+            String script = upper(part.script());
+            List<JpathPrintRow> rows = script == null || !SCRIPTS.contains(script) ? List.of()
+                    : content.kana(script).stream().filter(k -> labels.contains(k.getKana()))
+                            .map(JpathPrintServiceImpl::kanaRow).toList();
+            String name = script == null ? "Chữ cái" : script.charAt(0) + script.substring(1).toLowerCase(Locale.ROOT);
+            return sheet(TITLE + " · " + name + " · Phần " + index, date, "PART", false, rows);
+        }
+        if (!"VOCAB".equals(tabName) && !"KANJI".equals(tabName)) {
+            throw invalid("Tab không hợp lệ.");
+        }
+        JpathTab tab = JpathTab.valueOf(tabName);
+        JpathPartsService.Parts parts = service.parts(userId, tab);
+        JpathPartsService.Part part = parts.parts().stream().filter(p -> p.index() == index).findFirst()
+                .orElseThrow(() -> invalid("Phần in không hợp lệ."));
+        List<String> codes = part.items().stream().map(JpathPartsService.Item::code).distinct().toList();
+        List<JpathPrintRow> rows = tab == JpathTab.VOCAB
+                ? content.vocabs(codes).stream().map(JpathPrintServiceImpl::vocabRow).toList()
+                : content.kanjis(codes).stream().map(this::kanjiRow).toList();
+        String title = TITLE + " · " + (tab == JpathTab.VOCAB ? "Từ vựng" : "Kanji")
+                + (parts.level() == null ? "" : " " + parts.level()) + " · Phần " + index;
+        return sheet(title, date, "PART", false, rows);
     }
 
     private static JpathPrintSheet sheet(String title, String date, String scope, boolean truncated,

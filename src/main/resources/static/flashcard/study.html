@@ -7,9 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Học thẻ từ — KotsuKotsu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap"
-    rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap">
   <link rel="stylesheet" href="/css/tokens.css" />
   <link rel="stylesheet" href="/css/theme-bridge.css" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -19,18 +17,20 @@
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/components/forms.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
-  <link rel="stylesheet" href="/flashcard/styles.css" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261123-ui" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20261025-favorite" />
-  <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261015-selection-pager" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+  <link rel="stylesheet" href="/css/components/ui-kit.css?v=20261123-ghost">
+  <link rel="stylesheet" href="/flashcard/ui-standard.css?v=20261123-ghost">
 </head>
 
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--study">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="page">
+<main id="jlabBaseContent" class="page jl-ui-kit">
 
   <div class="main study-main">
       <div class="container container-wide study-wrap">
@@ -166,6 +166,12 @@
               <tbody id="study-card-list-items"></tbody>
             </table>
           </div>
+          <!-- 10 cards per page; the arrows (or ←/→ on the table) slide to the next page. -->
+          <nav class="study-card-list__pager" id="study-card-list-pager" aria-label="Phân trang danh sách thẻ" hidden>
+            <button type="button" class="study-card-list__page-btn" id="study-cards-prev" aria-label="Trang trước"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <span class="study-card-list__page-label" id="study-cards-page" aria-live="polite"></span>
+            <button type="button" class="study-card-list__page-btn" id="study-cards-next" aria-label="Trang sau"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          </nav>
         </section>
 
         <section id="study-complete" class="study-complete" hidden>
@@ -313,7 +319,8 @@
   <script src="/flashcard/js/study-swipe.js?v=20261011-touch-capture"></script>
   <script src="/flashcard/js/study-fit-text.js?v=20261015-fit-scale"></script>
   <script src="/flashcard/js/study-face-fields.js?v=20261015-blank-rule"></script>
-  <script src="/flashcard/js/study-page.js?v=20261025-favorite"></script>
+  <script src="/flashcard/js/study-page.js?v=20261114-card-pages"></script>
+  <script src="/js/jlptpath/flashcard-back-to-path.js?v=20261124"></script>
 </body>
 
 </html>

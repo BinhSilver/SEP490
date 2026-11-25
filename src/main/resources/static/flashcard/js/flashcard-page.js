@@ -251,7 +251,7 @@ function renderStudy(root) {
         <button class="btn btn-ghost btn-sm" id="btn-ai-kj"><i class="fa-solid fa-language"></i> Phân tích Kanji</button>
         <label class="inline-control">
           <i class="fa-solid fa-rotate"></i> Tự lật
-          <select id="auto-flip" aria-label="Tự lật thẻ">
+          <select id="auto-flip" aria-label="Tự lật thẻ" data-jl-select data-variant="filter">
             <option value="0" ${state.autoFlipSec === 0 ? 'selected' : ''}>Tắt</option>
             <option value="2" ${state.autoFlipSec === 2 ? 'selected' : ''}>2 giây</option>
             <option value="3" ${state.autoFlipSec === 3 ? 'selected' : ''}>3 giây</option>

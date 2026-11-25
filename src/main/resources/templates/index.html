@@ -41,9 +41,10 @@
                     <span class="home-hero__line">sống thêm <span class="home-hero__accent">1</span> đời.</span>
                 </h1>
                 <div class="home-hero__actions">
-                    <a class="home-hero__button home-hero__button--primary" th:href="@{/learning/path}">
-                        <span>Bắt đầu học</span>
-                        <span class="home-hero__arrow" aria-hidden="true"></span>
+                    <!-- F24: one label per case, set by landing.js — guest: sign up; signed in without a path: create one;
+                         with a path: carry on -->
+                    <a class="home-hero__button home-hero__button--primary" th:href="@{/register}" data-home-start>
+                        <span data-home-start-text>Đăng ký học miễn phí</span>
                     </a>
                     <a class="home-hero__button home-hero__button--secondary" th:href="@{/shadowing}">
                         <span>Khám phá</span>
@@ -52,10 +53,18 @@
                 </div>
             </div>
         </section>
+        <div th:replace="~{fragments/landing-sections :: sections}"></div>
     </main>
 
+    <!-- [JLAS-W0108] F25 word cards beside the hero (own module, can be hidden by the learner) -->
+    <link rel="stylesheet" th:href="@{/css/pages/home-word-deck.css?v=20261110}">
+    <link rel="stylesheet" th:href="@{/css/pages/home-mascot.css?v=20261115-f169}">
+    <link rel="stylesheet" th:href="@{/css/pages/landing.css?v=20261115-f167}">
+    <script th:src="@{/js/pages/home-mascot.js?v=20261115-f129}"></script>
+    <script th:src="@{/js/pages/home-word-deck.js?v=20261115-f168}"></script>
     <script th:src="@{/js/pages/home-theme-scene.js?v=20261009-setting-arc}"></script>
-    <script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script>
+    <script th:src="@{/js/pages/landing.js?v=20261111-path-state}"></script>
+    <script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
 
 </body>
 

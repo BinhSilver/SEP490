@@ -232,7 +232,33 @@
   font-size: var(--text-sm);
   color: var(--color-on-surface-variant);
 }
-.textbook-card__cta { color: var(--color-primary); font-weight: 600; }
+/* Nút "Xem giáo trình": cùng màu với .btn--primary (controls.css). Là <span> trong thẻ <a> nên hover/focus theo cả thẻ. */
+.textbook-card__footer { gap: var(--space-2); flex-wrap: wrap; }
+.textbook-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  transition: background-color var(--transition), box-shadow var(--transition);
+}
+.textbook-card:hover .textbook-card__cta { background: var(--color-primary-container); }
+.textbook-card:focus-visible { outline: none; }
+.textbook-card:focus-visible .textbook-card__cta { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.textbook-card__cta--locked,
+.textbook-card:hover .textbook-card__cta--locked {
+  background: var(--color-surface-container-high, #e8e3ee);
+  color: var(--color-on-surface-variant);
+  cursor: not-allowed;
+}
+html[data-theme="dark"] .textbook-card__cta:not(.textbook-card__cta--locked) { background: var(--dark-button); color: var(--dark-on-button); }
+html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-card__cta--locked) { background: var(--dark-button-hover); }
 
 /* ---------- /textbooks tab "Theo chủ đề" ---------- */
 #panelTopic { display: flex; flex-direction: column; gap: var(--space-4); }
@@ -260,6 +286,7 @@
 .topic-chip--empty { cursor: default; color: var(--color-on-surface-variant); background: var(--color-surface-low); }
 .topic-chip--empty:hover { border-color: var(--color-outline-variant); }
 .topic-chip__note { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
+.topic-chip.is-active .topic-chip__note { color: inherit; }
 .topic-lessons { display: flex; flex-direction: column; gap: var(--space-4); }
 .topic-lessons__header { display: flex; align-items: baseline; gap: var(--space-3); }
 .textbooks-empty--inline { padding: var(--space-4); box-shadow: none; background: var(--color-surface-low); }
@@ -444,22 +471,38 @@
   color: var(--color-on-primary-fixed);
   font-weight: 600;
 }
-.kanji-words { display: flex; flex-direction: column; gap: var(--space-1); }
-.kanji-words__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.kanji-word {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-lowest);
-  font-size: var(--text-sm);
+/* Phần ví dụ dùng chung (examplesHtml trong js/pages/textbook-lesson.js): thẻ từ vựng, "Từ ví dụ" của Kanji, cả trang
+ * bài học giáo trình lẫn trang lộ trình. Text thường dưới nghĩa — không khung/nền — ngăn bằng đường kẻ mảnh, chữ nhỏ màu phụ. */
+.lp-exs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--color-outline-variant);
 }
-.kanji-word__ja { font-size: var(--text-md); color: var(--color-on-surface); }
-.kanji-word__reading { color: var(--color-primary); }
-.kanji-word__meaning { color: var(--color-on-surface-variant); }
-.kanji-word__meaning::before { content: "· "; }
+.lp-exs__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--color-on-surface-variant);
+}
+.lp-exs__ja {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.lp-exs__kana { margin-left: 6px; font-size: 13px; color: var(--color-primary); }
+.lp-exs__vi {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+  opacity: .85;
+  overflow-wrap: anywhere;
+}
 
 /* Ghi nguồn dữ liệu (KANJIDIC2, CC BY-SA 4.0) — cuối tab Kanji, nhỏ, màu phụ */
 .lesson-attribution {
@@ -492,8 +535,6 @@
 .vocab-item__romaji { font-size: var(--text-sm); color: var(--color-on-surface-variant); font-family: var(--font-mono); }
 .vocab-item__meaning { margin: 0; font-size: var(--text-md); }
 .vocab-item__tags { display: flex; flex-wrap: wrap; gap: var(--space-1); }
-.vocab-item__example { margin: var(--space-2) 0 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
-.vocab-item__example .ja { color: var(--color-on-surface); display: block; }
 .vocab-item__audio { display: flex; flex-direction: column; justify-content: center; gap: var(--space-1); }
 .vocab-item__audio-note { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
 
@@ -1780,8 +1821,8 @@
 
 /* Plum dark mode */
 html[data-theme="dark"] .textbook-thumb__badge--level { background: var(--dark-raised); color: var(--dark-ink); box-shadow: 0 1px 2px var(--dark-shadow); }
-html[data-theme="dark"] .textbook-thumb { background: var(--dark-raised); }
-html[data-theme="dark"] .textbook-thumb__kanji { color: var(--dark-accent); }
+html[data-theme="dark"] .textbook-thumb:not(.textbook-thumb--custom) { background: var(--dark-raised); }
+html[data-theme="dark"] .textbook-thumb:not(.textbook-thumb--custom) .textbook-thumb__kanji { color: var(--dark-accent); }
 html[data-theme="dark"] .practice-q__option.is-correct .practice-q__option-no,
 html[data-theme="dark"] .practice-q__option.is-wrong .practice-q__option-no,
 html[data-theme="dark"] .manage-main .manage-chip.is-on { color: var(--dark-on-button); }
@@ -1803,3 +1844,55 @@ html[data-theme="dark"] :is(.manage-input, .manage-select) { background: var(--d
 html[data-theme="dark"] .manage-main :is(input, select, textarea) { caret-color: var(--dark-accent); }
 html[data-theme="dark"] .manage-main :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
 html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }
+
+/* ---------- Khóa Premium (textbooks.js: cờ locked; fragment textbooks/premium-dialog) ---------- */
+.tb-premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  white-space: nowrap;
+}
+.textbook-card--locked .textbook-thumb,
+.textbook-card--locked .textbook-card__title { opacity: 0.72; }
+.textbook-card--locked .textbook-card__footer { align-items: center; }
+.lesson-row--locked .lesson-row__title { color: var(--color-on-surface-variant); }
+.lesson-row--locked .lesson-row__arrow { color: var(--color-primary); }
+
+.tb-premium-dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-lowest);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-2);
+}
+.tb-premium-dialog::backdrop { background: rgba(20, 16, 32, 0.45); }
+.tb-premium-dialog__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6, 24px) var(--space-5);
+  text-align: center;
+}
+.tb-premium-dialog__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: var(--text-lg);
+}
+.tb-premium-dialog__title { margin: 0; font-size: var(--text-lg); font-weight: 700; color: var(--color-on-surface); }
+.tb-premium-dialog__text { margin: 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
+.tb-premium-dialog__actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
+.tb-premium-dialog__actions .btn { min-height: 44px; }

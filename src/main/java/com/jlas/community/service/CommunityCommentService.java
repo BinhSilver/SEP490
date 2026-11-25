@@ -75,8 +75,9 @@ public class CommunityCommentService {
     public CommentDto update(Long commentId, Long viewerId, String body) {
         String text = clean(body);
         actionPolicy.assertCanAct(viewerId);
-        CommunityComment comment = comments.lockById(commentId)
-                .filter(c -> c.getDeletedAt() == null).orElseThrow(CommunityAccessService::notFound);
+        CommunityComment comment = access.fresh(comments.lockById(commentId)
+                .orElseThrow(CommunityAccessService::notFound));
+        if (comment.getDeletedAt() != null) throw CommunityAccessService.notFound();
         Target target = access.requireViewable(contentOf(comment), viewerId);
         boolean moderator = CommunityAccessService.isModerator();
         if (!Objects.equals(comment.getUserId(), viewerId)) {
@@ -91,6 +92,8 @@ public class CommunityCommentService {
             throw new ApiException(ErrorCode.CONFLICT, "Nội dung đang không công khai nên không thể sửa bình luận");
         }
         comment.setBody(text);
+        // Chỉ sửa nội dung mới đổi updated_at (cờ "đã sửa"); báo cáo / gỡ / khôi phục giữ nguyên (xem CommunityComment).
+        comment.setUpdatedAt(LocalDateTime.now());
         comments.saveAndFlush(comment);
         return toDto(comment, access.author(viewerId), viewerId, moderator, target.publicNow());
     }
@@ -99,11 +102,12 @@ public class CommunityCommentService {
     public void delete(Long commentId, Long viewerId) {
         CommunityComment existing = comments.findById(commentId)
                 .filter(c -> c.getDeletedAt() == null).orElseThrow(CommunityAccessService::notFound);
-        // Khoá nội dung trước rồi tới bình luận (cùng thứ tự với báo cáo) để tránh deadlock.
-        CommunityContent row = contents.lockById(existing.getCommunityContentId())
-                .orElseThrow(CommunityAccessService::notFound);
-        CommunityComment comment = comments.lockById(commentId)
-                .filter(c -> c.getDeletedAt() == null).orElseThrow(CommunityAccessService::notFound);
+        // Khoá nội dung trước rồi tới bình luận (cùng thứ tự với báo cáo) để tránh deadlock; dùng bản đọc lại sau khi khoá.
+        CommunityContent row = access.fresh(contents.lockById(existing.getCommunityContentId())
+                .orElseThrow(CommunityAccessService::notFound));
+        CommunityComment comment = access.fresh(comments.lockById(commentId)
+                .orElseThrow(CommunityAccessService::notFound));
+        if (comment.getDeletedAt() != null) throw CommunityAccessService.notFound();
         access.requireViewable(row, viewerId);
         boolean moderator = CommunityAccessService.isModerator();
         boolean author = Objects.equals(comment.getUserId(), viewerId);
@@ -146,6 +150,7 @@ public class CommunityCommentService {
         AuthorDto shown = author != null ? author : new AuthorDto(c.getUserId(), "Người dùng #" + c.getUserId(), null);
         return new CommentDto(c.getId(), shown, c.getBody(), c.getStatus(), !published, mine,
                 mine && !removed && contentActive, mine || moderator,
-                !mine && published && contentActive, edited, c.getCreatedAt(), c.getUpdatedAt());
+                !mine && published && contentActive, edited, c.getCreatedAt(), c.getUpdatedAt(),
+                moderator && !removed);
     }
 }

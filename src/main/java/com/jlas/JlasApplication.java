@@ -28,7 +28,15 @@ import org.springframework.boot.persistence.autoconfigure.EntityScan;
 @EnableJpaRepositories(basePackages = "com.jlas")
 public class JlasApplication {
 
+	/** Learners are in Vietnam; override with APP_TIME_ZONE only if that ever changes. */
+	static final String DEFAULT_TIME_ZONE = "Asia/Ho_Chi_Minh";
+
 	public static void main(String[] args) {
+		// Times are stored as LocalDateTime.now() without a zone and the browser reads them as Vietnam time. A host
+		// on UTC (as production is) would make a notification created just now show "7 giờ trước" and move daily
+		// resets to 07:00, so the clock is fixed before anything starts.
+		java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(
+				System.getenv().getOrDefault("APP_TIME_ZONE", DEFAULT_TIME_ZONE)));
 		SpringApplication.run(JlasApplication.class, args);
 	}
 

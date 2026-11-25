@@ -185,10 +185,41 @@
     }, true);
   }
 
+  /* ---------- Khóa Premium (cờ locked do API tính theo TextbookAccessPolicy) ----------
+   * Thẻ/bài bị khóa vẫn hiện, có ổ khóa + nhãn "Premium"; bấm vào mở hộp thoại nâng cấp (#tbPremiumDialog,
+   * fragment textbooks/premium-dialog) thay vì mở sách. Route trang cũng tự chặn ở backend.
+   */
+  var PREMIUM_BADGE = '<span class="tb-premium-badge"><i class="fa-solid fa-lock" aria-hidden="true"></i> Premium</span>';
+
+  function openPremiumDialog() {
+    var dialog = document.getElementById('tbPremiumDialog');
+    if (dialog && typeof dialog.showModal === 'function') {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      window.location.href = '/premium';
+    }
+  }
+
+  function setupPremiumLocks() {
+    document.addEventListener('click', function (event) {
+      var locked = event.target.closest('[data-locked="true"]');
+      if (!locked) return;
+      event.preventDefault();
+      openPremiumDialog();
+    });
+    // Route trang của sách bị khóa chuyển về /textbooks?premium=required → mở hộp thoại rồi dọn URL.
+    if (/[?&]premium=required(&|$)/.test(window.location.search)) {
+      openPremiumDialog();
+      if (window.history && typeof history.replaceState === 'function') history.replaceState(null, '', window.location.pathname);
+    }
+  }
+
   function textbookCard(t) {
     var unitCount = t.unitCount == null ? 0 : t.unitCount;
+    var locked = t.locked === true;
     return '' +
-      '<a class="textbook-card" href="/textbooks/' + encodeURIComponent(t.id) + '">' +
+      '<a class="textbook-card' + (locked ? ' textbook-card--locked' : '') + '" href="/textbooks/' + encodeURIComponent(t.id) + '"' +
+        (locked ? ' data-locked="true" aria-label="' + escapeHtml(t.title) + ' (cần Premium)"' : '') + '>' +
         textbookThumbnail(t) +
         '<h3 class="textbook-card__title">' + escapeHtml(t.title) + '</h3>' +
         // Mô tả chỉ hiện khi giáo trình chưa có nội dung (unitCount = 0): đó là lời giải thích vì sao trống.
@@ -197,7 +228,10 @@
           (unitCount > 0
             ? '<span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ' + unitCount + ' unit</span>'
             : '<span class="tb-badge">Chưa có nội dung</span>') +
-          '<span class="textbook-card__cta">Xem giáo trình <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>' +
+          // Nút CTA là <span> vì cả thẻ đã là <a>; thẻ khóa hiện nút xám có ổ khóa (bấm mở hộp thoại Premium).
+          (locked
+            ? '<span class="textbook-card__cta textbook-card__cta--locked"><i class="fa-solid fa-lock" aria-hidden="true"></i> Premium</span>'
+            : '<span class="textbook-card__cta">Xem giáo trình</span>') +
         '</div>' +
       '</a>';
   }
@@ -311,17 +345,19 @@
   function topicLessonRow(l, index) {
     var meta = [];
     if (l.unitTitle) meta.push('<span class="tb-badge">' + escapeHtml(l.unitTitle) + '</span>');
-    if (l.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + l.estimatedMinutes + ' phút</span>');
     meta.push(statusBadge(l.status));
+    var locked = l.locked === true;
+    if (locked) meta.push(PREMIUM_BADGE);
     return '' +
       '<li>' +
-        '<a class="lesson-row" href="/textbooks/' + encodeURIComponent(l.textbookId) + '/lessons/' + encodeURIComponent(l.id) + '">' +
+        '<a class="lesson-row' + (locked ? ' lesson-row--locked' : '') + '" href="/textbooks/' + encodeURIComponent(l.textbookId) + '/lessons/' + encodeURIComponent(l.id) + '"' +
+          (locked ? ' data-locked="true"' : '') + '>' +
           '<span class="lesson-row__order">' + (index + 1) + '</span>' +
           '<span>' +
             '<p class="lesson-row__title">' + escapeHtml(l.title) + '</p>' +
             '<span class="lesson-row__meta">' + meta.join('') + '</span>' +
           '</span>' +
-          '<i class="fa-solid fa-chevron-right lesson-row__arrow" aria-hidden="true"></i>' +
+          '<i class="fa-solid ' + (locked ? 'fa-lock' : 'fa-chevron-right') + ' lesson-row__arrow" aria-hidden="true"></i>' +
         '</a>' +
       '</li>';
   }
@@ -418,6 +454,7 @@
   }
 
   setupTabs();
+  setupPremiumLocks();
   setupThumbnailFallback();
   setupTopics();
   setupManageEntry();

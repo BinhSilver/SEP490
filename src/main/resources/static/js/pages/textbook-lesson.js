@@ -14,6 +14,10 @@
   var lessonId = main ? main.getAttribute('data-lesson-id') : null;
   // Chỉ trang lộ trình (path-lesson.html) mới có cờ này → nút "Học bằng flashcard" chỉ hiện ở lộ trình, không đụng giáo trình.
   var isLearningPath = main ? main.getAttribute('data-learning-path') === 'true' : false;
+  // Trang bài học GIÁO TRÌNH (textbooks/lesson.html). Hành vi audio mới (file → /api/dictionary/tts → giọng máy,
+  // xử lý điện thoại) CHỈ áp dụng khi cờ này bật; trang lộ trình giữ nguyên hành vi audio cũ.
+  var IS_TEXTBOOK_PAGE = !isLearningPath;
+  var IS_MOBILE = isIos() || /Android/i.test(navigator.userAgent);
   // Giao diện mới (hero, tab trượt, lưới thẻ, phân trang...) chỉ cho textbooks/lesson.html (main.lesson-page);
   // path-lesson.html dùng chung file này nhưng không có class nên giữ nguyên giao diện cũ.
   var NEW_UI = !!(main && main.classList.contains('lesson-page'));
@@ -262,7 +266,12 @@
   /** Kiểm tra 1 file mẫu (HEAD) để biết máy này có bộ mp3 hay không; quyết định chế độ toàn trang. */
   function probeAudioFiles(data) {
     var sample = null;
-    (data.vocabularies || []).some(function (v) { var a = audioForVoice(v.audios); if (a && a.audioUrl) { sample = a.audioUrl; return true; } return false; });
+    (data.vocabularies || []).some(function (v) {
+      var a = audioForVoice(v.audios);
+      // Giáo trình: "tts:..." là sentinel giọng máy, không phải file → không dùng làm file mẫu.
+      if (a && a.audioUrl && !(IS_TEXTBOOK_PAGE && isTtsSentinel(a.audioUrl))) { sample = a.audioUrl; return true; }
+      return false;
+    });
     if (!sample) { filesAvailable = false; applySpeakButtonVisibility(); return; }
     fetch(AUDIO_BASE + sample, { method: 'HEAD' })
       .then(function (res) { filesAvailable = res.ok; })
@@ -278,7 +287,8 @@
     contentEl.setAttribute('data-ja-voice', jaVoice ? jaVoice.name : '');
     document.querySelectorAll('.speak-btn').forEach(function (btn) {
       var hasFile = !!btn.getAttribute('data-src');
-      var silent = !(hasFile && filesAvailable) && !jaVoice;
+      // Giáo trình: getVoices() hay thiếu/sai giọng ja nhưng vẫn còn /api/dictionary/tts → không ẩn nút.
+      var silent = !(hasFile && filesAvailable) && !jaVoice && !IS_TEXTBOOK_PAGE;
       // Ô kana / bong bóng hội thoại / nút có nhãn là nội dung học: không ẩn, chỉ tắt chức năng nghe khi máy không có giọng ja-JP.
       if (btn.classList.contains('kana-tile') || btn.classList.contains('lp-keep')) {
         btn.classList.toggle('speak-btn--silent', silent);
@@ -290,8 +300,190 @@
 
   function stopCurrent() {
     if (currentAudio) { try { currentAudio.pause(); } catch (e) {} currentAudio = null; }
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (IS_TEXTBOOK_PAGE) {
+      playToken++;
+      if (speechWatchdog) { window.clearTimeout(speechWatchdog); speechWatchdog = null; }
+      // Chỉ cancel khi thật sự có câu đang đọc/chờ: cancel() thừa trên iOS/Android làm câu kế tiếp bị nuốt.
+      if ('speechSynthesis' in window && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+        window.speechSynthesis.cancel();
+      }
+    } else if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (currentBtn) { currentBtn.classList.remove('is-playing', 'is-tts', 'is-loading'); currentBtn = null; }
+  }
+
+  /* ---------- Audio trang GIÁO TRÌNH (IS_TEXTBOOK_PAGE) ----------
+   * Thứ tự nguồn: (a) file mp3 của mục → (b) /api/dictionary/tts (Azure, audio/mpeg) → (c) speechSynthesis.
+   * Một HTMLAudioElement cho mỗi nút, tạo + play() ĐỒNG BỘ trong click handler (iOS chỉ cho phát khi có cử chỉ);
+   * nguồn kế tiếp được gán vào CHÍNH element đó (đã được "mở khoá") thay vì tạo element mới.
+   */
+  var TTS_SENTINEL = 'tts:';
+  var SERVER_TTS_URL = '/api/dictionary/tts?text=';
+  var SERVER_TTS_MAX_CHARS = 200;
+  var SPEECH_START_TIMEOUT_MS = 2500;
+  var playToken = 0;             // tăng mỗi lần dừng/phát mới → bỏ qua callback của lượt phát cũ
+  var speechWatchdog = null;     // hẹn giờ chờ onstart của speechSynthesis
+  var activeUtterance = null;    // giữ tham chiếu tới onend/onerror (Chrome/Safari GC utterance → mất sự kiện)
+
+  function isTtsSentinel(audioUrl) {
+    return String(audioUrl || '').indexOf(TTS_SENTINEL) === 0;
+  }
+
+  /**
+   * Hàm thuần: danh sách nguồn phát theo thứ tự ưu tiên cho một mục.
+   * audioUrl: content_audio.audio_url (tương đối, hoặc URL đã ghép '/...'); "tts:..." = không có file.
+   * Trả về [{ kind: 'file'|'server', url }, ..., { kind: 'speech', text, setVoice }].
+   */
+  function textbookAudioSources(audioUrl, text, isMobile) {
+    var sources = [];
+    var path = String(audioUrl || '').trim();
+    if (path && !isTtsSentinel(path)) {
+      sources.push({ kind: 'file', url: /^(https?:|\/)/i.test(path) ? path : AUDIO_BASE + path.replace(/^\.\//, '') });
+    }
+    var t = String(text || '').trim();
+    if (t && t.length <= SERVER_TTS_MAX_CHARS) sources.push({ kind: 'server', url: SERVER_TTS_URL + encodeURIComponent(t) });
+    // Điện thoại: không gán u.voice (giọng liệt kê nhưng chưa cài → im lặng), chỉ đặt lang = ja-JP.
+    if (t) sources.push({ kind: 'speech', text: t, setVoice: !isMobile });
+    return sources;
+  }
+
+  /** data-src của nút loa: '' khi không có file; giáo trình coi sentinel "tts:" là không có file. */
+  function fileSrc(audio) {
+    if (!audio || !audio.audioUrl) return '';
+    if (!IS_TEXTBOOK_PAGE) return AUDIO_BASE + audio.audioUrl;
+    var file = textbookAudioSources(audio.audioUrl, '', IS_MOBILE)[0];
+    return file ? file.url : '';
+  }
+
+  function toast(message, type) {
+    if (window.JlasUI && typeof JlasUI.toast === 'function') JlasUI.toast(message, type || 'error');
+  }
+
+  /** pitch/rate theo vai; trên điện thoại roleVoices có thể rỗng (không có giọng ja) → lấy thẳng hồ sơ của vai. */
+  function roleProfile(roleId) {
+    if (roleId == null || roleId === '') return null;
+    if (roleVoices[roleId]) return roleVoices[roleId];
+    var role = ((lesson && lesson.dialogueRoles) || []).filter(function (r) { return String(r.id) === String(roleId); })[0];
+    if (!role) return null;
+    var p = VOICE_PROFILES[role.voiceCode] || DEFAULT_PROFILE;
+    return { voice: null, pitch: p.pitch, rate: p.rate, code: role.voiceCode || '' };
+  }
+
+  function playTextbookAudio(btn) {
+    var text = btn.getAttribute('data-text') || '';
+    var src = btn.getAttribute('data-src') || '';
+    var sources = textbookAudioSources(src && filesAvailable !== false ? src : '', text, IS_MOBILE);
+    var media = sources.filter(function (s) { return s.kind !== 'speech'; });
+    var speech = sources.filter(function (s) { return s.kind === 'speech'; })[0] || null;
+    var token = playToken;
+    // File đã biết là lỗi → bắt đầu từ nguồn kế tiếp.
+    var firstIdx = media.length && media[0].kind === 'file' && btn.getAttribute('data-file-missing') === 'true' ? 1 : 0;
+
+    if (firstIdx >= media.length) { speakTextbookSpeech(speech, btn, token); return; }
+
+    // Bấm lại cùng nút: dùng lại element cũ (cùng danh sách nguồn, đang ở nguồn chạy được) → không tạo request mới.
+    var key = media.map(function (s) { return s.url; }).join('|');
+    var state = btn._jlasAudio;
+    if (!state || state.key !== key || state.failed) {
+      // Tạo + play() đồng bộ trong click handler (iOS).
+      state = { key: key, idx: firstIdx, el: new Audio(media[firstIdx].url), failed: false };
+      btn._jlasAudio = state;
+    } else {
+      try { state.el.currentTime = 0; } catch (e) { /* chưa có metadata */ }
+    }
+    var audio = state.el;
+    currentAudio = audio;
+    btn.classList.add('is-loading');
+
+    var attempt = 0;   // mỗi nguồn một lượt; lỗi/reject muộn của lượt cũ (vd. AbortError khi đổi src) bị bỏ qua
+    function fail(forAttempt) {
+      if (forAttempt !== attempt || token !== playToken) return;
+      attempt++;
+      if (media[state.idx].kind === 'file') btn.setAttribute('data-file-missing', 'true');
+      state.idx++;
+      if (state.idx < media.length) {
+        audio.src = media[state.idx].url;   // cùng element đã được mở khoá bởi cú bấm → iOS vẫn cho phát
+        start();
+        return;
+      }
+      state.failed = true;
+      currentAudio = null;
+      btn.classList.remove('is-loading');
+      speakTextbookSpeech(speech, btn, token);
+    }
+    function start() {
+      var mine = attempt;
+      var failMine = function () { fail(mine); };
+      audio.onplaying = function () {
+        if (token !== playToken) return;
+        btn.classList.remove('is-loading');
+        btn.classList.add('is-playing');
+      };
+      audio.onended = function () { if (token === playToken && currentBtn === btn) stopCurrent(); };
+      audio.onerror = failMine;
+      var p;
+      try { p = audio.play(); } catch (e) { failMine(); return; }
+      if (p && typeof p.catch === 'function') p.catch(failMine);
+    }
+    start();
+  }
+
+  /** (c) Đường lùi cuối: speechSynthesis. Điện thoại không gán u.voice; máy tính giữ cách chọn giọng cũ. */
+  function speakTextbookSpeech(speech, btn, token) {
+    if (token !== playToken || currentBtn !== btn) return;
+    if (!speech || !('speechSynthesis' in window)) {
+      stopCurrent();
+      showSpeechHelp();
+      return;
+    }
+    var rv = roleProfile(btn.getAttribute('data-role-id'));
+    var voice = null;
+    if (speech.setVoice) {
+      voice = rv && rv.voice ? rv.voice : jaVoice;
+      if (!voice) { btn.hidden = true; stopCurrent(); return; }   // máy tính không có giọng ja-JP: như cũ
+    }
+    var synth = window.speechSynthesis;
+    if (synth.speaking || synth.pending) synth.cancel();
+    var retried = false;
+    function speak(v) {
+      var u;
+      try {
+        u = new SpeechSynthesisUtterance(speech.text);
+        if (v) { u.voice = v; u.lang = v.lang || 'ja-JP'; } else u.lang = 'ja-JP';
+        u.rate = rv ? rv.rate : (NEW_UI ? 0.85 : 0.9);
+        u.pitch = rv ? rv.pitch : 1.0;
+      } catch (e) { stopCurrent(); return; }
+      activeUtterance = u;
+      btn.classList.add('is-playing', 'is-tts');
+      btn.title = 'Giọng máy' + (v ? ' (' + v.name + ')' : '');
+      if (speechWatchdog) window.clearTimeout(speechWatchdog);
+      speechWatchdog = window.setTimeout(function () {
+        speechWatchdog = null;
+        if (token !== playToken || currentBtn !== btn) return;
+        stopCurrent();
+        showSpeechHelp();
+      }, SPEECH_START_TIMEOUT_MS);
+      u.onstart = function () {
+        if (speechWatchdog) { window.clearTimeout(speechWatchdog); speechWatchdog = null; }
+      };
+      u.onend = function () {
+        if (activeUtterance === u) activeUtterance = null;
+        if (token === playToken && currentBtn === btn) stopCurrent();
+      };
+      u.onerror = function () {
+        if (activeUtterance === u) activeUtterance = null;
+        if (token !== playToken || currentBtn !== btn) return;
+        if (v && rv && rv.voice === v && v !== jaVoice && jaVoice && !retried) { retried = true; speak(jaVoice); return; }
+        stopCurrent();
+      };
+      try { synth.speak(u); } catch (e) { activeUtterance = null; stopCurrent(); }
+    }
+    speak(voice);
+  }
+
+  function showSpeechHelp() {
+    toast(isIos()
+      ? 'Không phát được âm thanh. Hãy tắt chế độ im lặng (gạt nút bên hông iPhone), tăng âm lượng, hoặc cài giọng tiếng Nhật: Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Nhật.'
+      : 'Không phát được âm thanh. Hãy tăng âm lượng hoặc cài giọng đọc tiếng Nhật cho máy (Cài đặt → Ngôn ngữ / Chuyển văn bản thành giọng nói → Tiếng Nhật).');
   }
 
   function speakWithTts(text, btn) {
@@ -351,6 +543,7 @@
     if (currentBtn === btn) { stopCurrent(); return; }
     stopCurrent();
     currentBtn = btn;
+    if (IS_TEXTBOOK_PAGE) { playTextbookAudio(btn); return; }
     var src = btn.getAttribute('data-src');
     var text = btn.getAttribute('data-text') || '';
     var useFile = src && filesAvailable !== false && btn.getAttribute('data-file-missing') !== 'true';
@@ -364,7 +557,7 @@
    */
   function speakButton(audios, text, label, roleId) {
     var audio = audioForVoice(audios);
-    var src = audio && audio.audioUrl ? AUDIO_BASE + audio.audioUrl : '';
+    var src = fileSrc(audio);
     if (!src && !text) return '';
     return '<button type="button" class="speak-btn" data-src="' + escapeHtml(src) + '" data-text="' + escapeHtml(text || '') + '"' +
       (roleId != null ? ' data-role-id="' + escapeHtml(roleId) + '"' : '') +
@@ -391,7 +584,6 @@
     var meta = [];
     if (data.skill) meta.push('<span class="tb-badge tb-badge--level">' + escapeHtml(SKILL_LABELS[data.skill] || data.skill) + '</span>');
     if (data.knowledgeTagName) meta.push('<span class="tb-badge"><i class="fa-solid fa-tag" aria-hidden="true"></i> ' + escapeHtml(data.knowledgeTagName) + '</span>');
-    if (data.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + data.estimatedMinutes + ' phút</span>');
     meta.push(statusToggle('lesson', data.id, data.status));
     document.getElementById('lessonMeta').innerHTML = meta.join('');
     document.title = (data.title || 'Bài học') + ' - KotsuKotsu';
@@ -929,6 +1121,11 @@
   var QUESTION_PLACEHOLDER = /^\((Nghe|Đọc) và chọn đáp án đúng\)$/;
   var BLANK_MARK = /[（(]\s*[）)]|＿|_{2,}|★|\[\s*\]/;
 
+  /** Đề có thẻ <u>: escape TOÀN BỘ trước, rồi chỉ bật lại cặp <u>…</u> (không thuộc tính) — mọi thẻ khác vẫn là chữ. */
+  function underlineMarkup(text) {
+    return escapeHtml(text).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<u class="practice-q__target">$1</u>');
+  }
+
   /**
    * Dạng "cách đọc chữ Hán": phương án toàn kana và đề có đúng MỘT cụm chữ Hán → gạch chân cụm đó, kéo dài qua
    * phần okurigana khớp với đuôi đáp án (白い ↔ しろい, 作って ↔ つくって). Không chắc (nhiều cụm, phương án có
@@ -936,6 +1133,8 @@
    */
   function underlineTarget(q) {
     var text = q.questionText || '';
+    // Dữ liệu đã đánh dấu sẵn <u>…</u> (migration 085, lấy từ nguồn hoặc quy tắc) → dùng đúng chỗ đó, không đoán.
+    if (/<u>[\s\S]*?<\/u>/i.test(text)) return underlineMarkup(text);
     // Backend đã đối chiếu từ điển (chữ Hán có cách đọc = đáp án) → gạch đúng cụm đó.
     if (q.targetText && text.indexOf(q.targetText) !== -1) {
       var at = text.indexOf(q.targetText);
@@ -1368,7 +1567,8 @@
 
   /** Khoá so khớp dòng: NFKC + bỏ mọi khoảng trắng ("Ⓜ： ここ" và "Ⓜ：ここ", "１．" và "1." là một). */
   function matchKey(value) {
-    return String(value || '').normalize('NFKC').replace(/\s+/g, '');
+    // Bỏ thẻ gạch chân <u> của đề để vẫn khớp với lời thoại / bài đọc (không có thẻ).
+    return String(value || '').replace(/<\/?u>/gi, '').normalize('NFKC').replace(/\s+/g, '');
   }
 
   var OPTION_LINE = /^(\S{1,3}[:：])?\s*[1-9１-９][.．、]/;
@@ -2520,12 +2720,9 @@
       '</div>';
   }
 
-  function kanjiWord(w) {
-    return '<li class="kanji-word">' +
-      '<span class="kanji-word__ja" lang="ja">' + escapeHtml(w.expression) + '</span>' +
-      (w.reading ? '<span class="kanji-word__reading" lang="ja">' + escapeHtml(w.reading) + '</span>' : '') +
-      (w.meaning ? '<span class="kanji-word__meaning">' + escapeHtml(w.meaning) + '</span>' : '') +
-      '</li>';
+  /** Từ chứa Kanji → mục ví dụ của examplesHtml (từ, cách đọc, nghĩa). */
+  function kanjiWordExamples(words) {
+    return (words || []).map(function (w) { return { ja: w.expression, kana: w.reading, vi: w.meaning }; });
   }
 
   function kanjiItem(k) {
@@ -2549,9 +2746,7 @@
           (readings.length
             ? '<div class="kanji-readings">' + typeOrder.map(function (t) { return readingGroup(t, readings); }).join('') + '</div>'
             : '') +
-          (words.length
-            ? '<div class="kanji-words"><span class="kanji-readings__label">Từ trong bài</span><ul class="kanji-words__list">' + words.map(kanjiWord).join('') + '</ul></div>'
-            : '') +
+          examplesHtml(kanjiWordExamples(words), 'Từ trong bài') +
         '</div>' +
       '</article>';
   }
@@ -2567,19 +2762,37 @@
 
   /* ---------- Từ vựng ---------- */
 
+  /** Ví dụ của chính bài (lessonExamples) trước; bài không có thì dùng ví dụ chung của từ điển (exampleJa). */
+  function vocabExamples(v) {
+    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; })
+      .map(function (e) { return { ja: e.textJa, vi: e.textVi }; });
+    return lessonExamples.length ? lessonExamples : (v.exampleJa ? [{ ja: v.exampleJa, vi: v.exampleVi }] : []);
+  }
+
+  /**
+   * Phần ví dụ DÙNG CHUNG (thẻ từ vựng mọi trang phân trang, thẻ từ ở trang lộ trình, "Từ ví dụ" tab Kanji):
+   * text thường dưới nghĩa, ngăn bằng đường kẻ mảnh, chữ nhỏ màu phụ — câu Nhật (kèm cách đọc nếu có) rồi nghĩa Việt.
+   * items: [{ ja, kana?, vi? }]; không có mục nào thì trả '' để ẩn hẳn, không để khung rỗng. CSS: .lp-exs (textbooks.css).
+   */
+  function examplesHtml(items, label) {
+    var list = (items || []).filter(function (e) { return e && String(e.ja || '').trim(); });
+    if (!list.length) return '';
+    return '<div class="lp-exs">' +
+      (label ? '<span class="lp-exs__label">' + escapeHtml(label) + '</span>' : '') +
+      list.map(function (e) {
+        return '<div class="lp-exs__item">' +
+          '<p class="lp-exs__ja" lang="ja">' + escapeHtml(e.ja) +
+            (e.kana && e.kana !== e.ja ? '<span class="lp-exs__kana" lang="ja">' + escapeHtml(e.kana) + '</span>' : '') + '</p>' +
+          (e.vi ? '<p class="lp-exs__vi">' + escapeHtml(e.vi) + '</p>' : '') +
+        '</div>';
+      }).join('') +
+      '</div>';
+  }
+
   function vocabItem(v) {
     var tags = [];
     if (v.wordType) tags.push('<span class="tb-badge">' + escapeHtml(v.wordType) + '</span>');
-    // Ví dụ của chính bài (lessonExamples) trước; bài không có thì dùng ví dụ chung của từ điển (exampleJa).
-    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; });
-    var example = lessonExamples.length
-      ? lessonExamples.map(function (e) {
-          return '<p class="vocab-item__example"><span class="ja" lang="ja">' + escapeHtml(e.textJa) + '</span>' +
-            escapeHtml(e.textVi || '') + '</p>';
-        }).join('')
-      : (v.exampleJa
-        ? '<p class="vocab-item__example"><span class="ja">' + escapeHtml(v.exampleJa) + '</span>' + escapeHtml(v.exampleVi || '') + '</p>'
-        : '');
+    var example = examplesHtml(vocabExamples(v));
     return '' +
       '<article class="vocab-item">' +
         '<div class="vocab-item__word">' +
@@ -2832,22 +3045,100 @@
     headerEl.hidden = false;
   }
 
-  function heroChip(icon, text) {
-    return '<span class="lp-hero__chip"><i class="' + icon + '" aria-hidden="true"></i> ' + escapeHtml(text) + '</span>';
+  /**
+   * Meta hero: không còn chip loại bài / "Ôn tập" / "N mục" (thừa với người học). Chỉ còn nút đổi trạng thái của
+   * CONTENT_CREATOR và nhãn "Chưa duyệt" cho bài chưa công bố (statusBadge); không có gì thì ẩn cả hàng.
+   */
+  function renderHeroMeta(data) {
+    var metaEl = document.getElementById('lessonMeta');
+    metaEl.innerHTML = [statusToggle('lesson', data.id, data.status)].filter(Boolean).join('');
+    metaEl.hidden = !metaEl.innerHTML;
   }
 
-  /** Meta hero: trạng thái thật (nút đổi trạng thái cho CONTENT_CREATOR), thời lượng, loại bài, tổng số mục = tổng các tab. */
-  function renderHeroMeta(data, counts) {
-    var total = Object.keys(counts).reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
-    var published = data.status === 'PUBLISHED';
-    var meta = [isContentCreator ? statusToggle('lesson', data.id, data.status)
-      : '<span class="lp-status ' + (published ? 'lp-status--published' : 'lp-status--draft') + '">' +
-        (published ? 'Đã công bố' : 'Bản nháp') + '</span>'];
-    if (data.estimatedMinutes) meta.push(heroChip('fa-regular fa-clock', data.estimatedMinutes + ' phút'));
-    if (data.skill) meta.push(heroChip('fa-solid fa-book-open', SKILL_LABELS[data.skill] || data.skill));
-    if (data.lessonType === 'REVIEW') meta.push(heroChip('fa-solid fa-rotate', 'Ôn tập'));
-    meta.push(heroChip('fa-solid fa-layer-group', total + ' mục'));
-    document.getElementById('lessonMeta').innerHTML = meta.join('');
+  /**
+   * Bài chỉ có MỘT loại nội dung (vd. bài bảng chữ): thanh tab một nút trông như nút bấm → ẩn thanh tab, thay bằng
+   * tiêu đề mục (không bấm được). Bài nhiều loại nội dung giữ thanh tab như cũ.
+   */
+  function applySingleSection() {
+    var bar = document.querySelector('.lesson-tabs');
+    if (!bar) return;
+    var visible = Array.prototype.filter.call(document.querySelectorAll('.lesson-tab'), function (t) { return !t.hidden; });
+    var heading = document.getElementById('lessonSectionTitle');
+    var single = visible.length === 1;
+    bar.hidden = single;
+    if (!single) { if (heading) heading.hidden = true; return; }
+    if (!heading) {
+      heading = document.createElement('h2');
+      heading.id = 'lessonSectionTitle';
+      heading.className = 'lp-section-title';
+      bar.parentNode.insertBefore(heading, bar.nextSibling);
+    }
+    var label = visible[0].cloneNode(true);
+    Array.prototype.forEach.call(label.querySelectorAll('.lesson-tab__count'), function (c) { c.remove(); });
+    heading.textContent = label.textContent.trim();
+    heading.hidden = false;
+    var panel = document.querySelector('.lesson-panel[data-panel="' + visible[0].getAttribute('data-tab') + '"]');
+    if (panel) {
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-labelledby', heading.id);
+      panel.removeAttribute('tabindex');
+    }
+  }
+
+  /**
+   * Cuối bài: "Bài trước" / "Bài tiếp theo" theo thứ tự cả giáo trình (unit rồi tới bài, như trang danh sách bài).
+   * Hết một unit thì bài tiếp theo là bài đầu của unit sau ("Sang phần mới"); bài cuối giáo trình → về danh sách bài.
+   */
+  function loadLessonNav() {
+    if (!NEW_UI || !IS_TEXTBOOK_PAGE || !textbookId || !lessonId) return;
+    var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
+    fetch('/api/dictionary/textbooks/' + encodeURIComponent(textbookId) + '/units', { headers: headers })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (json) {
+        var units = json && json.data && json.data.units;
+        if (!units) return;
+        var flat = [];
+        units.forEach(function (unit) {
+          (unit.lessons || []).forEach(function (l) { flat.push({ id: l.id, title: l.title, unitId: unit.id, unitTitle: unit.title }); });
+        });
+        var index = -1;
+        for (var i = 0; i < flat.length; i++) if (String(flat[i].id) === String(lessonId)) index = i;
+        if (index < 0) return;
+        renderLessonNav(flat[index], flat[index - 1], flat[index + 1]);
+      })
+      .catch(function () { /* thanh chuyển bài là phụ: lỗi mạng thì bỏ qua */ });
+  }
+
+  function lessonHref(item) {
+    return '/textbooks/' + encodeURIComponent(textbookId) + '/lessons/' + encodeURIComponent(item.id);
+  }
+
+  function renderLessonNav(current, prev, next) {
+    var old = document.getElementById('lessonNav');
+    if (old) old.remove();
+    // Nút chỉ có chữ; tên bài đích nằm ở tooltip (title) và aria-label.
+    function link(item, cls, rel, label) {
+      var name = item.title + (item.unitId !== current.unitId ? ' (' + item.unitTitle + ')' : '');
+      return '<a class="lp-lesson-nav__link ' + cls + '" href="' + lessonHref(item) + '" rel="' + rel + '" title="' +
+        escapeHtml(name) + '" aria-label="' + escapeHtml(label + ': ' + name) + '">' + escapeHtml(label) + '</a>';
+    }
+    var html = prev ? link(prev, 'lp-lesson-nav__link--prev', 'prev', 'Bài trước')
+      : '<span class="lp-lesson-nav__spacer" aria-hidden="true"></span>';
+    if (next) {
+      var newUnit = next.unitId !== current.unitId;
+      html += link(next, 'lp-lesson-nav__link--next' + (newUnit ? ' is-new-unit' : ''), 'next',
+        newUnit ? 'Sang phần mới' : 'Bài tiếp theo');
+    } else {
+      html += '<a class="lp-lesson-nav__link lp-lesson-nav__link--next is-done" href="/textbooks/' +
+        encodeURIComponent(textbookId) + '">Về danh sách bài</a>';
+    }
+    var nav = document.createElement('nav');
+    nav.id = 'lessonNav';
+    nav.className = 'lp-lesson-nav';
+    nav.setAttribute('aria-label', 'Chuyển bài');
+    nav.innerHTML = html;
+    var note = document.getElementById('lessonSourceNote');
+    contentEl.parentNode.insertBefore(nav, note ? note.nextSibling : contentEl.nextSibling);
   }
 
   /* ---------- Tab trượt + xuất hiện lần lượt ---------- */
@@ -2976,10 +3267,6 @@
   /* ---------- Tab Từ vựng ---------- */
 
   function vocabCard(v) {
-    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; })
-      .map(function (e) { return { ja: e.textJa, vi: e.textVi }; });
-    var examples = lessonExamples.length ? lessonExamples
-      : (v.exampleJa ? [{ ja: v.exampleJa, vi: v.exampleVi }] : []);
     var showKana = v.reading && v.reading !== v.expression;
     return '<article class="lp-vcard lp-anim">' +
       '<div class="lp-vcard__head">' +
@@ -2992,12 +3279,7 @@
       '</div>' +
       (v.meaning ? '<p class="lp-vcard__meaning">' + escapeHtml(v.meaning) + '</p>' : '') +
       (v.wordType ? '<span class="lp-tag">' + escapeHtml(v.wordType) + '</span>' : '') +
-      (examples.length
-        ? '<div class="lp-vcard__example">' + examples.slice(0, 2).map(function (e) {
-            return '<p class="lp-ex__ja" lang="ja">' + escapeHtml(e.ja) + '</p>' +
-              (e.vi ? '<p class="lp-ex__vi">' + escapeHtml(e.vi) + '</p>' : '');
-          }).join('') + '</div>'
-        : '') +
+      examplesHtml(vocabExamples(v).slice(0, 2)) +
       '</article>';
   }
 
@@ -3089,13 +3371,7 @@
       (k.meaning ? '<p class="lp-kdetail__hv">' + escapeHtml(k.meaning) + '</p>' : '') +
       (k.strokeCount != null ? '<p class="lp-muted lp-kdetail__strokes">' + k.strokeCount + ' nét</p>' : '') +
       kanjiReadBox('Âm On', on) + kanjiReadBox('Âm Kun', kun) +
-      (words.length
-        ? '<div class="lp-kwords"><span class="lp-kread__label">Từ ví dụ</span><ul>' + words.map(function (w) {
-            return '<li><span class="lp-kwords__ja" lang="ja">' + escapeHtml(w.expression) + '</span>' +
-              (w.reading ? '<span class="lp-kwords__kana" lang="ja">' + escapeHtml(w.reading) + '</span>' : '') +
-              (w.meaning ? '<span class="lp-kwords__vi">' + escapeHtml(w.meaning) + '</span>' : '') + '</li>';
-          }).join('') + '</ul></div>'
-        : '') +
+      examplesHtml(kanjiWordExamples(words), 'Từ ví dụ') +
       '<button type="button" class="speak-btn lp-keep lp-listen" data-src="" data-text="' + escapeHtml(speakText) + '"' +
         ' aria-label="Nghe cách đọc ' + escapeHtml(k.character) + '">' +
         '<i class="fa-solid fa-volume-high speak-btn__icon" aria-hidden="true"></i>' +
@@ -3270,7 +3546,7 @@
     var name = line.roleNameVi || line.roleCode || '';
     var initial = (name.trim().charAt(0) || '?').toUpperCase();
     var audio = audioForVoice(line.audios);
-    var src = audio && audio.audioUrl ? AUDIO_BASE + audio.audioUrl : '';
+    var src = fileSrc(audio);
     return '<div class="lp-msg lp-anim' + (right ? ' lp-msg--right' : '') + '">' +
       '<span class="lp-msg__avatar" aria-hidden="true">' + escapeHtml(initial) + '</span>' +
       '<div class="lp-msg__col">' +
@@ -3435,10 +3711,21 @@
     applyTabVisibility(counts);
     contentEl.hidden = false;
     renderSourceNote(data);
-    if (NEW_UI) { renderHeroMeta(data, counts); syncTabA11y(); moveTabSlider(); staggerPanel(activePanel()); }
+    if (NEW_UI) { renderHeroMeta(data); syncTabA11y(); applySingleSection(); moveTabSlider(); staggerPanel(activePanel()); }
     assignRoleVoices();   // giọng có thể đã sẵn sàng trước khi dữ liệu về
     probeAudioFiles(data);
     applySpeakButtonVisibility();
+  }
+
+  /** Trang GIÁO TRÌNH: 403 + message PREMIUM_REQUIRED (TextbookAccessPolicy) → hộp thoại nâng cấp (#tbPremiumDialog). */
+  var PREMIUM_REQUIRED = 'PREMIUM_REQUIRED';
+  function openPremiumDialog() {
+    var dialog = document.getElementById('tbPremiumDialog');
+    if (dialog && typeof dialog.showModal === 'function') {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      window.location.href = '/premium';
+    }
   }
 
   function load() {
@@ -3448,6 +3735,10 @@
       .then(function (res) {
         return res.json().catch(function () { return null; }).then(function (json) {
           if (res.status === 404) throw new Error('Không tìm thấy bài học hoặc bài chưa được công bố.');
+          if (IS_TEXTBOOK_PAGE && res.status === 403 && json && json.message === PREMIUM_REQUIRED) {
+            openPremiumDialog();
+            throw new Error('Bài học này thuộc giáo trình Premium. Nâng cấp để mở toàn bộ giáo trình.');
+          }
           if (!res.ok || !json || json.success === false) {
             throw new Error((json && json.message) || ('Không tải được bài học (HTTP ' + res.status + ')'));
           }
@@ -3455,6 +3746,7 @@
         });
       })
       .then(render)
+      .then(loadLessonNav)
       .then(loadReadingImages)
       .then(loadPageImages)
       .catch(function (err) { showError(err.message || 'Không tải được bài học.'); });

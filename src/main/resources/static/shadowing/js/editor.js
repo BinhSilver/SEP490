@@ -374,7 +374,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setSaveStatus('saved');
     });
 
-    focusModeBtn.addEventListener('click', () => {
+    // The "Tập trung" button was removed from the toolbar; focus mode stays off unless a page still has the button.
+    focusModeBtn?.addEventListener('click', () => {
         focusMode = !focusMode;
         focusModeBtn.classList.toggle('active', focusMode);
         focusModeBtn.setAttribute('aria-pressed', String(focusMode));

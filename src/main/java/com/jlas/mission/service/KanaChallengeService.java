@@ -16,9 +16,11 @@ import com.jlas.mission.repository.KanaChallengeRepository.Word;
 import com.jlas.mission.util.KanaPuzzle;
 import com.jlas.mission.util.MultiWordPuzzleGenerator;
 import com.jlas.mission.util.MultiWordPuzzleGenerator.*;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,13 +32,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Kana Connect: every learner plays the same board for a given local day and level
- * (N5..N1 or MIX). Progress and the timer are per learner; finishers are ranked per board.
+ * Kana Connect: every learner plays the same board for a given week and level (N5..N1 or MIX). A week runs
+ * Monday to Sunday in the learner's time zone and the board's date is that Monday, so the board and its Top 5
+ * last a whole week instead of one day. Progress and the timer are per learner; finishers are ranked per board.
  */
 @Service
 @RequiredArgsConstructor
 public class KanaChallengeService {
     public static final String MIX = "MIX";
+    /** Shown in place of each kana until the learner starts the board. */
+    static final String HIDDEN_KANA = "?";
     static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1", MIX);
     static final int LEADERBOARD_SIZE = 5;
     static final Duration HINT_COOLDOWN = Duration.ofSeconds(30);
@@ -47,6 +52,15 @@ public class KanaChallengeService {
     private final ObjectMapper json;
     private final AvatarFrameService frames;
     public record Reveal(long wordId, int index) {}
+
+    /** The Monday that starts the week of {@code day}: the date a week's boards are stored under. */
+    public static LocalDate weekOf(LocalDate day) {
+        return day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    }
+
+    private LocalDate currentWeek(Long userId) {
+        return weekOf(clock.today(zones.zoneOf(userId)));
+    }
     /**
      * Stored in solution_json. Play time is counted per board only while that board is on screen:
      * activeMs is the time already played, resumedAt (epoch millis) is set while the board runs and
@@ -88,7 +102,7 @@ public class KanaChallengeService {
         repository.lockUser(userId);
         String defaultLevel = defaultLevel(userId);
         String level = requestedLevel == null || requestedLevel.isBlank() ? defaultLevel : normalize(requestedLevel);
-        LocalDate day = clock.today(zones.zoneOf(userId));
+        LocalDate day = currentWeek(userId);
         Board board = board(day, level);
         Challenge challenge = repository.find(userId, board.id()).orElse(null);
         if (challenge == null) {
@@ -97,22 +111,38 @@ public class KanaChallengeService {
                     first.level()), write(new Progress(List.of())), clock.now());
             challenge = repository.find(userId, board.id()).orElseThrow();
         }
-        // Only the board on screen keeps time: pause the learner's other boards of the day, run this one.
-        Instant now = clock.now();
+        // Opening a board no longer starts its clock: the learner presses Bắt đầu (start). Until then the
+        // board's kana are withheld, so nobody can read the board before the time runs.
+        pauseOthers(userId, day, challenge.id(), clock.now());
+        return view(challenge, defaultLevel);
+    }
+
+    /** Starts (or resumes) this board's clock and pauses the learner's other boards of the week. */
+    @Transactional
+    public Today start(Long userId, Long challengeId) {
+        repository.lockUser(userId);
+        Challenge challenge = current(userId, challengeId);
+        String defaultLevel = defaultLevel(userId);
+        if (challenge.completedAt() == null) {
+            Instant now = clock.now();
+            pauseOthers(userId, challenge.board().date(), challenge.id(), now);
+            Progress progress = read(challenge.solutionJson(), Progress.class);
+            if (!progress.running()) {
+                repository.saveProgress(challenge.id(), write(progress.resumed(now)));
+                challenge = repository.findById(userId, challenge.id()).orElseThrow();
+            }
+        }
+        return view(challenge, defaultLevel);
+    }
+
+    /** Only the board on screen keeps time. */
+    private void pauseOthers(Long userId, LocalDate day, long keepId, Instant now) {
         for (Challenge other : repository.findForDay(userId, day)) {
-            if (other.id() != challenge.id() && other.completedAt() == null) {
+            if (other.id() != keepId && other.completedAt() == null) {
                 Progress progress = read(other.solutionJson(), Progress.class);
                 if (progress.running()) repository.saveProgress(other.id(), write(progress.paused(now)));
             }
         }
-        if (challenge.completedAt() == null) {
-            Progress progress = read(challenge.solutionJson(), Progress.class);
-            if (!progress.running()) {
-                repository.saveProgress(challenge.id(), write(progress.resumed(now)));
-                challenge = repository.find(userId, board.id()).orElseThrow();
-            }
-        }
-        return view(challenge, defaultLevel);
     }
 
     /** Stops this board's clock while the learner is away (tab hidden, page left). */
@@ -137,7 +167,7 @@ public class KanaChallengeService {
         Progress progress = read(challenge.solutionJson(), Progress.class).resumed(now);
         // Match actual cell IDs against an individually verified word path. Alternative
         // spelling paths cannot consume tiles belonging to an unsolved word and strand the board.
-        Solution found = puzzle.solutions().stream().filter(s -> s.path().equals(attempt.path())).findFirst().orElse(null);
+        Solution found = puzzle.solutions().stream().filter(s -> samePath(s.path(), attempt.path())).findFirst().orElse(null);
         if (found == null) return new Result(false, view(challenge, defaultLevel));
         if (progress.solvedWordIds().contains(found.wordId())) return new Result(true, view(challenge, defaultLevel));
         List<Long> solved = new ArrayList<>(progress.solvedWordIds());
@@ -152,6 +182,15 @@ public class KanaChallengeService {
             repository.saveProgress(challenge.id(), write(updated));
         }
         return new Result(true, view(repository.findById(userId, challenge.id()).orElseThrow(), defaultLevel));
+    }
+
+    /**
+     * The word's own cells, dragged from either end. Going backwards uses exactly the same cells, so it can never
+     * take a tile from another word; only a different set of cells is refused.
+     */
+    static boolean samePath(List<Integer> solution, List<Integer> attempt) {
+        if (attempt == null || attempt.size() != solution.size()) return false;
+        return solution.equals(attempt) || solution.equals(attempt.reversed());
     }
 
     /**
@@ -189,11 +228,11 @@ public class KanaChallengeService {
                 && progress.reveals().stream().filter(r -> r.wordId() == w.id()).count() < w.tokens().size());
     }
 
-    /** Today's ranking for one board; an untouched board simply has no finishers yet. */
+    /** This week's ranking for one board; an untouched board simply has no finishers yet. */
     @Transactional(readOnly = true)
     public Leaderboard leaderboard(Long userId, String requestedLevel) {
         String level = requestedLevel == null || requestedLevel.isBlank() ? defaultLevel(userId) : normalize(requestedLevel);
-        LocalDate day = clock.today(zones.zoneOf(userId));
+        LocalDate day = currentWeek(userId);
         Board board = repository.findBoard(day, level).orElse(null);
         if (board == null) return new Leaderboard(level, day, 0, List.of(), null);
         List<RankRow> rows = repository.topFinishers(board.id(), LEADERBOARD_SIZE);
@@ -227,7 +266,7 @@ public class KanaChallengeService {
         return value;
     }
 
-    /** The first player of the day creates the shared board; everyone else reuses the stored copy. */
+    /** The first player of the week creates the shared board; everyone else reuses the stored copy. */
     private Board board(LocalDate day, String level) {
         Board existing = repository.findBoard(day, level).orElse(null);
         if (existing != null) return existing;
@@ -244,7 +283,7 @@ public class KanaChallengeService {
         boolean mixed = MIX.equals(level);
         List<Entry> words = repository.words(mixed ? null : level).stream().map(w -> new Entry(w.id(), w.expression(),
                 w.reading(), w.meaning(), w.level(), KanaPuzzle.tokenize(w.reading()))).toList();
-        // Deterministic per day and level, independent of who opens it first.
+        // Deterministic per week (its Monday) and level, independent of who opens it first.
         long seed = day.toEpochDay() * 1_000_003L + LEVELS.indexOf(level);
         Puzzle puzzle = null;
         // Daily play always contains at least eight words. Grow the grid for longer readings,
@@ -261,7 +300,7 @@ public class KanaChallengeService {
     private Challenge current(Long userId, Long id) {
         Challenge challenge = repository.findById(userId, id)
                 .orElseThrow(() -> new ApiException(ErrorCode.KANA_CHALLENGE_EXPIRED));
-        if (!challenge.board().date().equals(clock.today(zones.zoneOf(userId)))) {
+        if (!challenge.board().date().equals(currentWeek(userId))) {
             throw new ApiException(ErrorCode.KANA_CHALLENGE_EXPIRED);
         }
         return challenge;
@@ -285,14 +324,24 @@ public class KanaChallengeService {
         Instant now = clock.now();
         long playedMs = c.completedAt() != null && c.elapsedSeconds() != null ? c.elapsedSeconds() * 1000L : progress.playedMs(now);
         Instant nextHint = c.completedAt() != null || !anyHidden(puzzle, progress) ? null
-                : now.plusMillis(progress.hintWaitMs(now));
+                : clock.toWallClock(now.plusMillis(progress.hintWaitMs(now)));
         String level = c.board().level();
         return new Today(c.id(), puzzle.version(), c.board().date(),
-                c.board().date().plusDays(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant(), c.startedAt(),
-                level, defaultLevel, MIX.equals(level), puzzle.gridSize(), puzzle.cells(),
+                // The board is replaced at 0:00 on the next Monday.
+                clock.toWallClock(c.board().date().plusWeeks(1).atStartOfDay(zones.zoneOf(c.userId())).toInstant()),
+                c.startedAt(),
+                level, defaultLevel, MIX.equals(level), puzzle.gridSize(), visibleCells(puzzle, progress, c),
                 puzzle.cells().stream().filter(cell -> cell.kana() == null).map(KanaPuzzle.Cell::id).toList(),
                 slots, progress.solvedWordIds(), solvedPaths, c.completedAt() != null, c.elapsedSeconds(),
                 hints, nextHint, playedMs, progress.running() && c.completedAt() == null);
+    }
+
+    /** A board that is not running (not started yet, or paused) hides its kana; walls stay walls. */
+    private static List<KanaPuzzle.Cell> visibleCells(Puzzle puzzle, Progress progress, Challenge c) {
+        if (c.completedAt() != null || progress.running()) return puzzle.cells();
+        return puzzle.cells().stream()
+                .map(cell -> cell.kana() == null ? cell : new KanaPuzzle.Cell(cell.id(), cell.row(), cell.col(), HIDDEN_KANA))
+                .toList();
     }
 
     private String write(Object value) {

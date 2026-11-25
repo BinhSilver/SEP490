@@ -31,14 +31,18 @@
   function statsHtml(p) {
     var g = (p && p.progress) || {};
     var sec = p && p.secondary;
+    var fin = p && p.finished;
     return '<p class="jp-side__note">Mục tiêu chính: <strong>' + esc(p.nameVi || p.goal) + '</strong>'
+      // F125: a passed final AI test marks the main path finished
+      + (fin ? ' <span class="cp-done-chip">Đã hoàn thành</span>' : '')
       + (sec ? ' · Mục tiêu phụ: <strong>' + esc(sec.nameVi) + '</strong>' : '') + '</p>'
       + '<div class="jp-side-tiles">'
       + tile('Tình huống đã xong', (g.doneSituations || 0) + '/' + (g.totalSituations || 0))
       + tile('Chủ đề đã đạt', (g.passedTopics || 0) + '/' + (g.totalTopics || 0))
       + (sec ? tile('Mục tiêu phụ', (sec.doneSituations || 0) + '/' + (sec.totalSituations || 0)) : '')
       + '</div>'
-      + '<p><a class="jp-link-btn" href="/learning/comm/path">Mở lộ trình giao tiếp</a></p>';
+      + '<p><a class="jp-link-btn" href="/learning/comm/path">Mở lộ trình giao tiếp</a>'
+      + (fin && fin.certificateUrl ? ' <a class="jp-link-btn" href="' + esc(fin.certificateUrl) + '">Xem chứng nhận</a>' : '') + '</p>';
   }
 
   function mount() {

@@ -1,15 +1,15 @@
 /* Shared visual skin extracted from the Serene Study Stitch screens. */
 :root {
-  --stitch-canvas: #f7f8fb;
-  --stitch-surface: #ffffff;
-  --stitch-recessed: #f1f3f7;
-  --stitch-soft: #ebeef3;
-  --stitch-line: #e0e2e8;
-  --stitch-ink: #1d1d1f;
-  --stitch-muted: #5f6068;
-  --stitch-primary: #6256b9;
-  --stitch-primary-strong: #5147a5;
-  --stitch-primary-soft: #eeeafd;
+  --stitch-canvas: var(--color-background);
+  --stitch-surface: var(--color-surface-lowest);
+  --stitch-recessed: var(--color-surface-container);
+  --stitch-soft: var(--color-surface-container);
+  --stitch-line: var(--color-outline-variant);
+  --stitch-ink: var(--color-on-surface);
+  --stitch-muted: var(--color-on-surface-variant);
+  --stitch-primary: var(--color-primary);
+  --stitch-primary-strong: var(--color-primary-container);
+  --stitch-primary-soft: var(--color-primary-fixed);
 }
 
 /* Study and quiz keep the same quiet paper canvas as the reference screens. */
@@ -574,7 +574,7 @@
   max-width: 900px;
   min-height: calc(100dvh - var(--header-height, 72px));
   padding: 48px 24px 96px;
-  font-family: "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  font-family: var(--font-body), var(--font-jp);
 }
 
 #jlabBasePage.speed-recall-page #jlabBaseContent #setup.sr-setup {
@@ -596,7 +596,7 @@
   margin: 0 0 8px;
   color: #1d1d1f;
   font-size: clamp(32px, 4vw, 36px);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -.025em;
   line-height: 1.2;
 }
@@ -640,6 +640,23 @@
   gap: 24px;
 }
 
+/* Row 1: cards + count (half each); row 2: time per word, question, answer (a third each). */
+@media (min-width: 641px) {
+  #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__grid > .sr-setup__field { grid-column: span 2; }
+  #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__grid > .sr-setup__field:nth-child(-n+2) { grid-column: span 3; }
+}
+
+/* A grid item grows to its content by default; let long option text end in … instead of pushing past the column. */
+#jlabBasePage:is(.speed-recall-page, .flashcard-page--quiz) #jlabBaseContent .sr-setup__field > .sr-setup__control { min-width: 0; }
+
+/* Dropdowns in the setup cards match the 52px, 12px-corner number field beside them. */
+#jlabBasePage:is(.speed-recall-page, .flashcard-page--quiz) #jlabBaseContent .sr-setup__control .jl-select__trigger {
+  min-height: 52px;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__field {
   display: grid;
   min-width: 0;
@@ -665,7 +682,7 @@
   border: 1px solid rgba(80,80,95,.18);
   border-radius: 12px;
   box-shadow: none;
-  font: 500 15px/1.2 "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  font: 500 15px/1.2 var(--font-body), var(--font-jp);
 }
 
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__control select {
@@ -808,7 +825,7 @@
   content: "Câu";
   color: #6e6e78;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -840,13 +857,13 @@
   border: 1px solid #dfe3ff;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
 }
 #jlabBasePage.speed-recall-page #jlabBaseContent #playing #question-word {
   margin: 0;
   color: #1e1b4b;
   font-size: clamp(48px, 8vw, 64px);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.1;
 }
@@ -899,18 +916,18 @@
   width: min(100%, 1040px);
   margin: 0 auto;
   padding: 20px 0 72px;
-  font-family: "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  font-family: var(--font-body), var(--font-jp);
 }
 #jlabBasePage.speed-recall-page #result-set { display: none; }
-#jlabBasePage.speed-recall-page #result #result-title { max-width: 760px; margin: 0 0 14px; color: #1d1d1f; font-size: clamp(34px, 5vw, 52px); font-weight: 700; letter-spacing: 0; line-height: 1.14; }
+#jlabBasePage.speed-recall-page #result #result-title { max-width: 760px; margin: 0 0 14px; color: #1d1d1f; font-size: clamp(34px, 5vw, 52px); font-weight: 600; letter-spacing: 0; line-height: 1.14; }
 #jlabBasePage.speed-recall-page #result-status { margin: 0 0 30px; color: #7a7a85; }
 #jlabBasePage.speed-recall-page #result .sr-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0 0 30px; padding: 24px; background: #fff; border: 1px solid rgba(80, 80, 95, .12); border-radius: 16px; box-shadow: 0 2px 12px rgba(29, 29, 31, .03); }
 #jlabBasePage.speed-recall-page #result .sr-stats > div { min-width: 0; padding: 0 18px; border-right: 1px solid rgba(29, 29, 31, .07); }
 #jlabBasePage.speed-recall-page #result .sr-stats > div:first-child { padding-left: 0; }
 #jlabBasePage.speed-recall-page #result .sr-stats > div:nth-child(4) { padding-right: 0; border-right: 0; }
 #jlabBasePage.speed-recall-page #result .sr-stats > div:last-child { display: none; }
-#jlabBasePage.speed-recall-page #result .sr-stats dt { color: #6e6e78; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-#jlabBasePage.speed-recall-page #result .sr-stats dd { margin-top: 8px; color: #1d1d1f; font-size: clamp(30px, 4vw, 44px); font-weight: 700; }
+#jlabBasePage.speed-recall-page #result .sr-stats dt { color: #6e6e78; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+#jlabBasePage.speed-recall-page #result .sr-stats dd { margin-top: 8px; color: #1d1d1f; font-size: clamp(30px, 4vw, 44px); font-weight: 600; }
 #jlabBasePage.speed-recall-page #result #review-title { margin: 34px 0 14px; color: #1d1d1f; font-size: 20px; }
 #jlabBasePage.speed-recall-page #result .sr-review { display: grid; gap: 12px; }
 #jlabBasePage.speed-recall-page #result .sr-review li { padding: 22px 26px; background: #fff; border: 1px solid rgba(80, 80, 95, .12); border-radius: 16px; box-shadow: 0 2px 12px rgba(29, 29, 31, .03); }
@@ -919,6 +936,8 @@
 
 /* Quizlet-like test screen from the Stitch quiz reference. */
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing { min-height: 0; padding: 0 20px 72px; background: #f6f7fb; }
+/* The page colour must reach the bottom of the screen: a short question left the page body showing below on phones. */
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing { min-height: calc(100dvh - var(--header-height, 64px)); }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-sidebar { display: none; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-workspace,
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .main,
@@ -942,7 +961,7 @@
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-option .opt-label { display: none; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-option__text { font: inherit; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-unknown-action { margin: 28px 0 0; text-align: center; }
-#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-unknown-action button { padding: 6px 12px; color: #7a7a85; background: transparent; border: 0; font: 500 14px/1.4 "Plus Jakarta Sans", sans-serif; cursor: pointer; }
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-unknown-action button { padding: 6px 12px; color: #7a7a85; background: transparent; border: 0; font: 500 14px/1.4 var(--font-body); cursor: pointer; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-unknown-action button:hover { color: #6256b9; text-decoration: underline; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-next-question { display: flex; margin: 24px auto 0; padding: 0 24px; min-height: 48px; background: #6256b9; border-radius: 12px; }
 
@@ -991,7 +1010,7 @@
   min-height: 0;
   padding: 48px 24px 96px;
   background: #f6f7fb;
-  font-family: "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  font-family: var(--font-body), var(--font-jp);
 }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-workspace,
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .main,
@@ -1010,7 +1029,7 @@
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__field { display: grid; min-width: 0; gap: 8px; color: #1d1d1f; font-size: 14px; font-weight: 600; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__control select,
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__control input,
-#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__display { box-sizing: border-box; width: 100%; min-height: 52px; padding: 14px 16px; color: #1d1d1f; background: #fff; border: 1px solid rgba(80,80,95,.18); border-radius: 12px; font: 500 15px/1.2 "Plus Jakarta Sans", sans-serif; }
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__display { box-sizing: border-box; width: 100%; min-height: 52px; padding: 14px 16px; color: #1d1d1f; background: #fff; border: 1px solid rgba(80,80,95,.18); border-radius: 12px; font: 500 15px/1.2 var(--font-body); }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__control select:disabled { color: #4b4b55; opacity: 1; cursor: default; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-pair-select { position: relative; min-width: 0; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-pair-select__trigger {
@@ -1018,7 +1037,7 @@
   box-sizing: border-box; width: 100%; min-height: 62px; padding: 14px 16px;
   color: var(--stitch-ink, #1d1d1f); background: var(--stitch-surface, #fff);
   border: 1px solid var(--stitch-line, rgba(80,80,95,.18)); border-radius: 12px;
-  font: 500 18px/1.4 "Plus Jakarta Sans", sans-serif; text-align: start; cursor: pointer;
+  font: 500 18px/1.4 var(--font-body); text-align: start; cursor: pointer;
 }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-pair-select__trigger > span { min-width: 0; overflow-wrap: anywhere; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-pair-select__trigger > i { flex: none; color: var(--stitch-primary, #6256b9); font-size: 12px; }
@@ -1035,7 +1054,7 @@
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   width: 100%; min-height: 48px; margin: 0; padding: 12px;
   color: var(--stitch-ink, #1d1d1f); background: transparent; border: 0; border-radius: 8px;
-  font: 500 16px/1.4 "Plus Jakarta Sans", sans-serif; text-align: start; cursor: pointer;
+  font: 500 16px/1.4 var(--font-body); text-align: start; cursor: pointer;
 }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-pair-select__option > i { flex: none; visibility: hidden; font-size: 14px; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .quiz-pair-select__option[aria-selected="true"] { color: var(--stitch-primary, #6256b9); background: var(--stitch-primary-soft, #f0ecff); font-weight: 600; }
@@ -1076,7 +1095,7 @@
   text-align: center;
   background: transparent;
   border: 0;
-  font: 600 18px/1.2 "Plus Jakarta Sans", sans-serif;
+  font: 600 18px/1.2 var(--font-body);
 }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__stepper-input:focus-visible {
   outline: 3px solid rgba(98,86,185,.34);
@@ -1084,7 +1103,7 @@
 }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__segments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 4px; background: #f6f7fb; border: 1px solid rgba(80,80,95,.12); border-radius: 12px; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__segments.quiz-mode-segments { grid-template-columns: repeat(var(--mode-count, 4), minmax(0, 1fr)); }
-#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__segments button { min-height: 40px; padding: 7px 4px; color: #7a7a85; background: transparent; border: 1px solid transparent; border-radius: 8px; font: 500 12px/1.2 "Plus Jakarta Sans", sans-serif; cursor: pointer; }
+#jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__segments button { min-height: 40px; padding: 7px 4px; color: #7a7a85; background: transparent; border: 1px solid transparent; border-radius: 8px; font: 500 12px/1.2 var(--font-body); cursor: pointer; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__segments button.is-active { color: #6256b9; background: #fff; border-color: rgba(98,86,185,.2); box-shadow: 0 1px 3px rgba(29,29,31,.06); font-weight: 600; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__segments button:disabled { opacity: .35; cursor: not-allowed; }
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-quick-setup .sr-setup__help { display: flex; justify-content: space-between; gap: 16px; padding: 24px 0 8px; color: #6e6e78; font-size: 12px; }
@@ -1279,7 +1298,7 @@
   width: 100% !important;
   margin: 0 !important;
   color: #1d1d1f !important;
-  font-family: "Plus Jakarta Sans", "Noto Sans JP", sans-serif !important;
+  font-family: var(--font-body), var(--font-jp) !important;
   font-size: 32px !important;
   font-weight: 500 !important;
   line-height: 1.35 !important;
@@ -1313,7 +1332,7 @@
   border: 1px solid rgba(80,80,95,.14) !important;
   border-radius: 12px !important;
   box-shadow: none !important;
-  font-family: "Plus Jakarta Sans", "Noto Sans JP", sans-serif !important;
+  font-family: var(--font-body), var(--font-jp) !important;
   font-size: 21px !important;
   font-weight: 400 !important;
   line-height: 1.4 !important;
@@ -1362,7 +1381,7 @@
 #jlabBasePage #jlabBaseContent .fc-selection__heading { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; color: var(--color-on-surface, #1d1d1f); font-size: 14px; }
 #jlabBasePage #jlabBaseContent .fc-selection__heading span { color: var(--color-on-surface-variant, #6e6e78); font-size: 13px; }
 #jlabBasePage #jlabBaseContent .fc-selection__shuffle { min-height: 44px; margin-left: auto; padding: 8px 12px; border: 1px solid var(--color-outline-variant, #dddbe5); border-radius: 8px; background: var(--color-surface-lowest, #fff); color: var(--color-primary, #6256b9); font: inherit; cursor: pointer; }
-#jlabBasePage #jlabBaseContent .fc-selection__table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; color: var(--color-on-surface, #1d1d1f); background: var(--color-surface-low, #f6f7fb); font-size: 13px; }
+#jlabBasePage #jlabBaseContent .fc-selection__table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; color: var(--color-on-surface, #1d1d1f); background: var(--color-surface-lowest, #fff); font-size: 13px; }
 #jlabBasePage #jlabBaseContent .fc-selection__table th,
 #jlabBasePage #jlabBaseContent .fc-selection__table td { padding: 8px; border-bottom: 1px solid var(--color-outline-variant, #dddbe5); text-align: left; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 #jlabBasePage #jlabBaseContent .fc-selection__table thead th { font-size: 12px; font-weight: 600; }
@@ -1402,7 +1421,7 @@
   background: transparent !important;
   border: 1px solid transparent !important;
   border-radius: 10px !important;
-  font: 500 14px/1.2 "Plus Jakarta Sans", sans-serif !important;
+  font: 500 14px/1.2 var(--font-body) !important;
   cursor: pointer;
 }
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-setup__segments button:hover:not(:disabled):not(.is-active) { color: #4d4d57 !important; background: rgba(98,86,185,.06) !important; }
@@ -1429,7 +1448,7 @@
   border: 2px solid #6256b9;
   border-radius: 14px;
   box-shadow: 0 0 0 4px rgba(98,86,185,.12);
-  font: 600 22px/1.3 "Plus Jakarta Sans", "Noto Sans JP", sans-serif;
+  font: 600 22px/1.3 var(--font-body), var(--font-jp);
   overflow-wrap: anywhere;
 }
 #jlabBasePage.speed-recall-page #jlabBaseContent .sr-free-answer.is-empty { color: #85858f; font-weight: 500; font-size: 17px; }
@@ -1446,30 +1465,6 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
-html[data-theme="dark"] {
     --stitch-canvas: var(--dm-flashcard-bg);
     --stitch-surface: var(--dm-flashcard-surface);
     --stitch-recessed: var(--dm-flashcard-raised);
@@ -1478,7 +1473,7 @@ html[data-theme="dark"] {
     --stitch-ink: var(--dm-flashcard-ink);
     --stitch-muted: var(--dm-flashcard-muted);
     --stitch-primary: var(--dm-flashcard-accent);
-    --stitch-primary-strong: var(--dm-flashcard-action);
+    --stitch-primary-strong: var(--dark-button-hover);
     --stitch-primary-soft: var(--dm-flashcard-accent-soft)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--study .study-mode-nav {
@@ -1880,7 +1875,7 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-q
     color: var(--dm-flashcard-accent)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing {
-    background: var(--dm-flashcard-accent-soft) !important
+    background: var(--color-background) !important
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz #jlabBaseContent.is-quiz-playing .quiz-question-card {
     color: var(--dm-flashcard-ink) !important;
@@ -1933,10 +1928,10 @@ html[data-theme="dark"] #jlabBasePage.speed-recall-page #jlabBaseContent .sr-slo
 }
 
 /* Dark interaction and state pairs for this page. */
-html[data-theme="dark"]{--stitch-canvas:var(--dm-flashcard-bg);--stitch-surface:var(--dm-flashcard-surface);--stitch-recessed:var(--dm-flashcard-raised);--stitch-soft:var(--dm-flashcard-accent-soft);--stitch-line:var(--dm-flashcard-line);--stitch-ink:var(--dm-flashcard-ink);--stitch-muted:var(--dm-flashcard-muted);--stitch-primary:var(--dm-flashcard-accent);--stitch-primary-strong:var(--dm-flashcard-action);--stitch-primary-soft:var(--dm-flashcard-accent-soft);}
+html[data-theme="dark"]{--stitch-canvas:var(--dm-flashcard-bg);--stitch-surface:var(--dm-flashcard-surface);--stitch-recessed:var(--dm-flashcard-raised);--stitch-soft:var(--dm-flashcard-accent-soft);--stitch-line:var(--dm-flashcard-line);--stitch-ink:var(--dm-flashcard-ink);--stitch-muted:var(--dm-flashcard-muted);--stitch-primary:var(--dm-flashcard-accent);--stitch-primary-strong:var(--dark-button-hover);--stitch-primary-soft:var(--dm-flashcard-accent-soft);}
 html[data-theme="dark"] #jlabBasePage :is(.quiz-option.is-correct,.quiz-option.is-wrong){opacity:1!important;}
-html[data-theme="dark"] #jlabBasePage .quiz-option.is-correct{background:var(--dm-flashcard-success-bg)!important;color:var(--dm-flashcard-success)!important;border-color:var(--dm-flashcard-success-line)!important;box-shadow:0 0 0 3px #8eddb626!important;}
-html[data-theme="dark"] #jlabBasePage .quiz-option.is-wrong{background:var(--dm-flashcard-danger-bg)!important;color:var(--dm-flashcard-danger)!important;border-color:var(--dm-flashcard-danger-line)!important;box-shadow:0 0 0 3px #ffb4bd26!important;}
+html[data-theme="dark"] #jlabBasePage .quiz-option.is-correct{background:var(--dm-flashcard-success-bg)!important;color:var(--dm-flashcard-success)!important;border-color:var(--dm-flashcard-success-line)!important;box-shadow:none!important;}
+html[data-theme="dark"] #jlabBasePage .quiz-option.is-wrong{background:var(--dm-flashcard-danger-bg)!important;color:var(--dm-flashcard-danger)!important;border-color:var(--dm-flashcard-danger-line)!important;box-shadow:none!important;}
 html[data-theme="dark"] #jlabBasePage .quiz-option.is-correct .opt-label{background:var(--dm-flashcard-success)!important;color:#132d23!important;}
 html[data-theme="dark"] #jlabBasePage .quiz-option.is-wrong .opt-label{background:var(--dm-flashcard-danger)!important;color:#361b23!important;}
 

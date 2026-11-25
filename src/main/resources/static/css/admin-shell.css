@@ -1,4 +1,66 @@
 @import url("dark-page.css");
+:root {
+  --admin-bg: #f7f8fa;
+  --admin-surface: #ffffff;
+  --admin-ink: #20242b;
+  --admin-muted: #626a75;
+  --admin-line: #dce1e7;
+  --admin-tint: #eef2f6;
+  --admin-accent: #2357a5;
+  --admin-accent-hover: #194788;
+  --admin-on-accent: #ffffff;
+  --admin-danger: #a53434;
+  --admin-radius: 6px;
+  --admin-space-1: 4px;
+  --admin-space-2: 8px;
+  --admin-space-3: 12px;
+  --admin-space-4: 16px;
+  --admin-space-5: 24px;
+  --admin-space-6: 32px;
+}
+html[data-theme="dark"] {
+  --admin-bg: #171a20;
+  --admin-surface: #1e2229;
+  --admin-ink: #e7eaf0;
+  --admin-muted: #a5adb9;
+  --admin-line: #343a44;
+  --admin-tint: #292f38;
+  --admin-accent: #8cb6f1;
+  --admin-accent-hover: #b0cdf5;
+  --admin-on-accent: #171a20;
+  --admin-danger: #f19a9a;
+}
+html[data-theme="dark"] #jlabBasePage:is(.jlpt-admin-body, .jpa-body, .kma-body, .verb-admin-body, .jpta-body) {
+  --dm-feature-background: var(--admin-bg);
+  --dm-feature-surface: var(--admin-surface);
+  --dm-feature-raised: var(--admin-surface);
+  --dm-feature-soft: var(--admin-tint);
+  --dm-feature-ink: var(--admin-ink);
+  --dm-feature-muted: var(--admin-muted);
+  --dm-feature-line: var(--admin-line);
+  --dm-feature-field: var(--admin-line);
+  --dm-feature-accent: var(--admin-accent);
+  --dm-feature-danger: var(--admin-danger);
+  --dm-feature-danger-bg: var(--admin-tint);
+  --dm-feature-danger-line: var(--admin-line);
+  --color-surface: var(--admin-bg);
+  --color-surface-lowest: var(--admin-surface);
+  --color-surface-low: var(--admin-tint);
+  --color-on-surface: var(--admin-ink);
+  --color-on-surface-variant: var(--admin-muted);
+  --color-outline-variant: var(--admin-line);
+  --color-primary: var(--admin-accent);
+  --color-primary-fixed: var(--admin-tint);
+  --ja-ink: var(--admin-ink); --ja-muted: var(--admin-muted); --ja-line: var(--admin-line);
+  --ja-purple: var(--admin-accent); --ja-purple-dark: var(--admin-accent-hover);
+  --ja-purple-soft: var(--admin-tint);
+  --kma-primary: var(--admin-accent); --kma-soft: var(--admin-tint);
+  --kma-ink: var(--admin-ink); --kma-muted: var(--admin-muted); --kma-line: var(--admin-line);
+  --va-ink: var(--admin-ink); --va-muted: var(--admin-muted); --va-line: var(--admin-line);
+  --va-purple: var(--admin-accent); --va-purple-soft: var(--admin-tint);
+  --jpta-ink: var(--admin-ink); --jpta-muted: var(--admin-muted); --jpta-line: var(--admin-line);
+  --jpta-purple: var(--admin-accent);
+}
 body.admin-portal {
   margin: 0;
   padding: 76px 24px 32px 284px;
@@ -185,3 +247,222 @@ html[data-theme="dark"] .admin-portal :is(input, select, textarea) { caret-color
 html[data-theme="dark"] .admin-portal :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
 html[data-theme="dark"] .admin-portal :focus-visible { outline-color: var(--dark-focus); }
 html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }
+
+/* The admin surface system is deliberately flat. These selectors are shared with
+   page scripts, so presentation changes live here rather than in generated HTML. */
+body.admin-portal {
+  background: var(--admin-bg) !important;
+  color: var(--admin-ink);
+  font-size: 14px;
+}
+body.admin-portal::before { background: var(--admin-bg) !important; }
+.admin-topbar, .admin-sidebar, .admin-skip {
+  background: var(--admin-surface) !important;
+  border-color: var(--admin-line) !important;
+  color: var(--admin-ink) !important;
+}
+.admin-brand strong { font-size: 16px; }
+.admin-nav-group { border-radius: 0; color: var(--admin-muted); font-size: 13px; }
+.admin-nav-list a { border-radius: var(--admin-radius); color: var(--admin-muted); }
+.admin-nav-list a:hover { background: var(--admin-tint) !important; color: var(--admin-ink); }
+.admin-nav-list a[aria-current="page"] {
+  background: var(--admin-tint) !important;
+  color: var(--admin-accent) !important;
+  box-shadow: inset 3px 0 var(--admin-accent);
+  font-weight: 600;
+}
+.admin-nav-count, .admin-portal .adm-filter-count { background: var(--admin-tint) !important; color: var(--admin-muted) !important; border-radius: 4px; }
+.admin-sidebar__avatar { background: var(--admin-tint); color: var(--admin-accent); }
+.admin-logout, .admin-menu-button, .admin-portal .adm-filter-toggle {
+  border: 1px solid var(--admin-line) !important;
+  border-radius: var(--admin-radius) !important;
+  background: var(--admin-surface) !important;
+  color: var(--admin-ink) !important;
+}
+.admin-portal .adm-filter-panel {
+  border-color: var(--admin-line) !important;
+  border-radius: var(--admin-radius) !important;
+  background: var(--admin-surface) !important;
+  box-shadow: 0 8px 24px #00000018 !important;
+}
+.admin-portal .adm-filter-choices label {
+  border-color: var(--admin-line) !important;
+  border-radius: var(--admin-radius) !important;
+  background: var(--admin-surface) !important;
+  color: var(--admin-ink) !important;
+}
+.admin-portal .adm-filter-choices label:has(input:checked) {
+  border-color: var(--admin-accent) !important;
+  background: var(--admin-tint) !important;
+  color: var(--admin-accent) !important;
+}
+.admin-portal :focus-visible { outline-color: var(--admin-accent) !important; }
+.admin-portal .btn { border-radius: var(--admin-radius) !important; box-shadow: none !important; transform: none !important; font-size: 13px; font-weight: 600; }
+.admin-portal .btn--primary { background: var(--admin-accent) !important; border-color: var(--admin-accent) !important; color: var(--admin-on-accent) !important; }
+.admin-portal .btn--primary:hover { background: var(--admin-accent-hover) !important; color: var(--admin-on-accent) !important; }
+.admin-portal :is(.btn--secondary, .btn--accent, .btn--sakura, .btn--ghost) { background: transparent !important; border: 1px solid var(--admin-line) !important; color: var(--admin-ink) !important; }
+.admin-portal :is(.btn--secondary, .btn--accent, .btn--sakura, .btn--ghost):hover { background: var(--admin-tint) !important; border-color: var(--admin-line) !important; color: var(--admin-ink) !important; }
+.admin-portal :is(.btn--danger, .adm-btn--danger) { background: transparent !important; border: 1px solid var(--admin-danger) !important; color: var(--admin-danger) !important; }
+
+/* Neutral aliases keep existing page components in one palette. */
+body.admin-portal {
+  --color-surface: var(--admin-bg);
+  --color-surface-lowest: var(--admin-surface);
+  --color-surface-low: var(--admin-tint);
+  --color-surface-mid: var(--admin-tint);
+  --color-surface-high: var(--admin-tint);
+  --color-surface-container: var(--admin-tint);
+  --color-on-surface: var(--admin-ink);
+  --color-on-surface-variant: var(--admin-muted);
+  --color-outline-variant: var(--admin-line);
+  --color-primary: var(--admin-accent);
+  --color-primary-fixed: var(--admin-tint);
+  --color-error: var(--admin-danger);
+  --radius-sm: var(--admin-radius);
+  --radius-md: var(--admin-radius);
+  --radius-lg: var(--admin-radius);
+  --radius-control: var(--admin-radius);
+}
+
+/* Shared workspace: sections use dividers, rows use whitespace. */
+#jlabBaseContent .adm-main, #jlabBaseContent #admContent { gap: var(--admin-space-5); }
+#jlabBaseContent :is(.adm-panel, .adm-card, .adm-section) {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--admin-ink) !important;
+}
+#jlabBaseContent .adm-panel { padding: 0 0 var(--admin-space-5); border-bottom: 1px solid var(--admin-line) !important; }
+#jlabBaseContent .adm-card { padding: var(--admin-space-4) 0; border-bottom: 1px solid var(--admin-line) !important; }
+#jlabBaseContent .adm-card:hover { border-color: var(--admin-line) !important; box-shadow: none !important; }
+#jlabBaseContent :is(.adm-panel__title, .adm-section-title) { font: 600 20px/1.35 Inter, sans-serif; }
+#jlabBaseContent .adm-card__title { font: 600 16px/1.4 Inter, sans-serif; }
+#jlabBaseContent .adm-card__preview { border-left: 1px solid var(--admin-line); border-radius: 0; background: transparent !important; }
+#jlabBaseContent .adm-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; border-block: 1px solid var(--admin-line); }
+#jlabBaseContent .adm-stat {
+  padding: var(--admin-space-4) var(--admin-space-5);
+  border: 0 !important;
+  border-right: 1px solid var(--admin-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#jlabBaseContent .adm-stat:last-child { border-right: 0 !important; }
+#jlabBaseContent .adm-stat:hover { background: var(--admin-tint) !important; box-shadow: none !important; }
+#jlabBaseContent .adm-stat i { display: none; }
+#jlabBaseContent .adm-stat__value { font: 600 24px/1.2 Inter, sans-serif; }
+#jlabBaseContent :is(.adm-badge, .adm-chip, .adm-tabs, .adm-tab) { border-radius: 0 !important; box-shadow: none !important; }
+#jlabBaseContent :is(.adm-badge, .adm-chip) { background: transparent !important; color: var(--admin-muted) !important; padding-inline: 0; }
+#jlabBaseContent .adm-tabs { padding: 0; background: transparent !important; border-bottom: 1px solid var(--admin-line); }
+#jlabBaseContent .adm-tab[aria-selected="true"] { background: transparent !important; border-bottom: 2px solid var(--admin-accent); color: var(--admin-accent) !important; }
+#jlabBaseContent .adm-table-wrap { border: 0; border-radius: 0; }
+#jlabBaseContent .adm-table th { background: transparent !important; border-bottom: 1px solid var(--admin-line); color: var(--admin-muted) !important; font-size: 13px; text-align: left; }
+#jlabBaseContent .adm-table td { background: transparent !important; border-top: 0; border-bottom: 1px solid var(--admin-line); }
+#jlabBaseContent .adm-table tr:hover td { background: var(--admin-tint) !important; }
+#jlabBaseContent .adm-table :is(th, td):is([data-type="number"], .is-number, .adm-number) { text-align: right; }
+#jlabBaseContent .adm-table :is(th, td):has(> input[type="number"]) { text-align: right; }
+#admRoot[data-section="system-users"] .adm-table :is(th, td):nth-child(5) { text-align: right; }
+#jlabBaseContent .adm-modal__dialog { border: 1px solid var(--admin-line); border-radius: var(--admin-radius); box-shadow: none; }
+#jlabBaseContent .adm-icon-btn, .adm-modal .adm-btn { border-radius: var(--admin-radius); }
+
+@media (max-width: 600px) {
+  #jlabBaseContent .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #jlabBaseContent .adm-stat:nth-child(2n) { border-right: 0 !important; }
+  #jlabBaseContent .adm-stat { padding: 12px; border-bottom: 1px solid var(--admin-line) !important; }
+  .admin-portal .adm-filter-panel { width: min(420px, calc(100vw - 24px)); }
+}
+
+/* Feature admin pages keep their JS-facing classes while sharing the shell tokens. */
+.jlpt-admin-body, .jpa-body, .kma-body, .verb-admin-body, .jpta-body {
+  --ja-ink: var(--admin-ink); --ja-muted: var(--admin-muted); --ja-line: var(--admin-line);
+  --ja-panel: var(--admin-surface); --ja-soft: var(--admin-tint);
+  --ja-purple: var(--admin-accent); --ja-purple-dark: var(--admin-accent-hover);
+  --ja-purple-soft: var(--admin-tint); --ja-green: var(--admin-muted); --ja-green-soft: var(--admin-tint);
+  --ja-orange: var(--admin-muted); --ja-orange-soft: var(--admin-tint);
+  --ja-red: var(--admin-danger); --ja-red-soft: var(--admin-tint);
+  --kma-primary: var(--admin-accent); --kma-soft: var(--admin-tint); --kma-ink: var(--admin-ink);
+  --kma-muted: var(--admin-muted); --kma-line: var(--admin-line); --kma-panel: var(--admin-surface);
+  --va-ink: var(--admin-ink); --va-muted: var(--admin-muted); --va-line: var(--admin-line);
+  --va-soft: var(--admin-tint); --va-purple: var(--admin-accent); --va-purple-dark: var(--admin-accent-hover);
+  --va-purple-soft: var(--admin-tint); --va-green: var(--admin-muted); --va-red: var(--admin-danger);
+  --jpta-ink: var(--admin-ink); --jpta-muted: var(--admin-muted); --jpta-line: var(--admin-line);
+  --jpta-purple: var(--admin-accent); --jpta-purple-soft: var(--admin-tint);
+  --dm-feature-background: var(--admin-bg); --dm-feature-surface: var(--admin-surface);
+  --dm-feature-raised: var(--admin-surface); --dm-feature-soft: var(--admin-tint);
+  --dm-feature-ink: var(--admin-ink); --dm-feature-muted: var(--admin-muted);
+  --dm-feature-line: var(--admin-line); --dm-feature-accent: var(--admin-accent);
+  --dm-feature-field: var(--admin-accent); --dm-feature-danger: var(--admin-danger);
+  --dm-feature-danger-bg: var(--admin-tint); --dm-feature-danger-line: var(--admin-line);
+  --dm-feature-success: var(--admin-muted); --dm-feature-success-bg: var(--admin-tint);
+  --dm-feature-success-line: var(--admin-line);
+  color: var(--admin-ink) !important;
+}
+body.admin-portal :is(.jlpt-admin, .jpa, .kma, .verb-admin) { font-family: Inter, sans-serif; }
+body.admin-portal :is(.jlpt-admin, .kma, .verb-admin) h1,
+.jpta-body .jpta h1 { font-size: 24px; line-height: 1.25; letter-spacing: -.02em; }
+body.admin-portal :is(.jlpt-admin, .jpa, .kma, .verb-admin) h2,
+.jpta-body .jpta h2 { font-size: 20px; }
+body.admin-portal :is(.jlpt-admin, .jpa, .kma, .verb-admin) h3,
+.jpta-body .jpta h3 { font-size: 16px; }
+body.admin-portal :is(.jlpt-admin, .jpa, .kma, .verb-admin) :is(button, input, select, textarea),
+.jpta-body .jpta :is(button, input, select, textarea) { border-radius: var(--admin-radius); }
+
+/* Overview metrics are one divided row, even when the labels wrap on phones. */
+.jlpt-admin-overview, .kma-stats { display: flex; flex-wrap: wrap; gap: 0; padding: 0; border: 0; border-block: 1px solid var(--admin-line); border-radius: 0; background: transparent; box-shadow: none; }
+.jlpt-admin-overview div, .kma-stats article { flex: 1 1 150px; padding: 16px; border: 0; border-right: 1px solid var(--admin-line); border-radius: 0; background: transparent; box-shadow: none; }
+.kma-stats article:last-child { border: 0; }
+.kma-stats strong { font-size: 24px; color: var(--admin-ink); margin: 4px 0; }
+.jlpt-admin-overview strong { font-size: 24px; }
+.jlpt-admin-overview span, .kma-stats span { font-size: 13px; letter-spacing: 0; }
+.jpa-stats { display: flex; flex-wrap: wrap; gap: 0; border-block: 1px solid var(--admin-line); }
+.jpa-stat { flex: 1 1 150px; padding: 16px; border: 0 !important; border-right: 1px solid var(--admin-line) !important; }
+.jpa-stat:last-child { border-right: 0 !important; }
+.jpa-stat strong { font-size: 24px; color: var(--admin-ink); }
+
+/* Lists and workspaces have a single surface and thin row dividers. */
+:is(.jlpt-admin-catalog, .jlpt-admin-exam, .kma-catalog, .verb-admin__workspace,
+    .verb-context-card, .jpta__workspace, .jpta-question, .jpta-question__choices li,
+    .jpa-panel, .jpa-card, .jpa-stat) {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+:is(.jlpt-admin-catalog, .kma-catalog, .verb-admin__workspace, .jpta__workspace) { border: 0 !important; }
+:is(.jlpt-admin__workspace, .jlpt-admin__tree-panel, .jlpt-admin-form-section,
+    .jlpt-admin-import__preview, .kma-preview, .kma-fields fieldset, .kma-notice) {
+  border-radius: 0 !important; box-shadow: none !important; background: transparent !important;
+}
+.jlpt-admin__workspace { border: 0 !important; }
+.jlpt-admin__tree-panel { border-right: 1px solid var(--admin-line) !important; }
+.jlpt-admin-form-section, .jlpt-admin-import__preview, .kma-fields fieldset { border: 0 !important; border-bottom: 1px solid var(--admin-line) !important; }
+.jlpt-admin-question { border: 0 !important; border-bottom: 1px solid var(--admin-line) !important; border-radius: 0 !important; background: transparent !important; }
+:is(.jlpt-admin-status, .jlpt-admin__editor-summary span, .jlpt-admin-import__stats span) { border-radius: 0 !important; background: transparent !important; color: var(--admin-muted) !important; }
+.jlpt-admin__tree-title > .material-symbols-outlined { display: none; }
+.jlpt-admin__question-toolbar { border-radius: 0; border-bottom: 1px solid var(--admin-line); background: transparent !important; }
+:is(.jpa-card, .jpa-group, .jpa-detail) { border: 0 !important; border-bottom: 1px solid var(--admin-line) !important; border-radius: 0 !important; box-shadow: none !important; background: transparent !important; }
+:is(.jlpt-admin-exam, .verb-context-card, .jpta-question, .jpta-question__choices li) {
+  border: 0 !important;
+  border-bottom: 1px solid var(--admin-line) !important;
+}
+.jlpt-admin-exam:hover, .verb-context-card:hover { box-shadow: none !important; background: var(--admin-tint) !important; transform: none !important; }
+:is(.jlpt-admin__exam-list, .verb-admin__context-list, .jpta-dialog__list) { gap: 0; }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) :is(.adm-badge, .kma-count, .kma-level, .verb-admin__badge, .jpta__level) {
+  border-radius: 0; background: transparent; color: var(--admin-muted); padding-inline: 0;
+}
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) table { border-collapse: collapse; }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) th { padding: 8px 12px; border-bottom: 1px solid var(--admin-line); background: transparent !important; color: var(--admin-muted); font-size: 13px; text-align: left; }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) td { padding: 10px 12px; border-top: 0; border-bottom: 1px solid var(--admin-line); background: transparent; font-size: 13px; }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) :is(th, td):has(> input[type="number"]) { text-align: right; }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) :is(.jlpt-admin-button, .kma-button, .verb-button, .jpta-button) { min-height: 36px; border-radius: var(--admin-radius); box-shadow: none; transform: none; }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) :is(.jlpt-admin-button, .kma-button, .verb-button, .jpta-button).is-primary { background: var(--admin-accent); border-color: var(--admin-accent); color: var(--admin-surface); }
+:is(.jlpt-admin, .kma, .verb-admin, .jpta) :is(.jlpt-admin-button, .kma-button, .verb-button, .jpta-button).is-danger { background: transparent; border-color: var(--admin-danger); color: var(--admin-danger); }
+:is(.jlpt-admin-dialog, .jlpt-admin-confirm, .kma-dialog, .kma-confirm, .verb-dialog, .verb-confirm, .jpta-dialog) { border: 1px solid var(--admin-line); border-radius: var(--admin-radius); box-shadow: none; background: var(--admin-surface); color: var(--admin-ink); }
+:is(.jlpt-admin-dialog, .jlpt-admin-confirm, .kma-dialog, .kma-confirm, .verb-dialog, .verb-confirm, .jpta-dialog)::backdrop { backdrop-filter: none; }
+@media (max-width: 600px) {
+  .jlpt-admin-overview div, .kma-stats article { flex-basis: 50%; padding: 12px; border-bottom: 1px solid var(--admin-line); }
+  .jpa-stat { flex-basis: 50%; padding: 12px; border-bottom: 1px solid var(--admin-line) !important; }
+  :is(.jlpt-admin, .kma, .verb-admin, .jpta) { width: auto; max-width: 100%; padding-inline: 12px; }
+  :is(.jlpt-admin-hero, .jlpt-admin-editor-hero, .kma-heading, .verb-admin__hero, .jpta__hero) { flex-wrap: wrap; align-items: flex-start; }
+  :is(.jlpt-admin__filters, .kma-filters, .verb-admin__filters, .jpta__toolbar) { flex-wrap: wrap; }
+}

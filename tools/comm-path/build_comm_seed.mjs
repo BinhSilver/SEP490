@@ -24,10 +24,18 @@ const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const GOALS = ['TRAVEL', 'DAILY_LIFE', 'BA', 'WORK'];
 const GOAL_ORDER = { TRAVEL: 1, DAILY_LIFE: 2, BA: 3, WORK: 4 };
 const LEARNER = 'リン';
+// F49 (11/11): the BrSE dialogues are written for グエン (the learner), every other goal for リン
+const LEARNER_BY_GOAL = { BA: 'グエン' };
+const learnerOf = (goal) => LEARNER_BY_GOAL[goal] || LEARNER;
 const PROMPT_TEMPLATE_CODE = 'scenario_practical_v2';
 // The four scoring rules the existing scenarios are linked to (see sql/seeds/ai_call_scoring_rules.sql).
 const SCORING_RULE_CODES = ['grammar_accuracy', 'vocabulary_usage', 'mission_completion', 'naturalness'];
 const CPATH_PREFIX = 'cpath-';
+const BRSE_CATEGORY = {
+  code: 'it-brse', title: 'Công việc IT (BrSE)', titleJa: 'IT・ブリッジSE',
+  description: 'Trao đổi với khách hàng Nhật trong dự án phần mềm: đặc tả, tiến độ, kiểm thử và phát hành.',
+  icon: 'fa-solid fa-laptop-code', displayOrder: 9,
+};
 
 const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
 const seedVersionOf = (compiledBuf) => sha256(compiledBuf).slice(0, 12);
@@ -176,7 +184,7 @@ function main() {
       const manifest = loadAudioManifest(g.goal);
       for (const t of g.compiled.topics) for (const s of t.situations) {
         s.lines.forEach((l, i) => {
-          const learner = l.speaker === LEARNER ? 1 : 0;
+          const learner = l.speaker === learnerOf(g.goal) ? 1 : 0;
           const furi = s.furigana && s.furigana[i] ? s.furigana[i] : null;
           const ap = audioPath(manifest, `${s.id}-L${l.order}`);
           rows.push(`  (${esc(s.id)}, ${l.order}, ${esc(l.speaker)}, ${learner}, ${esc(l.ja)}, ${esc(furi)}, ${esc(l.vi)}, ${esc(ap)}, ${esc(g.seedVersion)})`);
@@ -223,6 +231,12 @@ function main() {
   for (const r of dedupeRoles(kichban)) {
     line(`INSERT INTO scenario_role (role_kind, code, name, description, personality, speech_style) VALUES (${esc(r.role_kind)}, ${esc(r.code)}, ${esc(r.name)}, ${esc(r.description)}, ${esc(r.personality)}, ${esc(r.speech_style)}) AS n ON DUPLICATE KEY UPDATE name = n.name, description = n.description, personality = n.personality, speech_style = n.speech_style;`);
   }
+  line('');
+
+  // The BrSE goal has its own library topic so it does not crowd the general work one; every other topic comes
+  // from the base kaiwa seed. Same row as sql/migrations/075_ai_call_scenario_topics.sql.
+  line('-- Library topic used only by the BA (BrSE) goal; the other topics come from the base kaiwa seed.');
+  line(`INSERT INTO category (code, title, title_ja, description, icon, display_order, is_active) VALUES (${esc(BRSE_CATEGORY.code)}, ${esc(BRSE_CATEGORY.title)}, ${esc(BRSE_CATEGORY.titleJa)}, ${esc(BRSE_CATEGORY.description)}, ${esc(BRSE_CATEGORY.icon)}, ${BRSE_CATEGORY.displayOrder}, 1) AS n ON DUPLICATE KEY UPDATE title = n.title, title_ja = n.title_ja, description = n.description, icon = n.icon, display_order = n.display_order, is_active = n.is_active;`);
   line('');
 
   // scenario — FKs via SELECT (never a hardcoded numeric id).

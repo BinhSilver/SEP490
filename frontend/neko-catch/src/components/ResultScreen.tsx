@@ -84,6 +84,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       <div
         ref={ref}
         role="dialog"
+        data-game-ui-panel
         aria-modal="true"
         aria-labelledby="result-title"
         aria-describedby="result-subtitle"
@@ -248,6 +249,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 type="button"
                 data-autofocus
                 onClick={onReplay}
+                data-game-ui-primary
                 disabled={replaying}
                 className="flex-1 py-3 min-h-[44px] rounded-2xl font-black text-white flex items-center justify-center gap-2 uppercase tracking-widest text-xs transition-all hover:scale-[1.02] shadow-lg disabled:opacity-60 disabled:hover:scale-100 focus-visible:ring-2 focus-visible:ring-amber-300"
                 style={{ fontFamily: DISPLAY_FONT_STACK, background: 'linear-gradient(135deg, #FF9F43, #FF6B35)', boxShadow: '0 0 20px rgba(255,159,67,0.35)' }}

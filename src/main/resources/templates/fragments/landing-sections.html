@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] F24: guest blocks laid out like the approved Mirai reference (learning space cards with small
+     try-it screens, toolbox tabs, JLPT milestone, CTA band, footer card) with KotsuKotsu content and routes.
+     index.html includes them hidden; landing.js shows them only when the browser has no signed-in token. -->
+<body>
+<div class="lp lp-guest" data-lp-guest hidden th:fragment="sections">
+
+    <!-- 01 Không gian học tập -->
+    <section class="lp-section" aria-labelledby="lp-space-title">
+        <div class="lp-wrap">
+            <header class="lp-head2 lp-reveal">
+                <div>
+                    <p class="lp-kicker">01 / Không gian học tập</p>
+                    <h2 id="lp-space-title">Học thử một chút.<br>Tìm thấy cách học bạn thích.</h2>
+                </div>
+                <p>Lật thẻ từ, xem nét Kanji, nghe một câu hay thử gọi AI. Chạm vào từng màn hình để khám phá.</p>
+            </header>
+
+            <div class="lp-space">
+                <!-- Từ vựng -->
+                <article class="lp-tile lp-tile--mint lp-reveal">
+                    <div class="lp-tile__top">
+                        <span class="lp-tile__tag"><span class="material-symbols-outlined" aria-hidden="true">style</span>Từ vựng</span>
+                        <a class="lp-tile__go" th:href="@{/flashcard/library.html}" aria-label="Mở Flashcard"><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
+                    </div>
+                    <h3>Từ mới bay vào.<br>Kiến thức ở lại.</h3>
+                    <p>Lật flashcard, xem nghĩa và ôn lại đúng lúc với Speed Recall. Từ vựng N5–N1 trong những phiên học thật ngắn.</p>
+                    <div class="lp-screen">
+                        <div class="lp-screen__bar"><i></i><i></i><i></i><b>Flashcard · N5</b><em>Xem thử</em></div>
+                        <div class="lp-screen__body lp-flash">
+                            <span class="lp-chip-word" style="--x:6%;--y:14%;--r:-8deg">夢<small>ゆめ</small></span>
+                            <span class="lp-chip-word lp-chip-word--pink" style="--x:80%;--y:8%;--r:10deg">旅</span>
+                            <span class="lp-chip-word lp-chip-word--yellow" style="--x:78%;--y:66%;--r:6deg">空<small>そら</small></span>
+                            <button type="button" class="lp-flipcard" data-lp-flip aria-pressed="false" aria-label="Lật thẻ">
+                                <span class="lp-flipcard__face"><span data-lp-w>旅行</span><small data-lp-r>りょこう</small></span>
+                                <span class="lp-flipcard__face lp-flipcard__back"><span data-lp-m>du lịch</span><small data-lp-t>Danh từ · N5</small></span>
+                            </button>
+                            <span class="lp-flash__count" data-lp-flash-count>1 / 3</span>
+                        </div>
+                    </div>
+                    <a class="lp-tile__cta" th:href="@{/flashcard/library.html}">Mở kho flashcard <span aria-hidden="true">→</span></a>
+                </article>
+
+                <!-- Kanji -->
+                <article class="lp-tile lp-tile--peach lp-reveal">
+                    <div class="lp-tile__top">
+                        <span class="lp-tile__tag"><span class="material-symbols-outlined" aria-hidden="true">translate</span>Kanji</span>
+                        <a class="lp-tile__go" th:href="@{/dictionary/kanji-map}" aria-label="Mở Lược đồ Kanji"><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
+                    </div>
+                    <h3>Nhìn từng nét.<br>Hiểu từng bộ.</h3>
+                    <p>Tra Kanji kèm âm On, âm Kun, nghĩa Hán Việt và lược đồ bộ thủ để thấy chữ này nối với chữ nào.</p>
+                    <div class="lp-screen">
+                        <div class="lp-screen__bar"><i></i><i></i><i></i><b>Kanji · Lược đồ</b><em>Xem thử</em></div>
+                        <div class="lp-screen__body lp-kanji">
+                            <button type="button" class="lp-kanji__big" data-lp-draw aria-label="Vẽ lại thứ tự nét chữ 日">
+                                <svg viewBox="0 0 100 100" aria-hidden="true">
+                                    <path pathLength="1" style="--i:0" d="M28 18 V84"/>
+                                    <path pathLength="1" style="--i:1" d="M28 18 H72 V84"/>
+                                    <path pathLength="1" style="--i:2" d="M28 50 H72"/>
+                                    <path pathLength="1" style="--i:3" d="M28 82 H72"/>
+                                </svg>
+                            </button>
+                            <div class="lp-kanji__steps" role="group" aria-label="Chọn nét">
+                                <button type="button" data-lp-stroke="1">1</button><button type="button" data-lp-stroke="2">2</button><button type="button" data-lp-stroke="3">3</button><button type="button" data-lp-stroke="4" aria-pressed="true">4</button>
+                            </div>
+                            <dl class="lp-kanji__info">
+                                <dt>JLPT N5</dt>
+                                <dd class="lp-kanji__hv">NHẬT · ngày, mặt trời</dd>
+                                <dd>On: ニチ・ジツ</dd>
+                                <dd>Kun: ひ・か</dd>
+                                <dd class="lp-kanji__rel"><span>明</span><span>時</span><span>曜</span></dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <a class="lp-tile__cta" th:href="@{/dictionary/kanji-map}">Xem lược đồ Kanji <span aria-hidden="true">→</span></a>
+                </article>
+
+                <!-- Shadowing -->
+                <article class="lp-tile lp-tile--sky lp-reveal">
+                    <div class="lp-tile__top">
+                        <span class="lp-tile__tag"><span class="material-symbols-outlined" aria-hidden="true">headphones</span>Luyện nghe</span>
+                        <a class="lp-tile__go" th:href="@{/shadowing}" aria-label="Mở Shadowing"><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
+                    </div>
+                    <h3>Một video.<br>Nhiều cách để hiểu.</h3>
+                    <p>Xem phụ đề Nhật–Việt, chọn từng câu để nhại theo và được chấm phát âm ngay.</p>
+                    <div class="lp-screen">
+                        <div class="lp-screen__bar"><i></i><i></i><i></i><b>Shadowing · Phụ đề song ngữ</b><em>Mẫu</em></div>
+                        <div class="lp-screen__body lp-sub" data-lp-sub>
+                            <div class="lp-sub__video" aria-hidden="true"><span class="material-symbols-outlined">play_circle</span><span class="lp-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+                            <p class="lp-sub__ja" data-lp-sub-ja>今日は、日本語を勉強します。</p>
+                            <p class="lp-sub__vi" data-lp-sub-vi>Hôm nay tôi sẽ học tiếng Nhật.</p>
+                            <button type="button" class="lp-mini-btn" data-lp-sub-next>Câu tiếp</button>
+                        </div>
+                    </div>
+                    <a class="lp-tile__cta" th:href="@{/shadowing}">Khám phá video luyện nghe <span aria-hidden="true">→</span></a>
+                </article>
+
+                <!-- Giáo trình -->
+                <article class="lp-tile lp-tile--lemon lp-reveal">
+                    <div class="lp-tile__top">
+                        <span class="lp-tile__tag"><span class="material-symbols-outlined" aria-hidden="true">menu_book</span>Giáo trình</span>
+                        <a class="lp-tile__go" th:href="@{/textbooks}" aria-label="Mở Giáo trình"><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
+                    </div>
+                    <h3>Lật một trang.<br>Mở thêm một thế giới.</h3>
+                    <p>Đọc giáo trình ngay trên web, có furigana, bản dịch và từ mới đi kèm từng bài.</p>
+                    <div class="lp-screen">
+                        <div class="lp-screen__bar"><i></i><i></i><i></i><b>Giáo trình · Bài 1</b><em>Xem thử</em></div>
+                        <div class="lp-screen__body lp-book" data-lp-book>
+                            <div class="lp-book__open">
+                                <div class="lp-book__page lp-book__page--left"><small>NIHONGO / はじめの一歩</small><strong>こんにちは。</strong><p>Bắt đầu bằng một lời chào. Một từ mới, một kết nối mới.</p><span class="lp-book__no">01</span></div>
+                                <div class="lp-book__leaf" style="--n:0">
+                                    <div class="lp-book__page lp-book__face"><small>02 / まいにち</small><strong>毎日、こつこつ。</strong><p>Mỗi ngày một chút. Mỗi trang mở thêm một điều mới.</p><span class="lp-book__no">02</span></div>
+                                    <div class="lp-book__page lp-book__face lp-book__back"><small>ことば / TỪ MỚI</small><strong>新しい世界へ。</strong><p>世界 せかい · thế giới<br>友達 ともだち · bạn bè</p><span class="lp-book__no">03</span></div>
+                                </div>
+                                <div class="lp-book__leaf" style="--n:1">
+                                    <div class="lp-book__page lp-book__face"><small>ぶんぽう / NGỮ PHÁP</small><strong>〜たいです。</strong><p>食べたいです。<br>Tôi muốn ăn.</p><span class="lp-book__no">04</span></div>
+                                    <div class="lp-book__page lp-book__face lp-book__back"><small>よみもの / BÀI ĐỌC</small><strong>好きから、はじめよう。</strong><p>Bắt đầu từ điều bạn thích, học theo nhịp của mình.</p><span class="lp-book__no">05</span></div>
+                                </div>
+                                <div class="lp-book__page lp-book__page--right"><small>まとめ / ÔN TẬP</small><strong>よくできました！</strong><p>Làm tốt lắm! Hẹn bạn ở bài tiếp theo.</p><span class="lp-book__no">06</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="lp-tile__cta" th:href="@{/textbooks}">Vào thư viện giáo trình <span aria-hidden="true">→</span></a>
+                </article>
+
+                <!-- AI Call -->
+                <article class="lp-tile lp-tile--lilac lp-reveal">
+                    <div class="lp-tile__top">
+                        <span class="lp-tile__tag"><span class="material-symbols-outlined" aria-hidden="true">call</span>Luyện nói</span>
+                        <a class="lp-tile__go" th:href="@{/ai-call}" aria-label="Mở AI Call"><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
+                    </div>
+                    <h3>Có người cùng nói.<br>Tự tin hơn mỗi ngày.</h3>
+                    <p>Gọi điện với AI theo tình huống thực tế. Bắt đầu từ một câu đơn giản rồi mở rộng cuộc hội thoại.</p>
+                    <div class="lp-screen">
+                        <div class="lp-screen__bar"><i></i><i></i><i></i><b>AI Call · Ở quán cà phê</b><em>N5 · N4</em></div>
+                        <div class="lp-screen__body lp-chat">
+                            <div class="lp-bubble"><b>AI</b>何を飲みたいですか？<small>Bạn muốn uống gì?</small></div>
+                            <div class="lp-typing" data-lp-typing hidden aria-hidden="true"><i></i><i></i><i></i></div>
+                            <div class="lp-bubble lp-bubble--me" data-lp-reply hidden><b>Bạn</b>コーヒーをお願いします。<small>Cho tôi một ly cà phê.</small></div>
+                            <button type="button" class="lp-mini-btn" data-lp-reply-btn>Thử câu trả lời mẫu</button>
+                        </div>
+                    </div>
+                    <a class="lp-tile__cta" th:href="@{/ai-call}">Vào phòng luyện nói <span aria-hidden="true">→</span></a>
+                </article>
+
+                <!-- Lộ trình -->
+                <article class="lp-tile lp-tile--rose lp-reveal">
+                    <div class="lp-tile__top">
+                        <span class="lp-tile__tag"><span class="material-symbols-outlined" aria-hidden="true">route</span>Lộ trình học</span>
+                        <a class="lp-tile__go" th:href="@{/learning}" aria-label="Mở Lộ trình học"><span class="material-symbols-outlined" aria-hidden="true">arrow_outward</span></a>
+                    </div>
+                    <h3>Mỗi ngày một phần.<br>Vừa đúng thời gian bạn có.</h3>
+                    <p>Lộ trình JLPT hoặc Giao tiếp được chia theo số phút bạn chọn, ưu tiên phần bạn còn yếu.</p>
+                    <div class="lp-screen">
+                        <div class="lp-screen__bar"><i></i><i></i><i></i><b>Lộ trình · Ngày 3</b><em>30 phút</em></div>
+                        <div class="lp-screen__body lp-plan">
+                            <label><input type="checkbox" checked> <span>Từ vựng · 10 từ mới</span><em>8'</em></label>
+                            <label><input type="checkbox" checked> <span>Kanji · 日 月 火</span><em>7'</em></label>
+                            <label><input type="checkbox"> <span>Ngữ pháp · 〜たいです</span><em>8'</em></label>
+                            <label><input type="checkbox"> <span>Nghe · 2 đoạn ngắn</span><em>7'</em></label>
+                        </div>
+                    </div>
+                    <a class="lp-tile__cta" th:href="@{/learning}">Xem lộ trình học <span aria-hidden="true">→</span></a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- 02 Hộp công cụ -->
+    <section class="lp-section lp-section--tint" aria-labelledby="lp-tools-title">
+        <div class="lp-wrap">
+            <header class="lp-head2 lp-reveal">
+                <div>
+                    <p class="lp-kicker">02 / Hộp công cụ của bạn</p>
+                    <h2 id="lp-tools-title">Đúng công cụ. Đúng lúc.</h2>
+                </div>
+                <p>Chọn một nhóm kỹ năng để thấy trọn bộ công cụ học, luyện và kiểm tra trong cùng một chỗ.</p>
+            </header>
+            <div class="lp-tools lp-reveal" data-lp-tabs>
+                <div class="lp-tools__tabs" role="tablist" aria-label="Nhóm công cụ">
+                    <button type="button" role="tab" id="lp-tab-1" aria-controls="lp-pane-1" aria-selected="true">Học nền tảng <b>4</b></button>
+                    <button type="button" role="tab" id="lp-tab-2" aria-controls="lp-pane-2" aria-selected="false" tabindex="-1">Nghe &amp; nói <b>3</b></button>
+                    <button type="button" role="tab" id="lp-tab-3" aria-controls="lp-pane-3" aria-selected="false" tabindex="-1">Lộ trình &amp; JLPT <b>4</b></button>
+                    <button type="button" role="tab" id="lp-tab-4" aria-controls="lp-pane-4" aria-selected="false" tabindex="-1">Vui &amp; cộng đồng <b>3</b></button>
+                </div>
+                <div class="lp-tools__pane" role="tabpanel" id="lp-pane-1" aria-labelledby="lp-tab-1">
+                    <a th:href="@{/dictionary}"><span class="material-symbols-outlined" aria-hidden="true">search</span><b>Từ điển</b><small>Tra từ, kanji, cách đọc và ví dụ trong vài giây</small></a>
+                    <a th:href="@{/flashcard/library.html}"><span class="material-symbols-outlined" aria-hidden="true">style</span><b>Flashcard</b><small>Bộ thẻ có sẵn và bộ thẻ của riêng bạn, kèm Speed Recall</small></a>
+                    <a th:href="@{/dictionary/kanji-map}"><span class="material-symbols-outlined" aria-hidden="true">account_tree</span><b>Lược đồ Kanji</b><small>Thấy chữ Hán nối với nhau qua bộ thủ</small></a>
+                    <a th:href="@{/practice/verbs}"><span class="material-symbols-outlined" aria-hidden="true">edit_note</span><b>Luyện chia động từ</b><small>Thể ます, て, ない… luyện đến khi thành phản xạ</small></a>
+                </div>
+                <div class="lp-tools__pane" role="tabpanel" id="lp-pane-2" aria-labelledby="lp-tab-2" hidden>
+                    <a th:href="@{/shadowing}"><span class="material-symbols-outlined" aria-hidden="true">headphones</span><b>Shadowing</b><small>Nhại theo video có phụ đề, chấm phát âm từng câu</small></a>
+                    <a th:href="@{/ai-call}"><span class="material-symbols-outlined" aria-hidden="true">call</span><b>AI Call</b><small>Gọi điện luyện nói với AI theo tình huống</small></a>
+                    <a th:href="@{/textbooks}"><span class="material-symbols-outlined" aria-hidden="true">menu_book</span><b>Giáo trình</b><small>Đọc bài có furigana, bản dịch và audio</small></a>
+                </div>
+                <div class="lp-tools__pane" role="tabpanel" id="lp-pane-3" aria-labelledby="lp-tab-3" hidden>
+                    <a th:href="@{/survey}"><span class="material-symbols-outlined" aria-hidden="true">quiz</span><b>Smart Test</b><small>Bài kiểm tra thích ứng xếp đúng cấp của bạn</small></a>
+                    <a th:href="@{/learning}"><span class="material-symbols-outlined" aria-hidden="true">route</span><b>Lộ trình học</b><small>Lộ trình JLPT hoặc Giao tiếp chia theo từng ngày</small></a>
+                    <a th:href="@{/jlpt}"><span class="material-symbols-outlined" aria-hidden="true">assignment</span><b>Đề thi JLPT</b><small>Làm đề thử theo cấu trúc thật, có giải thích</small></a>
+                    <a th:href="@{/jlpt/practice}"><span class="material-symbols-outlined" aria-hidden="true">target</span><b>Luyện theo dạng</b><small>Luyện riêng từng dạng câu hỏi còn yếu</small></a>
+                </div>
+                <div class="lp-tools__pane" role="tabpanel" id="lp-pane-4" aria-labelledby="lp-tab-4" hidden>
+                    <a th:href="@{/games}"><span class="material-symbols-outlined" aria-hidden="true">sports_esports</span><b>Mini-game</b><small>Trò chơi kana, kanji và đấu trường</small></a>
+                    <a th:href="@{/community}"><span class="material-symbols-outlined" aria-hidden="true">groups</span><b>Cộng đồng</b><small>Hỏi đáp và chia sẻ cùng người học khác</small></a>
+                    <a th:href="@{/premium}"><span class="material-symbols-outlined" aria-hidden="true">workspace_premium</span><b>Premium &amp; CP</b><small>Học đều nhận CP; Premium mở lộ trình N4–N1 và Giao tiếp</small></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 03 Cột mốc JLPT -->
+    <section class="lp-section" aria-labelledby="lp-jlpt-title">
+        <div class="lp-wrap">
+            <div class="lp-goal lp-reveal">
+                <div class="lp-goal__text">
+                    <p class="lp-kicker">03 / Cột mốc tiếp theo</p>
+                    <h2 id="lp-jlpt-title">Từ hôm nay,<br>đến ngày thi.</h2>
+                    <p>Làm Smart Test để biết bạn đang ở đâu, nhận lộ trình riêng rồi luyện đề theo cấu trúc JLPT thật, có giải thích sau mỗi câu.</p>
+                    <div class="lp-actions">
+                        <a class="lp-btn lp-btn--primary" th:href="@{/survey}">Làm Smart Test</a>
+                        <a class="lp-btn lp-btn--ghost" th:href="@{/jlpt}">Khám phá đề JLPT</a>
+                    </div>
+                    <ul class="lp-levels2" aria-label="Cấp độ">
+                        <li>N5</li><li class="is-pro" title="Cần Premium">N4</li><li class="is-pro" title="Cần Premium">N3</li><li class="is-pro" title="Cần Premium">N2</li><li class="is-pro" title="Cần Premium">N1</li>
+                    </ul>
+                    <p class="lp-note">N5 miễn phí · N4–N1 và lộ trình Giao tiếp cần Premium</p>
+                </div>
+                <div class="lp-screen lp-quiz" data-lp-quiz>
+                    <div class="lp-screen__bar"><i></i><i></i><i></i><b>JLPT · Luyện tập</b><em>N5 · Từ vựng</em></div>
+                    <div class="lp-screen__body">
+                        <p class="lp-quiz__q">Chọn cách đọc đúng của từ sau.</p>
+                        <p class="lp-quiz__word">学校</p>
+                        <div class="lp-quiz__opts">
+                            <button type="button" data-ok="1"><b>A</b>がっこう</button>
+                            <button type="button"><b>B</b>がこう</button>
+                            <button type="button"><b>C</b>かっこう</button>
+                            <button type="button"><b>D</b>がっこ</button>
+                        </div>
+                        <p class="lp-quiz__hint" data-lp-quiz-hint aria-live="polite">Chạm vào một đáp án để xem giải thích.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Gói học (prices come from /api/premium/plans and /api/credits/packages) -->
+    <section class="lp-section" aria-labelledby="lp-plans-title" data-lp-plans>
+        <div class="lp-wrap">
+            <header class="lp-head2 lp-reveal">
+                <div>
+                    <p class="lp-kicker">04 / Gói học</p>
+                    <h2 id="lp-plans-title">Bắt đầu miễn phí.<br>Nâng cấp khi bạn sẵn sàng.</h2>
+                </div>
+                <p>N5 dùng miễn phí. Premium mở lộ trình N4–N1, lộ trình Giao tiếp và thêm phút gọi AI; CP dùng để mua lượt tra cứu và vật phẩm.</p>
+            </header>
+            <div class="lp-plans">
+                <article class="lp-plan-card lp-reveal">
+                    <p class="lp-plan-card__name">Miễn phí</p>
+                    <p class="lp-plan-card__price">0đ</p>
+                    <ul>
+                        <li>Smart Test xếp cấp độ</li>
+                        <li>Lộ trình JLPT N5</li>
+                        <li>Từ điển, flashcard, mini-game</li>
+                        <li data-lp-ai-free>Gọi AI vài phút mỗi ngày</li>
+                    </ul>
+                    <a class="lp-btn lp-btn--ghost" data-lp-guest-only th:href="@{/register}">Tạo tài khoản</a>
+                </article>
+                <article class="lp-plan-card lp-plan-card--pro lp-reveal" data-lp-plan="MONTHLY">
+                    <p class="lp-plan-card__name">Premium tháng</p>
+                    <p class="lp-plan-card__price"><span data-lp-price>—</span><small data-lp-per>/ 30 ngày</small></p>
+                    <ul>
+                        <li>Mọi thứ của gói miễn phí</li>
+                        <li>Mở lộ trình N4–N1 và lộ trình Giao tiếp</li>
+                        <li data-lp-ai-pro>Thêm phút gọi AI mỗi ngày</li>
+                    </ul>
+                    <a class="lp-btn lp-btn--primary" th:href="@{/premium}">Xem Premium</a>
+                </article>
+                <article class="lp-plan-card lp-plan-card--best lp-reveal" data-lp-plan="YEARLY">
+                    <span class="lp-plan-card__badge" data-lp-save hidden></span>
+                    <p class="lp-plan-card__name">Premium năm</p>
+                    <p class="lp-plan-card__price"><span data-lp-price>—</span><small data-lp-per>/ 365 ngày</small></p>
+                    <ul>
+                        <li>Mọi thứ của Premium tháng</li>
+                        <li>Học trọn một năm, trả một lần</li>
+                        <li>Phù hợp ôn thi N4–N1</li>
+                    </ul>
+                    <a class="lp-btn lp-btn--primary" th:href="@{/premium}">Chọn gói năm</a>
+                </article>
+            </div>
+            <div class="lp-cp lp-reveal" data-lp-cp hidden>
+                <div>
+                    <p class="lp-plan-card__name">Gói CP</p>
+                    <p>Học đều cũng nhận CP miễn phí; cần thêm thì mua theo gói.</p>
+                </div>
+                <ul class="lp-cp__list" data-lp-cp-list></ul>
+                <a class="lp-btn lp-btn--ghost" th:href="@{/credits}">Mua CP</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="lp-cta2" data-lp-guest-only aria-labelledby="lp-cta-title">
+        <div class="lp-wrap">
+            <div class="lp-cta2__inner lp-reveal">
+                <span class="lp-cta2__char" aria-hidden="true">始</span>
+                <div>
+                    <p class="lp-kicker">Hành trình bắt đầu từ đây</p>
+                    <h2 id="lp-cta-title">Bắt đầu từ một chữ.<br>Đi xa hơn bạn nghĩ.</h2>
+                    <p>Lưu tiến độ, giữ chuỗi ngày học và viết tiếp hành trình của riêng bạn.</p>
+                </div>
+                <a class="lp-btn lp-btn--primary" th:href="@{/register}">Tạo tài khoản miễn phí</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 Footer: F220 (owner 23/11) the shared site footer, the same card on every page -->
+    <th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+</div>
+</body>
+</html>

@@ -2,6 +2,11 @@ package com.jlas.cpath;
 
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.UserPrincipal;
+import com.jlas.auth.service.PremiumAccess;
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.security.ContentReviewAccess;
+import jakarta.servlet.http.HttpServletRequest;
 import com.jlas.jlptpath.dto.JpathSpeakResult;
 import com.jlas.jlptpath.service.impl.JpathSpeakService;
 import com.jlas.kaiwa.service.quota.AiCallQuotaService;
@@ -16,7 +21,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,14 +47,68 @@ public class CpathController {
     private final JpathSpeakService speak;
     private final CpathRoleplayService roleplay;
     private final AiCallQuotaService quota;
+    private final CpathCoreService core;
+    private final CpathTravelService travel;
     private static final ObjectMapper JSON = new ObjectMapper();
 
     public CpathController(CpathService service, JpathSpeakService speak, CpathRoleplayService roleplay,
-                           AiCallQuotaService quota) {
+                           AiCallQuotaService quota, CpathCoreService core, CpathTravelService travel) {
         this.service = service;
+        this.core = core;
+        this.travel = travel;
         this.speak = speak;
         this.roleplay = roleplay;
         this.quota = quota;
+    }
+
+    @Autowired(required = false)
+    private PremiumAccess premium;
+
+    @Autowired
+    private CpathFlashcardService flashcardService;
+
+    /** Owner 24/11 "Lộ trình của tôi" notices (added / pace changed), sent after the service transaction. */
+    @Autowired(required = false)
+    private com.jlas.mypaths.MyPathsService myPaths;
+
+    @Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
+
+    /** Owner 18/11: the situation's flashcard set ("Đã nhớ x/y"); POST makes it. */
+    @GetMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> flashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, false)));
+    }
+
+    @PostMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> openFlashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, true)));
+    }
+
+    /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
+    private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/goals/pause-for-jlpt", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
+            "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
+            "/notebook", "/day", "/today/plan");
+
+    private boolean locked(Long userId) {
+        if (premium == null || userId == null || ContentReviewAccess.allowed(userId)) return false;
+        return !premium.isActive(userId);
+    }
+
+    @ModelAttribute
+    void premiumOnly(HttpServletRequest request, @AuthenticationPrincipal UserPrincipal user) {
+        String uri = request.getRequestURI();
+        int at = uri.indexOf("/api/learning/comm");
+        String sub = at < 0 ? uri : uri.substring(at + "/api/learning/comm".length());
+        if (FREE_PATHS.contains(sub)) return;
+        if (user != null && locked(user.userId())) throw new ApiException(ErrorCode.CPATH_PREMIUM_REQUIRED);
+    }
+
+    @GetMapping("/premium-gate")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> premiumGate(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", Map.of("locked", user != null && locked(user.userId()))));
     }
 
     @GetMapping("/goals")
@@ -57,7 +119,21 @@ public class CpathController {
     @PostMapping("/path")
     public ResponseEntity<ApiResponse<Map<String, Object>>> create(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", service.createPath(user.userId(), body)));
+        Map<String, Object> made = service.createPath(user.userId(), body);
+        if (myPaths != null && body != null && body.get("goal") != null) myPaths.notifyAdded(user.userId(), "COMM:" + body.get("goal"));
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", made));
+    }
+
+    /** Owner 17/11: main goal, secondary goal and paused paths of both paths, for every goal panel and message. */
+    @GetMapping("/goals/overview")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> goalsOverview(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.goalsOverview(user.userId())));
+    }
+
+    /** Owner 17/11: main goal switched to JLPT → communication paths pause (progress kept). */
+    @PostMapping("/goals/pause-for-jlpt")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> pauseForJlpt(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp. Tiến độ được giữ nguyên.", service.pauseForJlptMain(user.userId())));
     }
 
     @GetMapping("/path")
@@ -85,6 +161,20 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> step(@AuthenticationPrincipal UserPrincipal user,
             @PathVariable String id, @PathVariable String step, @RequestBody(required = false) Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.step(user.userId(), id, step, body)));
+    }
+
+    /** F64: "Tôi biết tình huống này" — questions without answers. */
+    @GetMapping("/situations/{id}/known-check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> knownCheck(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.knownCheck(user.userId(), id)));
+    }
+
+    /** F64: answers of the known-check; >= 90% counts the situation as learned. */
+    @PostMapping("/situations/{id}/known-check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitKnownCheck(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id, @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.submitKnownCheck(user.userId(), id, body)));
     }
 
     @PostMapping(value = "/speak", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -139,6 +229,13 @@ public class CpathController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> roleplay(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam String scope, @RequestParam(required = false) String code) {
         return ResponseEntity.ok(ApiResponse.ok("OK", roleplay.get(user.userId(), scope, code)));
+    }
+
+    @PostMapping("/roleplay/pick")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> quickRoleplayPick(
+            @AuthenticationPrincipal UserPrincipal user, @RequestParam String code,
+            @RequestParam String questionId, @RequestParam int optionIndex) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", roleplay.quickPick(user.userId(), code, questionId, optionIndex)));
     }
 
     @PostMapping(value = "/roleplay", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -227,11 +324,58 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitReview(user.userId(), body)));
     }
 
+    @PostMapping("/review/pick")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> reviewPick(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam String questionId, @RequestParam int optionIndex) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.reviewPick(user.userId(), questionId, optionIndex)));
+    }
+
     /** The slider: 1 or 2 situations a day. */
     @org.springframework.web.bind.annotation.PutMapping("/path/daily")
     public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", service.setDaily(user.userId(), body)));
+        Map<String, Object> out = service.setDaily(user.userId(), body);
+        if (learningPace != null && myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) learningPace.manualChange(user.userId(), k); }
+        if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", out));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/path/pace")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setPace(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody Map<String, Object> body) {
+        Map<String, Object> out = service.setPace(user.userId(), body);
+        if (learningPace != null && body != null && body.get("dailySituations") != null && myPaths != null) {
+            String k = myPaths.commKey(user.userId(), null);
+            if (k != null) learningPace.manualChange(user.userId(), k);
+        }
+        if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", out));
+    }
+
+    /** F61: furigana / romaji / translation saved for the main path. */
+    @org.springframework.web.bind.annotation.PutMapping("/path/display")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setDisplay(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu cách hiển thị.", service.setDisplay(user.userId(), body)));
+    }
+
+    /** F61: pause the main path, progress kept. */
+    @PostMapping("/path/pause")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> pausePath(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp.", service.pausePath(user.userId())));
+    }
+
+    /** F125: "Nâng mục tiêu phụ lên làm chính" from the finished-path card (keeps the secondary's progress). */
+    @PostMapping("/path/promote-secondary")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> promoteSecondary(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã nâng mục tiêu phụ lên làm lộ trình chính.", service.promoteSecondary(user.userId())));
+    }
+
+    /** F61: clear the main path's progress after typing BẮT ĐẦU LẠI. */
+    @PostMapping("/path/restart")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> restartPath(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã đặt lại lộ trình Giao tiếp.", service.restartPath(user.userId(), body)));
     }
 
     @GetMapping("/notebook")
@@ -239,9 +383,93 @@ public class CpathController {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.notebook(user.userId())));
     }
 
+    /** F196: save / unsave a word or phrase card in the notebook. */
+    @PostMapping("/notebook/{code}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> saveNote(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String code) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu vào sổ tay.", service.saveNote(user.userId(), code, true)));
+    }
+
+    @DeleteMapping("/notebook/{code}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> unsaveNote(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String code) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã bỏ khỏi sổ tay.", service.saveNote(user.userId(), code, false)));
+    }
+
     @PostMapping("/weekly")
     public ResponseEntity<ApiResponse<Map<String, Object>>> submitWeekly(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
         return ResponseEntity.ok(ApiResponse.ok("OK", service.submitWeekly(user.userId(), body)));
+    }
+
+    // ------------------------------------------------------------------------------------- F70 base set
+
+    /** The base-set block of the path page and Settings (enabled false when the goal or the DB has none). */
+    /** Bug 108 (I4): plans today (situations, base lesson); the pages send it before reading, GETs never write. */
+    @PostMapping("/today/plan")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> planToday(@AuthenticationPrincipal UserPrincipal user) {
+        Map<String, Object> out = service.planToday(user.userId());
+        try {
+            core.planDay(user.userId());
+        } catch (ApiException e) {
+            // no MAIN communication path (secondary only): the situations are planned, there is no base lesson
+        }
+        return ResponseEntity.ok(ApiResponse.ok("OK", out));
+    }
+
+    @GetMapping("/core")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> core(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.overview(user.userId())));
+    }
+
+    @GetMapping("/core/lesson")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> coreLesson(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.lesson(user.userId())));
+    }
+
+    @PostMapping("/core/lesson")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitCoreLesson(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.submitLesson(user.userId(), body)));
+    }
+
+    @GetMapping("/core/check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> coreCheck(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.knownCheck(user.userId())));
+    }
+
+    @PostMapping("/core/check")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitCoreCheck(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", core.submitKnownCheck(user.userId(), body)));
+    }
+
+    @org.springframework.web.bind.annotation.PutMapping("/path/depth")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> setDepth(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi độ sâu.", core.setDepth(user.userId(), body)));
+    }
+
+    // ------------------------------------------------------------------------------------- F70 Du lịch extras
+
+    @GetMapping("/travel/phrasebook")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> phrasebook(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.phrasebook(user.userId())));
+    }
+
+    @GetMapping("/travel/game")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> game(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.game(user.userId())));
+    }
+
+    @PostMapping("/travel/game")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> submitGame(@AuthenticationPrincipal UserPrincipal user,
+            @RequestBody(required = false) Map<String, Object> body) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.submitGame(user.userId(), body)));
+    }
+
+    @GetMapping("/travel/stamps")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> stamps(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", travel.stamps(user.userId())));
     }
 }

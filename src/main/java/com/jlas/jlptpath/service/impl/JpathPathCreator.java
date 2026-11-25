@@ -133,6 +133,8 @@ public class JpathPathCreator {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cấp mục tiêu không được thấp hơn cấp mở "
                     + openLevel + ".");
         }
+        // F221: the same choices as the Confirm page (survey rule + the survey's own target)
+        JpathPathRules.requireTargetOption(catalog, openLevel, survey.getTargetLevel(), targetLevel);
         JpathSliderValues sliders = request.sliders();
         JpathSliderBounds.requireInRange(openLevel, sliders);
 
@@ -152,6 +154,10 @@ public class JpathPathCreator {
                 minutes, skillDays, restDays, null, sliders, kanaRowsLeft, request.mode(), null, true, null));
         if (pace.blocked()) {
             throw new ApiException(ErrorCode.JPATH_TARGET_TOO_SOON, pace.messageVi());
+        }
+        // F230: store the words the learner chose with the Kanji/grammar that finish together with them
+        if (pace.balanced() != null) {
+            sliders = pace.balanced();
         }
 
         // ---- writes ----
@@ -176,6 +182,7 @@ public class JpathPathCreator {
                 .smartKanjiScore(withResult ? score(snapshot.kanjiScore()) : null)
                 .smartGrammarScore(withResult ? score(snapshot.grammarScore()) : null)
                 .smartAbilityBand(withResult ? snapshot.abilityBand() : null)
+                .extraSkillDay(withResult && snapshot.weakReadingOrListening())
                 .studyDurationMonths(survey.getStudyDurationMonths())
                 .build();
         try {
@@ -188,6 +195,7 @@ public class JpathPathCreator {
             }
             throw e;
         }
+        pauseComm(userId);
         userLevels.save(JpathUserLevel.builder()
                 .pathId(path.getId())
                 .level(openLevel)
@@ -276,5 +284,17 @@ public class JpathPathCreator {
 
     private static BigDecimal score(Integer value) {
         return value == null ? null : BigDecimal.valueOf(value).setScale(2);
+    }
+
+    private JpathCommPathPauser commPauser;
+
+    /** I3: optional so unit tests that build this class by hand need no communication tables. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setCommPauser(JpathCommPathPauser commPauser) {
+        this.commPauser = commPauser;
+    }
+
+    private void pauseComm(Long userId) {
+        if (commPauser != null) commPauser.pauseCommPaths(userId);
     }
 }

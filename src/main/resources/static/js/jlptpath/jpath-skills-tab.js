@@ -94,8 +94,9 @@
     } else {
       action = '<p class="jp-muted">Buổi chính mở vào ngày kỹ năng. Hôm nay bạn vẫn học lại được từng dạng bên dưới.</p>';
     }
+    var activeToday = Boolean((o && o.skillDay) || card.doneToday || card.openSessionId != null);
     return '<div class="jp-skill-card' + (card.doneToday ? ' is-done' : '') + '">'
-      + '<p class="jp-skill-card__kicker">Buổi hôm nay</p>'
+      + '<p class="jp-skill-card__kicker">' + (activeToday ? 'Buổi hôm nay' : 'Buổi ngày kỹ năng') + '</p>'
       + '<p class="jp-skill-card__type"><strong>' + esc(name) + '</strong>' + ja + '</p>'
       + '<p class="jp-muted">' + esc(floorText(card)) + '</p>' + action + '</div>';
   }
@@ -118,11 +119,12 @@
   function groupHtml(skill, card, o) {
     var s = SKILL[skill];
     var id = 'jp-skill-' + skill.toLowerCase();
+    var activeToday = Boolean((o && o.skillDay) || (card && (card.doneToday || card.openSessionId != null)));
     return '<section class="jp-skill-group" aria-labelledby="' + id + '"><h3 class="jp-skill-group__title" id="' + id + '">'
       + icon(s.icon) + ' ' + esc(s.name + ' ' + ((o && o.level) || '')) + '</h3>'
       + cardHtml(card, o)
       + '<h4 class="jp-skill-group__sub">' + esc('Các dạng ' + s.name) + '</h4>'
-      + typesHtml(o && o.types, skill, card && card.typeCode) + '</section>';
+      + typesHtml(o && o.types, skill, activeToday && card ? card.typeCode : null) + '</section>';
   }
 
   /** Section practice (locked before the skill stage). */
@@ -189,11 +191,17 @@
       if (m) { m.textContent = text || ''; m.hidden = !text; }
     }
 
-    function go(promise, toUrl) {
+    /** F144: a request that fails (or gives no id/token) hands the button back with a message. */
+    function go(button, promise, toUrl) {
+      message('');
       promise.then(function (res) {
         var target = toUrl(res);
-        if (target) loc.assign(target);
-      }, function (e) { message((e && e.message) || 'Chưa mở được buổi luyện.'); });
+        if (!target) throw new Error('');
+        loc.assign(target);
+      }).then(null, function (e) {
+        button.disabled = false;
+        message((e && (e.code || e.status) && e.message) || 'Chưa mở được buổi luyện. Hãy thử lại.');
+      });
     }
 
     if (!el.getAttribute('data-skills-bound')) {
@@ -202,15 +210,17 @@
         var t = ev.target;
         var start = t.closest('[data-skill-start]');
         if (start) {
+          if (start.disabled) return;
           start.disabled = true;
-          go(apiClient.send('POST', BASE + '/sessions', { skill: start.getAttribute('data-skill-start'), kind: 'DAY' }),
+          go(start, apiClient.send('POST', BASE + '/sessions', { skill: start.getAttribute('data-skill-start'), kind: 'DAY' }),
             function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
           return;
         }
         var free = t.closest('[data-skill-free]');
         if (free) {
+          if (free.disabled) return;
           free.disabled = true;
-          go(apiClient.send('POST', BASE + '/sessions', { skill: free.getAttribute('data-skill-free'), kind: 'FREE',
+          go(free, apiClient.send('POST', BASE + '/sessions', { skill: free.getAttribute('data-skill-free'), kind: 'FREE',
             typeCode: free.getAttribute('data-skill-type') }),
             function (s) { return s && s.id != null ? SESSION_PAGE + encodeURIComponent(s.id) : null; });
           return;
@@ -218,7 +228,7 @@
         var sec = t.closest('[data-skill-section]');
         if (sec && !sec.disabled) {
           sec.disabled = true;
-          go(apiClient.send('POST', BASE + '/sections', { skill: sec.getAttribute('data-skill-section') }),
+          go(sec, apiClient.send('POST', BASE + '/sections', { skill: sec.getAttribute('data-skill-section') }),
             function (c) { return c && c.token ? SECTION_PAGE + encodeURIComponent(c.token) : null; });
         }
       });
@@ -234,7 +244,7 @@
       rendered(doc, el);
       return o;
     }, function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc((e && e.message) || 'Không tải được phần Đọc · Nghe.') + '</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc((e && (e.code || e.status) && e.message) || 'Không tải được phần Đọc · Nghe.') + '</p>';
       return null;
     });
   }

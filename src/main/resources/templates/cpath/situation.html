@@ -20,23 +20,25 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
-    <nav class="jp-crumbs jp-ws__crumbs" aria-label="Bạn đang ở">
-        <ol class="jp-crumbs__list">
-            <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/">Trang chủ</a></li>
-            <li class="jp-crumbs__item"><a class="jp-crumbs__link" href="/learning/comm/path" th:href="@{/learning/comm/path}">Lộ trình giao tiếp</a></li>
-            <li class="jp-crumbs__item"><span class="jp-crumbs__here" aria-current="page">Tình huống 4 bước</span></li>
-        </ol>
-    </nav>
+    <div class="jp-ws jp-ws--focus">
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
+    <div class="jp-ws__main">
     <div id="cpathSituationRoot" aria-busy="true" aria-live="polite" th:attr="data-situation-id=${situationId}">
-        <p class="jp-path__loading" role="status">Đang tải tình huống hội thoại…</p>
+        <p class="jp-path__loading jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải tình huống hội thoại…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
+    </div>
+    </div>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
     <script src="../../static/js/jlptpath/jpath-api.js"></script>
 </th:block>
 <script src="../../static/js/jlptpath/jpath-display.js" th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/jlptpath/jpath-furigana.js" th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-audio.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/cpath/cpath-situation.js" th:src="@{/js/cpath/cpath-situation.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

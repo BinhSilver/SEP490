@@ -160,14 +160,25 @@
     var summary = 'Đã biết ' + num(c.known) + ' · Đang học ' + num(c.learning) + ' · Sổ tay ' + num(c.notebook)
       + ' · Chưa học ' + num(c.notLearned);
     var done = total > 0 && num(c.known) >= total;
-    return '<li class="jp-topic-card">'
+    // owner 22/11: a calmer card — share learned as the headline, only the non-zero states as dot chips
+    var touched = num(c.known) + num(c.learning) + num(c.notebook);
+    var chips = [['known', 'Đã biết', c.known], ['learning', 'Đang học', c.learning], ['notebook', 'Sổ tay', c.notebook]]
+      .filter(function (p) { return num(p[2]) > 0; })
+      .map(function (p) {
+        return '<li class="jp-tcard__chip"><span class="jp-tcard__dot jp-tcard__dot--' + p[0] + '" aria-hidden="true"></span>'
+          + esc(p[1]) + ' <b>' + esc(num(p[2])) + '</b></li>';
+      }).join('');
+    return '<li class="jp-topic-card jp-tcard' + (done ? ' jp-tcard--done' : '') + (touched ? '' : ' jp-tcard--new') + '">'
       + '<button type="button" class="jp-topic-card__open" data-action="open-topic" data-topic="' + esc(c.topicKey) + '">'
       + '<span class="jp-topic-card__title">' + esc(c.title || c.topicKey) + '</span> '
       + '<span class="jp-topic-card__count">' + esc(total + ' từ') + '</span></button>'
-      + '<div class="jp-stack" role="img" aria-label="' + esc(summary) + '">' + bar + '</div>'
-      + '<p class="jp-topic-card__sub">' + esc(summary) + '</p>'
+      + '<div class="jp-tcard__line"><span class="jp-tcard__pct">' + esc(pct(touched, total).toFixed(0) + '%') + '</span>'
+      + '<div class="jp-stack" role="img" aria-label="' + esc(summary) + '">' + bar + '</div></div>'
+      + '<p class="jp-topic-card__sub jp-sr-only">' + esc(summary) + '</p>'
+      + (chips ? '<ul class="jp-tcard__chips">' + chips + '</ul>'
+        : '<p class="jp-tcard__empty">Chưa học từ nào · ' + esc(num(c.notLearned)) + ' từ mới</p>')
       + (done ? '<p class="jp-topic-card__done">' + icon('check') + ' Đã biết cả chủ đề</p>'
-        : '<button type="button" class="jp-link-btn" data-action="topic-known" data-topic="' + esc(c.topicKey)
+        : '<button type="button" class="jp-link-btn jp-tcard__known" data-action="topic-known" data-topic="' + esc(c.topicKey)
           + '">Tôi biết chủ đề này</button>')
       + '</li>';
   }
@@ -311,74 +322,12 @@
   }
 
   // ------------------------------------------------------------------------------------------------ kana
-
-  var VOWELS = ['a', 'i', 'u', 'e', 'o'];
-  var YOON_VOWELS = ['a', 'u', 'o'];
-
-  function lastVowel(romaji) {
-    var m = /([aiueo])$/.exec(String(romaji || '').toLowerCase());
-    return m ? m[1] : null;
+  function KT() {
+    return (root && root.JpathKanaTable) || (typeof require === 'function' ? require('./jpath-kana-table.js') : null);
   }
-
-  /** Grid slots of one kana row: 5 per line a i u e o (ん in its own slot after them), YOON 3 per line a u o. */
-  function kanaColumns(row) {
-    var r = row || {};
-    var cells = list(r.kanas).filter(Boolean);
-    if (r.kind === 'YOON') {
-      var groups = [];
-      var byKey = {};
-      cells.forEach(function (c) {
-        var key = String(c.romaji || '').replace(/[aiueo]$/, '');
-        if (!byKey[key]) { byKey[key] = [null, null, null]; groups.push(byKey[key]); }
-        var i = YOON_VOWELS.indexOf(lastVowel(c.romaji));
-        if (i >= 0) byKey[key][i] = c;
-      });
-      return [].concat.apply([], groups);
-    }
-    var slots = [null, null, null, null, null];
-    var extra = [];
-    cells.forEach(function (c) {
-      var i = VOWELS.indexOf(lastVowel(c.romaji));
-      if (i >= 0 && !slots[i]) slots[i] = c; else extra.push(c);
-    });
-    return slots.concat(extra);
-  }
-
-  function kanaCellHtml(c) {
-    if (!c) return '<span class="jp-kana-cell jp-kana-cell--empty" aria-hidden="true"></span>';
-    return '<button type="button" class="jp-kana-cell jp-kana-cell--' + stateOf(c.state).toLowerCase()
-      + '" data-jpath-writing="' + dataJson({ itemType: 'KANA', code: c.code }) + '" aria-label="'
-      + esc(c.kana + ' ' + (c.romaji || '') + ', luyện viết') + '"><span class="jp-kanji jp-kana-cell__kana" lang="ja">'
-      + esc(c.kana) + '</span><span class="jp-romaji">' + esc(c.romaji) + '</span></button>';
-  }
-
-  function kanaBarHtml(script) {
-    var s = script === 'KATAKANA' ? 'KATAKANA' : 'HIRAGANA';
-    return '<div class="jp-list-bar"><div class="jp-seg" role="group" aria-label="Bảng chữ">'
-      + '<button type="button" class="jp-seg__btn" data-action="kana-script" data-script="HIRAGANA" aria-pressed="'
-      + (s === 'HIRAGANA') + '">Hiragana</button><button type="button" class="jp-seg__btn" data-action="kana-script"'
-      + ' data-script="KATAKANA" aria-pressed="' + (s === 'KATAKANA') + '">Katakana</button></div>'
-      + '<button type="button" class="jp-btn" data-jpath-print="' + dataJson({ scope: 'KANA', script: s }) + '">In bảng chữ</button></div>';
-  }
-
-  function kanaRowsHtml(rows) {
-    var html = '';
-    var items = list(rows).filter(Boolean);
-    if (!items.length) return html + '<p class="jp-muted jp-list-empty">Chưa có hàng chữ nào.</p>';
-    html += '<ol class="jp-kana-rows">' + items.map(function (r) {
-      var first = list(r.kanas).filter(Boolean)[0];
-      // BROWSE takes the row code (HR-…/KR-…): Task 34 starts that row's new kana plus a KANA_ROW check
-      return '<li class="jp-kana-row"><div class="jp-kana-row__head"><h3 class="jp-kana-row__title">' + esc(r.title)
-        + '</h3>' + (r.passed ? '<span class="jp-ok jp-kana-row__passed">' + icon('check') + ' Đã đạt</span>' : '')
-        + (first ? '<button type="button" class="jp-link-btn" data-action="kana-row" data-row="' + esc(r.code)
-          + '">Học hàng này</button>' : '') + '</div>'
-        + '<div class="jp-kana-grid' + (r.kind === 'YOON' ? ' jp-kana-grid--yoon' : '') + '">'
-        + kanaColumns(r).map(kanaCellHtml).join('') + '</div></li>';
-    }).join('') + '</ol>';
-    return html;
-  }
-
-  function kanaHtml(rows, script) { return kanaBarHtml(script) + kanaRowsHtml(rows); }
+  function kanaColumns(row) { return KT().kanaColumns(row); }
+  function kanaHtml(rows, script) { return KT().kanaHtml(rows, script); }
+  function showKanaGroup(slot, el) { return KT().showKanaGroup(slot, el); }
 
   // ------------------------------------------------------------------------------------------------ grammar
 
@@ -566,7 +515,7 @@
     load: function (st) {
       var script = st.filter.script;
       return st.api.get(listUrl('kana', { script: script })).then(function (rows) {
-        return { barKey: 'kana:' + script, bar: kanaBarHtml(script), results: kanaRowsHtml(rows) };
+        return { barKey: 'kana:' + script, bar: KT().kanaBarHtml(script), results: KT().kanaRowsHtml(rows) };
       });
     }
   };
@@ -876,6 +825,7 @@
       },
       'kana-script': function (el) { return applyFilter(slot, st, 'script', el.getAttribute('data-script')); },
       'kana-row': function (el) { return startKanaRow(slot, st, el); },
+      'kana-group': function (el) { showKanaGroup(slot, el); },
       'open-grammar': function (el, ev) { return openGrammar(slot, st, el, ev); }
     };
     function paneAction(el) {

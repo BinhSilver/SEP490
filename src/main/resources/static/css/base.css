@@ -99,20 +99,20 @@ textarea {
   color: inherit;
 }
 
-select,
-.select,
-input.input,
-textarea.textarea {
+html:not(:has(body.jlas-ui-owned)) select,
+html:not(:has(body.jlas-ui-owned)) .select,
+html:not(:has(body.jlas-ui-owned)) input.input,
+html:not(:has(body.jlas-ui-owned)) textarea.textarea {
   background: var(--color-surface-lowest, #ffffff) !important;
   border: 1px solid var(--color-outline-variant, #cbc4d2) !important;
   color: var(--color-on-surface, #161d1f) !important;
   border-radius: var(--radius-md, 8px) !important;
 }
 
-select:focus,
-.select:focus,
-input.input:focus,
-textarea.textarea:focus {
+html:not(:has(body.jlas-ui-owned)) select:focus,
+html:not(:has(body.jlas-ui-owned)) .select:focus,
+html:not(:has(body.jlas-ui-owned)) input.input:focus,
+html:not(:has(body.jlas-ui-owned)) textarea.textarea:focus {
   background: var(--color-surface-lowest, #ffffff) !important;
   border-color: var(--color-primary, #4f378a) !important;
   box-shadow: var(--focus-ring) !important;

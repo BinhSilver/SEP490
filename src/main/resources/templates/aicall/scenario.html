@@ -12,13 +12,16 @@
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
     <link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/>
-    <link rel="stylesheet" th:href="@{/css/aicall-cases.css(v='20261105-plum')}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-cases.css(v='20261114-path-chip')}"/>
     <link rel="stylesheet" th:href="@{/css/aicall-stages.css(v='20261105-map2')}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261124-ui-standard">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="aicall-standard jl-ui-kit">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="aicall-case-page">
     <div class="container case-content">
@@ -81,6 +84,7 @@
             <aside class="case-practice" aria-labelledby="case-practice-heading" th:with="selectedView=${progression != null ? progression.stages.^[definition.code == #vars.selectedStage] : null}">
                 <div class="case-practice-inner">
                     <div class="case-coach-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></div>
+                    <p class="case-path-badge" th:if="${scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-')}"><i class="fa-solid fa-route" aria-hidden="true"></i> Kịch bản của Lộ trình Giao tiếp</p>
                     <h2 id="case-practice-heading">Luyện trường hợp này</h2>
                     <p class="case-selected-title" data-stage-selected-title th:attr="data-scenario=${progression != null ? progression.scenario.id : scenario.id}" th:text="${selectedStageTitle != null ? selectedStageTitle : scenario.variantTitle}">Món muốn gọi đã hết</p>
                     <dl class="case-roles">

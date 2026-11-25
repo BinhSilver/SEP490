@@ -25,6 +25,8 @@ public class OpenRouterVisionClient {
 
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.common.ai.AiUsageRecorder usageLog;
 
     @Value("${openrouter.api.key:}")
     private String apiKey;
@@ -67,6 +69,32 @@ public class OpenRouterVisionClient {
      * @return raw model text (expect JSON)
      */
     public String analyzeImage(Path imagePath, String userPrompt) throws Exception {
+        return analyzeImage(imagePath, userPrompt, IMAGE_SYSTEM_PROMPT);
+    }
+
+    /** Như {@link #analyzeImage(Path, String)} nhưng với system prompt riêng (vd. ảnh bài viết Cộng đồng). */
+    public String analyzeImage(Path imagePath, String userPrompt, String systemPrompt) throws Exception {
+        return completeWithFallback(systemPrompt, imageContent(imagePath, userPrompt));
+    }
+
+    /** Có model dự phòng để hỏi ý kiến thứ hai không ({@code moderation.image.fallback-model}). */
+    public boolean hasFallbackModel() {
+        return isConfigured() && StringUtils.hasText(fallbackModel);
+    }
+
+    public String getFallbackModel() {
+        return fallbackModel != null ? fallbackModel.trim() : "";
+    }
+
+    /** Hỏi riêng model dự phòng (ý kiến thứ hai khi model chính chưa chắc chắn). */
+    public String analyzeImageWithFallbackModel(Path imagePath, String userPrompt, String systemPrompt) throws Exception {
+        if (!hasFallbackModel()) {
+            throw new IllegalStateException("moderation.image.fallback-model chưa cấu hình");
+        }
+        return complete(fallbackModel.trim(), systemPrompt, imageContent(imagePath, userPrompt));
+    }
+
+    private List<Map<String, Object>> imageContent(Path imagePath, String userPrompt) throws Exception {
         if (!isConfigured()) {
             throw new IllegalStateException("moderation.image.model chưa cấu hình");
         }
@@ -75,32 +103,51 @@ public class OpenRouterVisionClient {
         String b64 = Base64.getEncoder().encodeToString(bytes);
         String dataUrl = "data:" + mime + ";base64," + b64;
 
-        try {
-            return complete(primaryModel.trim(), userPrompt, dataUrl);
-        } catch (Exception e) {
-            if (StringUtils.hasText(fallbackModel)) {
-                log.warn("Vision primary failed ({}), trying fallback {}", e.getMessage(), fallbackModel);
-                return complete(fallbackModel.trim(), userPrompt, dataUrl);
-            }
-            throw e;
-        }
-    }
-
-    private String complete(String model, String userPrompt, String dataUrl) throws Exception {
         List<Map<String, Object>> content = new ArrayList<>();
         content.add(Map.of("type", "text", "text", userPrompt));
         content.add(Map.of(
                 "type", "image_url",
                 "image_url", Map.of("url", dataUrl)
         ));
+        return content;
+    }
 
+    /** Phân loại một đoạn chữ (không kèm ảnh) bằng cùng model kiểm duyệt; trả về chữ thô của model (mong đợi JSON). */
+    public String analyzeText(String systemPrompt, String userText) throws Exception {
+        if (!isConfigured()) {
+            throw new IllegalStateException("moderation.image.model chưa cấu hình");
+        }
+        return completeWithFallback(systemPrompt, userText);
+    }
+
+    private String completeWithFallback(String systemPrompt, Object userContent) throws Exception {
+        try {
+            return complete(primaryModel.trim(), systemPrompt, userContent);
+        } catch (Exception e) {
+            if (StringUtils.hasText(fallbackModel)) {
+                log.warn("Vision primary failed ({}), trying fallback {}", e.getMessage(), fallbackModel);
+                return complete(fallbackModel.trim(), systemPrompt, userContent);
+            }
+            throw e;
+        }
+    }
+
+    private String complete(String model, String systemPrompt, Object userContent) throws Exception {
         Map<String, Object> userMsg = new HashMap<>();
         userMsg.put("role", "user");
-        userMsg.put("content", content);
+        userMsg.put("content", userContent);
 
-        Map<String, Object> systemMsg = Map.of(
-                "role", "system",
-                "content", """
+        Map<String, Object> systemMsg = Map.of("role", "system", "content", systemPrompt);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("model", model);
+        body.put("messages", List.of(systemMsg, userMsg));
+        body.put("temperature", 0);
+        body.put("max_tokens", maxTokens);
+        return send(model, body);
+    }
+
+    private static final String IMAGE_SYSTEM_PROMPT = """
                         You are a content moderator for KotsuKotsu, a Japanese learning community (not a large social network).
                         Flag policy risks in the IMAGE:
                         - sexual/NSFW, nudity level, pornography, sexualized minors / grooming cues
@@ -114,18 +161,12 @@ public class OpenRouterVisionClient {
                         Reply JSON only, no markdown:
                         {"verdict":"SAFE"|"REVIEW"|"BLOCKED","categories":["..."],"confidence":0.0,"risk":0,"reason":"short","summary":"short"}
                         risk is 0-100 integer.
-                        """
-        );
+                        """;
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", model);
-        body.put("messages", List.of(systemMsg, userMsg));
-        body.put("temperature", 0);
-        body.put("max_tokens", maxTokens);
-
+    private String send(String model, Map<String, Object> body) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey == null ? "" : apiKey.trim());
+        headers.setBearerAuth(com.jlas.common.ai.AiFeature.MODERATION_IMAGE.apiKey(apiKey));
         headers.set("HTTP-Referer", siteUrl);
         headers.set("X-Title", siteName);
 
@@ -139,6 +180,7 @@ public class OpenRouterVisionClient {
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
             throw new IllegalStateException("OpenRouter vision HTTP " + resp.getStatusCode());
         }
+        if (usageLog != null) usageLog.recordOpenRouter(com.jlas.common.ai.AiFeature.MODERATION_IMAGE, model, resp.getBody());
         JsonNode root = objectMapper.readTree(resp.getBody());
         if (root.has("error")) {
             throw new IllegalStateException("OpenRouter vision error: " + root.get("error"));

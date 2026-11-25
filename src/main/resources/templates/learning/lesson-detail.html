@@ -6,13 +6,7 @@
 
 <main id="jlabBaseContent" class="learning-lesson-page" data-inline-dictionary>
     <div class="ll-page-shell">
-        <nav class="ll-breadcrumb" aria-label="Breadcrumb">
-            <a th:href="@{/}">Học tập</a>
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            <a th:href="@{/learning/path}">Lộ trình của tôi</a>
-            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-            <span aria-current="page" th:text="${lesson.title}">Bài học</span>
-        </nav>
+        <a class="jp-back" th:href="@{/learning}"><svg class="jp-back__icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Quay về Lộ trình học</span></a>
 
         <article class="ll-hero">
             <div class="ll-hero__copy">
@@ -82,6 +76,8 @@
         </section>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 
 <script th:src="@{/js/pages/learning-lesson.js}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>

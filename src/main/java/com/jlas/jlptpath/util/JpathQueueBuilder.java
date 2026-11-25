@@ -54,6 +54,11 @@ public final class JpathQueueBuilder {
             // Plan 3 Task 16: a skill day queues its reviews only; Reading and Listening are skill sessions
             if (!skillDay) {
                 news(in, q);
+            } else if (in.skillQuizNeeded()) {
+                // QA 20/11: the day completion waits for the skill-day quiz (#25, bug 95), so the review round ends
+                // with it; the check service turns the FREE_QUIZ step into the #25 source (V/K/G quiz or kana rows)
+                q.add(new JpathQueueStep(0, JpathStepKind.MICRO_CHECK, JpathTab.SKILL, null, null,
+                        JpathCheckKind.FREE_QUIZ, null, false));
             }
         } else {
             news(in, q);
@@ -167,6 +172,31 @@ public final class JpathQueueBuilder {
                 .count();
         List<JpathQueueStep> out = new ArrayList<>(q);
         if (repeats < maxRepeatsPerItem) out.add(of.asRepeat(out.size()));
+        return renumber(out);
+    }
+
+    /**
+     * [JLAS-W0108] F149: Inserts a repeat of {@code of} immediately before the first {@code MICRO_CHECK} of
+     * {@code of.tab()} after {@code fromPos} (or at the end when none follows), capped at {@code maxRepeats} repeats.
+     */
+    public static List<JpathQueueStep> insertRepeatBeforeCheck(List<JpathQueueStep> queue, int fromPos,
+            JpathQueueStep of, int maxRepeats) {
+        long repeats = queue.stream()
+                .filter(s -> s.repeat() && s.itemType() == of.itemType() && Objects.equals(s.itemCode(), of.itemCode()))
+                .count();
+        if (repeats >= maxRepeats) {
+            return renumber(new ArrayList<>(queue));
+        }
+        int insertAt = queue.size();
+        for (int i = Math.max(0, fromPos + 1); i < queue.size(); i++) {
+            JpathQueueStep s = queue.get(i);
+            if (s.kind() == JpathStepKind.MICRO_CHECK && s.tab() == of.tab()) {
+                insertAt = i;
+                break;
+            }
+        }
+        List<JpathQueueStep> out = new ArrayList<>(queue);
+        out.add(insertAt, of.asRepeat(0));
         return renumber(out);
     }
 

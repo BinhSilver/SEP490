@@ -32,4 +32,8 @@ public interface ModerationAuditLogRepository extends JpaRepository<ModerationAu
 
     /** The decision currently in force for a review case: the newest of the given actions. */
     Optional<ModerationAuditLog> findFirstByCaseIdAndActionInOrderByIdDesc(Long caseId, Collection<String> actions);
+
+    /** Newest transition of a target into a state (e.g. why community content was REMOVED), for the owner's banner. */
+    Optional<ModerationAuditLog> findFirstByTargetTypeAndTargetIdAndToStateOrderByIdDesc(String targetType,
+                                                                                       Long targetId, String toState);
 }

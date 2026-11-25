@@ -32,6 +32,7 @@ public class SpeedRecallService {
     private final FlashcardSpeedRecallAnswerRepository answers;
     private final EntityManager em;
     private final SpeedRecallClock clock;
+    private final SpeedRecallTimeLimitRepository timeLimits;
 
     public Options options(Long setId, Long userId, String modeName) {
         requireUser(userId);
@@ -57,15 +58,21 @@ public class SpeedRecallService {
     public View create(Long setId, Long userId, CreateRequest request) {
         requireUser(userId);
         SpeedRecallMode mode = mode(request.mode());
+        Integer seconds = request.timeLimitSeconds();
+        if (seconds != null && !SpeedRecallRules.TIME_LIMIT_CHOICES.contains(seconds)) {
+            throw bad("Thời gian mỗi từ phải là một trong các mức " + SpeedRecallRules.TIME_LIMIT_CHOICES + " giây.");
+        }
         String fingerprint = hash(setId + "|" + request.filter() + "|" + request.count() + "|" + request.autoSubmit()
-                + "|" + mode.name() + (request.selectedCardIds() == null ? "" : "|" + new TreeSet<>(request.selectedCardIds())));
+                + "|" + mode.name() + (request.selectedCardIds() == null ? "" : "|" + new TreeSet<>(request.selectedCardIds()))
+                + (seconds == null ? "" : "|time:" + seconds));
         lockUser(userId);
         Optional<FlashcardStudySession> previous = studies.findByUserIdAndCreationRequestId(userId, request.requestId());
         if (previous.isPresent()) return duplicate(previous.get(), fingerprint, setId, userId);
         FlashcardSet set = access.studyable(setId, userId);
         List<FlashcardCard> pool = select(cards.findBySetIdOrderByPositionAscIdAsc(setId), progress(userId, setId), request.filter(), mode);
         pool = requestedCards(pool, request);
-        return build(set, userId, pool, request.count(), request.filter(), request.autoSubmit(), null, request.requestId(), fingerprint, mode);
+        return build(set, userId, pool, request.count(), request.filter(), request.autoSubmit(), null, request.requestId(), fingerprint, mode,
+                seconds);
     }
 
     /** The previewed subset must belong to this set and remain eligible for the requested pair. */
@@ -101,7 +108,9 @@ public class SpeedRecallService {
         SpeedRecallMode mode = mode(source.getSession().getMode());
         List<FlashcardCard> pool = select(cards.findBySetIdOrderByPositionAscIdAsc(setId).stream()
                 .filter(c -> wrong.contains(c.getId())).toList(), Map.of(), "ALL", mode);
-        return build(source.getSession().getSet(), userId, pool, pool.size(), "RETRY", source.isAutoSubmit(), id, request.requestId(), fingerprint, mode);
+        // Retrying the missed words keeps the time per word of the session they came from.
+        return build(source.getSession().getSet(), userId, pool, pool.size(), "RETRY", source.isAutoSubmit(), id, request.requestId(), fingerprint, mode,
+                timeLimits.find(id).orElse(null));
     }
 
     private View duplicate(FlashcardStudySession previous, String fingerprint, Long setId, Long userId) {
@@ -110,7 +119,8 @@ public class SpeedRecallService {
     }
 
     private View build(FlashcardSet set, Long userId, List<FlashcardCard> pool, int count, String filter,
-                       boolean auto, Long retryOf, String requestId, String fingerprint, SpeedRecallMode mode) {
+                       boolean auto, Long retryOf, String requestId, String fingerprint, SpeedRecallMode mode,
+                       Integer timeLimitSeconds) {
         if (pool.isEmpty()) throw bad("Không có thẻ phù hợp với chế độ này. Hãy bổ sung nội dung còn thiếu cho thẻ hoặc đổi bộ lọc.");
         if (count < 1 || count > pool.size()) {
             throw bad("Số câu hỏi phải từ 1 đến " + pool.size() + " với bộ lọc hiện tại.");
@@ -133,6 +143,7 @@ public class SpeedRecallService {
         s.setRetryOfSessionId(retryOf); s.setRulesVersion(SpeedRecallRules.VERSION); s.setContentVersion(contentVersion);
         s.setCreatedAt(now); s.setLastActivityAt(now); s.setExpiresAt(now.plusMinutes(30));
         sessions.saveAndFlush(s);
+        timeLimits.save(s.getId(), timeLimitSeconds);
         List<FlashcardSpeedRecallAnswer> rows = new ArrayList<>();
         for (int i = 0; i < selected.size(); i++) {
             FlashcardCard card = selected.get(i);
@@ -172,7 +183,7 @@ public class SpeedRecallService {
 
     private void issue(FlashcardSpeedRecallSession s, FlashcardSpeedRecallAnswer a) {
         LocalDateTime now = clock.now();
-        a.setStreakBefore(s.getStreak()); a.setTimeLimitMs(SpeedRecallRules.timeLimit(s.getStreak()));
+        a.setStreakBefore(s.getStreak()); a.setTimeLimitMs(SpeedRecallRules.timeLimit(s.getStreak(), timeLimits.find(s.getId()).orElse(null)));
         a.setIssuedAt(now); a.setDeadlineAt(now.plusNanos(a.getTimeLimitMs() * 1_000_000L)); a.setOutcome(Outcome.ACTIVE);
         s.setCurrentQuestionIndex(a.getQuestionIndex()); s.setState(State.PLAYING); s.setFeedbackUntil(null);
         touch(s);

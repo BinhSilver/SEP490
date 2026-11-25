@@ -6,13 +6,13 @@
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
-  padding: 24px 36px 64px !important;
+  padding: 24px 32px 64px !important;
   background: #ffffff;
 }
 
 #jlabBasePage.flashcard-page--library .folder-panel {
-  margin-top: 28px;
-  padding: 18px 12px 0;
+  margin-top: 24px;
+  padding: 16px 12px 0;
   border-top: 1px solid var(--fc-outline-soft);
 }
 
@@ -24,15 +24,14 @@
 
 #jlabBasePage.flashcard-page--library .folder-panel__heading {
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: var(--fc-on-variant);
   font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 500;
 }
 
 #jlabBasePage.flashcard-page--library .folder-list { display: grid; gap: 4px; }
-#jlabBasePage.flashcard-page--library .folder-row { display: grid; grid-template-columns: minmax(0,1fr) 28px 28px; gap: 3px; }
+#jlabBasePage.flashcard-page--library .folder-row { display: grid; grid-template-columns: minmax(0,1fr) 28px 28px; gap: 4px; }
 
 #jlabBasePage.flashcard-page--library .folder-filter {
   width: 100%;
@@ -50,7 +49,7 @@
 #jlabBasePage.flashcard-page--library .folder-filter span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #jlabBasePage.flashcard-page--library .folder-filter small { margin-left: auto; }
 #jlabBasePage.flashcard-page--library .folder-filter:hover,
-#jlabBasePage.flashcard-page--library .folder-filter.is-active { color: var(--fc-primary); background: rgba(70,72,212,.09); }
+#jlabBasePage.flashcard-page--library .folder-filter.is-active { color: var(--fc-primary); background: color-mix(in srgb, var(--fc-primary) 9%, transparent); }
 
 #jlabBasePage.flashcard-page--library .folder-icon-btn {
   display: inline-grid;
@@ -65,16 +64,16 @@
   cursor: pointer;
 }
 
-#jlabBasePage.flashcard-page--library .folder-icon-btn:hover { color: var(--fc-primary); background: rgba(70,72,212,.09); }
+#jlabBasePage.flashcard-page--library .folder-icon-btn:hover { color: var(--fc-primary); background: color-mix(in srgb, var(--fc-primary) 9%, transparent); }
 #jlabBasePage.flashcard-page--library .folder-icon-btn--danger:hover { color: var(--fc-error); background: var(--fc-error-soft); }
 
 #jlabBasePage.flashcard-page--library .lib-toolbar {
   display: grid;
   align-items: center;
-  grid-template-columns: minmax(280px, 1fr) 210px;
-  gap: 14px;
+  grid-template-columns: minmax(280px, 1fr) 208px;
+  gap: 12px;
   width: 100%;
-  margin: 0 0 28px;
+  margin: 0 0 32px;
   padding: 0;
   background: transparent;
   border: 0;
@@ -85,9 +84,9 @@
   display: flex;
   min-height: 44px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
-  padding-inline: 14px 4px;
+  padding-inline: 16px 4px;
   color: var(--fc-on-variant);
   background: var(--fc-surface-low);
   border: 0;
@@ -95,7 +94,7 @@
 }
 
 #jlabBasePage.flashcard-page--library .lib-search:focus-within {
-  box-shadow: 0 0 0 2px rgba(70,72,212,.18);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--fc-primary) 18%, transparent);
 }
 
 #jlabBasePage.flashcard-page--library .lib-search input {
@@ -111,12 +110,13 @@
 /* The rounded search field owns focus; its inner input has no second frame. */
 #jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search {
   min-height: 48px;
-  border: 1px solid var(--fc-outline-soft) !important;
-  border-radius: 12px !important;
+  border: 1px solid var(--fc-field-line) !important;
+  border-radius: var(--radius-input) !important;
   box-shadow: none !important;
 }
-#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search:focus-within {
-  border-color: var(--fc-primary) !important;
+#jlabBasePage.flashcard-page--library #jlabBaseContent .lib-search:has(#lib-search:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -1px;
 }
 #jlabBasePage.flashcard-page--library #jlabBaseContent #lib-search {
   appearance: none;
@@ -155,7 +155,7 @@
 }
 #jlabBasePage.flashcard-page--library .lib-search__submit:hover {
   color: var(--fc-primary);
-  background: rgba(70,72,212,.09);
+  background: color-mix(in srgb, var(--fc-primary) 9%, transparent);
 }
 #jlabBasePage.flashcard-page--library .lib-search__submit:focus-visible {
   outline: 2px solid var(--fc-primary);
@@ -178,7 +178,13 @@
   color: var(--fc-on-surface) !important;
   background: var(--fc-surface-low) !important;
   border: 1px solid var(--fc-outline-soft) !important;
-  font: 500 14px/1.2 "Inter", sans-serif !important;
+  font: 500 14px/1.2 var(--font-body) !important;
+}
+
+/* The sort box matches the search field beside it: same height and corner. */
+#jlabBasePage.flashcard-page--library .lib-sort-field .jl-select__trigger {
+  min-height: 48px;
+  border-radius: var(--radius-input);
 }
 
 #jlabBasePage.flashcard-page--library .library-results-heading {
@@ -193,20 +199,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 0 5px;
+  margin: 0 0 4px;
   font-size: 22px;
   font-weight: 600;
-}
-
-#jlabBasePage.flashcard-page--library .library-results-heading__icon {
-  display: inline-grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  color: #fff;
-  background: var(--fc-primary);
-  border-radius: 50%;
-  font-size: 15px;
 }
 
 #jlabBasePage.flashcard-page--library .library-results-heading p {
@@ -248,12 +243,12 @@
   border: 1px solid rgba(199,196,215,.28);
   border-radius: 14px;
   box-shadow: var(--fc-shadow);
-  transition: transform .3s ease, box-shadow .3s ease;
+  transition: border-color 160ms var(--ease-out, ease-out), box-shadow 160ms var(--ease-out, ease-out);
 }
 
 #jlabBasePage.flashcard-page--library .lib-card:hover {
+  border-color: var(--fc-outline-soft);
   box-shadow: var(--fc-shadow-hover);
-  transform: translateY(-4px);
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__link {
@@ -268,20 +263,15 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform .55s ease;
-}
-
-#jlabBasePage.flashcard-page--library .lib-card:hover .lib-card__thumb {
-  transform: scale(1.05);
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__meta {
   position: absolute;
   z-index: 2;
-  top: 11px;
-  right: 11px;
+  top: 12px;
+  right: 12px;
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__meta--no-thumb {
@@ -296,13 +286,13 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 8px;
+  padding: 4px 8px;
   color: var(--fc-on-variant);
   background: rgba(255,255,255,.94);
-  border-radius: 999px;
-  box-shadow: 0 2px 8px rgba(33,49,69,.08);
-  font-size: 10px;
-  font-weight: 700;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__rating i { color: var(--color-star, #f5a400); }
@@ -310,18 +300,17 @@
 #jlabBasePage.flashcard-page--library .tag {
   display: inline-flex;
   align-items: center;
-  padding: 5px 8px;
-  border-radius: 999px;
-  box-shadow: 0 2px 8px rgba(33,49,69,.08);
-  font-size: 10px;
-  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 #jlabBasePage.flashcard-page--library .tag-public { color: var(--fc-primary); background: rgba(255,255,255,.92); }
 #jlabBasePage.flashcard-page--library .tag-private { color: var(--fc-on-variant); background: rgba(255,255,255,.92); }
 #jlabBasePage.flashcard-page--library .tag-review { color: var(--fc-on-variant); background: rgba(255,255,255,.92); }
 #jlabBasePage.flashcard-page--library .tag-blocked { color: var(--fc-error); background: var(--fc-error-soft); }
-#jlabBasePage.flashcard-page--library .tag-draft { color: #8a5a00; background: #fff3cd; }
+#jlabBasePage.flashcard-page--library .tag-draft { color: var(--color-warning); background: var(--color-warning-bg); }
 #jlabBasePage.flashcard-page--library .tag-folder { color: var(--fc-primary); background: rgba(238,238,255,.94); }
 
 #jlabBasePage.flashcard-page--library .lib-folder-select {
@@ -336,7 +325,7 @@
 
 #jlabBasePage.flashcard-page--library .lib-folder-select select {
   min-width: 0;
-  padding: 7px 9px;
+  padding: 8px;
   color: var(--fc-on-surface);
   background: var(--fc-surface-low);
   border: 1px solid var(--fc-outline-soft);
@@ -347,6 +336,7 @@
   color: var(--fc-on-variant);
   font-size: 13px;
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__body {
@@ -363,7 +353,7 @@
 
 #jlabBasePage.flashcard-page--library .lib-card--no-thumb .lib-card__body {
   margin: 0;
-  padding: 14px;
+  padding: 16px;
   border-radius: var(--fc-radius-md);
 }
 
@@ -389,9 +379,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   color: var(--fc-on-variant);
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 #jlabBasePage.flashcard-page--library .lib-card__foot {
@@ -420,8 +411,8 @@
   height: 22px;
   flex: 0 0 auto;
   place-items: center;
-  color: #fff;
-  background: var(--fc-primary);
+  color: var(--fc-on-variant);
+  background: var(--fc-surface-low);
   border-radius: 50%;
   font-size: 11px;
 }
@@ -435,7 +426,7 @@
 #jlabBasePage.flashcard-page--library #jlabBaseContent .lib-card__actions {
   display: flex;
   align-items: stretch;
-  gap: 6px;
+  gap: 8px;
   margin-top: 0;
 }
 
@@ -505,7 +496,7 @@
   background: #fff;
   border: 1px solid var(--lx-line);
   border-radius: 20px;
-  box-shadow: 0 30px 70px rgba(52, 33, 110, .22);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .16);
 }
 
 /* flashcard-ui.css forces modal inputs with !important; restore the export design. */
@@ -535,22 +526,22 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 22px 24px 15px;
+  gap: 16px;
+  padding: 24px 24px 16px;
   overflow: hidden;
 }
 
 .lib-export__badge {
   display: grid;
   flex: 0 0 auto;
-  width: 51px;
-  height: 51px;
+  width: 48px;
+  height: 48px;
   place-items: center;
   color: var(--lx-badge-fg);
   background: var(--lx-badge-bg);
-  border-radius: 15px;
-  font-size: 24px;
-  transition: background .2s, color .2s;
+  border-radius: 12px;
+  font-size: 22px;
+  transition: background-color 160ms ease-out, color 160ms ease-out;
 }
 
 .lib-export__heading {
@@ -564,7 +555,7 @@
   margin: 0;
   overflow: hidden;
   color: var(--lx-ink);
-  font: 700 var(--lx-title)/1.25 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  font: 600 var(--lx-title)/1.25 var(--font-body), var(--font-body);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -575,16 +566,8 @@
   font-size: var(--lx-text);
 }
 
-.lib-export__deco {
-  position: absolute;
-  top: -6px;
-  right: 60px;
-  color: var(--lx-accent);
-  font-size: 82px;
-  opacity: .07;
-  transform: rotate(-12deg);
-  pointer-events: none;
-}
+/* Decorative watermark icon: removed by unslop, the badge already names the format. */
+.lib-export__deco { display: none; }
 
 .lib-export__close {
   position: relative;
@@ -599,7 +582,6 @@
   background: #fff;
   border: 1px solid var(--lx-line);
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(52, 33, 110, .08);
   cursor: pointer;
   font-size: var(--lx-text);
 }
@@ -609,7 +591,7 @@
 .lib-export__body {
   flex: 1 1 auto;
   min-height: 0;
-  padding: 0 24px 7px;
+  padding: 0 24px 8px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -628,7 +610,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   padding: 0;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
   overflow: hidden;
   background: #f5f2fd;
   border: 0;
@@ -637,7 +619,7 @@
 
 .lib-export__tab {
   display: inline-flex;
-  min-height: 39px;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -646,7 +628,7 @@
   border: 0;
   border-radius: 0;
   cursor: pointer;
-  font: 600 var(--lx-text)/1.2 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  font: 500 var(--lx-text)/1.2 var(--font-body), var(--font-body);
 }
 
 .lib-export__tab i { color: #6b6680; }
@@ -693,7 +675,7 @@
   border: 2px solid #c9c2dc;
   border-radius: 6px;
   font-size: 11px;
-  transition: background .15s, border-color .15s;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out;
 }
 
 .lib-export__checkbox i { opacity: 0; }
@@ -713,7 +695,7 @@
 .lib-export__check-text strong {
   display: block;
   font-size: var(--lx-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .lib-export__group {
@@ -730,7 +712,7 @@
   margin-bottom: 8px;
   padding: 0;
   font-size: var(--lx-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .lib-export__chip input {
@@ -741,16 +723,16 @@
 
 .lib-export__chip span {
   display: inline-flex;
-  min-height: 31px;
+  min-height: 32px;
   align-items: center;
-  padding: 0 14px;
+  padding: 0 12px;
   color: #3d3852;
   background: #fff;
   border: 1px solid var(--lx-line);
-  border-radius: 999px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: var(--lx-text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .lib-export__chip span:hover { background: #f8f6fd; }
@@ -767,9 +749,9 @@
 }
 
 .lib-export__custom {
-  width: 82px;
-  min-height: 31px;
-  padding: 0 10px;
+  width: 80px;
+  min-height: 32px;
+  padding: 0 12px;
   color: var(--lx-ink);
   background: #fff;
   border: 1px solid var(--lx-line);
@@ -793,13 +775,13 @@
   width: 100%;
   flex: 1 1 auto;
   min-height: 120px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   resize: none;
   color: var(--lx-ink);
   background: #fcfbfe;
   border: 1px solid var(--lx-line);
   border-radius: 12px;
-  font: var(--lx-text)/1.7 "Noto Sans JP", "JetBrains Mono", monospace;
+  font: var(--lx-text)/1.7 var(--font-jp), var(--font-body);
   white-space: pre;
   tab-size: 4;
 }
@@ -825,7 +807,7 @@
 
 .lib-export__sheet th,
 .lib-export__sheet td {
-  padding: 8px 17px;
+  padding: 8px 16px;
   border-right: 1px solid var(--lx-line);
   text-align: left;
   vertical-align: top;
@@ -834,7 +816,7 @@
 .lib-export__sheet th:last-child,
 .lib-export__sheet td:last-child { border-right: 0; }
 
-.lib-export__sheet td { font-family: "Noto Sans JP", "Inter", sans-serif; }
+.lib-export__sheet td { font-family: var(--font-jp); }
 
 .lib-export__sheet thead th {
   position: sticky;
@@ -849,7 +831,8 @@
 }
 
 .lib-export__sheet tbody th {
-  width: 61px;
+  width: 64px;
+  font-variant-numeric: tabular-nums;
   color: var(--lx-muted);
   font-weight: 500;
   text-align: center;
@@ -863,8 +846,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 7px 24px 0;
-  padding: 15px 0 20px;
+  margin: 8px 24px 0;
+  padding: 16px 0 20px;
   border-top: 1px solid var(--lx-line);
 }
 
@@ -872,9 +855,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--lx-accent-strong);
+  color: var(--lx-muted);
   font-size: var(--lx-text);
-  font-weight: 600;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .lib-export__count i { font-size: var(--lx-text); }
@@ -889,18 +873,17 @@
 
 .lib-export__btn {
   display: inline-flex;
-  min-height: 43px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 0 19px;
+  padding: 0 20px;
   color: #3d3852;
   background: #fff;
   border: 1px solid var(--lx-line);
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(52, 33, 110, .06);
   cursor: pointer;
-  font: 600 var(--lx-text)/1 "Hanken Grotesk", "Plus Jakarta Sans", sans-serif;
+  font: 600 var(--lx-text)/1 var(--font-body), var(--font-body);
 }
 
 .lib-export__btn:hover { background: #f8f6fd; }
@@ -908,12 +891,11 @@
 .lib-export__btn--primary {
   min-width: 136px;
   color: #fff;
-  background: linear-gradient(135deg, #7446e6, var(--lx-accent-strong));
+  background: var(--lx-accent-strong);
   border-color: transparent;
-  box-shadow: 0 8px 20px rgba(106, 63, 214, .32);
 }
 
-.lib-export__btn--primary:hover { background: linear-gradient(135deg, #6a3fd6, #4a28aa); }
+.lib-export__btn--primary:hover { background: #4a28aa; }
 
 .lib-export__btn:disabled {
   cursor: not-allowed;
@@ -956,7 +938,7 @@
   border: 0;
   border-radius: 6px;
   cursor: pointer;
-  font: 600 12px/1.2 "Plus Jakarta Sans", sans-serif;
+  font: 500 13px/1.2 var(--font-body, sans-serif);
   text-align: left;
 }
 
@@ -988,7 +970,7 @@
   display: grid;
   width: 68px;
   height: 68px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   place-items: center;
   color: var(--fc-primary);
   background: var(--fc-primary-soft);
@@ -1003,7 +985,8 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-top: 36px;
+  margin-top: 32px;
+  font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 1000px) {
@@ -1028,30 +1011,6 @@
 /* Page-owned dark mode: flashcard/library-theme.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .library-content {
     background: var(--dm-flashcard-surface)
 }
@@ -1070,21 +1029,14 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search__submi
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-search:focus-within {
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.30)
 }
-html[data-theme="dark"] #jlabBasePage.flashcard-page--library .library-results-heading__icon {
-    color: var(--dm-flashcard-on-accent)
-}
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card {
     border: 1px solid var(--dm-flashcard-line)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card__rating {
-    background: var(--dm-flashcard-surface);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20)
+    background: var(--dm-flashcard-surface)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card__rating i {
     color: var(--dm-flashcard-warning)
-}
-html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-public {
     background: var(--dm-flashcard-surface)
@@ -1103,7 +1055,7 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .tag-folder {
     background: var(--dm-flashcard-accent-soft)
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-card__avatar {
-    color: var(--dm-flashcard-on-accent)
+    color: var(--dm-flashcard-muted)
 }
 html[data-theme="dark"] .lib-export {
     --lx-accent: var(--dm-flashcard-accent);
@@ -1136,8 +1088,7 @@ html[data-theme="dark"] .lib-export[data-format="csv"] {
     --lx-badge-fg: var(--dm-flashcard-warning-bg)
 }
 html[data-theme="dark"] .lib-export__close {
-    background: var(--dm-flashcard-surface);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.20)
+    background: var(--dm-flashcard-surface)
 }
 html[data-theme="dark"] .lib-export__tabs {
     background: var(--dm-flashcard-accent-soft)
@@ -1184,19 +1135,17 @@ html[data-theme="dark"] .lib-export__sheet thead th {
 }
 html[data-theme="dark"] .lib-export__btn {
     color: var(--dm-flashcard-muted);
-    background: var(--dm-flashcard-surface);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18)
+    background: var(--dm-flashcard-surface)
 }
 html[data-theme="dark"] .lib-export__btn:hover {
     background: var(--dm-flashcard-accent-soft)
 }
 html[data-theme="dark"] .lib-export__btn--primary {
     color: var(--dm-flashcard-ink);
-    background: linear-gradient(135deg, var(--dm-flashcard-action), var(--lx-accent-strong));
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.44)
+    background: var(--dm-flashcard-action)
 }
 html[data-theme="dark"] .lib-export__btn--primary:hover {
-    background: linear-gradient(135deg, var(--dm-flashcard-action), var(--dm-flashcard-raised))
+    background: var(--dark-button-hover, var(--dm-flashcard-action))
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu {
     background: var(--dm-flashcard-surface);
@@ -1258,7 +1207,7 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
   margin: 8px 0 -4px;
   color: var(--fc-on-surface);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
 }
 #jlabBasePage.flashcard-page--library .lib-history-day:first-child { margin-top: 0; }
 #jlabBasePage.flashcard-page--library .library-content.is-history .lib-sort-field { display: none; }
@@ -1269,12 +1218,12 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page--library .lib-context-menu 
   min-height: 40px;
   margin-left: auto;
   margin-right: 12px;
-  padding: 8px 14px;
+  padding: 8px 16px;
   color: var(--fc-on-variant);
   background: transparent;
   border: 1px solid var(--fc-outline-soft);
   border-radius: 10px;
-  font: 600 14px/1 var(--font-body, sans-serif);
+  font: 500 14px/1 var(--font-body, sans-serif);
   cursor: pointer;
 }
 #jlabBasePage.flashcard-page--library .lib-history-clear[hidden] { display: none; }

@@ -22,6 +22,9 @@ public interface JpathUserPathRepository extends JpaRepository<JpathUserPath, Lo
     /** Newest path of the user in {@code status}. */
     Optional<JpathUserPath> findFirstByUserIdAndStatusOrderByIdDesc(Long userId, JpathPathStatus status);
 
+    Optional<JpathUserPath> findFirstByUserIdAndStatusAndArchivedAtIsNullOrderByIdDesc(
+            Long userId, JpathPathStatus status);
+
     /**
      * The user's ACTIVE path locked for writing (SELECT … FOR UPDATE) until the transaction ends; at most one exists
      * (uk_jpath_path_active). A locking read returns the latest committed row, not the transaction's snapshot.

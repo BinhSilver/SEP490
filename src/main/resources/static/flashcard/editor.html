@@ -7,9 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tạo / Sửa thẻ từ — KotsuKotsu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap"
-    rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap">
   <link rel="stylesheet" href="/css/tokens.css" />
   <link rel="stylesheet" href="/css/theme-bridge.css" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -19,17 +17,22 @@
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
   <link rel="stylesheet" href="/css/components/ai-progress.css" />
-  <link rel="stylesheet" href="/flashcard/styles.css" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261123-ui" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/editor-theme.css?v=20261015-source" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+  <link rel="stylesheet" href="/flashcard/editor-theme.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
+  <link rel="stylesheet" href="/css/components/page-guide.css?v=20261117-bullets" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+  <link rel="stylesheet" href="/css/components/ui-kit.css?v=20261123-ghost">
+  <link rel="stylesheet" href="/flashcard/ui-standard.css?v=20261123-ghost">
 </head>
 
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--editor">
   <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="page">
+<main id="jlabBaseContent" class="page jl-ui-kit">
   <aside class="fc-stitch-sidebar" aria-label="Thư viện Flashcard">
     <div class="fc-stitch-sidebar__label">Thư viện</div>
     <nav class="fc-stitch-sidebar__nav">
@@ -49,6 +52,7 @@
             </div>
           <div class="editor-sheet__actions">
             <span id="draft-save-status" class="draft-save-status" aria-live="polite">Chưa có thay đổi</span>
+            <button type="button" id="editor-guide-open" class="page-guide-button" disabled><i class="fa-regular fa-circle-question" aria-hidden="true"></i> Hướng dẫn</button>
             <button type="button" class="btn btn--secondary btn-ghost" id="btn-appeal" hidden><i class="fa-solid fa-scale-balanced"></i> Kháng cáo</button>
             <a class="btn btn--secondary btn-ghost" id="btn-study" href="#" hidden><i class="fa-solid fa-play"></i> Học thử</a>
             <button type="button" class="btn btn--primary btn-primary" id="btn-save"><i class="fa-solid fa-floppy-disk"></i> Lưu bộ thẻ</button>
@@ -77,7 +81,7 @@
             <div class="form-group editor-meta__privacy">
               <label class="label" for="set-visibility">Quyền riêng tư</label>
               <div class="input-wrap">
-                <select class="select" id="set-visibility">
+                <select class="select" id="set-visibility" data-jl-select>
                   <option value="PRIVATE">Chỉ mình tôi</option>
                   <option value="PUBLIC">Công khai cho mọi người</option>
                 </select>
@@ -88,7 +92,7 @@
               <label class="label" for="set-folder">Thư mục</label>
               <div class="editor-folder-control">
                 <div class="input-wrap">
-                  <select class="select" id="set-folder" aria-label="Chọn thư mục cho bộ thẻ">
+                  <select class="select" id="set-folder" data-jl-select aria-label="Chọn thư mục cho bộ thẻ">
                     <option value="0">Chưa phân loại</option>
                   </select>
                 </div>
@@ -150,7 +154,7 @@
       <div class="modal-body" data-source="manual">
         <div class="import-option import-option--source">
           <label for="import-source">Cách nhập</label>
-          <select id="import-source" class="select import-select">
+          <select id="import-source" data-jl-select class="select import-select">
             <option value="manual">Nhập thủ công</option>
             <option value="ai">AI tạo thẻ</option>
             <option value="file">File (Excel, CSV, TXT)</option>
@@ -182,7 +186,7 @@
         <div class="import-options" data-import-source="manual">
           <div class="import-option import-option--mode">
             <label for="import-mode">Kiểu dữ liệu</label>
-            <select id="import-mode" class="select import-select">
+            <select id="import-mode" data-jl-select class="select import-select">
               <option value="pair">2 cột</option>
               <option value="quad" title="Kanji, Cách đọc, Nghĩa, Hán Việt">4 trường </option>
             </select>
@@ -190,7 +194,7 @@
           <div class="import-option" data-import-mode="pair">
             <label for="import-term-sep">Giữa từ và định nghĩa</label>
             <div class="import-option__row">
-              <select id="import-term-sep" class="select import-select">
+              <select id="import-term-sep" data-jl-select class="select import-select">
                 <option value="tab">Tab</option>
                 <option value="comma">Phẩy</option>
                 <option value="custom">Tùy chỉnh</option>
@@ -201,7 +205,7 @@
           <div class="import-option" data-import-mode="both">
             <label for="import-card-sep">Giữa các thẻ</label>
             <div class="import-option__row">
-              <select id="import-card-sep" class="select import-select">
+              <select id="import-card-sep" data-jl-select class="select import-select">
                 <option value="newline">Dòng mới</option>
                 <option value="semicolon">Chấm phẩy</option>
                 <option value="custom">Tùy chỉnh</option>
@@ -273,7 +277,9 @@
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/prevalidation.js"></script>
   <script src="/flashcard/js/import-separators.js?v=20261015-automode"></script>
-  <script src="/flashcard/js/editor-page.js?v=19"></script>
+  <script src="/flashcard/js/editor-page.js?v=20261111-select"></script>
+  <script src="/js/components/page-guide.js?v=20261117-bullets"></script>
+  <script src="/flashcard/js/editor-guide.js?v=20261117-bullets"></script>
 </body>
 
 </html>

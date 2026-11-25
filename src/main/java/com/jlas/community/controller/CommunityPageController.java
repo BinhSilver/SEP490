@@ -1,5 +1,6 @@
 package com.jlas.community.controller;
 
+import com.jlas.community.enums.CommunityContentType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,22 @@ public class CommunityPageController {
         return "community/index";
     }
 
+    /** Trang "Báo cáo cộng đồng" trong cổng quản trị (CONTENT_CREATOR / MODERATOR / ADMIN, xem SecurityConfig). */
+    @GetMapping("/admin/community-reports")
+    public String reports() {
+        return "admin/community-reports";
+    }
+
+    /** Trang một bài viết: link chia sẻ và link từ thông báo bình luận. */
+    @GetMapping("/community/posts/{postId}")
+    public String post(@PathVariable Long postId, Model model) {
+        model.addAttribute("postId", postId);
+        return "community/post";
+    }
+
     @GetMapping("/community/{contentType}/{contentId}")
     public String detail(@PathVariable String contentType, @PathVariable Long contentId, Model model) {
+        if (CommunityContentType.POST.equals(contentType)) return "redirect:/community/posts/" + contentId;
         model.addAttribute("contentType", contentType);
         model.addAttribute("contentId", contentId);
         return "community/detail";

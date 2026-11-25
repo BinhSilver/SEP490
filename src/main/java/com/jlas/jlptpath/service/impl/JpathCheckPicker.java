@@ -159,8 +159,26 @@ public class JpathCheckPicker {
      * order); the items not asked are {@code pending} (TOPIC_PEND rows when the check applies, like a topic check).
      */
     Built week(Long userId, JpathTab tab, String level, List<String> codes, boolean timerOn, long seed) {
+        return week(userId, tab, level, codes, timerOn, seed, false);
+    }
+
+    /** {@code kanaSample}: the kana skip test of one table asks {@link #WEEK_MAX} random kana of it (owner 18/11). */
+    Built week(Long userId, JpathTab tab, String level, List<String> codes, boolean timerOn, long seed, boolean kanaSample) {
         if (codes == null || codes.isEmpty()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Không còn tuần nào để kiểm.");
+        }
+        if (tab == JpathTab.KANA) {
+            // AI 1 #11: the quick kana check matches every kana of the offered rows (fast board questions)
+            Set<String> wanted = new HashSet<>(codes);
+            List<JpathKana> kana = content.kana(null).stream().filter(k -> wanted.contains(k.getCode())).toList();
+            if (kanaSample && kana.size() > WEEK_MAX) {
+                List<JpathKana> shuffled = new ArrayList<>(kana);
+                java.util.Collections.shuffle(shuffled, new java.util.Random(seed));
+                kana = shuffled.subList(0, WEEK_MAX);
+            }
+            BuiltCheck kanaCheck = requireQuestions(builder.kanaRowCheck(kana, seed));
+            Set<String> askedKana = new HashSet<>(kanaCheck.itemCodes());
+            return new Built(kanaCheck, codes.stream().filter(c -> !askedKana.contains(c)).toList());
         }
         BuiltCheck check = switch (sliderType(tab)) {
             case VOCAB -> {
@@ -222,8 +240,9 @@ public class JpathCheckPicker {
             };
         } else {
             JpathItemState only = src == JpathCheckSource.NOTEBOOK ? JpathItemState.NOTEBOOK : null;
-            // Owner 05/11 weekly test: the items first learned in the last 7 days
-            java.time.LocalDateTime weekStart = java.time.LocalDateTime.now().minusDays(7);
+            // Owner 05/11 weekly test: the items first learned in the last 7 days. F143: first_learned_at holds the
+            // learner's local time, so the window is measured on the learner's clock, not the JVM's.
+            java.time.LocalDateTime weekStart = clock.localNow(userId).minusDays(7);
             codes = userItems.findByUserIdAndItemType(userId, type).stream()
                     .filter(i -> src != JpathCheckSource.WEEK
                             || (i.getFirstLearnedAt() != null && i.getFirstLearnedAt().isAfter(weekStart)))

@@ -179,6 +179,8 @@
     html += '</div>' + exampleCol + '</div>';
     html += lessonPart('Mẫu phụ đi kèm', attached ? '<ul class="jp-attached-list">' + attached + '</ul>' : '');
     html += '</article>';
+    // owner 18/11: units that teach a verb form get an optional "Luyện chia động từ" card
+    if (root.JpathVerbs && root.location) html += root.JpathVerbs.blockHtml(g.level, g.unitNo, root.location.pathname + root.location.search);
     if (g.practiceAvailable || g.extraAvailable) {
       html += '<section class="jp-lesson-practice" data-practice="GRAMMAR_PRACTICE"'
         + ' aria-labelledby="jp-practice-title"><h3 class="jp-lesson-practice__title" id="jp-practice-title">Luyện ngay</h3>';
@@ -198,6 +200,8 @@
     var foot = '';
     if (state === 'NEW' && g.learnable !== false) {
       foot += '<button type="button" class="jp-btn" data-action="queue-today">Học mẫu này trong lượt hôm nay</button>';
+      // F64 (owner 11/11): "Tôi biết mẫu này" right on the grammar card; one question, right = known
+      foot += '<button type="button" class="jp-link-btn" data-action="grammar-known">Tôi biết mẫu này (kiểm 1 câu)</button>';
     }
     var nav = '';
     if (has(g.prevCode)) {
@@ -243,6 +247,18 @@
         if (token) env.navigate(H().checkUrl(token, env.returnTo));
         return null;
       }).catch(function (e) {
+        el.disabled = false;
+        H().showError(container, 'lesson-error', H().messageOf(e));
+      });
+      return true;
+    }
+    if (action === 'grammar-known') {
+      el.disabled = true;
+      env.api.send('POST', H().itemUrl('GRAMMAR', g.code) + '/known').then(function (res) {
+        if (res && res.checkToken) { env.navigate(H().checkUrl(res.checkToken, env.returnTo)); return; }
+        var status = container.querySelector('[data-part="lesson-status"]');
+        if (status) status.textContent = 'Đã ghi mẫu này là đã biết.';
+      }, function (e) {
         el.disabled = false;
         H().showError(container, 'lesson-error', H().messageOf(e));
       });
@@ -302,7 +318,7 @@
       if (doc && has(lesson.pattern)) doc.title = lesson.pattern + ' - KotsuKotsu';
       rendered(el);
     }, function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
       el.setAttribute('aria-busy', 'false');
     });
   }

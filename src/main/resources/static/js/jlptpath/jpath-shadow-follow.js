@@ -93,14 +93,19 @@
         if (!client || typeof client.upload !== 'function' || !env.FormData) return;
         b.disabled = true;
         if (out) out.innerHTML = '<p class="jp-muted">Đang chấm…</p>';
-        var form = new env.FormData();
-        form.append('text', opts.text || '');
-        form.append('audio', mineBlob, 'speak.' + (/ogg/.test(mineBlob.type) ? 'ogg' : (/mp4|m4a/.test(mineBlob.type) ? 'm4a' : 'webm')));
-        client.upload('/api/learning/jlpt/speak', form).then(function (r) {
+        // F72: send WAV 16 kHz mono so the server scores without ffmpeg
+        var wav = env.JpathWav ? env.JpathWav.toWav(mineBlob, env)
+          : Promise.resolve({ blob: mineBlob, name: 'speak.' + (/ogg/.test(mineBlob.type) ? 'ogg' : (/mp4|m4a/.test(mineBlob.type) ? 'm4a' : 'webm')) });
+        wav.then(function (clip) {
+          var form = new env.FormData();
+          form.append('text', opts.text || '');
+          form.append('audio', clip.blob, clip.name);
+          return client.upload('/api/learning/jlpt/speak', form);
+        }).then(function (r) {
           if (out) out.innerHTML = scoreHtml(r);
           b.disabled = false;
         }, function (e) {
-          if (out) out.innerHTML = '<p class="jp-alert" role="alert">' + esc((e && e.message) || 'Chưa chấm được phát âm.') + '</p>';
+          if (out) out.innerHTML = '<p class="jp-alert" role="alert">' + esc((e && (e.code || e.status) && e.message) || 'Chưa chấm được phát âm.') + '</p>';
           b.disabled = !(e && e.status === 429) ? false : true;
         });
         return;

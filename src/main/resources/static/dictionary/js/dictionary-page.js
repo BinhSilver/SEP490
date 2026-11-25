@@ -3,10 +3,11 @@
 
   var ui = window.DictUi;
   var esc = ui.escapeHtml;
-  var tabs = ['word', 'kanji', 'example', 'grammar', 'japanese'];
-  var state = { tab: 'word', query: '', result: null, selectedId: null, word: null,
-    page: 0, size: 20, token: 0, suggestionResult: null, related: [], relatedShown: 5,
-    kanjiRelated: [], kanjiRelatedShown: 10 };
+  var tabs = ['word', 'kanji', 'example', 'grammar'];
+  var state = { tab: 'word', query: '', result: null, selectedId: null, word: null, detailCode: null,
+    selectedGrammarCode: null, grammarDetailToken: 0, kanjiDetailToken: 0,
+    page: 0, size: 20, token: 0, otherPageToken: 0, suggestionResult: null,
+    kanjiRelated: [], kanjiCharacter: '' };
   var els = {};
   var suggestionTimer;
 
@@ -29,7 +30,10 @@
     var parts = path.split('/');
     var tab = tabs.indexOf(parts[2]) >= 0 ? parts[2] : 'word';
     var query = '';
-    if (parts[2] === 'grammar_details') return { tab: 'grammar', query: '' };
+    if (parts[2] === 'grammar_details') {
+      try { return { tab: 'grammar', query: '', detailCode: decodeURIComponent(parts[3] || '') }; }
+      catch (_err) { return { tab: 'grammar', query: '' }; }
+    }
     try { query = decodeURIComponent(parts.slice(3).join('/')); } catch (_err) { query = ''; }
     return { tab: tab, query: query };
   }
@@ -38,10 +42,16 @@
     state.selectedId = id == null ? null : String(id);
     renderRoute();
   }
+  function navigateGrammar(code) {
+    history.pushState(null, '', '/search/grammar_details/' + encodeURIComponent(code));
+    renderRoute();
+  }
   function setShell(home) {
     els.hero.hidden = !home;
     els.homePanels.hidden = !home;
     els.layout.hidden = home;
+    els.layout.classList.toggle('is-grammar', state.tab === 'grammar');
+    els.layout.classList.toggle('is-grammar-direct', state.tab === 'grammar' && !!state.detailCode);
     els.other.hidden = true;
     els.clear.hidden = !els.input.value;
     Array.prototype.forEach.call(els.tabs.querySelectorAll('[data-tab]'), function (button) {
@@ -70,9 +80,42 @@
     });
     var page = state.result && state.result.vocabularyResults;
     var hasMore = !!page && page.last === false;
-    els.other.hidden = state.tab !== 'word' || (!others.length && !hasMore);
+    var hasOthers = others.length > 0 || hasMore || state.page > 0;
+    var sideKanji = byId('dict-side-kanji');
+    var hasKanji = state.tab === 'word' && !sideKanji.hidden && sideKanji.innerHTML !== '';
+    els.other.hidden = state.tab !== 'word' || (!hasOthers && !hasKanji);
+    byId('dict-other-title').hidden = !hasOthers;
+    els.vocabList.hidden = !hasOthers;
+    byId('dict-other-title').textContent = 'Kết quả khác';
     els.vocabList.innerHTML = others.map(vocabRowHtml).join('');
-    els.loadMore.hidden = !hasMore;
+    els.otherPagination.hidden = false;
+    els.otherPagination.innerHTML = page ? pagerHtml('data-other-page', state.page, 0, hasMore) : '';
+  }
+
+  /**
+   * Numbered pager shared by the word and grammar lists. Word search only knows whether a next page exists
+   * (totalPages = 0), so it shows the pages reached so far plus the next one.
+   */
+  function pagerHtml(attr, page, totalPages, hasMore) {
+    var last = totalPages ? totalPages - 1 : (hasMore ? page + 1 : page);
+    if (last <= 0) return '';
+    function button(target, label, options) {
+      options = options || {};
+      return '<button type="button"' + (options.icon ? ' class="dict-pagination__icon"' : '') + ' ' + attr + '="' + target + '"' +
+        (options.disabled || options.current ? ' disabled' : '') + (options.current ? ' aria-current="page"' : '') +
+        ' aria-label="' + esc(options.label || 'Trang ' + (target + 1)) + '">' + label + '</button>';
+    }
+    var start = Math.max(0, page - 2);
+    var end = Math.min(last, page + 2);
+    var html = button(page - 1, '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>',
+      { icon: true, disabled: page === 0, label: 'Trang trước' });
+    if (start > 0) html += button(0, '1') + (start > 1 ? '<span class="dict-pagination__gap">…</span>' : '');
+    for (var target = start; target <= end; target++) html += button(target, String(target + 1), { current: target === page });
+    if (totalPages && end < last) {
+      html += (end < last - 1 ? '<span class="dict-pagination__gap">…</span>' : '') + button(last, String(last + 1));
+    }
+    return html + button(page + 1, '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>',
+      { icon: true, disabled: page >= last, label: 'Trang sau' });
   }
 
   function sensesHtml(senses) {
@@ -106,13 +149,10 @@
       ui.jlptBadgeHtml(word.jlptLevel) + '</span>' +
       '<span class="dict-related-row__meaning">' + esc(word.meaning || firstGloss(word)) + '</span></button>';
   }
-  function renderRelated() {
-    var host = byId('dict-related-words');
-    if (!host) return;
-    host.hidden = !state.related.length;
-    if (!state.related.length) return;
-    host.innerHTML = '<h2>Từ liên quan</h2>' + state.related.slice(0, state.relatedShown).map(relatedRowHtml).join('') +
-      (state.relatedShown < state.related.length ? '<button type="button" class="dict-text-button" data-related-more>Xem thêm</button>' : '');
+  function relatedWordsUrl(kanji, exclude) {
+    var params = new URLSearchParams({ kanji: kanji.join('') });
+    if (exclude) params.set('exclude', exclude);
+    return '/dictionary/words.html?' + params.toString();
   }
   function kanjiMiniHtml(kanji) {
     var readings = kanji.readings || [];
@@ -121,9 +161,11 @@
     return '<article class="dict-kanji-mini"><div class="dict-kanji-mini__glyph" data-stroke-for="' + esc(kanji.character) +
       '">' + esc(kanji.character) + '</div><div><h3>' + esc(kanji.character) + ' <small>' + esc(kanji.hanViet || '') +
       '</small></h3><p>On: ' + esc(on || '—') + '</p><p>Kun: ' + esc(kun || '—') + '</p>' +
-      '<button type="button" class="dict-text-button" data-kanji="' + esc(kanji.character) + '">Xem chi tiết</button></div></article>';
+      '<div class="dict-kanji-mini__actions"><button type="button" class="dict-text-button" data-kanji="' + esc(kanji.character) + '">Xem chi tiết</button>' +
+      '<a class="dict-text-button" href="/dictionary/kanji-map?kanji=' + encodeURIComponent(kanji.character) +
+      '" aria-label="Xem lược đồ chữ ' + esc(kanji.character) + '">Xem lược đồ</a></div></div></article>';
   }
-  async function fillKanjiAndRelated(word, token) {
+  async function fillWordKanji(word, token) {
     var composition = word.kanjiComposition || [];
     var details = await Promise.all(composition.map(function (part) {
       return window.DictApi.kanjiDetail(part.character).catch(function () {
@@ -131,7 +173,8 @@
       });
     }));
     if (token !== state.token) return;
-    var host = byId('dict-word-kanji');
+    // The word's kanji live at the top of the right column, above the other search results.
+    var host = byId('dict-side-kanji');
     var available = details.filter(Boolean);
     if (host) {
       host.hidden = !available.length;
@@ -145,28 +188,16 @@
         if (!box) return;
         window.DictStrokeOrder.mount(box, kanji.strokeSvgUri).then(function (replay) {
           if (token !== state.token || !box.isConnected) return;
-          if (!replay) box.innerHTML = '<img src="' + esc(kanji.strokeSvgUri) + '" alt="Thứ tự nét ' + esc(kanji.character) + '">';
+          if (!replay) box.innerHTML = '<img class="dict-stroke-order__fallback" src="' + esc(kanji.strokeSvgUri) + '" alt="Thứ tự nét ' + esc(kanji.character) + '">';
         });
       });
     }
-    var seen = {};
-    var related = [];
-    available.forEach(function (kanji) {
-      (kanji.relatedVocabulary || []).forEach(function (entry) {
-        if (entry.id !== word.id && entry.expression !== word.expression && !seen[entry.expression]) {
-          seen[entry.expression] = true; related.push(entry);
-        }
-      });
-    });
-    state.related = related;
-    renderRelated();
+    renderOtherResults();
   }
 
   function renderWord(word, token) {
     var data = word;
     state.word = data;
-    state.relatedShown = 5;
-    state.related = [];
     var pos = [];
     (data.senses || []).forEach(function (sense) { pos.push.apply(pos, sense.partsOfSpeech || []); });
     var conjugations = window.DictConjugation.conjugate(data.expression, pos);
@@ -175,24 +206,33 @@
         ? ' <i class="fa-solid fa-circle-check dict-verified" title="Đã xác minh"></i>' : '') +
       '</h1><p>「' + esc(data.reading || '') + '」' +
       (data.hanViet ? '「' + esc(data.hanViet.toUpperCase()) + '」' : '') +
-      '</p></div><div class="dict-word-head__actions">' + actionButton('Lưu', 'plus') +
-      actionButton('Flashcard', 'layer-group') + ui.speakerButtonHtml(data.reading || data.expression) + '</div></header>' +
+      '</p></div><div class="dict-word-head__actions">' +
+      '<button type="button" class="dict-action" data-save-word aria-haspopup="dialog" aria-controls="dict-notebook-popover" aria-expanded="false"><i class="fa-solid fa-plus"></i> Lưu</button>' +
+      ui.speakerButtonHtml(data.reading || data.expression) + '</div></header>' +
       '<div class="dict-pronunciation">' + ui.speakerButtonHtml(data.reading || data.expression) +
       (data.pitchAccent == null ? esc(data.reading || '') : ui.pitchAccentHtml(data.reading, data.pitchAccent)) + '</div>' +
       (data.pitchAccent == null ? '' : '<div class="dict-pitch-source"' +
         (data.pitchAccentSource === 'KANJIUM' ? ' title="The pitch accent notation was provided by Uros O. through his free database."' : '') + '>' +
         (data.pitchAccentSource === 'UNIDIC_CWJ' ? 'Trọng âm: UniDic (NINJAL)' :
           data.pitchAccentSource === 'KANJIUM' ? 'Trọng âm: Kanjium – Uros O. (CC BY-SA 4.0)' : '') + '</div>') +
-      '<div class="dict-actions">' + actionButton('Giải nghĩa AI', 'sparkles', 'dict-action--ai') +
-      actionButton('Kết hợp từ', 'link') +
+      '<div class="dict-actions">' + '<button type="button" class="dict-action dict-action--ai" data-tutor-ask="' +
+      esc('Giải thích từ 「' + data.expression + '」: nghĩa, cách đọc và ví dụ.') + '"><i class="fa-solid fa-sparkles"></i> Giải nghĩa AI</button>' +
       actionButton('Luyện phát âm', 'microphone') + '</div>' + ui.jlptBadgeHtml(data.jlptLevel) +
       sensesHtml(data.senses);
     if (data.exampleJa) html += '<div class="dict-word-section dict-example">' +
       '<p lang="ja">' + esc(data.exampleJa) + ui.speakerButtonHtml(data.exampleJa) + '</p>' +
       '<p>' + esc(data.exampleVi || '') + '</p></div>';
     html += '<section class="dict-word-section"><h2>Tra cứu chuyên sâu với AI</h2><div class="dict-chip-row">' +
-      ['Cụm từ cố định', 'Lỗi phổ biến', 'Cách dùng', 'Từ trái nghĩa', 'Đoạn văn minh họa']
-        .map(function (label) { return '<button type="button" class="dict-ai-chip" data-coming-soon>' + esc(label) + '</button>'; }).join('') +
+      // Mỗi nút gửi một câu hỏi soạn sẵn cho gia sư AI (tutor-widget.js); gia sư chỉ trả lời theo dữ liệu J-LAS.
+      [['Cụm từ cố định', 'Từ 「{w}」 hay đi kèm với những từ nào? Nêu các cụm từ thường gặp.'],
+        ['Lỗi phổ biến', 'Người học hay mắc lỗi gì khi dùng từ 「{w}」?'],
+        ['Cách dùng', 'Từ 「{w}」 dùng như thế nào? Cho ví dụ.'],
+        ['Từ trái nghĩa', 'Từ trái nghĩa của 「{w}」 là gì?'],
+        ['Đoạn văn minh họa', 'Cho các câu ví dụ có từ 「{w}」.']]
+        .map(function (chip) {
+          return '<button type="button" class="dict-ai-chip" data-tutor-ask="' + esc(chip[1].replace('{w}', data.expression)) + '">' +
+            esc(chip[0]) + '</button>';
+        }).join('') +
       '</div></section>' + (data.id == null ? '' : '<div data-contributions></div>');
     if (conjugations) html += '<section class="dict-word-section"><h2>Chia động từ</h2><div class="dict-table-wrap"><table class="dict-conjugation">' +
       '<thead><tr><th>Tên thể (形)</th><th>Từ</th></tr></thead><tbody>' + conjugations.map(function (row) {
@@ -200,8 +240,7 @@
       }).join('') + '</tbody></table></div></section>';
     if ((data.antonyms || []).length) html += '<section class="dict-word-section"><h2>Từ trái nghĩa</h2>' +
       data.antonyms.map(relatedRowHtml).join('') + '</section>';
-    html += '<section id="dict-word-kanji" class="dict-word-section" hidden></section>' +
-      '<section id="dict-related-words" class="dict-word-section" hidden></section></article>';
+    html += '</article>';
     els.detail.innerHTML = html;
     var contribHost = els.detail.querySelector('[data-contributions]');
     if (contribHost) {
@@ -209,16 +248,44 @@
       loadContributions(contribHost, 0, token);
     }
     renderOtherResults();
-    fillKanjiAndRelated(data, token);
+    fillWordKanji(data, token);
+  }
+  function renderKanjiResults() {
+    var results = state.result && state.result.kanjiResults || [];
+    var host = byId('dict-side-kanji');
+    els.other.hidden = !results.length;
+    host.hidden = !results.length;
+    host.innerHTML = results.length ? '<h2>Kết quả tra cứu kanji</h2><div class="dict-vocab-list">' + results.map(function (kanji) {
+      return '<button type="button" class="dict-vocab-row dict-kanji-result-row"' +
+        ' data-kanji-pick="' + esc(kanji.character) + '" aria-pressed="false">' +
+        '<strong class="dict-kanji-result-row__glyph" lang="ja">' + esc(kanji.character) + '</strong>' +
+        '<small class="dict-kanji-result-row__han-viet">' + esc((kanji.hanViet || '').toUpperCase()) + '</small></button>';
+    }).join('') + '</div>' : '';
+    selectKanjiResult();
+    byId('dict-other-title').hidden = true;
+    els.vocabList.hidden = true;
+    els.otherPagination.hidden = true;
+    els.otherPagination.innerHTML = '';
+  }
+  function selectKanjiResult() {
+    Array.prototype.forEach.call(byId('dict-side-kanji').querySelectorAll('[data-kanji-pick]'), function (row) {
+      var selected = row.dataset.kanjiPick === state.kanjiCharacter;
+      row.classList.toggle('is-selected', selected);
+      row.setAttribute('aria-pressed', String(selected));
+    });
   }
   function renderKanjiRelated() {
-    var host = byId('dict-kanji-related');
-    if (!host) return;
-    host.innerHTML = state.kanjiRelated.length
-      ? state.kanjiRelated.slice(0, state.kanjiRelatedShown).map(relatedRowHtml).join('') +
-        (state.kanjiRelatedShown < state.kanjiRelated.length
-          ? '<button type="button" class="dict-text-button" data-kanji-related-more>Xem thêm</button>' : '')
-      : '<p class="dict-detail__empty">Chưa có từ vựng liên quan.</p>';
+    els.other.hidden = false;
+    byId('dict-other-title').hidden = false;
+    byId('dict-other-title').textContent = 'Từ vựng chứa Kanji';
+    els.vocabList.hidden = false;
+    els.vocabList.innerHTML = (state.kanjiRelated.length
+      ? state.kanjiRelated.slice(0, 8).map(relatedRowHtml).join('')
+      : '<p class="dict-detail__empty">Chưa có từ vựng liên quan.</p>') +
+      (state.kanjiCharacter ? '<a class="dict-text-button" href="' +
+        esc(relatedWordsUrl([state.kanjiCharacter])) + '">Xem thêm</a>' : '');
+    els.otherPagination.hidden = true;
+    els.otherPagination.innerHTML = '';
   }
 
   async function loadContributions(host, page, token) {
@@ -238,6 +305,297 @@
     return !!(window.JlasAuth && window.JlasAuth.isLoggedIn && window.JlasAuth.isLoggedIn());
   }
 
+  // Save-to-notebook popover anchored to the "Lưu" button (Pinterest-style board picker).
+  var notebookToken = 0;
+  var notebookAnchor = null;
+  var notebookCloseTimer = null;
+  var notebookSaved = new Set();
+  var notebookBooks = [];
+  var notebookWordId = null;
+  var notebookBusy = false;
+  var RECENT_NOTEBOOKS_LIMIT = 3;
+
+  function notebookKey(bookId, wordId) { return String(wordId == null ? notebookWordId : wordId) + ':' + String(bookId); }
+  function notebookPopover() { return byId('dict-notebook-popover'); }
+  function notebookOpen() { return !notebookPopover().hidden; }
+  function foldText(value) {
+    return String(value || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+  }
+
+  function recentNotebookKey() {
+    var user = window.JlasAuth && typeof window.JlasAuth.getUser === 'function' ? window.JlasAuth.getUser() : null;
+    return 'jlas.dict.recentNotebooks.' + (user && (user.id || user.userId) || 'me');
+  }
+  function recentNotebookIds() {
+    try {
+      var ids = JSON.parse(localStorage.getItem(recentNotebookKey()) || '[]');
+      return Array.isArray(ids) ? ids.map(String) : [];
+    } catch (_err) { return []; }
+  }
+  function rememberNotebook(bookId) {
+    try {
+      var ids = recentNotebookIds().filter(function (id) { return id !== String(bookId); });
+      ids.unshift(String(bookId));
+      localStorage.setItem(recentNotebookKey(), JSON.stringify(ids.slice(0, 10)));
+    } catch (_err) { /* Per-viewer convenience only. */ }
+  }
+
+  function positionNotebookPopover() {
+    var popover = notebookPopover();
+    if (popover.hidden) return;
+    if (!notebookAnchor || !notebookAnchor.isConnected) { closeNotebookPopover(false); return; }
+    if (window.matchMedia('(max-width: 560px)').matches) {
+      popover.style.top = ''; popover.style.left = ''; return;
+    }
+    var gap = 8, margin = 16;
+    var rect = notebookAnchor.getBoundingClientRect();
+    var width = popover.offsetWidth, height = popover.offsetHeight;
+    var left = Math.min(Math.max(margin, rect.right - width), window.innerWidth - width - margin);
+    var below = rect.bottom + gap;
+    var top = below + height <= window.innerHeight - margin || rect.top - gap - height < margin
+      ? below : rect.top - gap - height;
+    popover.style.left = Math.round(left) + 'px';
+    popover.style.top = Math.round(Math.max(margin, top)) + 'px';
+  }
+
+  function closeNotebookPopover(restoreFocus) {
+    var popover = notebookPopover();
+    if (popover.hidden) return;
+    notebookToken++;
+    window.clearTimeout(notebookCloseTimer);
+    notebookCloseTimer = null;
+    popover.hidden = true;
+    if (notebookAnchor && notebookAnchor.isConnected) {
+      notebookAnchor.setAttribute('aria-expanded', 'false');
+      if (restoreFocus !== false) notebookAnchor.focus();
+    }
+    notebookAnchor = null;
+  }
+
+  function notebookStatus(message, kind) {
+    var status = byId('dict-notebook-status');
+    status.textContent = message || '';
+    status.dataset.state = kind || '';
+  }
+
+  function showNotebookView(view) {
+    var popover = notebookPopover();
+    popover.querySelector('[data-notebook-view="list"]').hidden = view !== 'list';
+    byId('dict-notebook-create').hidden = view !== 'create';
+    notebookStatus('');
+    positionNotebookPopover();
+  }
+
+  function notebookRowHtml(book) {
+    var saved = notebookSaved.has(notebookKey(book.id));
+    var name = String(book.name || '');
+    return '<button type="button" class="dict-save-row" data-notebook-id="' + esc(book.id) + '"' +
+      (saved ? ' disabled aria-label="' + esc(name) + ', đã lưu"' : '') + '>' +
+      '<span class="dict-save-tile" aria-hidden="true">' + esc(name.trim().charAt(0).toUpperCase() || '#') + '</span>' +
+      '<span class="dict-save-row__text"><span class="dict-save-row__name">' + esc(name) + '</span>' +
+      '<span class="dict-save-row__count">' + esc(book.wordCount || 0) + ' từ</span></span>' +
+      (saved ? '<span class="dict-save-row__done"><i class="fa-solid fa-check" aria-hidden="true"></i> Đã lưu</span>'
+        : '<span class="dict-save-row__action" aria-hidden="true">Lưu</span>') +
+      '</button>';
+  }
+
+  function renderNotebookList() {
+    var list = byId('dict-notebook-list');
+    var query = byId('dict-notebook-search').value.trim();
+    var folded = foldText(query);
+    if (!notebookBooks.length && !query) {
+      list.innerHTML = '<p class="dict-notebook-message">Chưa có sổ tay. Hãy tạo sổ tay đầu tiên.</p>';
+      positionNotebookPopover();
+      return;
+    }
+    var html = '';
+    if (folded) {
+      var matches = notebookBooks.filter(function (book) { return foldText(book.name).indexOf(folded) >= 0; });
+      html = matches.length
+        ? '<p class="dict-save-section">Kết quả</p>' + matches.map(notebookRowHtml).join('')
+        : '<p class="dict-notebook-message">Không tìm thấy sổ tay</p>';
+      var exact = notebookBooks.some(function (book) { return foldText(book.name) === folded; });
+      if (!exact && query.length <= 120) {
+        html += '<button type="button" class="dict-save-row" data-notebook-create-query>' +
+          '<span class="dict-save-tile dict-save-tile--plus" aria-hidden="true"><i class="fa-solid fa-plus"></i></span>' +
+          '<span class="dict-save-row__text"><span class="dict-save-row__name">Tạo sổ tay «' + esc(query) + '»</span></span></button>';
+      }
+    } else {
+      var bookById = {};
+      notebookBooks.forEach(function (book) { bookById[String(book.id)] = book; });
+      var recent = recentNotebookIds().map(function (id) { return bookById[id]; }).filter(Boolean)
+        .slice(0, RECENT_NOTEBOOKS_LIMIT);
+      if (recent.length) html += '<p class="dict-save-section">Gần đây</p>' + recent.map(notebookRowHtml).join('');
+      html += '<p class="dict-save-section">Tất cả sổ tay</p>' + notebookBooks.map(notebookRowHtml).join('');
+    }
+    list.innerHTML = html;
+    positionNotebookPopover();
+  }
+
+  async function loadNotebooks(token) {
+    var loading = byId('dict-notebook-loading');
+    var errorBox = byId('dict-notebook-error');
+    loading.hidden = false;
+    errorBox.hidden = true;
+    byId('dict-notebook-list').innerHTML = '';
+    notebookStatus('');
+    positionNotebookPopover();
+    try {
+      var books = await window.DictApi.notebooks();
+      if (token !== notebookToken) return;
+      notebookBooks = books || [];
+      loading.hidden = true;
+      renderNotebookList();
+    } catch (error) {
+      if (token !== notebookToken) return;
+      loading.hidden = true;
+      errorBox.hidden = false;
+      errorBox.querySelector('p').textContent = error.message || 'Không thể tải sổ tay lúc này.';
+      positionNotebookPopover();
+    }
+  }
+
+  function openNotebookChooser(button) {
+    if (!isLoggedIn()) { ui.toast('Vui lòng đăng nhập để lưu từ vào sổ tay.'); return; }
+    if (!state.word || state.word.id == null) { ui.toast('Không thể lưu từ này lúc này.'); return; }
+    if (notebookOpen()) { closeNotebookPopover(); return; }
+    var token = ++notebookToken;
+    notebookAnchor = button;
+    notebookWordId = state.word.id;
+    notebookBusy = false;
+    notebookBooks = [];
+    var form = byId('dict-notebook-create');
+    form.reset();
+    Array.prototype.forEach.call(form.querySelectorAll('button, input'), function (control) { control.disabled = false; });
+    byId('dict-notebook-search').value = '';
+    byId('dict-notebook-word').textContent = state.word.expression +
+      (state.word.reading ? ' · ' + state.word.reading : '');
+    notebookPopover().hidden = false;
+    showNotebookView('list');
+    button.setAttribute('aria-expanded', 'true');
+    byId('dict-notebook-search').focus();
+    loadNotebooks(token);
+  }
+
+  function finishNotebookSave(book, token, wordId) {
+    notebookSaved.add(notebookKey(book.id, wordId));
+    rememberNotebook(book.id);
+    book.wordCount = (Number(book.wordCount) || 0) + 1;
+    ui.toast('Đã thêm vào sổ tay «' + book.name + '»');
+    if (token !== notebookToken) return;
+    renderNotebookList();
+    notebookStatus('Đã thêm vào sổ tay «' + book.name + '».', 'success');
+    notebookCloseTimer = window.setTimeout(function () { closeNotebookPopover(); }, 600);
+  }
+
+  async function saveToNotebook(book, rowButton) {
+    if (notebookBusy || notebookCloseTimer) return;
+    notebookBusy = true;
+    if (rowButton) rowButton.disabled = true;
+    var token = notebookToken;
+    var wordId = notebookWordId;
+    try {
+      await window.DictApi.addToNotebook(book.id, wordId);
+      finishNotebookSave(book, token, wordId);
+    } catch (error) {
+      if (token === notebookToken) notebookStatus(error.message || 'Không thể lưu từ lúc này.', 'error');
+    } finally {
+      if (token === notebookToken) {
+        notebookBusy = false;
+        if (rowButton && rowButton.isConnected && !notebookSaved.has(notebookKey(book.id))) rowButton.disabled = false;
+      }
+    }
+  }
+
+  async function createNotebookAndSave(name) {
+    if (notebookBusy || notebookCloseTimer) return;
+    name = String(name || '').trim();
+    if (!name || name.length > 120) { notebookStatus('Tên sổ tay phải từ 1 đến 120 ký tự.', 'error'); return; }
+    var form = byId('dict-notebook-create');
+    notebookBusy = true;
+    Array.prototype.forEach.call(form.querySelectorAll('button, input'), function (control) { control.disabled = true; });
+    var token = notebookToken;
+    var wordId = notebookWordId;
+    var created = null;
+    try {
+      created = await window.DictApi.createNotebook(name);
+      if (token === notebookToken) {
+        // Keep the new notebook selectable even if adding the word fails, so a retry never creates a duplicate.
+        notebookBooks.push(created);
+        byId('dict-notebook-search').value = '';
+        showNotebookView('list');
+        renderNotebookList();
+      }
+      await window.DictApi.addToNotebook(created.id, wordId);
+      finishNotebookSave(created, token, wordId);
+    } catch (error) {
+      if (token === notebookToken) {
+        notebookStatus(created
+          ? 'Đã tạo sổ tay. Chưa lưu được từ: ' + (error.message || 'Vui lòng thử lại.') + ' Chọn sổ vừa tạo để thử lại.'
+          : error.message || 'Không thể tạo sổ tay lúc này.', 'error');
+        if (!created) byId('dict-notebook-name').focus();
+      }
+    } finally {
+      if (token === notebookToken) {
+        notebookBusy = false;
+        Array.prototype.forEach.call(form.querySelectorAll('button, input'), function (control) { control.disabled = false; });
+      }
+    }
+  }
+
+  function initNotebookPopover() {
+    var popover = notebookPopover();
+    var form = byId('dict-notebook-create');
+    var input = byId('dict-notebook-name');
+    var search = byId('dict-notebook-search');
+    search.addEventListener('input', renderNotebookList);
+    popover.addEventListener('click', function (event) {
+      if (event.target.closest('[data-notebook-close]')) { closeNotebookPopover(); return; }
+      if (notebookCloseTimer) return;
+      if (event.target.closest('[data-notebook-retry]') && !notebookBusy) { loadNotebooks(notebookToken); return; }
+      if (event.target.closest('[data-notebook-new]')) {
+        if (notebookBusy) return;
+        input.value = search.value.trim().slice(0, 120);
+        showNotebookView('create'); input.focus(); return;
+      }
+      if (event.target.closest('[data-notebook-back]')) {
+        if (notebookBusy) return;
+        showNotebookView('list'); search.focus(); return;
+      }
+      if (event.target.closest('[data-notebook-create-query]')) { createNotebookAndSave(search.value); return; }
+      var choice = event.target.closest('[data-notebook-id]');
+      if (!choice || choice.disabled) return;
+      var book = notebookBooks.find(function (item) { return String(item.id) === choice.dataset.notebookId; });
+      if (book) saveToNotebook(book, choice);
+    });
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      createNotebookAndSave(input.value);
+    });
+    popover.addEventListener('keydown', function (event) {
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+      var rows = Array.prototype.filter.call(popover.querySelectorAll('.dict-save-row:not(:disabled)'),
+        function (row) { return !row.closest('[hidden]'); });
+      if (!rows.length) return;
+      event.preventDefault();
+      var index = rows.indexOf(document.activeElement);
+      var next = event.key === 'ArrowDown' ? index + 1 : index - 1;
+      if (index < 0) next = event.key === 'ArrowDown' ? 0 : rows.length - 1;
+      rows[(next + rows.length) % rows.length].focus();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && notebookOpen()) { event.preventDefault(); closeNotebookPopover(); }
+    });
+    document.addEventListener('mousedown', function (event) {
+      if (!notebookOpen()) return;
+      if (popover.contains(event.target) || (notebookAnchor && notebookAnchor.contains(event.target))) return;
+      closeNotebookPopover(false);
+    });
+    window.addEventListener('resize', positionNotebookPopover);
+    window.addEventListener('scroll', positionNotebookPopover, true);
+  }
+
   async function handleContributionClick(event) {
     var button = event.target.closest('[data-contribution-page], [data-contribution-vote], [data-contribution-report], [data-contribution-send]');
     if (!button) return false;
@@ -249,11 +607,11 @@
     }
     if (button.hasAttribute('data-contribution-report')) {
       if (!isLoggedIn()) { ui.toast('Vui lòng đăng nhập để báo cáo'); return true; }
-      if (!window.confirm('Báo cáo ý kiến này? Ý kiến sẽ bị ẩn cho đến khi được kiểm duyệt.')) return true;
+      if (!window.confirm('Báo cáo ý kiến này? Ý kiến chỉ tạm ẩn để chờ kiểm duyệt khi có đủ 3 người dùng khác nhau báo cáo.')) return true;
       button.disabled = true;
       try {
         await window.DictApi.reportContribution(button.dataset.contributionId);
-        ui.toast('Đã báo cáo. Ý kiến đã được ẩn để chờ kiểm duyệt.');
+        ui.toast('Đã ghi nhận báo cáo của bạn.');
         var page = Number(host.dataset.page || 0);
         var result = await loadContributions(host, page, state.token);
         if (result && !result.content.length && page > 0 && host.isConnected) {
@@ -326,7 +684,7 @@
   function renderKanjiDetail(kanji) {
     var relatedVocabulary = kanji.relatedVocabulary || [];
     state.kanjiRelated = relatedVocabulary;
-    state.kanjiRelatedShown = 10;
+    state.kanjiCharacter = kanji.character;
     var radical = kanji.radical;
     var radicalHtml = radical
       ? '<div class="dict-kanji-radical">' +
@@ -391,26 +749,18 @@
           '</div>' +
         '</section>' +
 
-        '<section class="dict-kanji-section" aria-labelledby="dict-kanji-vocab-title">' +
-          '<div class="dict-kanji-section-heading">' +
-            '<h2 id="dict-kanji-vocab-title">Từ vựng chứa Kanji</h2>' +
-            '<span>' + relatedVocabulary.length + ' từ</span>' +
-          '</div>' +
-          '<div id="dict-kanji-related"></div>' +
-        '</section>' +
-
         '<footer class="dict-kanji-cta">' +
           '<div><span class="dict-kanji-cta__icon"><i class="fa-solid fa-graduation-cap"></i></span>' +
             '<div><strong>Luyện ghi nhớ ' + escapeHtml(kanji.character) + '</strong>' +
-              '<p>Bộ thẻ và bài luyện viết sẽ được bổ sung trong phiên bản tiếp theo.</p></div></div>' +
+              '<p>Bài luyện viết đang được phát triển và sẽ sớm ra mắt.</p></div></div>' +
           '<div class="dict-kanji-cta__actions">' +
-            '<button type="button" class="btn btn--secondary" disabled title="Sắp ra mắt">Thêm vào bộ thẻ</button>' +
             '<button type="button" class="btn btn--primary" disabled title="Sắp ra mắt">Luyện viết · Sắp ra mắt</button>' +
           '</div>' +
         '</footer>' +
       '</article>';
 
     renderKanjiRelated();
+    selectKanjiResult();
     if (kanji.strokeSvgUri) {
       var container = byId('dict-stroke-order');
       window.DictStrokeOrder.mount(container, kanji.strokeSvgUri).then(function (replay) {
@@ -446,32 +796,162 @@
       if (mock) renderWord(mock, token); else showEmpty();
     }
   }
-  async function loadKanji(result, token) {
+  async function loadKanji(result, token, pick) {
     var first = Array.from(state.query).find(function (ch) { return /[\u3400-\u9fff]/.test(ch); });
-    var character = first || ((result && result.kanjiResults || [])[0] || {}).character;
+    var character = pick || first || ((result && result.kanjiResults || [])[0] || {}).character;
     if (!character) { showEmpty(); return; }
+    var request = ++state.kanjiDetailToken;
     try {
       var kanji = await window.DictApi.kanjiDetail(character);
-      if (token === state.token) renderKanjiDetail(kanji);
+      if (token === state.token && request === state.kanjiDetailToken) renderKanjiDetail(kanji);
     } catch (_err) {
-      if (token !== state.token) return;
+      if (token !== state.token || request !== state.kanjiDetailToken) return;
       var mock = window.DictMock.kanji[character];
-      if (mock) renderKanjiDetail(mock); else showEmpty();
+      if (mock) renderKanjiDetail(mock);
+      else { state.kanjiCharacter = ''; selectKanjiResult(); showEmpty(); }
     }
+  }
+
+  function grammarBadge(item) {
+    return item.unreviewed ? '<span class="dict-grammar__review">chưa duyệt</span>' : '';
+  }
+  function grammarRow(item, related) {
+    var selected = !related && state.selectedGrammarCode === item.code;
+    return '<button type="button" class="dict-grammar-row' + (selected ? ' is-selected' : '') +
+      '" data-grammar-code="' + esc(item.code) + '"' + (related ? ' data-grammar-related="true"' : '') +
+      ' aria-pressed="' + String(selected) + '">' +
+      '<span class="dict-grammar-row__top"><strong lang="ja">' + esc(item.pattern) + '</strong>' +
+      '<span class="dict-grammar__level">' + esc(item.level || '') + '</span>' + grammarBadge(item) + '</span>' +
+      '<small>' + esc(item.meaningVi || '') + '</small></button>';
+  }
+  function grammarSection(title, value) {
+    return value ? '<section class="dict-grammar__section"><h2>' + esc(title) + '</h2><p>' + esc(value) + '</p></section>' : '';
+  }
+  function grammarTokens(tokens, fallback) {
+    if (!tokens || !tokens.length) return esc(fallback || '');
+    return tokens.map(function (token) {
+      return token.reading ? '<ruby>' + esc(token.text) + '<rt>' + esc(token.reading) + '</rt></ruby>' : esc(token.text);
+    }).join('');
+  }
+  function renderGrammarDetail(grammar) {
+    var variants = (grammar.variants || []).filter(function (value) { return value !== grammar.pattern; });
+    var exampleHtml = (grammar.examples || []).map(function (example) {
+      return '<li><p lang="ja">' + grammarTokens(example.tokens, example.ja) +
+        (example.audioUrl ? ' <button type="button" class="dict-grammar__audio" data-grammar-audio="' +
+          esc(example.audioUrl) + '" aria-label="Phát âm ví dụ">▶</button>' : '') + '</p>' +
+        (example.vi ? '<small>' + esc(example.vi) + '</small>' : '') + '</li>';
+    }).join('');
+    var relatedHtml = (grammar.related || []).map(function (item) { return grammarRow(item, true); }).join('');
+    var occurrenceHtml = (grammar.textbookOccurrences || []).map(function (item) {
+      return '<li><a href="' + esc(item.url) + '">' + esc(item.textbookTitle) +
+        ' <span class="dict-grammar__level">' + esc(item.level || '') + '</span> · ' +
+        esc(item.lessonTitle) + '</a><p lang="ja">' + esc(item.pattern) + '</p>' +
+        (item.meaning ? '<p>' + esc(item.meaning) + '</p>' : '') +
+        (item.explanation ? '<p>' + esc(item.explanation) + '</p>' : '') +
+        (item.exampleJa ? '<p lang="ja">' + esc(item.exampleJa) + '</p>' : '') +
+        (item.exampleVi ? '<small>' + esc(item.exampleVi) + '</small>' : '') + '</li>';
+    }).join('');
+    els.detail.innerHTML = '<article class="dict-grammar"><header class="dict-grammar__hero"><div>' +
+      '<p>Ngữ pháp · <span class="dict-grammar__level">' + esc(grammar.level || '') + '</span> ' + grammarBadge(grammar) + '</p>' +
+      '<h1 lang="ja">' + esc(grammar.pattern) + '</h1>' +
+      (grammar.meaningVi ? '<p>' + esc(grammar.meaningVi) + '</p>' : '') + '</div></header>' +
+      (variants.length ? grammarSection('Biến thể', variants.join(' · ')) : '') +
+      grammarSection('Cấu trúc', grammar.formation) + grammarSection('Cách dùng', grammar.usageVi) +
+      grammarSection('Sắc thái', grammar.nuanceVi) + grammarSection('Lỗi thường gặp', grammar.commonMistakesVi) +
+      (exampleHtml ? '<section class="dict-grammar__section"><h2>Ví dụ</h2><ul class="dict-grammar__examples">' + exampleHtml + '</ul></section>' : '') +
+      (relatedHtml ? '<section class="dict-grammar__section"><h2>Ngữ pháp liên quan</h2><div class="dict-grammar__related">' + relatedHtml + '</div></section>' : '') +
+      (occurrenceHtml ? '<section class="dict-grammar__section"><h2>Xuất hiện trong giáo trình</h2><ul class="dict-grammar__occurrences">' + occurrenceHtml + '</ul></section>' : '') +
+      '</article>';
+  }
+  function renderGrammarResults(page) {
+    var items = page.content || [];
+    els.other.hidden = false;
+    byId('dict-side-kanji').hidden = true;
+    byId('dict-other-title').hidden = false;
+    els.vocabList.hidden = false;
+    byId('dict-other-title').textContent = 'Kết quả ngữ pháp';
+    els.vocabList.innerHTML = items.length ? items.map(function (item) { return grammarRow(item, false); }).join('') : '<p>Không tìm thấy ngữ pháp phù hợp.</p>';
+    els.otherPagination.hidden = false;
+    els.otherPagination.innerHTML = pagerHtml('data-grammar-page', page.page, page.totalPages, !page.last);
+  }
+  async function selectGrammarResult(code, token) {
+    state.selectedGrammarCode = code;
+    var request = ++state.grammarDetailToken;
+    Array.prototype.forEach.call(els.vocabList.querySelectorAll('[data-grammar-code]'), function (row) {
+      var selected = row.dataset.grammarCode === code;
+      row.classList.toggle('is-selected', selected);
+      row.setAttribute('aria-pressed', String(selected));
+    });
+    try {
+      var detail = await window.DictApi.grammarDetail(code);
+      if (token === state.token && request === state.grammarDetailToken) renderGrammarDetail(detail);
+    } catch (_err) {
+      if (token === state.token && request === state.grammarDetailToken) {
+        els.detail.innerHTML = '<p class="dict-detail__empty">Không thể tải ngữ pháp lúc này.</p>';
+      }
+    } finally { if (token === state.token && request === state.grammarDetailToken) showLoading(false); }
+  }
+  async function loadGrammar(token, code) {
+    try {
+      if (code) {
+        var direct = await window.DictApi.grammarDetail(code);
+        if (token === state.token) renderGrammarDetail(direct);
+        return;
+      }
+      var page = await window.DictApi.grammarSearch(state.query, 0, state.size);
+      if (token !== state.token) return;
+      renderGrammarResults(page);
+      if (!page.content.length) { showEmpty(); return; }
+      await selectGrammarResult(page.content[0].code, token);
+    } catch (_err) {
+      if (token === state.token) els.detail.innerHTML = '<p class="dict-detail__empty">Không thể tải ngữ pháp lúc này.</p>';
+    } finally { if (token === state.token) showLoading(false); }
+  }
+  async function loadGrammarPage(page) {
+    if (page < 0) return;
+    var token = state.token;
+    try {
+      var result = await window.DictApi.grammarSearch(state.query, page, state.size);
+      if (token === state.token) {
+        state.page = page;
+        state.selectedGrammarCode = null;
+        renderGrammarResults(result);
+        if (result.content.length) await selectGrammarResult(result.content[0].code, token);
+        else showEmpty();
+      }
+    } catch (_err) { if (token === state.token) ui.toast('Không thể tải kết quả'); }
   }
   async function renderRoute() {
     var route = parseRoute();
     state.tab = route.tab;
     state.query = route.query;
+    state.detailCode = route.detailCode || null;
+    state.selectedGrammarCode = null;
+    state.kanjiCharacter = '';
+    state.grammarDetailToken++;
     state.page = 0;
+    state.otherPageToken++;
     var token = ++state.token;
     els.input.value = state.query;
-    setShell(!state.query);
+    setShell(!state.query && !state.detailCode);
+    var sideKanji = byId('dict-side-kanji');
+    sideKanji.hidden = true;
+    sideKanji.innerHTML = '';
+    if (state.tab !== 'grammar') {
+      byId('dict-other-title').textContent = 'Kết quả khác';
+      els.vocabList.innerHTML = '';
+      els.otherPagination.innerHTML = '';
+    }
     hideSuggestions();
-    if (!state.query) { showLoading(false); return; }
+    if (!state.query && !state.detailCode) { showLoading(false); loadDailyWords(); return; }
     els.detail.innerHTML = '';
     state.result = null;
-    if (state.tab === 'example' || state.tab === 'grammar' || state.tab === 'japanese') {
+    if (state.tab === 'grammar') {
+      showLoading(true);
+      await loadGrammar(token, state.detailCode);
+      return;
+    }
+    if (state.tab === 'example') {
       showEmpty(); return;
     }
     showLoading(true);
@@ -479,6 +959,7 @@
     try { result = await window.DictApi.search(state.query, 0, state.size); } catch (_err) { /* Dữ liệu mẫu khi API không sẵn sàng. */ }
     if (token !== state.token) return;
     state.result = result;
+    if (state.tab === 'kanji') renderKanjiResults();
     try {
       if (state.tab === 'word') await loadWord(result, token);
       else await loadKanji(result, token);
@@ -512,6 +993,24 @@
       renderSuggestions(result);
     } catch (_err) { hideSuggestions(); }
   }
+  async function loadOtherPage(page) {
+    if (page < 0 || !state.result || !state.result.vocabularyResults) return;
+    var token = state.token;
+    var request = ++state.otherPageToken;
+    Array.prototype.forEach.call(els.otherPagination.querySelectorAll('button'), function (button) { button.disabled = true; });
+    try {
+      var result = await window.DictApi.search(state.query, page, state.size);
+      if (token !== state.token || request !== state.otherPageToken) return;
+      state.page = page;
+      state.result = result;
+      renderOtherResults();
+    } catch (_err) {
+      if (token === state.token && request === state.otherPageToken) {
+        renderOtherResults();
+        ui.toast('Không thể tải kết quả');
+      }
+    }
+  }
   function commitSearch() {
     var query = els.input.value.trim();
     if (/^[a-zA-Z][a-zA-Z'-]*$/.test(query) && window.DictRomaji) {
@@ -520,17 +1019,49 @@
     els.input.value = query;
     navigate(state.tab, query);
   }
+  function compactRecent(entries) {
+    var seen = new Set();
+    var candidates = [];
+    (entries || []).forEach(function (entry) {
+      var query = entry.queryText || '';
+      if (entry.resultCount === 0 || (/^[a-zA-Z ]+$/.test(query) && query.trim().length < 3)) return;
+      if (seen.has(query)) return;
+      seen.add(query);
+      candidates.push(entry);
+    });
+    var filtered = candidates.filter(function (entry) {
+      var query = (entry.queryText || '').toLowerCase();
+      if (candidates.some(function (other) {
+        var otherQuery = (other.queryText || '').toLowerCase();
+        return otherQuery.length > query.length && otherQuery.indexOf(query) === 0;
+      })) return false;
+      if (!/^[a-zA-Z]+$/.test(query) || !window.DictRomaji) return true;
+      var hiragana = window.DictRomaji.toHiragana(query).replace(/[a-zA-Z]+$/, '');
+      return !hiragana || !candidates.some(function (other) {
+        return /[\u3040-\u30ff\u3400-\u9fff]/.test(other.queryText || '') &&
+          (other.queryText || '').indexOf(hiragana) === 0;
+      });
+    });
+    var kept = [];
+    filtered.forEach(function (entry) {
+      var query = entry.queryText || '';
+      var prefix = query.slice(0, 2).toLowerCase();
+      var searchedAt = Date.parse(entry.searchedAt);
+      if (prefix.length === 2 && Number.isFinite(searchedAt) && kept.some(function (newer) {
+        var newerAt = Date.parse(newer.searchedAt);
+        return (newer.queryText || '').slice(0, 2).toLowerCase() === prefix &&
+          Number.isFinite(newerAt) && newerAt >= searchedAt && newerAt - searchedAt <= 3 * 60 * 1000;
+      })) return;
+      kept.push(entry);
+    });
+    return kept;
+  }
   async function loadRecent() {
     if (!window.JlasAuth || !window.JlasAuth.isLoggedIn || !window.JlasAuth.isLoggedIn()) {
       els.recentEmpty.hidden = false; return;
     }
     try {
-      var seen = new Set();
-      var entries = (await window.DictApi.history() || []).filter(function (entry) {
-        if (seen.has(entry.queryText)) return false;
-        seen.add(entry.queryText);
-        return true;
-      }).slice(0, 6);
+      var entries = compactRecent(await window.DictApi.history()).slice(0, 8);
       els.recentEmpty.hidden = !!entries.length;
       if (!entries.length) els.recentEmpty.textContent = 'Chưa có lịch sử tra cứu nào.';
       var cards = await Promise.all(entries.map(async function (entry) {
@@ -541,12 +1072,14 @@
         }
         if (detail) return '<button type="button" class="dict-recent-card" data-word="' +
           esc(detail.expression) + '" data-vocab-id="' + esc(detail.id || entry.selectedVocabularyId) + '">' +
-          '<span class="dict-recent-card__head"><span class="dict-recent-card__expression">' +
+          '<span class="dict-recent-card__head"><span class="dict-recent-card__expression"' +
+          (/[\u3040-\u30ff\u3400-\u9fff\u3005\u3006]/.test(detail.expression) ? ' lang="ja"' : '') + '>' +
           esc(detail.expression) + '</span>' + ui.jlptBadgeHtml(detail.jlptLevel) + '</span>' +
-          '<span class="dict-recent-card__reading">' + esc(detail.reading || '') + '</span>' +
-          '<span class="dict-recent-card__gloss">' + esc(firstGloss(detail)) + '</span></button>';
+          '<span class="dict-recent-card__gloss">' + esc(firstGloss(detail).split(/[;；\r\n]/, 1)[0].trim()) + '</span></button>';
         return '<button type="button" class="dict-recent-card" data-word="' + esc(entry.queryText) +
-          '"><span class="dict-recent-card__expression">' + esc(entry.queryText) + '</span>' +
+          '"><span class="dict-recent-card__head"><span class="dict-recent-card__expression"' +
+          (/[\u3040-\u30ff\u3400-\u9fff\u3005\u3006]/.test(entry.queryText) ? ' lang="ja"' : '') + '>' +
+          esc(entry.queryText) + '</span></span>' +
           '<span class="dict-recent-card__gloss">' + esc(entry.resultCount || 0) +
           ' kết quả</span></button>';
       }));
@@ -556,14 +1089,54 @@
       els.recentEmpty.textContent = 'Không thể tải lịch sử tra cứu lúc này.';
     }
   }
+  async function loadDailyWords() {
+    if (!isLoggedIn()) {
+      els.dailyBadge.hidden = true;
+      els.dailySubtitle.textContent = '';
+      els.dailyEmpty.textContent = 'Đăng nhập để nhận gợi ý từ vựng mỗi ngày.';
+      els.dailyEmpty.hidden = false;
+      return;
+    }
+    try {
+      var result = await window.DictApi.dailyWords();
+      var words = result.words || [];
+      els.dailyBadge.hidden = !words.length;
+      els.dailyBadge.textContent = result.source === 'TARGET_LEVEL' ? (result.level || '') :
+        result.source === 'HISTORY' ? 'Từ bạn đã tra' : '';
+      els.dailySubtitle.textContent = result.source === 'TARGET_LEVEL' ?
+        'Theo mốc ' + (result.level || '') + ' · đổi mới mỗi ngày' :
+        result.source === 'HISTORY' ? 'Từ những từ bạn đã tra · đổi mới mỗi ngày' : '';
+      els.dailyList.innerHTML = words.map(function (word) {
+        return '<button type="button" class="dict-daily-row" data-word="' + esc(word.expression) +
+          '" data-vocab-id="' + esc(word.id) + '"><span class="dict-daily-row__head">' +
+          '<span class="dict-daily-row__term"><span class="dict-daily-row__expression" lang="ja">' +
+          esc(word.expression) + '</span><span class="dict-daily-row__reading" lang="ja">' +
+          esc(word.reading || '') + '</span></span>' + ui.jlptBadgeHtml(word.jlptLevel) +
+          '</span><span class="dict-daily-row__meaning" title="' + esc(word.meaning || '') + '">' +
+          esc(word.meaning || '') + '</span></button>';
+      }).join('');
+      els.dailyEmpty.hidden = !!words.length;
+      if (!words.length) els.dailyEmpty.textContent =
+        'Chọn mốc trình độ hướng tới hoặc tra vài từ tiếng Nhật để nhận gợi ý.';
+    } catch (_err) {
+      els.dailyBadge.hidden = true;
+      els.dailySubtitle.textContent = '';
+      els.dailyEmpty.textContent = 'Không thể tải từ vựng mỗi ngày lúc này.';
+      els.dailyEmpty.hidden = false;
+    }
+  }
   function init() {
     els.hero = byId('dict-hero'); els.homePanels = byId('dict-home-panels');
     els.input = byId('dict-search-input'); els.clear = byId('dict-search-clear');
     els.suggest = byId('dict-suggest'); els.tabs = byId('dict-tabs');
     els.layout = byId('dict-results-layout'); els.detail = byId('dict-detail-pane');
     els.other = byId('dict-other-results'); els.vocabList = byId('dict-vocab-list');
-    els.loadMore = byId('dict-load-more'); els.status = byId('dict-status');
+    els.otherPagination = byId('dict-other-pagination'); els.status = byId('dict-status');
     els.recent = byId('dict-recent-list'); els.recentEmpty = byId('dict-recent-empty');
+    els.dailyList = byId('dict-daily-list'); els.dailyBadge = byId('dict-daily-badge');
+    els.dailyEmpty = byId('dict-daily-empty');
+    els.dailySubtitle = byId('dict-daily-subtitle');
+    initNotebookPopover();
     els.input.addEventListener('input', function () {
       els.clear.hidden = !els.input.value;
       window.clearTimeout(suggestionTimer);
@@ -582,36 +1155,41 @@
       if (button) navigate(button.dataset.tab, state.query);
     });
     document.addEventListener('click', function (event) {
+      var saveWord = event.target.closest('[data-save-word]');
+      if (saveWord) { openNotebookChooser(saveWord); return; }
       if (event.target.closest('[data-contribution-page], [data-contribution-vote], [data-contribution-report], [data-contribution-send]')) {
         handleContributionClick(event);
         return;
       }
       if (!event.target.closest('.dict-search-bar')) hideSuggestions();
+      var tutorAsk = event.target.closest('[data-tutor-ask]');
+      if (tutorAsk) {
+        var tutor = window.JlasTutorWidget;
+        if (!tutor || !tutor.open(tutorAsk.getAttribute('data-tutor-ask'))) {
+          ui.toast(window.JlasAuth && window.JlasAuth.isLoggedIn() ? 'Gia sư AI đang tạm nghỉ, bạn thử lại sau nhé' : 'Đăng nhập để hỏi gia sư AI');
+        }
+        return;
+      }
       var coming = event.target.closest('[data-coming-soon]');
       if (coming) ui.toast('Sắp ra mắt');
-      var relatedMore = event.target.closest('[data-related-more]');
-      if (relatedMore) { state.relatedShown += 5; renderRelated(); }
-      var kanjiRelatedMore = event.target.closest('[data-kanji-related-more]');
-      if (kanjiRelatedMore) { state.kanjiRelatedShown += 10; renderKanjiRelated(); }
+      var otherPage = event.target.closest('[data-other-page]');
+      if (otherPage && !otherPage.disabled) { loadOtherPage(Number(otherPage.dataset.otherPage)); return; }
+      var grammarPage = event.target.closest('[data-grammar-page]');
+      if (grammarPage && !grammarPage.disabled) { loadGrammarPage(Number(grammarPage.dataset.grammarPage)); return; }
+      var grammarAudio = event.target.closest('[data-grammar-audio]');
+      if (grammarAudio) { new Audio(grammarAudio.dataset.grammarAudio).play().catch(function () { ui.toast('Không thể phát âm thanh'); }); return; }
+      var grammar = event.target.closest('[data-grammar-code]');
+      if (grammar) {
+        if (grammar.dataset.grammarRelated) navigateGrammar(grammar.dataset.grammarCode);
+        else { showLoading(true); selectGrammarResult(grammar.dataset.grammarCode, state.token); }
+        return;
+      }
+      var kanjiPick = event.target.closest('[data-kanji-pick]');
+      if (kanjiPick) { loadKanji(state.result, state.token, kanjiPick.dataset.kanjiPick); return; }
       var kanji = event.target.closest('[data-kanji]');
       if (kanji) { navigate('kanji', kanji.dataset.kanji); return; }
       var word = event.target.closest('[data-word]');
       if (word) navigate('word', word.dataset.word, word.dataset.vocabId || null);
-    });
-    els.loadMore.addEventListener('click', async function () {
-      if (els.loadMore.disabled) return;
-      els.loadMore.disabled = true;
-      var query = state.query, token = state.token;
-      try {
-        var next = await window.DictApi.search(query, state.page + 1, state.size);
-        if (token !== state.token) return;
-        state.page++;
-        var page = state.result.vocabularyResults;
-        page.content = page.content.concat(next.vocabularyResults.content || []);
-        page.last = next.vocabularyResults.last;
-        renderOtherResults();
-      } catch (_err) { ui.toast('Không thể tải thêm kết quả'); }
-      finally { els.loadMore.disabled = false; }
     });
     byId('dict-open-handwriting').addEventListener('click', function () {
       if (window.DictHandwriting) window.DictHandwriting.clear();

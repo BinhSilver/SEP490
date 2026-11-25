@@ -122,7 +122,8 @@
       return t && t.tab !== 'SKILL' && num(t.newTarget) > 0;
     }).map(function (t) {
       return '<li class="jp-chip' + (t.done ? ' jp-chip--done' : '') + '" data-pill-tab="' + esc(String(t.tab || '').toLowerCase()) + '">'
-        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget)) + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
+        + esc((CODE_LABEL[t.tab] || t.tab) + ' ' + num(t.newDone) + '/' + num(t.newTarget) + (t.tab === 'KANA' ? ' hàng' : ''))
+        + (t.done ? ' ' + medalMiniSvg() : '') + '</li>';
     }).join('');
     return chips ? '<ul class="jp-chips" aria-label="Tiến độ hôm nay">' + chips + '</ul>' : '';
   }
@@ -133,7 +134,12 @@
   }
 
   function reviewDue(today) {
-    return list(today && today.tabs).reduce(function (sum, t) { return sum + num(t && t.reviewDue); }, 0);
+    // walkthrough 25/11: "Ôn 131 thẻ" while the session holds 38 — count what today's review will actually ask
+    return list(today && today.tabs).reduce(function (sum, t) {
+      var due = num(t && t.reviewDue);
+      var cap = num(t && t.reviewCap);
+      return sum + (cap > 0 ? Math.min(due, Math.max(0, cap - num(t && t.reviewDone))) : due);
+    }, 0);
   }
 
   function quizRequired(today) {
@@ -145,15 +151,35 @@
     return target(today, 'KANA');
   }
 
+  /** Something left to do today in the tab {@code key} (new items or due reviews). */
+  function hasWork(today, key) {
+    var t = todayTab(today, code(key));
+    return !!t && !t.done && (num(t.newTarget) > num(t.newDone) || num(t.reviewDue) > 0);
+  }
+
+  /**
+   * Owner 23/11: the tab "Học riêng … (Tách)" opens: the active tab when it has work today, else the first one that
+   * has (kana stage: Chữ cái, not Từ vựng with 0 new words); null when no tab has anything to do.
+   */
+  function splitTabFor(today, activeTab) {
+    var first = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
+    if (!today || hasWork(today, first)) return first;
+    var order = ['kana', 'vocab', 'kanji', 'grammar'];
+    for (var i = 0; i < order.length; i++) if (hasWork(today, order[i])) return order[i];
+    return null;
+  }
+
   function modeButtonsHtml(today, path, activeTab) {
     var p = path || {};
     var suggested = p.suggestedMode || 'COMBINED';
-    var splitTab = activeTab === 'skills' ? 'vocab' : (activeTab || 'vocab');
+    var splitTab = splitTabFor(today, activeTab);
     var defs = [
       { mode: 'COMBINED', label: 'Học hôm nay (Gộp)',
-        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' },
-      { mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
-        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' }];
+        desc: 'Một lượt học liền mạch: ôn thẻ đến hạn → từ mới → Kanji mới → ngữ pháp mới.' }];
+    if (splitTab) {
+      defs.push({ mode: 'SPLIT', label: 'Học riêng ' + TAB_LABEL[splitTab] + ' (Tách)',
+        desc: 'Học từng phần riêng, bắt đầu với tab ' + TAB_LABEL[splitTab] + '.' });
+    }
     var html = defs.map(function (def) {
       var on = def.mode === suggested;
       var out = '<div class="jp-mode' + (on ? ' jp-suggested' : '') + '">'
@@ -237,7 +263,7 @@
     var circum = (2 * Math.PI * r).toFixed(1);
     var offset = (circum * (1 - pct / 100)).toFixed(1);
     var tip = VI_WEEKDAY_FULL[dowIdx] + ', ngày ' + m[3] + '/' + m[2] + ' (' + monthNum + '月 ' + kanjiDow + ') · hoàn thành ' + pct + '%';
-    return '<div class="jp-today__cal" data-pct="' + pct + '" data-tip="' + esc(tip) + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">'
+    return '<div class="jp-today__cal" data-pct="' + pct + '" data-tip="' + esc(tip) + '" aria-label="' + esc(tip) + '">'
       + '<div class="jp-today__cal-water" style="height:' + pct + '%" aria-hidden="true">'
       + '<svg class="jp-today__cal-waves" viewBox="0 0 160 20" preserveAspectRatio="none" aria-hidden="true">'
       + '<path class="jp-today__cal-wave-back" d="M0,10 C20,16 40,4 60,10 C80,16 100,4 120,10 C140,16 150,7 160,10 L160,20 L0,20 Z"></path>'
@@ -249,8 +275,10 @@
       + '</svg>'
       + '<div class="jp-today__cal-inner">'
       + '<strong class="jp-today__cal-day">' + esc(m[3]) + '</strong>'
-      + '<span class="jp-today__cal-jp" lang="ja">' + esc(monthNum + '月') + ' <span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
+      + '<span class="jp-today__cal-jp" lang="ja"><span class="jp-today__cal-kanji">' + kanjiDow + '</span></span>'
       + '</div>'
+      // owner 10/11 (F31): Kitsu sits by the ring and wraps its tail round it
+      + '<img class="jp-today__cal-kitsu" src="/images/mascots/fox/kitsu-cheer-30-128.webp" alt="" width="60" height="60" loading="lazy">'
       + '</div>';
   }
 
@@ -316,8 +344,14 @@
     if (g > 0) parts.push(g + ' mẫu');
     var line = parts.length ? ('Hôm nay học ' + parts.join(' · ')) : 'Hôm nay ôn tập các mục đến hạn';
     var mins = num(t && t.estimatedMinutes);
-    if (mins > 0) line += ', khoảng ' + mins + ' phút';
+    if (mins > 0) line += ', ' + minutesWords(t, mins);
     return line;
+  }
+
+  /** Owner 23/11: the server gives what is left (the study page's minutes), so a started day says "còn khoảng". */
+  function minutesWords(t, mins) {
+    var started = list(t && t.tabs).some(function (x) { return x && num(x.newDone) > 0; });
+    return (started ? 'còn khoảng ' : 'khoảng ') + mins + ' phút';
   }
 
   /**
@@ -355,7 +389,7 @@
   function studyDayHtml(t) {
     var tip = 'Ôn thẻ đến hạn rồi học mới liền một lượt';
     return '<div class="jp-today__go">'
-      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED" data-tip="' + esc(tip) + '" title="' + esc(tip) + '">Học hôm nay</button>'
+      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="start-mode" data-mode="COMBINED" data-tip="' + esc(tip) + '">Học hôm nay</button>'
       + '</div>'
       + studyPillsHtml(t);
   }
@@ -388,6 +422,36 @@
       + (floor ? '<span class="jp-today__pill-sub jp-todo__sub">' + esc(floor) + '</span>' : '') + '</span>' + action + '</li>';
   }
 
+  /**
+   * Owner 22/11 (F229): the steps of a skill day (make-up days too) still to do, in the order one "Học hôm nay"
+   * runs them: Đọc → Nghe → Ôn (và quiz). A card not loaded yet counts as to do; a card with no exercise is skipped.
+   */
+  function skillDaySteps(t, extra) {
+    var o = (extra && extra.skills) || {};
+    var out = [];
+    [['READING', o.reading], ['LISTENING', o.listening]].forEach(function (pair) {
+      var c = pair[1];
+      if (c && (!c.typeCode || c.doneToday)) return;
+      out.push({ key: pair[0], label: SKILL_NAME[pair[0]], openSessionId: c && c.openSessionId != null ? c.openSessionId : null });
+    });
+    var quiz = quizRequired(t);
+    if (reviewDue(t) > 0 || quiz) out.push({ key: 'REVIEW', label: quiz ? 'Ôn và quiz' : 'Ôn thẻ' });
+    return out;
+  }
+
+  function skillGoHtml(t, extra) {
+    var steps = skillDaySteps(t, extra);
+    if (!steps.length) return '';
+    var order = steps.map(function (s) { return s.label; }).join(' → ');
+    var started = steps.length < 3 || steps.some(function (s) { return s.openSessionId != null; });
+    var tip = 'Học lần lượt ' + order + '; xong phần nào tự sang phần sau';
+    return '<div class="jp-today__go">'
+      + '<button type="button" class="jp-btn jp-btn--primary jp-btn--lg" data-action="run-day" data-tip="' + esc(tip) + '">'
+      + (started ? 'Học tiếp hôm nay' : 'Học hôm nay') + '</button>'
+      + '<span class="jp-today__go-sub">' + esc(order) + '</span>'
+      + '</div>';
+  }
+
   function skillDayHtml(t, extra) {
     var o = (extra && extra.skills) || null;
     var due = reviewDue(t);
@@ -395,6 +459,7 @@
     var reviewDone = due === 0 && !quiz;
     var reviewText = (due ? 'Ôn ' + due + ' thẻ đến hạn' : 'Không có thẻ đến hạn') + (quiz ? ' · quiz 10 câu' : '');
     return (t.skillMakeup ? '<p class="jp-today__summary">Hôm nay bù ngày kỹ năng đã lỡ.</p>' : '')
+      + skillGoHtml(t, extra)
       + '<ol class="jp-today__pills jp-todo">' + skillTask(o && o.reading, 'READING') + skillTask(o && o.listening, 'LISTENING')
       + '<li class="jp-today__pill jp-todo__item' + (reviewDone ? ' is-done' : '') + '" data-pill-tab="review">'
       + progressRingSvg(reviewDone ? 1 : 0, 1, reviewDone)
@@ -415,21 +480,21 @@
     if (t.kind === 'SKILL') return 'Ngày kỹ năng · Đọc, Nghe và ôn tập';
     if (t.kind === 'REST') return 'Ngày nghỉ · không có bài bắt buộc';
     if (t.kind === 'REVIEW_ONLY') return 'Ngày ôn · chỉ ôn thẻ đến hạn';
-    if (t.kanaPhase) return 'Hôm nay học ' + kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ';
+    if (t.kanaPhase) return 'Hôm nay học ' + kanaRows(t) + ' hàng chữ cái' + (target(t, 'VOCAB') > 0 ? ' · ' + target(t, 'VOCAB') + ' từ' : '');
     return studySummaryText(t);
   }
 
   function todayKitsuHtml(t) {
-    var src = '/images/mascots/kitsu/kitsu-encouraging.webp';
+    var src = '/images/mascots/fox/kitsu-encouraging.webp';
     var say = 'Cùng Kitsu chinh phục bài hôm nay nhé!';
     if (t && t.allDone) {
-      src = '/images/mascots/kitsu/kitsu-celebrate-30.webp';
+      src = '/images/mascots/fox/kitsu-celebrate-30.webp';
       say = 'Hoàn thành xuất sắc hôm nay!';
     } else if (t && t.kind === 'REST') {
-      src = '/images/mascots/kitsu/kitsu-resting-30.webp';
+      src = '/images/mascots/fox/kitsu-resting-30.webp';
       say = 'Nghỉ ngơi nạp năng lượng nhé!';
     } else if (t && t.kind === 'SKILL') {
-      src = '/images/mascots/kitsu/kitsu-preparing.webp';
+      src = '/images/mascots/fox/kitsu-preparing.webp';
       say = 'Cùng rèn Đọc · Nghe nào!';
     }
     return '<div class="jp-today__kitsu" aria-hidden="true">'
@@ -452,7 +517,7 @@
       + '<div class="jp-today__lead">'
       + '<div class="jp-today__title-row">'
       + '<h2 class="jp-section-title" id="jp-today-title">Hôm nay của bạn</h2>'
-      + (t.allDone ? '<span class="jp-today__badge jp-today__badge--done">' + medalMiniSvg() + ' Đã học hôm nay</span>' : '')
+      + (t.allDone ? '<span class="jp-today__stamp-wrap"><span class="jp-today__stamp" role="img" tabindex="0" aria-label="Bạn đã hoàn thành toàn bộ bài học hôm nay!" data-tip="Bạn đã hoàn thành toàn bộ bài học hôm nay!"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><path id="jpStampArc" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0"></path></defs><circle class="jp-today__stamp-o" cx="50" cy="50" r="47"></circle><circle class="jp-today__stamp-i" cx="50" cy="50" r="29"></circle><text class="jp-today__stamp-arc"><textPath href="#jpStampArc" startOffset="0">KOTSUKOTSU ・ ĐÃ HỌC HÔM NAY ・</textPath></text><text class="jp-today__stamp-jp" x="50" y="58" text-anchor="middle" lang="ja">済</text></svg></span><a class="jp-today__stamp-bubble" href="/learning/jlpt/day">Xem lại phần đã học hôm nay</a></span>' : '')
       + '</div>'
       + '<p class="jp-today__subtitle">' + esc(dayLine(t)) + '</p>'
       + (x.why ? '<p class="jp-today__why">' + esc(x.why) + '</p>' : '')
@@ -466,13 +531,10 @@
       + (compactSide ? '<aside class="jp-today__side" aria-label="Tiến trình">' + compactSide + '</aside>' : '')
       + '</div>';
     var end = '</div></div>' + foot + '</section>';
-    var missed = t.skillDayMissed ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
+    var missed = t.skillDayMissed && !t.skillMakeup ? '<p class="jp-warn">Tuần này bạn còn thiếu ngày kỹ năng.</p>' : '';
 
     if (t.allDone) {
-      return html + '<div class="jp-today__done-bar">'
-        + '<p class="jp-today__done">' + medalMiniSvg() + ' Bạn đã hoàn thành toàn bộ bài học hôm nay!</p>'
-        + '<a class="jp-btn jp-btn--primary" href="/learning/jlpt/day">Xem ngày học hôm nay</a>'
-        + '</div>'
+      return html
         + (t.kind !== 'REST' && t.kind !== 'SKILL' && !t.kanaPhase ? studyPillsHtml(t) : '')
         + missed + end;
     }
@@ -490,7 +552,8 @@
         + '</div>' + missed + end;
     }
     if (t.kanaPhase) {
-      var summary = kanaRows(t) + ' hàng chữ cái · ' + target(t, 'VOCAB') + ' từ mới · khoảng ' + num(t.estimatedMinutes) + ' phút';
+      var summary = kanaRows(t) + ' hàng chữ cái' + (target(t, 'VOCAB') > 0 ? ' · ' + target(t, 'VOCAB') + ' từ mới' : '')
+        + (num(t.estimatedMinutes) > 0 ? ' · ' + minutesWords(t, num(t.estimatedMinutes)) : '');
       html += '<p class="jp-today__summary">' + esc(summary) + '</p>' + chipsHtml(t) + missed;
       return html + modeButtonsHtml(t, path, activeTab)
         + '<p class="jp-alert" role="alert" data-part="today-error" hidden></p>' + end;
@@ -578,5 +641,5 @@
       sliders: sliderBody(draft), kanaTab: !!p.kanaTab, mode: p.mode || 'COMBINED' };
   }
 
-  return { UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, skillDayHtml: skillDayHtml, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
+  return { splitTabFor: splitTabFor, UNIT: UNIT, CODE_LABEL: CODE_LABEL, newDraft: newDraft, changeDraft: changeDraft, sliderBody: sliderBody, valueText: valueText, minutesLine: minutesLine, appliesNote: appliesNote, sliderHtml: sliderHtml, reasonText: reasonText, todayHtml: todayHtml, calendarStampHtml: calendarStampHtml, progressRingSvg: progressRingSvg, medalMiniSvg: medalMiniSvg, chestMiniSvg: chestMiniSvg, skillDayHtml: skillDayHtml, skillDaySteps: skillDaySteps, studyDayHtml: studyDayHtml, jaWeekday: jaWeekday, reviewDue: reviewDue, quizRequired: quizRequired, kanaRows: kanaRows, levelPreviewHtml: levelPreviewHtml, comingSoonHtml: comingSoonHtml, warningsHtml: warningsHtml, startRequest: startRequest, onStart: onStart, localIso: localIso, isStale: isStale, estimateBody: estimateBody };
 });

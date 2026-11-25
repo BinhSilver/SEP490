@@ -166,3 +166,94 @@
   .survey-exam-date{padding:14px 14px}
   .survey-exam-date__input{width:100%;min-height:42px;font-size:16px}
 }
+/* [JLAS-W0108] A8: "Để sau" link in the survey header */
+.survey-later { flex:0 0 auto; padding:8px 12px; border-radius:8px; color:var(--color-on-surface-variant, inherit); font-weight:600; font-size:.92em; text-decoration:none; white-space:nowrap; }
+.survey-later:hover { background:var(--color-surface-low); }
+.survey-later:focus-visible { outline:3px solid var(--color-primary, #6b4bd6); outline-offset:2px; }
+/* [JLAS-W0108] F14: back · progress · step · "Để sau" on one row */
+.journey-ui #jlabBaseContent .survey-progress-header,
+.survey-progress-header { grid-template-columns: 38px 1fr auto auto !important; }
+.survey-step-counter { white-space: nowrap; }
+@media (max-width: 380px) { .survey-later { padding: 6px 8px; } }
+
+/* Smart Test and its survey use the same surfaces and plum actions as Learning Path v2. */
+.smart-test-body { --jlab-base-page-background: var(--jp-canvas); color: var(--jp-ink); }
+#jlabBaseContent.smart-test-page,
+#jlabBaseContent.survey-page { color: var(--jp-ink); }
+.smart-test-body :is(.assessment-header, .exam-sidebar, .assessment-card, .result-overall, .result-dashboard) {
+  border: 1px solid var(--jp-line);
+  border-radius: var(--jp-radius-panel, 16px);
+  background: var(--jp-surface);
+  box-shadow: none;
+}
+.smart-test-body .assessment-header__icon,
+.smart-test-body .result-heading__mark {
+  color: var(--color-on-primary);
+  background: var(--jp-primary);
+  box-shadow: none;
+}
+.smart-test-body :is(.assessment-kicker, .result-eyebrow, .question-kicker) { color: var(--jp-primary); }
+.smart-test-body :is(.assessment-header h1, .assessment-card h2, .result-section-heading h3) { color: var(--jp-ink); }
+.smart-test-body :is(.assessment-header p, .result-summary, .result-note, .exam-guide p) { color: var(--jp-muted); }
+.smart-test-body .exam-sidebar { background: var(--jp-surface); }
+.smart-test-body .exam-mascot { display: grid; place-items: center; background: var(--jp-primary-soft); }
+.smart-test-body .exam-mascot img { width: min(100%, 156px); height: 100%; object-fit: contain; }
+.smart-test-body .exam-guide { background: var(--jp-surface-2); box-shadow: none; }
+.smart-test-body :is(.progress-fill, .exam-card::before) { background: var(--jp-primary); }
+.smart-test-body :is(.smart-test-primary, .smart-test-secondary, .smart-test-finish) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: var(--jp-radius-interactive, 14px);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: none;
+}
+.smart-test-body .smart-test-primary { border: 1px solid var(--jp-primary); background: var(--jp-primary); color: var(--color-on-primary); }
+.smart-test-body .smart-test-primary:hover { border-color: var(--jp-primary-hover); background: var(--jp-primary-hover); color: var(--color-on-primary); }
+.smart-test-body :is(.smart-test-secondary, .smart-test-finish) { border: 1px solid var(--jp-line); background: var(--jp-surface); color: var(--jp-ink); }
+.smart-test-body :is(.smart-test-secondary, .smart-test-finish):hover { border-color: var(--jp-primary); color: var(--jp-primary); background: var(--jp-primary-soft); }
+.smart-test-body .result-actions { display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap; }
+.smart-test-body .result-actions [hidden] { display: none !important; }
+.smart-test-body .smart-confirm__card { border-color: var(--jp-line); background: var(--jp-surface); color: var(--jp-ink); }
+.smart-test-body .smart-confirm__mascot { top: 0; height: 180px; display: grid; place-items: center; }
+.smart-test-body .smart-confirm__mascot img { width: 176px; height: 176px; object-fit: contain; }
+.smart-test-body .smart-confirm__content p { color: var(--jp-muted); }
+.smart-test-body #jlabBaseContent :is(button, a, input, select):focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 3px; }
+.smart-test-body #jlabBaseContent [hidden] { display: none !important; }
+@media (max-width: 560px) {
+  .smart-test-body .result-actions { align-items: stretch; flex-direction: column; }
+  .smart-test-body .result-actions > * { width: 100%; box-sizing: border-box; text-align: center; }
+}
+
+/* [JLAS-W0108] 17/11: update an existing JLPT path from the Smart Test result in place. */
+.smart-test-path-update { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--jp-line, #e5e7eb); border-radius: 14px;
+  background: var(--jp-surface, #fff); color: var(--jp-ink, inherit); display: grid; gap: 10px; }
+.smart-test-path-update p { margin: 0; line-height: 1.55; }
+/* Owner 17/11: changing the main goal explains what happens first. */
+.survey-goal-change { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid #f0c27a;
+  background: #fff7e8; color: #6b3d00; line-height: 1.5; font-size: .95rem; }
+html[data-theme="dark"] .survey-goal-change { background: #3a2a10; color: #ffd9a0; border-color: #7a5a20; }
+
+/* [JLAS-W0108] F240: entry and exit of the JLPT path with this result */
+.result-io { margin-top: 16px; padding: 16px 18px; display: grid; gap: 8px; border-radius: 14px;
+  border: 1px solid var(--color-outline-variant); background: var(--color-surface-container-low); }
+.result-io__title { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--color-on-surface); }
+.result-io .mp-io { display: grid; gap: 4px; font-size: .9rem; color: var(--color-on-surface); }
+.result-io .mp-io__row, .result-io .mp-io__progress { margin: 0; }
+.result-io .mp-io__k { font-weight: 500; color: var(--color-on-surface-variant); }
+.result-io .mp-io__lv { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--color-primary);
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.result-io__steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.result-io__step { padding: 2px 10px; border-radius: 999px; font-size: .85rem; font-weight: 500;
+  background: var(--color-primary-fixed); color: var(--color-on-surface); }
+.result-io__note { margin: 0; font-size: .85rem; color: var(--color-on-surface-variant); }
+.result-io__info { padding-top: 8px; border-top: 1px solid var(--color-outline-variant); }
+.result-io__info .mp-io__title { margin: 0 0 4px; font-size: 1rem; font-weight: 600; }
+.result-io__info .mp-io__counts { margin: 0 0 6px; color: var(--color-on-surface-variant); }
+.result-io__info .mp-io__cando { margin: 0; padding-left: 20px; }

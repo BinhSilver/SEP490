@@ -17,7 +17,7 @@ public class JlptStudyController {
     private final JlptStudyService study;
     @GetMapping("/{code}/study")
     public ResponseEntity<ApiResponse<JlptStudyResponse>> list(
-            @PathVariable @Pattern(regexp = "N[1-5]_(?:\\d{4}_(?:07|12)|MOCK_\\d+)") String code) {
+            @PathVariable @Pattern(regexp = "N[1-5]_(?:\\d{4}(?:_(?:07|12))?|MOCK_\\d+)") String code) {
         return ResponseEntity.ok(ApiResponse.ok("Đã tải nội dung ôn tập trong đề.", study.list(code)));
     }
 }

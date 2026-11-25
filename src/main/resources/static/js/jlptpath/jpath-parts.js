@@ -22,7 +22,7 @@
  *    - Automatically shifts down/up into the visible viewport below the sticky banner when opened.
  *    - Max height ~70vh with internal scroll; "10/10" progress ring sits neatly inline in the footer button row.
  *
- * window.JpathParts = { partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
+ * window.JpathParts = { printPartHtml(tab, index), partsHtml(data, tabKey, page, opts), weeklyHtml(week), savedNoticeHtml(msg), mount(partsEl, listEl, tabKey, opts) }
  */
 (function (root, factory) {
   'use strict';
@@ -32,7 +32,10 @@
   if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
     var notice = function () {
       var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem ngày học hôm nay".';
-      if (root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(msg);
+      if (root.JlasToast && typeof root.JlasToast.show === 'function' && root.JlasToast.show(msg, 'success')) {
+        try { root.history.replaceState(null, '', root.location.pathname); } catch (e) { /* keep the url */ }
+        return;
+      }
       var div = root.document.createElement('div');
       div.className = 'jp-saved-note';
       div.setAttribute('role', 'status');
@@ -55,11 +58,14 @@
   var WAVE_POS = ['center', 'left', 'center', 'right'];
   var WAVE_X = { left: 20, center: 240, right: 460 };
 
+  // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy (about a third of the bytes)
+  function small(src) { return String(src).replace(/\.webp$/, '-128.webp'); }
+
   var SIDE_KITSUS = [
-    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Bạn làm tốt lắm!' },
+    { src: '/images/mascots/kitsu/kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Cố lên nhé!' },
     { src: '/images/mascots/kitsu/kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Nhớ ôn kỹ nhé!' },
     { src: '/images/mascots/kitsu/kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Cùng tiến lên nào!' },
-    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Sắp tới đích rồi!' },
+    { src: '/images/mascots/kitsu/kitsu-preparing.webp', alt: 'Kitsu chăm chỉ', say: 'Từng bước một!' },
     { src: '/images/mascots/kitsu/kitsu-resting-30.webp', alt: 'Kitsu nghỉ ngơi', say: 'Đều đặn mỗi ngày!' },
     { src: '/images/mascots/kitsu/kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Giữ vững phong độ!' }
   ];
@@ -88,7 +94,7 @@
         + '" style="--cf-i:' + i + '" aria-hidden="true"></span>');
     }
     return '<div class="jp-saved-note__confetti-wrap" aria-hidden="true">' + pieces.join('') + '</div>'
-      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
+      + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
       + '<div class="jp-saved-note__body">'
       + '<strong class="jp-saved-note__title">Hoàn thành xuất sắc!</strong>'
       + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".') + '</span>'
@@ -242,9 +248,14 @@
       + '</svg>';
   }
 
+  var SCENE_MARK = { vocab: '語', kanji: '漢', grammar: '文', kana: 'あ', skills: '読' };
+
   function sceneBackdropHtml(sceneKey) {
     return '<div class="jp-parts__backdrop jp-parts__backdrop--' + esc(sceneKey) + '" aria-hidden="true">'
       + '<div class="jp-parts__sky-pattern jp-parts__sky-pattern--' + esc(sceneKey) + '"></div>'
+      // F23: a faint treasure-map layer (grid + contour rings) and one big kanji watermark per tab
+      + '<div class="jp-parts__mapgrid"></div>'
+      + '<span class="jp-parts__watermark" lang="ja">' + (SCENE_MARK[sceneKey] || '学') + '</span>'
       + '<div class="jp-parts__clouds">'
       + smallCloudSvg('jp-parts__cloud--1')
       + smallCloudSvg('jp-parts__cloud--2')
@@ -441,10 +452,22 @@
   }
 
   /* Round 6 Item 1d: 1 side Kitsu per week, pose varies by week */
-  function weekSideKitsuHtml(weekNum, side) {
-    var k = SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
+  // [JLAS-W0108] C2: the side Kitsu follows the week's progress - celebrates a finished week, points at the
+  // current one, wonders about the weeks ahead (the old per-week pose stays when the state is unknown)
+  var K = '/images/mascots/kitsu/';
+  var MOOD_KITSUS = {
+    past: [{ src: K + 'kitsu-celebrate-30.webp', alt: 'Kitsu ăn mừng', say: 'Xong tuần này rồi!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Giỏi lắm!' }],
+    current: [{ src: K + 'kitsu-encouraging.webp', alt: 'Kitsu khích lệ', say: 'Tuần này đây!' },
+      { src: K + 'kitsu-cheer-30.webp', alt: 'Kitsu cổ vũ', say: 'Từng bước một!' }],
+    upcoming: [{ src: K + 'kitsu-thinking-30.webp', alt: 'Kitsu suy nghĩ', say: 'Sắp tới nè!' },
+      { src: K + 'kitsu-preparing.webp', alt: 'Kitsu chuẩn bị', say: 'Chờ mình nhé!' }]
+  };
+  function weekSideKitsuHtml(weekNum, side, state, second) {
+    var mood = MOOD_KITSUS[state];
+    var k = mood ? mood[second ? 1 : 0] : SIDE_KITSUS[(Math.max(1, Number(weekNum) || 1) - 1) % SIDE_KITSUS.length];
     return '<span class="jp-parts__mascot jp-parts__mascot--side jp-parts__mascot--' + side + '" aria-hidden="true">'
-      + '<img class="jp-parts__mascot-img" src="' + k.src + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
+      + '<img class="jp-parts__mascot-img" src="' + small(k.src) + '" width="56" height="56" loading="lazy" alt="' + esc(k.alt) + '"/>'
       + '<span class="jp-parts__mascot-speech jp-parts__mascot-speech--sm">' + esc(k.say) + '</span>'
       + '</span>';
   }
@@ -499,18 +522,28 @@
       + '</div>';
   }
 
-  function wordPillHtml(it) {
+  /* owner 25/11: only kana and kanji have Luyện viết, never words */ var WRITE_TYPES = { kanji: 'KANJI', kana: 'KANA' };
+
+  /** owner 22/11: a word / Kanji / kana pill opens "Luyện viết" (stroke order, tracing cells, In phiếu viết). */
+  function wordPillHtml(it, tabKey) {
     var label = (it && (it.label || it.text || it.expression || '')) || '';
     var rd = it && it.reading && it.reading !== label ? it.reading : '';
     var mean = (it && (it.meaning || it.meaningVi || '')) || '';
-    return '<li class="jp-parts__word-pill">'
-      + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
+    var type = WRITE_TYPES[String(tabKey || '').toLowerCase()];
+    // F216 (owner 22/11): an item picked for this learner wears a "Dành cho bạn" tag (the why is never shown)
+    var mine = it && it.forYou ? '<span class="jp-for-you" title="Mục này được chọn riêng cho bạn">Dành cho bạn</span>' : '';
+    var inner = mine + (rd ? '<span class="jp-parts__pill-rd" lang="ja">' + esc(rd) + '</span>' : '<span class="jp-parts__pill-rd" aria-hidden="true">&nbsp;</span>')
       + '<span class="jp-parts__pill-ja" lang="ja">' + esc(label) + '</span>'
-      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '')
-      + '</li>';
+      + (mean ? '<span class="jp-parts__pill-mean">' + esc(mean) + '</span>' : '');
+    if (type && it && it.code) {
+      return '<li class="jp-parts__word-pill jp-parts__word-pill--write">'
+        + '<button type="button" class="jp-parts__pill-btn" title="Bấm để luyện viết" data-jpath-writing="'
+        + esc(JSON.stringify({ itemType: type, code: it.code })) + '">' + inner + '</button></li>';
+    }
+    return '<li class="jp-parts__word-pill">' + inner + '</li>';
   }
 
-  function pillsGridHtml(items, unit, expanded) {
+  function pillsGridHtml(items, unit, expanded, tabKey) {
     var arr = list(items);
     if (!arr.length) return '<p class="jp-parts__pop-empty">Chưa có mục nào trong phần này.</p>';
     var showAll = !!expanded || arr.length <= PILL_PREVIEW_COUNT;
@@ -523,7 +556,7 @@
         + '</button></li>'
       : '';
     return '<ul class="jp-parts__pills-grid jp-parts__items">'
-      + first.map(wordPillHtml).join('')
+      + first.map(function (it) { return wordPillHtml(it, tabKey); }).join('')
       + moreBtn
       + '</ul>';
   }
@@ -549,6 +582,16 @@
   function popoverSideForPos(pos) {
     return pos === 'right' ? 'left' : 'right';
   }
+
+  /** F226 (owner 22/11): "In cả phần" — the writing sheet of every item of the part, in a new tab. */
+  function printPartHtml(tab, index) {
+    return '<a class="jp-btn jp-btn--sm" target="_blank" rel="noopener" href="/learning/jlpt/print?scope=PART&tab='
+      + encodeURIComponent(tab) + '&part=' + encodeURIComponent(index) + '">In cả phần</a>';
+  }
+
+  // owner 24/11: set by mount — the tab is still closed behind the kana stage ("Sau chữ cái")
+  var lockedByKana = false;
+  var TAB_NAME = { vocab: 'Từ vựng', kanji: 'Kanji', grammar: 'Ngữ pháp' };
 
   function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
     var items = list(p.items).length ? list(p.items) : list(p.preview);
@@ -577,6 +620,7 @@
       statusIcon = svgLock();
     }
     var dateStr = p.day ? dayLabel(p.day) : (p.date ? dayLabel(p.date) : '');
+    var mineCount = items.filter(function (it) { return it && it.forYou; }).length;
     var doneItems = (isDone || isTodayDone) ? n : Math.min(n, Math.max(0, Number(p.learnedCount) || 0));
 
     var actions = '';
@@ -587,28 +631,41 @@
       var first = items[0];
       var firstCode = (first && first.code) || p.firstItemCode || '';
       actions = (firstCode ? '<button type="button" class="jp-btn jp-btn--primary jp-parts__pop-main-btn" data-parts-relearn="' + esc(firstCode)
-        + '" data-parts-count="' + n + '">Học lại phần này</button>' : '')
+        + '" data-parts-count="' + n + '">Học lại phần này</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-relearn-error></span>' : '')
         + (p.day ? '<a class="jp-btn jp-btn--sm" href="/learning/jlpt/day?d=' + esc(p.day) + '">Kết quả lần trước</a>' : '');
+    } else if (lockedByKana) {
+      // owner 24/11: the real reason — kanji and grammar open after the kana stage, not after today's part
+      actions = '<span class="jp-parts__locked-note">' + esc(TAB_NAME[String(tabKey || '').toLowerCase()] || 'Phần này')
+        + ' mở sau khi học xong Nhập môn (chữ cái)</span>'
+        + '<a class="jp-btn jp-btn--primary jp-parts__pop-main-btn" href="/learning?tab=kana">Học Nhập môn</a>';
     } else {
       actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
+    }
+    // owner 18/11: every vocab/kanji part can be studied with the team's flashcard (upcoming: set made on press)
+    if (/^(vocab|kanji)$/i.test(String(tabKey || '')) && items.length) {
+      actions += '<button type="button" class="jp-btn jp-btn--sm" data-parts-fc="' + esc(p.index) + '">Học bằng flashcard</button>'
+        + printPartHtml(String(tabKey).toUpperCase(), p.index)
+        + '<span class="jp-parts__err" role="status" data-parts-fc-error></span>';
     }
 
     return '<div class="jp-parts__popover jp-parts__popover--' + tone + ' jp-parts__popover--side-' + popSide + '"'
       + ' data-parts-popover="part-' + esc(p.index) + '" role="dialog" aria-label="Chi tiết Phần ' + esc(p.index) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
       + (dateStr ? '<span class="jp-parts__pop-date">' + esc(dateStr) + '</span>' : '')
+      + (mineCount ? '<span class="jp-for-you">' + mineCount + ' mục dành cho bạn</span>' : '')
       + '</div>'
       + '<h3 class="jp-parts__pop-title">Phần ' + esc(p.index) + ' · ' + n + ' ' + esc(unit) + '</h3>'
       + '</div>'
       + '<button type="button" class="jp-parts__pop-close" data-parts-pop-close aria-label="Đóng bong bóng">×</button>'
       + '</div>'
       + '<div class="jp-parts__pop-body">'
-      + pillsGridHtml(items, unit, pillsExpanded)
+      + pillsGridHtml(items, unit, pillsExpanded, tabKey)
       + '</div>'
       + '<div class="jp-parts__pop-foot">'
       + '<div class="jp-parts__pop-actions">' + actions + '</div>'
@@ -637,7 +694,7 @@
       + ' data-parts-popover="milestone-' + esc(m.weekNum) + '" role="dialog" aria-label="Rương tuần ' + esc(m.weekNum) + '">'
       + '<span class="jp-parts__popover-arrow" aria-hidden="true"></span>'
       + '<div class="jp-parts__pop-head">'
-      + '<img class="jp-parts__pop-kitsu" src="' + mascotSrc + '" width="48" height="48" alt="Kitsu"/>'
+      + '<img class="jp-parts__pop-kitsu" src="' + small(mascotSrc) + '" width="48" height="48" alt="Kitsu"/>'
       + '<div class="jp-parts__pop-meta">'
       + '<div class="jp-parts__pop-badges">'
       + '<span class="jp-parts__pop-pill jp-parts__pop-pill--' + tone + '">' + statusIcon + '<span>' + esc(statusLabel) + '</span></span>'
@@ -696,11 +753,14 @@
     if (stepIdx === 1) {
       marginExtras += weekThemeSceneHtml(weekObj, tabKey, sceneSide);
     }
+    // [JLAS-W0108] F102: the side Kitsu (104px + speech) stands in the margin away from the node: a node on the right
+    // has its margin on the left, a node on the left has it on the right, and a centre node keeps its label on the right,
+    // so its Kitsu goes left. Before, a Kitsu on the node's own side covered the orb and its number on wide screens.
+    var kitsuSide = pos === 'left' ? 'right' : 'left';
     if (stepIdx === kitsuStepIdx && (!isToday && !isTodayDone || kitsuStepIdx === 0)) {
-      var kitsuSide = (stepIdx === 1) ? signSide : sceneSide;
-      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide);
+      marginExtras += weekSideKitsuHtml(weekObj.weekNum, kitsuSide, weekObj.state, false);
     } else if (stepIdx === 5 && !isToday && !isTodayDone) {
-      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, signSide);
+      marginExtras += weekSideKitsuHtml(Number(weekObj.weekNum || 1) + 3, kitsuSide, weekObj.state, true);
     } else if (stepIdx === 2 || stepIdx === 4) {
       var decoSide = (globalStepIdx % 2 === 0) ? 'left' : 'right';
       marginExtras += '<span class="jp-parts__deco jp-parts__deco--' + decoSide + '" aria-hidden="true">'
@@ -715,7 +775,7 @@
     var weekAnchorAttr = isFirstInWeek ? ' data-parts-week-anchor="' + weekObj.weekNum + '"' : '';
 
     if (isUpcomingWeek) {
-      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--next jp-parts__step--upcoming-week jp-parts__step--pos-' + pos + '"'
         + weekAnchorAttr + ' style="--step-i:' + stepIdx + '">'
         + '<div class="jp-parts__node-row">'
@@ -784,7 +844,7 @@
     var connector = hasNext ? curveSvg(pos, nextPos, isOpenChest, false, isPastWeek) : '';
 
     if (isUpcomingWeek) {
-      var tipText = 'Mở vào tuần ' + weekObj.dateRange;
+      var tipText = 'Mở vào tuần ' + weekObj.dateRange + ' hoặc học trước bằng nút Học thêm';
       return '<li class="jp-parts__step jp-parts__step--milestone jp-parts__step--upcoming-week ' + stateCls + ' jp-parts__step--pos-' + pos + '"'
         + ' style="--step-i:' + stepIdx + '">'
         + '<div class="jp-parts__node-row">'
@@ -928,6 +988,14 @@
       var weekOffset = w - currentWeekIdx;
       var startMs = baseMs + weekOffset * 7 * 86400000;
       var endMs = startMs + 6 * 86400000;
+      // parts already studied keep their real day: stretch the range so "Tuần 1 · 24/11–30/11" never holds a 15/11 part
+      for (var dj = 0; dj < normalized.length; dj++) {
+        var dIso = normalized[dj].day || normalized[dj].date;
+        var dMs = dIso ? Date.parse(String(dIso).slice(0, 10) + 'T00:00:00Z') : NaN;
+        if (isNaN(dMs)) continue;
+        if (dMs < startMs) startMs = dMs;
+        if (dMs > endMs) endMs = dMs;
+      }
       var dateRange = shortDdMm(startMs) + '–' + shortDdMm(endMs);
 
       weeks.push({
@@ -1067,7 +1135,25 @@
       + '<ol class="jp-parts__list jp-parts__map">' + mapItemsHtml + '</ol>'
       + '</div>';
 
-    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + stageHtml + '</div>';
+    var completedWeek = weeks.some(function (week, idx) {
+      return week.allDone && idx < weeks.length - 1 && (week.isCurrent || (weeks[idx + 1] && weeks[idx + 1].isCurrent));
+    });
+    var aheadHtml = completedWeek
+      ? '<div class="jp-card" role="note"><strong>Học trước tuần sau</strong>'
+        + '<p>Bạn đã học xong các mục của tuần này. Vào Học thêm để bắt đầu các mục tiếp theo.</p>'
+        + '<button type="button" class="jp-btn" data-parts-extra="' + esc(TABS[sceneKey][0]) + '">Học thêm ' + esc(t[1]) + '</button>'
+        + '<span class="jp-parts__err" role="status" data-parts-extra-error></span></div>'
+      : '';
+    return '<div class="jp-parts__container" data-tab-scene="' + esc(sceneKey) + '">' + bannerHtml + aheadHtml + stageHtml + '</div>';
+  }
+
+  /** Owner 24/11: true when the node is hidden behind the fixed site header or below the screen. */
+  function nodeOffScreen(node) {
+    if (!node || typeof node.getBoundingClientRect !== 'function') return true;
+    var r = node.getBoundingClientRect();
+    var header = root.document.getElementById('jlabBaseHeader');
+    var top = header && typeof header.getBoundingClientRect === 'function' ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+    return r.bottom < top || r.top > (Number(root.innerHeight) || 760);
   }
 
   /* Round 6 Bổ sung 1: Keep popover strictly inside viewport & below sticky banner so it is never covered */
@@ -1091,8 +1177,17 @@
         bannerBottom = Math.max(bannerBottom, bRect.bottom);
       }
     }
-    var minTop = Math.min(vh * 0.42, bannerBottom + 10);
+    // owner 24/11 (reported many times): the site's fixed header counts too, so the popover never slides under it
+    var header = root.document.getElementById('jlabBaseHeader');
+    var headerBottom = 0;
+    if (header && typeof header.getBoundingClientRect === 'function') {
+      var hRect = header.getBoundingClientRect();
+      if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
+    }
+    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
     var maxBottom = vh - 14;
+    pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
+    pop.style.overflowY = 'auto';
     var rect = pop.getBoundingClientRect();
     var shiftY = 0;
 
@@ -1133,16 +1228,28 @@
       else wk.disabled = false;
     }, function (e) {
       wk.disabled = false;
-      // one message per button (not one more line per click); "nothing learned yet" said plainly
-      var box = wk.parentNode && wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
-      if (!box) {
-        wk.insertAdjacentHTML('afterend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
-        box = wk.parentNode.querySelector('.jp-parts__err[data-for="' + tab + '"]');
+      // one message per button placed at the end of the weekly row so it wraps onto its own line
+      var row = (typeof wk.closest === 'function' && (wk.closest('.jp-today__weekly') || wk.closest('.jp-parts__weekly') || wk.closest('.jp-parts__pop-actions')))
+        || wk.parentNode;
+      var box = row && typeof row.querySelector === 'function' ? row.querySelector('.jp-parts__err[data-for="' + tab + '"]') : null;
+      if (!box && row) {
+        if (typeof row.insertAdjacentHTML === 'function') {
+          row.insertAdjacentHTML('beforeend', '<span class="jp-parts__err" role="status" data-for="' + esc(tab) + '"></span>');
+          box = typeof row.querySelector === 'function' ? row.querySelector('.jp-parts__err[data-for="' + tab + '"]') : null;
+        } else if (row.ownerDocument && typeof row.ownerDocument.createElement === 'function' && typeof row.appendChild === 'function') {
+          box = row.ownerDocument.createElement('span');
+          box.className = 'jp-parts__err';
+          box.setAttribute('role', 'status');
+          box.setAttribute('data-for', tab);
+          row.appendChild(box);
+        }
       }
       var notYet = e && (e.status === 409 || e.code === 'JPATH_CONTENT_NOT_LEARNABLE');
       var name = tab === 'KANJI' ? 'Kanji' : tab === 'GRAMMAR' ? 'ngữ pháp' : 'từ vựng';
-      box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
-        : ((e && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+      if (box) {
+        box.textContent = notYet ? 'Tuần này bạn chưa học mục ' + name + ' nào. Học trước rồi kiểm tra nhé.'
+          : ((e && (e.code || e.status) && e.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.');
+      }
     });
   }
 
@@ -1180,8 +1287,26 @@
         var activePartsEl = root.document && root.document.querySelector('[data-slot="parts"]');
         if (activePartsEl && activePartsEl.__selectedKey) adjustPopoverInViewport(activePartsEl);
       };
-      root.addEventListener('scroll', onScrollOrResize, { passive: true });
+      // Owner 18/11: the popover stays beside its node while scrolling. Owner 24/11: it never slides under the site
+      // header — while scrolling it is fitted again, and once its node is hidden behind the header or below the
+      // screen the popover closes.
       root.addEventListener('resize', onScrollOrResize, { passive: true });
+      var scrollFrame = 0;
+      root.addEventListener('scroll', function () {
+        if (scrollFrame || typeof root.requestAnimationFrame !== 'function') return;
+        scrollFrame = root.requestAnimationFrame(function () {
+          scrollFrame = 0;
+          var el = root.document && root.document.querySelector('[data-slot="parts"]');
+          if (!el || !el.__selectedKey) return;
+          if (nodeOffScreen(el.querySelector('[data-parts-node="' + String(el.__selectedKey).replace(/"/g, '') + '"]'))) {
+            el.__selectedKey = '';
+            el.__pillsExpanded = false;
+            if (el.__renderCurrent) el.__renderCurrent();
+            return;
+          }
+          adjustPopoverInViewport(el);
+        });
+      }, { passive: true });
     }
   }
 
@@ -1195,18 +1320,32 @@
     try { el.scrollIntoView({ block: 'center', behavior: behavior }); } catch (e) { el.scrollIntoView(); }
   }
 
+  var LIST_QUERY_KEYS = ['topic', 'state', 'q', 'radical', 'sort', 'view', 'unit', 'open'];
+
+  function hasListQuery() {
+    var search = root && root.location && typeof root.location.search === 'string' ? root.location.search : '';
+    if (!search || typeof URLSearchParams !== 'function') return false;
+    var params = new URLSearchParams(search);
+    return LIST_QUERY_KEYS.some(function (k) {
+      var v = params.get(k);
+      return v !== null && v !== '';
+    });
+  }
+
   function mount(partsEl, listEl, tabKey, opts) {
     if (!partsEl) return null;
     bindGlobalEvents();
     var key = String(tabKey || '').toLowerCase();
     var o = opts || {};
     var client = o.api || root.JpathApi;
+    lockedByKana = !!o.afterKana;
     if (!TABS[key] || o.ownLevel === false || !client) {
       partsEl.innerHTML = '';
       partsEl.hidden = true;
       if (listEl) listEl.hidden = false;
       return null;
     }
+    if (partsEl.__allOpen === undefined && hasListQuery()) partsEl.__allOpen = true;
     partsEl.hidden = false;
     if (listEl) listEl.hidden = !partsEl.__allOpen;
     var mine = (partsEl.__seq || 0) + 1;
@@ -1242,6 +1381,14 @@
       partsEl.addEventListener('click', function (ev) {
         var t = ev.target;
         if (!t || typeof t.closest !== 'function') return;
+
+        // pills are drawn after the page's bind ran: wire the pressed one now and let its own handler open the dialog
+        var writeEl = t.closest('[data-jpath-writing]');
+        if (writeEl && writeEl.getAttribute('data-jpath-writing-bound') !== '1' && root.JpathWriting && root.JpathWriting.bind) {
+          root.JpathWriting.bind(writeEl);
+          writeEl.click();
+          return;
+        }
 
         var popClose = t.closest('[data-parts-pop-close]');
         if (popClose) {
@@ -1297,6 +1444,57 @@
           return;
         }
 
+        var extra = t.closest('[data-parts-extra]');
+        if (extra) {
+          var tab = extra.getAttribute('data-parts-extra');
+          var errorBox = extra.parentNode.querySelector('[data-parts-extra-error]');
+          extra.disabled = true;
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/sessions', { tab: tab, mode: 'EXTRA', count: 5 }))
+            .then(function (view) {
+              if (!view || view.sessionId == null) throw new Error('Chưa mở được lượt học thêm.');
+              root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
+            }).catch(function (error) {
+              extra.disabled = false;
+              if (errorBox) errorBox.textContent = error && (error.code || error.status) && error.message || 'Chưa mở được lượt học thêm. Thử lại sau.';
+              if (error && error.code === 'JPATH_EXTRA_CHECK_REQUIRED') {
+                Promise.resolve(client.send('POST', '/api/learning/jlpt/checks', {
+                  kind: 'FREE_QUIZ', tab: tab, source: 'WEEK', count: 10,
+                  direction: tab === 'GRAMMAR' ? null : 'MIXED', timerOn: false
+                })).then(function (res) {
+                  var token = res && (res.token || res.checkToken);
+                  if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token)
+                    + '?return=' + encodeURIComponent('/learning?tab=' + partsEl.__tab));
+                }).catch(function (checkError) {
+                  if (errorBox) errorBox.textContent = checkError && checkError.message || 'Chưa mở được bài kiểm tra tuần.';
+                });
+              }
+            });
+          return;
+        }
+
+        var fcBtn = t.closest('[data-parts-fc]');
+        if (fcBtn) {
+          fcBtn.disabled = true;
+          fcBtn.setAttribute('aria-busy', 'true');
+          fcBtn.textContent = 'Đang mở';
+          Promise.resolve(client.send('POST', '/api/learning/jlpt/flashcards/open?tab=' + encodeURIComponent(TABS[partsEl.__tab][0])
+            + '&part=' + encodeURIComponent(fcBtn.getAttribute('data-parts-fc')))).then(function (set) {
+            if (set && set.url) {
+              root.location.assign(set.url + '&back=' + encodeURIComponent(root.location.pathname + root.location.search));
+              return;
+            }
+            throw new Error('Chưa mở được bộ thẻ, thử lại sau ít phút');
+          }).catch(function (error) {
+            fcBtn.disabled = false;
+            fcBtn.removeAttribute('aria-busy');
+            fcBtn.textContent = 'Thử lại';
+            var pop = fcBtn.closest('[data-parts-popover]');
+            var box = pop && pop.querySelector('[data-parts-fc-error]');
+            if (box) box.textContent = (error && (error.code || error.status) && error.message) || 'Chưa mở được bộ thẻ, thử lại sau ít phút';
+          });
+          return;
+        }
+
         var re = t.closest('[data-parts-relearn]');
         if (re) {
           var d0 = partsEl.__data || {};
@@ -1310,7 +1508,12 @@
           })).then(function (view) {
             if (view && view.sessionId != null) root.location.assign('/learning/jlpt/study?session=' + encodeURIComponent(view.sessionId));
             else re.disabled = false;
-          }, function () { re.disabled = false; });
+          }, function (error) {
+            re.disabled = false;
+            var popover = re.closest('[data-parts-popover]');
+            var errorBox = popover && popover.querySelector('[data-parts-relearn-error]');
+            if (errorBox) errorBox.textContent = error && (error.code || error.status) && error.message || 'Chưa mở được phần học này. Thử lại sau.';
+          });
           return;
         }
 
@@ -1327,7 +1530,7 @@
       });
     }
 
-    partsEl.innerHTML = '<p class="jp-status" role="status">Đang tải phần học…</p>';
+    partsEl.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải phần học…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
     return Promise.resolve(client.get('/api/learning/jlpt/parts?tab=' + TABS[key][0])).then(function (data) {
       if (partsEl.__seq !== mine) return;
       partsEl.__data = data;
@@ -1342,6 +1545,7 @@
       renderCurrent();
       if (root && typeof root.requestAnimationFrame === 'function') {
         root.requestAnimationFrame(function () {
+          if (partsEl.__allOpen && listEl) { scrollToTarget(listEl); return; }
           var todayNode = partsEl.querySelector('[data-parts-today="true"]')
             || partsEl.querySelector('[data-parts-week-anchor="' + curW + '"]');
           if (todayNode) scrollToTarget(todayNode);
@@ -1356,10 +1560,15 @@
   }
 
   return {
+    printPartHtml: printPartHtml,
+    wordPillHtml: wordPillHtml,
+    partPopoverHtml: partPopoverHtml,
     partsHtml: partsHtml,
     weeklyHtml: weeklyHtml,
     savedNoticeHtml: savedNoticeHtml,
     adjustPopoverInViewport: adjustPopoverInViewport,
+    hasListQuery: hasListQuery,
+    triggerWeeklyCheck: triggerWeeklyCheck,
     mount: mount
   };
 });

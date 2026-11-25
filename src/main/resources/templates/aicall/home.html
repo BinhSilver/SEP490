@@ -12,12 +12,15 @@
     <link rel="stylesheet" th:href="@{/css/base.css}"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
     <link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/>
-    <link rel="stylesheet" th:href="@{/css/aicall-catalog.css(v='20261105-plum')}"/>
+    <link rel="stylesheet" th:href="@{/css/aicall-catalog.css(v='20261114-path-chip')}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261124-ui-standard">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="aicall-standard jl-ui-kit">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="aicall-topic-list">
 
@@ -36,13 +39,12 @@
                     <span class="topic-japanese" lang="ja" th:text="${c.titleJa}">日本語</span>
                 </div>
                 <span class="topic-count" th:text="${scenarioCounts[c.id]} + ' kịch bản'">1 kịch bản</span>
-                <i class="fa-solid fa-chevron-right topic-arrow" aria-hidden="true"></i>
             </summary>
             <ul class="topic-scenarios" th:unless="${#lists.isEmpty(scenariosByCategory[c.id])}">
                 <li th:each="s : ${scenariosByCategory[c.id]}">
                     <a class="topic-scenario-link" th:href="@{/scenario/{id}(id=${s.id})}">
                         <i th:class="${scenarioIcons[s.id]}" aria-hidden="true"></i>
-                        <span class="topic-scenario-title" th:text="${s.catalogTitle}"></span>
+                        <span class="topic-scenario-name"><span class="topic-scenario-title" th:text="${s.catalogTitle}"></span><span class="topic-scenario-path" th:if="${s.slug != null and #strings.startsWith(s.slug, 'cpath-')}" title="Kịch bản này thuộc Lộ trình Giao tiếp"><i class="fa-solid fa-route" aria-hidden="true"></i> Lộ trình Giao tiếp</span></span>
                         <span class="topic-scenario-level" th:text="${s.jlptLevel}"></span>
 
                     </a>

@@ -1491,20 +1491,26 @@
             }).join('') + '</tbody></table></div>';
         }
         async function edit(p) {
-          function field(id, label, value, type) {
-            return '<label>' + label + '<input class="input" id="cat' + id + '" type="' + (type || 'text') + '" value="' + A.esc(value == null ? '' : value) + '"></label>';
+          function field(id, label, value, type, hint) {
+            return '<label>' + label + '<input class="input" id="cat' + id + '" type="' + (type || 'text') + '" value="' + A.esc(value == null ? '' : value) + '">' +
+              (hint ? '<small class="adm-field-hint">' + A.esc(hint) + '</small>' : '') + '</label>';
           }
-          var html = coupon ? field('Code', 'Mã', p && p.code) + field('Description', 'Mô tả', p && p.description) +
-            '<label>Loại<select class="select" id="catType"><option value="PERCENT"' + (!p || p.discountType === 'PERCENT' ? ' selected' : '') + '>Phần trăm</option><option value="FIXED"' + (p && p.discountType === 'FIXED' ? ' selected' : '') + '>Số tiền</option></select></label>' +
-            field('Value', 'Giá trị', p && p.discountValue, 'number') + field('Max', 'Giảm tối đa', p && p.maxDiscount, 'number') +
-            field('Min', 'Đơn tối thiểu', p && p.minOrderAmount, 'number') +
-            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Premium</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select></label>' +
-            field('Start', 'Bắt đầu', p && p.startsAt, 'datetime-local') + field('End', 'Kết thúc', p && p.endsAt, 'datetime-local') +
-            field('Limit', 'Tổng lượt', p && p.usageLimit, 'number') + field('UserLimit', 'Lượt mỗi người', p && p.perUserLimit, 'number')
+          var html = coupon ? field('Code', 'Mã', p && p.code, null, 'Khách nhập mã này khi thanh toán. 3–40 ký tự A–Z, 0–9, _ hoặc -; tự chuyển thành chữ in hoa.') +
+            field('Description', 'Mô tả', p && p.description, null, 'Ghi chú nội bộ, khách không thấy.') +
+            '<label>Loại<select class="select" id="catType"><option value="PERCENT"' + (!p || p.discountType === 'PERCENT' ? ' selected' : '') + '>Phần trăm</option><option value="FIXED"' + (p && p.discountType === 'FIXED' ? ' selected' : '') + '>Số tiền</option></select><small class="adm-field-hint">Phần trăm: giảm theo % giá gói. Số tiền: giảm một khoản cố định.</small></label>' +
+            field('Value', 'Giá trị (% hoặc VND)', p && p.discountValue, 'number', 'Phần trăm: nhập 1–100. Số tiền: nhập số VND được giảm.') +
+            field('Max', 'Giảm tối đa (VND)', p && p.maxDiscount, 'number', 'Chỉ dùng với Phần trăm. Số tiền giảm tối đa (VND, không phải %). Để trống nếu không giới hạn.') +
+            field('Min', 'Đơn tối thiểu (VND)', p && p.minOrderAmount, 'number', 'Giá gói phải từ mức này trở lên mới dùng được mã. Để trống nếu không yêu cầu.') +
+            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Premium</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select><small class="adm-field-hint">Tất cả: mọi sản phẩm. Premium: chỉ gói Premium. CP: chỉ gói mua điểm CP.</small></label>' +
+            field('Start', 'Bắt đầu', p && p.startsAt, 'datetime-local', 'Thời điểm mã bắt đầu có hiệu lực. Để trống = dùng được ngay.') +
+            field('End', 'Kết thúc', p && p.endsAt, 'datetime-local', 'Thời điểm mã hết hạn, phải sau Bắt đầu. Để trống = không hết hạn.') +
+            field('Limit', 'Tổng lượt', p && p.usageLimit, 'number', 'Tổng số đơn được dùng mã (mọi khách cộng lại). Để trống = không giới hạn.') +
+            field('UserLimit', 'Lượt mỗi người', p && p.perUserLimit, 'number', 'Số lần tối đa một tài khoản được dùng mã. Để trống = không giới hạn.')
             : field('Name', 'Tên gói', p && p.name) + field('Description', 'Mô tả', p && p.description) +
               field('Credits', 'Số CP', p && p.creditAmount, 'number') + field('Price', 'Giá VND', p && p.price, 'number');
-          var decision = await A.decide({ title: p ? 'Sửa' : 'Tạo mới', confirmText: 'Lưu', maxLength: 500,
-            extraHtml: '<div class="adm-form-grid">' + html + '</div>',
+          var pending = A.decide({ title: p ? 'Sửa' : 'Tạo mới', confirmText: 'Lưu', maxLength: 500,
+            extraHtml: (coupon ? '<p class="adm-form-note">Đơn giảm còn 0đ được cấp ngay, không cần thanh toán. Đơn còn tiền phải trả từ 2.000đ.</p>' : '') +
+              '<div class="adm-form-grid">' + html + '</div>',
             collect: function (modal) {
               var value = function (id) { return modal.querySelector('#cat' + id).value.trim(); };
               return reasonLength(modal) || (coupon ? {
@@ -1518,6 +1524,17 @@
                 creditAmount: Number(value('Credits')), price: Number(value('Price')) });
             }
           });
+          if (coupon) {
+            var typeSelect = document.querySelector('#catType');
+            var maxInput = document.querySelector('#catMax');
+            function updateMax() {
+              maxInput.disabled = typeSelect.value === 'FIXED';
+              if (maxInput.disabled) maxInput.value = '';
+            }
+            typeSelect.addEventListener('change', updateMax);
+            updateMax();
+          }
+          var decision = await pending;
           if (!decision) return;
           try {
             var body = Object.assign({ reason: decision.reason }, decision.extra);

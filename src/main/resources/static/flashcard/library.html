@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thư viện thẻ từ · KotsuKotsu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap">
   <link rel="stylesheet" href="/css/tokens.css" />
   <link rel="stylesheet" href="/css/theme-bridge.css" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -15,18 +15,22 @@
   <link rel="stylesheet" href="/css/components/cards.css" />
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
-  <link rel="stylesheet" href="/flashcard/styles.css" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261014-srs-due" />
+  <link rel="stylesheet" href="/flashcard/styles.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261123-ui" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261030-history" />
-  <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261025-review-tab" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+  <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+  <link rel="stylesheet" href="/css/components/ui-kit.css?v=20261123-ghost">
+  <link rel="stylesheet" href="/flashcard/ui-standard.css?v=20261123-ghost">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--library">
   <div id="jlabBaseShellMount"></div>
 
-  <main id="jlabBaseContent" class="app-main">
+  <main id="jlabBaseContent" class="app-main jl-ui-kit">
     <aside class="fc-stitch-sidebar" aria-label="Thư viện Flashcard">
       <div class="fc-stitch-sidebar__label">Thư viện</div>
       <nav class="fc-stitch-sidebar__nav">
@@ -51,12 +55,12 @@
         <!-- Searches on Enter or the button only, not on every keystroke. -->
         <form class="input-wrap lib-search" id="lib-search-form" role="search">
           <label class="sr-only" for="lib-search">Tìm bộ thẻ</label>
-          <input id="lib-search" type="search" placeholder="Tìm theo tên bộ thẻ..." autocomplete="off" enterkeyhint="search" />
+          <input id="lib-search" type="search" placeholder="Tìm bộ thẻ" autocomplete="off" enterkeyhint="search" />
           <button type="submit" class="lib-search__submit" aria-label="Tìm" title="Tìm"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
         </form>
         <label class="lib-sort-field" for="lib-sort">
           <span>Sắp xếp</span>
-          <select id="lib-sort" class="field-select" aria-label="Sắp xếp">
+          <select id="lib-sort" data-jl-select class="field-select" aria-label="Sắp xếp">
             <option value="NEWEST">Mới nhất</option>
             <option value="HIGHEST_RATED">Đánh giá cao nhất</option>
             <option value="MOST_STUDIED">Học nhiều nhất</option>
@@ -66,7 +70,7 @@
         </label>
       </div>
       <div class="lib-mobile-filters" aria-label="Lọc bộ thẻ">
-        <select id="lib-scope-filter" aria-label="Nguồn bộ thẻ">
+        <select id="lib-scope-filter" data-jl-select data-variant="filter" aria-label="Nguồn bộ thẻ">
           <option value="public">Bộ thẻ công khai</option>
           <option value="my">Bộ thẻ của tôi</option>
           <option value="favorites">Yêu thích</option>
@@ -82,7 +86,7 @@
       <section id="library-review" class="srs-page library-review" data-srs-lazy hidden aria-label="Ôn hôm nay">
       <header class="srs-head">
         <div>
-          <h2 class="srs-title">Ôn hôm nay</h2>
+          <h2 class="srs-title jl-h1">Ôn hôm nay</h2>
         </div>
         <dl class="srs-tiles" aria-label="Tổng quan ôn tập">
           <div><dt>Đến hạn</dt><dd id="srs-due">–</dd></div>
@@ -145,7 +149,7 @@
 
       <div class="library-results-heading">
         <div>
-          <h2 id="library-heading"><span class="library-results-heading__icon"><i class="fa-solid fa-fire"></i></span> Đang thịnh hành</h2>
+          <h2 id="library-heading">Bộ thẻ công khai</h2>
           <p id="library-subheading" hidden>Khám phá các bộ thẻ được cộng đồng KotsuKotsu sử dụng nhiều.</p>
         </div>
         <button type="button" class="lib-history-clear" id="lib-history-clear" hidden><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Xoá toàn bộ lịch sử</button>
@@ -258,6 +262,6 @@
   <script src="/flashcard/js/shell.js"></script>
   <script src="/flashcard/js/srs-review.js?v=20261014-srs"></script>
   <script src="/flashcard/js/review-page.js?v=20261025-review-tab"></script>
-  <script src="/flashcard/js/library-page.js?v=20261109-kotsu"></script>
+  <script src="/flashcard/js/library-page.js?v=20261118-unslop"></script>
 </body>
 </html>

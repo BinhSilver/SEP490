@@ -19,6 +19,11 @@
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-path cp-page" data-inline-dictionary>
+    <!-- L19: /learning sends a learner whose main goal is communication here; say so instead of a silent loop -->
+    <p class="jp-band" role="note" th:if="${param.from != null and param.from[0] == 'jlpt'}">
+        Mục tiêu chính của bạn đang là Giao tiếp, nên liên kết tới Lộ trình JLPT mở trang này.
+        Muốn học theo JLPT, bấm <strong>Lộ trình JLPT</strong> ở cột bên trái để chuyển mục tiêu chính.
+    </p>
     <div id="cpathPathRoot" class="jp-ws jp-ws--norail jp-path__grid" aria-busy="true">
         <aside class="jp-ws__side jp-path__side" aria-label="Điều hướng lộ trình giao tiếp">
             <div class="jp-path__levels" data-region="levels"></div>
@@ -27,11 +32,11 @@
                 <a class="jp-sidenav__link" href="/learning/comm/path" th:href="@{/learning/comm/path}" aria-current="page">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Bản đồ tuần
                 </a>
-                <a class="jp-sidenav__link" href="/learning/comm/day" th:href="@{/learning/comm/day}">
-                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
+                <a class="jp-sidenav__link" href="/learning/comm/settings" th:href="@{/learning/comm/settings}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Cài đặt lộ trình
                 </a>
-                <a class="jp-sidenav__link" href="/learning/comm/survey" th:href="@{/learning/comm/survey}">
-                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Thêm mục tiêu phụ
+                <a class="jp-sidenav__link" href="/learning/comm/path?tour=1" th:href="@{/learning/comm/path(tour=1)}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-lightbulb"/></svg> Xem hướng dẫn
                 </a>
                 <a class="jp-sidenav__link" href="/learning/comm/notebook">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
@@ -39,25 +44,34 @@
                 <button type="button" class="jp-sidenav__link" data-cp-to-jlpt aria-haspopup="dialog">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-check"/></svg> Lộ trình JLPT
                 </button>
+            <!-- owner 23/11: "Luyện thêm" folds into this menu (triangle unfolds the list) -->
+                <div data-jpath-extra-links="nav" class="jp-sidenav__extra"></div>
             </nav>
-            <div data-jpath-extra-links class="jp-path__extra"></div>
         </aside>
         <div class="jp-ws__main jp-path__main">
-            <section class="jp-path__today" data-slot="today">
-                <p class="jp-path__loading" role="status">Đang tải lộ trình giao tiếp…</p>
+            <section class="jp-band" data-learning-pace="COMM" aria-live="polite" hidden></section>
+            <section class="jp-path__today" data-slot="today" data-mode-part="today">
+                <p class="jp-path__loading jp-skel jp-skel--map" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải lộ trình giao tiếp…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </section>
-            <div class="jp-path__tabpart">
+            <div class="jp-path__tabpart" data-mode-part="free">
                 <section class="jp-path__parts" data-slot="parts" aria-live="polite"></section>
             </div>
         </div>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
     <script src="../../static/js/jlptpath/jpath-api.js"></script>
 </th:block>
 <script src="../../static/js/jlptpath/jpath-display.js" th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/jlptpath/jpath-furigana.js" th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/jlptpath/jpath-path-controls.js" th:src="@{/js/jlptpath/jpath-path-controls.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/jlptpath/jpath-tour.js" th:src="@{/js/jlptpath/jpath-tour.js(v=${jpathAssetVersion})}"></script>
+<script src="../../static/js/jlptpath/jpath-mode.js" th:src="@{/js/jlptpath/jpath-mode.js(v=${jpathAssetVersion})}"></script>
 <script src="../../static/js/cpath/cpath-path.js" th:src="@{/js/cpath/cpath-path.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/learning/learning-pace-card.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

@@ -1,42 +1,40 @@
 /* Stitch: JLAS Flashcard UI Redesign — Komorebi Professional.
  * Feature-scoped so the shared JLAS navigation remains untouched. */
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
-
 #jlabBasePage.flashcard-page #jlabBaseContent,
 #jlabBasePage.flashcard-page > .modal-backdrop,
 #jlabBasePage.flashcard-page > .toast,
 #jlabBasePage.flashcard-page > .fc-folder-dialog {
-  --fc-surface: #ffffff;
-  --fc-surface-lowest: #ffffff;
-  --fc-surface-low: #eef5f7;
-  --fc-surface-mid: #eef5f7;
-  --fc-surface-high: #e9ddff;
-  --fc-on-surface: #161d1f;
-  --fc-on-variant: #494551;
-  --fc-outline: #79747e;
-  --fc-outline-soft: #cbc4d2;
-  --fc-primary: #4f378a;
-  --fc-primary-hover: #6750a4;
-  --fc-primary-soft: #e9ddff;
-  --fc-primary-soft-2: #eef5f7;
-  --fc-success: #006947;
-  --fc-success-strong: #006947;
-  --fc-success-soft: #e8f5e9;
-  --fc-error: #ba1a1a;
-  --fc-error-soft: #ffdad6;
-  --fc-shadow: 0 4px 20px rgba(0, 0, 0, .04), 0 2px 6px rgba(0, 0, 0, .02);
-  --fc-shadow-hover: 0 16px 32px -12px rgba(0, 0, 0, .14);
-  --fc-radius-sm: 8px;
-  --fc-radius-md: 12px;
-  --fc-radius-lg: 16px;
-  --fc-radius-xl: 24px;
+  --fc-surface: var(--color-background);
+  --fc-surface-lowest: var(--color-surface-lowest);
+  --fc-surface-low: var(--color-surface-low);
+  --fc-surface-mid: var(--color-surface-container);
+  --fc-surface-high: var(--color-primary-fixed);
+  --fc-on-surface: var(--color-on-surface);
+  --fc-on-variant: var(--color-on-surface-variant);
+  --fc-outline: var(--color-outline);
+  --fc-outline-soft: var(--color-outline-variant);
+  --fc-primary: var(--color-primary);
+  --fc-primary-hover: var(--color-primary-container);
+  --fc-primary-soft: var(--color-primary-fixed);
+  --fc-primary-soft-2: var(--color-surface-container);
+  --fc-success: var(--color-success);
+  --fc-success-strong: var(--color-success);
+  --fc-success-soft: var(--color-success-bg);
+  --fc-error: var(--color-error);
+  --fc-error-soft: var(--color-error-container);
+  --fc-shadow: var(--shadow-1);
+  --fc-shadow-hover: var(--shadow-1);
+  --fc-radius-sm: var(--radius-input);
+  --fc-radius-md: var(--radius-md);
+  --fc-radius-lg: var(--radius-lg);
+  --fc-radius-xl: var(--radius-lg);
 }
 
 #jlabBasePage.flashcard-page #jlabBaseContent {
   min-height: calc(100vh - var(--header-height));
   color: var(--fc-on-surface);
   background: var(--fc-surface) !important;
-  font-family: "Plus Jakarta Sans", var(--font-body);
+  font-family: var(--font-body);
 }
 
 #jlabBasePage.flashcard-page { background: #ffffff; }
@@ -64,10 +62,10 @@
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__label {
   margin: 0 16px 20px;
   color: var(--fc-on-variant);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__label--second { margin-top: 38px; }
@@ -107,7 +105,7 @@
 }
 
 #jlabBasePage.flashcard-page .fc-stitch-sidebar__nav a:focus-visible {
-  outline: 3px solid var(--fc-primary-soft);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -131,7 +129,7 @@
 #jlabBasePage.flashcard-page #jlabBaseContent h2,
 #jlabBasePage.flashcard-page #jlabBaseContent h3 {
   color: var(--fc-on-surface);
-  font-family: "Hanken Grotesk", var(--font-body);
+  font-family: var(--font-body);
 }
 
 #jlabBasePage.flashcard-page #jlabBaseContent .muted,
@@ -283,7 +281,7 @@
   height: 360px;
   content: "学";
   color: rgba(70, 72, 212, .055);
-  font: 500 290px/1 "Noto Sans JP", sans-serif;
+  font: 500 290px/1 var(--font-jp);
 }
 
 #jlabBasePage.flashcard-page--set .set-hero__text,
@@ -342,7 +340,7 @@
 
 #jlabBasePage.flashcard-page--set .set-preview-table td:first-child {
   border-radius: var(--fc-radius-md) 0 0 var(--fc-radius-md);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-jp);
   font-size: 18px;
 }
 
@@ -471,7 +469,7 @@
   color: var(--fc-on-surface);
   background: var(--fc-surface);
   box-shadow: 0 24px 72px rgba(22,29,31,.2);
-  font-family: "Plus Jakarta Sans", var(--font-body);
+  font-family: var(--font-body);
 }
 .fc-folder-dialog::backdrop { background: rgba(22,29,31,.45); }
 .fc-folder-dialog__header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px 12px; }
@@ -487,7 +485,7 @@
 .fc-folder-dialog__footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px 24px; }
 .fc-folder-dialog__button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--fc-outline-soft); border-radius: var(--fc-radius-sm); background: var(--fc-surface-lowest); color: var(--fc-on-surface); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
 .fc-folder-dialog__button:hover { background: var(--fc-primary-soft); }
-.fc-folder-dialog__button--primary { border-color: var(--fc-primary); background: var(--fc-primary); color: #fff; }
+.fc-folder-dialog__button--primary { border-color: var(--fc-primary); background: var(--fc-primary); color: var(--color-on-primary); }
 .fc-folder-dialog__button--primary:hover { background: var(--fc-primary-hover); }
 .fc-folder-dialog :focus-visible { outline: 3px solid var(--fc-primary); outline-offset: 3px; }
 @media (max-width: 480px) {
@@ -497,30 +495,6 @@
 /* Page-owned dark mode: flashcard/flashcard-ui.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent,
 html[data-theme="dark"] #jlabBasePage.flashcard-page > .modal-backdrop,
 html[data-theme="dark"] #jlabBasePage.flashcard-page > .toast,
@@ -543,15 +517,8 @@ html[data-theme="dark"] #jlabBasePage.flashcard-page > .fc-folder-dialog {
     --fc-success-soft: var(--dm-flashcard-success-bg);
     --fc-error: var(--dm-flashcard-danger);
     --fc-error-soft: var(--dm-flashcard-danger-bg);
-    --fc-shadow: 0 4px 20px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.14);
-    --fc-shadow-hover: 0 16px 32px -12px rgba(0, 0, 0, 0.26)
-}
-html[data-theme="dark"] #jlabBasePage.flashcard-page {
-    background: var(--dm-flashcard-surface)
-}
-html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn-primary,
-html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn--primary {
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.32) !important;
+    --fc-shadow: var(--shadow-1);
+    --fc-shadow-hover: var(--shadow-1);
     color: var(--dm-flashcard-on-accent) !important
 }
 html[data-theme="dark"] #jlabBasePage.flashcard-page #jlabBaseContent .btn-primary:hover,
@@ -585,7 +552,7 @@ html[data-theme="dark"] .fc-folder-dialog__button--primary {
 
 /* Dark interaction and state pairs for this page. */
 html[data-theme="dark"] #jlabBasePage.flashcard-page :is(#jlabBaseContent,.modal-backdrop,.toast,.fc-folder-dialog){--fc-surface:var(--dm-flashcard-surface);--fc-surface-lowest:var(--dm-flashcard-surface);--fc-surface-low:var(--dm-flashcard-raised);--fc-surface-mid:var(--dm-flashcard-raised);--fc-surface-high:var(--dm-flashcard-accent-soft);--fc-on-surface:var(--dm-flashcard-ink);--fc-on-variant:var(--dm-flashcard-muted);--fc-outline:var(--dm-flashcard-muted);--fc-outline-soft:var(--dm-flashcard-line);--fc-primary:var(--dm-flashcard-accent);--fc-primary-hover:var(--dm-flashcard-action);--fc-primary-soft:var(--dm-flashcard-accent-soft);--fc-primary-soft-2:var(--dm-flashcard-raised);--fc-success:var(--dm-flashcard-success);--fc-success-strong:var(--dm-flashcard-success);--fc-success-soft:var(--dm-flashcard-success-bg);--fc-error:var(--dm-flashcard-danger);--fc-error-soft:var(--dm-flashcard-danger-bg);}
-html[data-theme="dark"] #jlabBasePage.flashcard-page :is(.fc-button--primary,.btn--primary){background:var(--dm-flashcard-action)!important;color:var(--dm-flashcard-ink)!important;}
+html[data-theme="dark"] #jlabBasePage.flashcard-page :is(.fc-button--primary,.btn--primary){background:var(--color-primary)!important;color:var(--color-on-primary)!important;}
 
 /* Sidebar thư viện: nhãn số thẻ đến hạn cạnh "Ôn hôm nay". */
 #jlabBasePage.flashcard-page .fc-srs-due-badge {

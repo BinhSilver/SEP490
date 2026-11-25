@@ -8,6 +8,9 @@
     var suppressClick = false, expiryTimer, pendingCheck;
     // True after pressing Gợi ý: the empty slots of the word list become buttons until one is picked.
     var picking = false;
+    // The board stays locked (no kana, no clock) until Bắt đầu; a tab switch resumes on return only if it was running.
+    var resumeOnReturn = false;
+    function isLocked() { return !!challenge && !challenge.completed && !challenge.running; }
     // null until the first load: the server then opens the learner's learning-path level (MIX without one).
     var level = null, levels = document.getElementById('kanaLevels');
     function say(text, error) { message.textContent = text; message.classList.toggle('is-error', !!error); }
@@ -33,6 +36,7 @@
     }
     function pauseClock() {
         if (!challenge || challenge.completed || !challenge.running) return;
+        resumeOnReturn = true;
         challenge.playedMs = playedMs(); challenge.running = false; challenge.receivedAt = Date.now();
         try {
             fetch('/api/mission/kana-connect/pause', {
@@ -42,10 +46,11 @@
         } catch (e) { /* ignore */ }
     }
     async function resumeClock() {
-        if (!challenge || challenge.completed || busy) return;
+        if (!challenge || challenge.completed || busy || !resumeOnReturn) return;
+        resumeOnReturn = false;
         if (Date.now() >= Date.parse(challenge.expiresAt)) { load(); return; }
         try {
-            var fresh = accept(await api('today?level=' + encodeURIComponent(challenge.jlptLevel)));
+            var fresh = accept(await api('start', { challengeId: challenge.id }));
             if (fresh.id !== challenge.id) { load(); return; }
             ['playedMs', 'running', 'receivedAt', 'nextHintAt'].forEach(function (key) { challenge[key] = fresh[key]; });
             clock();
@@ -64,8 +69,9 @@
             if (picking) setPicking(false);
             button.disabled = true; label.textContent = challenge && challenge.completed ? 'Gợi ý' : 'Hết gợi ý'; return;
         }
-        var wait = Math.ceil((Date.parse(challenge.nextHintAt) - Date.now()) / 1000);
-        button.disabled = busy || wait > 0;
+        // A locked board has no running clock, so its hint countdown would only stand still.
+        var wait = isLocked() ? 0 : Math.ceil((Date.parse(challenge.nextHintAt) - Date.now()) / 1000);
+        button.disabled = busy || wait > 0 || isLocked();
         button.setAttribute('aria-pressed', String(picking));
         label.textContent = picking ? 'Hủy chọn' : wait > 0 ? 'Gợi ý ' + Math.floor(wait / 60) + ':' + String(wait % 60).padStart(2, '0') : 'Gợi ý';
         button.setAttribute('aria-label', picking ? 'Hủy chọn ô gợi ý' : wait > 0 ? 'Gợi ý mở sau ' + wait + ' giây' : 'Chọn một ô trống để mở chữ');
@@ -122,7 +128,7 @@
             button.classList.toggle('is-solved', solved);
             button.setAttribute('aria-pressed', String(selected || solved));
             // Keep the focused tile enabled while validating a partial keyboard path.
-            button.disabled = state.completed || solved;
+            button.disabled = state.completed || solved || isLocked();
         });
         var svg = board.querySelector('svg'); svg.replaceChildren();
         state.paths.forEach(function (solution) { snake(svg, solution.path, 'found'); });
@@ -190,8 +196,37 @@
         svg.setAttribute('viewBox', '0 0 ' + challenge.gridSize * 100 + ' ' + challenge.gridSize * 100);
         svg.setAttribute('aria-hidden', 'true'); board.append(svg);
         try { state.restore(JSON.parse(localStorage.getItem(storageKey()) || '[]')); } catch (e) { /* Optional. */ }
-        wordList(); draw(); clearTimeout(expiryTimer);
+        wordList(); draw(); gate(); clearTimeout(expiryTimer);
         expiryTimer = setTimeout(load, Math.max(1000, Math.min(2147483647, Date.parse(challenge.expiresAt) - Date.now() + 100)));
+    }
+    /** Bắt đầu on a fresh board, Tiếp tục on one already played; hidden once the clock runs or the board is done. */
+    function gate() {
+        var locked = isLocked(), box = document.getElementById('kanaGate');
+        board.classList.toggle('is-locked', locked);
+        box.hidden = !locked;
+        box.classList.remove('is-unlocking');
+        box.querySelector('.kc-lock i').className = 'fa-solid fa-lock';
+        if (locked) document.getElementById('kanaStartLabel').textContent = (challenge.playedMs || 0) > 0 ? 'Tiếp tục' : 'Bắt đầu';
+    }
+    // The lock springs open and the chains slide off while the board is fetched; the board shows once both are done.
+    var UNLOCK_MS = 700;
+    function unlockAnimation() {
+        var box = document.getElementById('kanaGate');
+        box.classList.add('is-unlocking');
+        box.querySelector('.kc-lock i').className = 'fa-solid fa-lock-open';
+        return new Promise(function (resolve) { setTimeout(resolve, UNLOCK_MS); });
+    }
+    async function start() {
+        if (busy || !isLocked()) return;
+        busy = true; document.getElementById('kanaStart').disabled = true;
+        try {
+            var results = await Promise.all([api('start', { challengeId: challenge.id }), unlockAnimation()]);
+            challenge = accept(results[0]);
+            render(); say('');
+            var first = board.querySelector('[data-cell]:not([disabled])');
+            if (first) first.focus({ preventScroll: true });
+        } catch (error) { say(error.message, true); gate(); }
+        finally { busy = false; document.getElementById('kanaStart').disabled = false; draw(); }
     }
     function markLevels() {
         levels.querySelectorAll('[data-level]').forEach(function (button) {
@@ -367,6 +402,7 @@
         clearTimeout(pendingCheck); level = button.dataset.level; markLevels(); load();
     });
     // Away from the page (other tab, minimised, closed): stop this board's clock; back: resume it.
+    document.getElementById('kanaStart').addEventListener('click', start);
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) { cancelPointer(); pauseClock(); } else resumeClock();
     });

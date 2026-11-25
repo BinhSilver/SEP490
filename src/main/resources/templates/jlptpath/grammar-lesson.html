@@ -11,16 +11,20 @@
 <main id="jlabBaseContent" class="jp-page jp-path jp-lesson-page" data-inline-dictionary>
     <th:block th:replace="~{jlptpath/fragments/jpath :: crumbsIn('Ngữ pháp', '/learning?tab=grammar', 'Bài ngữ pháp')}"></th:block>
     <div id="jpathGrammarRoot" class="jp-lesson-root" aria-busy="true" th:attr="data-grammar-code=${grammarCode}">
-        <p class="jp-path__loading" role="status">Đang tải bài ngữ pháp…</p>
+        <p class="jp-path__loading jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài ngữ pháp…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-display.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-dialog.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-item-drawer.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlptpath/jpath-grammar-lesson.js(v=20261109-kotsu})}"></script>
+<script th:src="@{/js/jlptpath/jpath-verbs.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-grammar-lesson.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

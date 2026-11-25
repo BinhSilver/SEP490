@@ -117,8 +117,6 @@
 
   function lessonRow(lesson, index) {
     var meta = [];
-    if (lesson.skill) meta.push('<span class="tb-badge">' + escapeHtml(SKILL_LABELS[lesson.skill] || lesson.skill) + '</span>');
-    if (lesson.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + lesson.estimatedMinutes + ' phút</span>');
     meta.push(statusToggle('lesson', lesson.id, lesson.status));
     return '' +
       '<li>' +
@@ -164,6 +162,17 @@
     listEl.hidden = false;
   }
 
+  /** 403 + message PREMIUM_REQUIRED (TextbookAccessPolicy): mở hộp thoại nâng cấp (#tbPremiumDialog). */
+  var PREMIUM_REQUIRED = 'PREMIUM_REQUIRED';
+  function openPremiumDialog() {
+    var dialog = document.getElementById('tbPremiumDialog');
+    if (dialog && typeof dialog.showModal === 'function') {
+      if (!dialog.open) dialog.showModal();
+    } else {
+      window.location.href = '/premium';
+    }
+  }
+
   function load() {
     if (!textbookId) { showError('Thiếu mã giáo trình.'); return; }
     var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
@@ -171,6 +180,10 @@
       .then(function (res) {
         return res.json().catch(function () { return null; }).then(function (json) {
           if (res.status === 404) throw new Error('Không tìm thấy giáo trình hoặc bạn chưa được xem giáo trình này.');
+          if (res.status === 403 && json && json.message === PREMIUM_REQUIRED) {
+            openPremiumDialog();
+            throw new Error('Giáo trình này cần Premium. Nâng cấp để mở toàn bộ giáo trình.');
+          }
           if (!res.ok || !json || json.success === false) {
             throw new Error((json && json.message) || ('Không tải được giáo trình (HTTP ' + res.status + ')'));
           }

@@ -5,20 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luyện nghe điền từ | KotsuKotsu</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/theme-bridge.css">
     <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261105-plum">
-    <link rel="stylesheet" href="/css/jlab-base-shell.css">
+    <link rel="stylesheet" href="/css/pages/shadowing-practice.css?v=20261117-guide2">
+    <link rel="stylesheet" href="/css/components/page-guide.css?v=20261117-bullets">
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap">
     <link rel="icon" href="/images/jlab.png" type="image/png">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-practice-mobile">
     <link rel="stylesheet" href="/css/components/date-wheel.css?v=20261102-wheel2">
-    <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261102-wheel2">
+    <link rel="stylesheet" href="/shadowing/css/age-gate.css?v=20261116-no-age-picker">
+    <link rel="stylesheet" href="/shadowing/css/playback-standard.css?v=20261124-audio-contrast">
+    <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+    <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing-exercise">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="shadowing-playback-standard jl-ui-kit page-shadowing-exercise">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent">
     <input id="exercise-session-id" type="hidden" th:value="${sessionId}">
@@ -27,15 +31,19 @@
             <a id="exercise-back-link" href="/shadowing">Chọn lại chế độ</a>
             <div id="exercise-title-row">
             <div><span id="exercise-mode-label">Luyện nghe</span><h1 id="exercise-video-title">Đang tải…</h1></div>
+            <button id="exercise-guide-open" class="page-guide-button" type="button" disabled><i class="fa-regular fa-circle-question" aria-hidden="true"></i> Hướng dẫn</button>
             </div>
             <div id="exercise-session-actions" hidden aria-label="Điều khiển phiên học">
                 <button id="exercise-pause-button" type="button"><i class="fa-solid fa-pause" aria-hidden="true"></i> Tạm dừng</button>
                 <button id="exercise-resume-button" type="button" hidden><i class="fa-solid fa-play" aria-hidden="true"></i> Tiếp tục</button>
             </div>
+            <p id="exercise-load-error" role="alert" hidden></p>
         </header>
 
         <section id="exercise-workspace" hidden>
             <div id="exercise-media-panel" class="shadowing-mobile-stage">
+                <!-- On PC with a mouse, the progress bar and buttons sit on the video and show on hover. -->
+                <div id="exercise-stage">
                 <video id="exercise-media" class="shadowing-video-surface" playsinline preload="metadata"></video>
                 <div id="exercise-video-timeline" aria-label="Tiến trình video và các điểm dừng">
                     <span id="exercise-video-progress"></span>
@@ -63,6 +71,7 @@
                     <button type="button" data-media-action="mute" data-media-target="exercise-media" aria-label="Tắt âm thanh" aria-pressed="false"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
                     <span id="exercise-video-clock">0:00 / 0:00</span>
                 </div>
+                </div>
                 <div id="exercise-live-subtitle" class="shadowing-live-subtitle" aria-live="polite">
                     <p id="exercise-live-japanese" class="shadowing-live-japanese" lang="ja">Bấm Phát bài để bắt đầu nghe từ đầu.</p>
                     <p id="exercise-live-translation" class="shadowing-live-translation"></p>
@@ -71,10 +80,27 @@
 
             <div id="exercise-question-panel">
                 <section id="exercise-transcript-box" aria-label="Danh sách phụ đề">
+                    <div id="exercise-transcript-head">
+                        <span>Phụ đề cả bài</span>
+                        <button id="exercise-transcript-toggle" type="button" aria-expanded="true" aria-controls="exercise-transcript">
+                            <i class="fa-solid fa-chevron-up" aria-hidden="true"></i> <span>Ẩn</span>
+                        </button>
+                    </div>
                     <div id="exercise-transcript"></div>
                 </section>
 
                 <section id="exercise-answer-box" aria-live="polite">
+                    <div id="exercise-review" hidden>
+                        <p id="exercise-review-label"></p>
+                        <p id="exercise-review-prompt" lang="ja"></p>
+                        <div id="exercise-review-answer">
+                            <span>Đáp án</span>
+                            <p id="exercise-review-expected" lang="ja"></p>
+                        </div>
+                        <p id="exercise-review-mine"></p>
+                        <p id="exercise-review-explanation" hidden></p>
+                        <button id="exercise-review-back" type="button"><i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> <span>Quay lại câu đang làm</span></button>
+                    </div>
                     <div id="exercise-waiting-state">
                         <i class="fa-solid fa-headphones-simple" aria-hidden="true"></i>
                         <div>
@@ -126,6 +152,8 @@
 <script src="/shadowing/js/subtitle-display.js?v=20261012-7"></script>
 <script src="/shadowing/js/media-actions.js?v=20261012-1"></script>
 <script src="/shadowing/js/youtube-media.js?v=20261109-file-first"></script>
-<script src="/shadowing/js/exercise.js?v=20261021-yt"></script>
+<script src="/shadowing/js/exercise.js?v=20261124-visible-load-error"></script>
+<script src="/js/components/page-guide.js?v=20261117-bullets"></script>
+<script src="/shadowing/js/exercise-guide.js?v=20261117-bullets"></script>
 </body>
 </html>

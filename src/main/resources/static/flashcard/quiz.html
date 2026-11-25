@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kiểm tra Flashcard · KotsuKotsu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap">
   <link rel="stylesheet" href="/css/tokens.css" />
   <link rel="stylesheet" href="/css/theme-bridge.css" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -17,17 +17,21 @@
   <link rel="stylesheet" href="/css/components/forms.css" />
   <link rel="stylesheet" href="/css/components/dropdowns.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
-  <link rel="stylesheet" href="/flashcard/styles.css" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css" />
+  <link rel="stylesheet" href="/flashcard/styles.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261123-ui" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-<link rel="stylesheet" href="/flashcard/quiz-theme.css?v=20260930-1" />
-<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261015-selection-pager" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css" />
+<link rel="stylesheet" href="/flashcard/quiz-theme.css?v=20261123-ui" />
+<link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+  <link rel="stylesheet" href="/css/components/ui-kit.css?v=20261123-ghost">
+  <link rel="stylesheet" href="/flashcard/ui-standard.css?v=20261123-ghost">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--quiz">
   <div id="jlabBaseShellMount"></div>
-  <main id="jlabBaseContent" class="app-main app-main--wide">
+  <main id="jlabBaseContent" class="app-main app-main--wide jl-ui-kit">
     <div id="quiz-hero-root"></div>
     <div id="quiz-toolbar-root"></div>
     <div class="page-body quiz-workspace">
@@ -36,7 +40,7 @@
           <div class="sidebar-title"><i class="fa-solid fa-sliders"></i> Bộ lọc thẻ <button type="button" class="quiz-reset-filters" id="btn-reset-filters">Đặt lại</button></div>
           <div class="field quiz-set-field">
             <label class="field__label" for="set-selector">Bộ đang kiểm tra</label>
-            <select id="set-selector" class="field-select select quiz-set-selector" aria-label="Chọn bộ từ"></select>
+            <select id="set-selector" data-jl-select class="field-select select quiz-set-selector" aria-label="Chọn bộ từ"></select>
           </div>
           <div class="quiz-filter-section">
             <span class="field__label">Cấp độ JLPT</span>
@@ -66,7 +70,7 @@
           </div>
           <div class="quiz-filter-section">
             <label class="field__label" for="filter-lesson">Bài học</label>
-            <select id="filter-lesson" class="field-select select"><option value="">Tất cả</option></select>
+            <select id="filter-lesson" data-jl-select class="field-select select"><option value="">Tất cả</option></select>
           </div>
           <div class="quiz-filter-section quiz-filter-toggles">
             <label class="toggle-row"><span><i class="fa-solid fa-star"></i> Chỉ thẻ đã đánh dấu sao</span><input type="checkbox" id="toggle-starred-filter"><span class="toggle-ui"></span></label>
@@ -78,14 +82,14 @@
         <div class="sidebar-block quiz-sidebar__block">
           <div class="sidebar-title"><i class="fa-solid fa-list-check"></i> Cấu hình câu hỏi</div>
           <label class="quiz-field-label" for="quiz-question-field">Câu hỏi bằng</label>
-          <select class="select quiz-field-select" id="quiz-question-field">
+          <select class="select quiz-field-select" id="quiz-question-field" data-jl-select>
             <option value="" selected disabled>Chọn nội dung...</option>
             <option value="KANJI">Kanji</option>
             <option value="MEANING">Nghĩa</option>
             <option value="HIRAGANA">Hiragana</option>
           </select>
           <label class="quiz-field-label" for="quiz-answer-field">Đáp án bằng</label>
-          <select class="select quiz-field-select" id="quiz-answer-field">
+          <select class="select quiz-field-select" id="quiz-answer-field" data-jl-select>
             <option value="" selected disabled>Chọn nội dung...</option>
             <option value="KANJI">Kanji</option>
             <option value="MEANING">Nghĩa</option>
@@ -166,6 +170,6 @@
   <script src="/js/components.js"></script>
   <script src="/flashcard/js/common.js?v=20260913-envelope"></script>
   <script src="/flashcard/js/card-selection.js?v=20261015-pager"></script>
-  <script src="/flashcard/js/quiz-page.js?v=20261011-four-modes"></script>
+  <script src="/flashcard/js/quiz-page.js?v=20261123-heading-inside"></script>
 </body>
 </html>

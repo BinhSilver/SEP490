@@ -5,21 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thư viện luyện nghe | KotsuKotsu</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/theme-bridge.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
-    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261109-transcript">
+    <link rel="stylesheet" href="/shadowing/css/styles.css?v=20261116-bin">
     <link rel="icon" href="/images/logo.png" type="image/png"/>
     <link rel="stylesheet" href="/css/components/kitsu-guide.css"/>
-    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261102-plain-meta"/>
-    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261103-nav-hover-2"/>
+    <link rel="stylesheet" href="/css/pages/shadowing.css?v=20261111-dark-bar"/>
+    <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
     <link rel="stylesheet" href="/shadowing/css/responsive-player.css?v=20261012-1">
     <link rel="stylesheet" href="/shadowing/css/library-mobile.css?v=20261030-history">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+    <link rel="stylesheet" href="/shadowing/css/library-standard.css?v=20261123-ghost-favorite">
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage" class="page-shadowing page-shadowing-library">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="shadowing-ui-standard jl-ui-kit page-shadowing page-shadowing-library">
     <div id="jlabBaseShellMount"></div>
 
     <main id="jlabBaseContent" class="container">
@@ -131,17 +134,17 @@
         </section>
     </main>
 
-    <dialog id="series-dialog" class="series-dialog">
+    <dialog id="series-dialog" class="series-dialog" aria-labelledby="series-dialog-title">
         <form method="dialog" id="series-form" class="store-utility-card">
             <button type="button" id="series-dialog-close" class="dialog-close" aria-label="Đóng">×</button>
-            <h2>Tạo chuỗi luyện nghe</h2>
+            <h2 id="series-dialog-title">Tạo chuỗi luyện nghe</h2>
             <input id="series-title" class="form-input" required maxlength="255" placeholder="Tên series, ví dụ: Luyện nghe gọi món ramen">
             <textarea id="series-description" class="form-input" rows="2" placeholder="Mô tả ngắn (tùy chọn)"></textarea>
             <div class="series-form-grid">
-                <select id="series-level" class="form-input form-select">
+                <select id="series-level" data-jl-select class="form-input form-select">
                     <option value="">Chưa xác định trình độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option>
                 </select>
-                <select id="series-visibility" class="form-input form-select"><option value="PRIVATE">Riêng tư</option><option value="PUBLIC">Công khai</option></select>
+                <select id="series-visibility" data-jl-select class="form-input form-select"><option value="PRIVATE">Riêng tư</option><option value="PUBLIC">Công khai</option></select>
             </div>
             <label class="caption">Chọn video sẵn sàng của bạn</label>
             <div id="series-video-picker" class="series-video-picker"></div>
@@ -150,11 +153,11 @@
     </dialog>
 
     <script src="/js/auth-session.js"></script>
-    <script src="/js/jlab-base-shell.js?v=20261109-kotsu"></script>
+    <script src="/js/jlab-base-shell.js?v=20261119-nav-deploy"></script>
     <script src="/shadowing/js/client.js?v=20261109-kotsu"></script>
-    <script src="/shadowing/js/confirm-modal.js"></script>
-    <script src="/shadowing/js/library-controls.js?v=20261020-filter-apply"></script>
-    <script src="/shadowing/js/library.js?v=20261102-my-badges"></script>
+    <script src="/shadowing/js/confirm-modal.js?v=20261116-bin-cycle"></script>
+    <script src="/shadowing/js/library-controls.js?v=20261123-text-nav"></script>
+    <script src="/shadowing/js/library.js?v=20261116-bin-reload"></script>
     <script src="/shadowing/js/series-library.js?v=20261017-genres"></script>
 </body>
 </html>

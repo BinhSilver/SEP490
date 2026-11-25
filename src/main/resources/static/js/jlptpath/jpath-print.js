@@ -16,7 +16,7 @@
 
   var PAGE = '/learning/jlpt/print';
   // Query keys the print page reads (JpathPrintRequest), in a fixed order; anything else (page, view) is dropped.
-  var KEYS = ['scope', 'tab', 'level', 'day', 'topic', 'state', 'q', 'script', 'radical', 'sort'];
+  var KEYS = ['scope', 'tab', 'level', 'day', 'part', 'topic', 'state', 'q', 'script', 'radical', 'sort'];
   var BOUND = 'data-jpath-print-bound';
 
   /** The print page URL of params; null, undefined and blank values are left out. */

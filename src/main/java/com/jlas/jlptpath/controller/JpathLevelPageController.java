@@ -34,11 +34,11 @@ public class JpathLevelPageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         String lvl = level == null ? "" : level.trim().toUpperCase(Locale.ROOT);
         if (!lvl.matches("N[1-5]")) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("level", lvl);
         return "jlptpath/level-summary";
@@ -50,7 +50,7 @@ public class JpathLevelPageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         String lvl = level == null ? "" : level.trim().toUpperCase(Locale.ROOT);
         Optional<LocalDateTime> passedAt;
@@ -60,7 +60,7 @@ public class JpathLevelPageController {
             passedAt = Optional.empty();
         }
         if (passedAt.isEmpty()) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         model.addAttribute("targetLevel", lvl);
         model.addAttribute("completedAt", passedAt.get());

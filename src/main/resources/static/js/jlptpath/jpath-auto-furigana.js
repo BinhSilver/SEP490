@@ -57,6 +57,10 @@
       if (el.hasAttribute('data-furi')) return;
       if (!onlyText(el)) return;
       if (!KANJI.test(el.textContent || '')) { el.setAttribute('data-furi', 'none'); return; }
+      // F141: JLPT is an academic path. Do not reveal generated readings inside a question until
+      // the learner has answered it; the rerender after an answer removes this gate.
+      var question = el.closest && el.closest('[data-furi-answer-state="pending"]');
+      if (question) return;
       out.push(el);
     });
     return out;
@@ -90,7 +94,13 @@
       else slot.appendChild(holder);
     }
 
+    // owner 22/11: the toggle shows only while the page has a reading it can hide or show
+    function syncVisible() {
+      if (holder) holder.hidden = !(rootEl.querySelector && rootEl.querySelector('ruby rt'));
+    }
+
     function paint() {
+      syncVisible();
       if (on) {
         rootEl.classList.remove('jp-furigana-off');
         if (rootEl.querySelectorAll) {
@@ -136,6 +146,7 @@
         targets(rootEl).forEach(function (el) {
           if (Object.prototype.hasOwnProperty.call(cache, el.textContent)) draw(el, cache[el.textContent]);
         });
+        syncVisible();
         if (again) { again = false; return annotate(); }
         return null;
       });
@@ -156,7 +167,7 @@
       var timer = null;
       new root.MutationObserver(function () {
         if (timer) root.clearTimeout(timer);
-        timer = root.setTimeout(annotate, 60);
+        timer = root.setTimeout(function () { syncVisible(); annotate(); }, 60);
       }).observe(rootEl, { childList: true, subtree: true });
     }
     rootEl.addEventListener('jpath:rendered', function () {

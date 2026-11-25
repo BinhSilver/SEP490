@@ -28,7 +28,7 @@
   padding: 22px 20px 0;
   color: var(--fc-on-surface);
   content: "Bộ lọc";
-  font: 600 24px/1.35 "Hanken Grotesk", sans-serif;
+  font: 600 24px/1.35 var(--font-body);
 }
 
 #jlabBasePage.flashcard-page--quiz .sidebar-title {
@@ -171,7 +171,7 @@
 
 #jlabBasePage.flashcard-page--quiz .fc-kanji {
   color: var(--fc-on-surface);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-jp);
   font-size: clamp(34px, 6vw, 52px) !important;
   font-weight: 500;
 }
@@ -868,8 +868,12 @@
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-score-ring strong {
   position: absolute;
+  max-width: 84px;
   color: var(--color-primary);
-  font-size: var(--text-2xl);
+  /* Two decimals ("33.33%") still fit inside the 88px hole. */
+  font-size: 21px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-score-copy {
@@ -2046,14 +2050,16 @@
   color: var(--color-success);
   background: var(--color-success-bg);
   border-color: var(--color-success);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-success) 18%, transparent);
+  /* One colored border only: the old 3px halo spilled past the card edge. */
+  box-shadow: none;
 }
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-option.is-wrong:disabled {
   color: var(--color-error);
   background: var(--color-error-container);
   border-color: var(--color-error);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 16%, transparent);
+  /* One colored border only: the old 3px halo spilled past the card edge. */
+  box-shadow: none;
 }
 
 #jlabBasePage.flashcard-page--quiz #jlabBaseContent .quiz-option.is-correct.is-answer-bounce {
@@ -2089,30 +2095,6 @@
 /* Page-owned dark mode: flashcard/quiz-theme.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
-html[data-theme="dark"] {
-  --dm-flashcard-bg: #0b0d13;
-  --dm-flashcard-surface: #171b26;
-  --dm-flashcard-raised: #232938;
-  --dm-flashcard-ink: #f8fafc;
-  --dm-flashcard-muted: #b2bfd2;
-  --dm-flashcard-line: #40485d;
-  --dm-flashcard-accent: #c084fc;
-  --dm-flashcard-action: #7335a6;
-  --dm-flashcard-accent-soft: #2a203d;
-  --dm-flashcard-on-accent: #211b34;
-  --dm-flashcard-success: #8eddb6;
-  --dm-flashcard-success-bg: #1b3d32;
-  --dm-flashcard-success-line: #43816b;
-  --dm-flashcard-danger: #ffb4bd;
-  --dm-flashcard-danger-bg: #452832;
-  --dm-flashcard-danger-line: #96616d;
-  --dm-flashcard-warning: #f3d28a;
-  --dm-flashcard-warning-bg: #403522;
-  --dm-flashcard-warning-line: #947a46;
-  --dm-flashcard-pink: #f4aed2;
-  --dm-flashcard-pink-bg: #432d40;
-  --dm-flashcard-pink-line: #88637b;
-}
 html[data-theme="dark"] #jlabBasePage.flashcard-page--quiz #jlabBaseContent {
     background: radial-gradient(circle at 45% 24%, var(--dm-flashcard-accent-soft), transparent 330px),
     var(--fc-surface)

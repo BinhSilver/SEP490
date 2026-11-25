@@ -23,5 +23,10 @@ public class VerbPracticeController {
 
 @Controller
 class VerbPracticePageController {
-    @GetMapping("/practice/verbs") public String page(){return "verb-practice";}
+    @GetMapping("/practice/verbs") public String page(org.springframework.ui.Model model) {
+        var forms = java.util.Arrays.stream(VerbEngine.Form.values()).toList();
+        model.addAttribute("initialBasicForms", forms.stream().filter(form -> !form.advanced).toList());
+        model.addAttribute("initialAdvancedForms", forms.stream().filter(form -> form.advanced).toList());
+        return "verb-practice";
+    }
 }

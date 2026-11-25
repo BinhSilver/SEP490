@@ -502,27 +502,6 @@
 }
 
 /* ---------- How to earn CP (footer of the history card) ---------- */
-.gp-earn { padding: 14px; border-radius: 18px; background: linear-gradient(150deg, #f8f5ff, #fff6ee); }
-.gp-earn h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; color: #4a4366; font-size: 13.5px; font-weight: 700; }
-.gp-earn h3 i { color: var(--gp-gold); }
-.gp-earn__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
-.gp-earn__list li { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 10px; border-radius: 12px; background: #fff; }
-.gp-earn__list i {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  font-size: 13px;
-}
-.gp-earn__list li:nth-child(1) i { background: var(--gp-violet-soft); color: var(--gp-violet); }
-.gp-earn__list li:nth-child(2) i { background: var(--gp-pink-soft); color: var(--gp-pink); }
-.gp-earn__list li:nth-child(3) i { background: var(--gp-orange-soft); color: var(--gp-orange); }
-.gp-earn__list li:nth-child(4) i { background: var(--gp-blue-soft); color: var(--gp-blue); }
-.gp-earn__list span { display: grid; min-width: 0; color: var(--gp-muted); font-size: 12.5px; font-weight: 600; line-height: 1.3; }
-.gp-earn__list b { color: var(--gp-green); font-size: 13px; font-weight: 800; white-space: nowrap; }
-.gp-earn__list li:nth-child(4) b { color: var(--gp-blue); }
 
 /* ---------- Target dialog ---------- */
 .gp-dialog {
@@ -913,15 +892,6 @@ html[data-theme="dark"] .goals-credit-history__item.is-spend b {
 html[data-theme="dark"] .goals-credit-history__empty {
     border: 1px dashed var(--dm-goals-line)
 }
-html[data-theme="dark"] .gp-earn {
-    background: linear-gradient(150deg, var(--dm-goals-accent-soft), var(--dm-goals-warning-bg))
-}
-html[data-theme="dark"] .gp-earn h3 {
-    color: var(--dm-goals-muted)
-}
-html[data-theme="dark"] .gp-earn__list li {
-    background: var(--dm-goals-surface)
-}
 html[data-theme="dark"] .gp-dialog {
     background: var(--dm-goals-surface);
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.37)
@@ -1015,3 +985,35 @@ html[data-theme="dark"] .gp-dialog input{background:var(--dark-input);color:var(
 html[data-theme="dark"] .gp-kana-entry { background: var(--dm-goals-raised); border-color: var(--dm-goals-accent); }
 html[data-theme="dark"] .gp-kana-entry__icon, html[data-theme="dark"] .gp-kana-entry__cta { background: var(--dark-button); color: var(--dark-on-button); }
 @media (max-width: 420px) { .gp-kana-entry { grid-template-columns: 40px minmax(0, 1fr); } .gp-kana-entry__cta { grid-column: 1 / -1; justify-content: center; } }
+
+/* Bonus CP: one compact button in the missions card, details in a dialog (keeps the card height). */
+.gp-bonus-open { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; width: 100%; margin-top: 12px; padding: 10px 14px;
+  border: 1px dashed var(--gp-orange); border-radius: 16px; background: var(--gp-orange-soft); color: var(--gp-ink); font: inherit; text-align: left; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease; }
+.gp-bonus-open:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(92, 64, 180, .08); }
+.gp-bonus-open:focus-visible { outline: 3px solid var(--gp-violet); outline-offset: 2px; }
+.gp-bonus-open__icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: #fff; color: var(--gp-gold); }
+.gp-bonus-open__text { display: grid; gap: 2px; min-width: 0; }
+.gp-bonus-open__text b { font-size: 14.5px; }
+.gp-bonus-open__text small { color: var(--gp-muted); font-size: 12.5px; overflow-wrap: anywhere; }
+.gp-bonus-open__ready { padding: 4px 10px; border-radius: 999px; background: var(--gp-orange); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.gp-bonus-open__go { color: var(--gp-muted); }
+.gp-bonus { display: grid; gap: 16px; max-height: min(78vh, 680px); overflow-y: auto; padding: 22px; }
+.gp-bonus__group { display: grid; gap: 10px; }
+.gp-bonus__group h3 { margin: 0; color: var(--gp-ink); font-size: 14px; font-weight: 700; }
+.gp-bonus__cap { margin: 0; color: var(--gp-muted); font-size: 12.5px; }
+.gp-mission-list--bonus .retention-mission { --m-color: var(--gp-orange); --m-soft: var(--gp-orange-soft); }
+@media (max-width: 420px) { .gp-bonus-open { grid-template-columns: 38px minmax(0, 1fr) auto; } .gp-bonus-open__ready { grid-column: 2 / -1; justify-self: start; } .gp-bonus-open__go { grid-row: 1; grid-column: 3; } }
+html[data-theme="dark"] .gp-bonus-open { background: var(--dm-goals-warning-bg); border-color: var(--dm-goals-warning-line); color: var(--dm-goals-ink); }
+html[data-theme="dark"] .gp-bonus-open__icon { background: var(--dm-goals-raised); color: var(--dm-goals-warning); }
+html[data-theme="dark"] .gp-bonus-open__text small, html[data-theme="dark"] .gp-bonus-open__go, html[data-theme="dark"] .gp-bonus__cap { color: var(--dm-goals-muted); }
+html[data-theme="dark"] .gp-bonus-open__ready { background: var(--dm-goals-warning); color: var(--dm-goals-bg); }
+
+/* Bonus sources drawn like mission cards, with the reward as a chip instead of a claim button. */
+.gp-bonus__sources { gap: 8px; }
+.gp-bonus__sources .retention-mission { padding-block: 10px; cursor: default; }
+.gp-bonus__sources .retention-mission:hover { transform: none; box-shadow: none; }
+.gp-bonus__sources .retention-mission h3 { font-size: 14px; }
+.gp-bonus__sources .retention-mission p { margin: 2px 0 0; font-size: 12.5px; }
+.gp-bonus-source__reward { display: inline-block; padding: 5px 10px; border-radius: 999px; background: var(--gp-green-soft); color: var(--gp-green);
+  font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+html[data-theme="dark"] .gp-bonus-source__reward { background: var(--dm-goals-success-bg); color: var(--dm-goals-success); }

@@ -3,7 +3,7 @@
  * window.JpathWriting = { open(view), openList(views), bind(root), parseTrigger(json), createTraceBoard(cellCount),
  *                         animatable(view) }
  *   - A page marks a control with data-jpath-writing='{"itemType":"VOCAB","code":"JV-…"}' (one item) or
- *     '{"today":"VOCAB"}' (today's new items of a tab). bind(root) wires each one once; it runs on DOMContentLoaded and
+ *     '{"itemType":"KANA","codes":[…]}' (a list, Trước / Sau) or '{"today":"VOCAB"}' (today's new items of a tab). bind(root) wires each one once; it runs on DOMContentLoaded and
  *     on every document 'jpath:rendered' {detail:{root}}. A non-button element gets a "Luyện viết" button appended.
  *   - The dialog (class="jp-writing" data-inline-dictionary role="dialog") has two tabs: "Thứ tự nét" plays each
  *     character with an SVG through window.DictStrokeOrder.mount (+ "Xem lại nét"; the tab is hidden when no
@@ -25,7 +25,7 @@
   'use strict';
 
   var BASE = '/api/learning/jlpt/writing/';
-  var ITEM_TYPES = ['VOCAB', 'KANJI', 'KANA'];
+  /* owner 25/11: only kana and kanji have Luyện viết, never words */ var ITEM_TYPES = ['KANJI', 'KANA'];
   var TABS = ['VOCAB', 'KANJI', 'GRAMMAR', 'KANA', 'SKILL'];
   var BOUND = 'data-jpath-writing-bound';
   var MSG_EMPTY = 'Hôm nay chưa có mục mới để luyện viết.';
@@ -47,6 +47,12 @@
       return TABS.indexOf(tab) >= 0 ? { today: tab } : null;
     }
     var type = typeof raw.itemType === 'string' ? raw.itemType.trim().toUpperCase() : '';
+    if (Array.isArray(raw.codes)) {
+      // owner 22/11: a list (e.g. the kana of a part) opens with Trước / Sau
+      var codes = raw.codes.filter(function (c) { return typeof c === 'string' && c.trim() && c.length <= 24; })
+        .map(function (c) { return c.trim(); }).slice(0, 60);
+      return ITEM_TYPES.indexOf(type) >= 0 && codes.length ? { itemType: type, codes: codes } : null;
+    }
     var code = typeof raw.code === 'string' ? raw.code.trim() : '';
     if (ITEM_TYPES.indexOf(type) < 0 || !code || code.length > 24) return null;
     return { itemType: type, code: code };
@@ -399,8 +405,7 @@
       + '<button type="button" class="jp-writing__btn" data-writing-clear-cell>Xóa ô</button>'
       + '<button type="button" class="jp-writing__btn" data-writing-clear-all>Xóa tất cả</button></div></section>'
       + (anim.length ? quizPaneHtml(anim) : '')
-      + navHtml
-      + '<div class="jp-writing__foot"><button type="button" class="jp-writing__btn" data-writing-close>Đóng</button>'
+      + '<div class="jp-writing__foot">' + navHtml + '<button type="button" class="jp-writing__btn" data-writing-close>Đóng</button>'
       + '</div></div>';
   }
 
@@ -489,7 +494,7 @@
     function ctx2d() {
       var ratio = root.devicePixelRatio || 1;
       var w = canvas.clientWidth || 240;
-      if (canvas.width !== Math.round(w * ratio)) {
+      if (canvas.width !== Math.round(w * ratio) || canvas.height !== Math.round(w * ratio)) {
         canvas.width = Math.round(w * ratio);
         canvas.height = Math.round(w * ratio);
       }
@@ -638,7 +643,9 @@
       var ratio = root.devicePixelRatio || 1;
       var w = canvas.clientWidth || 120;
       var h = canvas.clientHeight || 120;
-      if (canvas.width !== Math.round(w * ratio)) { canvas.width = Math.round(w * ratio); canvas.height = Math.round(h * ratio); }
+      // owner 22/11: compare both sides — at ratio 1.5 a 200px cell is 300 wide, the default canvas width, so the
+      // default 150 height stayed and strokes were stretched downwards
+      if (canvas.width !== Math.round(w * ratio) || canvas.height !== Math.round(h * ratio)) { canvas.width = Math.round(w * ratio); canvas.height = Math.round(h * ratio); }
       return ratio;
     }
     function redraw(cell, live) {
@@ -819,14 +826,33 @@
     return go(0);
   }
 
+  /** A list of codes with Trước / Sau: each view is fetched when first shown, then kept. */
+  function openCodes(client, itemType, codes) {
+    var cache = {};
+    function load(i) {
+      if (!cache[i]) cache[i] = client.get(BASE + encodeURIComponent(itemType) + '/' + encodeURIComponent(codes[i]));
+      return cache[i];
+    }
+    function go(i) {
+      var index = Math.max(0, Math.min(codes.length - 1, i));
+      return Promise.resolve(load(index)).then(function (view) {
+        if (index + 1 < codes.length) load(index + 1);
+        return render(view, { index: index, total: codes.length, go: go });
+      });
+    }
+    return go(0);
+  }
+
   function run(trigger) {
     var client = apiClient();
     var request = trigger.today
       ? client.get(BASE + 'today?tab=' + encodeURIComponent(trigger.today)).then(openList)
+      : trigger.codes
+      ? openCodes(client, trigger.itemType, trigger.codes)
       : client.get(BASE + encodeURIComponent(trigger.itemType) + '/' + encodeURIComponent(trigger.code)).then(open);
     return request.catch(function (error) {
       var message = error && error.code === 'UNAUTHORIZED' && error.message ? error.message : MSG_FAILED;
-      if (root && root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(message);
+      if (root && root.JlasToast && typeof root.JlasToast.show === 'function') root.JlasToast.show(message, 'error');
       else if (root && root.console) root.console.warn(message);
     });
   }

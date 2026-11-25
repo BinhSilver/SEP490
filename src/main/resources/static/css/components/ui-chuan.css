@@ -1,0 +1,311 @@
+/* Shared appearance for the JLPT, verb, notebook and Kanji feature pages.
+   Page styles retain their grids, widths, order, positioning and breakpoints. */
+@import url("../dark-page.css");
+
+body.jlas-ui-owned {
+  --jlab-base-page-background: var(--color-background);
+  --jls-field: var(--color-surface-lowest);
+  --jls-panel: var(--color-surface-lowest);
+  --jls-line: var(--color-outline);
+  --jls-line-strong: var(--color-outline);
+  --jl-input-line: var(--color-outline);
+  --jl-input-bg: var(--color-surface-lowest);
+  --jl-press: color-mix(in srgb, var(--color-on-surface) 10%, transparent);
+  --jl-scrim: color-mix(in srgb, var(--color-inverse-surface) 45%, transparent);
+  color: var(--color-on-surface);
+  background: var(--color-background);
+  font-family: var(--font-body);
+}
+body.jlas-ui-owned::before { opacity: 0; }
+html[data-theme="dark"] body.jlas-ui-owned {
+  --color-warning: var(--dark-warning);
+  --color-warning-bg: var(--dark-warning-bg);
+  --jl-input-bg: var(--dark-input);
+  --jl-input-line: var(--dark-input-line);
+  --jls-line: var(--dark-input-line);
+  --jls-line-strong: var(--dark-input-line);
+}
+.jlas-ui-owned :is(main, dialog) { font-family: var(--font-body); }
+.jlas-ui-owned :is(main, dialog) :is(h1,h2,h3) { color: var(--color-on-surface); }
+.jlas-ui-owned :is(main, dialog) :is(button, input, textarea, select, summary) { font-family: inherit; }
+.jlas-ui-owned :is(main, dialog) :is(button, a, input, select, textarea, summary) { transition-timing-function: var(--ease-out); }
+.jlas-ui-owned :is(main, dialog) :is(button, a, summary):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.jlas-ui-owned :is(main, dialog) button { white-space: nowrap; }
+.jlas-ui-owned :is(main, dialog) button:disabled { cursor: not-allowed; opacity: .6; }
+.jlas-ui-owned :is(main, dialog) :is(button, a):active:not(:disabled) {
+  background-image: linear-gradient(var(--jl-press), var(--jl-press));
+}
+.jlas-ui-owned :is(main, dialog) :is(button, a):hover { transform: none; }
+.jlas-ui-owned :is(main, dialog) :is(input:not([type=checkbox], [type=radio], [type=range], [type=file]), textarea, select) {
+  color: var(--color-on-surface);
+  border-color: var(--jl-input-line);
+  background-color: var(--jl-input-bg);
+}
+.jlas-ui-owned :is(main, dialog) :is(input, textarea, select):focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+.jlas-ui-owned :is(main, dialog) :is(input, textarea, select)[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+.jlas-ui-owned .jl-select.is-open .jl-select__trigger:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+  border-color: var(--jl-input-line);
+}
+.jlas-ui-owned :is(input[type="checkbox"], input[type="radio"], input[type="range"], input[type="file"]):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+/* Draw over the field edge, including on borderless search fields. */
+.jlas-ui-owned :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea, select, .jl-select__trigger):focus-visible {
+  outline: 2px solid var(--jl-field-focus, var(--color-focus));
+  outline-offset: -2px;
+  box-shadow: none;
+}
+.jlas-ui-owned :is([aria-invalid="true"], .has-error) {
+  --jl-field-focus: var(--color-error);
+}
+.jlas-ui-owned .jl-select__trigger[aria-invalid="true"] { border-color: var(--color-error); }
+.jlas-ui-owned :is(input[type=checkbox],input[type=radio]) { accent-color: var(--color-primary); }
+.jlas-ui-owned :is(input,textarea)::placeholder { color: var(--color-on-surface-variant); opacity: 1; }
+.jlas-ui-owned :is(#vpStart,#vpAgain,#vpExit) > .vp-svg-icon { display: none; }
+.jlas-ui-owned .jl-select { min-width: 0; max-width: 100%; }
+.jlas-ui-owned .jl-select__trigger { min-height: 48px; border-radius: var(--radius-input); font-size: var(--text-md); font-weight: 400; }
+.jlas-ui-owned :is(.jlpt-filter-block nav, .notebook-entry-filters) button,
+.jlas-ui-owned .vp-form-chips span {
+  min-height: 32px;
+  border-radius: var(--radius-input);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+.jlas-ui-owned :is(.jlpt-filter-block nav, .notebook-entry-filters) button[aria-pressed="true"],
+.jlas-ui-owned .vp-form-chips input:checked + span {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-fixed);
+}
+.jlas-ui-owned :is(.jlpt-filter-block nav, .notebook-entry-filters) button:hover,
+.jlas-ui-owned .vp-form-chips label:hover span { background-color: var(--color-primary-fixed); }
+.jlas-ui-owned .vp-form-chips input:focus-visible + span { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.jlas-ui-owned .jl-fa.material-symbols-outlined,
+body.jlas-ui-owned #jlabBaseContent .jl-fa.material-symbols-outlined,
+#jlabBasePage.jlas-ui-owned :is(#jlabBaseContent,#jlptApp,#notebookApp,#jlptStudyApp) .jl-fa.material-symbols-outlined {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: var(--text-md);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.jlas-ui-owned .jl-nav-word.material-symbols-outlined,
+body.jlas-ui-owned #jlabBaseContent .jl-nav-word.material-symbols-outlined,
+#jlabBasePage.jlas-ui-owned :is(#jlabBaseContent,#jlptApp,#notebookApp,#jlptStudyApp) .jl-nav-word.material-symbols-outlined {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 20px;
+}
+.jlas-ui-owned :is(.jl-nav-button,button:has(>.jl-nav-word)) { width: auto; min-width: 44px; padding-inline: 8px; font-size: var(--text-sm); white-space: nowrap; }
+@media (max-width: 760px) {
+  .jlas-ui-owned .jlpt-admin-exam__side { min-width: 0; }
+  .jlas-ui-owned .jlpt-admin-exam__actions { flex-wrap: wrap; }
+  .jlas-ui-owned .jlpt-admin-exam__actions button { flex-shrink: 0; white-space: nowrap; }
+}
+.jlas-ui-owned button[aria-busy="true"]::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-full);
+  animation: jl-ui-busy 800ms linear infinite;
+}
+@keyframes jl-ui-busy { to { transform: rotate(360deg); } }
+.jlas-ui-owned :is([lang=ja], .km-node-character, .notebook-study-expression) { font-family: var(--font-jp); }
+.jlas-ui-owned :is(.km-detail-glyph, #vpWord, .notebook-study-expression) {
+  font-family: var(--font-jp-display);
+  font-weight: 600;
+}
+.jlas-ui-owned #vpWord { font-size: var(--text-4xl); }
+.jlas-ui-owned :is(time, output, .vp-result-metrics, .vp-ring, .jlpt-stat, .kma-stats, .jlpt-exam-timer) { font-variant-numeric: tabular-nums; }
+.jlas-ui-owned :is(.vp-card, .jlpt-exam-card, .kma-panel, .notebook-book):not(a):hover { box-shadow: var(--shadow-1); }
+.jlas-ui-owned :is(.vp-hero h1 em, .jp-hero-copy h1 em) {
+  color: var(--color-on-surface);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-style: normal;
+}
+.jlas-ui-owned :is(.vp-icon.violet,.vp-icon.blue,.vp-icon.peach,.vp-icon.pink,.vp-icon.green) {
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container);
+}
+.jlas-ui-owned :is(.vp-button,.jlpt-exam-card__start,.jlpt-practice-actions button,.jlpt-practice-question>footer button) {
+  min-height: 44px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border-radius: var(--radius-control);
+}
+.jlas-ui-owned :is(.vp-ring,.notebook-progress-track,.vp-progress-track) { --progress-color: var(--color-primary); }
+.jlas-ui-owned .vp-ring {
+  background: conic-gradient(from -90deg, var(--color-primary) var(--percent), var(--color-surface-container) 0);
+}
+.jlas-ui-owned .vp-progress-track i { background: var(--color-primary); }
+.jlas-ui-owned .jrr-page { color: var(--color-on-surface); font-family: var(--font-body); }
+.jlas-ui-owned .jrr-page :is(h1,h2,h3) { color: var(--color-on-surface); font-family: inherit; font-weight: 600; }
+.jlas-ui-owned .jrr-page h1 { font-size: var(--text-3xl); }
+.jlas-ui-owned .jrr-page h2 { font-size: var(--text-xl); }
+.jlas-ui-owned .jrr-page h3 { font-size: var(--text-lg); }
+/* Fixed-size map controls stay in their original dock and do not change the canvas. */
+.jlas-ui-owned .km-map-controls > button {
+  border-radius: var(--radius-control);
+  color: var(--color-on-surface-variant);
+  border-color: var(--color-outline-variant);
+  background: var(--color-surface-lowest);
+  box-shadow: none;
+}
+.jlas-ui-owned .km-map-controls > button:hover { background: var(--color-primary-fixed); }
+.jlas-ui-owned :is(.km-dialog,.notebook-dialog,.verb-dialog,.verb-confirm,.jpta-dialog) {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+.jlas-ui-owned :is(.km-dialog,.notebook-dialog,.verb-dialog,.verb-confirm,.jpta-dialog)::backdrop {
+  background: var(--jl-scrim);
+  backdrop-filter: blur(4px);
+}
+/* Preserve the native controls' original allocation within filter toolbars. */
+.jlas-ui-owned :is(.jpta__toolbar,.verb-admin__filters) > .jl-select { width: auto; flex: 0 1 auto; }
+.jlas-ui-owned :is(.jlpt-admin-search,.jpta__search,.verb-admin__search) { min-height: 48px; border-color: var(--jl-input-line); background: var(--jl-input-bg); }
+.jlas-ui-owned :is(.jlpt-admin-search,.jpta__search,.verb-admin__search) input {
+  min-height: 44px;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--text-md);
+}
+.jlas-ui-owned :is(.jpta__toolbar,.verb-admin__filters) > .jl-select .jl-select__trigger { width: 100%; }
+.jlas-ui-owned .jpta__toolbar > .jl-select { min-width: 160px; }
+.jlas-ui-owned .verb-admin__filters > .jl-select { min-width: 130px; }
+@media (max-width:760px) {
+  .jlas-ui-owned :is(.jpta__toolbar,.verb-admin__filters) > .jl-select { flex: 1; min-width: 120px; }
+}
+
+/* Review adjustments: stronger selection, purple JLPT hero, no redundant back pills. */
+.jlas-ui-owned .jlpt-library-intro {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+html[data-theme="dark"] .jlas-ui-owned .jlpt-library-intro {
+  background: var(--color-inverse-primary);
+  color: var(--dark-ink);
+}
+.jlas-ui-owned .jlpt-library-intro :is(h1,p,.jlpt-library-intro__eyebrow,.jlpt-library-intro__facts) { color: inherit; }
+.jlas-ui-owned .jlpt-library-intro :is(.jlpt-library-practice-link,.jlpt-library-history-link) {
+  color: inherit;
+  border-color: currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.jlas-ui-owned .jlpt-library-intro :is(.jlpt-library-practice-link,.jlpt-library-history-link):hover { background: color-mix(in srgb, currentColor 20%, transparent); }
+.jlas-ui-owned :is(.jlpt-exam-header > a[aria-label="Quay lại"],#studyBack,.jp-back,.jlpt-history-back,.jpta__back) { display: none; }
+.jlas-ui-owned .jlpt-exam-header { grid-template-columns: minmax(0,1fr) auto; }
+.jlas-ui-owned .js-study-heading { grid-template-columns: minmax(0,1fr); }
+@media(max-width:600px) { .jlas-ui-owned .jlpt-exam-header { grid-template-columns: minmax(0,1fr); } }
+
+/* Keep room below the header when part practice hides the part tabs. */
+.jlas-ui-owned #jlptPartTabs[hidden] + .jlpt-exam-layout { margin-top: 20px; }
+
+/* The rule reference is opened on demand so setup stays focused on practice. */
+.jlas-ui-owned .vp-open-rules { margin-top: 20px; }
+.jlas-ui-owned .vp-rules-dialog {
+  width: min(960px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  color: var(--color-on-surface);
+  background: var(--color-surface-lowest);
+  box-shadow: var(--shadow-2);
+}
+.jlas-ui-owned .vp-rules-dialog::backdrop { background: var(--jl-scrim); }
+.jlas-ui-owned .vp-rules-heading { display:flex; align-items:start; justify-content:space-between; gap:20px; padding:24px 28px 20px; }
+.jlas-ui-owned .vp-rules-heading h2 { margin:0 0 8px; font-size:var(--text-2xl); font-weight:600; }
+.jlas-ui-owned .vp-rules-heading p { margin:0; color:var(--color-on-surface-variant); font-size:var(--text-sm); line-height:1.5; }
+.jlas-ui-owned .vp-rules-heading form { margin:0; }
+.jlas-ui-owned .vp-rules-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:0 28px 20px; border-bottom:1px solid var(--color-outline-variant); }
+.jlas-ui-owned .vp-rules-tabs button { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:4px 8px; min-height:44px; padding:8px; border:1px solid var(--color-outline-variant); border-radius:var(--radius-control); background:var(--color-surface-lowest); color:var(--color-on-surface); font-size:var(--text-sm); font-weight:600; }
+.jlas-ui-owned .vp-rules-tabs button small { font-size:var(--text-xs); font-weight:400; }
+.jlas-ui-owned .vp-rules-tabs button[aria-selected="true"] { background:var(--color-primary); border-color:var(--color-primary); color:var(--color-on-primary); }
+.jlas-ui-owned .vp-rules-body { padding:24px 28px 28px; }
+.jlas-ui-owned .vp-rules-panel[hidden] { display:none; }
+.jlas-ui-owned .vp-rules-group-title { display:flex; align-items:center; justify-content:space-between; gap:16px; font-size:var(--text-lg); font-weight:600; }
+.jlas-ui-owned .vp-rules-group-title small { font-size:var(--text-sm); font-weight:400; color:var(--color-on-surface-variant); }
+.jlas-ui-owned .vp-rules-group-title b { font-family:var(--font-jp); font-weight:500; color:var(--color-on-surface-variant); }
+.jlas-ui-owned .vp-rules-dialog .vp-rule-content { padding:0; margin:0; border:0; }
+.jlas-ui-owned .vp-rules-dialog .vp-rule-lead { font-size:var(--text-sm); line-height:1.7; margin:12px 0 24px; }
+.jlas-ui-owned .vp-rules-dialog .vp-rule-form-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px; }
+.jlas-ui-owned .vp-rules-dialog .vp-rule-form-columns h3 { margin:0 0 12px; font-size:var(--text-lg); font-weight:600; }
+.jlas-ui-owned .vp-rules-dialog table { width:100%; border-collapse:collapse; table-layout:fixed; }
+.jlas-ui-owned .vp-rules-dialog th { width:36%; padding:12px 10px 12px 0; font-size:var(--text-sm); font-weight:500; line-height:1.6; vertical-align:top; text-align:left; }
+.jlas-ui-owned .vp-rules-dialog td { padding:12px 0; font-family:var(--font-jp); font-size:var(--text-md); line-height:1.7; vertical-align:top; overflow-wrap:anywhere; }
+.jlas-ui-owned .vp-rules-dialog td small { display:block; margin-top:4px; font-family:var(--font-body); font-size:var(--text-xs); line-height:1.5; color:var(--color-on-surface-variant); }
+.jlas-ui-owned .vp-rules-dialog tr + tr { border-top:1px solid var(--color-outline-variant); }
+.jlas-ui-owned .vp-rules-dialog .vp-rule-note { margin-top:20px; padding:14px 16px; border-radius:var(--radius-input); background:var(--color-surface-container); color:var(--color-on-surface); font-size:var(--text-sm); line-height:1.7; }
+.jlas-ui-owned .vp-rules-dialog .vp-rule-content > small { display:block; margin-top:14px; font-size:var(--text-sm); line-height:1.6; }
+@media(max-width:650px) {
+  .jlas-ui-owned .vp-rules-dialog { width:calc(100% - 24px); max-height:calc(100dvh - 24px); }
+  .jlas-ui-owned .vp-rules-heading { padding:20px 16px 16px; gap:12px; }
+  .jlas-ui-owned .vp-rules-heading h2 { font-size:var(--text-xl); }
+  .jlas-ui-owned .vp-rules-tabs { padding:0 16px 16px; gap:6px; }
+  .jlas-ui-owned .vp-rules-tabs button { flex-direction:column; }
+  .jlas-ui-owned .vp-rules-body { padding:20px 16px; }
+  .jlas-ui-owned .vp-rules-dialog .vp-rule-form-columns { grid-template-columns:1fr; gap:24px; }
+  .jlas-ui-owned .vp-rules-group-title { flex-wrap:wrap; }
+}
+
+.jlas-ui-owned .vp-rules-dialog[open] { display:flex; flex-direction:column; }
+.jlas-ui-owned :is(.vp-rules-heading,.vp-rules-tabs) { flex-shrink:0; }
+.jlas-ui-owned .vp-rules-body { min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+
+/* These controls close nested notebook views; keep that route available without a back pill. */
+.jlas-ui-owned #notebookBack { width:auto; padding:0; border:0; background:none; color:var(--color-primary); text-decoration:underline; text-underline-offset:3px; }
+.jlas-ui-owned #notebookStudyBack { width:auto; min-width:44px; padding-inline:10px; }
+
+/* Compact practice headings replace decorative paper cards and stars. */
+.jlas-ui-owned :is(.jp-compact-heading,.vp-hero--compact) {
+  display:block;
+  padding:8px 0 24px;
+  margin:0;
+  background:none;
+  box-shadow:none;
+  border-radius:0;
+  color:var(--color-on-surface);
+}
+.jlas-ui-owned .vp-hero--compact .vp-hero-copy {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px 24px;
+  flex-wrap:wrap;
+}
+.jlas-ui-owned :is(.jp-compact-heading,.vp-hero--compact) h1 {
+  margin:0;
+  font-size:var(--text-3xl);
+  font-weight:600;
+  line-height:1.25;
+  color:var(--color-on-surface);
+}
+.jlas-ui-owned :is(.jp-compact-heading,.vp-hero--compact) p {
+  margin:8px 0 0;
+  font-size:var(--text-sm);
+  line-height:1.6;
+  color:var(--color-on-surface-variant);
+}
+.jlas-ui-owned .vp-hero--compact .vp-open-rules { margin:0; flex-shrink:0; }
+@media(max-width:600px) {
+  .jlas-ui-owned :is(.jp-compact-heading,.vp-hero--compact) { padding:4px 0 20px; }
+  .jlas-ui-owned :is(.jp-compact-heading,.vp-hero--compact) h1 { font-size:var(--text-2xl); }
+}

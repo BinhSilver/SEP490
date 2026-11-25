@@ -103,15 +103,33 @@ public class JlptAdminServiceImpl implements JlptAdminService {
         Long typeId = ensureQuestionType(request.type(), request.mondaiId());
         jdbc.update("""
                 UPDATE jlpt_question SET mondai_id=?,passage_id=?,question_type_id=?,
-                    question_number=?,question_text=?,question_furigana=?,question_html=?,correct_option=?,score=?,
+                    question_number=?,question_text=?,question_furigana=?,question_html=?,correct_option=?,score=COALESCE(?,score),
                     image_url=?,source_page=?,explanation=?,order_index=?,correct_order=?,target_vocabulary_id=? WHERE id=?
                 """, request.mondaiId(), passageId, typeId, request.number(), request.prompt(),
-                request.prompt(), request.prompt(), JlptSentenceOrder.correctChoice(request), defaultScore(request), blankToNull(request.imageUrl()),
+                request.prompt(), request.prompt(), JlptSentenceOrder.correctChoice(request), request.score(), blankToNull(request.imageUrl()),
                 request.sourcePage(), blankToNull(request.explanation()), order, JlptSentenceOrder.write(request),
                 validTargetVocabulary(request.mondaiId(), request.targetVocabularyId()), questionId);
         replaceOptions(questionId, request.choices());
         replaceAudio(questionId, request.mondaiId(), request);
         deletePassageIfOrphan(old.passageId(), passageId);
+    }
+
+    @Override
+    @Transactional
+    public void updateQuestionAudio(long questionId, String audioUrl) {
+        String url = blankToNull(audioUrl);
+        if (url == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nhập đường dẫn audio JLPT.");
+        }
+        long mondaiId = questionLocation(questionId).mondaiId();
+        validateAudioUrl(url, mondaiId);
+        int order = nextInt("jlpt_audio_clip", "order_index", "mondai_id", mondaiId);
+        jdbc.update("""
+                INSERT INTO jlpt_audio_clip (mondai_id,question_id,clip_type,audio_url,order_index)
+                VALUES (?,?,?,?,?)
+                ON DUPLICATE KEY UPDATE audio_url=?,clip_type=?
+                """, mondaiId, questionId, JlptLocalAudio.ADMIN_OVERRIDE_TYPE, url, order,
+                url, JlptLocalAudio.ADMIN_OVERRIDE_TYPE);
     }
 
     @Override
@@ -199,9 +217,7 @@ public class JlptAdminServiceImpl implements JlptAdminService {
 
     private void replaceAudio(long questionId, long mondaiId, JlptAdminQuestionRequest request) {
         String audioUrl = blankToNull(request.audioUrl());
-        if (audioUrl != null && !audioUrl.startsWith("/audio/JLPT/")) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Audio JLPT phải là file local đã cắt.");
-        }
+        if (audioUrl != null) validateAudioUrl(audioUrl, mondaiId);
         List<Long> existing = jdbc.query("SELECT id FROM jlpt_audio_clip WHERE question_id=?",
                 (rs, row) -> rs.getLong(1), questionId);
         if (audioUrl == null) {
@@ -210,15 +226,6 @@ public class JlptAdminServiceImpl implements JlptAdminService {
                 jdbc.update("DELETE FROM jlpt_audio_clip WHERE id=?", existing.getFirst());
             }
             return;
-        }
-        String examLevel = jdbc.queryForObject("""
-                SELECT e.jlpt_level FROM jlpt_mondai m JOIN jlpt_part p ON p.id=m.part_id
-                JOIN jlpt_exam e ON e.id=p.exam_id WHERE m.id=?
-                """, String.class, mondaiId);
-        String audioLevel = audioLevelMismatch(audioUrl, examLevel);
-        if (audioLevel != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Audio thuộc cấp " + audioLevel + " nhưng đề là cấp " + examLevel + ".");
         }
         long clipId;
         if (existing.isEmpty()) {
@@ -251,6 +258,21 @@ public class JlptAdminServiceImpl implements JlptAdminService {
                     (mondai_id,audio_clip_id,text_ja,text_ja_furigana,text_vi,order_index)
                     VALUES (?,?,?,?,?,1)
                     """, mondaiId, clipId, script, script, translation);
+        }
+    }
+
+    private void validateAudioUrl(String audioUrl, long mondaiId) {
+        if (!audioUrl.startsWith("/audio/JLPT/")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Audio JLPT phải là file local đã cắt.");
+        }
+        String examLevel = jdbc.queryForObject("""
+                SELECT e.jlpt_level FROM jlpt_mondai m JOIN jlpt_part p ON p.id=m.part_id
+                JOIN jlpt_exam e ON e.id=p.exam_id WHERE m.id=?
+                """, String.class, mondaiId);
+        String audioLevel = audioLevelMismatch(audioUrl, examLevel);
+        if (audioLevel != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Audio thuộc cấp " + audioLevel + " nhưng đề là cấp " + examLevel + ".");
         }
     }
 
@@ -406,7 +428,7 @@ public class JlptAdminServiceImpl implements JlptAdminService {
 
     private QuestionLocation questionLocation(long questionId) {
         List<QuestionLocation> rows = jdbc.query("""
-                SELECT mondai_id,passage_id,order_index FROM jlpt_question WHERE id=?
+                SELECT mondai_id,passage_id,order_index FROM jlpt_question WHERE id=? FOR UPDATE
                 """, (rs, row) -> new QuestionLocation(rs.getLong("mondai_id"),
                 rs.getObject("passage_id") == null ? null : rs.getLong("passage_id"),
                 rs.getInt("order_index")), questionId);

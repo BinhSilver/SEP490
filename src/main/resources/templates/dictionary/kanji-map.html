@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Lược đồ Kanji · KotsuKotsu', 'kanji-map')}"></head>
-<body id="jlabBasePage" class="km-page">
+<body id="jlabBasePage" class="km-page jlas-ui-owned">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="km-main" aria-label="Lược đồ Kanji">
-  <div id="km-notice" class="km-notice" role="status" hidden></div>
   <section id="km-workspace" class="km-workspace is-map-light" aria-label="Không gian lược đồ Kanji">
     <header class="km-atlas-bar">
-      <div class="km-atlas-brand"><span class="km-atlas-mark" lang="ja" aria-hidden="true">字</span><div><span class="km-atlas-eyebrow">KotsuKotsu · KHÁM PHÁ</span><h1>Lược đồ Kanji</h1></div></div>
-      <div class="km-atlas-actions">
-        <button id="km-study-open" class="km-study-trigger" type="button" aria-label="Luyện nhận diện cấu tạo" title="Luyện nhận diện cấu tạo · 5 câu" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></svg><span>Luyện cấu tạo</span></button>
-        <a id="km-notebook-open" class="km-notebook-link" href="/learning/notebook" title="Sổ tay của tôi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4h7a2 2 0 0 1 2 2v15a4 4 0 0 0-4-3H4Zm16 0h-5a2 2 0 0 0-2 2v15a4 4 0 0 1 4-3h3Z"/></svg><span>Sổ tay</span></a>
-      </div>
+      <div class="km-atlas-brand"><span class="km-atlas-mark" lang="ja" aria-hidden="true">字</span><div><span class="km-atlas-eyebrow">KotsuKotsu</span><h1>Lược đồ Kanji</h1></div></div>
     </header>
     <button id="km-filters-toggle" class="km-filter-trigger" type="button" aria-label="Bộ lọc" aria-expanded="false" aria-controls="km-filters"><svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="km-filter-label">Bộ lọc</span></button>
     <aside id="km-filters" class="km-filters" aria-label="Bộ lọc Kanji">
@@ -22,21 +17,21 @@
         <div id="km-search-results" class="km-search-results" aria-label="Kết quả tìm Kanji" hidden></div>
       </form>
       <label for="km-level">Cấp độ JLPT</label>
-      <select id="km-level">
+      <select data-jl-select id="km-level">
         <option value="">Tất cả cấp độ</option>
         <option value="N5">N5</option><option value="N4">N4</option><option value="N3">N3</option>
         <option value="N2">N2</option><option value="N1">N1</option>
         <option value="UNCLASSIFIED">Chưa xếp cấp</option>
       </select>
       <p class="km-caption">Đổi cấp độ để xem các nhánh khởi đầu của cấp đó. Chọn một gốc để khám phá riêng.</p>
-      <label for="km-branch">Chọn gốc lược đồ</label><select id="km-branch"><option value="">Tất cả các nhánh</option></select>
-      <label for="km-status">Tiến độ học</label><select id="km-status"><option value="">Tất cả</option><option value="NEW">Chưa thành thạo</option><option value="MASTERED">Đã thành thạo</option></select>
+      <label for="km-branch">Chọn gốc lược đồ</label><select data-jl-select id="km-branch"><option value="">Tất cả các nhánh</option></select>
+      <label for="km-status">Tiến độ học</label><select data-jl-select id="km-status"><option value="">Tất cả</option><option value="NEW">Chưa thành thạo</option><option value="MASTERED">Đã thành thạo</option></select>
       <button id="km-clear-filters" type="button" class="km-text-button">Xóa bộ lọc</button>
       <div class="km-statistics"><div><strong id="km-stat-kanji">—</strong><span>chữ phù hợp</span></div><div><strong id="km-stat-mastered">—</strong><span>đã thành thạo</span></div></div>
       <p id="km-stat-context" class="km-caption"></p><p id="km-progress-state" class="km-caption">Đăng nhập để lưu tiến độ theo tài khoản.</p>
       <div id="km-stat-levels" class="km-stat-levels" aria-label="Thống kê theo cấp độ"></div>
-      <div class="km-legend"><h2>Đọc lược đồ</h2><p><span class="km-type-badge">BC</span> Vừa bộ thủ vừa chữ Kanji</p><p><span class="km-type-badge">BT</span> Bộ thủ</p><p><span class="km-type-badge">TP</span> Thành phần</p><p><span class="km-dot km-dot-mastered"></span> Đã thành thạo</p><p><span class="km-line-sample"></span> Thành phần / biến thể theo KanjiVG</p></div>
-      <details class="km-guide"><summary>Cách sử dụng</summary><p>Kéo nền để di chuyển, cuộn chuột để thu phóng. Trên điện thoại có thể kéo và chụm hai ngón tay.</p><p>Nút + mở thêm một tầng, số + trên chữ báo số nhánh con. Nút ↗ cho phép lấy chữ đó làm gốc để khám phá thêm liên kết.</p><p>Ban đầu hiển thị đủ cấp độ. Khi lọc N5–N1, nút + ở chữ cuối nhánh vẫn cho phép mở tiếp ở các cấp khác.</p><p>Đường nối liền thể hiện quan hệ thành phần hoặc biến thể từ KanjiVG. Lược đồ lớn bố trí mỗi chữ một lần theo cây. Trong phần Chi tiết Kanji, mục Sơ đồ liên kết hiển thị chữ đang chọn và các thành phần trực tiếp, với mũi tên chỉ quan hệ giữa chúng; bấm một chữ trong sơ đồ nhỏ để xem tiếp.</p></details>
+      <div class="km-legend"><h2>Đọc lược đồ</h2><p><span class="km-type-badge">BC</span> Vừa bộ thủ vừa chữ Kanji</p><p><span class="km-type-badge">BT</span> Bộ thủ</p><p><span class="km-type-badge">TP</span> Thành phần</p><p><span class="km-dot km-dot-mastered"></span> Đã thành thạo</p><p><span class="km-line-sample"></span> Thành phần / biến thể</p></div>
+      <details class="km-guide"><summary>Cách sử dụng</summary><p>Kéo nền để di chuyển, cuộn chuột để thu phóng. Trên điện thoại có thể kéo và chụm hai ngón tay.</p><p>Nút + mở thêm một tầng, số + trên chữ báo số nhánh con. Nút ↗ cho phép lấy chữ đó làm gốc để khám phá thêm liên kết.</p><p>Ban đầu hiển thị đủ cấp độ. Khi lọc N5–N1, nút + ở chữ cuối nhánh vẫn cho phép mở tiếp ở các cấp khác.</p><p>Đường nối liền thể hiện quan hệ thành phần hoặc biến thể. Lược đồ lớn bố trí mỗi chữ một lần theo cây. Trong phần Chi tiết Kanji, mục Sơ đồ liên kết hiển thị chữ đang chọn và các thành phần trực tiếp, với mũi tên chỉ quan hệ giữa chúng; bấm một chữ trong sơ đồ nhỏ để xem tiếp.</p></details>
     </aside>
     <div class="km-map-area">
       <div id="km-board" class="km-board" tabindex="0" aria-label="Lược đồ Kanji. Kéo để di chuyển hoặc dùng các nút thu phóng." aria-busy="true">
@@ -46,13 +41,10 @@
       <div class="km-map-controls" aria-label="Điều khiển khung nhìn">
         <button id="km-zoom-in" type="button" aria-label="Phóng to" title="Phóng to">+</button>
         <button id="km-zoom-out" type="button" aria-label="Thu nhỏ" title="Thu nhỏ">−</button>
-        <button id="km-fit" type="button" aria-label="Vừa khung" title="Xem toàn bộ lược đồ"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 10V8h2m4 0h2v2m0 4v2h-2m-4 0H8v-2"/></svg></button>
-        <button id="km-expand" type="button" aria-label="Mở rộng các nhánh" aria-pressed="false" title="Mở rộng các nhánh"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        <button id="km-theme" class="km-theme-control" type="button" aria-label="Đổi nền lược đồ" aria-pressed="false" title="Đổi nền sáng / tối">Sáng</button>
         <button id="km-home" class="km-home-control" type="button" aria-label="Về vị trí ban đầu" title="Đưa khung nhìn về đầu lược đồ">↺</button>
         <button id="km-fullscreen" class="km-fullscreen-control" type="button" aria-label="Toàn màn hình" title="Toàn màn hình"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
       </div>
-      <div class="km-map-footer"><span id="km-hint" role="status">Bấm + để mở tiếp · Kéo để di chuyển · Cuộn để thu phóng</span><output id="km-zoom-value" aria-label="Mức thu phóng">100%</output></div>
+      <div class="km-map-footer"><span id="km-hint" role="status"></span><output id="km-zoom-value" aria-label="Mức thu phóng">100%</output></div>
     </div>
     <aside id="km-detail" class="km-detail" aria-labelledby="km-detail-title" hidden></aside>
   </section>
@@ -63,7 +55,6 @@
     <div class="km-notebook-preview"><p id="km-notebook-characters" class="km-notebook-characters" lang="ja"></p><p id="km-notebook-description">Giữ lại để xem và ôn tập trong sổ tay.</p></div>
     <div class="km-notebook-section-label" id="km-notebook-list-label">CHỌN SỔ TAY</div>
     <div id="km-notebook-select" class="km-notebook-options" role="radiogroup" aria-labelledby="km-notebook-list-label"></div>
-    <p id="km-notebook-context" class="km-notebook-context" role="status"></p>
     <div class="km-dialog-actions km-notebook-actions"><a id="km-notebook-link" href="/learning/notebook">Mở sổ tay ↗</a><button id="km-notebook-save" class="km-button km-primary" type="submit">Lưu Kanji</button></div>
   </form>
   <details id="km-notebook-create-section" class="km-notebook-create"><summary><span aria-hidden="true">＋</span> Tạo sổ tay mới</summary>
@@ -84,7 +75,7 @@
 </dialog>
 <script th:src="@{/js/pages/kanji-map-model.js}"></script>
 <script th:src="@{/js/pages/kanji-map-diagram.js}"></script>
-<script th:src="@{/js/pages/kanji-map-notebook.js(v='20261027-notebook-always-choose')}"></script>
-<script th:src="@{/js/pages/kanji-map.js(v='20261027-notebook-always-choose')}"></script>
+<script th:src="@{/js/pages/kanji-map-notebook.js(v='20261119-notebook-clean')}"></script>
+<script th:src="@{/js/pages/kanji-map.js(v='20261120-reports')}"></script>
 <script th:src="@{/js/jlab-base-shell.js}"></script>
 </body></html>

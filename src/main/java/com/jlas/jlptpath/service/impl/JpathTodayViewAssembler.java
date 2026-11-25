@@ -7,11 +7,11 @@ import com.jlas.jlptpath.dto.JpathCombinedStep;
 import com.jlas.jlptpath.dto.JpathHeroCard;
 import com.jlas.jlptpath.dto.JpathItemRef;
 import com.jlas.jlptpath.dto.JpathResumeView;
-import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.dto.JpathTodayTab;
 import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
 import com.jlas.jlptpath.entity.JpathDailyTab;
+import com.jlas.jlptpath.entity.JpathDailyTabId;
 import com.jlas.jlptpath.entity.JpathStudySession;
 import com.jlas.jlptpath.entity.JpathUserItem;
 import com.jlas.jlptpath.entity.JpathUserLevel;
@@ -35,7 +35,6 @@ import com.jlas.jlptpath.repository.JpathUserLevelRepository;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathCalendarService;
 import com.jlas.jlptpath.service.JpathClock;
-import com.jlas.jlptpath.util.JpathPacingEngine;
 import com.jlas.jlptpath.util.JpathQueueStep;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -121,7 +120,15 @@ public class JpathTodayViewAssembler {
 
     @Transactional(readOnly = true)
     public int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab) {
-        return effectiveTarget(plan, tab, priorityMode(plan.getPathId(), plan.getLevel()));
+        // F148 review: only COMBINED study puts today's kana rows before the words in one session; SPLIT vocabulary
+        // draws on kana already learned, so counting those words gave a target the session could not reach
+        int kanaRemaining = plan.isKanaPhase() && tab.getTab() == JpathTab.VOCAB && combined(plan.getPathId())
+                ? plannedKanaRows(plan, null) : 0;
+        return effectiveTarget(plan, tab, priorityMode(plan.getPathId(), plan.getLevel()), kanaRemaining);
+    }
+
+    private boolean combined(Long pathId) {
+        return pathId != null && paths.findById(pathId).map(p -> p.getStudyMode() == JpathStudyMode.COMBINED).orElse(false);
     }
 
     static Set<JpathTab> requiredTabs(JpathDailyPlan plan) {
@@ -149,10 +156,15 @@ public class JpathTodayViewAssembler {
         }
         JpathUserLevel open = openLevel(path);
         JpathDayRules.DayPlan day = JpathDayRules.dayPlan(content, calendar, plans, path, open, today);
-        int remaining = JpathDayRules.tabRows(day.kind(), day.kanaPhase(), path.isKanaTab(), path.getStudyMode(),
-                        open, path.getDailyMinutes()).stream()
+        List<JpathDailyTab> tabRows = JpathDayRules.tabRows(day.kind(), day.kanaPhase(), path.isKanaTab(),
+                path.getStudyMode(), open, path.getDailyMinutes(), JpathDayRules.kanaRows(path, today));
+        int remaining = tabRows.stream()
                 .filter(t -> t.getTab() == tab).findFirst().map(JpathDailyTab::getNewTarget).orElse(0);
-        return newRefs(userId, open.getLevel(), tab, day.kanaPhase(), open.isPriorityMode(), remaining);
+        int kanaRemaining = day.kanaPhase() && tab == JpathTab.VOCAB
+                ? tabRows.stream().filter(t -> t.getTab() == JpathTab.KANA).findFirst()
+                        .map(JpathDailyTab::getNewTarget).orElse(0)
+                : 0;
+        return newRefs(userId, open.getLevel(), tab, day.kanaPhase(), open.isPriorityMode(), remaining, kanaRemaining);
     }
 
     @Transactional(readOnly = true)
@@ -178,19 +190,21 @@ public class JpathTodayViewAssembler {
         boolean priority = plan.getLevel().equals(level.getLevel()) ? level.isPriorityMode()
                 : priorityMode(plan.getPathId(), plan.getLevel());
         Set<JpathTab> required = requiredTabs(plan);
+        int kanaRemaining = path.getStudyMode() == JpathStudyMode.COMBINED ? plannedKanaRows(plan, rows) : 0;
         Map<JpathTab, JpathTodayTab> tabs = new EnumMap<>(JpathTab.class);
         for (JpathDailyTab t : rows) {
             int due = t.getTab() == JpathTab.SKILL ? 0
                     : (int) userItems.countDue(userId, JpathItemType.valueOf(t.getTab().name()), localNow);
-            tabs.put(t.getTab(), new JpathTodayTab(t.getTab(), effectiveTarget(plan, t, priority), t.getNewDone(),
-                    due, t.getReviewCap(), t.getReviewDone(), t.getCheckPassedAt() != null, t.getDoneAt() != null,
-                    required.contains(t.getTab())));
+            tabs.put(t.getTab(), new JpathTodayTab(t.getTab(), effectiveTarget(plan, t, priority, kanaRemaining),
+                    t.getNewDone(), due, t.getReviewCap(), t.getReviewDone(), t.getCheckPassedAt() != null,
+                    t.getDoneAt() != null, required.contains(t.getTab())));
         }
         boolean study = plan.getDayKind() == JpathDayKind.STUDY;
-        JpathSliderValues targets = new JpathSliderValues(target(tabs, JpathTab.VOCAB), target(tabs, JpathTab.KANJI),
-                target(tabs, JpathTab.GRAMMAR));
-        int minutes = study ? JpathPacingEngine.dayMinutes(targets, plan.isKanaPhase(), path.getStudyMode(),
-                path.getDailyMinutes()) : 0;
+        int minutes = study ? minutesLeft(tabs.values()) : 0;
+        JpathTodayTab skillLeft = tabs.get(JpathTab.SKILL);
+        if (plan.getDayKind() == JpathDayKind.SKILL && skillLeft != null && skillLeft.required() && !skillLeft.done()) {
+            minutes = Math.max(minutes, SKILL_QUIZ_MINUTES);
+        }
         boolean reviewDayHint = study && tabs.values().stream()
                 .anyMatch(t -> t.reviewCap() > 0 && t.reviewDue() > 3 * t.reviewCap());
         List<JpathStudySession> open = openTodaySessions(userId, plan);
@@ -202,9 +216,31 @@ public class JpathTodayViewAssembler {
                         .orElse(null));
     }
 
-    private static int target(Map<JpathTab, JpathTodayTab> tabs, JpathTab tab) {
-        JpathTodayTab t = tabs.get(tab);
-        return t == null ? 0 : t.newTarget();
+    /**
+     * Owner 23/11: the minutes of the path page are the study page's ("~30 phút còn lại" there, "khoảng 24 phút" here):
+     * what is left of today's new items with the session's weights (JpathStudyServiceImpl#minutesLeft: word 0.6,
+     * kanji 1.25, pattern 4.0, kana row 6.0) plus the due reviews the day still takes (0.15 each).
+     */
+    /** A 10-question skill quiz still to pass: about 3 minutes. */
+    static final int SKILL_QUIZ_MINUTES = 3;
+
+    static int minutesLeft(java.util.Collection<JpathTodayTab> tabs) {
+        double total = 0;
+        for (JpathTodayTab t : tabs) {
+            int left = Math.max(0, t.newTarget() - t.newDone());
+            total += left * switch (t.tab()) {
+                case VOCAB -> JpathStudyServiceImpl.MIN_VOCAB;
+                case KANJI -> JpathStudyServiceImpl.MIN_KANJI;
+                case GRAMMAR -> JpathStudyServiceImpl.MIN_GRAMMAR;
+                case KANA -> JpathStudyServiceImpl.MIN_KANA_ROW;
+                case SKILL -> 0.0;
+            };
+            if (t.tab() != JpathTab.SKILL) {
+                int room = t.reviewCap() > 0 ? Math.max(0, t.reviewCap() - t.reviewDone()) : t.reviewDue();
+                total += Math.min(t.reviewDue(), room) * JpathStudyServiceImpl.MIN_REVIEW;
+            }
+        }
+        return (int) Math.ceil(total - 1e-9);
     }
 
     /**
@@ -246,7 +282,9 @@ public class JpathTodayViewAssembler {
                 JpathTodayTab skill = tabs.get(JpathTab.SKILL);
                 done = skill == null ? 0 : skill.newDone();
                 total = skill == null ? 0 : skill.newTarget();
-                complete = skill == null || skill.done() || done >= total;
+                // the skill day ends with its quiz (#25): sessions done is not enough while the tab is not done,
+                // else a failed quiz left the step ticked, 0 minutes and a day that could never finish
+                complete = skill == null || skill.done() || (done >= total && !skill.required());
             } else {
                 JpathTodayTab t = tabs.get(JpathTab.valueOf(key));
                 done = t == null ? 0 : t.newDone();
@@ -281,7 +319,7 @@ public class JpathTodayViewAssembler {
     // ---- shared overloads --------------------------------------------------------------------------------------
 
     /** min(new target, new done + learnable items not started); kana-phase vocabulary counts kana-only words. */
-    private int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab, boolean priority) {
+    private int effectiveTarget(JpathDailyPlan plan, JpathDailyTab tab, boolean priority, int plannedKanaRows) {
         int target = tab.getNewTarget();
         if (target <= 0 || tab.getTab() == JpathTab.SKILL) {
             return 0;
@@ -292,8 +330,8 @@ public class JpathTodayViewAssembler {
         }
         int available = tab.getTab() == JpathTab.KANA
                 ? Math.max(0, JpathTabCountsReader.KANA_ROWS - (int) kanaRows.countCompletedRows(plan.getUserId()))
-                : newCodes(plan.getUserId(), plan.getLevel(), tab.getTab(), plan.isKanaPhase(), priority, remaining)
-                        .size();
+                : newCodes(plan.getUserId(), plan.getLevel(), tab.getTab(), plan.isKanaPhase(), priority, remaining,
+                        plannedKanaRows).size();
         return tab.getNewDone() + Math.min(remaining, available);
     }
 
@@ -306,7 +344,23 @@ public class JpathTodayViewAssembler {
         }
         int remaining = rows.stream().filter(t -> t.getTab() == tab).findFirst()
                 .map(t -> t.getNewTarget() - t.getNewDone()).orElse(0);
-        return newRefs(userId, plan.getLevel(), tab, plan.isKanaPhase(), priority, remaining);
+        int kanaRemaining = plan.isKanaPhase() && tab == JpathTab.VOCAB ? plannedKanaRows(plan, rows) : 0;
+        return newRefs(userId, plan.getLevel(), tab, plan.isKanaPhase(), priority, remaining, kanaRemaining);
+    }
+
+    /** [JLAS-W0108] F148: remaining Kana rows on today's Kana-phase plan so VOCAB counts words unlocked today. */
+    private int plannedKanaRows(JpathDailyPlan plan, List<JpathDailyTab> rows) {
+        if (!plan.isKanaPhase()) {
+            return 0;
+        }
+        Optional<JpathDailyTab> kana = rows != null
+                ? rows.stream().filter(t -> t.getTab() == JpathTab.KANA).findFirst()
+                : dailyTabs.findById(new JpathDailyTabId(plan.getId(), JpathTab.KANA));
+        if (kana.isEmpty() && rows == null) {
+            kana = dailyTabs.findByPlanIdOrderByTab(plan.getId()).stream()
+                    .filter(t -> t.getTab() == JpathTab.KANA).findFirst();
+        }
+        return kana.map(t -> Math.max(0, t.getNewTarget() - t.getNewDone())).orElse(0);
     }
 
     /**
@@ -390,20 +444,26 @@ public class JpathTodayViewAssembler {
     }
 
     private List<JpathItemRef> newRefs(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priority,
-            int remaining) {
+            int remaining, int plannedKanaRows) {
         if (remaining <= 0 || tab == JpathTab.KANA || tab == JpathTab.SKILL) {
             return List.of();
         }
         JpathItemType type = JpathItemType.valueOf(tab.name());
-        return newCodes(userId, level, tab, kanaPhase, priority, remaining).stream()
+        return newCodes(userId, level, tab, kanaPhase, priority, remaining, plannedKanaRows).stream()
                 .map(code -> new JpathItemRef(type, code)).toList();
     }
 
-    /** Next new codes of a V/K/G tab; kana-phase vocabulary uses only kana-only words of learned kana. */
+    /**
+     * [JLAS-W0108] F148: Next new codes of a V/K/G tab; kana-phase vocabulary includes words covered by learned kana
+     * plus today's remaining planned kana rows.
+     */
     private List<String> newCodes(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priority,
-            int limit) {
+            int limit, int plannedKanaRows) {
         if (tab == JpathTab.VOCAB && kanaPhase) {
-            return content.nextKanaOnlyVocab(userId, level, limit, content.learnedKana(userId));
+            Set<String> kana = plannedKanaRows > 0
+                    ? content.learnedOrPlannedKana(userId, plannedKanaRows)
+                    : content.learnedKana(userId);
+            return content.nextKanaOnlyVocab(userId, level, limit, kana);
         }
         return content.nextNewCodes(userId, level, JpathItemType.valueOf(tab.name()), limit, priority, null);
     }

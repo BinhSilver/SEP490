@@ -6,7 +6,7 @@
 .jp-i { width: 1.25em; height: 1.25em; vertical-align: -0.25em; flex: none; fill: currentColor; stroke: none; }
 /* duotone icons: the soft layer follows the icon colour unless a place sets --jp-i-duo (sidenav, tabs: the accent) */
 .jp-sidenav .jp-i, .jp-tab .jp-i, .jp-skill-group__title .jp-i { --jp-i-duo: var(--jp-primary); }
-.jp-page { max-width: 1440px; padding: 20px clamp(16px, 3vw, 40px) 48px; font-size: calc(16px * var(--jp-font-scale)); }
+.jp-page { max-width: min(1440px, 96vw); padding: clamp(14px, 2.2dvh, 20px) clamp(12px, 3vw, 40px) clamp(32px, 6dvh, 48px); font-size: calc(16px * var(--jp-font-scale)); }
 @media (min-width: 1240px) { .jp-page { font-size: calc(17px * var(--jp-font-scale)); } }
 .jp-sr {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
@@ -18,7 +18,7 @@
 
 /* ------------------------------------------------------------------ workspace grid */
 .jp-ws {
-  display: grid; gap: 28px 40px; align-items: start;
+  display: grid; gap: clamp(18px, 2.5vw, 28px) clamp(20px, 3vw, 40px); align-items: start;
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas: "crumbs" "main" "side" "rail";
 }
@@ -28,20 +28,20 @@
 .jp-ws__rail { grid-area: rail; display: grid; gap: 28px; }
 .jp-ws__main:empty, .jp-ws__rail:empty, .jp-ws__side:empty { display: none; }
 @media (min-width: 900px) {
-  .jp-ws { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "crumbs crumbs" "side main" "side rail"; }
+  .jp-ws { grid-template-columns: clamp(190px, 18%, 236px) minmax(0, 1fr); grid-template-areas: "crumbs crumbs" "side main" "side rail"; }
   .jp-ws__side { position: sticky; top: 84px; }
 }
 @media (min-width: 1240px) {
-  .jp-ws { grid-template-columns: 236px minmax(0, 1fr) 320px; grid-template-areas: "crumbs crumbs crumbs" "side main rail"; }
+  .jp-ws { grid-template-columns: clamp(200px, 17%, 248px) minmax(0, 1fr) clamp(260px, 23%, 332px); grid-template-areas: "crumbs crumbs crumbs" "side main rail"; }
   .jp-ws__rail { position: sticky; top: 84px; }
 }
 /* pages without side navigation: main + rail */
 .jp-ws--two { grid-template-areas: "crumbs" "main" "rail"; }
 @media (min-width: 900px) {
-  .jp-ws--two { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "crumbs crumbs" "main rail"; }
+  .jp-ws--two { grid-template-columns: minmax(0, 1fr) clamp(250px, 26%, 332px); grid-template-areas: "crumbs crumbs" "main rail"; }
 }
 /* focused pages (study, check, session): one readable column, wide enough to breathe */
-.jp-ws--focus { max-width: 1040px; margin: 0 auto; grid-template-areas: "crumbs" "main"; }
+.jp-ws--focus { max-width: min(1040px, 94%); width: 100%; margin: 0 auto; grid-template-columns: minmax(0, 1fr); grid-template-areas: "crumbs" "main"; }
 
 .jp-sec { display: grid; gap: 14px; }
 .jp-sec__title { margin: 0; font-size: 1.15em; line-height: 1.3; }
@@ -49,6 +49,16 @@
 .jp-sec + .jp-sec { padding-top: 4px; }
 
 /* ------------------------------------------------------------------ breadcrumbs */
+/* [JLAS-W0108] F86 (owner 12/11): "Quay về {trang cha}" replaces the breadcrumb trail */
+.jp-back {
+  justify-self: start; display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  padding: 7px 14px 7px 10px; border: 1px solid var(--jp-line); border-radius: 999px; background: var(--jp-surface, #fff);
+  color: var(--jp-ink); font-weight: 600; font-size: .9em; line-height: 1.2; text-decoration: none;
+  transition: border-color .15s ease, color .15s ease, background-color .15s ease;
+}
+.jp-back:hover { border-color: var(--jp-primary); color: var(--jp-primary); }
+.jp-back:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
+.jp-back__icon { width: 18px; height: 18px; flex: 0 0 18px; }
 .jp-crumbs__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: .9em; }
 .jp-crumbs__item { display: inline-flex; align-items: center; color: var(--jp-muted); }
 .jp-crumbs__item + .jp-crumbs__item::before { content: ""; width: 6px; height: 6px; margin: 0 10px 0 8px; border-top: 1px solid var(--jp-muted); border-right: 1px solid var(--jp-muted); transform: rotate(45deg); }
@@ -121,7 +131,7 @@
 .jp-btn--quiet:hover { color: var(--jp-primary); }
 .jp-btn--lg { min-height: 52px; padding: 12px 26px; font-size: 1.05em; }
 @media (max-width: 640px) {
-  .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -16px; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  .jp-flow { position: sticky; bottom: var(--jlab-mobile-bottom, 0px); z-index: 5; margin: 0 -3.2vw; padding: 1.5dvh 4vw calc(1.5dvh + env(safe-area-inset-bottom));
     background: var(--jp-surface); border-top: 1px solid var(--jp-line); }
   .jp-flow__tail { flex: 1 1 auto; }
   .jp-flow__next, .jp-flow__finish { flex: 1 1 auto; }
@@ -170,6 +180,7 @@
 .jp-toc__link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
 @media (max-width: 899px) {
   .jp-toc__list { display: flex; overflow-x: auto; border-left: 0; border-bottom: 1px solid var(--jp-line); gap: 0; }
+  .jp-toc__list > li, .jp-toc__list > .jp-toc__link { flex: 0 0 auto; } /* F184: items kept their text width at 320px (they shrank to 35–55px and overlapped) */
   .jp-toc__link { white-space: nowrap; margin: 0 0 -2px; border-left: 0; border-bottom: 1px solid transparent; }
   .jp-toc__link[aria-current="true"] { border-bottom-color: var(--jp-primary); }
 }
@@ -207,10 +218,26 @@
 .jp-sidenav__link[aria-current="page"] { background: var(--jp-primary-soft); color: var(--jp-primary); font-weight: 600; }
 .jp-sidenav__link.is-off { color: var(--jp-muted); cursor: default; }
 .jp-sidenav__link:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
+/* F174: the fold is open and invisible on a wide screen; on a phone one button shows the current page */
+.jp-sidenav__fold { display: contents; }
+.jp-sidenav__toggle { display: none; }
 @media (max-width: 899px) {
   .jp-ws__side .jp-sidenav { display: flex; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
   .jp-ws__side .jp-sidenav__title { display: none; }
   .jp-ws__side .jp-sidenav__link { flex: 0 0 auto; white-space: nowrap; border: 1px solid var(--jp-line); border-radius: 8px; }
+  .jp-ws__side .jp-sidenav:has(.jp-sidenav__fold), .jp-sidenav:has(.jp-sidenav__fold) { display: block; overflow: visible; }
+  .jp-sidenav__fold { display: block; border: 1px solid var(--jp-line); border-radius: var(--jp-radius-interactive, 10px); background: var(--jp-surface, #fff); }
+  .jp-sidenav__toggle {
+    display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; cursor: pointer;
+    font-weight: 600; color: var(--jp-primary); list-style: none;
+  }
+  .jp-sidenav__toggle::-webkit-details-marker { display: none; }
+  .jp-sidenav__toggle-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .jp-sidenav__chev { transition: transform .2s ease; }
+  .jp-sidenav__fold[open] .jp-sidenav__chev { transform: rotate(180deg); }
+  .jp-sidenav__fold[open] .jp-sidenav__toggle { border-bottom: 1px solid var(--jp-line); }
+  .jp-sidenav__fold .jp-sidenav__link { border-radius: 0; padding: 8px 14px; white-space: normal; border: 0; }
+  .jp-sidenav__toggle:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: -3px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -219,7 +246,7 @@
 
 /* pages with side navigation but no rail */
 @media (min-width: 1240px) {
-  .jp-ws--norail { grid-template-columns: 236px minmax(0, 1fr); grid-template-areas: "crumbs crumbs" "side main"; }
+  .jp-ws--norail { grid-template-columns: clamp(200px, 18%, 248px) minmax(0, 1fr); grid-template-areas: "crumbs crumbs" "side main"; }
 }
 
 /* horizontal scrollers (phone road, chips, tabs): a thin neutral bar instead of the app's thick one */
@@ -264,3 +291,17 @@
 .jp-stepper .jp-step--done .jp-step__mark {
   color: var(--jp-ok) !important;
 }
+
+/* owner 23/11: "Luyện thêm" folded into the side menu; a triangle unfolds the tools */
+.jp-sidenav__extra:empty { display: none; }
+.jp-sidenav__extra { display: block; margin-top: 2px; }
+.jp-sidenav__more > summary { list-style: none; cursor: pointer; }
+.jp-sidenav__more > summary::-webkit-details-marker { display: none; }
+.jp-sidenav__more-toggle { display: flex; align-items: center; gap: 10px; }
+.jp-sidenav__tri { width: 0; height: 0; margin: 0 5px 0 4px; border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  border-left: 7px solid var(--color-outline); transition: transform .15s ease; flex: none; }
+.jp-sidenav__more[open] .jp-sidenav__tri { transform: rotate(90deg); }
+.jp-sidenav__more-list { display: grid; gap: 2px; padding: 2px 0 4px 26px; }
+.jp-sidenav__link--sub { font-size: .92em; }
+.jp-sidenav__link--sub.is-off { color: var(--color-outline); cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .jp-sidenav__tri { transition: none; } }

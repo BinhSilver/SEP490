@@ -1,0 +1,559 @@
+/*
+ * J-LAS dropdown (js/components/select.js). One look for every <select data-jl-select>.
+ * Colours come from tokens.css (light) and dark-palette.css (dark); change them there, not here.
+ * The list is attached to <body>, so its colours are set on :root rather than on the box.
+ */
+
+:root {
+  --jls-field: var(--color-surface-lowest, #ffffff);
+  --jls-panel: var(--color-surface-lowest, #ffffff);
+  --jls-line: var(--color-outline-variant, #cbc4d2);
+  --jls-line-strong: var(--color-outline, #7a7582);
+  --jls-ink: var(--color-on-surface, #161d1f);
+  --jls-muted: var(--color-on-surface-variant, #494551);
+  --jls-icon: var(--color-outline, #7a7582);
+  --jls-accent: var(--color-primary, #4f378a);
+  --jls-tag-bg: var(--color-primary-fixed, #e9ddff);
+  --jls-hover: color-mix(in srgb, var(--color-primary-fixed, #e9ddff) 48%, transparent);
+  --jls-selected: color-mix(in srgb, var(--color-primary-fixed, #e9ddff) 72%, transparent);
+  --jls-ring: rgb(79 55 138 / 18%);
+  --jls-danger: var(--color-error, #ba1a1a);
+  --jls-danger-ring: rgb(186 26 26 / 14%);
+  --jls-shadow: 0 14px 36px rgb(35 24 41 / 14%), 0 2px 6px rgb(35 24 41 / 8%);
+  --jls-scrim: rgb(35 24 41 / 42%);
+}
+
+html[data-theme="dark"] {
+  --jls-field: var(--dark-input, #382840);
+  --jls-panel: var(--dark-raised, #382840);
+  --jls-line: var(--dark-input-line, #8a6f96);
+  --jls-line-strong: var(--dark-faint, #b9a5c2);
+  --jls-ink: var(--dark-ink, #f5eef8);
+  --jls-muted: var(--dark-faint, #b9a5c2);
+  --jls-icon: var(--dark-faint, #b9a5c2);
+  --jls-accent: var(--dark-accent, #dcaee8);
+  --jls-tag-bg: var(--dark-soft, #453250);
+  --jls-hover: var(--dark-soft, #453250);
+  --jls-selected: color-mix(in srgb, var(--dark-selection, #6b4a75) 70%, transparent);
+  --jls-ring: var(--dark-focus-ring, rgb(220 174 232 / 34%));
+  --jls-danger: var(--dark-danger, #ffb4ab);
+  --jls-danger-ring: rgb(255 180 171 / 22%);
+  --jls-shadow: 0 18px 44px var(--dark-shadow, rgb(0 0 0 / 42%));
+  --jls-scrim: rgb(10 5 14 / 58%);
+}
+
+/* ---------- The box ---------- */
+
+.jl-select {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.jl-select[hidden] {
+  display: none !important;
+}
+
+.jl-select--filter {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* The real <select> stays for forms and page scripts, out of sight. Global select rules use !important. */
+.jl-select > select.jl-select__native {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.jl-select__trigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 12px 0 16px;
+  border: 1px solid var(--jls-line);
+  border-radius: 8px;
+  background: var(--jls-field);
+  color: var(--jls-ink);
+  font: inherit;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.jl-select__trigger:hover:not(:disabled) {
+  border-color: var(--jls-line-strong);
+}
+
+.jl-select__trigger:focus {
+  outline: none;
+}
+
+.jl-select__trigger:focus-visible:not(:where(body.jlas-ui-owned *)),
+.jl-select.is-open .jl-select__trigger:not(:where(body.jlas-ui-owned *)) {
+  border-color: var(--jls-accent);
+  box-shadow: 0 0 0 3px var(--jls-ring);
+}
+
+.jl-select__trigger[aria-invalid="true"],
+.has-error .jl-select__trigger {
+  border-color: var(--jls-danger);
+}
+
+.jl-select__trigger[aria-invalid="true"]:focus-visible,
+.jl-select.is-open .jl-select__trigger[aria-invalid="true"] {
+  box-shadow: 0 0 0 3px var(--jls-danger-ring);
+}
+
+.jl-select__trigger:disabled {
+  cursor: not-allowed;
+  border-style: dashed;
+  color: var(--jls-muted);
+  background: transparent;
+}
+
+.jl-select__icon {
+  flex: none;
+  width: 18px;
+  color: var(--jls-icon);
+  font-size: 16px;
+  text-align: center;
+  transition: color 160ms ease;
+}
+
+.jl-select.is-open .jl-select__icon {
+  color: var(--jls-accent);
+}
+
+.jl-select__value {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.jl-select__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jl-select.is-placeholder .jl-select__text {
+  color: var(--jls-muted);
+}
+
+.jl-select__chevron {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  color: var(--jls-icon);
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), color 160ms ease;
+}
+
+.jl-select__chevron svg {
+  width: 20px;
+  height: 20px;
+}
+
+.jl-select.is-open .jl-select__chevron {
+  color: var(--jls-accent);
+  transform: rotate(180deg);
+}
+
+/* Filter bars: a compact pill that is as wide as its text. */
+.jl-select--filter .jl-select__trigger {
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 8px 0 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.jl-select--filter .jl-select__chevron {
+  width: 20px;
+  height: 20px;
+}
+
+.jl-select--filter .jl-select__chevron svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* A filter moved off its default reads as "on" at a glance. */
+.jl-select--filter.is-set .jl-select__trigger {
+  border-color: var(--jls-accent);
+  color: var(--jls-accent);
+  font-weight: 600;
+}
+
+.jl-select--filter.is-set .jl-select__chevron {
+  color: var(--jls-accent);
+}
+
+/* Overlay: an invisible box over an icon button the page draws (the icon shows through). */
+.jl-select--overlay {
+  position: absolute;
+  inset: 0;
+  width: auto;
+}
+
+.jl-select--overlay .jl-select__trigger {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+}
+
+/* ---------- Chip shown before the text (e.g. N5) ---------- */
+
+.jl-select-tag {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  min-width: 32px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 6px;
+  background: var(--jls-tag-bg);
+  color: var(--jls-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.jl-select--filter .jl-select-tag {
+  min-width: 28px;
+  height: 20px;
+  font-size: 11px;
+}
+
+/* ---------- The list ---------- */
+
+.jl-select-panel {
+  position: fixed;
+  z-index: 10000;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid var(--jls-line);
+  border-radius: 12px;
+  background: var(--jls-panel);
+  color: var(--jls-ink);
+  box-shadow: var(--jls-shadow);
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 15px;
+  line-height: 1.35;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top center;
+  transition: opacity 140ms ease, transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.jl-select-panel[data-side="top"] {
+  transform: translateY(6px) scale(0.98);
+  transform-origin: bottom center;
+}
+
+.jl-select-panel.is-open {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.jl-select-panel[hidden],
+.jl-select-panel [hidden],
+.jl-select-backdrop[hidden] {
+  display: none !important;
+}
+
+.jl-select-list {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--jls-line) transparent;
+}
+
+.jl-select-list:focus {
+  outline: none;
+}
+
+.jl-select-group__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jl-select-group + .jl-select-group,
+.jl-select-option + .jl-select-group {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--jls-line);
+}
+
+.jl-select-group__label {
+  padding: 8px 12px 4px;
+  color: var(--jls-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.jl-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 8px 8px 12px;
+  border-radius: 8px;
+  color: var(--jls-ink);
+  cursor: pointer;
+  scroll-margin: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jl-select-option.is-active {
+  background: var(--jls-hover);
+}
+
+.jl-select-option[aria-selected="true"] {
+  background: var(--jls-selected);
+  color: var(--jls-accent);
+  font-weight: 600;
+}
+
+.jl-select-option[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.jl-select-option__text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.jl-select-option__hint {
+  color: var(--jls-muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.jl-select-option__check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--jls-accent);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 140ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.jl-select-option__check svg {
+  width: 18px;
+  height: 18px;
+}
+
+.jl-select-option[aria-selected="true"] .jl-select-option__check {
+  opacity: 1;
+  transform: none;
+}
+
+/* Search box inside the list. 16px text stops phones zooming in. */
+.jl-select-search {
+  position: relative;
+  flex: none;
+  margin: 0 0 6px;
+}
+
+.jl-select-search > svg {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--jls-icon);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.jl-select-search__input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding: 0 12px 0 38px;
+  border: 1px solid var(--jls-line);
+  border-radius: 8px;
+  background: var(--jls-field);
+  color: var(--jls-ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.jl-select-search__input::placeholder {
+  color: var(--jls-muted);
+  opacity: 1;
+}
+
+.jl-select-search__input:focus {
+  outline: none;
+  border-color: var(--jls-accent);
+  box-shadow: 0 0 0 3px var(--jls-ring);
+}
+
+.jl-select-empty {
+  margin: 0;
+  padding: 14px 12px;
+  color: var(--jls-muted);
+  font-size: 14px;
+}
+
+/* ---------- Phones: the list slides up from the bottom ---------- */
+
+.jl-select-sheet-head {
+  display: none;
+}
+
+.jl-select-panel.is-sheet {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  max-height: min(78dvh, 560px);
+  padding: 6px 8px calc(10px + env(safe-area-inset-bottom));
+  border-width: 1px 0 0;
+  border-radius: 18px 18px 0 0;
+  font-size: 16px;
+  opacity: 1;
+  transform: translateY(100%);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.jl-select-panel.is-sheet.is-open {
+  transform: none;
+}
+
+.jl-select-panel.is-sheet .jl-select-sheet-head {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 4px 8px 12px;
+}
+
+/* Grab handle, so the sheet reads as something that came up from below. */
+.jl-select-panel.is-sheet .jl-select-sheet-head::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--jls-line);
+  transform: translateX(-50%);
+}
+
+.jl-select-sheet-head__title {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jl-select-sheet-head__close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--jls-muted);
+  cursor: pointer;
+}
+
+.jl-select-sheet-head__close:hover,
+.jl-select-sheet-head__close:focus-visible {
+  outline: none;
+  background: var(--jls-hover);
+  color: var(--jls-ink);
+}
+
+.jl-select-sheet-head__close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.jl-select-panel.is-sheet .jl-select-option {
+  min-height: 52px;
+}
+
+.jl-select-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--jls-scrim);
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.jl-select-backdrop.is-open {
+  opacity: 1;
+}
+
+html.jl-select-locked,
+html.jl-select-locked body {
+  overflow: hidden !important;
+}

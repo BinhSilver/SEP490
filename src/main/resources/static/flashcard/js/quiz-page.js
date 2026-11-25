@@ -33,6 +33,8 @@ const state = {
   aiBusy: false,
   search: '',
   questionCount: 'ALL',
+  // Mode + usable cards the count was last set for; when they change the count goes back to "all of them".
+  questionCountKey: '',
   quickPairMode: 'ALL',
   randomSelection: null
 };
@@ -48,7 +50,6 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
   const redirectTarget = `${location.pathname}${location.search}`;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin(redirectTarget)) return;
-  window.matchMedia('(max-width: 640px)').addEventListener('change', placeQuickSetupHeading);
 
   const prefs = getPrefs();
   Object.assign(state.filters, {
@@ -214,16 +215,6 @@ function render() {
   return renderSummary(root);
 }
 
-function placeQuickSetupHeading() {
-  const setup = document.querySelector('.quiz-quick-setup');
-  if (!setup) return;
-  const heading = setup.querySelector('.sr-setup__heading');
-  const form = setup.querySelector('#quiz-quick-form');
-  if (!heading || !form) return;
-  if (window.matchMedia('(max-width: 640px)').matches) form.prepend(heading);
-  else setup.insertBefore(heading, form);
-}
-
 function bindQuickPairDropdown(root) {
   quickPairDropdownController?.abort();
   quickPairDropdownController = new AbortController();
@@ -299,15 +290,25 @@ function renderQuickSetup(root) {
   const availableCount = pairCards.length;
   const randomPool = pairCards.length;
   const minimumRandomCount = randomPool >= MIN_QUIZ_CARDS ? MIN_QUIZ_CARDS : 1;
+  // Every mode but "Chọn cặp từ tùy ý" takes a typed count; the ticked cards are the count there.
+  const countEditable = !isCustomPair;
+  const countKey = state.quickPairMode + ':' + pairCards.map(card => card.id).join(',');
+  if (state.questionCountKey !== countKey) {
+    state.questionCountKey = countKey;
+    if (!isRandom) state.questionCount = randomPool;
+  }
   const requestedRandomCount = Number(state.questionCount);
   const randomQuestionCount = Math.min(
     randomPool,
     Math.max(minimumRandomCount, Number.isInteger(requestedRandomCount) ? requestedRandomCount : randomPool)
   );
-  if (isRandom) state.questionCount = randomQuestionCount;
+  if (countEditable) state.questionCount = randomQuestionCount;
+  // Fewer questions than usable cards: a random subset, shown in the table so the learner sees what comes up.
+  const partial = countEditable && randomQuestionCount < randomPool;
   const pool = quizPool();
   // Every field is shown; the ones no card in use can serve are disabled with the reason as a tooltip.
-  const modeButtons = target => QUIZ_FIELDS.map(value => {
+  /* Hỏi bằng / Đáp bằng: a dropdown each; an option that cannot be played is disabled and says why underneath. */
+  const modeSelect = target => `<select id="quick-${target}-field" data-jl-select data-quick-field="${target}">${QUIZ_FIELDS.map(value => {
     const selected = target === 'question' ? state.questionField : state.answerField;
     let reason = '';
     if (!fields.includes(value)) reason = 'Không có thẻ nào có ' + QUIZ_FIELD_LABELS[value];
@@ -315,8 +316,8 @@ function renderQuickSetup(root) {
     else if (target === 'answer' && pool.length && !quizPairCards(state.questionField, value).length) {
       reason = 'Không có thẻ nào có đủ ' + QUIZ_FIELD_LABELS[state.questionField] + ' và ' + QUIZ_FIELD_LABELS[value];
     }
-    return `<button type="button" class="${selected === value ? 'is-active' : ''}" data-quick-${target}="${value}" aria-pressed="${selected === value}" ${reason ? `disabled title="${esc(reason)}"` : ''}>${QUIZ_FIELD_LABELS[value]}</button>`;
-  }).join('');
+    return `<option value="${value}"${selected === value ? ' selected' : ''}${reason ? ` disabled data-hint="${esc(reason)}"` : ''}>${QUIZ_FIELD_LABELS[value]}</option>`;
+  }).join('')}</select>`;
   const missingLabel = card => [state.questionField, state.answerField]
     .filter(field => field && !hasQuizField(card, field)).map(field => QUIZ_FIELD_LABELS[field]).join(', ');
   const cardPickerMarkup = sessionCards => window.FlashcardSelection.table({
@@ -327,21 +328,21 @@ function renderQuickSetup(root) {
     question: card => quizFieldValue(card, state.questionField), answer: card => quizFieldValue(card, state.answerField),
     reason: card => 'Thiếu ' + missingLabel(card)
   });
-  const customCardPicker = cardPickerMarkup(isRandom ? quizRandomCards(pairCards, randomQuestionCount) : pairCards);
-  const questionCountControl = isRandom
-    ? `<span class="sr-setup__stepper" role="group" aria-label="Số câu ngẫu nhiên">
+  const customCardPicker = cardPickerMarkup(isRandom || partial ? quizRandomCards(pairCards, randomQuestionCount) : pairCards);
+  const questionCountControl = countEditable
+    ? `<span class="sr-setup__stepper" role="group" aria-label="Số câu">
         <button type="button" data-random-count-change="-1" aria-label="Giảm số câu" title="Giảm số câu" ${randomQuestionCount <= minimumRandomCount ? 'disabled' : ''}><i class="fa-solid fa-minus" aria-hidden="true"></i></button>
-        <input id="quiz-question-count" class="sr-setup__stepper-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${randomQuestionCount}" aria-label="Số câu ngẫu nhiên" onbeforeinput="if (event.data && /[^0-9]/.test(event.data)) event.preventDefault()" oninput="this.value=this.value.replace(/[^0-9]/g, '')">
+        <input id="quiz-question-count" class="sr-setup__stepper-input" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${randomQuestionCount}" aria-label="Số câu" onbeforeinput="if (event.data && /[^0-9]/.test(event.data)) event.preventDefault()" oninput="this.value=this.value.replace(/[^0-9]/g, '')">
         <button type="button" data-random-count-change="1" aria-label="Tăng số câu" title="Tăng số câu" ${randomQuestionCount >= randomPool ? 'disabled' : ''}><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
       </span>`
     : `<output class="sr-setup__display" aria-live="polite">${availableCount} câu</output>`;
 
   root.innerHTML = `
     <section class="quiz-quick-setup sr-setup" aria-labelledby="quiz-setup-title">
-      <header class="sr-setup__heading">
-        <h1 id="quiz-setup-title" class="sr-set-title">${esc(cleanSetName(state.activeSet.name))}</h1>
-      </header>
       <form id="quiz-quick-form" class="sr-setup__card">
+        <header class="sr-setup__heading">
+          <h1 id="quiz-setup-title" class="sr-set-title">${esc(cleanSetName(state.activeSet.name))}</h1>
+        </header>
         <div class="sr-setup__grid">
           <div class="sr-setup__field"><span id="quiz-pair-label">Thẻ</span>
             <div class="quiz-pair-select">
@@ -356,8 +357,8 @@ function renderQuickSetup(root) {
           <label class="sr-setup__field">Số câu
             <span class="sr-setup__control">${questionCountControl}</span>
           </label>
-          <div class="sr-setup__field"><span>Hỏi bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${QUIZ_FIELDS.length}" role="group" aria-label="Nội dung câu hỏi">${modeButtons('question')}</div></div>
-          <div class="sr-setup__field"><span>Đáp bằng</span><div class="sr-setup__segments quiz-mode-segments" style="--mode-count:${QUIZ_FIELDS.length}" role="group" aria-label="Nội dung đáp án">${modeButtons('answer')}</div></div>
+          <div class="sr-setup__field"><label for="quick-question-field">Hỏi bằng</label><div class="sr-setup__control">${modeSelect('question')}</div></div>
+          <div class="sr-setup__field"><label for="quick-answer-field">Đáp bằng</label><div class="sr-setup__control">${modeSelect('answer')}</div></div>
         </div>
         ${customCardPicker}
         <button type="submit" class="sr-button sr-primary" id="start-quick-quiz" ${availableCount < MIN_QUIZ_CARDS || !state.answerField ? 'disabled' : ''}>Bắt đầu kiểm tra</button>
@@ -365,12 +366,12 @@ function renderQuickSetup(root) {
     </section>
   `;
 
-  placeQuickSetupHeading();
   bindQuickPairDropdown(root);
   const questionCountInput = root.querySelector('#quiz-question-count');
   const refreshRandomPreview = count => {
     if (Number.isInteger(count) && count >= minimumRandomCount && count <= randomPool) {
-      root.querySelector('.fc-selection').outerHTML = cardPickerMarkup(quizRandomCards(pairCards, count));
+      const cards = isRandom || count < randomPool ? quizRandomCards(pairCards, count) : pairCards;
+      root.querySelector('.fc-selection').outerHTML = cardPickerMarkup(cards);
     }
   };
   if (questionCountInput) {
@@ -416,16 +417,17 @@ function renderQuickSetup(root) {
     state.randomSelection = null;
     renderQuickSetup(root);
   };
-  root.querySelectorAll('[data-quick-question]').forEach(button => button.onclick = () => {
-    if (button.disabled) return;
-    state.questionField = button.dataset.quickQuestion;
-    ensureAnswerField();
+  root.querySelectorAll('[data-quick-field]').forEach(select => select.onchange = () => {
+    if (select.dataset.quickField === 'question') {
+      state.questionField = select.value;
+      ensureAnswerField();
+    } else {
+      state.answerField = select.value;
+    }
     renderQuickSetup(root);
-  });
-  root.querySelectorAll('[data-quick-answer]').forEach(button => button.onclick = () => {
-    if (button.disabled) return;
-    state.answerField = button.dataset.quickAnswer;
-    renderQuickSetup(root);
+    // The form is redrawn; keep keyboard focus on the dropdown that was just used.
+    const again = root.querySelector('#quick-' + select.dataset.quickField + '-field');
+    if (again) again.focus({ preventScroll: true });
   });
   root.querySelector('#quiz-quick-form').onsubmit = event => { event.preventDefault(); startQuiz(false); };
 }
@@ -611,6 +613,12 @@ function renderPrepHero(root) {
   `;
 }
 
+/** The server sends raw ratios (30.303030…); show at most two decimals and drop trailing zeros. */
+function twoDecimals(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? String(Number(number.toFixed(2))) : '0';
+}
+
 function renderSummaryHero(root) {
   const s = state.stats || { percentage: 0, correct: 0, total: 0, wrong: 0 };
   const tone = s.percentage >= 80 ? 'is-excellent' : s.percentage >= 50 ? 'is-progress' : 'is-needs-review';
@@ -623,7 +631,7 @@ function renderSummaryHero(root) {
           <p>${s.wrong ? 'Hãy ôn lại một số từ còn nhầm để củng cố khả năng ghi nhớ.' : 'Bạn đã hoàn thành toàn bộ câu hỏi trong phiên kiểm tra này.'}</p>
         </div>
         <div class="quiz-score-card">
-          <div class="quiz-score-ring" style="--score:${Math.max(0, Math.min(100, Number(s.percentage) || 0))}"><strong>${s.percentage}%</strong></div>
+          <div class="quiz-score-ring" style="--score:${Math.max(0, Math.min(100, Number(s.percentage) || 0))}"><strong>${twoDecimals(s.percentage)}%</strong></div>
           <div class="quiz-score-copy"><strong>Độ chính xác</strong><span>${s.correct}/${s.total} câu đúng</span></div>
         </div>
       </div>
@@ -664,8 +672,8 @@ function renderSetup(root) {
         </div>
         <div class="quiz-start-bar__actions">
           <div class="quiz-mode-picker quiz-field-picker" role="group" aria-label="Cấu hình câu hỏi">
-            <label>Hỏi bằng<select id="setup-question-field" class="select">${quizFieldOptions(state.questionField, state.answerField)}</select></label>
-            <label>Đáp án bằng<select id="setup-answer-field" class="select">${quizFieldOptions(state.answerField, state.questionField)}</select></label>
+            <label>Hỏi bằng<select id="setup-question-field" class="select" data-jl-select>${quizFieldOptions(state.questionField, state.answerField)}</select></label>
+            <label>Đáp án bằng<select id="setup-answer-field" class="select" data-jl-select>${quizFieldOptions(state.answerField, state.questionField)}</select></label>
           </div>
           <button class="btn btn--primary" id="start-quiz" ${count < 4 || !fieldsReady ? 'disabled' : ''}>
             ${count < 4 ? 'Cần ít nhất 4 thẻ' : !fieldsReady ? 'Chọn nội dung câu hỏi' : `Bắt đầu (${count} câu)`}
@@ -752,13 +760,16 @@ async function startQuiz(wrongOnly) {
         showToast(`Cần ít nhất ${MIN_QUIZ_CARDS} thẻ có đủ ${QUIZ_FIELD_LABELS[state.questionField]} và ${QUIZ_FIELD_LABELS[state.answerField]}`, 'err');
         return;
       }
-      if (state.quickPairMode === 'RANDOM') {
+      if (state.quickPairMode !== 'CUSTOM') {
         const requestedCount = Number(state.questionCount);
         if (!Number.isInteger(requestedCount) || requestedCount < MIN_QUIZ_CARDS || requestedCount > ids.length) {
           showToast(`Nhập số câu từ ${MIN_QUIZ_CARDS} đến ${ids.length}`, 'err');
           return;
         }
-        ids = quizRandomCards(quizPairCards(), requestedCount).map(card => card.id);
+        // The same subset the table previews.
+        if (state.quickPairMode === 'RANDOM' || requestedCount < ids.length) {
+          ids = quizRandomCards(quizPairCards(), requestedCount).map(card => card.id);
+        }
       }
     }
     const body = {
@@ -903,7 +914,8 @@ async function submitAnswer(chosenId) {
         opt.style.setProperty('color', color, 'important');
         opt.style.setProperty('background', background, 'important');
         opt.style.setProperty('border-color', color, 'important');
-        opt.style.setProperty('box-shadow', `0 0 0 3px ${resultIsCorrect ? 'var(--quiz-correct-ring, rgba(0, 105, 71, .18))' : 'var(--quiz-wrong-ring, rgba(186, 26, 26, .16))'}`, 'important');
+        // One coloured border only: a 3px ring here spilled past the option and its container.
+        opt.style.setProperty('box-shadow', 'none', 'important');
         const label = opt.querySelector('.opt-label');
         if (label) {
           label.style.setProperty('color', resultIsCorrect ? 'var(--quiz-on-correct, #fff)' : 'var(--quiz-on-wrong, #fff)', 'important');
@@ -1004,7 +1016,7 @@ function renderSummary(root) {
         </article>
         <article class="quiz-summary-stat">
           <div><span>Trung bình/câu</span><i class="fa-solid fa-gauge-high"></i></div>
-          <strong>${s.avgSecondsPerQuestion || 0}s</strong><small>Tốc độ làm bài</small>
+          <strong>${twoDecimals(s.avgSecondsPerQuestion)}s</strong><small>Tốc độ làm bài</small>
         </article>
       </section>
 
