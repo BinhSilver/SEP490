@@ -142,9 +142,14 @@
       + '</section>';
   }
 
-  function infoHtml(text) {
-    return '<p class="jp-alert" role="status">' + esc(text) + '</p>'
-      + '<p><a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></p>';
+  function infoHtml(text, title) {
+    // owner 25/11: a plain line of text was not a page; the same card as the other "nothing here yet" screens
+    return '<section class="cp-state-card" role="status">'
+      + '<img class="cp-state-card__pic" src="/images/mascots/fox/kitsu-thinking-30-128.webp" alt="" width="112" height="112" loading="lazy">'
+      + '<h2 class="cp-state-card__title">' + esc(title || 'Kiểm tra tuần chưa mở') + '</h2>'
+      + '<p class="cp-state-card__text">' + esc(text) + '</p>'
+      + '<a class="cp-btn-primary cp-state-card__btn" href="/learning/comm/path">Về lộ trình giao tiếp</a>'
+      + '</section>';
   }
 
   function mount(el) {
@@ -251,7 +256,7 @@
             el.innerHTML = '<p>Hôm nay có câu nói cần ôn lại.</p><button type="button" class="jp-btn" data-weekly-speech-start>Bắt đầu phần Nói</button>';
             return;
           }
-          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.') + scheduleNoteHtml();
+          el.innerHTML = infoHtml(REVIEW ? 'Hôm nay chưa có mục cần ôn. Quay lại sau khi học xong tình huống.' : 'Tuần này bạn chưa học tình huống nào nên chưa có bài kiểm tra.', REVIEW ? 'Chưa có mục cần ôn' : 'Chưa có bài kiểm tra tuần') + scheduleNoteHtml();
           return;
         }
         var qs = state.data.questions;
@@ -268,7 +273,7 @@
         }
         show();
       }, function (e) {
-        el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.');
+        el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.', 'Chưa tải được bài');
       });
     }
 

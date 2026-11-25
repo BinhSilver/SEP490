@@ -2399,3 +2399,12 @@ html[data-theme="dark"] .cp-flashcard { background: var(--color-surface-lowest) 
 /* [JLAS-W0108] walkthrough 25/11: the comm day page ends with one back link; it sits after the list instead of
    floating over the last situation row */
 .jp-dayd__actions.cp-dayd__back { position: static; margin-top: 16px; padding: 12px 0 0; background: none; backdrop-filter: none; }
+
+/* owner 25/11: "nothing to do here yet" card (weekly check not open, nothing studied) */
+.cp-state-card { max-width: 480px; margin: 8vh auto 0; padding: 32px 24px; border-radius: 16px; background: var(--jp-surface, #fff);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .06); text-align: center; }
+.cp-state-card__pic { display: block; margin: 0 auto 12px; }
+.cp-state-card__title { margin: 0 0 8px; font-size: 1.25rem; font-weight: 600; }
+.cp-state-card__text { margin: 0 0 20px; color: var(--jp-muted, #555); line-height: 1.5; }
+.cp-state-card__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; text-decoration: none; }
+@media (max-width: 640px) { .cp-state-card { margin-top: 24px; padding: 24px 16px; } }
