@@ -28,6 +28,10 @@ public enum GameType {
         return this == NEKO_CATCH || this == MEMORY_MATCH || this == AIR_DEFENSE;
     }
 
+    public boolean adminOnly() {
+        return this == SPHINX_RIDDLE || this == PICTURE_REBUS || this == DRAW_GUESS;
+    }
+
     public boolean supportsSolo() {
         return this != DRAW_GUESS;
     }

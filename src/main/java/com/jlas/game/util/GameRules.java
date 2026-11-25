@@ -1,5 +1,6 @@
 package com.jlas.game.util;
 
+import com.jlas.auth.security.CurrentUser;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.game.dto.GameDtos.CatalogItem;
@@ -45,6 +46,20 @@ public final class GameRules {
     private static final List<DeckField> ALL_FIELDS = Arrays.asList(DeckField.values());
 
     private GameRules() { }
+
+    public static List<CatalogItem> visibleCatalog() {
+        return catalog().stream().filter(item -> canAccess(item.type())).toList();
+    }
+
+    public static boolean canAccess(GameType type) {
+        return !type.adminOnly() || CurrentUser.hasRole("ROLE_ADMIN");
+    }
+
+    public static void requireAccess(GameType type) {
+        if (!canAccess(type)) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Trò chơi này chỉ dành cho quản trị viên");
+        }
+    }
 
     public static List<CatalogItem> catalog() {
         return List.of(

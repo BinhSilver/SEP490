@@ -8,6 +8,7 @@ import com.jlas.game.runtime.GameRoom;
 import com.jlas.game.runtime.GameSession;
 import com.jlas.game.runtime.GameSessionRegistry;
 import com.jlas.game.runtime.RoomRegistry;
+import com.jlas.game.util.GameRules;
 import io.livekit.server.AccessToken;
 import io.livekit.server.CanPublish;
 import io.livekit.server.CanPublishData;
@@ -160,6 +161,7 @@ public class GameVoiceService {
 
     private GameRoom requireMember(long userId, String roomId, String sessionId) {
         GameRoom room = rooms.require(roomId);
+        GameRules.requireAccess(room.getGameType());
         boolean allowed = room.withLock(() -> !room.isClosed() && room.playersByUserId().containsKey(userId));
         if (!allowed) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không ở trong phòng này");

@@ -31,7 +31,7 @@ public class GamePageController {
 
     @GetMapping
     public String hub(Model model) {
-        model.addAttribute("games", GameRules.catalog());
+        model.addAttribute("games", GameRules.visibleCatalog());
         model.addAttribute("pageTitle", "Trò chơi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "arena/games";

@@ -141,23 +141,27 @@ public class GameServiceImpl implements GameService {
         List<FieldView> fields = Arrays.stream(DeckField.values())
                 .map(field -> new FieldView(field, field.label(), field.japanese()))
                 .toList();
-        return new CatalogView(GameRules.catalog(), fields);
+        return new CatalogView(GameRules.visibleCatalog(), fields);
     }
 
     @Override
     public LobbyView lobby(long userId) {
         int activeMatches = (int) sessions.all().stream()
                 .filter(session -> session.isVersus() && !session.getStatus().isTerminal())
+                .filter(session -> GameRules.canAccess(session.getGameType()))
                 .count();
-        String myRoomId = rooms.roomOf(userId).map(GameRoom::getRoomId).orElse(null);
+        String myRoomId = rooms.roomOf(userId).filter(room -> GameRules.canAccess(room.getGameType()))
+                .map(GameRoom::getRoomId).orElse(null);
         Map<GameType, Integer> searching = new EnumMap<>(GameType.class);
         for (GameType type : GameType.values()) {
-            searching.put(type, 0);
+            if (GameRules.canAccess(type)) {
+                searching.put(type, 0);
+            }
         }
         synchronized (queueLock) {
             for (QuickTicket ticket : tickets.values()) {
                 if (ticket.userId() != userId) {
-                    searching.merge(ticket.gameType(), 1, Integer::sum);
+                    searching.computeIfPresent(ticket.gameType(), (type, count) -> count + 1);
                 }
             }
         }
@@ -168,8 +172,9 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public RoomView createRoom(long userId, CreateRoomRequest request) {
-        rateLimiter.check(userId, "room-join", properties.arena().rateLimit().joinPerMinute());
         GameType type = request.gameType();
+        GameRules.requireAccess(type);
+        rateLimiter.check(userId, "room-join", properties.arena().rateLimit().joinPerMinute());
         GameSettings settings = validatedSettings(type, PlayMode.VERSUS, request.settings(), userId);
         cancelQuickMatch(userId);
         leaveCurrentRoom(userId, null);
@@ -196,7 +201,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView join(long userId, String roomId) {
         rateLimiter.check(userId, "room-join", properties.arena().rateLimit().joinPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         boolean alreadyMember = room.withLock(() -> room.playersByUserId().containsKey(userId));
         if (alreadyMember) {
             return room(userId, roomId);
@@ -245,7 +250,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public RoomView room(long userId, String roomId) {
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         return room.withLock(() -> {
             if (!room.playersByUserId().containsKey(userId)) {
                 throw new ApiException(ErrorCode.FORBIDDEN, "Bạn chưa ở trong phòng này");
@@ -257,7 +262,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView updateSettings(long userId, String roomId, GameSettings raw) {
         rateLimiter.check(userId, "room-settings", properties.arena().rateLimit().settingsPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         requireHost(room, userId);
         if (room.isQuickMatch()) {
             throw new ApiException(ErrorCode.CONFLICT, "Phòng ghép trận nhanh chọn cài đặt bằng tung đồng xu");
@@ -286,7 +291,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView setReady(long userId, String roomId, boolean ready) {
         rateLimiter.check(userId, "room-ready", properties.arena().rateLimit().readyPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         RoomView view = room.withLock(() -> {
             RoomPlayer player = requireMember(room, userId);
             if (room.getStatus() != RoomStatus.WAITING) {
@@ -309,7 +314,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView start(long userId, String roomId) {
         rateLimiter.check(userId, "room-start", properties.arena().rateLimit().startPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         requireHost(room, userId);
         GameSettings settings = room.withLock(room::getSettings);
         // Kiểm lại bộ thẻ ngay lúc bắt đầu: chủ bộ có thể đã sửa hoặc ẩn bộ.
@@ -672,6 +677,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public LaunchView startSolo(long userId, SoloRequest request) {
+        GameRules.requireAccess(request.gameType());
         rateLimiter.check(userId, "solo-start", properties.arena().rateLimit().startPerMinute());
         GameSettings settings = validatedSettings(request.gameType(), PlayMode.SOLO, request.settings(), userId);
         GameSession session = openSession(request.gameType(), PlayMode.SOLO, null, GameMatchRecorder.SOLO_ROOM_CODE,
@@ -713,6 +719,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public SessionInfoView session(long userId, String sessionId) {
         GameSession session = sessions.require(sessionId);
+        GameRules.requireAccess(session.getGameType());
         if (!session.isParticipant(userId)) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không tham gia trận này");
         }
@@ -877,6 +884,12 @@ public class GameServiceImpl implements GameService {
         if (current.isPresent() && !current.get().getRoomId().equals(exceptRoomId)) {
             leave(userId, current.get().getRoomId());
         }
+    }
+
+    private GameRoom accessibleRoom(String roomId) {
+        GameRoom room = rooms.require(roomId);
+        GameRules.requireAccess(room.getGameType());
+        return room;
     }
 
     private void requireHost(GameRoom room, long userId) {
