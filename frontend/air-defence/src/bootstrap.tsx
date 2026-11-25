@@ -48,3 +48,5 @@ setPlaneSkin(data.skin || query.get("skin"), data.skinRenderCode, data.skinImage
 
 ReactDOM.createRoot(rootElement).render(<App host={host} />);
 }
+
+import '../../shared/game-ui.css';
