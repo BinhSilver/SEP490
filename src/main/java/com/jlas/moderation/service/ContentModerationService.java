@@ -458,6 +458,81 @@ public class ContentModerationService {
         }
     }
 
+    private static final String YOUTUBE_TOPIC_PROMPT = """
+            You review a YouTube video that a learner wants to share in KotsuKotsu, a community where Vietnamese people
+            learn Japanese. From its title, channel, description, tags and spoken language, decide whether the VIDEO
+            ITSELF is about Japanese or Japan:
+            learning the Japanese language in any language of explanation (lessons, grammar, vocabulary, kanji, kana,
+            JLPT, listening or speaking practice, textbooks such as Minna no Nihongo), Japanese culture, Japan (travel,
+            life, work or study in Japan), or Japanese media in Japanese (anime, drama, songs).
+            Unrelated: anything with no clear link to Japan or the Japanese language, for example food or daily vlogs,
+            music or films in other languages, games, news, advertisements, sales, gossip.
+            Answer "yes" only when the information clearly shows the video is about Japanese or Japan, "no" when it is
+            clearly about something else, otherwise "unsure".
+            Reply JSON only, no markdown: {"related":"yes"|"no"|"unsure","reason":"..."}
+            "reason" is shown to the Vietnamese poster: write it in Vietnamese (never English), one short sentence.
+            """;
+
+    /**
+     * Video YouTube có lời thoại không phải tiếng Nhật (hoặc không rõ) đăng lên Cộng đồng: phải được AI xác nhận
+     * {@code "yes"} là về tiếng Nhật / Nhật Bản mới đạt (SAFE). "no", "unsure", AI chưa cấu hình hoặc lỗi → BLOCKED kèm
+     * lý do — khác {@link #scanJapaneseTopic} (phân vân thì cho qua), vì video lạc đề không được lọt khi chưa xét được.
+     * Moderation tắt hẳn ({@code moderation.enabled=false}) → SAFE. Kết quả "yes"/"no" được cache theo nội dung.
+     */
+    public ModerationResult scanYoutubeRelated(String videoInfo) {
+        if (!enabled) return safeResult("Moderation disabled");
+        if (!visionClient.isConfigured()) {
+            return youtubeTopicBlocked("Chưa kiểm tra được nội dung video, hãy thử lại sau.", "off");
+        }
+        String info = videoInfo == null ? "" : videoInfo.strip();
+        String hash = sha256("yt-topic-v1|" + canonicalForMatch(info));
+        OptionalCache hit = findCachedVerdict(hash);
+        if (hit != null) {
+            ModerationResult cached = hit.result();
+            if (cached.getSummary() != null) cached.setSummary(cached.getSummary().replace(" [cache]", ""));
+            return cached;
+        }
+        try {
+            String raw = visionClient.analyzeText(YOUTUBE_TOPIC_PROMPT, info.length() > 4000 ? info.substring(0, 4000) : info);
+            String related = String.valueOf(jsonText(raw, "related")).trim().toLowerCase(Locale.ROOT);
+            String reason = jsonText(raw, "reason");
+            String model = visionClient.getPrimaryModel();
+            ModerationResult result = "yes".equals(related)
+                    ? ModerationResult.builder().verdict(ModerationVerdict.SAFE).categories(List.of()).confidence(0.9)
+                            .summary(StringUtils.hasText(reason) ? reason.strip() : "Video liên quan tiếng Nhật")
+                            .modelName(model).build()
+                    : youtubeTopicBlocked(StringUtils.hasText(reason) ? reason.strip()
+                            : "Không thấy video liên quan tới tiếng Nhật.", model);
+            log.info("Community YouTube topic {}: {} || {}", related, cut(info), cut(raw));
+            if ("yes".equals(related) || "no".equals(related)) {
+                try {
+                    logRepository.save(ContentModerationLog.builder()
+                            .targetType("COMMUNITY_TOPIC")
+                            .contentHash(hash)
+                            .source("TOPIC_AI")
+                            .verdict(result.getVerdict())
+                            .categoriesJson(toJson(result.getCategories()))
+                            .confidence(result.getConfidence())
+                            .modelName(result.getModelName())
+                            .summary(result.getSummary().length() > 480 ? result.getSummary().substring(0, 480)
+                                    : result.getSummary())
+                            .build());
+                } catch (Exception e) {
+                    log.debug("YouTube topic cache save skip: {}", e.getMessage());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("YouTube topic check failed: {}", e.getMessage());
+            return youtubeTopicBlocked("Chưa kiểm tra được nội dung video, hãy thử lại sau.", "error");
+        }
+    }
+
+    private static ModerationResult youtubeTopicBlocked(String reason, String model) {
+        return ModerationResult.builder().verdict(ModerationVerdict.BLOCKED).categories(List.of("OFF_TOPIC"))
+                .confidence(0.8).summary(reason).modelName(model).build();
+    }
+
     /** Một trường chữ trong JSON model trả về (bỏ qua chữ thừa quanh JSON); không có / lỗi → null. */
     private String jsonText(String raw, String field) {
         if (raw == null) return null;
