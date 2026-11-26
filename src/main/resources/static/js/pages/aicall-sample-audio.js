@@ -9,6 +9,10 @@
     const MANIFEST_URL = '/audio/ai-call/samples/manifest.json';
     const CLIP_PATH = /^\/audio\/ai-call\/samples\/clips\/[a-f0-9]{64}\.mp3$/;
     const finite = value => typeof value === 'number' && Number.isFinite(value);
+    // Pause between turns at normal speed. The authored clips carry a 2-second gap, which made a sample drag; the
+    // player keeps the shorter of the two and shortens it further at a faster speed.
+    const TURN_PAUSE_SECONDS = 0.7;
+    const turnPause = entry => Math.min(entry.gap, TURN_PAUSE_SECONDS);
 
     function validateEntry(entry, transcript) {
         if (!entry || typeof entry.ready !== 'boolean' || !/^[a-f0-9]{64}$/.test(entry.revision) ||
@@ -42,13 +46,27 @@
         let timer = null, nextPending = false, rate = 1, destroyed = false, autoAdvance = true;
         let pendingSeek = null;
         let offset = 0;
-        const starts = entry.lines.map(line => { const start = offset; offset += line.duration + entry.gap; return start; });
+        const gap = turnPause(entry);
+        const starts = entry.lines.map(line => { const start = offset; offset += line.duration + gap; return start; });
+        const total = entry.lines.reduce((sum, line) => sum + line.duration, 0) + gap * (entry.lines.length - 1);
+        // The next sentence is fetched while this one plays, so the turn starts without waiting for the network
+        // (the clips are cached for a year, so the player then reads it from the browser cache).
+        const preloader = typeof Audio === 'function' ? new Audio() : null;
+        let warmed = -1;
+        function warmNext() {
+            const next = index + 1;
+            if (!preloader || next >= entry.lines.length || warmed === next) return;
+            warmed = next;
+            preloader.preload = 'auto';
+            preloader.src = entry.lines[next].audioUrl;
+            try { preloader.load(); } catch (_) { /* Best effort only. */ }
+        }
         const handlers = [];
         function emit() {
             const local = Math.min(entry.lines[index].duration, Math.max(0, pendingSeek ?? audio.currentTime ?? 0));
             update({ phase, index, revealed, count: entry.lines.length, canSeek: true,
-                current: phase === 'ended' ? entry.duration : starts[index] + local,
-                duration: entry.duration });
+                current: phase === 'ended' ? total : starts[index] + local,
+                duration: total });
         }
         function listen(name, handler) { audio.addEventListener(name, handler); handlers.push([name, handler]); }
         function clearGap() { if (timer !== null) timers.clear(timer); timer = null; }
@@ -92,6 +110,7 @@
         listen('playing', () => {
             if (!wantPlay || destroyed) { audio.pause(); return; }
             phase = 'playing'; revealed = Math.max(revealed, index); emit();
+            warmNext();
         });
         listen('waiting', () => { if (wantPlay) { phase = 'loading'; emit(); } });
         listen('loadedmetadata', () => {
@@ -111,7 +130,7 @@
             timer = timers.set(() => {
                 timer = null;
                 if (wantPlay && !destroyed) { loadClip(index + 1); play(); }
-            }, entry.gap * 1000);
+            }, gap * 1000 / rate);
         });
         listen('error', () => { clearGap(); wantPlay = false; token++; phase = 'error'; emit(); });
         audio.preload = 'none';
@@ -125,7 +144,7 @@
             retry: () => { loadClip(index); phase = 'ready'; return play(); },
             seek: value => {
                 if (!finite(value) || destroyed) return;
-                const target = Math.min(entry.duration, Math.max(0, value));
+                const target = Math.min(total, Math.max(0, value));
                 let next = starts.findIndex((start, i) => target < start + entry.lines[i].duration);
                 if (next < 0) next = entry.lines.length - 1;
                 const local = Math.min(entry.lines[next].duration, Math.max(0, target - starts[next]));
@@ -135,16 +154,17 @@
                 if (changed) loadClip(next);
                 pendingSeek = local;
                 try { audio.currentTime = local; if (canSeek) pendingSeek = null; } catch (_) { /* Applied after this clip's metadata arrives. */ }
-                if (target === entry.duration) { wantPlay = false; token++; audio.pause(); phase = 'ended'; }
+                if (target === total) { wantPlay = false; token++; audio.pause(); phase = 'ended'; }
                 else if (changed || phase === 'ended' || phase === 'gap') phase = revealed < 0 ? 'ready' : 'paused';
                 emit();
-                if (continuing && target < entry.duration && (changed || audio.paused)) return play();
+                if (continuing && target < total && (changed || audio.paused)) return play();
             },
             speed: value => { if ([0.75, 1, 1.25].includes(value)) { rate = value; audio.playbackRate = value; } },
             destroy: () => {
                 pause(); destroyed = true;
                 handlers.forEach(pair => audio.removeEventListener(pair[0], pair[1]));
                 audio.removeAttribute('src'); audio.load();
+                if (preloader) { preloader.removeAttribute('src'); try { preloader.load(); } catch (_) { /* Nothing to free. */ } }
             }
         };
     }
@@ -225,7 +245,7 @@
                     entry.lines.forEach((line, i) => {
                         const time = rows[i].querySelector('[data-sample-message-time]');
                         if (time) time.textContent = formatTime(timestamp);
-                        timestamp += line.duration + entry.gap;
+                        timestamp += line.duration + turnPause(entry);
                     });
                     chat.replaceChildren(); chat.classList.add('is-sample-chat');
                     chat.setAttribute('role', 'log'); chat.setAttribute('aria-live', 'polite');
@@ -259,5 +279,5 @@
         document.defaultView?.addEventListener('pagehide', () => players.forEach(player => player.pause()));
     }
 
-    return { validateEntry, formatTime, createPlayback, mount };
+    return { validateEntry, formatTime, createPlayback, mount, TURN_PAUSE_SECONDS };
 });
