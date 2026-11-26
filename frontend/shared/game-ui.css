@@ -36,7 +36,7 @@
   .neko-hud .neko-hud__prompt { font-family: var(--font-jp) !important; font-weight: 500 !important; }
   .neko-hud button { color: var(--dark-ink) !important; background: var(--dark-raised) !important; border-color: var(--dark-line) !important; border-radius: var(--radius-control); box-shadow: none !important; }
   .neko-hud button:hover { color: var(--dark-on-button) !important; background: var(--dark-button) !important; transform: none; }
-  :is([data-game-ui-panel],.memory-setup,.memory-setup__panel,.memory-result,.memory-final,.memory-player-panel,.memory-loading,.memory-modal,.memory-modal__box,.memory-setup__dialog-box,.ad-setup,.ad-setup__panel,.ad-setup__dialog-box,.ad-settings-drawer,.ad-menu,.ad-menu-panel,.ad-result,.ad-result-panel,.ad-hangar,.ad-device-notice,.ok-page,.ok-card) {
+  :is([data-game-ui-panel],.memory-setup,.memory-setup__panel,.memory-result,.memory-final,.memory-player-panel,.memory-loading,.memory-modal,.memory-modal__box,.memory-setup__dialog-box,.ad-setup,.ad-setup__panel,.ad-setup__dialog-box,.ad-settings-drawer,.ad-menu,.ad-menu-panel,.ad-result,.ad-result-panel,.ad-device-notice,.ok-page,.ok-card) {
     color: var(--color-on-surface) !important;
     background: var(--color-surface-lowest) !important;
     border-color: var(--color-outline-variant) !important;
@@ -87,7 +87,9 @@
   :is(button,a):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; box-shadow: none !important; }
   :is(input:not([type='checkbox']):not([type='radio']):not([type='range']),textarea,[role='combobox']):focus-visible { outline-offset: -2px; }
   :is(input[type='checkbox'],input[type='radio'],input[type='range']) { accent-color: var(--color-primary); }
-  :is(button[disabled],button[aria-disabled='true']) { opacity: .55; }
+  /* Not on Memory cards: an opened card is disabled, and opacity below 1 flattens its 3D flip, so the face-down
+     side kept showing (only paler) instead of the word. */
+  :is(button[disabled],button[aria-disabled='true']):not(.memory-card) { opacity: .55; }
   :is(.ad-skin-purchase,.neko-skin-purchase,.memory-confirm) { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; inset: 0; padding: var(--space-5); overflow: auto; color: var(--color-on-surface) !important; background: var(--color-surface-lowest) !important; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); }
   .ad-skin-purchase h3 { font-size: var(--text-lg); line-height: 1.4; margin-bottom: var(--space-3); }
   :is(.ad-skin-purchase,.memory-confirm)::backdrop { background: var(--jl-scrim, #0008); backdrop-filter: blur(4px); }

@@ -56,6 +56,11 @@
     :is(.stage-map-action,.stage-map-zoom button) { width: 36px; height: 36px; min-height: 36px; border-radius: var(--radius-control); color: var(--color-primary); border-color: var(--color-outline-variant); background: var(--color-surface-lowest); box-shadow: none; }
     :is(.stage-card,.stage-card-select,.stage-card-detail) { color: var(--color-on-surface); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-input); box-shadow: none; text-shadow: none; }
     .stage-card { border-radius: var(--radius-lg); }
+    /* The select and detail rows live inside the card's border: no fill of their own, and corners that follow the
+       card's, so they never paint over its rounded edge. */
+    .stage-card-select { background: transparent; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .stage-card-detail { background: transparent; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    .stage-card-select:only-child { border-radius: var(--radius-lg); }
     .stage-card.is-selected { border-color: var(--color-primary); box-shadow: none; }
     .stage-card--passed .stage-card-status { color: var(--color-success); }
     .stage-card--locked :is(.stage-card-status,.stage-card-number) { color: var(--color-on-surface-variant); }
@@ -115,3 +120,15 @@ html #jlabBasePage.aicall-standard #jlabBaseContent [style*='font-weight:600'] {
 html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.aicall-standard :is(input:not([type='checkbox']):not([type='radio']):not([type='range']),textarea,.jl-select__trigger):focus { outline: 2px solid var(--color-focus) !important; outline-offset: -2px; box-shadow: none !important; }
 html:not(#_):not(#_):not(#_):not(#_) #jlabBasePage.aicall-standard :is(input,textarea,.jl-select__trigger)[aria-invalid='true'] { border-color: var(--color-error) !important; outline-color: var(--color-error) !important; }
 @media(max-width:600px) { #jlabBasePage.aicall-standard.jl-ui-kit #jlabBaseContent h1 { font-size: var(--text-2xl); } }
+
+/* Free chat: the switch rail is drawn by ::before inside a 44px tap area, so the area itself stays clear (the
+   standard .switch fill above turned the whole tap area into a large circle). */
+#jlabBasePage.aicall-standard.mode-free-chat #jlabBaseContent .toggle-list .switch { background: transparent; }
+#jlabBasePage.aicall-standard.mode-free-chat #jlabBaseContent .toggle-list .switch::before { background: var(--color-outline); }
+#jlabBasePage.aicall-standard.mode-free-chat #jlabBaseContent .toggle-list .switch.on::before { background: var(--color-primary); }
+/* Free chat has no scene picture: the conversation sits on the page background. */
+#jlabBasePage.aicall-standard.mode-free-chat #jlabBaseContent :is(.cv-main, .cv-messages) { background: var(--color-background); }
+/* Dark mic: a filled control like the send button beside it, red while it listens. */
+html[data-theme="dark"] #jlabBasePage.aicall-standard #jlabBaseContent .btn-mic { background: var(--color-surface-container); border-color: var(--color-outline-variant); color: var(--color-on-surface); }
+html[data-theme="dark"] #jlabBasePage.aicall-standard #jlabBaseContent .btn-mic:hover { background: var(--color-surface-container-high, var(--color-surface-container)); color: var(--color-primary); }
+html[data-theme="dark"] #jlabBasePage.aicall-standard #jlabBaseContent .btn-mic.recording { background: var(--color-error); border-color: transparent; color: #fff; }

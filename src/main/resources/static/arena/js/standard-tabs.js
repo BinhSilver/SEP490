@@ -19,11 +19,13 @@
           root.classList.add('is-ready');
           return;
         }
-        const box = active.getBoundingClientRect(), parent = root.getBoundingClientRect();
-        root.style.setProperty('--ar-tab-x', box.left - parent.left + root.scrollLeft + 'px');
-        root.style.setProperty('--ar-tab-width', box.width + 'px');
-        root.style.setProperty('--ar-tab-top', box.top - parent.top + 'px');
-        root.style.setProperty('--ar-tab-height', box.height + 'px');
+        // Layout offsets, not getBoundingClientRect: the large-screen UI scale uses CSS zoom, and client rects come
+        // back zoomed while these custom properties are laid out unzoomed, which shrank and shifted the surface.
+        // offsetLeft/Top are measured from the tab group's padding edge, exactly where the surface is placed.
+        root.style.setProperty('--ar-tab-x', active.offsetLeft + 'px');
+        root.style.setProperty('--ar-tab-width', active.offsetWidth + 'px');
+        root.style.setProperty('--ar-tab-top', active.offsetTop + 'px');
+        root.style.setProperty('--ar-tab-height', active.offsetHeight + 'px');
         root.dataset.tabsReady = 'true';
       });
     }
