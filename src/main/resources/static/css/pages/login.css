@@ -1058,10 +1058,6 @@ html[data-theme="dark"] .page-login .login-background {
   cursor: pointer;
 }
 
-.page-login .login-consent label {
-  cursor: pointer;
-}
-
 .page-login .login-consent__link {
   display: inline;
   padding: 0;
@@ -1078,6 +1074,58 @@ html[data-theme="dark"] .page-login .login-background {
 
 .page-login .login-consent__link:hover {
   color: var(--login-action-hover);
+}
+
+/* Consent warning: one short line in the gap under the consent row, so showing it moves nothing. */
+.page-login .login-consent {
+  position: relative;
+}
+
+.page-login .login-consent__error {
+  position: absolute;
+  top: calc(100% + 1px);
+  left: 28px;
+  right: 0;
+  margin: 0;
+  color: var(--login-error);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+.page-login .login-consent__error[hidden] {
+  display: none;
+}
+
+.page-login .login-consent.is-invalid input {
+  outline: 2px solid var(--login-error);
+  outline-offset: 2px;
+  animation: login-consent-shake .36s ease-in-out;
+}
+
+@keyframes login-consent-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* Not agreed yet: looks unavailable like a disabled button, but still takes the press to show the warning. */
+.page-login #submitBtn.needs-consent {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.page-login .google-login[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* No hover colour while it only explains that the box must be ticked. */
+html .page-login #jlabBaseContent #submitBtn.needs-consent:hover {
+  background: var(--login-action) !important;
+}
+
+html[data-theme="dark"] .page-login #jlabBaseContent #submitBtn.needs-consent:hover {
+  background: var(--login-button) !important;
 }
 
 .page-login .google-login[aria-disabled="true"] .google-login__face {

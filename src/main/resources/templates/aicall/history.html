@@ -4,9 +4,9 @@
     <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Lịch sử luyện AI Call · KotsuKotsu</title>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/><link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/><link rel="stylesheet" th:href="@{/css/base.css}"/><link rel="stylesheet" th:href="@{/css/app.css}"/><link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/><link rel="stylesheet" th:href="@{/css/aicall-cases.css}"/><link rel="stylesheet" th:href="@{/css/aicall-stages.css}"/><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/><link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/><link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/><link rel="stylesheet" th:href="@{/css/app.css(v=20261125-phase1)}"/><link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/><link rel="stylesheet" th:href="@{/css/aicall-cases.css}"/><link rel="stylesheet" th:href="@{/css/aicall-stages.css}"/><link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
-<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261124-ui-standard">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261126-fixes">
 <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
 <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head><body data-mobile-adapt="owned" id="jlabBasePage" class="aicall-standard jl-ui-kit"><div id="jlabBaseShellMount"></div><main id="jlabBaseContent" class="aicall-case-page">
@@ -16,5 +16,5 @@
             <div><span class="stage-history-label" th:text="${attempt.contentReview ? 'Kiểm tra nội dung' : attempt.stagePassed ? 'Đã vượt màn' : attempt.status.name()=='IN_PROGRESS' ? 'Đang luyện' : attempt.stageCode != null ? 'Chưa vượt màn' : 'Đã kết thúc'}"></span><h2 th:text="${stageTitles[attempt.id]}"></h2><p th:text="${attempt.scenario.catalogTitle}"></p><p><time th:text="${#temporals.format(attempt.startedAt,'dd/MM/yyyy HH:mm')}"></time><span th:if="${attempt.overallScore != null}" th:text="' · '+${attempt.overallScore}+'/100'"></span><span th:if="${attempt.durationSeconds != null}" th:text="' · '+${attempt.durationSeconds}+' giây'"></span></p></div>
             <a th:href="${attempt.status.name()=='IN_PROGRESS' ? '/conversation/'+attempt.id : '/conversation/'+attempt.id+'/result'}"><span th:text="${attempt.status.name()=='IN_PROGRESS'?'Tiếp tục':'Xem kết quả'}"></span></a>
         </li></ol>
-    </section></main><script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js}"></script>
+    </section></main><script th:src="@{/js/auth-session.js}"></script><script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 </body></html>

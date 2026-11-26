@@ -1164,6 +1164,24 @@ html:not(#_):not(#_):not(#_) #jlabBasePage.page-shadowing-editor .editor-toolbar
   animation: pronunciation-recording-pulse 1.2s infinite;
 }
 
+/* Recording: the stop icon plus the seconds left ("⏹ 6s"); the button widens to fit them. */
+#jlabBasePage.page-shadowing-player .sub-pron-record-btn.recording {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: auto;
+  min-width: 34px;
+  padding: 0 9px;
+}
+
+#jlabBasePage.page-shadowing-player .sub-pron-record-btn__time {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
 #jlabBasePage.page-shadowing-player .sub-pron-score-badge {
   min-width: 48px;
   height: 34px;

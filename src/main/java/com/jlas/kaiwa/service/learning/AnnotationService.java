@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Offline contextual readings + vocabulary metadata; cache/AI only fill unresolved kanji.
@@ -248,6 +249,9 @@ public class AnnotationService {
     }
 
     private void saveCache(String hash, String text, List<FuriganaTokenDto> tokens, String translation, String source) {
+        // A read-only caller (the sample dialogue page) cannot insert. The failed insert marked the whole transaction
+        // rollback-only even though it was caught here, so the page ended in a 500 once a line was not cached yet.
+        if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) return;
         try {
             TextAnnotationCache row = cacheRepository.findByContentHash(hash).orElseGet(TextAnnotationCache::new);
             row.setContentHash(hash);

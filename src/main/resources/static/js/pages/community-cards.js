@@ -295,8 +295,8 @@
     if (c.canReport) actions += '<button type="button" class="cm-link" data-act="report-comment">Báo cáo</button>';
     if (c.canRemove) actions += '<button type="button" class="cm-link cm-link--danger" data-act="remove-comment">Gỡ</button>';
     // Kiểm duyệt viên thấy cả bình luận đã gỡ (danh sách đầy đủ): ghi rõ trạng thái như trang chi tiết cũ.
-    var label = c.status === 'TEMPORARILY_HIDDEN' ? ' <span class="cm-badge cm-badge--warn">Đang bị ẩn</span>'
-      : c.status === 'REMOVED' ? ' <span class="cm-badge cm-badge--danger">Đã gỡ</span>' : '';
+    var label = c.status === 'TEMPORARILY_HIDDEN' ? ' <span class="cm-badge jl-badge cm-badge--warn">Đang bị ẩn</span>'
+      : c.status === 'REMOVED' ? ' <span class="cm-badge jl-badge cm-badge--danger">Đã gỡ</span>' : '';
     return '<li class="cm-reply' + (c.hidden ? ' is-hidden' : '') + '" data-comment="' + Number(c.id) + '">' +
       UI.avatar(c.author) +
       '<div class="cm-reply__main">' +

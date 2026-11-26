@@ -110,3 +110,38 @@ html[data-theme="dark"] #jlabBasePage.page-mode-select #jlabBaseContent .mode-ca
     background-image: url('/images/aicall-scenario-bg.webp');
   }
 }
+
+/* aicall-standard.css (loaded after this file) gives every .card a `background:` shorthand with a stronger selector,
+   which reset background-size and position: the artwork showed at its full 1674x940 size, cropped to one corner.
+   These rules are stronger again, so each card shows its whole picture, centred and scaled to fit. */
+html #jlabBasePage.page-mode-select.aicall-standard #jlabBaseContent .mode-card.card {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+html #jlabBasePage.page-mode-select.aicall-standard #jlabBaseContent .mode-card.card:first-child {
+  background-image: url('/images/aicall-free-chat-bg.webp');
+}
+
+html #jlabBasePage.page-mode-select.aicall-standard #jlabBaseContent .mode-card.card:nth-child(2) {
+  background-image: url('/images/aicall-scenario-bg.webp');
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select.aicall-standard #jlabBaseContent .mode-card.card:first-child {
+  background-image:
+    linear-gradient(100deg, rgba(12, 19, 34, .78), rgba(12, 19, 34, .45) 55%, rgba(12, 19, 34, .08)),
+    url('/images/aicall-free-chat-bg.webp');
+}
+
+html[data-theme="dark"] #jlabBasePage.page-mode-select.aicall-standard #jlabBaseContent .mode-card.card:nth-child(2) {
+  background-image:
+    linear-gradient(100deg, rgba(12, 19, 34, .78), rgba(12, 19, 34, .45) 55%, rgba(12, 19, 34, .08)),
+    url('/images/aicall-scenario-bg.webp');
+}
+
+@media (max-width: 900px) {
+  html #jlabBasePage.page-mode-select.aicall-standard #jlabBaseContent .mode-card.card {
+    background-position: 62% center;
+  }
+}

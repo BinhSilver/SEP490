@@ -192,7 +192,7 @@
     return new Promise(function (resolve) {
       var last = document.activeElement;
       var modal = document.createElement('div');
-      modal.className = 'adm-modal';
+      modal.className = 'adm-modal adm-modal--decision';
       modal.setAttribute('role', 'dialog');
       modal.setAttribute('aria-modal', 'true');
       modal.setAttribute('aria-labelledby', 'admDecideTitle');
@@ -226,10 +226,12 @@
       var reason = modal.querySelector('#admReason');
       var errorEl = modal.querySelector('[data-error]');
       var count = modal.querySelector('[data-count]');
+      var focusTimer;
 
       function close(value) {
+        clearTimeout(focusTimer);
         modal.remove();
-        document.body.classList.remove('adm-modal-open');
+        if (!document.querySelector('.adm-modal')) document.body.classList.remove('adm-modal-open');
         document.removeEventListener('keydown', onKey);
         if (last && last.focus) last.focus();
         resolve(value);
@@ -261,7 +263,7 @@
         close({ reason: value, extra: extra });
       });
       var focus = modal.querySelector('[data-autofocus]') || reason || modal.querySelector('button[type="submit"]');
-      setTimeout(function () { focus.focus(); }, 20);
+      focusTimer = setTimeout(function () { focus.focus(); }, 20);
     });
   }
 
