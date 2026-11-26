@@ -96,8 +96,47 @@
 
   var mounted = false;
 
+  /** Owner 22/11 (F224): "Ngày đã học" | "Đã biết trước" views; ?filter=known (old Kho đã biết links) opens the second. */
+  /**
+   * F232 (owner 23/11): ?filter=known → Đã biết trước; ?view=days or a ?day=… link (stats calendar) → Ngày đã học;
+   * otherwise Tổng quan (the former stats page). A page without the overview panel falls back to the days view.
+   */
+  function initialView(search) {
+    var q = String(search || '');
+    if (/[?&]filter=known\b/.test(q)) return 'known';
+    if (/[?&]view=days\b/.test(q) || /[?&]day=/.test(q)) return 'days';
+    var doc = root && root.document;
+    var hasOverview = doc && doc.querySelector && doc.querySelector('[data-history-panel="overview"]');
+    return hasOverview || !doc ? 'overview' : 'days';
+  }
+
+  function mountViews(doc) {
+    var buttons = doc.querySelectorAll ? doc.querySelectorAll('[data-history-view]') : [];
+    if (!buttons.length) return;
+    function show(view) {
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-history-view') === view)); });
+      doc.querySelectorAll('[data-history-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-history-panel') !== view; });
+    }
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var view = b.getAttribute('data-history-view');
+        show(view);
+        try {
+          var url = new root.URL(root.location.href);
+          url.searchParams.delete('filter');
+          url.searchParams.delete('view');
+          if (view === 'known') url.searchParams.set('filter', 'known');
+          else if (view === 'days') url.searchParams.set('view', 'days');
+          root.history.replaceState(null, '', url.pathname + url.search);
+        } catch (e) { /* the view still switches */ }
+      });
+    });
+    show(initialView(root.location && root.location.search));
+  }
+
   function mount() {
     var doc = root && root.document;
+    if (!mounted && doc) mountViews(doc);
     var main = doc && doc.querySelector && doc.querySelector('[data-jpath-history]');
     if (mounted || !main || !root.JpathApi) return;
     mounted = true;
@@ -110,11 +149,18 @@
     var days = [];
     var page = 0;
 
+    // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
+    function foldSearch(v) {
+      var s = String(v == null ? '' : v);
+      if (typeof s.normalize === 'function') s = s.normalize('NFKC');
+      return s.trim().toLocaleLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); });
+    }
+
     function draw() {
-      var term = (search.value || '').trim().toLocaleLowerCase();
+      var term = foldSearch(search.value);
       var filtered = days.filter(function (d) {
         return !term || [d.day, dayLabel(d.day), DAY_KIND[d.kind]].some(function (v) {
-          return String(v || '').toLocaleLowerCase().indexOf(term) >= 0;
+          return foldSearch(v).indexOf(term) >= 0;
         });
       });
       var pages = Math.max(1, Math.ceil(filtered.length / 20));
@@ -159,7 +205,7 @@
         days = (h && Array.isArray(h.days)) ? h.days : [];
         page = 0;
         draw();
-      }, function (err) { status.textContent = (err && err.message) || 'Không tải được lịch sử.'; });
+      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được lịch sử.'; });
     }
 
     main.addEventListener('click', function (e) {
@@ -177,7 +223,7 @@
             else redo.disabled = false;
           }, function (err) {
             redo.disabled = false;
-            status.textContent = (err && err.message) || 'Chưa làm lại được bài này.';
+            status.textContent = (err && (err.code || err.status) && err.message) || 'Chưa làm lại được bài này.';
           });
         return;
       }
@@ -194,10 +240,10 @@
     load(14).then(function () {
       if (!wanted) return;
       api.get(BASE + '/history/' + wanted[1]).then(show, function (err) {
-        status.textContent = (err && err.message) || 'Không tải được ngày này.';
+        status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được ngày này.';
       });
     });
   }
 
-  return { rowMarkup: rowMarkup, detailMarkup: detailMarkup, redoBody: redoBody, dayLabel: dayLabel, mount: mount };
+  return { initialView: initialView, rowMarkup: rowMarkup, detailMarkup: detailMarkup, redoBody: redoBody, dayLabel: dayLabel, mount: mount };
 });

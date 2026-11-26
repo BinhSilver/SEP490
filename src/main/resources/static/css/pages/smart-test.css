@@ -230,3 +230,30 @@
   .smart-test-body .result-actions { align-items: stretch; flex-direction: column; }
   .smart-test-body .result-actions > * { width: 100%; box-sizing: border-box; text-align: center; }
 }
+
+/* [JLAS-W0108] 17/11: update an existing JLPT path from the Smart Test result in place. */
+.smart-test-path-update { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--jp-line, #e5e7eb); border-radius: 14px;
+  background: var(--jp-surface, #fff); color: var(--jp-ink, inherit); display: grid; gap: 10px; }
+.smart-test-path-update p { margin: 0; line-height: 1.55; }
+/* Owner 17/11: changing the main goal explains what happens first. */
+.survey-goal-change { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid #f0c27a;
+  background: #fff7e8; color: #6b3d00; line-height: 1.5; font-size: .95rem; }
+html[data-theme="dark"] .survey-goal-change { background: #3a2a10; color: #ffd9a0; border-color: #7a5a20; }
+
+/* [JLAS-W0108] F240: entry and exit of the JLPT path with this result */
+.result-io { margin-top: 16px; padding: 16px 18px; display: grid; gap: 8px; border-radius: 14px;
+  border: 1px solid var(--color-outline-variant); background: var(--color-surface-container-low); }
+.result-io__title { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--color-on-surface); }
+.result-io .mp-io { display: grid; gap: 4px; font-size: .9rem; color: var(--color-on-surface); }
+.result-io .mp-io__row, .result-io .mp-io__progress { margin: 0; }
+.result-io .mp-io__k { font-weight: 500; color: var(--color-on-surface-variant); }
+.result-io .mp-io__lv { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--color-primary);
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.result-io__steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.result-io__step { padding: 2px 10px; border-radius: 999px; font-size: .85rem; font-weight: 500;
+  background: var(--color-primary-fixed); color: var(--color-on-surface); }
+.result-io__note { margin: 0; font-size: .85rem; color: var(--color-on-surface-variant); }
+.result-io__info { padding-top: 8px; border-top: 1px solid var(--color-outline-variant); }
+.result-io__info .mp-io__title { margin: 0 0 4px; font-size: 1rem; font-weight: 600; }
+.result-io__info .mp-io__counts { margin: 0 0 6px; color: var(--color-on-surface-variant); }
+.result-io__info .mp-io__cando { margin: 0; padding-left: 20px; }

@@ -690,3 +690,11 @@ html.dark .jp-confirm {
     animation: none !important;
   }
 }
+
+/* owner 23/11: "where you started" summary for a path learner without a Smart Test result */
+.survey-entry-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; margin: 14px 0 18px;
+  padding: 14px 16px; border-radius: 12px; border: 1px solid var(--color-outline-variant); background: var(--color-surface-lowest); }
+.survey-entry-summary div { min-width: 0; }
+.survey-entry-summary dt { font-size: .8rem; font-weight: 500; color: var(--color-outline); }
+.survey-entry-summary dd { margin: 2px 0 0; font-size: .95rem; font-weight: 500; color: var(--color-on-surface); }
+@media (max-width: 600px) { .survey-entry-summary { grid-template-columns: 1fr; } }

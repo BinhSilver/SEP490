@@ -63,6 +63,9 @@ public enum ErrorCode {
     JPATH_DISABLED(HttpStatus.NOT_FOUND, "Lộ trình JLPT mới chưa được bật."),
     JPATH_NO_ACTIVE_PATH(HttpStatus.NOT_FOUND, "Bạn chưa có lộ trình JLPT."),
     JPATH_ACTIVE_PATH_EXISTS(HttpStatus.CONFLICT, "Bạn đã có một lộ trình JLPT đang học."),
+    // [JLAS-W0108] owner 24/11 "Lộ trình của tôi": at most 2 paths studied at once
+    MY_PATHS_FULL(HttpStatus.CONFLICT, "Bạn đang học 2 lộ trình. Hãy tạm dừng một lộ trình trước khi học thêm."),
+    MY_PATH_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy lộ trình này hoặc lộ trình đang không ở trạng thái phù hợp."),
     JPATH_LEVEL_NOT_RELEASED(HttpStatus.CONFLICT, "Cấp này sắp có, hiện chưa mở."),
     JPATH_LEVEL_LOCKED(HttpStatus.FORBIDDEN, "Cấp này chưa mở. Hãy hoàn thành cấp hiện tại và Thi thử JLPT."),
     JPATH_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Cấp N4–N1 dành cho tài khoản Premium. Nâng cấp để học tiếp."),

@@ -74,8 +74,16 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
         if (JpathPathLocks.held()) {
             throw new IllegalStateException("ensurePlanExists called while the transaction holds the path lock");
         }
-        if (views.currentPlan(userId).isPresent()) {
+        Optional<JpathDailyPlan> current = views.currentPlan(userId);
+        if (current.isPresent() && !current.get().isKanaPhase()) {
             return;
+        }
+        if (current.isPresent()) {
+            // planned during kana: the inserter rebuilds it if kana has finished since (cheap when it has not)
+            boolean kanaDone = inserter.kanaFinished(userId);
+            if (!kanaDone) {
+                return;
+            }
         }
         LocalDate today = clock.today(userId);
         try {
@@ -169,8 +177,11 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
                 kept.add(t.getTab());
             }
         }
+        // F237: the raise after missed days is decided again with the new values (or dropped once turned off)
         JpathDayRules.applyRows(plan, tabs, JpathDayRules.tabRows(plan.getDayKind(), plan.isKanaPhase(),
-                path.isKanaTab(), path.getStudyMode(), level, path.getDailyMinutes()), kept, clock.now(), dailyTabs);
+                path.isKanaTab(), path.getStudyMode(), inserter.autoSliders(plan, path, level),
+                path.getDailyMinutes(), JpathDayRules.kanaRows(path, plan.getStudyDay())), kept, clock.now(),
+                dailyTabs);
         dailyTabs.flush();
         return kept;
     }

@@ -45,7 +45,7 @@
                 const button = (page, content, label, disabled = false) => `<button type="button" data-page="${page}" data-edge="${disabled}" aria-label="${label}" ${page === current ? 'aria-current="page"' : ''} ${disabled ? 'disabled' : ''}>${content}</button>`;
                 const numbers = pageNumbers(data.page, data.totalPages).map(page => button(page, page, `Trang ${page}`)).join('');
                 element.innerHTML = `<span class="library-page-summary" role="status">${start}–${end} / ${data.totalItems}</span>` +
-                    (data.totalPages > 1 ? `<div class="library-page-buttons">${button(current - 1, '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i>', 'Trang trước', current === 1)}${numbers}${button(current + 1, '<i class="fa-solid fa-chevron-right" aria-hidden="true"></i>', 'Trang sau', current === data.totalPages)}</div><span class="library-page-position">Trang ${current}/${data.totalPages}</span>` : '');
+                    (data.totalPages > 1 ? `<div class="library-page-buttons">${button(current - 1, 'Trước', 'Trang trước', current === 1)}${numbers}${button(current + 1, 'Tiếp', 'Trang sau', current === data.totalPages)}</div><span class="library-page-position">Trang ${current}/${data.totalPages}</span>` : '');
                 if (restoreFocus) element.querySelector('[aria-current="page"]')?.focus({ preventScroll: true });
             }
         };

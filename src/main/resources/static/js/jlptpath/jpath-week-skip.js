@@ -4,9 +4,10 @@
  * weeks of the level: GET /api/learning/jlpt/week-skip?tab=VOCAB|KANJI|GRAMMAR → {offer, tab, level, items}. One card
  * on the path page lists the tabs on offer; a button issues POST /api/learning/jlpt/week-skip/{tab}/check and opens
  * the check. Right on 90% or more = the week's items count as known (asked right → Đã biết, not asked → review).
- * "Để sau" hides the card on this device for the day.
+ * F227 (owner 22/11): the card lives in Cài đặt lộ trình ([data-slot="week-skip"]); the path page only counts the
+ * offers for its nudge (jpath-tools-nudge.js), whose "Để sau" hides that nudge on this device for the day.
  *
- * window.JpathWeekSkip = { cardHtml(offers), mount(el) }
+ * window.JpathWeekSkip = { cardHtml(offers), mount(el), count(), hideToday() }
  */
 (function (root, factory) {
   'use strict';
@@ -14,14 +15,22 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root) root.JpathWeekSkip = api;
   if (root && root.document && typeof module === 'undefined') {
-    var start = function () { api.mount(root.document.querySelector('[data-slot="week-skip"]')); };
+    var start = function () {
+      var card = root.document.querySelector('[data-slot="week-skip"]');
+      if (card) { api.mount(card); return; }
+      var nudge = root.document.querySelector('[data-slot="tools-nudge"]');
+      if (nudge && root.JpathToolsNudge) {
+        Promise.resolve(api.count()).then(function (n) { root.JpathToolsNudge.paint(nudge, { skip: n, doc: root.document }); });
+      }
+    };
     if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', start);
     else start();
   }
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function (root) {
   'use strict';
 
-  var TABS = [['VOCAB', 'Từ vựng'], ['KANJI', 'Kanji'], ['GRAMMAR', 'Ngữ pháp'], ['KANA', 'Chữ cái']];
+  // owner 18/11: the kana skip test lives in the kana stage at the start of the Từ vựng map (jpath-kana-stage.js)
+  var TABS = [['VOCAB', 'Từ vựng'], ['KANJI', 'Kanji'], ['GRAMMAR', 'Ngữ pháp']];
   var BASE = '/api/learning/jlpt/week-skip';
 
   function esc(s) {
@@ -30,7 +39,15 @@
     });
   }
   function today() { return new Date().toISOString().slice(0, 10); }
-  function hiddenKey() { return 'jpath-week-skip:hidden'; }
+  /** Bug 58: per-user storage key, so a shared computer never hands one learner's state to another. */
+  function uidPart() {
+    try {
+      var auth = root && root.JlasAuth;
+      var u = auth && typeof auth.getUser === 'function' ? auth.getUser() : null;
+      return u && (u.id || u.userId) ? String(u.id || u.userId) : 'me';
+    } catch (e) { return 'me'; }
+  }
+  function hiddenKey() { return 'jpath-week-skip:hidden:' + uidPart(); }
   function isHidden() {
     try { return root.localStorage.getItem(hiddenKey()) === today(); } catch (e) { return false; }
   }
@@ -38,23 +55,10 @@
     try { root.localStorage.setItem(hiddenKey(), today()); } catch (e) { /* private mode */ }
   }
 
-  /** F65c: check the next kana rows or all remaining rows (matching boards, ≥ 90% = known). */
-  function kanaHtml(o) {
-    return '<div class="jp-warmup jp-week-skip" role="region" aria-label="Kiểm tra nhanh chữ cái">'
-      + '<div class="jp-warmup__text"><p class="jp-warmup__title">Đã thuộc chữ cái?</p>'
-      + '<p class="jp-warmup__sub">Nối chữ với cách đọc cho vài hàng tiếp theo hoặc cả bảng chữ còn lại; '
-      + 'đúng từ 90% thì phần đã kiểm tra tính là đã thuộc.</p></div>'
-      + '<div class="jp-warmup__actions"><button type="button" class="jp-btn" data-week-skip-tab="KANA">Kiểm tra nhanh · '
-      + esc(o.items) + ' chữ</button>'
-      + '<button type="button" class="jp-link-btn" data-week-skip-tab="KANA" data-week-skip-rows="0">Tôi biết cả bảng chữ</button>'
-      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
-  }
-
   function cardHtml(offers) {
     var all = (offers || []).filter(function (o) { return o && o.offer; });
-    var kana = all.filter(function (o) { return o.tab === 'KANA'; })[0];
     var list = all.filter(function (o) { return o.tab !== 'KANA'; });
-    if (!list.length) return kana ? kanaHtml(kana) : '';
+    if (!list.length) return '';
     var level = list[0].level;
     var buttons = list.map(function (o) {
       var name = (TABS.filter(function (t) { return t[0] === o.tab; })[0] || [o.tab, o.tab])[1];
@@ -67,35 +71,38 @@
       + '<p class="jp-warmup__sub">Làm bài kiểm tra ngắn (tối đa 20 câu) '
       + 'cho tuần tới; đúng từ 90% thì tuần đó được bỏ qua trên lộ trình.</p></div>'
       + '<div class="jp-warmup__actions">' + buttons
-      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>'
-      + (kana ? kanaHtml(kana) : '');
+      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
   }
 
+  function offers(client) {
+    return Promise.all(TABS.map(function (t) {
+      return Promise.resolve(client.get(BASE + '?tab=' + t[0])).then(function (r) { return r; }, function () { return null; });
+    }));
+  }
+
+  /** How many tabs offer the coming week (0 when hidden today or nothing is on offer) — the path page nudge. */
+  function count() {
+    var client = root && root.JpathApi;
+    if (!client || isHidden()) return Promise.resolve(0);
+    return offers(client).then(function (list) {
+      return list.filter(function (o) { return o && o.offer && o.tab !== 'KANA'; }).length;
+    }, function () { return 0; });
+  }
+
+  /** The Cài đặt lộ trình card: always shown there, with a line when no week is on offer. */
   function mount(el) {
     var client = root && root.JpathApi;
     if (!el || !client) return null;
-    if (isHidden()) { el.hidden = true; return null; }
-    var asks = TABS.map(function (t) {
-      return Promise.resolve(client.get(BASE + '?tab=' + t[0])).then(function (r) { return r; }, function () { return null; });
-    });
-    return Promise.all(asks).then(function (offers) {
-      var html = cardHtml(offers);
-      if (!html) { el.hidden = true; el.innerHTML = ''; return; }
+    return offers(client).then(function (list) {
+      var html = cardHtml(list).replace('<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button>', '');
       el.hidden = false;
-      el.innerHTML = html;
+      el.innerHTML = html || '<p class="jp-settings-muted">Chưa có tuần nào để kiểm tra bỏ qua. Gợi ý hiện ở đây khi tuần tới của một phần có mục mới.</p>';
       el.onclick = function (ev) {
         var t = ev.target;
-        if (t.closest && t.closest('[data-week-skip-later]')) {
-          hide();
-          el.hidden = true;
-          return;
-        }
         var b = t.closest && t.closest('[data-week-skip-tab]');
         if (!b) return;
         b.disabled = true;
-        var rows = b.getAttribute('data-week-skip-rows');
-        var url = BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check'
-          + (rows === '0' ? '?rows=0' : '');
+        var url = BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check';
         Promise.resolve(client.send('POST', url))
           .then(function (res) {
             var token = res && (res.token || res.checkToken);
@@ -106,8 +113,8 @@
             b.insertAdjacentHTML('afterend', '<span class="jp-warmup__err">Chưa mở được bài kiểm tra. Thử lại sau.</span>');
           });
       };
-    }, function () { el.hidden = true; });
+    }, function () { el.hidden = false; el.innerHTML = '<p class="jp-settings-muted">Chưa tải được gợi ý. Thử lại sau.</p>'; });
   }
 
-  return { cardHtml: cardHtml, mount: mount };
+  return { cardHtml: cardHtml, mount: mount, count: count, hideToday: hide };
 });

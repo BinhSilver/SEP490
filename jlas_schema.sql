@@ -1126,12 +1126,16 @@ ALTER TABLE content_item
         REFERENCES grammar_point(id) ON DELETE SET NULL;
 
 -- Bridge noi dung lesson voi tu dien tu vung.
+-- [JLAS2-17] display_order: khoa sap xep tu trong bai (sap theo display_order, NULL xep sau, roi theo id tu vung);
+-- NULL = sap theo id tu vung (mac dinh). Them boi sql/migrations/088_vocab_merge_duplicates.sql (gop muc tu trung):
+-- cac bai bi anh huong duoc ghi display_order = id tu vung GOC (truoc khi tro lai) de giu thu tu cu khi doi id.
 CREATE TABLE content_vocabulary (
     content_item_id BIGINT UNSIGNED NOT NULL,
     vocabulary_id   BIGINT UNSIGNED NOT NULL,
     learning_meaning_vi TEXT NULL,
     learning_example_ja TEXT NULL,
     learning_example_vi TEXT NULL,
+    display_order   INT NULL,
     PRIMARY KEY (content_item_id, vocabulary_id),
     KEY idx_content_vocabulary_vocab (vocabulary_id),
     CONSTRAINT fk_content_vocab_content FOREIGN KEY (content_item_id)
@@ -2914,6 +2918,26 @@ CREATE TABLE content_comment_vote (
     CONSTRAINT chk_content_comment_vote CHECK (vote IN (-1, 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS-W0250] One durable report per user and dictionary contribution comment.
+CREATE TABLE dictionary_comment_report (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    comment_id  BIGINT UNSIGNED NOT NULL,
+    reporter_id BIGINT UNSIGNED NOT NULL,
+    reason      VARCHAR(500) NULL,
+    status      VARCHAR(12) NOT NULL DEFAULT 'OPEN',
+    resolved_at DATETIME(6) NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_dictionary_comment_report_once (comment_id, reporter_id),
+    KEY idx_dictionary_comment_report_open (comment_id, status),
+    KEY idx_dictionary_comment_report_reporter (reporter_id),
+    CONSTRAINT fk_dictionary_comment_report_comment FOREIGN KEY (comment_id)
+        REFERENCES content_comment(id) ON DELETE CASCADE,
+    CONSTRAINT fk_dictionary_comment_report_reporter FOREIGN KEY (reporter_id)
+        REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_dictionary_comment_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Ban dich ben vung cua cau user nhap tu do; khong phai cache TTL.
 CREATE TABLE sentence_translation (
     source_hash     VARCHAR(64) NOT NULL,
@@ -3012,10 +3036,11 @@ CREATE TABLE review_case (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lich su mute/ban cua user.
+-- [Chong tai hang loat] created_by NULL = he thong tu ap (tam ngung / khoa vi tai hang loat), xem 096.
 CREATE TABLE user_sanction (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id       BIGINT UNSIGNED NOT NULL,
-    created_by    BIGINT UNSIGNED NOT NULL,
+    created_by    BIGINT UNSIGNED NULL,
     sanction_type VARCHAR(20) NOT NULL,
     reason        VARCHAR(500) NULL,
     starts_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -3030,6 +3055,33 @@ CREATE TABLE user_sanction (
         REFERENCES users(id),
     CONSTRAINT chk_user_sanction_type CHECK (sanction_type IN ('MUTE','BAN')),
     CONSTRAINT chk_user_sanction_time CHECK (ends_at IS NULL OR ends_at > starts_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [Chong tai hang loat] Moi dong = mot lan tai khoan vuot nguong request (tai xuong / dang tai hang loat) va muc
+-- xu ly he thong da ap: WARN canh bao, SUSPEND tam ngung (BAN co thoi han), LOCK khoa (BAN vinh vien).
+-- So lan chua go (cleared_at IS NULL) trong 30 ngay quyet dinh muc tiep theo. Migration 096.
+CREATE TABLE user_bulk_violation (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id        BIGINT UNSIGNED NOT NULL,
+    kind           VARCHAR(10)     NOT NULL,
+    request_count  INT UNSIGNED    NOT NULL,
+    request_limit  INT UNSIGNED    NOT NULL,
+    window_seconds INT UNSIGNED    NOT NULL,
+    sample_path    VARCHAR(255)    NULL,
+    action_taken   VARCHAR(10)     NOT NULL,
+    sanction_id    BIGINT UNSIGNED NULL,
+    created_at     DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    cleared_at     DATETIME(6)     NULL,
+    cleared_by     BIGINT UNSIGNED NULL,
+    clear_reason   VARCHAR(500)    NULL,
+    PRIMARY KEY (id),
+    KEY idx_user_bulk_violation_user (user_id, created_at),
+    KEY idx_user_bulk_violation_created (created_at),
+    CONSTRAINT fk_user_bulk_violation_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_bulk_violation_sanction FOREIGN KEY (sanction_id) REFERENCES user_sanction(id) ON DELETE SET NULL,
+    CONSTRAINT fk_user_bulk_violation_cleared_by FOREIGN KEY (cleared_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT chk_user_bulk_violation_kind CHECK (kind IN ('DOWNLOAD','UPLOAD')),
+    CONSTRAINT chk_user_bulk_violation_action CHECK (action_taken IN ('WARN','SUSPEND','LOCK'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tong quota AI theo ngay; quota thang tinh SUM theo date range.
@@ -3263,13 +3315,13 @@ CREATE TABLE streak_freeze_day (
 
 -- #############################################################################
 -- 10) GAMES
--- Game lay cau hoi tu flashcard_card cua flashcard_set duoc chon.
+-- [JLAS-1095] Game dung flashcard hoac ngan hang cau hoi JLPT, tuy game_type.
 -- #############################################################################
 
 -- Thong tin mot tran; room runtime nam trong WebSocket/in-memory.
 CREATE TABLE game_match (
     match_id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    flashcard_set_id  BIGINT UNSIGNED NOT NULL, -- Nguon card cua tran.
+    flashcard_set_id  BIGINT UNSIGNED NULL, -- [JLAS-1095] Chi co gia tri cho game dung flashcard.
     room_id           VARCHAR(64) NOT NULL,
     room_code         VARCHAR(16) NOT NULL,
     game_type         VARCHAR(32) NOT NULL,
@@ -3289,7 +3341,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH','SPHINX_RIDDLE','PICTURE_REBUS','DRAW_GUESS')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -3316,7 +3368,7 @@ CREATE TABLE game_match_player (
     CONSTRAINT fk_game_match_player_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_game_match_player_result
-        CHECK (result IN ('PENDING','WIN','LOSE','DRAW','FORFEIT'))
+        CHECK (result IN ('PENDING','WIN','LOSE','DRAW','FORFEIT','COMPLETED')) -- [JLAS-1095] Ket thuc khong tinh diem.
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ket qua Memory Match cua tung user.
@@ -4034,6 +4086,56 @@ CREATE TABLE IF NOT EXISTS community_report (
     CONSTRAINT chk_community_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-37] Community Hub: bai viet nguoi hoc tu dang (chi text). La "bang goc" cua content_type POST:
+-- trang thai/bo dem/binh luan/bao cao van o community_content + community_comment + community_report.
+-- jlpt_level NULL = Chung. Xoa mem bang deleted_at. Migration: sql/migrations/087_community_post.sql.
+CREATE TABLE IF NOT EXISTS community_post (
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    author_id   BIGINT UNSIGNED NOT NULL,
+    body        VARCHAR(5000) NOT NULL,
+    jlpt_level  VARCHAR(4) NULL,
+    edited_at   DATETIME(6) NULL,
+    deleted_at  DATETIME(6) NULL,
+    created_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at  DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_community_post_feed (deleted_at, created_at),
+    KEY idx_community_post_author (author_id),
+    CONSTRAINT fk_community_post_author FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_post_level CHECK (jlpt_level IS NULL OR jlpt_level IN ('N5','N4','N3','N2','N1'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-37] Anh / video dinh kem bai viet Cong dong: IMAGE/VIDEO nam tren Azure Blob (storage_key = ten blob),
+-- YOUTUBE chi luu ma video. Moi bai toi da 4 anh + 1 video. Migration: sql/migrations/089_community_post_media.sql.
+CREATE TABLE IF NOT EXISTS community_post_media (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    post_id      BIGINT UNSIGNED NOT NULL,
+    kind         VARCHAR(10)     NOT NULL,
+    storage_key  VARCHAR(300)    NOT NULL,
+    content_type VARCHAR(60)     NULL,
+    size_bytes   BIGINT UNSIGNED NULL,
+    sort_order   INT             NOT NULL DEFAULT 0,
+    created_at   DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    KEY idx_community_post_media_post (post_id, sort_order),
+    CONSTRAINT fk_community_post_media_post FOREIGN KEY (post_id) REFERENCES community_post(id) ON DELETE CASCADE,
+    CONSTRAINT chk_community_post_media_kind CHECK (kind IN ('IMAGE', 'VIDEO', 'YOUTUBE'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS2-37] "Luu bai" de xem lai sau (muc "Da luu" tren feed Cong dong). Luu theo (content_type, content_id) nen
+-- luu duoc moi loai tren feed (POST, FLASHCARD_SET, SHADOWING_VIDEO). Migration: sql/migrations/092_community_saved_post.sql.
+CREATE TABLE IF NOT EXISTS community_saved_post (
+    id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id      BIGINT UNSIGNED NOT NULL,
+    content_type VARCHAR(30)     NOT NULL,
+    content_id   BIGINT UNSIGNED NOT NULL,
+    created_at   DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_community_saved_post (user_id, content_type, content_id),
+    KEY idx_community_saved_post_user (user_id, created_at),
+    CONSTRAINT fk_community_saved_post_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- [JLAS-KANJI-MAP] Relational source catalog.
 CREATE TABLE IF NOT EXISTS user_kanji_mastery (
     user_id BIGINT UNSIGNED NOT NULL,
@@ -4134,6 +4236,54 @@ CREATE TABLE IF NOT EXISTS kanji_map_stroke (
     CONSTRAINT fk_kanji_map_stroke_node FOREIGN KEY (kanji_character) REFERENCES kanji_map_node(kanji_character) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- [JLAS2-17] So tay tu vung (dang cuoi cung cua sql/migrations/038_user_notebooks.sql, 039_notebook_review.sql,
+-- 052_notebook_update.sql; khong kem du lieu khoi tao cua cac migration do). Truoc day file nay chi tham chieu
+-- user_notebook (FK cua user_notebook_kanji ben duoi) ma khong tao, nen chay tren DB trong bi loi 1824.
+CREATE TABLE IF NOT EXISTS user_notebook (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT UNSIGNED NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    notebook_type VARCHAR(20) NOT NULL DEFAULT 'CUSTOM',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_notebook_name (user_id, name),
+    KEY idx_user_notebook_user (user_id),
+    CONSTRAINT fk_user_notebook_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_entry (
+    notebook_id BIGINT NOT NULL,
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (notebook_id, vocabulary_id),
+    KEY idx_user_notebook_entry_vocab (vocabulary_id),
+    CONSTRAINT fk_user_notebook_entry_notebook FOREIGN KEY (notebook_id) REFERENCES user_notebook(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_notebook_entry_vocab FOREIGN KEY (vocabulary_id) REFERENCES vocabulary_entry(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_review (
+    notebook_id BIGINT NOT NULL,
+    vocabulary_id BIGINT UNSIGNED NOT NULL,
+    ease_factor DECIMAL(4,2) NOT NULL DEFAULT 2.50,
+    repetitions INT NOT NULL DEFAULT 0,
+    interval_days INT NOT NULL DEFAULT 0,
+    due_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    first_seen_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_reviewed_at DATETIME NULL,
+    PRIMARY KEY (notebook_id, vocabulary_id),
+    KEY idx_notebook_review_due (notebook_id, due_at),
+    CONSTRAINT fk_notebook_review_entry FOREIGN KEY (notebook_id, vocabulary_id)
+        REFERENCES user_notebook_entry (notebook_id, vocabulary_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_notebook_study_setting (
+    notebook_id BIGINT NOT NULL,
+    daily_new_limit INT NOT NULL DEFAULT 30,
+    PRIMARY KEY (notebook_id),
+    CONSTRAINT fk_notebook_study_setting_notebook FOREIGN KEY (notebook_id)
+        REFERENCES user_notebook (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS user_notebook_kanji (
     notebook_id BIGINT NOT NULL,
     kanji_character VARCHAR(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
@@ -4154,3 +4304,45 @@ CREATE TABLE IF NOT EXISTS user_notebook_kanji (
 -- [JLAS-NOTEBOOK] End of Kanji update.
 
 -- End of canonical schema.
+
+
+-- [JLAS2-270] Learning content and displayed AI explanation reports; no automatic hiding or content edits.
+-- Run once before enabling the new report API; safe to re-run. Contains no changes to existing content.
+CREATE TABLE IF NOT EXISTS learning_content_report (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    reporter_user_id BIGINT NOT NULL,
+    target_type VARCHAR(24) NOT NULL,
+    target_code VARCHAR(160) COLLATE utf8mb4_bin NOT NULL,
+    page_context VARCHAR(40) NOT NULL,
+    target_label VARCHAR(255) NOT NULL,
+    reason VARCHAR(16) NOT NULL,
+    note VARCHAR(1000) NULL,
+    context_json LONGTEXT NOT NULL,
+    source_url VARCHAR(500) NOT NULL,
+    status VARCHAR(10) NOT NULL DEFAULT 'OPEN',
+    review_note VARCHAR(1000) NULL,
+    resolved_by BIGINT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    resolved_at DATETIME(6) NULL,
+    open_flag TINYINT GENERATED ALWAYS AS (CASE WHEN status='OPEN' THEN 1 ELSE NULL END) STORED,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_learning_report_open (reporter_user_id,target_type,target_code,open_flag),
+    KEY idx_learning_report_queue (status,created_at,id),
+    KEY idx_learning_report_user_day (reporter_user_id,created_at),
+    CONSTRAINT chk_learning_report_status CHECK (status IN ('OPEN','RESOLVED','REJECTED')),
+    CONSTRAINT chk_learning_report_target CHECK (target_type IN ('JLPT_QUESTION','VERB_QUESTION','KANJI_MAP','AI_EXPLANATION')),
+    CONSTRAINT chk_learning_report_reason CHECK (reason IN ('CONTENT','ANSWER','AUDIO','AI','OTHER'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [JLAS-W0108] owner 18/11: one private flashcard set per learner per JLPT part (team flashcard feature)
+CREATE TABLE IF NOT EXISTS learning_path_flashcard_set (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  path_kind VARCHAR(8) NOT NULL,
+  tab VARCHAR(16) NOT NULL,
+  level VARCHAR(8) NULL,
+  codes_hash CHAR(64) NOT NULL,
+  set_id BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_lp_fc_set UNIQUE (user_id, path_kind, codes_hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

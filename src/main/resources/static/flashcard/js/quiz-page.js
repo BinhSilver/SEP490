@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
   const redirectTarget = `${location.pathname}${location.search}`;
   if (!window.JlasAuth || !window.JlasAuth.requireLogin(redirectTarget)) return;
-  window.matchMedia('(max-width: 640px)').addEventListener('change', placeQuickSetupHeading);
 
   const prefs = getPrefs();
   Object.assign(state.filters, {
@@ -216,16 +215,6 @@ function render() {
   return renderSummary(root);
 }
 
-function placeQuickSetupHeading() {
-  const setup = document.querySelector('.quiz-quick-setup');
-  if (!setup) return;
-  const heading = setup.querySelector('.sr-setup__heading');
-  const form = setup.querySelector('#quiz-quick-form');
-  if (!heading || !form) return;
-  if (window.matchMedia('(max-width: 640px)').matches) form.prepend(heading);
-  else setup.insertBefore(heading, form);
-}
-
 function bindQuickPairDropdown(root) {
   quickPairDropdownController?.abort();
   quickPairDropdownController = new AbortController();
@@ -350,10 +339,10 @@ function renderQuickSetup(root) {
 
   root.innerHTML = `
     <section class="quiz-quick-setup sr-setup" aria-labelledby="quiz-setup-title">
-      <header class="sr-setup__heading">
-        <h1 id="quiz-setup-title" class="sr-set-title">${esc(cleanSetName(state.activeSet.name))}</h1>
-      </header>
       <form id="quiz-quick-form" class="sr-setup__card">
+        <header class="sr-setup__heading">
+          <h1 id="quiz-setup-title" class="sr-set-title">${esc(cleanSetName(state.activeSet.name))}</h1>
+        </header>
         <div class="sr-setup__grid">
           <div class="sr-setup__field"><span id="quiz-pair-label">Thẻ</span>
             <div class="quiz-pair-select">
@@ -377,7 +366,6 @@ function renderQuickSetup(root) {
     </section>
   `;
 
-  placeQuickSetupHeading();
   bindQuickPairDropdown(root);
   const questionCountInput = root.querySelector('#quiz-question-count');
   const refreshRandomPreview = count => {

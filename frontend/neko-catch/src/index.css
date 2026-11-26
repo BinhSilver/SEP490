@@ -163,7 +163,15 @@ input[type='range']::-webkit-slider-thumb {
 .neko-skin-purchase button:focus-visible, .neko-skins__error button:focus-visible { outline: 2px solid #ffd56a; outline-offset: 2px; }
 .neko-skins__error p { margin: 0 0 6px; }
 .neko-skins__error { margin-top: 8px; color: #ffbab5; font-size: 13px; }
-.neko-setup__quick-mobile { display: none; }
+/* Setup settings: every choice is the shared J-LAS dropdown, on phone and desktop alike. */
+.neko-setup__fields { display: grid; gap: 8px; width: 100%; margin-top: 8px; text-align: left; }
+.neko-setup__fields--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 16px; }
+.neko-setup__fields--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.neko-setup__field { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.neko-setup__field > span { color: #f3d28a; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.neko-setup__field select { width: 100%; min-height: 44px; padding: 8px; border: 1px solid #71548e; border-radius: 8px; background: #332348; color: #fff0bf; font: 800 14px 'Nunito', sans-serif; color-scheme: dark; }
+.neko-setup__field select:focus-visible { outline: 2px solid #ffd56a; outline-offset: 2px; }
+.neko-setup__field select:disabled { opacity: .55; }
 @media (max-width: 900px) {
   .neko-hud { top: max(8px, env(safe-area-inset-top)); left: 8px; right: 8px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 8px; }
   .neko-hud__score-group { grid-column: 1; grid-row: 1; align-items: flex-start; gap: 4px; }
@@ -198,13 +206,6 @@ input[type='range']::-webkit-slider-thumb {
   .neko-hud__effects > div { width: 120px; padding: 4px 6px; font-size: 10px; line-height: 14px; }
   .neko-hud__effects > div > div { font-size: 10px; }
   .neko-status { bottom: max(12px, env(safe-area-inset-bottom)); }
-  .neko-setup__quick-desktop { display: none; }
-  .neko-setup__quick-mobile { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; text-align: left; }
-  .neko-setup__quick-mobile label { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
-  .neko-setup__quick-mobile label > span { color: #f3d28a; font-size: 12px; font-weight: 700; white-space: nowrap; }
-  .neko-setup__quick-mobile select { width: 100%; min-height: 44px; padding: 8px; border: 1px solid #71548e; border-radius: 8px; background: #332348; color: #fff0bf; font: 800 14px 'Nunito', sans-serif; color-scheme: dark; }
-  .neko-setup__quick-mobile select:focus-visible { outline: 2px solid #ffd56a; outline-offset: 2px; }
-  .neko-setup__quick-mobile select:disabled { opacity: .55; }
   .neko-skins__preview { display: none; }
   .neko-skins__picker { margin-top: 0; }
   .neko-skins__trigger { display: none; }

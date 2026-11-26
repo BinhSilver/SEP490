@@ -41,6 +41,13 @@ public class ContentVocabulary {
     @Column(name = "learning_example_vi", columnDefinition = "TEXT")
     private String learningExampleVi;
 
+    /**
+     * Thứ tự hiển thị từ trong bài. NULL = sắp theo id từ vựng (mặc định cũ). Migration 088 (gộp mục từ trùng) ghi
+     * thứ tự cũ cho các bài bị đổi id để danh sách từ không bị đảo; từ thêm sau (NULL) xếp sau các từ đã có thứ tự.
+     */
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     // -----------------------------------------------------------------------
 
     @Embeddable

@@ -67,6 +67,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -140,23 +141,27 @@ public class GameServiceImpl implements GameService {
         List<FieldView> fields = Arrays.stream(DeckField.values())
                 .map(field -> new FieldView(field, field.label(), field.japanese()))
                 .toList();
-        return new CatalogView(GameRules.catalog(), fields);
+        return new CatalogView(GameRules.visibleCatalog(), fields);
     }
 
     @Override
     public LobbyView lobby(long userId) {
         int activeMatches = (int) sessions.all().stream()
                 .filter(session -> session.isVersus() && !session.getStatus().isTerminal())
+                .filter(session -> GameRules.canAccess(session.getGameType()))
                 .count();
-        String myRoomId = rooms.roomOf(userId).map(GameRoom::getRoomId).orElse(null);
+        String myRoomId = rooms.roomOf(userId).filter(room -> GameRules.canAccess(room.getGameType()))
+                .map(GameRoom::getRoomId).orElse(null);
         Map<GameType, Integer> searching = new EnumMap<>(GameType.class);
         for (GameType type : GameType.values()) {
-            searching.put(type, 0);
+            if (GameRules.canAccess(type)) {
+                searching.put(type, 0);
+            }
         }
         synchronized (queueLock) {
             for (QuickTicket ticket : tickets.values()) {
                 if (ticket.userId() != userId) {
-                    searching.merge(ticket.gameType(), 1, Integer::sum);
+                    searching.computeIfPresent(ticket.gameType(), (type, count) -> count + 1);
                 }
             }
         }
@@ -167,8 +172,9 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public RoomView createRoom(long userId, CreateRoomRequest request) {
-        rateLimiter.check(userId, "room-join", properties.arena().rateLimit().joinPerMinute());
         GameType type = request.gameType();
+        GameRules.requireAccess(type);
+        rateLimiter.check(userId, "room-join", properties.arena().rateLimit().joinPerMinute());
         GameSettings settings = validatedSettings(type, PlayMode.VERSUS, request.settings(), userId);
         cancelQuickMatch(userId);
         leaveCurrentRoom(userId, null);
@@ -195,7 +201,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView join(long userId, String roomId) {
         rateLimiter.check(userId, "room-join", properties.arena().rateLimit().joinPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         boolean alreadyMember = room.withLock(() -> room.playersByUserId().containsKey(userId));
         if (alreadyMember) {
             return room(userId, roomId);
@@ -205,7 +211,9 @@ public class GameServiceImpl implements GameService {
         }
         // Bộ có thể là bộ riêng của chủ phòng nên đọc theo quyền của chủ phòng, trước khi rời phòng đang ở.
         GameSettings roomSettings = room.withLock(room::getSettings);
-        List<DeckPairView> pairs = decks.deck(room.withLock(room::getHostUserId), roomSettings.setId()).pairs();
+        List<DeckPairView> pairs = room.getGameType().usesDeck()
+                ? decks.deck(room.withLock(room::getHostUserId), roomSettings.setId()).pairs()
+                : List.of();
         cancelQuickMatch(userId);
         leaveCurrentRoom(userId, roomId);
         PlayerSeat me = seatOf(userId, 0);
@@ -226,7 +234,7 @@ public class GameServiceImpl implements GameService {
             room.playersByUserId().put(userId,
                     new RoomPlayer(me, room.freeSlot(), now));
             rooms.bindUser(userId, roomId);
-            if (room.isFull()) {
+            if (room.isFull() && room.getGameType().usesDeck()) {
                 room.setQuickMatch(true);
                 room.setStatus(RoomStatus.DRAFTING);
                 room.setDraft(new QuickDraft(room.getGameType(), room.getHostUserId(), userId, pairs,
@@ -242,7 +250,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public RoomView room(long userId, String roomId) {
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         return room.withLock(() -> {
             if (!room.playersByUserId().containsKey(userId)) {
                 throw new ApiException(ErrorCode.FORBIDDEN, "Bạn chưa ở trong phòng này");
@@ -254,7 +262,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView updateSettings(long userId, String roomId, GameSettings raw) {
         rateLimiter.check(userId, "room-settings", properties.arena().rateLimit().settingsPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         requireHost(room, userId);
         if (room.isQuickMatch()) {
             throw new ApiException(ErrorCode.CONFLICT, "Phòng ghép trận nhanh chọn cài đặt bằng tung đồng xu");
@@ -283,7 +291,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView setReady(long userId, String roomId, boolean ready) {
         rateLimiter.check(userId, "room-ready", properties.arena().rateLimit().readyPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         RoomView view = room.withLock(() -> {
             RoomPlayer player = requireMember(room, userId);
             if (room.getStatus() != RoomStatus.WAITING) {
@@ -306,7 +314,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public RoomView start(long userId, String roomId) {
         rateLimiter.check(userId, "room-start", properties.arena().rateLimit().startPerMinute());
-        GameRoom room = rooms.require(roomId);
+        GameRoom room = accessibleRoom(roomId);
         requireHost(room, userId);
         GameSettings settings = room.withLock(room::getSettings);
         // Kiểm lại bộ thẻ ngay lúc bắt đầu: chủ bộ có thể đã sửa hoặc ẩn bộ.
@@ -461,6 +469,9 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public QuickMatchView quickMatch(long userId, QuickMatchRequest request) {
+        if (!request.gameType().usesDeck()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Hãy tạo phòng và mời bạn bằng mã phòng");
+        }
         rateLimiter.check(userId, "quick-match", properties.arena().rateLimit().joinPerMinute());
         GameType type = request.gameType();
         DeckDetailView detail = decks.deck(userId, request.setId());
@@ -666,6 +677,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public LaunchView startSolo(long userId, SoloRequest request) {
+        GameRules.requireAccess(request.gameType());
         rateLimiter.check(userId, "solo-start", properties.arena().rateLimit().startPerMinute());
         GameSettings settings = validatedSettings(request.gameType(), PlayMode.SOLO, request.settings(), userId);
         GameSession session = openSession(request.gameType(), PlayMode.SOLO, null, GameMatchRecorder.SOLO_ROOM_CODE,
@@ -677,15 +689,29 @@ public class GameServiceImpl implements GameService {
     private GameSession openSession(GameType type, PlayMode mode, String roomId, String roomCode,
                                     GameSettings settings, List<PlayerSeat> seats, long authorityUserId) {
         GameOptions options = GameRules.normalize(type, mode, settings.options());
-        DeckWords deck = configuredWords(authorityUserId, settings, options);
-        requireEnoughWords(type, options, deck, settings);
+        DeckWords deck = null;
+        if (type.usesDeck()) {
+            deck = configuredWords(authorityUserId, settings, options);
+            requireEnoughWords(type, options, deck, settings);
+        }
+        Long setId = deck == null ? null : deck.setId();
+        String title = deck == null ? settings.jlpt() : deck.title();
         String sessionId = UUID.randomUUID().toString();
-        Long matchId = recorder.start(type, roomId == null ? "solo:" + sessionId : roomId, roomCode, deck.setId(),
-                seats, settings.withTitle(deck.title()).withOptions(options));
+        Long matchId = recorder.start(type, roomId == null ? "solo:" + sessionId : roomId, roomCode, setId,
+                seats, settings.withTitle(title).withOptions(options));
         LaunchRequest request = new LaunchRequest(sessionId, mode, roomId, roomId == null ? null : roomCode, matchId,
-                deck.setId(), deck.title(), settings.questionField(), settings.answerField(), options, seats,
-                deck.words());
-        return engine(type).launch(request);
+                setId, title, settings.questionField(), settings.answerField(), options, seats,
+                deck == null ? List.of() : deck.words(), settings.jlpt());
+        try {
+            return engine(type).launch(request);
+        } catch (RuntimeException ex) {
+            try {
+                recorder.finish(matchId, null, true, Set.of(), Set.of());
+            } catch (RuntimeException persistError) {
+                ex.addSuppressed(persistError);
+            }
+            throw ex;
+        }
     }
 
     // ----------------------------------------------------------------- session
@@ -693,6 +719,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public SessionInfoView session(long userId, String sessionId) {
         GameSession session = sessions.require(sessionId);
+        GameRules.requireAccess(session.getGameType());
         if (!session.isParticipant(userId)) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không tham gia trận này");
         }
@@ -817,6 +844,13 @@ public class GameServiceImpl implements GameService {
 
     /** Chuẩn hoá tuỳ chọn và kiểm bộ thẻ có đủ thẻ mang cả 2 trường đã chọn. */
     private GameSettings validatedSettings(GameType type, PlayMode mode, GameSettings raw, long authorityUserId) {
+        if (!type.usesDeck()) {
+            if (mode == PlayMode.SOLO && !type.supportsSolo()) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Vẽ & Đoán cần hai người chơi");
+            }
+            String jlpt = GameRules.puzzleLevel(raw == null ? null : raw.jlpt());
+            return new GameSettings(null, jlpt, null, null, GameRules.normalize(type, mode, null), jlpt);
+        }
         if (raw == null || raw.setId() == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn bộ flashcard");
         }
@@ -850,6 +884,12 @@ public class GameServiceImpl implements GameService {
         if (current.isPresent() && !current.get().getRoomId().equals(exceptRoomId)) {
             leave(userId, current.get().getRoomId());
         }
+    }
+
+    private GameRoom accessibleRoom(String roomId) {
+        GameRoom room = rooms.require(roomId);
+        GameRules.requireAccess(room.getGameType());
+        return room;
     }
 
     private void requireHost(GameRoom room, long userId) {

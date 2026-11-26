@@ -3937,6 +3937,53 @@ html.dark .cp-page {
 .jp-page .jp-today .jp-today__stamp[data-tip]:focus-visible::after { transform: translateX(-50%) rotate(12deg); }
 .jp-today__stamp:focus-visible { outline: 2px solid var(--jp-primary); outline-offset: 4px; border-radius: 50%; }
 .jp-page .jp-today .jp-today__stamp[data-tip]::after { top: calc(100% + 8px); bottom: auto; z-index: 6; }
+/* owner 10/11: "Xem lại phần đã học hôm nay" becomes a speech bubble coming from the stamp, and the empty gap below is collapsed */
+.jp-today__stamp-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  vertical-align: middle;
+}
+.jp-today__stamp-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 18px 18px 18px 4px;
+  background: var(--jp-c-purple-50, #f4f0ff);
+  color: var(--jp-c-purple-900, #3b2a7a);
+  border: 0;
+  font-size: .82rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(80, 60, 160, .08);
+  transition: background-color .15s ease, transform .15s ease;
+}
+.jp-today__stamp-bubble::before {
+  display: none;
+}
+.jp-today__stamp-bubble:hover {
+  background: color-mix(in srgb, var(--jp-primary) 16%, var(--jp-c-purple-50, #f4f0ff));
+  transform: translateY(-1px);
+}
+.jp-today__stamp-bubble:focus-visible {
+  outline: 2px solid var(--jp-primary);
+  outline-offset: 2px;
+}
+html[data-theme="dark"] .jp-today__stamp-bubble,
+html.dark .jp-today__stamp-bubble {
+  background: var(--surface-2, #382840);
+  color: var(--text, #f5eef8);
+}
+.jp-today__body:has(.jp-today__main:empty) {
+  display: none !important;
+}
+@media (max-width: 640px) {
+  .jp-today__stamp-wrap { flex-wrap: wrap; gap: 8px; }
+  .jp-today__stamp-bubble { white-space: normal; font-size: .78rem; padding: 6px 12px; }
+}
 
 /* [JLAS-W0108] AI 1 #10: wide screens anchor the tour box beside the lit target; a ring makes the target obvious */
 .jp-tour.jp-tour--anchored { inset: 0; padding: 0; display: block; }

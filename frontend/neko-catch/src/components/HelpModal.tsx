@@ -55,6 +55,7 @@ export const HelpModal: React.FC<{
       <div
         ref={ref}
         role="dialog"
+        data-game-ui-panel
         aria-modal="true"
         aria-labelledby="help-modal-title"
         className="p-5 sm:p-6 rounded-3xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto custom-scrollbar"

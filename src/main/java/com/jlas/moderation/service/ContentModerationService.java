@@ -294,6 +294,259 @@ public class ContentModerationService {
         }
     }
 
+    /** Kết quả quét một ảnh/khung hình của bài Cộng đồng: phán quyết an toàn + mô tả ngắn (có thể null) cho bước xét chủ đề. */
+    public record CommunityImageReview(ModerationResult result, String description) {}
+
+    private static final String COMMUNITY_IMAGE_PROMPT = """
+            You are a content moderator for KotsuKotsu, a community where Vietnamese people learn Japanese.
+            1) Flag policy risks in the IMAGE: sexual/NSFW or nudity, sexualized minors, graphic gore or extreme violence,
+               hate symbols or extremism, illegal drugs, self-harm, weapons shown in a threatening or glorifying way.
+               Anime/manga, classrooms, textbooks, JLPT materials, notes and everyday photos are usually SAFE.
+               Ambiguous safety cases -> REVIEW.
+            2) Describe (in Vietnamese, never English) what the image shows in one short sentence: the main subject, any visible text and
+               its language (quote Japanese text), and whether anything links it to Japan or learning Japanese.
+            3) japanese: "yes" if the image itself is about Japan or the Japanese language (Japanese text, kana/kanji,
+               JLPT or textbook pages, Japanese places, food, culture, anime/manga); "no" ONLY when it clearly shows
+               a non-Japanese subject (for example Vietnamese food or dishes, text in another language, a game, an
+               advertisement); ordinary scenes (people talking, a room, a desk, a street) -> "unsure".
+            Reply JSON only, no markdown:
+            {"verdict":"SAFE"|"REVIEW"|"BLOCKED","categories":["..."],"confidence":0.0,"reason":"short","describe":"...","japanese":"yes"|"no"|"unsure"}
+            """;
+
+    /**
+     * Ảnh / khung hình video của bài Cộng đồng: cùng các luật an toàn với {@link #scanImage} (lọc tên tệp + vision) và
+     * kèm một câu mô tả để AI xét chủ đề tiếng Nhật của cả bài. Vision chưa cấu hình / lỗi → SAFE, không mô tả.
+     */
+    public CommunityImageReview reviewCommunityImage(java.nio.file.Path imagePath, String originalFilename) {
+        if (!enabled || !imageEnabled || !visionClient.isConfigured()) {
+            return new CommunityImageReview(safeResult("Image moderation disabled"), null);
+        }
+        ModerationResult nameCheck = scanImagePlaceholder(originalFilename);
+        if (nameCheck.isBlocked()) return new CommunityImageReview(nameCheck, null);
+        String userPrompt = "Moderate and describe this image posted in the community. JSON only as specified.";
+        try {
+            String raw = visionClient.analyzeImage(imagePath, userPrompt, COMMUNITY_IMAGE_PROMPT);
+            ModerationResult result = parseVisionJson(raw, visionClient.getPrimaryModel());
+            if (result.needsReview() && visionClient.hasFallbackModel()) {
+                // Bài Cộng đồng không có hàng chờ duyệt như Shadowing: model chính chưa chắc → hỏi model dự phòng.
+                log.info("Community image REVIEW by {}, asking {}: {}", visionClient.getPrimaryModel(),
+                        visionClient.getFallbackModel(), cut(raw));
+                try {
+                    String second = visionClient.analyzeImageWithFallbackModel(imagePath, userPrompt, COMMUNITY_IMAGE_PROMPT);
+                    raw = second;
+                    result = parseVisionJson(second, visionClient.getFallbackModel());
+                } catch (Exception e) {
+                    log.warn("Community image second opinion failed: {}", e.getMessage());
+                }
+            }
+            if (result.isBlocked() || result.needsReview()) {
+                log.warn("Community image flagged {}: {}", result.getVerdict(), cut(raw));
+            }
+            String describe = jsonText(raw, "describe");
+            String japanese = jsonText(raw, "japanese");
+            if (StringUtils.hasText(describe) && StringUtils.hasText(japanese)) {
+                describe = describe.strip() + " (liên quan Nhật Bản/tiếng Nhật: " + japanese.strip().toLowerCase(Locale.ROOT) + ")";
+            }
+            return new CommunityImageReview(result, describe);
+        } catch (Exception e) {
+            log.warn("Community image scan failed: {}", e.getMessage());
+            return new CommunityImageReview(ModerationResult.builder()
+                    .verdict(ModerationVerdict.ERROR)
+                    .categories(List.of("VISION_ERROR"))
+                    .confidence(0)
+                    .summary("Vision lỗi: " + e.getMessage())
+                    .modelName(visionClient.getPrimaryModel())
+                    .build(), null);
+        }
+    }
+
+    private static String cut(String raw) {
+        String flat = raw == null ? "" : raw.replaceAll("\\s+", " ");
+        return flat.length() > 400 ? flat.substring(0, 400) : flat;
+    }
+
+    private static final String JAPANESE_TOPIC_PROMPT = """
+            You review posts for KotsuKotsu, a community where Vietnamese people learn Japanese.
+            Decide whether the WHOLE post (text plus the attached media described after it) is about Japanese:
+            the Japanese language (vocabulary, grammar, kanji, kana, JLPT, study tips, materials, practice, questions),
+            Japanese culture, or studying / working / living in Japan. Posts written in Vietnamese or English are fine
+            when the topic is Japanese.
+            Unrelated: food, vlogs, news, ads, sales, games, gossip or chit-chat with no link to Japan or Japanese,
+            and meaningless text (for example "gg", "test", "hihi", only emoji).
+            The attached media must fit too: if an image, a video frame or a YouTube video is CLEARLY about something
+            unrelated (for example a Vietnamese food vlog, a game clip, an advertisement) and shows nothing Japanese,
+            answer "no" even when the text itself is Japanese, and name that media in the reason.
+            Always count as related: any speech or conversation in Japanese (listening practice, even casual talk),
+            Japanese text, Japanese people, places, food or culture, and media that illustrates the Japanese content of
+            the text. Ordinary scenes (people talking, a desk, a street) with nothing clearly off-topic are not a reason
+            to say "no". When in doubt answer "unsure", never "no". Media without a description: judge by the rest.
+            Reply JSON only, no markdown: {"related":"yes"|"no"|"unsure","reason":"..."}
+            "reason" is shown to the Vietnamese poster: write it in Vietnamese (never English), one short sentence.
+            """;
+
+    /**
+     * Bài Cộng đồng phải liên quan tới tiếng Nhật, cả chữ lẫn ảnh/video. Bài chỉ có chữ và có kana → đạt ngay (không gọi
+     * AI). Còn lại hỏi AI với nội dung bài
+     * + mô tả media đính kèm: "no" → BLOCKED (OFF_TOPIC), "yes"/"unsure" → SAFE. AI chưa cấu hình hoặc lỗi → SAFE (không
+     * chặn người học vì sự cố bên ngoài). Kết quả theo nội dung được cache trong content_moderation_log.
+     */
+    public ModerationResult scanJapaneseTopic(String text, List<String> mediaContext) {
+        if (!enabled) return safeResult("Moderation disabled");
+        String body = text == null ? "" : text.strip();
+        boolean hasMedia = mediaContext != null && mediaContext.stream().anyMatch(StringUtils::hasText);
+        // Bài chỉ có chữ: có kana là đạt. Có ảnh/video thì luôn hỏi AI để xét cả media (ảnh lạc đề kèm chữ tiếng Nhật).
+        if (!hasMedia && body.codePoints().filter(cp -> Character.UnicodeScript.of(cp) == Character.UnicodeScript.HIRAGANA
+                || Character.UnicodeScript.of(cp) == Character.UnicodeScript.KATAKANA).limit(2).count() >= 2) {
+            return safeResult("Bài có chữ tiếng Nhật");
+        }
+        if (!visionClient.isConfigured()) return safeResult("AI chủ đề chưa cấu hình");
+        StringBuilder prompt = new StringBuilder("Nội dung bài viết:\n").append(body.length() > 3000 ? body.substring(0, 3000) : body);
+        if (mediaContext != null && !mediaContext.isEmpty()) {
+            prompt.append("\n\nMedia đính kèm:");
+            for (String line : mediaContext) {
+                if (StringUtils.hasText(line)) prompt.append("\n- ").append(line.strip());
+            }
+        }
+        String hash = sha256("topic-v3|" + canonicalForMatch(prompt.toString()));
+        OptionalCache hit = findCachedVerdict(hash);
+        if (hit != null) {
+            ModerationResult cached = hit.result();
+            // Lý do được hiện cho người đăng: bỏ hậu tố " [cache]" của findCachedVerdict.
+            if (cached.getSummary() != null) cached.setSummary(cached.getSummary().replace(" [cache]", ""));
+            return cached;
+        }
+        try {
+            String raw = visionClient.analyzeText(JAPANESE_TOPIC_PROMPT, prompt.toString());
+            String related = String.valueOf(jsonText(raw, "related")).trim().toLowerCase(Locale.ROOT);
+            String reason = jsonText(raw, "reason");
+            ModerationResult result = "no".equals(related)
+                    ? ModerationResult.builder()
+                            .verdict(ModerationVerdict.BLOCKED)
+                            .categories(List.of("OFF_TOPIC"))
+                            .confidence(0.8)
+                            .summary(StringUtils.hasText(reason) ? reason.strip()
+                                    : "Nội dung không liên quan tới tiếng Nhật.")
+                            .modelName(visionClient.getPrimaryModel())
+                            .build()
+                    : ModerationResult.builder()
+                            .verdict(ModerationVerdict.SAFE)
+                            .categories(List.of())
+                            .confidence("yes".equals(related) ? 0.9 : 0.5)
+                            .summary(StringUtils.hasText(reason) ? reason.strip() : "Liên quan tiếng Nhật")
+                            .modelName(visionClient.getPrimaryModel())
+                            .build();
+            if (result.isBlocked()) log.info("Community post off-topic: {} || {}", cut(prompt.toString()), cut(raw));
+            try {
+                logRepository.save(ContentModerationLog.builder()
+                        .targetType("COMMUNITY_TOPIC")
+                        .contentHash(hash)
+                        .source("TOPIC_AI")
+                        .verdict(result.getVerdict())
+                        .categoriesJson(toJson(result.getCategories()))
+                        .confidence(result.getConfidence())
+                        .modelName(result.getModelName())
+                        .summary(result.getSummary().length() > 480 ? result.getSummary().substring(0, 480)
+                                : result.getSummary())
+                        .build());
+            } catch (Exception e) {
+                log.debug("Topic cache save skip: {}", e.getMessage());
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("Japanese topic check failed: {}", e.getMessage());
+            return safeResult("Không kiểm tra được chủ đề: " + e.getMessage());
+        }
+    }
+
+    private static final String YOUTUBE_TOPIC_PROMPT = """
+            You review a YouTube video that a learner wants to share in KotsuKotsu, a community where Vietnamese people
+            learn Japanese. From its title, channel, description, tags and spoken language, decide whether the VIDEO
+            ITSELF is about Japanese or Japan:
+            learning the Japanese language in any language of explanation (lessons, grammar, vocabulary, kanji, kana,
+            JLPT, listening or speaking practice, textbooks such as Minna no Nihongo), Japanese culture, Japan (travel,
+            life, work or study in Japan), or Japanese media in Japanese (anime, drama, songs).
+            Unrelated: anything with no clear link to Japan or the Japanese language, for example food or daily vlogs,
+            music or films in other languages, games, news, advertisements, sales, gossip.
+            Answer "yes" only when the information clearly shows the video is about Japanese or Japan, "no" when it is
+            clearly about something else, otherwise "unsure".
+            Reply JSON only, no markdown: {"related":"yes"|"no"|"unsure","reason":"..."}
+            "reason" is shown to the Vietnamese poster: write it in Vietnamese (never English), one short sentence.
+            """;
+
+    /**
+     * Video YouTube có lời thoại không phải tiếng Nhật (hoặc không rõ) đăng lên Cộng đồng: phải được AI xác nhận
+     * {@code "yes"} là về tiếng Nhật / Nhật Bản mới đạt (SAFE). "no", "unsure", AI chưa cấu hình hoặc lỗi → BLOCKED kèm
+     * lý do — khác {@link #scanJapaneseTopic} (phân vân thì cho qua), vì video lạc đề không được lọt khi chưa xét được.
+     * Moderation tắt hẳn ({@code moderation.enabled=false}) → SAFE. Kết quả "yes"/"no" được cache theo nội dung.
+     */
+    public ModerationResult scanYoutubeRelated(String videoInfo) {
+        if (!enabled) return safeResult("Moderation disabled");
+        if (!visionClient.isConfigured()) {
+            return youtubeTopicBlocked("Chưa kiểm tra được nội dung video, hãy thử lại sau.", "off");
+        }
+        String info = videoInfo == null ? "" : videoInfo.strip();
+        String hash = sha256("yt-topic-v1|" + canonicalForMatch(info));
+        OptionalCache hit = findCachedVerdict(hash);
+        if (hit != null) {
+            ModerationResult cached = hit.result();
+            if (cached.getSummary() != null) cached.setSummary(cached.getSummary().replace(" [cache]", ""));
+            return cached;
+        }
+        try {
+            String raw = visionClient.analyzeText(YOUTUBE_TOPIC_PROMPT, info.length() > 4000 ? info.substring(0, 4000) : info);
+            String related = String.valueOf(jsonText(raw, "related")).trim().toLowerCase(Locale.ROOT);
+            String reason = jsonText(raw, "reason");
+            String model = visionClient.getPrimaryModel();
+            ModerationResult result = "yes".equals(related)
+                    ? ModerationResult.builder().verdict(ModerationVerdict.SAFE).categories(List.of()).confidence(0.9)
+                            .summary(StringUtils.hasText(reason) ? reason.strip() : "Video liên quan tiếng Nhật")
+                            .modelName(model).build()
+                    : youtubeTopicBlocked(StringUtils.hasText(reason) ? reason.strip()
+                            : "Không thấy video liên quan tới tiếng Nhật.", model);
+            log.info("Community YouTube topic {}: {} || {}", related, cut(info), cut(raw));
+            if ("yes".equals(related) || "no".equals(related)) {
+                try {
+                    logRepository.save(ContentModerationLog.builder()
+                            .targetType("COMMUNITY_TOPIC")
+                            .contentHash(hash)
+                            .source("TOPIC_AI")
+                            .verdict(result.getVerdict())
+                            .categoriesJson(toJson(result.getCategories()))
+                            .confidence(result.getConfidence())
+                            .modelName(result.getModelName())
+                            .summary(result.getSummary().length() > 480 ? result.getSummary().substring(0, 480)
+                                    : result.getSummary())
+                            .build());
+                } catch (Exception e) {
+                    log.debug("YouTube topic cache save skip: {}", e.getMessage());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("YouTube topic check failed: {}", e.getMessage());
+            return youtubeTopicBlocked("Chưa kiểm tra được nội dung video, hãy thử lại sau.", "error");
+        }
+    }
+
+    private static ModerationResult youtubeTopicBlocked(String reason, String model) {
+        return ModerationResult.builder().verdict(ModerationVerdict.BLOCKED).categories(List.of("OFF_TOPIC"))
+                .confidence(0.8).summary(reason).modelName(model).build();
+    }
+
+    /** Một trường chữ trong JSON model trả về (bỏ qua chữ thừa quanh JSON); không có / lỗi → null. */
+    private String jsonText(String raw, String field) {
+        if (raw == null) return null;
+        int i = raw.indexOf('{');
+        int j = raw.lastIndexOf('}');
+        if (i < 0 || j <= i) return null;
+        try {
+            com.fasterxml.jackson.databind.JsonNode node = objectMapper.readTree(raw.substring(i, j + 1)).path(field);
+            return node.isMissingNode() || node.isNull() ? null : node.asText();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private record OptionalCache(ModerationResult result) {}
 
     private OptionalCache findCachedVerdict(String contentHash) {

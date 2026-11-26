@@ -91,6 +91,9 @@
     keepAliveTimer = global.setInterval(refreshToken, REFRESH_EVERY_MS);
   }
 
+  /** Longest a "leave match" waits for the server before the page moves on anyway. */
+  var LEAVE_WAIT_MS = 400;
+
   function request(method, url, body) {
     var ready = tokenExpiresSoon() ? refreshToken() : Promise.resolve(true);
     return ready.then(function () {
@@ -170,8 +173,25 @@
 
     solo: function (payload) { return request('POST', '/api/games/solo', payload); },
     session: function (sessionId) { return request('GET', '/api/games/sessions/' + encodeURIComponent(sessionId)); },
+    /**
+     * Leaving a match only takes the player back to the lobby, so it never waits on the server: the forfeit is sent
+     * as a keepalive request (it still goes out after the page changes) and this resolves after a short moment at
+     * most, even if the request is slow, queued behind open live connections, or fails.
+     */
     leaveSession: function (sessionId) {
-      return request('POST', '/api/games/sessions/' + encodeURIComponent(sessionId) + '/leave', null);
+      var url = '/api/games/sessions/' + encodeURIComponent(sessionId) + '/leave';
+      var ready = tokenExpiresSoon() ? refreshToken().catch(function () { return false; }) : Promise.resolve(true);
+      var sent = ready.then(function () {
+        return global.fetch(url, {
+          method: 'POST',
+          credentials: 'same-origin',
+          cache: 'no-store',
+          keepalive: true,
+          headers: { Accept: 'application/json' }
+        });
+      }).then(function () { return null; }, function () { return null; });
+      var moment = new Promise(function (resolve) { global.setTimeout(function () { resolve(null); }, LEAVE_WAIT_MS); });
+      return Promise.race([sent, moment]);
     },
 
     shop: function () { return request('GET', '/api/games/shop'); },
@@ -332,7 +352,8 @@
   }
 
   var FIELD_LABELS = { KANJI: 'Kanji', HIRAGANA: 'Cách đọc', MEANING: 'Nghĩa tiếng Việt', HAN_VIET: 'Hán Việt' };
-  var GAME_NAMES = { NEKO_CATCH: 'Bắt cá', MEMORY_MATCH: 'Lật thẻ', AIR_DEFENSE: 'Bắn máy bay' };
+  var GAME_NAMES = { NEKO_CATCH: 'Bắt cá', MEMORY_MATCH: 'Lật thẻ', AIR_DEFENSE: 'Bắn máy bay',
+    SPHINX_RIDDLE: 'Giải đố Nhân Sư', PICTURE_REBUS: 'Ghép hình đoán từ', DRAW_GUESS: 'Vẽ & Đoán' };
 
   global.addEventListener('beforeunload', function () { live.close(); });
 

@@ -58,7 +58,7 @@
 
   function messageOf(e, fallback, scope) {
     if (e && (e.status === 400 || e.code === 'BAD_REQUEST')) return scope === 'list' ? MSG_BAD_FILTER : MSG_ACTION;
-    return (e && e.message) || fallback || MSG_ACTION;
+    return (e && (e.code || e.status) && e.message) || fallback || MSG_ACTION;
   }
 
   function safeReturn(v) {
@@ -186,7 +186,7 @@
     html += section('Ví dụ', examples ? '<ul class="jp-examples">' + examples + '</ul>' : '');
     html += section('Mẹo nhớ', has(d.mnemonic) ? '<p>' + esc(d.mnemonic) + '</p>' : '');
     html += section('Dễ nhầm với', wordListHtml(d.confusables));
-    var writable = type === 'KANJI' || type === 'KANA' || (type === 'VOCAB' && kanjiInWord.length > 0);
+    /* owner 25/11: only kana and kanji have Luyện viết, never words */ var writable = type === 'KANJI' || type === 'KANA';
     if (writable && has(d.code)) {
       html += '<div class="jp-drawer__writing" data-jpath-writing="' + dataJson({ itemType: type, code: d.code }) + '"></div>';
     }
@@ -222,8 +222,8 @@
           return optionHtml(u.unitNo, 'Bài ' + u.unitNo, String(u.unitNo) === String(c.unit));
         }).join('') + '</select></label>';
     }
-    var sources = grammar ? [['LEARNED', 'Đã học'], ['ALL', 'Tất cả']]
-      : [['LEARNED', 'Đã học'], ['NOTEBOOK', 'Sổ tay'], ['ALL', 'Tất cả']];
+    // owner 20/11: grammar from a Smart Test sits in the notebook too, so every tab can quiz it
+    var sources = [['LEARNED', 'Đã học'], ['NOTEBOOK', 'Sổ tay'], ['ALL', 'Tất cả']];
     html += '<fieldset class="jp-fieldset"><legend>Nguồn câu hỏi</legend><div class="jp-choices">'
       + sources.map(function (s, i) { return radio('source', s[0], s[1], i === 0); }).join('') + '</div></fieldset>';
     if (!grammar) {

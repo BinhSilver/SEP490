@@ -37,7 +37,7 @@
   function list(v) { return Array.isArray(v) ? v : []; }
 
   function kitsuSrc(file) {
-    return '/images/mascots/kitsu/' + file;
+    return '/images/mascots/fox/' + file;
   }
 
   function pageUrl(page, params) {
@@ -137,8 +137,8 @@
 
     var strip = weekStripHtml(day, today, allDone, x.weekStatus);
     var nav = '<nav class="jp-dayd__nav" aria-label="Ngày khác">'
-      + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">‹ Hôm trước</a>'
-      + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau ›</a>' : '')
+      + '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, -1) })) + '">Hôm trước</a>'
+      + (day < today ? '<a class="jp-btn" href="' + esc(pageUrl('day', { d: shift(day, 1) })) + '">Hôm sau</a>' : '')
       + '</nav>';
 
     var restEmpty = !situations.length && x.restDay === true; // F116
@@ -208,7 +208,7 @@
           + '<ul class="cp-survey__grid" style="list-style:none;padding:0;margin:0;">' + scoreRowsHtml + '</ul>'
           + '</section>'
         : '')
-      + '<div class="jp-dayd__actions" style="margin-top:12px;">'
+      + '<div class="jp-dayd__actions cp-dayd__back">'
       + '<a class="cp-btn-primary" href="' + esc(pageUrl('path')) + '">Về lộ trình giao tiếp</a>'
       + '</div>';
   }
@@ -234,9 +234,18 @@
       }
     }
 
+
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+    }
+
     function load() {
       if (el.setAttribute) el.setAttribute('aria-busy', 'true');
-      root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : '')).then(function (data) {
+      (day ? Promise.resolve(null) : planToday()).then(function () {
+        return root.JpathApi.get('/api/learning/comm/day' + (day ? '?d=' + encodeURIComponent(day) : ''));
+      }).then(function (data) {
         if (!data) throw new Error('Chưa tải được dữ liệu ngày học.');
         var today = String(data.today || data.day || '').slice(0, 10);
         if (!day || day > today) {
@@ -251,7 +260,7 @@
         }
       }).catch(function (error) {
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
-        el.innerHTML = '<p class="jp-alert" role="alert">' + esc(error && error.message || 'Chưa tải được chi tiết ngày.')
+        el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Chưa tải được chi tiết ngày.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         var retry = el.querySelector('[data-cp-retry]');
         if (retry) retry.addEventListener('click', load);

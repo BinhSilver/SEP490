@@ -1,6 +1,7 @@
 package com.jlas.jlptpath.service.impl;
 
 import com.jlas.common.exception.ApiException;
+import com.jlas.common.learning.JlptPathPolicy;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.jlptpath.dto.JpathSliderBoundView;
 import com.jlas.jlptpath.dto.JpathSliderValues;
@@ -73,15 +74,14 @@ final class JpathPathRules {
     }
 
     /**
-     * Wanted open level before capping to the released levels (policy #28): from the band (else the estimated level)
-     * of a usable result, N5 without one.
+     * Wanted open level before capping to the released levels: the estimated overall level of a usable result (its
+     * band's level when missing), N5 without one. Owner 20/11: the band never lifts it.
      */
     static String openLevelFor(JpathSmartTestSnapshot usableResult) {
         if (usableResult == null) {
             return "N5";
         }
-        return JpathOpenLevelRule.openLevel(usableResult.abilityBand() != null ? usableResult.abilityBand()
-                : usableResult.estimatedLevel());
+        return JpathOpenLevelRule.openLevel(usableResult.estimatedLevel(), usableResult.abilityBand());
     }
 
     /** An attempt whose goal is set and not JLPT → VALIDATION_FAILED. */
@@ -103,14 +103,33 @@ final class JpathPathRules {
         return key;
     }
 
-    /** Released levels the target can be set to: the open level and the released levels above it. */
-    static List<String> targetOptions(JpathCatalogService catalog, String openLevel) {
+    /** The survey's target rule over every level; release is decided by the catalog, not by the policy. */
+    private static final JlptPathPolicy SURVEY_RULE = JlptPathPolicy.releasing("N5", "N4", "N3", "N2", "N1");
+
+    /**
+     * Owner 22/11 (F221): the target choices on Confirm and in Settings follow the survey rule — the open level or the
+     * next one ({@link JlptPathPolicy#evaluate}) — plus {@code keep} (the survey's target or the path's current target,
+     * which the survey and Smart Test already settled, e.g. a step-by-step route from a lower tested level). Released
+     * levels only, never below the open level.
+     */
+    static List<String> targetOptions(JpathCatalogService catalog, String openLevel, String keep) {
         int open = LEVELS.indexOf(openLevel);
+        String kept = keep == null ? "" : keep.trim().toUpperCase(Locale.ROOT);
         return catalog.levels().stream()
                 .filter(JpathLevelInfo::released)
                 .map(JpathLevelInfo::level)
                 .filter(level -> LEVELS.indexOf(level) >= open)
+                .filter(level -> level.equals(kept) || SURVEY_RULE.evaluate(openLevel, level).allowed())
                 .toList();
+    }
+
+    /** Rejects a target outside {@link #targetOptions}; the same message for Confirm and Settings. */
+    static String requireTargetOption(JpathCatalogService catalog, String openLevel, String keep, String target) {
+        if (!targetOptions(catalog, openLevel, keep).contains(target)) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Cấp mục tiêu chỉ được là " + openLevel
+                    + " hoặc cấp ngay trên. Cấp cao hơn mở khi bạn đậu thi thử.");
+        }
+        return target;
     }
 
     /** Released levels below the open level (lower-level practice). */

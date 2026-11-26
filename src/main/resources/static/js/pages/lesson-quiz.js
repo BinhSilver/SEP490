@@ -37,6 +37,11 @@
       .replace(/'/g, '&#039;');
   }
 
+  /** Đề câu hỏi: escape toàn bộ, chỉ bật lại cặp <u>…</u> (từ cần hỏi được gạch chân); mọi thẻ khác vẫn là chữ. */
+  function questionHtml(value) {
+    return escapeHtml(value).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<u class="lq-target">$1</u>');
+  }
+
   /**
    * Media của câu (audio_url / image_url): đường dẫn tương đối nằm trong kho audio giáo trình
    * (/uploads/content-audio/); URL tuyệt đối hoặc '/...' (vd. /audio/smart-test/...) giữ nguyên.
@@ -139,7 +144,7 @@
       '</div>' +
       (question.title ? '<h3 class="lq-question__title">' + escapeHtml(question.title) + '</h3>' : '') +
       audio + passage + questionImage(question, index) +
-      '<p class="lq-question__text">' + escapeHtml(question.questionText) + '</p>' +
+      '<p class="lq-question__text">' + questionHtml(question.questionText) + '</p>' +
       '<div class="lq-options" role="radiogroup" aria-label="Câu ' + (index + 1) + '">' + options + '</div></li>';
   }
 
@@ -245,7 +250,7 @@
       '</div>' +
       (q.title ? '<h3 class="lq-question__title">' + escapeHtml(q.title) + '</h3>' : '') +
       audio + passage + questionImage(q, state.current) +
-      '<p class="lq-question__text">' + escapeHtml(q.questionText) + '</p>' +
+      '<p class="lq-question__text">' + questionHtml(q.questionText) + '</p>' +
       '<div class="lq-options" role="radiogroup">' + options + '</div></div>';
   }
 

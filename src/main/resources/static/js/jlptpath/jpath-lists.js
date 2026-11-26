@@ -160,14 +160,25 @@
     var summary = 'Đã biết ' + num(c.known) + ' · Đang học ' + num(c.learning) + ' · Sổ tay ' + num(c.notebook)
       + ' · Chưa học ' + num(c.notLearned);
     var done = total > 0 && num(c.known) >= total;
-    return '<li class="jp-topic-card">'
+    // owner 22/11: a calmer card — share learned as the headline, only the non-zero states as dot chips
+    var touched = num(c.known) + num(c.learning) + num(c.notebook);
+    var chips = [['known', 'Đã biết', c.known], ['learning', 'Đang học', c.learning], ['notebook', 'Sổ tay', c.notebook]]
+      .filter(function (p) { return num(p[2]) > 0; })
+      .map(function (p) {
+        return '<li class="jp-tcard__chip"><span class="jp-tcard__dot jp-tcard__dot--' + p[0] + '" aria-hidden="true"></span>'
+          + esc(p[1]) + ' <b>' + esc(num(p[2])) + '</b></li>';
+      }).join('');
+    return '<li class="jp-topic-card jp-tcard' + (done ? ' jp-tcard--done' : '') + (touched ? '' : ' jp-tcard--new') + '">'
       + '<button type="button" class="jp-topic-card__open" data-action="open-topic" data-topic="' + esc(c.topicKey) + '">'
       + '<span class="jp-topic-card__title">' + esc(c.title || c.topicKey) + '</span> '
       + '<span class="jp-topic-card__count">' + esc(total + ' từ') + '</span></button>'
-      + '<div class="jp-stack" role="img" aria-label="' + esc(summary) + '">' + bar + '</div>'
-      + '<p class="jp-topic-card__sub">' + esc(summary) + '</p>'
+      + '<div class="jp-tcard__line"><span class="jp-tcard__pct">' + esc(pct(touched, total).toFixed(0) + '%') + '</span>'
+      + '<div class="jp-stack" role="img" aria-label="' + esc(summary) + '">' + bar + '</div></div>'
+      + '<p class="jp-topic-card__sub jp-sr-only">' + esc(summary) + '</p>'
+      + (chips ? '<ul class="jp-tcard__chips">' + chips + '</ul>'
+        : '<p class="jp-tcard__empty">Chưa học từ nào · ' + esc(num(c.notLearned)) + ' từ mới</p>')
       + (done ? '<p class="jp-topic-card__done">' + icon('check') + ' Đã biết cả chủ đề</p>'
-        : '<button type="button" class="jp-link-btn" data-action="topic-known" data-topic="' + esc(c.topicKey)
+        : '<button type="button" class="jp-link-btn jp-tcard__known" data-action="topic-known" data-topic="' + esc(c.topicKey)
           + '">Tôi biết chủ đề này</button>')
       + '</li>';
   }

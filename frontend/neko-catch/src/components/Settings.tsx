@@ -32,7 +32,7 @@ export const SoundSettings: React.FC = () => {
   );
 
   return (
-    <div className="space-y-3 bg-white/5 p-3 rounded-2xl border border-white/10">
+    <div className="space-y-3">
       {slider('bgm-vol-slider', 'Nhạc nền', config.bgmVolume, bgmVolume => update({ bgmVolume }))}
       {slider('sfx-vol-slider', 'Hiệu ứng âm thanh', config.sfxVolume, sfxVolume => update({ sfxVolume }))}
       <button

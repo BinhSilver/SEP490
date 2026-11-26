@@ -24,6 +24,8 @@ public final class JpathSkillPolicy {
     public static final int DICTATION_FLOOR = 5;
     /** Section practice pass floor: 19/60 rounded up (#40). */
     public static final int SECTION_PASS_PCT = 32;
+    /** Q7 (owner 24/11): a skill day counts as done only from this practice score on. */
+    public static final int DAY_PASS_PCT = 50;
     /** Per-tab percent to enter skill practice (#15 of plan 2). */
     public static final int STAGE_THRESHOLD_PCT = 80;
     /** Per-tab percent to enter skill practice in priority mode (#46). */

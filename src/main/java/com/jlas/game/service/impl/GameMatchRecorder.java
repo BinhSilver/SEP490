@@ -9,6 +9,7 @@ import com.jlas.game.entity.GameMatch;
 import com.jlas.game.entity.GameMatchPlayer;
 import com.jlas.game.entity.MemoryMatchResult;
 import com.jlas.game.enums.GameType;
+import com.jlas.game.enums.PlayMode;
 import com.jlas.game.repository.AirDefenseResultRepository;
 import com.jlas.game.repository.GameMatchPlayerRepository;
 import com.jlas.game.repository.GameMatchRepository;
@@ -52,7 +53,7 @@ public class GameMatchRecorder {
                       Object settings) {
         LocalDateTime now = LocalDateTime.now();
         GameMatch match = matches.save(GameMatch.builder()
-                .flashcardSet(sets.getReferenceById(setId))
+                .flashcardSet(setId == null ? null : sets.getReferenceById(setId))
                 .roomId(roomId)
                 .roomCode(roomCode)
                 .gameType(type.name())
@@ -124,6 +125,10 @@ public class GameMatchRecorder {
     }
 
     private static String resultOf(long userId, ResultSummary summary, boolean aborted, Set<Long> forfeited) {
+        if (!aborted && summary != null && (summary.gameType() == GameType.DRAW_GUESS
+                || !summary.gameType().usesDeck() && summary.mode() == PlayMode.SOLO)) {
+            return "COMPLETED";
+        }
         if (forfeited.contains(userId)) {
             return "FORFEIT";
         }

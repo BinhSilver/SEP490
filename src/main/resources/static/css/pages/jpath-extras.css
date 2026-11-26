@@ -380,6 +380,8 @@ body:has(.jp-tour) .jp-report-fab { display: none; }
   border: 1px solid color-mix(in srgb, var(--jp-primary) 35%, var(--jp-line)); border-radius: var(--jp-radius-panel, 14px);
   background: color-mix(in srgb, var(--jp-primary) 8%, var(--jp-surface));
 }
+/* a grid page (.jp-ws 3 columns) puts the box in its first cell and leaves the rest of the row empty: span the whole row */
+.jp-premium-box { grid-column: 1 / -1; }
 .jp-premium-box > div { flex: 1 1 240px; }
 .jp-premium-box__title { margin: 0 0 4px; font-weight: 700; }
 .jp-premium-box__text { margin: 0; color: var(--jp-muted); }
@@ -499,3 +501,26 @@ body:has(.jp-tour) .jp-report-fab { display: none; }
   .jp-ws__main .jp-side__range::-webkit-scrollbar { display: none; }
   .jp-ws__main .jp-side__range .jp-side-btn { flex: 0 0 auto; padding: 8px 14px; white-space: nowrap; }
 }
+
+/* Bug 102: on a phone the Day page action row is not sticky, so it never covers the word and kanji lists.
+   body + class outranks the page sheet (jpath-side.css) that loads after this file. */
+@media (max-width: 640px) {
+  body .jp-dayd__actions {
+    position: static;
+    backdrop-filter: none;
+    background: transparent;
+    padding: 12px 0 0;
+    gap: 8px;
+  }
+  body .jp-dayd__actions .jp-btn {
+    flex: 1 1 calc(50% - 4px);
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+}
+
+/* owner 22/11: the dialog hugs its content (no wide empty area); Trước / Sau left and Đóng right on one footer row */
+.jp-writing .jp-writing__panel { width: fit-content; min-width: min(560px, 94vw); max-width: min(1100px, 94vw); }
+.jp-writing__foot { justify-content: space-between; border-top: 1px solid var(--jp-line); padding-top: 12px; margin-top: 12px; }
+.jp-writing__foot .jp-writing__nav { margin-top: 0; }
+.jp-writing__foot [data-writing-close] { margin-left: auto; }

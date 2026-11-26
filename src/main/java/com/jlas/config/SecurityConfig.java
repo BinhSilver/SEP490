@@ -2,6 +2,7 @@ package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
 import com.jlas.moderation.security.BanEnforcementFilter;
+import com.jlas.moderation.security.BulkContentGuardFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final BanEnforcementFilter banEnforcementFilter;
+    private final BulkContentGuardFilter bulkContentGuardFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -69,16 +71,28 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/games/sphinx/**", "/games/picture-rebus/**", "/games/draw-guess/**",
+                                "/api/games/puzzles/**").hasRole("ADMIN")
+                        // [JLAS2-270] Learners submit; only content creators/admins review learning error reports.
+                        .requestMatchers("/admin/learning-content-reports", "/api/admin/learning-content-reports", "/api/admin/learning-content-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         // [JLAS-W0108] Báo sai lộ trình JLPT: hàng chờ người biên soạn.
                         .requestMatchers("/admin/learning-path", "/admin/learning-path/**", "/api/admin/learning-path/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
                         // Duyệt nội dung do gia sư AI tạo ra: hàng chờ người biên soạn.
                         .requestMatchers("/admin/tutor-review", "/admin/tutor-review/**", "/api/admin/tutor-review/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
+                        // Báo cáo Cộng đồng: người biên soạn (content admin) xử lý mọi báo cáo bài viết / bình luận.
+                        .requestMatchers("/admin/community-reports", "/api/admin/community-reports", "/api/admin/community-reports/**")
+                        .hasAnyRole("CONTENT_CREATOR", "MODERATOR", "ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/moderation/**")
                         .hasAnyRole("MODERATOR", "ADMIN")
+                        // [JLAS2-37] Gỡ trực tiếp bài viết / bình luận cộng đồng: chặn theo vai trò TRƯỚC khi đọc và kiểm
+                        // tra body, để người không phải MODERATOR/ADMIN/CONTENT_CREATOR luôn nhận 403 (không phải 400 vì thiếu lý do).
+                        .requestMatchers(HttpMethod.POST, "/api/community/posts/*/remove", "/api/community/comments/*/remove")
+                        .hasAnyRole("MODERATOR", "ADMIN", "CONTENT_CREATOR")
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
-                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error").permitAll()
+                                "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error", "/about", "/policy").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
                         .requestMatchers("/search", "/search/**", "/dictionary/index.html",
                                 "/dictionary/css/**", "/dictionary/js/**").permitAll()
@@ -112,6 +126,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(banEnforcementFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(bulkContentGuardFilter, BanEnforcementFilter.class)
                 .build();
     }
 

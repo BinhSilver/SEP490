@@ -101,15 +101,56 @@ public class ShadowingBlobStore {
         }
     }
 
+    /** True when a connection string with an account key is configured (uploads and signed links work). */
+    public boolean configured() {
+        return account != null && accountKey != null;
+    }
+
+    /**
+     * Read link for an uploaded Community media blob ({@code name} without the {@code blob:} prefix). The expiry is
+     * pinned to the clock hour (2-3 hours ahead) so the same file keeps the same URL for an hour and browsers can cache it.
+     */
+    public Optional<URI> signedMediaUrl(String name) {
+        Instant expiry = Instant.now().truncatedTo(ChronoUnit.HOURS).plus(3, ChronoUnit.HOURS);
+        return signedUrl(container, name, expiry);
+    }
+
+    /**
+     * Stores one block blob in the media container through a 15-minute write-only SAS link (no SDK). The body is streamed,
+     * so a video file is never held in memory. Throws when storage is not configured or Azure refuses the upload.
+     */
+    public void upload(String name, HttpRequest.BodyPublisher body, String contentType) throws IOException {
+        URI url = signedUrl(container, name, Instant.now().plus(Duration.ofMinutes(15)), "cw")
+                .orElseThrow(() -> new IOException("Chưa cấu hình Azure Storage để lưu tệp."));
+        HttpRequest request = HttpRequest.newBuilder(url).timeout(Duration.ofMinutes(5))
+                .header("x-ms-blob-type", "BlockBlob")
+                .header("x-ms-version", SAS_VERSION)
+                .header("x-ms-blob-content-type", contentType)
+                .header("x-ms-blob-cache-control", "private, max-age=31536000, immutable")
+                .PUT(body).build();
+        try {
+            int status = httpClient.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
+            if (status != 201) throw new IOException("Azure Storage từ chối lưu tệp (HTTP " + status + ").");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Bị gián đoạn khi lưu tệp.", e);
+        }
+    }
+
     private Optional<URI> signedUrl(String targetContainer, String name, Instant expiry) {
+        return signedUrl(targetContainer, name, expiry, "r");
+    }
+
+    private Optional<URI> signedUrl(String targetContainer, String name, Instant expiry, String permissions) {
         if (account == null || accountKey == null || !isSafeAudioName(name)) return Optional.empty();
         String expires = expiry.truncatedTo(ChronoUnit.SECONDS).toString();
         String resource = "/blob/" + account + "/" + targetContainer + "/" + name;
         // Field order is fixed by the Azure service SAS format; the empty lines are fields this link does not use.
-        String toSign = String.join("\n", "r", "", expires, resource, "", "", "https", SAS_VERSION, "b",
+        String toSign = String.join("\n", permissions, "", expires, resource, "", "", "https", SAS_VERSION, "b",
                 "", "", "", "", "", "", "");
         return Optional.of(URI.create("https://" + account + ".blob." + endpointSuffix + "/" + targetContainer + "/" + name
-                + "?sv=" + SAS_VERSION + "&sr=b&sp=r&spr=https&se=" + encode(expires) + "&sig=" + encode(sign(toSign))));
+                + "?sv=" + SAS_VERSION + "&sr=b&sp=" + permissions + "&spr=https&se=" + encode(expires)
+                + "&sig=" + encode(sign(toSign))));
     }
 
     /** Copies a blob to a temporary file for tools that need a local file, such as ffmpeg. The caller deletes it. */

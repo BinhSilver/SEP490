@@ -4,6 +4,7 @@ import com.jlas.auth.service.PremiumAccess;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.common.security.ContentReviewAccess;
+import com.jlas.jlptpath.service.JpathClock;
 import com.jlas.moderation.credit.model.UserCreditTransaction.CreditReason;
 import com.jlas.moderation.credit.service.UserCreditService;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class JpathAiExplainAllowance {
     private final JdbcTemplate jdbc;
     private final PremiumAccess premium;
     private final UserCreditService credits;
+    private final JpathClock clock;
 
     public enum ChargeKind {
         REVIEWER,
@@ -67,7 +69,7 @@ public class JpathAiExplainAllowance {
         requireUser(userId);
         boolean reviewer = ContentReviewAccess.allowed(userId);
         boolean pro = premium.isActive(userId);
-        LocalDate today = LocalDate.now();
+        LocalDate today = clock.today(userId);
         int proUsed = pro ? proUsed(userId, today) : 0;
         WalletRow wallet = readWallet(userId);
         boolean trialAvail = !reviewer && !pro && wallet == null;
@@ -94,7 +96,7 @@ public class JpathAiExplainAllowance {
         if (ContentReviewAccess.allowed(userId)) {
             return new Charge(userId, ChargeKind.REVIEWER, null);
         }
-        LocalDate today = LocalDate.now();
+        LocalDate today = clock.today(userId);
         if (seenCacheKey != null && !seenCacheKey.isBlank() && seenToday(userId, today, seenCacheKey)) {
             return new Charge(userId, ChargeKind.REPEAT_TODAY, today);
         }
@@ -124,7 +126,7 @@ public class JpathAiExplainAllowance {
             return;
         }
         jdbc.update("INSERT IGNORE INTO jpath_ai_explain_seen (user_id, usage_date, cache_key) VALUES (?, ?, ?)",
-                userId, LocalDate.now(), seenCacheKey);
+                userId, clock.today(userId), seenCacheKey);
     }
 
     /** Hoàn trả ngay lượt vừa giữ khi lời gọi AI gặp lỗi. */

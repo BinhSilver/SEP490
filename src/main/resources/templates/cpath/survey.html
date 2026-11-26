@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Khảo sát Lộ trình Giao tiếp - KotsuKotsu</title>
-    <link rel="stylesheet" href="../../static/css/tokens.css" />
-    <link rel="stylesheet" href="../../static/css/base.css" />
+    <link rel="stylesheet" href="../../static/css/tokens.css?v=20261125-largescreen" />
+    <link rel="stylesheet" href="../../static/css/base.css?v=20261125-largescreen" />
     <link rel="stylesheet" href="../../static/css/layout.css" />
     <link rel="stylesheet" href="../../static/css/learning-v2-tokens.css" />
     <link rel="stylesheet" href="../../static/css/pages/jpath-base.css" />
@@ -20,13 +20,16 @@
 <main id="jlabBaseContent" class="jp-page cp-page" data-inline-dictionary>
     <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
     <div id="cpathSurveyRoot" class="cp-survey-wrap" aria-busy="true" aria-live="polite">
-        <p class="jp-path__loading" role="status">Đang tải khảo sát giao tiếp…</p>
+        <p class="jp-path__loading jp-skel jp-skel--form" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải khảo sát giao tiếp…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__b jp-skel__b--bar"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
     <script src="../../static/js/jlptpath/jpath-api.js"></script>
 </th:block>
 <script src="../../static/js/cpath/cpath-survey.js" th:src="@{/js/cpath/cpath-survey.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

@@ -17,8 +17,9 @@ public interface TextbookRepository extends JpaRepository<Textbook, Long> {
      * Sách do Lộ trình học (W0108) sinh ra cho riêng nó, nhận theo NGUỒN GỐC source_code: LP-OWNED-* (sách nội dung
      * riêng của lộ trình, bản sao Sekai N4, Quy tắc đọc Kana, J-LAS tổng hợp, J-LAS giao tiếp…) và LP-REVIEWED-*
      * (bản "Đã duyệt"). Màn Giáo trình ẩn chúng khỏi MỌI danh sách; route /textbooks/{id} vẫn mở được để lộ trình
-     * link vào bài. KHÔNG lọc theo is_learning_path_source: Sekai N5, Bảng chữ cái… vừa là giáo trình vừa là nguồn
-     * lộ trình nên phải hiện ở cả hai bên. Đây là chỗ DUY NHẤT định nghĩa điều kiện này.
+     * link vào bài. Nhận theo source_code, KHÔNG theo cờ is_learning_path_source: cờ do dữ liệu lộ trình bật/tắt (từ
+     * 09/11/2026 lộ trình chỉ đọc sách LP-OWNED-/LP-REVIEWED- của nó; sách của Giáo trình như Sekai N5, Bảng chữ cái đã
+     * bỏ cờ), còn nguồn gốc sách thì chỉ source_code xác định ổn định. Đây là chỗ DUY NHẤT định nghĩa điều kiện này.
      */
     String LEARNING_PATH_OWNED_PREFIX = "LP-OWNED-";
     String LEARNING_PATH_REVIEWED_PREFIX = "LP-REVIEWED-";

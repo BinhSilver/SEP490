@@ -95,7 +95,15 @@ public class KanjiStrokeIndex {
             try (var in = resource.getInputStream()) {
                 List<List<double[]>> strokes = KanjiVgPath.strokesOf(new String(in.readAllBytes(), StandardCharsets.UTF_8));
                 if (strokes.isEmpty()) throw new IllegalStateException("không có nét nào trong SVG");
-                result.add(StrokeMatcher.Ref.of(kanji.getCharacter(), strokes));
+                int priority = switch (kanji.getJlptLevel() == null ? "" : kanji.getJlptLevel()) {
+                    case "N5" -> 5;
+                    case "N4" -> 4;
+                    case "N3" -> 3;
+                    case "N2" -> 2;
+                    case "N1" -> 1;
+                    default -> 0;
+                };
+                result.add(StrokeMatcher.Ref.of(kanji.getCharacter(), strokes, priority));
             } catch (Exception e) {
                 skipped++;
                 if (firstProblem == null) firstProblem = kanji.getCharacter() + " (" + uri + "): " + e;

@@ -6,6 +6,7 @@ import com.jlas.community.dto.CommunityDtos.ContentDetail;
 import com.jlas.community.dto.CommunityDtos.RatingResult;
 import com.jlas.community.entity.CommunityContent;
 import com.jlas.community.entity.CommunityRating;
+import com.jlas.community.entity.CommunitySavedPost;
 import com.jlas.community.enums.CommunityContentType;
 import com.jlas.community.enums.CommunityStatus;
 import com.jlas.community.handler.CommunitySource;
@@ -13,9 +14,11 @@ import com.jlas.community.handler.SourceRatingSupport;
 import com.jlas.community.handler.SourceRatingSupport.RatingSnapshot;
 import com.jlas.community.repository.CommunityContentRepository;
 import com.jlas.community.repository.CommunityRatingRepository;
+import com.jlas.community.repository.CommunitySavedPostRepository;
 import com.jlas.community.service.CommunityAccessService.Target;
 import com.jlas.moderation.service.UserActionPolicyPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class CommunityContentService {
     private final CommunityContentRepository contents;
     private final CommunityRatingRepository ratings;
     private final UserActionPolicyPort actionPolicy;
+    private final CommunitySavedPostRepository saved;
 
     @Transactional(readOnly = true)
     public ContentDetail detail(String contentType, Long contentId, Long viewerId) {
@@ -46,7 +50,8 @@ public class CommunityContentService {
         Optional<SourceRatingSupport> sourceRating = sourceRating(source.contentType());
         RatingSnapshot rating = sourceRating.map(r -> r.ratingOf(source.contentId(), viewerId))
                 .orElseGet(() -> communityRating(row, viewerId));
-        boolean canUnrate = sourceRating.map(SourceRatingSupport::supportsUnrate).orElse(true);
+        boolean rateable = supportsRating(source.contentType());
+        boolean canUnrate = rateable && sourceRating.map(SourceRatingSupport::supportsUnrate).orElse(true);
         return new ContentDetail(source.contentType(), CommunityContentType.label(source.contentType()),
                 source.contentId(), source.title(), source.description(), source.thumbnailUrl(),
                 source.jlptLevel(), source.link(), access.author(source.ownerId()), source.createdAt(),
@@ -54,7 +59,7 @@ public class CommunityContentService {
                 rating.ratingAvg(), rating.ratingCount(),
                 row == null ? 0 : row.getCommentCount(),
                 rating.myRating(), owner, moderator,
-                active && !owner, active && !owner && canUnrate, active, active && !owner,
+                active && !owner && rateable, active && !owner && canUnrate, active, active && !owner,
                 notice(target, owner, access.sourceNotice(target, owner)));
     }
 
@@ -64,6 +69,7 @@ public class CommunityContentService {
         if (score < 1 || score > 5) throw new ApiException(ErrorCode.BAD_REQUEST, "Điểm đánh giá phải từ 1 đến 5");
         actionPolicy.assertCanAct(viewerId);
         Target target = access.requireViewable(contentType, contentId, viewerId);
+        if (!supportsRating(target.source().contentType())) throw notRateable();
         if (target.ownedBy(viewerId)) {
             throw new ApiException(ErrorCode.FORBIDDEN, "Bạn không thể tự đánh giá nội dung của mình");
         }
@@ -86,17 +92,46 @@ public class CommunityContentService {
     @Transactional
     public RatingResult unrate(String contentType, Long contentId, Long viewerId) {
         Target target = access.requireViewable(contentType, contentId, viewerId);
+        if (!supportsRating(target.source().contentType())) throw notRateable();
         if (sourceRating(target.source().contentType()).filter(r -> !r.supportsUnrate()).isPresent()) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Nội dung này không hỗ trợ gỡ đánh giá");
         }
         if (target.row() == null) return new RatingResult(0, 0, null);
-        CommunityContent row = contents.lockById(target.row().getId()).orElseThrow(CommunityAccessService::notFound);
+        // Đọc lại sau khi khoá: lần lưu bộ đếm bên dưới ghi cả dòng, không được ghi đè trạng thái vừa đổi (vd vừa bị gỡ).
+        CommunityContent row = access.fresh(contents.lockById(target.row().getId())
+                .orElseThrow(CommunityAccessService::notFound));
         ratings.findByCommunityContentIdAndUserId(row.getId(), viewerId).ifPresent(r -> {
             ratings.delete(r);
             ratings.flush();
         });
         refreshRating(row);
         return new RatingResult(row.getRatingAvg().doubleValue(), row.getRatingCount(), null);
+    }
+
+    /**
+     * "Lưu bài" để xem lại sau (mục Đã lưu). Chỉ lưu được nội dung người xem đang xem được; lưu lại lần nữa không lỗi.
+     * Không cần quyền hành động (bị hạn chế vẫn lưu được) vì chỉ người lưu thấy.
+     */
+    @Transactional
+    public boolean save(String contentType, Long contentId, Long viewerId) {
+        Target target = access.requireViewable(contentType, contentId, viewerId);
+        String type = target.source().contentType();
+        Long id = target.source().contentId();
+        if (saved.existsByUserIdAndContentTypeAndContentId(viewerId, type, id)) return true;
+        try {
+            saved.saveAndFlush(CommunitySavedPost.builder().userId(viewerId).contentType(type).contentId(id).build());
+        } catch (DataIntegrityViolationException e) {
+            // Hai lần bấm cùng lúc: UNIQUE(user_id, content_type, content_id) giữ một dòng, kết quả vẫn là "đã lưu".
+        }
+        return true;
+    }
+
+    /** Bỏ lưu. Không kiểm tra quyền xem: nội dung đã bị ẩn / gỡ vẫn bỏ lưu được. */
+    @Transactional
+    public boolean unsave(String contentType, Long contentId, Long viewerId) {
+        String type = access.handler(contentType).map(h -> h.contentType()).orElseThrow(CommunityAccessService::notFound);
+        saved.deleteSaved(viewerId, type, contentId);
+        return false;
     }
 
     /** Tính lại từ bảng community_rating khi đang giữ khoá dòng nội dung. */
@@ -111,6 +146,15 @@ public class CommunityContentService {
     private Optional<SourceRatingSupport> sourceRating(String contentType) {
         return access.handler(contentType).filter(SourceRatingSupport.class::isInstance)
                 .map(SourceRatingSupport.class::cast);
+    }
+
+    /** Bài viết (POST) không có đánh giá sao; các loại khác có. */
+    private boolean supportsRating(String contentType) {
+        return access.handler(contentType).map(h -> h.supportsRating()).orElse(false);
+    }
+
+    private static ApiException notRateable() {
+        return new ApiException(ErrorCode.BAD_REQUEST, "Loại nội dung này không có đánh giá sao");
     }
 
     private RatingSnapshot communityRating(CommunityContent row, Long viewerId) {

@@ -7,22 +7,25 @@
     <title th:text="${freeChat} ? 'Trò Chuyện AI · Hội thoại' : (${scenario.title} + ' · Hội thoại')">Hội thoại</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261116-ios-space')}"/>
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/cards.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inputs.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/forms.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/conversation.css(v='20261126-fixes')}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/cards.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/forms.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261125-largescreen)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
-    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
-    <script defer src="/js/components/select.js?v=20261111-select2"></script>
+    <link rel="stylesheet" href="/css/components/select.css?v=20261125-largescreen">
+    <script defer src="/js/components/select.js?v=20261125-icons-vi"></script>
     <link rel="stylesheet" href="/css/pages/aicall-guide.css?v=20261112-guide">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261126-fixes">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" th:class="${freeChat} ? 'mode-free-chat show-feedback' : 'show-furigana show-feedback show-suggestions'"
       th:attr="data-session-id=${chatSession.id},
@@ -35,7 +38,7 @@
                data-category-url=${freeChat} ? @{/ai-call} : @{/category/{id}(id=${scenario.category.id})},
                data-home-url=@{/ai-call},
                data-result-url=@{/conversation/{id}/result(id=${chatSession.id})},
-               data-background-url=${scenarioBackgroundUrl}">
+               data-background-url=${scenarioBackgroundUrl}" th:classappend="'aicall-standard jl-ui-kit'">
 
 <div id="jlabBaseShellMount"></div>
 
@@ -313,8 +316,13 @@
             </details>
         </div>
 
-        <div class="side-card" data-conversation-settings>
-            <h3><i class="fa-solid fa-sliders"></i> Công cụ</h3>
+        <!-- Folded on arrival so the chat has the room; the heading opens it. In the phone settings dialog it is always open. -->
+        <div class="side-card side-card--fold" data-conversation-settings data-fold>
+            <h3><button type="button" class="side-card__fold" aria-expanded="false" aria-controls="freechatToolsBody">
+                <i class="fa-solid fa-sliders" aria-hidden="true"></i> Công cụ
+                <i class="fa-solid fa-chevron-down side-card__fold-icon" aria-hidden="true"></i>
+            </button></h3>
+            <div class="side-card__fold-body" id="freechatToolsBody" hidden>
             <div class="toggle-list">
                 <div class="toggle-row"><span>AI chủ động</span><button type="button" class="switch on" id="btnConversationActive" data-freechat-toggle="conversationActive" aria-pressed="true" aria-label="AI chủ động dẫn dắt"></button></div>
                 <div class="toggle-row"><span>Hiện Furigana</span><button type="button" class="switch on" data-toggle="furigana" aria-pressed="true" aria-label="Hiện Furigana"></button></div>
@@ -345,6 +353,7 @@
                 <button type="button" class="btn-tts-test" id="btnTtsTest" title="Thử giọng đang chọn">
                     <i class="fa-solid fa-volume-high"></i> Thử giọng
                 </button>
+            </div>
             </div>
         </div>
     </aside>
@@ -414,8 +423,8 @@
         <span>Không hỏi lại hôm nay (tự dùng CP, tối đa <span id="quotaAutoCap">100</span> CP/ngày)</span>
       </label>
       <div class="quota-actions">
-        <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden><i class="fa-solid fa-coins"></i> Dùng CP cho lượt này</button>
-        <button class="button-secondary btn-sm" id="btnQuotaBuy"><i class="fa-solid fa-coins"></i> Nạp CP</button>
+        <button class="button-primary btn-sm" id="btnQuotaUseCredit" hidden> Dùng CP cho lượt này</button>
+        <button class="button-secondary btn-sm" id="btnQuotaBuy"> Nạp CP</button>
         <button class="button-primary btn-sm" id="btnQuotaUpgrade"><i class="fa-solid fa-crown"></i> Nâng cấp Premium</button>
       </div>
     </div>
@@ -435,11 +444,13 @@
 <script th:src="@{/js/auth-session.js}"></script>
 <script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
 <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 <script src="/js/audio-visualizer.js"></script>
 <script src="/js/pages/aicall-scene-image.js?v=20261002"></script>
-<script th:src="@{/js/conversation.js(v='20261116-turn-limits')}"></script>
-<script src="/js/conversation-settings.js?v=20261009-composer-fix"></script>
+<script src="/js/components/quota-meter.js?v=20261123-remaining"></script>
+<script th:src="@{/js/conversation.js(v='20261124-ui-standard')}"></script>
+<script defer src="/js/pages/aicall-standard-ui.js?v=20261124-ui-standard"></script>
+<script src="/js/conversation-settings.js?v=20261126-fold"></script>
 <script src="/js/pages/aicall-guide.js?v=20261112-guide"></script>
 </body>
 </html>

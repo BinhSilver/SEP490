@@ -1,20 +1,21 @@
+@import url("../admin-shell.css?v=20261125-largescreen");
 /* [JLAS2-17] Trang tạo giáo trình / thêm bài học (3 bước). Toàn bộ scope trong .admin-create-page, không đụng navbar / CSS global.
    Màu theo Bước 6; xanh lá chỉ dùng cho trạng thái thành công. */
 .admin-create-page {
-  --primary: #5B3BB5;
-  --primary-deep: #3F2785;
-  --primary-soft: #EEE9FB;
-  --bg: #F5F3FB;
-  --card: #FFFFFF;
-  --border: #E7E3F3;
-  --ink: #1E1B2E;
-  --muted: #6B6580;
-  --success: #1F8A5B;
-  --success-soft: #F4FBF7;
-  --success-ink: #18764D;
-  --warn-soft: #FFF6E5;
-  --danger: #D9480F;          /* viền cam đỏ của trường lỗi */
-  --danger-ink: #B42318;
+  --primary: var(--admin-accent);
+  --primary-deep: var(--admin-accent-hover);
+  --primary-soft: var(--admin-tint);
+  --bg: var(--admin-bg);
+  --card: var(--admin-surface);
+  --border: var(--admin-line);
+  --ink: var(--admin-ink);
+  --muted: var(--admin-muted);
+  --success: var(--admin-muted);
+  --success-soft: var(--admin-tint);
+  --success-ink: var(--admin-muted);
+  --warn-soft: var(--admin-tint);
+  --danger: var(--admin-danger);
+  --danger-ink: var(--admin-danger);
   --ac-ease: cubic-bezier(.2, .8, .2, 1);
   color: var(--ink);
 }
@@ -28,18 +29,18 @@
 .admin-create-page .ac-head__title { margin: 0 0 6px; font-size: 30px; font-weight: 800; color: var(--primary-deep); }
 .admin-create-page .ac-head__desc { margin: 0; color: var(--muted); }
 .admin-create-page .ac-denied,
-.admin-create-page .ac-loading { padding: 16px 18px; border-radius: 16px; background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+.admin-create-page .ac-loading { padding: 16px 18px; border-radius: 6px; background: var(--card); border: 1px solid var(--border); color: var(--muted); }
 
 /* ---------- Stepper + thanh tiến độ ---------- */
 .admin-create-page .ac-stepper-wrap { margin-bottom: 18px; }
 .admin-create-page .ac-stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0 0 10px; padding: 0; list-style: none; }
 .admin-create-page .ac-stepper__btn {
   display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 6px 10px;
-  border: 0; border-radius: 14px; background: transparent; color: var(--muted); font: inherit; font-weight: 600; text-align: left; cursor: default;
+  border: 0; border-radius: 6px; background: transparent; color: var(--muted); font: inherit; font-weight: 600; text-align: left; cursor: default;
 }
 .admin-create-page .ac-stepper__num {
   flex: 0 0 36px; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
-  border-radius: 999px; border: 2px solid var(--border); background: var(--card); color: var(--muted); font-weight: 800;
+  border-radius: 6px; border: 2px solid var(--border); background: var(--card); color: var(--muted); font-weight: 800;
   transition: background-color .3s var(--ac-ease), border-color .3s var(--ac-ease), color .3s var(--ac-ease);
 }
 .admin-create-page .ac-stepper__item.is-current .ac-stepper__btn { color: var(--primary-deep); }
@@ -49,14 +50,14 @@
 .admin-create-page .ac-stepper__item.is-done .ac-stepper__btn:hover { background: var(--primary-soft); }
 .admin-create-page .ac-stepper__btn:disabled { opacity: 1; }
 .admin-create-page .ac-stepper__item:not(.is-current):not(.is-done) .ac-stepper__btn { opacity: .6; }
-.admin-create-page .ac-progress { height: 4px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.admin-create-page .ac-progress { height: 4px; border-radius: 6px; background: var(--border); overflow: hidden; }
 .admin-create-page .ac-progress__bar { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--primary); transition: width .5s var(--ac-ease); }
 
 /* ---------- Bố cục: form trái, cột phụ sticky phải ---------- */
 .admin-create-page .ac-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
-.admin-create-page .ac-card { padding: 24px; border-radius: 26px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(63, 39, 133, .06); overflow: hidden; }
+.admin-create-page .ac-card { padding: 24px; border-radius: 6px; background: var(--card); border: 1px solid var(--border); box-shadow:none; overflow: hidden; }
 .admin-create-page .ac-aside { position: sticky; top: 96px; display: grid; gap: 14px; }
-.admin-create-page .ac-aside__card { padding: 18px; border-radius: 22px; background: var(--card); border: 1px solid var(--border); }
+.admin-create-page .ac-aside__card { padding: 18px; border-radius: 6px; background: var(--card); border: 1px solid var(--border); }
 .admin-create-page .ac-aside__title { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 .admin-create-page .ac-aside__note { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
 .admin-create-page .ac-aside__book { margin: 0 0 10px; font-weight: 700; color: var(--primary-deep); overflow-wrap: anywhere; }
@@ -76,10 +77,10 @@
 .admin-create-page .ac-req { color: var(--danger-ink); }
 .admin-create-page .ac-input {
   display: block; width: 100%; min-height: 46px; padding: 10px 14px; box-sizing: border-box;
-  border: 1.5px solid var(--border); border-radius: 14px; background: #FCFBFF; color: var(--ink); font: inherit;
+  border: 1.5px solid var(--border); border-radius: 6px; background: #FCFBFF; color: var(--ink); font: inherit;
   transition: border-color .15s var(--ac-ease), box-shadow .15s var(--ac-ease);
 }
-.admin-create-page .ac-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91, 59, 181, .18); }
+.admin-create-page .ac-input:focus { outline: none; border-color: var(--primary); box-shadow:none; }
 .admin-create-page .ac-input--area { min-height: 92px; resize: vertical; }
 .admin-create-page .ac-input--num { max-width: 140px; }
 .admin-create-page .ac-input--file { padding: 9px 12px; }
@@ -89,8 +90,8 @@
 .admin-create-page .ac-muted { color: var(--muted); }
 .admin-create-page .ac-field.is-invalid .ac-input,
 .admin-create-page .ac-field.is-invalid .ac-drop,
-.admin-create-page .ac-field.is-invalid [role="radiogroup"] { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(217, 72, 15, .14); }
-.admin-create-page .ac-field.is-invalid [role="radiogroup"] { border: 1.5px solid var(--danger); border-radius: 14px; padding: 6px; }
+.admin-create-page .ac-field.is-invalid [role="radiogroup"] { border-color: var(--danger); box-shadow:none; }
+.admin-create-page .ac-field.is-invalid [role="radiogroup"] { border: 1.5px solid var(--danger); border-radius: 6px; padding: 6px; }
 .admin-create-page .ac-field__error { margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--danger-ink); }
 .admin-create-page .is-shake { animation: ac-shake .4s ease-in-out; }
 @keyframes ac-shake { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
@@ -99,28 +100,28 @@
 .admin-create-page .ac-chips { display: flex; flex-wrap: wrap; gap: 8px; outline: none; }
 .admin-create-page .ac-chip,
 .admin-create-page .ac-switch__item {
-  min-height: 44px; padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 999px; background: var(--card);
+  min-height: 44px; padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--card);
   color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s;
 }
 .admin-create-page .ac-chip:hover, .admin-create-page .ac-switch__item:hover { border-color: var(--primary); }
 .admin-create-page .ac-chip.is-checked, .admin-create-page .ac-switch__item.is-checked { background: var(--primary); border-color: var(--primary); color: #fff; }
 .admin-create-page [role="radio"]:focus-visible { outline: 3px solid rgba(91, 59, 181, .45); outline-offset: 2px; }
-.admin-create-page .ac-switch { display: inline-flex; gap: 0; padding: 4px; border-radius: 999px; background: var(--primary-soft); outline: none; }
+.admin-create-page .ac-switch { display: inline-flex; gap: 0; padding: 4px; border-radius: 6px; background: var(--primary-soft); outline: none; }
 .admin-create-page .ac-switch__item { border-color: transparent; background: transparent; }
 .admin-create-page .ac-swatches { display: flex; flex-wrap: wrap; gap: 8px; outline: none; }
 .admin-create-page .ac-swatches__item {
   display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 4px;
-  border: 2px solid var(--border); border-radius: 14px; background: var(--card); font: inherit; font-weight: 600; cursor: pointer;
+  border: 2px solid var(--border); border-radius: 6px; background: var(--card); font: inherit; font-weight: 600; cursor: pointer;
 }
 .admin-create-page .ac-swatches__item:first-child { padding: 4px 14px; }
-.admin-create-page .ac-swatches__item.is-checked { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91, 59, 181, .2); }
-.admin-create-page .ac-swatch { display: block; width: 30px; height: 30px; border-radius: 9px; background: var(--sw); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
-.admin-create-page .ac-swatch-inline { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+.admin-create-page .ac-swatches__item.is-checked { border-color: var(--primary); box-shadow:none; }
+.admin-create-page .ac-swatch { display: block; width: 30px; height: 30px; border-radius: 6px; background: var(--sw); box-shadow:none; }
+.admin-create-page .ac-swatch-inline { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; box-shadow:none; }
 .admin-create-page .ac-kanji-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .admin-create-page .ac-input--kanji { width: 96px; font-size: 26px; text-align: center; }
 .admin-create-page .ac-kanji-picks { display: flex; flex-wrap: wrap; gap: 6px; }
 .admin-create-page .ac-kanji-pick {
-  min-width: 44px; min-height: 44px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--card);
+  min-width: 44px; min-height: 44px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--card);
   font-size: 20px; cursor: pointer;
 }
 .admin-create-page .ac-kanji-pick:hover { border-color: var(--primary); background: var(--primary-soft); }
@@ -128,49 +129,49 @@
 /* Ảnh bìa tải lên */
 .admin-create-page .ac-drop {
   display: flex; align-items: center; justify-content: center; min-height: 140px; padding: 12px; border: 2px dashed #CFC4EE;
-  border-radius: 18px; background: #FBFAFE; color: var(--muted); cursor: pointer; text-align: center; overflow: hidden;
+  border-radius: 6px; background: #FBFAFE; color: var(--muted); cursor: pointer; text-align: center; overflow: hidden;
 }
 .admin-create-page .ac-drop.is-drag, .admin-create-page .ac-drop:hover { border-color: var(--primary); background: var(--primary-soft); }
 .admin-create-page .ac-drop:focus-visible { outline: 3px solid rgba(91, 59, 181, .45); outline-offset: 2px; }
-.admin-create-page .ac-drop__preview { display: block; max-width: 100%; max-height: 200px; border-radius: 12px; object-fit: contain; }
+.admin-create-page .ac-drop__preview { display: block; max-width: 100%; max-height: 200px; border-radius: 6px; object-fit: contain; }
 .admin-create-page .ac-row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 
 /* Kỹ năng: lưới thẻ có icon */
 .admin-create-page .ac-skills { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; outline: none; }
 .admin-create-page .ac-skills__item {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 84px; padding: 10px;
-  border: 1.5px solid var(--border); border-radius: 18px; background: var(--card); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--card); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer;
   transition: border-color .15s, background-color .15s;
 }
 .admin-create-page .ac-skills__item i { font-size: 20px; color: var(--primary); }
 .admin-create-page .ac-skills__item:hover { border-color: var(--primary); }
-.admin-create-page .ac-skills__item.is-checked { border-color: var(--primary); background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }
+.admin-create-page .ac-skills__item.is-checked { border-color: var(--primary); background: var(--primary-soft); box-shadow:none; }
 
 /* Điểm kiến thức */
 .admin-create-page .ac-search { position: relative; margin-bottom: 8px; }
 .admin-create-page .ac-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .admin-create-page .ac-search .ac-input { padding-left: 40px; }
-.admin-create-page .ac-taglist { max-height: 240px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: 14px; padding: 4px; outline: none; }
+.admin-create-page .ac-taglist { max-height: 240px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: 6px; padding: 4px; outline: none; }
 .admin-create-page .ac-tag {
-  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 10px;
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 10px; border: 0; border-radius: 6px;
   background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer;
 }
 .admin-create-page .ac-tag:hover { background: var(--primary-soft); }
-.admin-create-page .ac-tag__dot { flex: 0 0 18px; width: 18px; height: 18px; border-radius: 999px; border: 2px solid #C9BFE8; }
+.admin-create-page .ac-tag__dot { flex: 0 0 18px; width: 18px; height: 18px; border-radius: 6px; border: 2px solid #C9BFE8; }
 .admin-create-page .ac-tag.is-checked { background: var(--primary-soft); }
 .admin-create-page .ac-tag.is-checked .ac-tag__dot { border: 5px solid var(--primary); }
-.admin-create-page .ac-tag__code { flex: 0 0 auto; padding: 2px 8px; border-radius: 999px; background: #F1EDFB; color: var(--primary-deep); font-size: 12px; font-weight: 700; font-family: var(--font-mono, monospace); }
+.admin-create-page .ac-tag__code { flex: 0 0 auto; padding: 2px 8px; border-radius: 6px; background: #F1EDFB; color: var(--primary-deep); font-size: 12px; font-weight: 700; font-family: var(--font-mono, monospace); }
 .admin-create-page .ac-tag__name { min-width: 0; overflow-wrap: anywhere; }
 .admin-create-page .ac-taglist__empty { margin: 8px 10px; font-size: 14px; }
 .admin-create-page .ac-link-btn {
   min-height: 44px; padding: 6px 0; border: 0; background: transparent; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer;
 }
 .admin-create-page .ac-link-btn:hover { text-decoration: underline; }
-.admin-create-page .ac-newtag { margin: 4px 0 18px; padding: 14px; border-radius: 16px; background: #FBFAFE; border: 1px dashed #CFC4EE; animation: ac-fade .25s var(--ac-ease); }
+.admin-create-page .ac-newtag { margin: 4px 0 18px; padding: 14px; border-radius: 6px; background: #FBFAFE; border: 1px dashed #CFC4EE; animation: ac-fade .25s var(--ac-ease); }
 @keyframes ac-fade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 /* Tùy chọn nâng cao */
-.admin-create-page .ac-adv { border: 1px solid var(--border); border-radius: 16px; background: #FCFBFF; }
+.admin-create-page .ac-adv { border: 1px solid var(--border); border-radius: 6px; background: #FCFBFF; }
 .admin-create-page .ac-adv__summary {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; min-height: 48px; align-items: center; padding: 8px 14px;
   font-weight: 700; cursor: pointer; list-style: none;
@@ -185,24 +186,24 @@
 .admin-create-page .ac-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; outline: none; }
 .admin-create-page .ac-modes__item {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 108px; padding: 14px; text-align: left;
-  border: 1.5px solid var(--border); border-radius: 18px; background: var(--card); color: var(--ink); font: inherit; cursor: pointer;
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--card); color: var(--ink); font: inherit; cursor: pointer;
 }
 .admin-create-page .ac-modes__item i { font-size: 20px; color: var(--primary); }
 .admin-create-page .ac-modes__item span { font-size: 13px; color: var(--muted); }
-.admin-create-page .ac-modes__item.is-checked { border-color: var(--primary); background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }
-.admin-create-page .ac-excel { margin-top: 4px; padding: 14px; border-radius: 16px; background: #FBFAFE; border: 1px solid var(--border); }
+.admin-create-page .ac-modes__item.is-checked { border-color: var(--primary); background: var(--primary-soft); box-shadow:none; }
+.admin-create-page .ac-excel { margin-top: 4px; padding: 14px; border-radius: 6px; background: #FBFAFE; border: 1px solid var(--border); }
 .admin-create-page .ac-excel .ac-field { margin: 12px 0 0; }
 .admin-create-page .ac-other { margin-top: 10px; }
 
 /* Xem lại */
-.admin-create-page .ac-review { margin: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.admin-create-page .ac-review { margin: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .admin-create-page .ac-review__row { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 14px; border-top: 1px solid var(--border); }
 .admin-create-page .ac-review__row:first-child { border-top: 0; }
 .admin-create-page .ac-review dt { color: var(--muted); font-weight: 600; }
 .admin-create-page .ac-review dd { margin: 0; overflow-wrap: anywhere; }
 
 /* Hộp thông báo */
-.admin-create-page .ac-alert { margin: 14px 0 0; padding: 12px 14px; border-radius: 14px; font-size: 14px; }
+.admin-create-page .ac-alert { margin: 14px 0 0; padding: 12px 14px; border-radius: 6px; font-size: 14px; }
 .admin-create-page .ac-alert--info { background: var(--primary-soft); color: var(--primary-deep); }
 .admin-create-page .ac-alert--warn { background: var(--warn-soft); color: #7A4B00; }
 .admin-create-page .ac-alert--error { margin: 0 0 14px; background: #FDECEA; color: var(--danger-ink); }
@@ -215,7 +216,7 @@
 .admin-create-page .ac-foot__right { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; }
 .admin-create-page .ac-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px;
-  border: 1.5px solid var(--border); border-radius: 14px; background: var(--card); color: var(--ink);
+  border: 1.5px solid var(--border); border-radius: 6px; background: var(--card); color: var(--ink);
   font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
 }
 .admin-create-page .ac-btn:hover { border-color: var(--primary); }
@@ -229,7 +230,7 @@
 .admin-create-page .ac-link { display: inline-block; margin-top: 14px; color: var(--primary); font-weight: 700; }
 
 /* ---------- Xem trước thẻ giáo trình (như học viên thấy) ---------- */
-.admin-create-page .ac-tbcard { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: var(--card); }
+.admin-create-page .ac-tbcard { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--card); }
 .admin-create-page .ac-thumb {
   position: relative; aspect-ratio: 16 / 5; overflow: hidden; container-type: inline-size;
   background: var(--thumb-bg, #ece6fb); transition: background-color .4s var(--ac-ease);
@@ -239,7 +240,7 @@
   font-weight: 700; color: var(--thumb-ink, #5b3fa8); opacity: 1; transition: color .4s var(--ac-ease);
 }
 .admin-create-page .ac-thumb__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.admin-create-page .ac-thumb__badge { position: absolute; top: 10px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(255, 255, 255, .92); color: var(--primary-deep); }
+.admin-create-page .ac-thumb__badge { position: absolute; top: 10px; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; background: rgba(255, 255, 255, .92); color: var(--primary-deep); }
 .admin-create-page .ac-thumb__badge--level { left: 10px; }
 .admin-create-page .ac-thumb__badge--status { right: 10px; background: #FFF6E5; color: #7A4B00; }
 .admin-create-page .ac-tbcard__title { margin: 12px 14px 4px; font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
@@ -251,14 +252,14 @@
 .admin-create-page .ac-checklist { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .admin-create-page .ac-check { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--muted); }
 .admin-create-page .ac-check__icon {
-  display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px;
   border: 2px solid var(--border); font-size: 12px; transition: background-color .25s, border-color .25s;
 }
 .admin-create-page .ac-check.is-ok { color: var(--ink); }
 .admin-create-page .ac-check.is-ok .ac-check__icon { background: var(--success); border-color: var(--success); color: #fff; }
 
 /* ---------- Màn hình thành công ---------- */
-.admin-create-page .ac-success { max-width: 620px; margin: 10px auto; padding: 34px 24px; border-radius: 26px; background: var(--card); border: 1px solid var(--border); text-align: center; }
+.admin-create-page .ac-success { max-width: 620px; margin: 10px auto; padding: 34px 24px; border-radius: 6px; background: var(--card); border: 1px solid var(--border); text-align: center; }
 .admin-create-page .ac-success__mark { position: relative; width: 96px; height: 96px; margin: 0 auto 16px; }
 .admin-create-page .ac-success__svg { position: relative; width: 96px; height: 96px; }
 .admin-create-page .ac-success__circle { fill: var(--success); stroke: none; transform-origin: center; animation: ac-pop .4s var(--ac-ease) both; }
@@ -266,7 +267,7 @@
   fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 40; stroke-dashoffset: 40; animation: ac-draw .45s .3s var(--ac-ease) forwards;
 }
-.admin-create-page .ac-success__ripple { position: absolute; inset: 0; border-radius: 999px; background: var(--success); opacity: 0; animation: ac-ripple 1s .2s ease-out; }
+.admin-create-page .ac-success__ripple { position: absolute; inset: 0; border-radius: 6px; background: var(--success); opacity: 0; animation: ac-ripple 1s .2s ease-out; }
 @keyframes ac-pop { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes ac-draw { to { stroke-dashoffset: 0; } }
 @keyframes ac-ripple { 0% { transform: scale(1); opacity: .35; } 100% { transform: scale(1.9); opacity: 0; } }
@@ -312,15 +313,15 @@ html[data-theme="dark"] .admin-create-page {
   --danger: var(--dark-danger-line); --danger-ink: var(--dark-danger);
 }
 html[data-theme="dark"] .admin-create-page :is(.ac-input, .ac-adv) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); caret-color: var(--dark-accent); }
-html[data-theme="dark"] .admin-create-page .ac-input:focus { border-color: var(--dark-focus); box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] .admin-create-page .ac-input:focus { border-color: var(--dark-focus); box-shadow:none; }
 html[data-theme="dark"] .admin-create-page .ac-field.is-invalid .ac-input,
-html[data-theme="dark"] .admin-create-page .ac-field.is-invalid [role="radiogroup"] { border-color: var(--dark-danger-line); box-shadow: 0 0 0 3px var(--dark-danger-bg); }
+html[data-theme="dark"] .admin-create-page .ac-field.is-invalid [role="radiogroup"] { border-color: var(--dark-danger-line); box-shadow:none; }
 html[data-theme="dark"] .admin-create-page :is(.ac-input, textarea, select):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
 html[data-theme="dark"] .admin-create-page :is(.ac-stepper__item.is-current .ac-stepper__num, .ac-chip.is-checked, .ac-switch__item.is-checked, .ac-btn--primary, .ac-check.is-ok .ac-check__icon) { color: var(--dark-on-button); }
 html[data-theme="dark"] .admin-create-page .ac-btn--primary:hover { background: var(--dark-button-hover); }
 html[data-theme="dark"] .admin-create-page :is([role="radio"]:focus-visible, .ac-drop:focus-visible, .ac-stepper__btn:focus-visible) { outline-color: var(--dark-focus); }
 html[data-theme="dark"] .admin-create-page :is(.ac-btn, .ac-link-btn, .ac-kanji-pick):focus-visible { outline-color: var(--dark-focus); }
-html[data-theme="dark"] .admin-create-page .ac-swatches__item.is-checked { box-shadow: 0 0 0 3px var(--dark-focus-ring); }
+html[data-theme="dark"] .admin-create-page .ac-swatches__item.is-checked { box-shadow:none; }
 html[data-theme="dark"] .admin-create-page :is(.ac-drop, .ac-newtag, .ac-excel) { background: var(--dark-raised); border-color: var(--dark-line); }
 html[data-theme="dark"] .admin-create-page .ac-tag__dot { border-color: var(--dark-input-line); }
 html[data-theme="dark"] .admin-create-page .ac-tag__code { background: var(--dark-soft); }
@@ -332,8 +333,26 @@ html[data-theme="dark"] .admin-create-page .ac-thumb__badge--status { background
 html[data-theme="dark"] .admin-create-page .ac-thumb { background: var(--dark-raised); }
 html[data-theme="dark"] .admin-create-page .ac-thumb__kanji { color: var(--dark-accent); }
 html[data-theme="dark"] .admin-create-page .ac-tbcard__title.is-placeholder { color: var(--dark-faint); }
-html[data-theme="dark"] .admin-create-page .ac-card { box-shadow: 0 10px 30px var(--dark-shadow); }
+html[data-theme="dark"] .admin-create-page .ac-card { box-shadow:none; }
+
+/* Create flow uses the same restrained admin surface treatment. */
+.admin-create-page .ac-head__title { font-size: 24px; font-weight: 600; color: var(--admin-ink); }
+.admin-create-page :is(.ac-card, .ac-aside__card, .ac-tbcard) { border: 0; border-bottom: 1px solid var(--admin-line); border-radius: 0; background: transparent; box-shadow:none; }
+.admin-create-page .ac-card { padding: 16px 0 24px; }
+.admin-create-page .ac-aside__card { padding: 16px 0; }
+.admin-create-page .ac-tbcard { padding-bottom: 16px; }
+.admin-create-page .ac-step__title { font-size: 20px; font-weight: 600; }
+.admin-create-page .ac-stepper__num { border-radius: 6px; }
+html[data-theme="dark"] .admin-create-page {
+  --primary: var(--admin-accent); --primary-deep: var(--admin-accent-hover);
+  --primary-soft: var(--admin-tint); --bg: var(--admin-bg);
+  --card: var(--admin-surface); --border: var(--admin-line);
+  --ink: var(--admin-ink); --muted: var(--admin-muted);
+  --success: var(--admin-muted); --success-soft: var(--admin-tint);
+  --success-ink: var(--admin-muted); --warn-soft: var(--admin-tint);
+  --danger: var(--admin-danger); --danger-ink: var(--admin-danger);
+}
 html[data-theme="dark"] .admin-create-page .ac-swatch,
-html[data-theme="dark"] .admin-create-page .ac-swatch-inline { box-shadow: inset 0 0 0 1px var(--dark-line); }
+html[data-theme="dark"] .admin-create-page .ac-swatch-inline { box-shadow:none; }
 html[data-theme="dark"] .admin-create-page .ac-success__check { stroke: var(--dark-on-button); }
 html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }

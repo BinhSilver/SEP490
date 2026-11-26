@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chi tiết ngày học Giao tiếp - KotsuKotsu</title>
-    <link rel="stylesheet" href="../../static/css/tokens.css" />
-    <link rel="stylesheet" href="../../static/css/base.css" />
+    <link rel="stylesheet" href="../../static/css/tokens.css?v=20261125-largescreen" />
+    <link rel="stylesheet" href="../../static/css/base.css?v=20261125-largescreen" />
     <link rel="stylesheet" href="../../static/css/layout.css" />
     <link rel="stylesheet" href="../../static/css/learning-v2-tokens.css" />
     <link rel="stylesheet" href="../../static/css/pages/jpath-base.css" />
@@ -28,11 +28,11 @@
                 <a class="jp-sidenav__link" href="/learning/comm/path" th:href="@{/learning/comm/path}">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-route"/></svg> Bản đồ tuần
                 </a>
-                <a class="jp-sidenav__link" href="/learning/comm/day" th:href="@{/learning/comm/day}" aria-current="page">
-                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-history"/></svg> Chi tiết ngày
+                <a class="jp-sidenav__link" href="/learning/comm/settings" th:href="@{/learning/comm/settings}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Cài đặt lộ trình
                 </a>
-                <a class="jp-sidenav__link" href="/learning/comm/survey" th:href="@{/learning/comm/survey}">
-                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-settings"/></svg> Thêm mục tiêu phụ
+                <a class="jp-sidenav__link" href="/learning/comm/path?tour=1" th:href="@{/learning/comm/path(tour=1)}">
+                    <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-lightbulb"/></svg> Xem hướng dẫn
                 </a>
                 <a class="jp-sidenav__link" href="/learning/comm/notebook">
                     <svg class="jp-i" aria-hidden="true"><use href="/images/icons/jpath-icons.svg#i-notebook"/></svg> Sổ tay
@@ -41,15 +41,18 @@
         </aside>
         <div class="jp-ws__main">
             <div id="cpathDayRoot" aria-live="polite">
-                <p class="jp-status" role="status">Đang tải chi tiết ngày học…</p>
+                <p class="jp-status jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải chi tiết ngày học…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
             </div>
         </div>
     </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}">
     <script src="../../static/js/jlptpath/jpath-api.js"></script>
 </th:block>
 <script src="../../static/js/cpath/cpath-day.js" th:src="@{/js/cpath/cpath-day.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

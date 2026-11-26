@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <head th:replace="~{fragments/head :: standard(${pageTitle}, '')}"></head>
-<body id="arenaGamePage" class="memory-page arena-play arena-play--memory">
+<body id="arenaGamePage" class="memory-page arena-play arena-play--memory game-ui-standard">
+<link rel="stylesheet" href="/css/tokens.css?v=20261119-compact">
+<link rel="stylesheet" href="/css/dark-page.css">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 
 <main id="jlabBaseContent">
-<link rel="stylesheet" th:href="@{/arena/app/memory/memory-app.css(v='20261112-board-fit')}" />
+<link rel="stylesheet" th:href="@{/arena/app/memory/memory-app.css(v='20261126-hangar')}" />
 <link rel="stylesheet" th:href="@{/arena/css/voice.css}" />
 <div id="memory-root"
      th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId}">
@@ -14,9 +18,9 @@
 </div>
 </main>
 
-<script th:src="@{/arena/js/arena-client.js}"></script>
+<script th:src="@{/arena/js/arena-client.js(v='20261119-leave-fast')}"></script>
 <script th:src="@{/arena/js/voice-client.js}"></script>
 <script th:src="@{/arena/js/memory-store.js}"></script>
-<script type="module" th:src="@{/arena/app/memory/memory-app.js(v='20261112-board-fit')}"></script>
+<script type="module" th:src="@{/arena/app/memory/memory-app.js(v='20261126-hangar')}"></script>
 </body>
 </html>

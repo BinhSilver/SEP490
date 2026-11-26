@@ -23,6 +23,14 @@
 
   var BASE = '/api/learning/jlpt';
   var FLOOR_PCT = 32;
+  var READY_PCT = 60;
+
+  /** Which of the two marks a score reaches: 32% = the JLPT section floor, 60% = ready for the exam. */
+  function markOf(pct) {
+    if (pct >= READY_PCT) return { key: 'ready', label: 'Đủ sức thi' };
+    if (pct >= FLOOR_PCT) return { key: 'floor', label: 'Qua điểm sàn JLPT' };
+    return { key: 'none', label: 'Chưa qua điểm sàn JLPT' };
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -84,16 +92,24 @@
       + '</section>';
   }
 
-  /** The score against the 32% floor line, passed or not, the last tries. */
+  /** The score against the two marks (32% floor, 60% ready), which one is reached, the last tries. */
   function resultHtml(r, tries) {
     var pct = Math.max(0, Math.min(100, Number(r && r.scorePercent) || 0));
-    var passed = !!(r && r.passed);
+    var mark = markOf(pct);
     var last = list(tries).map(function (t) {
       return (t.passed ? 'Đạt ' : 'Chưa đạt ') + (t.scorePct != null ? Math.round(Number(t.scorePct)) + '%' : '—');
     }).join(', ');
-    return '<section class="jp-skill-block"><h2>' + (passed ? 'Đạt ' + icon('check') : 'Chưa đạt') + ' — ' + esc(pct) + '%</h2>'
-      + '<div class="jp-section-floor" role="img" aria-label="' + esc(pct + '% so với điểm sàn ' + FLOOR_PCT + '%') + '">'
-      + '<div class="jp-section-floor__bar" style="width:' + pct + '%"></div><div class="jp-section-floor__line"></div></div>'
+    var reached = function (min, label) {
+      var ok = pct >= min;
+      return '<li class="jp-section-mark' + (ok ? ' is-reached' : '') + '">' + esc(min) + '% ' + esc(label)
+        + ': <strong>' + (ok ? 'đạt' : 'chưa đạt') + '</strong></li>';
+    };
+    return '<section class="jp-skill-block" data-mark="' + mark.key + '"><h2>' + esc(mark.label)
+      + (mark.key === 'none' ? '' : ' ' + icon('check')) + ' — ' + esc(pct) + '%</h2>'
+      + '<div class="jp-section-floor" role="img" aria-label="' + esc(pct + '% so với mốc ' + FLOOR_PCT + '% và ' + READY_PCT + '%') + '">'
+      + '<div class="jp-section-floor__bar" style="width:' + pct + '%"></div><div class="jp-section-floor__line"></div>'
+      + '<div class="jp-section-floor__line jp-section-floor__line--ready"></div></div>'
+      + '<ul class="jp-section-marks">' + reached(FLOOR_PCT, 'Qua điểm sàn JLPT') + reached(READY_PCT, 'Đủ sức thi') + '</ul>'
       + '<p class="jp-muted">Điểm sàn ' + FLOOR_PCT + '% · ' + esc((r && r.correct) || 0) + '/' + esc((r && r.total) || 0) + ' câu đúng'
       + (last ? ' · 2 lần gần nhất: ' + esc(last) : '') + '</p>'
       + (r && r.token ? '<a class="jp-link-btn" href="/learning/jlpt/check/' + encodeURIComponent(r.token) + '">Xem lại câu sai</a> ' : '')
@@ -156,7 +172,7 @@
           var tries = skill && skill.skill === 'LISTENING' ? rd && rd.lastListening : rd && rd.lastReading;
           body.innerHTML = resultHtml(r, tries);
         }, function () { body.innerHTML = resultHtml(r, []); });
-      }, function (e) { state.submitted = false; status.textContent = (e && e.message) || 'Chưa nộp được bài.'; });
+      }, function (e) { state.submitted = false; status.textContent = (e && (e.code || e.status) && e.message) || 'Chưa nộp được bài.'; });
     }
 
     function startClock() {
@@ -206,7 +222,7 @@
       draw();
       startClock();
       return v;
-    }, function (e) { status.textContent = (e && e.message) || 'Không tải được bài.'; });
+    }, function (e) { status.textContent = (e && (e.code || e.status) && e.message) || 'Không tải được bài.'; });
 
     function submitDone(v) {
       body.innerHTML = '<p>Bài này đã nộp.</p><a class="jp-link-btn" href="/learning/jlpt/check/' + encodeURIComponent(v.token)
@@ -215,6 +231,6 @@
     }
   }
 
-  return { FLOOR_PCT: FLOOR_PCT, remainingMs: remainingMs, timerText: timerText, setHtml: setHtml, resultHtml: resultHtml,
+  return { FLOOR_PCT: FLOOR_PCT, READY_PCT: READY_PCT, markOf: markOf, remainingMs: remainingMs, timerText: timerText, setHtml: setHtml, resultHtml: resultHtml,
     mount: mount };
 });

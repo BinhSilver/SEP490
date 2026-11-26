@@ -1,5 +1,6 @@
 package com.jlas.game.util;
 
+import com.jlas.auth.security.CurrentUser;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.game.dto.GameDtos.CatalogItem;
@@ -36,10 +37,29 @@ public final class GameRules {
 
     public static final int NEKO_MIN_WORDS = 4;
     public static final int AIR_MIN_WORDS = 5;
+    public static final List<String> PUZZLE_LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
+
+    public static String puzzleLevel(String value) {
+        return pick("Cấp JLPT", upper(value), PUZZLE_LEVELS, "N5");
+    }
 
     private static final List<DeckField> ALL_FIELDS = Arrays.asList(DeckField.values());
 
     private GameRules() { }
+
+    public static List<CatalogItem> visibleCatalog() {
+        return catalog().stream().filter(item -> canAccess(item.type())).toList();
+    }
+
+    public static boolean canAccess(GameType type) {
+        return !type.adminOnly() || CurrentUser.hasRole("ROLE_ADMIN");
+    }
+
+    public static void requireAccess(GameType type) {
+        if (!canAccess(type)) {
+            throw new ApiException(ErrorCode.FORBIDDEN, "Trò chơi này chỉ dành cho quản trị viên");
+        }
+    }
 
     public static List<CatalogItem> catalog() {
         return List.of(
@@ -58,8 +78,16 @@ public final class GameRules {
                         "Gõ đáp án · Hạ máy bay địch",
                         "/arena/images/games/air-defense.webp", AIR_MIN_WORDS, ALL_FIELDS,
                         new GameOptions(null, 180, null, null, null, null, null, null),
-                        choices("durationSeconds", AIR_VERSUS_DURATIONS, "soloDurationSeconds", AIR_SOLO_DURATIONS))
+                        choices("durationSeconds", AIR_VERSUS_DURATIONS, "soloDurationSeconds", AIR_SOLO_DURATIONS)),
+                puzzle(GameType.SPHINX_RIDDLE, "Giải đố Nhân Sư", "Đọc câu đố và gõ từ", "sphinx-night.jpg"),
+                puzzle(GameType.PICTURE_REBUS, "Ghép hình đoán từ", "Ghép ý các hình để đoán từ Kanji", "picture-rebus.webp"),
+                puzzle(GameType.DRAW_GUESS, "Vẽ & Đoán", "Vẽ và đoán cùng bạn bè", "draw-guess.webp")
         );
+    }
+
+    private static CatalogItem puzzle(GameType type, String name, String tagline, String image) {
+        return new CatalogItem(type, type.slug(), name, tagline, "/arena/images/games/" + image,
+                0, List.of(), normalize(type, PlayMode.VERSUS, null), choices("jlpt", PUZZLE_LEVELS));
     }
 
     public static CatalogItem item(GameType type) {
@@ -111,6 +139,8 @@ public final class GameRules {
                             : AIR_SOLO_DURATIONS.get(0),
                     null, null, null, null, null, null, null, null,
                     in.cardIds() == null ? null : List.copyOf(in.cardIds()));
+            case SPHINX_RIDDLE, PICTURE_REBUS, DRAW_GUESS ->
+                    new GameOptions(null, null, null, null, null, null, null, null);
         };
     }
 
@@ -120,6 +150,7 @@ public final class GameRules {
             case NEKO_CATCH -> NEKO_MIN_WORDS;
             case MEMORY_MATCH -> normalized.boardSize() / 2;
             case AIR_DEFENSE -> AIR_MIN_WORDS;
+            case SPHINX_RIDDLE, PICTURE_REBUS, DRAW_GUESS -> 0;
         };
     }
 

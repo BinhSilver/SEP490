@@ -25,9 +25,9 @@ public class GameMatch {
     @Column(name = "match_id")
     private Long matchId;
 
-    /** Nguồn card của trận. */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "flashcard_set_id", nullable = false,
+    /** Nguồn thẻ của trận dùng flashcard. Game theo JLPT ghi nguồn trong settings_snapshot. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "flashcard_set_id",
             foreignKey = @ForeignKey(name = "fk_game_match_flashcard_set"))
     private FlashcardSet flashcardSet;
 

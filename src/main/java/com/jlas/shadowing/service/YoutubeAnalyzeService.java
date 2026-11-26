@@ -71,6 +71,14 @@ public class YoutubeAnalyzeService {
         }
 
         applyLanguageDetection(root, dto, hasManual || hasAuto);
+        dto.setSpokenLanguage(spokenLanguage(root));
+        String description = root.path("description").asText("").strip();
+        dto.setDescription(description.length() > 1000 ? description.substring(0, 1000) : description);
+        java.util.List<String> tags = new java.util.ArrayList<>();
+        root.path("tags").forEach(tag -> {
+            if (tags.size() < 15 && !tag.asText("").isBlank()) tags.add(tag.asText().strip());
+        });
+        dto.setTags(tags);
 
         String viManualLang = youtubeService.findBestLangCode(root, "subtitles", "vi");
         String viAutoLang = youtubeService.findBestLangCode(root, "automatic_captions", "vi");
@@ -152,6 +160,25 @@ public class YoutubeAnalyzeService {
         dto.setLanguageConfidence(0);
         dto.setJapaneseDetected(false);
         dto.setLanguageMessage("Chưa có metadata hoặc phụ đề JP để kết luận. Audio sẽ được kiểm tra lại trước khi tạo bài.");
+    }
+
+    /**
+     * Ngôn ngữ lời thoại gốc: YouTube chỉ đánh dấu phụ đề nhận dạng giọng nói gốc bằng khoá "xx-orig" (các khoá khác,
+     * kể cả "ja", có thể là bản tự dịch); không có thì dùng ngôn ngữ khai báo. Null khi không rõ.
+     */
+    private String spokenLanguage(JsonNode root) {
+        JsonNode auto = root.path("automatic_captions");
+        if (auto.isObject()) {
+            java.util.Iterator<String> names = auto.fieldNames();
+            while (names.hasNext()) {
+                String name = names.next();
+                if (name.endsWith("-orig")) {
+                    String code = normalizeLanguageCode(name.substring(0, name.length() - "-orig".length()));
+                    if (code != null) return code;
+                }
+            }
+        }
+        return normalizeLanguageCode(firstText(root, "language", "original_language", "audio_language", "language_code"));
     }
 
     private String firstText(JsonNode root, String... fields) {

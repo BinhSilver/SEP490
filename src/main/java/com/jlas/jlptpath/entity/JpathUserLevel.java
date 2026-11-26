@@ -77,7 +77,7 @@ public class JpathUserLevel {
     @PrePersist
     void fillOpenedAt() {
         if (openedAt == null) {
-            openedAt = LocalDateTime.now();
+            openedAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         }
     }
 }

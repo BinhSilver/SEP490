@@ -1,9 +1,10 @@
 /* [JLAS-W0108] F25 word cards beside the home hero (home-word-deck.js). Colours come from the home tokens only. */
 .hwd {
-  /* the cards keep the day palette whatever the sky is doing, so text never turns light on a light card */
+  /* the cards follow the day/night palette of the home scene */
   --hwd-ink: var(--color-home-ink-day);
   --hwd-paper: #fff8ec; /* = --color-home-paper (day) */
-  --hwd-accent: var(--color-home-accent-day);
+  --hwd-accent: #2c4a86;
+  --hwd-accent-soft: #6c84b8;
   --hwd-tilt: 3deg;
   position: absolute;
   z-index: 2;
@@ -11,6 +12,14 @@
   right: clamp(24px, 6vw, 160px);
   /* grows with wide screens so it keeps its weight next to the title */
   width: clamp(380px, 34vw, 760px);
+}
+
+html.home-html[data-theme="dark"] .hwd,
+.home-hero:has([data-home-lighting="night"]) .hwd {
+  --hwd-ink: var(--color-home-ink-night);
+  --hwd-paper: #162b57;
+  --hwd-accent: #8cb4ff;
+  --hwd-accent-soft: #4e6fa8;
 }
 
 .hwd-bar {
@@ -87,7 +96,7 @@
 .hwd-menu__item[hidden],
 .hwd-menu__title[hidden],
 .hwd-menu__sep[hidden] { display: none; }
-.hwd-menu__check { width: 14px; color: var(--color-home-action); font-weight: 800; visibility: hidden; }
+.hwd-menu__check { width: 14px; color: var(--hwd-accent); font-weight: 800; visibility: hidden; }
 .hwd-menu__item[aria-checked="true"] { font-weight: 700; }
 .hwd-menu__item[aria-checked="true"] .hwd-menu__check { visibility: visible; }
 .hwd-menu__sep { height: 1px; margin: 6px 4px; background: color-mix(in srgb, var(--hwd-ink) 12%, transparent); }
@@ -226,7 +235,7 @@
 }
 
 .hwd-photo__tag { top: 7px; left: 40px; }
-.hwd-photo__cap { top: 40px; left: 7px; writing-mode: vertical-rl; }
+.hwd-photo__cap { top: 40px; left: 7px; writing-mode: vertical-rl; transform: rotate(180deg); }
 
 /* the stack of word cards in front */
 .hwd-deck { position: absolute; left: -10%; bottom: 0; width: 46%; aspect-ratio: 3 / 4; }
@@ -240,15 +249,15 @@
   box-shadow: 0 10px 24px rgb(0 0 0 / .16);
 }
 
-.hwd-deck__back--2 { background: color-mix(in srgb, var(--hwd-accent) 38%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transform: rotate(-11deg) translate(-8px, 6px); }
-.hwd-deck__back--1 { background: color-mix(in srgb, var(--color-home-action) 48%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transform: rotate(-6deg) translate(-3px, 3px); }
+.hwd-deck__back--2 { background: color-mix(in srgb, var(--hwd-accent-soft) 34%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transform: rotate(-11deg) translate(-8px, 6px); }
+.hwd-deck__back--1 { background: color-mix(in srgb, var(--hwd-paper) 56%, var(--hwd-accent-soft) 24%); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transform: rotate(-6deg) translate(-3px, 3px); }
 
 .hwd-card {
   display: flex;
   flex-direction: column;
   padding: 16px 16px 12px;
   /* frosted glass like the frame, so the card sits in the scene instead of on top of it */
-  background: color-mix(in srgb, var(--hwd-paper) 72%, transparent);
+  background: color-mix(in srgb, var(--hwd-paper) 78%, transparent);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   backdrop-filter: blur(14px) saturate(1.2);
   color: var(--hwd-ink);
@@ -259,16 +268,16 @@
 }
 
 .hwd-card:hover { transform: rotate(-1deg) translateY(-4px); }
-.hwd-card:focus-visible { outline: 3px solid var(--color-home-action); outline-offset: 4px; }
+.hwd-card:focus-visible { outline: 3px solid var(--hwd-accent); outline-offset: 4px; }
 .hwd-card.is-leaving { opacity: 0; transform: rotate(-14deg) translateX(-30px); }
 .hwd-card.is-flipped .hwd-card__face { animation: hwdFlip .35s ease; }
 
 .hwd .hwd-card .hwd-card__eyebrow { margin: 0; font-size: .66rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
-.hwd-card__spark { position: absolute; top: 12px; right: 14px; color: var(--color-home-action); }
+.hwd-card__spark { position: absolute; top: 12px; right: 14px; color: var(--hwd-accent); }
 .hwd-card__face { flex: 1; display: grid; place-content: center; text-align: center; gap: 4px; }
 .hwd .hwd-card .hwd-card__word { margin: 0; font-size: clamp(2rem, 2.9vw, 4rem); font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
 .hwd .hwd-card .hwd-card__reading { margin: 0; font-size: .95rem; opacity: .7; }
-.hwd .hwd-card .hwd-card__meaning { margin: 4px 0 0; font-size: 1.05rem; font-weight: 700; color: var(--color-home-action); }
+.hwd .hwd-card .hwd-card__meaning { margin: 4px 0 0; font-size: 1.05rem; font-weight: 700; color: var(--hwd-accent); }
 .hwd .hwd-card .hwd-card__hint { margin: 0 0 8px; text-align: center; font-size: .72rem; opacity: .7; }
 
 .hwd-card__foot {
@@ -285,13 +294,18 @@
 .hwd-card__next {
   width: 34px;
   height: 34px;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--hwd-accent) 30%, rgb(255 255 255 / .5));
   border-radius: 50%;
-  background: var(--hwd-accent);
+  background: color-mix(in srgb, var(--hwd-accent) 16%, var(--hwd-paper));
   color: var(--hwd-ink);
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgb(0 0 0 / .18);
+  box-shadow: 0 4px 10px rgb(0 0 0 / .14);
+  transition: background-color .18s ease, transform .18s ease;
+}
+.hwd-card__next:hover {
+  background: color-mix(in srgb, var(--hwd-accent) 28%, var(--hwd-paper));
+  transform: translateX(2px);
 }
 
 @keyframes hwdIn { from { opacity: 0; transform: translateY(24px); } }

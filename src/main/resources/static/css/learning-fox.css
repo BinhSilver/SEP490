@@ -1,0 +1,12 @@
+/* [JLAS-W0108] learning-fox.js: the live fox of the learning flow (same sprite sheets as the home page fox).
+   The sheets are 3x3, so background-size 300% steps cell by cell. */
+.lf-fox { display: inline-block; flex: none; cursor: pointer; vertical-align: middle; }
+.lf-fox .hm-mascot,
+.lf-fox .hm-mascot__squash { position: relative; display: block; width: 100%; height: 100%; }
+.lf-fox .hm-mascot__squash { transform-origin: 50% 78%; }
+.lf-fox .hm-mascot__layer { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 300% 300%; }
+.lf-fox .hm-mascot__react { opacity: 0; }
+.lf-fox.is-reacting .hm-mascot__dir { opacity: 0; }
+.lf-fox.is-reacting .hm-mascot__react { opacity: 1; }
+/* the fox sits a little high and left in its sprite cell: nudge it to the middle of its frame */
+.lf-fox .hm-mascot__layer { transform: translate(1%, 6%); }

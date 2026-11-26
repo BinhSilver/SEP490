@@ -1,36 +1,36 @@
 package com.jlas.jlptpath.util;
 
-import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * [JLAS-W0108] Level a new path opens at from the Smart Test ability band (policy #28, before capping to released
- * levels): "Nx Thành thạo" → the level above Nx (N1 stays N1); Nx with Căn bản, Nhập môn, (tạm tính) or nothing → Nx;
+ * [JLAS-W0108] Level a new path opens at from the Smart Test result, before capping to released levels.
+ * Owner 20/11: the path opens at {@code estimatedOverallLevel} (skill levels as ranks N5=1..N1=5, averaged and
+ * rounded by the Smart Test). The ability band ("Nx Nhập môn/Căn bản/Thành thạo") is only shown and explained; a
+ * "Thành thạo" band no longer lifts the path one level. Without an estimated level the band's Nx is used as is;
  * anything else (no level, below N5, abandoned) → N5.
  */
 public final class JpathOpenLevelRule {
 
-    private static final Pattern BAND = Pattern.compile("^(N[1-5])\s*(.*)$");
-    private static final String MASTERED = "Thành thạo";
-    private static final List<String> LEVELS = List.of("N5", "N4", "N3", "N2", "N1");
+    private static final Pattern LEVEL = Pattern.compile("^(N[1-5])(?:\\s.*)?$");
 
     private JpathOpenLevelRule() {
     }
 
-    public static String openLevel(String abilityBand) {
-        if (abilityBand == null) {
-            return "N5";
+    public static String openLevel(String estimatedOverallLevel, String abilityBand) {
+        String level = level(estimatedOverallLevel);
+        if (level == null) {
+            level = level(abilityBand);
         }
-        Matcher matcher = BAND.matcher(abilityBand.strip());
-        if (!matcher.matches()) {
-            return "N5";
+        return level == null ? "N5" : level;
+    }
+
+    private static String level(String text) {
+        if (text == null) {
+            return null;
         }
-        String level = matcher.group(1);
-        if (!matcher.group(2).strip().equals(MASTERED)) {
-            return level;
-        }
-        int index = LEVELS.indexOf(level);
-        return LEVELS.get(Math.min(index + 1, LEVELS.size() - 1));
+        Matcher matcher = LEVEL.matcher(text.strip().toUpperCase(Locale.ROOT));
+        return matcher.matches() ? matcher.group(1) : null;
     }
 }

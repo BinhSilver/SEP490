@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!-- [JLAS-W0108] QA 19/11 (bugs 71-74, 101): every communication page shows this one card while the learner's only
+     communication path is paused, instead of "chưa có lộ trình", raw JSON or a stuck skeleton. Same card pattern as
+     the print error page (bug 70). -->
+<head th:replace="~{fragments/head :: standard('Lộ trình Giao tiếp đang tạm dừng - KotsuKotsu', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lộ trình Giao tiếp đang tạm dừng</title>
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page cp-page">
+    <section class="cp-paused-card jp-card" role="status">
+        <img class="cp-paused-card__pic" src="/images/mascots/fox/kitsu-thinking-30-128.webp" alt="" width="120" height="120"
+             onerror="this.remove()" />
+        <h1 class="cp-paused-card__title"
+            th:text="${pausedName != null} ? 'Lộ trình ' + ${pausedName} + ' đang tạm dừng' : 'Lộ trình Giao tiếp đang tạm dừng'">Lộ trình Du lịch đang tạm dừng</h1>
+        <p class="cp-paused-card__text">Tiến độ của bạn vẫn được giữ. Chọn lại mục tiêu này để học tiếp từ chỗ đã dừng.</p>
+        <div class="cp-paused-card__actions">
+            <a class="jp-btn jp-btn--primary" href="/survey?edit=goal">Học tiếp</a>
+            <a class="jp-btn" href="/learning">Về lộ trình JLPT</a>
+        </div>
+    </section>
+</main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
+</body>
+</html>
