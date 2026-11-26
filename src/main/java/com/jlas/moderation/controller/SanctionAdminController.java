@@ -6,6 +6,7 @@ import com.jlas.auth.repository.UserRepository;
 import com.jlas.auth.security.UserPrincipal;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.moderation.service.BulkContentGuardService;
 import com.jlas.moderation.service.ModerationAuditService;
 import com.jlas.moderation.service.UserSanctionService;
 import jakarta.validation.Valid;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** User sanctions (MUTE/BAN). Admin only. */
+/** User sanctions (MUTE/BAN) and bulk-content violations (chống tải nội dung hàng loạt). Admin only. */
 @RestController
 @RequestMapping("/api/admin/moderation/sanctions")
 @RequiredArgsConstructor
@@ -34,11 +35,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class SanctionAdminController {
     private final UserSanctionService sanctions;
     private final UserRepository users;
+    private final BulkContentGuardService bulkGuard;
 
     public record UserSummary(Long id, String email, String fullName, String role) {
     }
 
-    public record UserSanctions(UserSummary user, List<UserSanctionService.SanctionView> history) {
+    public record UserSanctions(UserSummary user, List<UserSanctionService.SanctionView> history,
+                                List<BulkContentGuardService.ViolationView> bulkViolations) {
     }
 
     @GetMapping("/active")
@@ -54,7 +57,8 @@ public class SanctionAdminController {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Không tìm thấy tài khoản với email này"));
         UserSummary summary = new UserSummary(user.getId(), user.getEmail(), user.getFullName(),
                 user.getRole() == null ? null : user.getRole().getName());
-        return ApiResponse.ok("OK", new UserSanctions(summary, sanctions.history(user.getId())));
+        return ApiResponse.ok("OK", new UserSanctions(summary, sanctions.history(user.getId()),
+                bulkGuard.forUser(user.getId())));
     }
 
     @PostMapping
@@ -69,6 +73,27 @@ public class SanctionAdminController {
                                                                 @Valid @RequestBody RevokeRequest request,
                                                                 @AuthenticationPrincipal UserPrincipal actor) {
         return ApiResponse.ok("Đã gỡ chế tài", sanctions.revoke(id, actor.userId(), request.getReason()));
+    }
+
+    /** Vi phạm tải nội dung hàng loạt gần nhất (mới nhất trước). */
+    @GetMapping("/bulk-violations")
+    public ApiResponse<List<BulkContentGuardService.ViolationView>> bulkViolations(
+            @RequestParam(defaultValue = "100") int limit) {
+        return ApiResponse.ok("OK", bulkGuard.recent(limit));
+    }
+
+    /** Gỡ một vi phạm: không còn tính vào số lần tái phạm. Chế tài đi kèm (nếu có) gỡ riêng bằng /{id}/revoke. */
+    @PostMapping("/bulk-violations/{id}/clear")
+    public ApiResponse<BulkContentGuardService.ViolationView> clearBulkViolation(
+            @PathVariable Long id, @Valid @RequestBody RevokeRequest request,
+            @AuthenticationPrincipal UserPrincipal actor) {
+        return ApiResponse.ok("Đã gỡ vi phạm", bulkGuard.clear(id, actor.userId(), request.getReason()));
+    }
+
+    /** Ngưỡng chống tải hàng loạt đang áp dụng (đặt trong application.yaml / biến môi trường). */
+    @GetMapping("/bulk-guard/settings")
+    public ApiResponse<BulkContentGuardService.Settings> bulkGuardSettings() {
+        return ApiResponse.ok("OK", bulkGuard.settings());
     }
 
     @Data

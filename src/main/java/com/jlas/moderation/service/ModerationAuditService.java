@@ -50,6 +50,25 @@ public class ModerationAuditService {
                             long totalElements, int totalPages) {
     }
 
+    /**
+     * Audit row for an action the system takes on its own (no actor), e.g. an automatic ban for bulk downloading.
+     * The request still runs as the offending user, so the role is fixed to SYSTEM instead of read from the request.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Long recordSystem(Entry entry) {
+        return audits.save(ModerationAuditLog.builder()
+                .actorUserId(null)
+                .actorRole("SYSTEM")
+                .action(entry.action())
+                .targetType(entry.targetType())
+                .targetId(entry.targetId())
+                .fromState(entry.fromState())
+                .toState(entry.toState())
+                .reason(requireReason(entry.reason()))
+                .caseId(entry.caseId())
+                .build()).getId();
+    }
+
     /** Writes one audit row and returns its id. */
     @Transactional(propagation = Propagation.MANDATORY)
     public Long record(Long actorUserId, Entry entry) {

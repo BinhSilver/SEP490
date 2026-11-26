@@ -89,6 +89,15 @@ public class ModerationNotifier {
                 APPEAL_URL, "MOD_SANCTION_" + sanctionId);
     }
 
+    /** Lần vi phạm đầu: chỉ cảnh báo, nói rõ lần sau sẽ bị tạm ngưng rồi khoá. */
+    public void bulkWarning(Long userId, Long violationId, boolean upload, int suspendHours) {
+        String what = upload ? "đăng tải nội dung với tần suất bất thường" : "tải nội dung với tần suất bất thường";
+        send(userId, TYPE_SANCTION, "Cảnh báo: " + (upload ? "đăng tải" : "tải") + " nội dung hàng loạt",
+                "Hệ thống ghi nhận tài khoản của bạn " + what + ". Nếu tiếp tục, tài khoản sẽ bị tạm ngưng "
+                        + suspendHours + " giờ, và bị khoá nếu còn tái phạm.",
+                null, "MOD_BULK_WARN_" + violationId);
+    }
+
     public void sanctionRevoked(Long userId, Long sanctionId) {
         send(userId, TYPE_SANCTION, "Chế tài đã được gỡ",
                 "Chế tài trên tài khoản của bạn đã được gỡ. Bạn có thể sử dụng lại đầy đủ các tính năng.",

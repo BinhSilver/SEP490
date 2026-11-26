@@ -2,6 +2,7 @@ package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
 import com.jlas.moderation.security.BanEnforcementFilter;
+import com.jlas.moderation.security.BulkContentGuardFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final BanEnforcementFilter banEnforcementFilter;
+    private final BulkContentGuardFilter bulkContentGuardFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -124,6 +126,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(banEnforcementFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(bulkContentGuardFilter, BanEnforcementFilter.class)
                 .build();
     }
 

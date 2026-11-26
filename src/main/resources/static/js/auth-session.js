@@ -165,9 +165,39 @@
     }).catch(function () {});
   }
 
+  // Chống tải nội dung hàng loạt: 429 BULK_RATE_LIMITED. Trang gọi API có thể nuốt lỗi, nên báo chung ở đây;
+  // bị tạm ngưng / khoá thì sang trang kháng nghị như ACCOUNT_BANNED.
+  var bulkNoticeTimer = null;
+
+  function showBulkLimitNotice(response) {
+    if (!response || response.status !== 429) return;
+    response.clone().json().then(function (body) {
+      if (!body || body.code !== 'BULK_RATE_LIMITED') return;
+      var action = body.data && body.data.action;
+      if ((action === 'SUSPEND' || action === 'LOCK') && window.location.pathname !== '/appeal.html') {
+        window.location.replace('/appeal.html');
+        return;
+      }
+      var box = document.getElementById('jlasBulkLimitNotice');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'jlasBulkLimitNotice';
+        box.setAttribute('role', 'alert');
+        box.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10000;' +
+          'max-width:min(560px,calc(100% - 32px));padding:12px 16px;border-radius:10px;background:#b42318;' +
+          'color:#fff;font:14px/1.45 system-ui,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.25)';
+        document.body.appendChild(box);
+      }
+      box.textContent = body.message || 'Bạn đang thao tác quá nhanh, hãy thử lại sau.';
+      clearTimeout(bulkNoticeTimer);
+      bulkNoticeTimer = setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 8000);
+    }).catch(function () {});
+  }
+
   function afterResponse(response) {
     redirectToLoginAfterUnauthorized(response);
     redirectToAppealWhenBanned(response);
+    showBulkLimitNotice(response);
     return response;
   }
 
