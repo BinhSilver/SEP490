@@ -27,9 +27,10 @@ public class UserSanctionService implements UserActionPolicyPort {
 
     public enum SanctionType { MUTE, BAN }
 
+    /** {@code automatic}: hệ thống tự áp (chống tải nội dung hàng loạt), không có người tạo. */
     public record SanctionView(Long id, Long userId, String type, String reason,
                                LocalDateTime startsAt, LocalDateTime endsAt,
-                               LocalDateTime revokedAt) {
+                               LocalDateTime revokedAt, boolean automatic) {
     }
 
     @Transactional
@@ -63,6 +64,35 @@ public class UserSanctionService implements UserActionPolicyPort {
         notifier.sanctionApplied(userId, saved.getId(), type.name(), saved.getEndsAt(), why);
         audit.record(actorId, new ModerationAuditService.Entry("SANCTION_APPLY", "USER", userId,
                 null, type.name() + (saved.getEndsAt() == null ? ":PERMANENT" : ":" + days + "D"), why, null));
+        return view(saved);
+    }
+
+    /**
+     * Khoá tài khoản do hệ thống tự áp (không có người tạo), dùng cho chống tải nội dung hàng loạt: {@code endsAt} có
+     * giá trị = tạm ngưng tới lúc đó, null = khoá vĩnh viễn. Thay BAN đang có như {@link #apply}; thông báo, sự kiện
+     * và audit (vai trò SYSTEM) giống chế tài do admin áp. Người dùng vẫn kháng nghị được.
+     */
+    @Transactional
+    public SanctionView applyAutomaticBan(Long userId, LocalDateTime endsAt, String reason) {
+        String why = ModerationAuditService.requireReason(reason);
+        User user = requiredUser(userId);
+        LocalDateTime now = LocalDateTime.now();
+        sanctions.findActiveByUserIdAndType(userId, SanctionType.BAN.name(), now).ifPresent(existing -> {
+            existing.setRevokedAt(now);
+            audit.recordSystem(new ModerationAuditService.Entry("SANCTION_REPLACE", "USER_SANCTION",
+                    existing.getId(), "ACTIVE", "REVOKED", why, null));
+        });
+        UserSanction saved = sanctions.save(UserSanction.builder()
+                .user(user)
+                .sanctionType(SanctionType.BAN.name())
+                .reason(why)
+                .endsAt(endsAt)
+                .build());
+        status.invalidate(userId);
+        events.publishEvent(new UserBanActivatedEvent(userId));
+        notifier.sanctionApplied(userId, saved.getId(), SanctionType.BAN.name(), saved.getEndsAt(), why);
+        audit.recordSystem(new ModerationAuditService.Entry("SANCTION_APPLY", "USER", userId, null,
+                "BAN" + (endsAt == null ? ":PERMANENT" : ":AUTO"), why, null));
         return view(saved);
     }
 
@@ -167,7 +197,8 @@ public class UserSanctionService implements UserActionPolicyPort {
 
     private SanctionView view(UserSanction value) {
         return new SanctionView(value.getId(), value.getUser().getId(), value.getSanctionType(),
-                value.getReason(), value.getStartsAt(), value.getEndsAt(), value.getRevokedAt());
+                value.getReason(), value.getStartsAt(), value.getEndsAt(), value.getRevokedAt(),
+                value.getCreatedBy() == null);
     }
 
     private static String trimToNull(String value) {

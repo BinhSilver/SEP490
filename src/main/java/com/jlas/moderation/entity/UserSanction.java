@@ -28,8 +28,9 @@ public class UserSanction {
             foreignKey = @ForeignKey(name = "fk_user_sanction_user"))
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "created_by", nullable = false,
+    /** Null = hệ thống tự áp (chống tải nội dung hàng loạt). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by",
             foreignKey = @ForeignKey(name = "fk_user_sanction_creator"))
     private User createdBy;
 

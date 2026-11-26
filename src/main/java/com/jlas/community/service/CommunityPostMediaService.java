@@ -8,6 +8,7 @@ import com.jlas.community.entity.CommunityPostMedia;
 import com.jlas.community.handler.CommunityPostHandler;
 import com.jlas.community.repository.CommunityPostMediaRepository;
 import com.jlas.moderation.dto.ModerationResult;
+import com.jlas.moderation.model.ModerationVerdict;
 import com.jlas.moderation.service.ContentModerationService;
 import com.jlas.moderation.util.ImageUploads;
 import com.jlas.moderation.util.UploadFiles;
@@ -16,6 +17,7 @@ import com.jlas.shadowing.service.DeepgramService;
 import com.jlas.shadowing.service.FfmpegService;
 import com.jlas.shadowing.service.ShadowingBlobStore;
 import com.jlas.shadowing.service.YoutubeAnalyzeService;
+import com.jlas.shadowing.service.YoutubeService;
 import com.jlas.shadowing.util.JapaneseLanguageDetector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,8 @@ public class CommunityPostMediaService {
     static final Map<String, String> VIDEO_TYPES = Map.of("mp4", "video/mp4", "webm", "video/webm");
     private static final Map<String, String> IMAGE_TYPES = Map.of("jpg", "image/jpeg", "jpeg", "image/jpeg",
             "png", "image/png", "webp", "image/webp");
+    /** Video YouTube không rõ ngôn ngữ dài hơn chừng này không tải audio để nghe thử. */
+    static final int SPEECH_SAMPLE_MAX_SECONDS = 600;
     private static final Pattern YOUTUBE = Pattern.compile(
             "^(?:https?://)?(?:www\\.|m\\.)?(?:youtube\\.com/(?:watch\\?(?:.*&)?v=|shorts/|embed/|live/)|youtu\\.be/)"
                     + "([A-Za-z0-9_-]{11})(?:[?&#/].*)?$");
@@ -59,6 +63,7 @@ public class CommunityPostMediaService {
     private final ShadowingBlobStore blobs;
     private final ContentModerationService moderation;
     private final YoutubeAnalyzeService youtube;
+    private final YoutubeService youtubeDownloads;
     private final FfmpegService ffmpeg;
     private final DeepgramService deepgram;
 
@@ -134,8 +139,8 @@ public class CommunityPostMediaService {
     // ── Kiểm duyệt nội dung (cùng luật với Shadowing) ─────────────────────────────────────────────────────────────
 
     /**
-     * Luật giống Shadowing: chữ qua bộ lọc từ cấm; link YouTube đọc metadata bằng yt-dlp và chặn video không phải tiếng
-     * Nhật (hoặc đã bị gỡ / giới hạn 18+); video tải lên nghe thử lời thoại (Deepgram) rồi nhận diện tiếng Nhật như phụ đề
+     * Luật giống Shadowing: chữ qua bộ lọc từ cấm; link YouTube phải liên quan tới tiếng Nhật ({@link #screenYoutube});
+     * video tải lên nghe thử lời thoại (Deepgram) rồi nhận diện tiếng Nhật như phụ đề
      * Shadowing, và quét 3 khung hình bằng AI hình ảnh như video Shadowing; ảnh quét bằng AI hình ảnh. Cuối cùng AI xét cả
      * bài (chữ + mô tả media) có liên quan tới tiếng Nhật không. Vi phạm → 400 kèm lý do, bài không được lưu.
      */
@@ -164,21 +169,36 @@ public class CommunityPostMediaService {
         }
     }
 
-    /** Metadata YouTube như bước "phân tích link" của Shadowing; yt-dlp lỗi / không có → bỏ qua, để AI xét theo chữ. */
+    /**
+     * Link YouTube: video phải LIÊN QUAN tới tiếng Nhật (theo chủ đề, không bắt buộc lời thoại tiếng Nhật — bài giảng
+     * tiếng Nhật bằng tiếng Việt vẫn đăng được, vlog nấu ăn hay nhạc tiếng Anh thì không).
+     * <ol>
+     *   <li>đọc metadata bằng yt-dlp như bước "phân tích link" của Shadowing; không đọc được → chặn;</li>
+     *   <li>video bị gỡ / đang phát trực tiếp / chủ kênh tắt nhúng / 18+ / tiêu đề có từ cấm → chặn;</li>
+     *   <li>lời thoại gốc tiếng Nhật ({@link YoutubeAnalyzeResultDto#getSpokenLanguage}) → liên quan;</li>
+     *   <li>không rõ ngôn ngữ (video ngắn) → nghe 60 giây đầu bằng Deepgram như Shadowing; nghe ra tiếng Nhật → liên
+     *       quan;</li>
+     *   <li>còn lại → AI đọc tiêu đề, kênh, mô tả, thẻ (và lời thoại nếu có) và phải xác nhận video về tiếng Nhật / Nhật
+     *       Bản ({@link ContentModerationService#scanYoutubeRelated}); "no", phân vân hay AI lỗi → chặn.</li>
+     * </ol>
+     * Phụ đề "ja" không dùng để xét: YouTube tự dịch phụ đề sang tiếng Nhật cho hầu hết video. Trả về dòng mô tả video
+     * cho bước AI xét chủ đề cả bài.
+     */
     private String screenYoutube(String youtubeId) {
+        String url = "https://www.youtube.com/watch?v=" + youtubeId;
         YoutubeAnalyzeResultDto meta;
         try {
-            meta = youtube.analyze("https://www.youtube.com/watch?v=" + youtubeId);
+            meta = youtube.analyze(url);
         } catch (IllegalArgumentException e) {
             // Video đã bị gỡ khỏi Shadowing / đang phát trực tiếp / không đọc được: cùng thông báo với Shadowing.
             throw rejected(e.getMessage());
         } catch (Exception e) {
             log.warn("Community YouTube analyze failed id={}: {}", youtubeId, e.getMessage());
-            return "Một video YouTube (không đọc được thông tin video)";
+            throw rejected("Không phân tích được video YouTube này nên chưa thể đăng, hãy thử lại sau.");
         }
-        if (meta.isBlockedNonJapanese()) {
-            throw rejected(meta.getLanguageMessage() != null ? meta.getLanguageMessage()
-                    : "Video YouTube không phải tiếng Nhật. Cộng đồng chỉ nhận nội dung tiếng Nhật.");
+        if (!meta.isEmbeddable()) {
+            throw rejected("Vì lý do bản quyền, chủ video không cho phép phát video này ngoài YouTube nên không thể "
+                    + "đăng lên Cộng đồng. Hãy chọn một video khác.");
         }
         if (meta.getYoutubeMinAge() != null && meta.getYoutubeMinAge() >= 18) {
             throw rejected("Video YouTube bị giới hạn độ tuổi nên không thể đăng lên Cộng đồng.");
@@ -186,9 +206,83 @@ public class CommunityPostMediaService {
         if (StringUtils.hasText(meta.getTitle()) && moderation.scanText(meta.getTitle()).isBlocked()) {
             throw rejected("Tiêu đề video YouTube có nội dung không phù hợp.");
         }
+
+        String spoken = meta.getSpokenLanguage();
+        String transcript = spoken == null ? speechSample(url, meta) : null;
+        boolean japanese = "ja".equals(spoken)
+                || (transcript != null && JapaneseLanguageDetector.inspect(transcript).japanese());
+        String language = japanese ? "Tiếng Nhật" : languageLabel(spoken);
+        if (!japanese) {
+            ModerationResult related = moderation.scanYoutubeRelated(videoInfo(meta, language, transcript));
+            if (related.getVerdict() != ModerationVerdict.SAFE) {
+                throw rejected("Cộng đồng chỉ nhận video liên quan tới tiếng Nhật. " + sentence(related.getSummary()));
+            }
+        }
         return "Video YouTube “" + meta.getTitle() + "”"
                 + (StringUtils.hasText(meta.getChannel()) ? " của kênh " + meta.getChannel() : "")
-                + ", ngôn ngữ: " + meta.getDetectedLanguageLabel();
+                + ", lời thoại: " + language
+                + (StringUtils.hasText(transcript) ? ". Lời thoại 60 giây đầu: " + CommunityPostHandler.cut(transcript.strip(), 300) : "");
+    }
+
+    /** Thông tin video gửi AI xét chủ đề: tiêu đề, kênh, ngôn ngữ lời thoại, thẻ, mô tả, lời thoại (nếu có). */
+    private static String videoInfo(YoutubeAnalyzeResultDto meta, String language, String transcript) {
+        StringBuilder info = new StringBuilder("Tiêu đề: ").append(nullToEmpty(meta.getTitle()));
+        if (StringUtils.hasText(meta.getChannel())) info.append("\nKênh: ").append(meta.getChannel());
+        info.append("\nNgôn ngữ lời thoại: ").append(language);
+        if (meta.getTags() != null && !meta.getTags().isEmpty()) {
+            info.append("\nThẻ: ").append(String.join(", ", meta.getTags()));
+        }
+        if (StringUtils.hasText(meta.getDescription())) info.append("\nMô tả: ").append(meta.getDescription());
+        if (StringUtils.hasText(transcript)) {
+            info.append("\nLời thoại 60 giây đầu: ").append(CommunityPostHandler.cut(transcript.strip(), 600));
+        }
+        return info.toString();
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static String languageLabel(String code) {
+        if (code == null) return "chưa xác định";
+        return switch (code) {
+            case "ja" -> "Tiếng Nhật";
+            case "vi" -> "Tiếng Việt";
+            case "en" -> "Tiếng Anh";
+            case "zh" -> "Tiếng Trung";
+            case "ko" -> "Tiếng Hàn";
+            default -> "ngôn ngữ khác (" + code + ")";
+        };
+    }
+
+    /**
+     * Video không rõ ngôn ngữ lời thoại: nghe 60 giây đầu bằng Deepgram như Shadowing. Chỉ với video không quá
+     * {@link #SPEECH_SAMPLE_MAX_SECONDS} giây (yt-dlp tải cả audio); không nghe được → null, để AI xét theo thông tin video.
+     */
+    private String speechSample(String url, YoutubeAnalyzeResultDto meta) {
+        if (meta.getDuration() <= 0 || meta.getDuration() > SPEECH_SAMPLE_MAX_SECONDS) return null;
+        Path audio = null;
+        try {
+            audio = Path.of(youtubeDownloads.downloadAudio(url));
+            return firstMinuteTranscript(audio.toString());
+        } catch (Exception e) {
+            log.warn("Community YouTube speech sample failed url={}: {}", url, e.getMessage());
+            return null;
+        } finally {
+            deleteQuietly(audio);
+        }
+    }
+
+    /** Lời thoại 60 giây đầu của tệp audio/video (ffmpeg cắt ra WAV, Deepgram chuyển thành chữ). */
+    private String firstMinuteTranscript(String mediaPath) throws Exception {
+        Path wav = null;
+        try {
+            wav = Files.createTempFile("community-audio-", ".wav");
+            ffmpeg.extractSegmentToWav(mediaPath, 0, 60, wav.toString());
+            return deepgram.transcribeWavFile(wav.toFile(), 0).getTranscript();
+        } finally {
+            deleteQuietly(wav);
+        }
     }
 
     /** Một ảnh: AI hình ảnh như ảnh/khung hình Shadowing; BLOCKED/REVIEW → chặn. Trả về dòng mô tả cho bước xét chủ đề. */
@@ -239,11 +333,8 @@ public class CommunityPostMediaService {
             }
         }
 
-        Path wav = null;
         try {
-            wav = Files.createTempFile("community-audio-", ".wav");
-            ffmpeg.extractSegmentToWav(path, 0, 60, wav.toString());
-            String transcript = deepgram.transcribeWavFile(wav.toFile(), 0).getTranscript();
+            String transcript = firstMinuteTranscript(path);
             JapaneseLanguageDetector.Result language = JapaneseLanguageDetector.inspect(transcript);
             if (language.nonJapanese()) {
                 throw rejected("Lời thoại trong video không được nhận diện là tiếng Nhật. " + language.reason()
@@ -256,8 +347,6 @@ public class CommunityPostMediaService {
             throw e;
         } catch (Exception e) {
             log.info("Community video speech check skipped: {}", e.getMessage());
-        } finally {
-            deleteQuietly(wav);
         }
         return context;
     }
