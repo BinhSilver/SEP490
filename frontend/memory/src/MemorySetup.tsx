@@ -217,7 +217,7 @@ export function MemorySetup({ state, deckCards, starting, error, onStart, onBack
       <section className="memory-setup__panel" aria-labelledby="memory-setup-title">
         <header className="memory-setup__head">
           <button type="button" className="memory-setup__back" onClick={onBack}>
-            <i className="fa-solid fa-chevron-left" aria-hidden="true" /> Quay về
+            Quay về
           </button>
           <div>
             <p className="memory-kicker">Luyện tập một mình</p>

@@ -1253,7 +1253,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       target instanceof HTMLElement &&
       (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
     const down = (event: KeyboardEvent) => {
-      if (menuOpenRef.current || helpOpenRef.current || isFormField(event.target)) return;
+      if (menuOpenRef.current || helpOpenRef.current || document.querySelector('dialog[open]') || isFormField(event.target)) return;
       const key = event.key;
       if (key === 'ArrowLeft' || key === 'a' || key === 'A') {
         keyStateRef.current.left = true;
@@ -1812,7 +1812,7 @@ export const NekoCatchGame: React.FC<{ host: HostConfig }> = ({ host }) => {
       {/* ═══ ERROR ═══ */}
       {phase === 'error' && (
         <div className="absolute inset-0 z-30 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md">
-          <div role="alert" className="w-full max-w-sm flex flex-col items-center gap-3 p-6 rounded-3xl text-center" style={panelStyle}>
+          <div role="alert" data-game-ui-panel className="w-full max-w-sm flex flex-col items-center gap-3 p-6 rounded-3xl text-center" style={panelStyle}>
             <h2 className="text-xl font-black text-white uppercase tracking-widest" style={{ fontFamily: DISPLAY_FONT_STACK }}>
               Không vào được trận
             </h2>

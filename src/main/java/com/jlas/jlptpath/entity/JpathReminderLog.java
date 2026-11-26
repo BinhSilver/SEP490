@@ -40,7 +40,7 @@ public class JpathReminderLog {
     @PrePersist
     void fillSentAt() {
         if (sentAt == null) {
-            sentAt = LocalDateTime.now();
+            sentAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         }
     }
 }

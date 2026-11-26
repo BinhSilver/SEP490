@@ -74,7 +74,7 @@ public class JpathStudySession {
     @PrePersist
     void fillStartedAt() {
         if (startedAt == null) {
-            startedAt = LocalDateTime.now();
+            startedAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         }
     }
 }

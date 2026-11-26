@@ -202,8 +202,11 @@ public class PremiumCheckoutService {
                             && java.util.Objects.equals(p.getCouponCodeSnapshot(), reuseQuote.code())).findFirst();
             if (reusable.isPresent()) return reusable.get();
             var quote = coupons.reserve(normalized, "PREMIUM", plan.getPrice(), userId);
-            return openOrder(userId, plan, null, quote, now);
+            Payment opened = openOrder(userId, plan, null, quote, now);
+            if (quote.finalAmount().signum() == 0) grant(opened, null, now);
+            return opened;
         });
+        if ("PAID".equals(payment.getStatus())) return OrderView.from(payment);
         if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
         return createLink(payment, DESCRIPTION);
     }
@@ -222,8 +225,11 @@ public class PremiumCheckoutService {
                             && java.util.Objects.equals(p.getCouponCodeSnapshot(), reuseQuote.code())).findFirst();
             if (reusable.isPresent()) return reusable.get();
             var quote = coupons.reserve(normalized, "CREDIT", pack.getPrice(), userId);
-            return openOrder(userId, null, pack, quote, now);
+            Payment opened = openOrder(userId, null, pack, quote, now);
+            if (quote.finalAmount().signum() == 0) grantCredit(opened, null, now);
+            return opened;
         });
+        if ("PAID".equals(payment.getStatus())) return OrderView.from(payment);
         if (payment.getCheckoutUrl() != null) return OrderView.from(payment);
         return createLink(payment, "KOTSU CP");
     }
@@ -339,13 +345,15 @@ public class PremiumCheckoutService {
         user.setPremiumPlan(payment.getPremiumPlan());
         user.setPremiumExpiredAt(until);
         payment.setStatus("PAID");
-        payment.setResponseCode("00");
+        boolean free = payment.getAmountPaid().signum() == 0;
+        payment.setResponseCode(free ? "COUPON_FREE" : "00");
         payment.setPaidAt(now);
         // PayOS's payment link id is unique per order (the column is unique); the bank reference is only logged.
-        payment.setProviderTransactionId(payment.getPaymentLinkId());
-        log.info("PayOS order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
+        payment.setProviderTransactionId(free ? "COUPON-" + payment.getOrderCode() : payment.getPaymentLinkId());
+        if (free) log.info("Coupon order {} granted", payment.getOrderCode());
+        else log.info("PayOS order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
         payment.setPremiumUntil(until);
-        notifications.notifyUser(user.getId(), "PREMIUM", "Thanh toán thành công",
+        notifications.notifyUser(user.getId(), "PREMIUM", free ? "Đã kích hoạt Premium" : "Thanh toán thành công",
                 "Gói " + payment.getPlanNameSnapshot() + " có hiệu lực đến " + DATE.format(until) + ".",
                 "/premium/billing", "PREMIUM_PAID_" + payment.getOrderCode());
     }
@@ -354,12 +362,15 @@ public class PremiumCheckoutService {
         credits.earn(payment.getUser().getId(), payment.getCreditAmountSnapshot(), CreditReason.CREDIT_PURCHASE,
                 "PAYMENT", payment.getId(), "Mua " + payment.getCreditAmountSnapshot() + " CP");
         payment.setStatus("PAID");
-        payment.setResponseCode("00");
+        boolean free = payment.getAmountPaid().signum() == 0;
+        payment.setResponseCode(free ? "COUPON_FREE" : "00");
         payment.setPaidAt(now);
-        payment.setProviderTransactionId(payment.getPaymentLinkId());
-        log.info("PayOS CP order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
+        payment.setProviderTransactionId(free ? "COUPON-" + payment.getOrderCode() : payment.getPaymentLinkId());
+        if (free) log.info("Coupon CP order {} granted", payment.getOrderCode());
+        else log.info("PayOS CP order {} paid, bank reference {}", payment.getOrderCode(), bankReference);
         notifications.notifyUser(payment.getUser().getId(), "CREDIT", "Đã cộng " + payment.getCreditAmountSnapshot() + " CP",
-                "Thanh toán gói " + payment.getPlanNameSnapshot() + " thành công.",
+                (free ? "Đã áp dụng mã giảm giá cho gói " : "Thanh toán gói ") + payment.getPlanNameSnapshot()
+                        + (free ? "." : " thành công."),
                 "/premium/billing", "CREDIT_PAID_" + payment.getOrderCode());
     }
 

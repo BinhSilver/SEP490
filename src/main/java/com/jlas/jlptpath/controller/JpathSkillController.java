@@ -55,6 +55,13 @@ public class JpathSkillController {
         return ResponseEntity.ok(ApiResponse.ok("OK", sections.start(user.userId(), request.skill())));
     }
 
+    /** F238: Đọc · Nghe sessions carried from earlier weeks and whether today may take one. */
+    @GetMapping("/carry")
+    public ResponseEntity<ApiResponse<com.jlas.jlptpath.dto.JpathSkillCarryView>> carry(
+            @AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", sessions.carry(user.userId())));
+    }
+
     /** Exam readiness (#41) of {@code level} (default: the open level). */
     @GetMapping("/readiness")
     public ResponseEntity<ApiResponse<JpathReadiness>> readiness(@AuthenticationPrincipal UserPrincipal user,

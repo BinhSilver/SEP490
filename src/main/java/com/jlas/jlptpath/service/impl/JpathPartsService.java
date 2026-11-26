@@ -10,6 +10,7 @@ import com.jlas.jlptpath.entity.JpathUserPath;
 import com.jlas.jlptpath.entity.JpathVocabulary;
 import com.jlas.jlptpath.enums.JpathItemState;
 import com.jlas.jlptpath.enums.JpathItemType;
+import com.jlas.jlptpath.enums.JpathNotebookSource;
 import com.jlas.jlptpath.enums.JpathPathStatus;
 import com.jlas.jlptpath.enums.JpathTab;
 import com.jlas.jlptpath.repository.JpathUserItemRepository;
@@ -38,8 +39,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathPartsService {
 
-    /** One item of a part. */
-    public record Item(String code, String label, String reading, String meaning) {
+    /**
+     * One item of a part. F216 (owner 22/11): {@code forYou} = picked for this learner (an item they got wrong in the
+     * Smart Test); the page shows it as a "Dành cho bạn" tag, never the rule behind it.
+     */
+    public record Item(String code, String label, String reading, String meaning, boolean forYou) {
+
+        public Item(String code, String label, String reading, String meaning) {
+            this(code, label, reading, meaning, false);
+        }
+
+        Item asForYou() {
+            return new Item(code, label, reading, meaning, true);
+        }
     }
 
     /** One part: DONE (a past day), TODAY, NEXT (coming). {@code day} is the study day of a DONE / TODAY part. */
@@ -121,10 +133,20 @@ public class JpathPartsService {
     /** {@code kanaRows}: KANA only — how many rows to cover; 0 or less = the whole table left (owner 11/11, F65). */
     @Transactional(readOnly = true)
     public WeekSkip weekSkip(Long userId, JpathTab tab, Integer kanaRows) {
+        return weekSkip(userId, tab, kanaRows, null);
+    }
+
+    /**
+     * {@code script} (KANA only, owner 18/11 kana stage): HIRAGANA or KATAKANA — the skip test of one whole table, every
+     * kana of its rows not passed yet; the check asks 20 of them and ≥ 80% skips the table.
+     */
+    @Transactional(readOnly = true)
+    public WeekSkip weekSkip(Long userId, JpathTab tab, Integer kanaRows, String script) {
         String tabName = tab == null ? null : tab.name();
         JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
         if (tab == JpathTab.KANA) {
-            return kanaSkip(userId, path, kanaRows == null ? KANA_SKIP_ROWS : (kanaRows <= 0 ? Integer.MAX_VALUE : kanaRows));
+            if (script != null) return kanaSkip(userId, path, Integer.MAX_VALUE, script);
+            return kanaSkip(userId, path, kanaRows == null ? KANA_SKIP_ROWS : (kanaRows <= 0 ? Integer.MAX_VALUE : kanaRows), null);
         }
         // owner 11/11 (F64): every learner may prove a coming week known, whatever the Smart Test band
         if (path == null) {
@@ -157,7 +179,7 @@ public class JpathPartsService {
      * AI 1 #11 (owner 10/11 "thêm kiểm tra nhanh"): a learner who chose to REVIEW kana may test out of the next
      * {@link #KANA_SKIP_ROWS} rows not passed yet; ≥ 90% marks them known like the week check.
      */
-    private WeekSkip kanaSkip(Long userId, JpathUserPath path, int maxRows) {
+    private WeekSkip kanaSkip(Long userId, JpathUserPath path, int maxRows, String script) {
         String level = path == null ? null : path.getOpenLevel();
         // owner 11/11 (F64): any learner on a path may test out of kana, not only those who chose REVIEW
         if (path == null || lists == null) {
@@ -165,12 +187,72 @@ public class JpathPartsService {
         }
         List<String> codes = new ArrayList<>();
         int taken = 0;
-        for (com.jlas.jlptpath.dto.JpathKanaRowView row : lists.kana(userId, null)) {
+        for (com.jlas.jlptpath.dto.JpathKanaRowView row : lists.kana(userId, script)) {
             if (row.passed()) continue;
             row.kanas().forEach(k -> codes.add(k.code()));
             if (++taken >= maxRows) break;
         }
         return new WeekSkip(!codes.isEmpty(), JpathTab.KANA.name(), level, codes.size(), codes);
+    }
+
+    /** One part of the kana stage: {@code rows} the row titles (あ, か, …), items = its kana (label kana, reading romaji). */
+    public record KanaPart(int index, String status, String script, List<String> rows, List<String> rowCodes,
+                           List<String> passedRows, List<Item> items) {
+    }
+
+    /**
+     * Owner 18/11: the kana stage — the first nodes of the Từ vựng map for a learner who chose "chưa biết chữ".
+     * Hiragana (basic, dakuten, yoon) then Katakana, cut into parts of the day's rows (free time and exam date);
+     * a part never mixes the two tables. DONE = every row passed, TODAY = the first part not done, then NEXT.
+     */
+    public record KanaStage(boolean on, boolean completed, int rowsPerDay, boolean hiraganaDone, boolean katakanaDone,
+                            List<KanaPart> parts) {
+    }
+
+    @Transactional(readOnly = true)
+    public KanaStage kanaStage(Long userId) {
+        JpathUserPath path = paths.findFirstByUserIdAndStatusOrderByIdDesc(userId, JpathPathStatus.ACTIVE).orElse(null);
+        if (path == null || !path.isKanaTab() || lists == null) {
+            return new KanaStage(false, false, 0, false, false, List.of());
+        }
+        int perPart = JpathDayRules.kanaRows(path, clock.today(userId));
+        List<com.jlas.jlptpath.dto.JpathKanaRowView> rows = lists.kana(userId, null);
+        List<KanaPart> out = new ArrayList<>();
+        boolean todayGiven = false;
+        boolean hira = true;
+        boolean kata = true;
+        int index = 1;
+        for (String script : List.of("HIRAGANA", "KATAKANA")) {
+            List<com.jlas.jlptpath.dto.JpathKanaRowView> ofScript = new ArrayList<>();
+            for (com.jlas.jlptpath.dto.JpathKanaRowView r : rows) {
+                if (kanaScriptOf(r).equals(script)) ofScript.add(r);
+            }
+            for (int from = 0; from < ofScript.size(); from += perPart) {
+                List<com.jlas.jlptpath.dto.JpathKanaRowView> chunk = ofScript.subList(from, Math.min(ofScript.size(), from + perPart));
+                boolean done = chunk.stream().allMatch(com.jlas.jlptpath.dto.JpathKanaRowView::passed);
+                if (!done) {
+                    if ("HIRAGANA".equals(script)) hira = false; else kata = false;
+                }
+                String status = done ? "DONE" : (todayGiven ? "NEXT" : "TODAY");
+                if (!done) todayGiven = true;
+                List<String> titles = chunk.stream().map(com.jlas.jlptpath.dto.JpathKanaRowView::title).toList();
+                List<Item> items = new ArrayList<>();
+                chunk.forEach(r -> r.kanas().forEach(k -> items.add(new Item(k.code(), k.kana(), k.romaji(), null))));
+                List<String> codes = chunk.stream().map(com.jlas.jlptpath.dto.JpathKanaRowView::code).toList();
+                List<String> passed = chunk.stream().filter(com.jlas.jlptpath.dto.JpathKanaRowView::passed)
+                        .map(com.jlas.jlptpath.dto.JpathKanaRowView::code).toList();
+                out.add(new KanaPart(index++, status, script, titles, codes, passed, items));
+            }
+        }
+        boolean completed = path.getKanaCompletedAt() != null || (hira && kata);
+        return new KanaStage(true, completed, perPart, hira, kata, out);
+    }
+
+    /** The table of a kana row: its kana's code starts with H or K in the seed; the row title's script decides else. */
+    private static String kanaScriptOf(com.jlas.jlptpath.dto.JpathKanaRowView r) {
+        String first = r.kanas().isEmpty() ? "" : r.kanas().get(0).kana();
+        int c = first.isEmpty() ? 0 : first.codePointAt(0);
+        return c >= 0x30A0 && c <= 0x30FF ? "KATAKANA" : "HIRAGANA";
     }
 
     @org.springframework.beans.factory.annotation.Autowired(required = false)
@@ -221,6 +303,8 @@ public class JpathPartsService {
         Map<LocalDate, List<String>> byDay = new LinkedHashMap<>();
         List<String> undatedKnown = new ArrayList<>();
         List<JpathUserItem> learned = new ArrayList<>(userItems.findByUserIdAndItemType(userId, type));
+        Set<String> forYou = learned.stream().filter(u -> u.getNotebookSource() == JpathNotebookSource.SMART_TEST)
+                .map(JpathUserItem::getItemCode).collect(java.util.stream.Collectors.toSet());
         learned.removeIf(u -> (u.getLevel() != null && !level.equals(u.getLevel()))
                 || (learnedAt(u) == null && u.getState() != JpathItemState.KNOWN));
         learned.sort(Comparator.comparing(JpathPartsService::learnedAt,
@@ -251,7 +335,8 @@ public class JpathPartsService {
 
         List<String> allCodes = new ArrayList<>(undatedKnown);
         allCodes.addAll(union(byDay.values(), todayCodes, queue));
-        Map<String, Item> labels = labels(type, allCodes);
+        Map<String, Item> labels = new HashMap<>(labels(type, allCodes));
+        forYou.forEach(code -> labels.computeIfPresent(code, (c, item) -> item.asForYou()));
         List<Part> parts = new ArrayList<>();
         int index = 1;
         if (!undatedKnown.isEmpty()) {

@@ -54,6 +54,11 @@ public final class JpathQueueBuilder {
             // Plan 3 Task 16: a skill day queues its reviews only; Reading and Listening are skill sessions
             if (!skillDay) {
                 news(in, q);
+            } else if (in.skillQuizNeeded()) {
+                // QA 20/11: the day completion waits for the skill-day quiz (#25, bug 95), so the review round ends
+                // with it; the check service turns the FREE_QUIZ step into the #25 source (V/K/G quiz or kana rows)
+                q.add(new JpathQueueStep(0, JpathStepKind.MICRO_CHECK, JpathTab.SKILL, null, null,
+                        JpathCheckKind.FREE_QUIZ, null, false));
             }
         } else {
             news(in, q);

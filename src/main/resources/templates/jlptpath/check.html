@@ -10,12 +10,12 @@
     <div class="jp-check-topBar jp-page-head">
         <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Bài kiểm tra')}"></th:block>
         <div class="jp-check-topBar__actions" data-jpath-furi-slot>
-            <a class="jp-check-back" href="/learning" data-check-exit>← Quay lại lộ trình</a>
+            <a class="jp-check-back" href="/learning?view=jlpt" data-check-exit>Quay lại lộ trình</a>
         </div>
     </div>
     <div id="jpathCheckRoot" class="jp-check-root" aria-busy="true"
          th:attr="data-check-token=${checkToken}">
-        <p class="jp-status" role="status">Đang tải bài kiểm tra…</p>
+        <p class="jp-status jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài kiểm tra…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
@@ -24,6 +24,7 @@
 <script th:src="@{/js/jlptpath/jpath-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-auto-furigana.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

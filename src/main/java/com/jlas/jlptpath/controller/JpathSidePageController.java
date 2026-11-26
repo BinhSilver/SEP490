@@ -8,7 +8,6 @@ import com.jlas.jlptpath.service.JpathPathService;
 import com.jlas.jlptpath.service.JpathPrintService;
 import com.jlas.jlptpath.service.impl.PathTeamNotebook;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +25,7 @@ public class JpathSidePageController {
 
     private final JpathPathService paths;
     private final JpathPrintService print;
-    private final ObjectProvider<PathTeamNotebook> teamNotebook;
+    private final PathTeamNotebook teamNotebook;
 
     /**
      * A4 writing sheet ({@code jlptpath/print}, no base shell): the query is a {@link JpathPrintRequest}; a bad query
@@ -61,30 +60,29 @@ public class JpathSidePageController {
         return blocked != null ? blocked : "jlptpath/day";
     }
 
-    /** Stats page; jpath-stats.js reads {@code /stats}, {@code /stats/heatmap} and {@code /badges}. */
+    /** Owner 23/11 (F232): the stats page is the "Tổng quan" view of the study history (default view). */
     @GetMapping("/learning/jlpt/stats")
     public String stats(@AuthenticationPrincipal UserPrincipal user) {
         String blocked = guard(user);
-        return blocked != null ? blocked : "jlptpath/stats";
+        return blocked != null ? blocked : "redirect:/learning/jlpt/history";
     }
 
-    /** Known store; jpath-wordbank.js reads {@code GET /api/learning/jlpt/known}. */
+    /** Owner 22/11 (F224): the known store page is gone; known items are a filter of the study history. */
     @GetMapping("/learning/jlpt/known")
     public String known(@AuthenticationPrincipal UserPrincipal user) {
         String blocked = guard(user);
-        return blocked != null ? blocked : "jlptpath/known";
+        return blocked != null ? blocked : "redirect:/learning/jlpt/history?filter=known";
     }
 
-    /** Notebook; jpath-wordbank.js reads {@code GET /api/learning/jlpt/notebook}. */
+    /** Owner 22/11 (F224): "Sổ tay" opens the team's Sổ tay của tôi on the learner's "Lộ trình học" notebook. */
     @GetMapping("/learning/jlpt/notebook")
     public String notebook(@AuthenticationPrincipal UserPrincipal user) {
         String blocked = guard(user);
         if (blocked != null) {
             return blocked;
         }
-        // F126: the "Lộ trình học" notebook shows on /learning/notebook from now on, before the first word goes in
-        teamNotebook.ifAvailable(t -> t.ensure(user.userId()));
-        return "jlptpath/notebook";
+        Long book = teamNotebook.notebookIdFor(user.userId());
+        return book == null || book <= 0 ? "redirect:/learning/notebook" : "redirect:/learning/notebook?book=" + book;
     }
 
     /** Confusable pairs; jpath-confusables.js reads {@code GET /api/learning/jlpt/confusables}. */
@@ -100,7 +98,7 @@ public class JpathSidePageController {
             return "redirect:/login";
         }
         if (paths.entryStatus(user.userId()).pathStatus() != JpathPathStatus.ACTIVE) {
-            return "redirect:/learning";
+            return "redirect:/learning?view=jlpt";
         }
         return null;
     }

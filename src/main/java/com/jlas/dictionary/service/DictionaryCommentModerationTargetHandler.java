@@ -3,6 +3,7 @@ package com.jlas.dictionary.service;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
 import com.jlas.dictionary.repository.KanjiRepository;
+import com.jlas.dictionary.repository.DictionaryCommentReportRepository;
 import com.jlas.dictionary.repository.VocabularyEntryRepository;
 import com.jlas.moderation.dto.ModerationTargetSnapshot;
 import com.jlas.moderation.entity.ContentComment;
@@ -13,11 +14,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
 public class DictionaryCommentModerationTargetHandler implements ModerationTargetHandler {
     private final ContentCommentRepository comments;
+    private final DictionaryCommentReportRepository reports;
     private final VocabularyEntryRepository vocabulary;
     private final KanjiRepository kanji;
 
@@ -36,13 +39,17 @@ public class DictionaryCommentModerationTargetHandler implements ModerationTarge
     @Override
     @Transactional
     public void resolve(String targetType, Long targetId, boolean approve, String note) {
-        ContentComment comment = comments.findById(targetId)
+        ContentComment comment = comments.findForUpdateById(targetId)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Ý kiến đóng góp không còn tồn tại"));
         if (!"VOCABULARY".equals(comment.getTargetType()) && !"KANJI".equals(comment.getTargetType())) {
             throw new ApiException(ErrorCode.NOT_FOUND, "Ý kiến đóng góp không còn tồn tại");
         }
         comment.setIsHidden(!approve);
         comments.save(comment);
+        for (var report : reports.findByCommentIdAndStatus(targetId, "OPEN")) {
+            report.setStatus(approve ? "REJECTED" : "RESOLVED");
+            report.setResolvedAt(LocalDateTime.now());
+        }
     }
 
     private String targetUrl(ContentComment comment) {

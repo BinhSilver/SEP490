@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Nội dung cộng đồng | KotsuKotsu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261108-plum)}"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -89,7 +91,7 @@
             <p class="cm-muted" id="cmReportTarget"></p>
             <label class="cm-field cm-field--block">
                 <span>Lý do</span>
-                <select id="cmReportReason" required></select>
+                <select class="select" data-jl-select id="cmReportReason" required></select>
             </label>
             <label class="cm-field cm-field--block">
                 <span>Ghi chú (không bắt buộc)</span>
@@ -101,11 +103,15 @@
             </div>
         </form>
     </div>
+
+    <!-- Hộp xác nhận dùng chung (xoá bình luận) thay cho window.confirm(). -->
+    <th:block th:replace="~{community/modals :: confirm}"></th:block>
 </main>
 
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/community-common.js(v=20261102)}"></script>
-<script th:src="@{/js/pages/community-detail.js(v=20261109-kotsu)}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<script th:src="@{/js/pages/community-common.js(v=20261124-toast)}"></script>
+<script th:src="@{/js/pages/community-detail.js(v=20261125-phase2a)}"></script>
+<script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
 </body>
 </html>

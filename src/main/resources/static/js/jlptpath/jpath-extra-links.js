@@ -56,6 +56,44 @@
       + '</details></nav>';
   }
 
+  /**
+   * Owner 23/11: inside the side menu ("Theo dõi việc học") the tools sit under one "Luyện thêm" row with a triangle
+   * that unfolds the full list; pages the menu already links ({@code skipUrls}) are left out.
+   */
+  function navMarkup(view, skipUrls) {
+    var v = view || {};
+    var skip = skipUrls || [];
+    var all = (Array.isArray(v.links) ? v.links : []).concat(Array.isArray(v.pages) ? v.pages : []);
+    var seen = {};
+    var rows = all.filter(function (l) {
+      var key = String(l && l.url || '') + '|' + String(l && l.label || '');
+      if (!l || seen[key] || (l.url && skip.indexOf(l.url) >= 0)) return false;
+      seen[key] = true;
+      return true;
+    });
+    if (!rows.length) return '';
+    var row = function (l) {
+      var href = l.available ? safeUrl(l.url) : null;
+      if (href) return '<a class="jp-sidenav__link jp-sidenav__link--sub" href="' + esc(href) + '">' + esc(l.label) + '</a>';
+      return '<span class="jp-sidenav__link jp-sidenav__link--sub is-off" aria-disabled="true"' + (l.note ? ' title="' + esc(l.note) + '"' : '')
+        + '>' + esc(l.label) + (l.note ? ' <span class="jp-extra__lock">' + esc(l.note) + '</span>' : '') + '</span>';
+    };
+    return '<details class="jp-sidenav__more"><summary class="jp-sidenav__link jp-sidenav__more-toggle">'
+      + '<span class="jp-sidenav__tri" aria-hidden="true"></span>Luyện thêm</summary>'
+      + '<div class="jp-sidenav__more-list">' + rows.map(row).join('') + '</div></details>';
+  }
+
+  var OPEN_KEY = 'jpath.sidenav.more';
+
+  function rememberFold(host) {
+    var d = host.querySelector('.jp-sidenav__more');
+    if (!d) return;
+    try { if (root.localStorage.getItem(OPEN_KEY) === '1') d.open = true; } catch (ignore) { /* storage off */ }
+    d.addEventListener('toggle', function () {
+      try { root.localStorage.setItem(OPEN_KEY, d.open ? '1' : '0'); } catch (ignore) { /* storage off */ }
+    });
+  }
+
   var view = null;
   var loading = null;
 
@@ -70,7 +108,19 @@
       return;
     }
     var html = linksMarkup(view);
-    hosts.forEach(function (h) { h.innerHTML = html; h.setAttribute(DRAWN, ''); });
+    hosts.forEach(function (h) {
+      if (h.getAttribute('data-jpath-extra-links') === 'nav') {
+        var nav = h.closest ? h.closest('nav') : null;
+        var skip = nav ? Array.prototype.map.call(nav.querySelectorAll('a.jp-sidenav__link[href]'), function (a) {
+          return a.getAttribute('href');
+        }) : [];
+        h.innerHTML = navMarkup(view, skip);
+        rememberFold(h);
+      } else {
+        h.innerHTML = html;
+      }
+      h.setAttribute(DRAWN, '');
+    });
   }
 
   var mounted = false;
@@ -87,5 +137,5 @@
     }
   }
 
-  return { linksMarkup: linksMarkup, mount: mount };
+  return { linksMarkup: linksMarkup, navMarkup: navMarkup, mount: mount };
 });

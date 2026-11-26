@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="/js/theme-init.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Bài viết | Cộng đồng KotsuKotsu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
+    <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
+    <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+</head>
+<body data-mobile-adapt="owned" id="jlabBasePage" class="page-community">
+<div id="jlabBaseShellMount"></div>
+
+<main id="jlabBaseContent">
+    <div class="cm-page cm-page--post" id="cmPostPage" th:attr="data-post-id=${postId}">
+        <a class="cm-back" href="/community"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Quay lại Cộng đồng</a>
+        <div class="cm-state" id="cmPostState" aria-live="polite">
+            <span class="cm-spinner" aria-hidden="true"></span> Đang tải bài viết…
+        </div>
+        <div class="cm-feed__list" id="cmPost"></div>
+    </div>
+
+    <th:block th:replace="~{community/modals :: modals}"></th:block>
+</main>
+
+<script th:src="@{/js/auth-session.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<script th:src="@{/js/pages/community-common.js(v=20261124-toast)}"></script>
+<script th:src="@{/js/pages/community-cards.js(v=20261125-phase2a)}"></script>
+<script th:src="@{/js/pages/community-post.js}"></script>
+<script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
+</body>
+</html>

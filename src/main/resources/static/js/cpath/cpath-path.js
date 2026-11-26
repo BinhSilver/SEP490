@@ -359,7 +359,7 @@
       + stat('CP từ lộ trình', '+' + (Number(f.cp) || 0) + ' CP')
       + '</dl>'
       + '<p class="cp-finished__cert"><a class="cp-btn-primary" href="' + esc(f.certificateUrl || '/learning/comm/certificate') + '">Xem chứng nhận</a>'
-      + '<span>Bản đồ vẫn mở để ôn lại; lộ trình đã hoàn thành không giao bài mới mỗi ngày.</span></p>'
+      + '</p>'
       + choices
       + '</section>';
   }
@@ -380,14 +380,27 @@
     var allDone = situations.length > 0 && doneCount === situations.length;
     var firstActive = situations.filter(function (s) { return !isDone(s); })[0] || null;
 
+    // owner 17/11: same rows as the JLPT "Hôm nay" (ring, title, line, button or medal)
+    var jctl = root && root.JpathPathControls;
+    var ring = function (done) {
+      return jctl && jctl.progressRingSvg ? jctl.progressRingSvg(done ? 1 : 0, 1, done)
+        : '<span class="cp-today__icon" aria-hidden="true">' + (done ? svgMedal() : svgDialogueBubble()) + '</span>';
+    };
+    var medal = function (txt) {
+      return '<span class="jp-todo__done">' + (jctl && jctl.medalMiniSvg ? jctl.medalMiniSvg() : '') + ' ' + txt + '</span>';
+    };
+    var pill = function (done, title, sub, href, cls) {
+      return '<li class="jp-today__pill jp-todo__item cp-today__item' + (cls || '') + (done ? ' is-done' : '') + '">'
+        + ring(done)
+        + '<span class="jp-today__pill-body jp-todo__text"><strong>' + title + '</strong>'
+        + '<span class="jp-today__pill-sub jp-todo__sub">' + sub + '</span></span>'
+        + (done ? medal('Đã học') + '<a class="jp-btn jp-btn--sm" href="' + esc(href) + '">Ôn lại</a>'
+          : '<a class="jp-btn jp-btn--sm" href="' + esc(href) + '">Học</a>')
+        + '</li>';
+    };
     var items = situations.map(function (s, idx) {
-      var done = isDone(s);
-      return '<li class="cp-today__item' + (done ? ' is-done' : '') + '">'
-        + '<span class="cp-today__icon" aria-hidden="true">' + (done ? svgMedal() : svgDialogueBubble()) + '</span>'
-        + '<span class="cp-today__text"><strong>' + esc(s.titleVi) + '</strong>'
-        + '<span>' + esc(topicLabel(s.topicCode, s.topicName)) + ' · Tình huống ' + (idx + 1) + '</span></span>'
-        + '<a class="jp-btn jp-btn--sm' + (done ? '' : ' jp-btn--primary') + '" href="' + esc(pageUrl('situation', { id: s.id })) + '">'
-        + (done ? 'Ôn lại' : 'Học') + '</a></li>';
+      return pill(isDone(s), esc(s.titleVi), esc(topicLabel(s.topicCode, s.topicName)) + ' · Tình huống ' + (idx + 1),
+        pageUrl('situation', { id: s.id }), '');
     }).join('');
 
     // F70 (owner 12/11): the base lesson comes first, then the situations of the day that use its items
@@ -395,12 +408,10 @@
     var coreToday = core && core.today ? core.today : null;
     var coreDone = !!(coreToday && coreToday.count > 0 && coreToday.done >= coreToday.count);
     var coreItem = coreToday && coreToday.count > 0
-      ? '<li class="cp-today__item cp-today__item--core' + (coreDone ? ' is-done' : '') + '">'
-        + '<span class="cp-today__icon" aria-hidden="true">' + (coreDone ? svgMedal() : svgStar()) + '</span>'
-        + '<span class="cp-today__text"><strong>Bài nền · ' + coreToday.count + ' từ và mẫu câu</strong>'
-        + '<span>' + (coreDone ? 'Đã thuộc ' + coreToday.done + '/' + coreToday.count : 'Học trước để dùng trong tình huống hôm nay')
-        + ' · ' + esc(core.depthLabel || '') + ' ' + Number(core.done || 0) + '/' + Number(core.total || 0) + '</span></span>'
-        + '<a class="jp-btn jp-btn--sm' + (coreDone ? '' : ' jp-btn--primary') + '" href="/learning/comm/core">' + (coreDone ? 'Xem lại' : 'Học') + '</a></li>'
+      ? pill(coreDone, 'Bài nền · ' + coreToday.count + ' từ và mẫu câu',
+        (coreDone ? 'Đã thuộc ' + coreToday.done + '/' + coreToday.count : 'Học trước để dùng trong tình huống hôm nay')
+          + ' · ' + esc(core.depthLabel || '') + ' ' + Number(core.done || 0) + '/' + Number(core.total || 0),
+        '/learning/comm/core', ' cp-today__item--core')
       : '';
     if (coreItem && !coreDone) firstActive = { coreLesson: true };
     var check = core && core.knownCheck && core.knownCheck.open > 0
@@ -410,7 +421,7 @@
 
     var body;
     if (situations.length || coreItem) {
-      body = '<ul class="cp-today__list">' + coreItem + items + '</ul>' + check;
+      body = '<ol class="jp-today__pills jp-todo cp-today__list" aria-label="Tiến độ từng phần hôm nay">' + coreItem + items + '</ol>' + check;
     } else if (finished) {
       // F125: a finished path gets no new day; any situation stays open on the map for review
       body = '<p class="cp-today__empty">Lộ trình đã hoàn thành nên không giao bài mới mỗi ngày. '
@@ -432,13 +443,20 @@
     var weeklyOpen = typeof todayObj.weeklyOpen === 'boolean' ? todayObj.weeklyOpen
       : (!todayObj.weeklyTestDay || (dayIso && String(todayObj.weeklyTestDay).slice(0, 10) <= dayIso));
     var reviewHref = pageUrl('weekly') + (pageUrl('weekly').indexOf('?') >= 0 ? '&' : '?') + 'mode=review';
+    var chest = jctl && jctl.chestMiniSvg ? '<span class="jp-today__weekly-icon">' + jctl.chestMiniSvg() + '</span>' : '';
+    var weeklyBox = finished ? '' : (weeklyOpen
+      ? '<div class="jp-today__weekly jp-today__weekly--due">' + chest
+        + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần · Hôm nay</strong></div>'
+        + '<div class="jp-today__weekly-btns"><a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('weekly')) + '">Làm bài</a></div></div>'
+      : '<div class="jp-today__weekly jp-today__weekly--upcoming">' + chest
+        + '<div class="jp-today__weekly-info"><strong>Kiểm tra tuần · ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + '</strong>'
+        + '<span class="jp-today__weekly-countdown">hoặc khi học xong phần của tuần</span></div></div>');
     var actions = '<div class="cp-today__actions">'
       + extra
-      // F119: 'Đổi nhịp học' dropped here - the side card and the ⚙ tab already open the settings
-      + '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn và mục trong Sổ tay">Ôn tập hôm nay</a>'
-      + (finished ? '' : weeklyOpen
-        ? '<a class="jp-btn" href="' + esc(pageUrl('weekly')) + '">Kiểm tra tuần</a>'
-        : '<span class="cp-today__muted">Kiểm tra tuần mở ' + esc(fmtShortDate(todayObj.weeklyTestDay)) + ' hoặc khi bạn học xong phần của tuần</span>')
+      // owner 17/11: no review button before anything is due (a new learner saw "Ôn tập hôm nay" on day one)
+      + (typeof todayObj.reviewDue === 'number' && todayObj.reviewDue <= 0 ? ''
+        : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn (sau 1, 3, 7, 14, 30 ngày) và mục trong Sổ tay">Ôn tập hôm nay'
+          + (typeof todayObj.reviewDue === 'number' ? ' (' + todayObj.reviewDue + ')' : '') + '</a>')
       + '</div>';
 
     var lead = situations.length
@@ -484,12 +502,16 @@
       + '<div class="jp-today__kitsu" aria-hidden="true"><span class="jp-today__kitsu-bubble">' + esc(kitsuSay) + '</span>'
       + '<img class="jp-today__kitsu-img" src="' + esc(kitsuSrc(kitsuFile)) + '" width="76" height="76" alt="" /></div>'
       + '</div>'
-      + (firstActive ? '<div class="cp-today__cta"><a class="cp-btn-primary" href="'
-        + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">Học tiếp ›</a></div>' : '')
+      + '<div class="jp-today__body"><div class="jp-today__main">'
+      + (firstActive ? '<div class="jp-today__go"><a class="jp-btn jp-btn--primary jp-btn--lg" href="'
+        + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">'
+        + (doneCount > 0 || coreDone ? 'Học tiếp' : 'Học hôm nay') + '</a></div>' : '')
       + kanaTipHtml(d, st)
       + body
-      + travelExtrasHtml(st.stamps, d.goal)
       + actions
+      + '</div></div>'
+      + (weeklyBox ? '<div class="jp-today__bottom">' + weeklyBox + '</div>' : '')
+      + travelExtrasHtml(st.stamps, d.goal)
       + '</section>';
   }
 
@@ -528,7 +550,7 @@
 
     var stepsSummary = '';
     var actionHref = pageUrl('situation', { id: item.id });
-    var actionLabel = isDone ? 'Ôn lại tình huống' : 'Bắt đầu học (4 bước)';
+    var actionLabel = isDone ? 'Ôn lại tình huống' : (item.missed ? 'Học bù (4 bước)' : 'Bắt đầu học (4 bước)');
 
     if (item.type === 'SITUATION') {
       stepsSummary = '<ul class="jp-parts__pills-grid">'
@@ -669,7 +691,8 @@
 
     var bubble = isToday
       ? '<span class="jp-parts__bubble">Bắt đầu</span>'
-      : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>' : '');
+      : (isTodayDone ? '<span class="jp-parts__bubble jp-parts__bubble--done">Đã xong</span>'
+        : (item.missed && !isDone ? '<span class="jp-parts__bubble jp-parts__bubble--missed">Chưa học · Học bù</span>' : ''));
     var todayKitsu = (isToday || isTodayDone) && showTodayKitsu
       ? '<span class="jp-parts__mascot jp-parts__mascot--today jp-parts__mascot--left" aria-hidden="true">'
         + '<span class="jp-parts__mascot-speech">' + (isTodayDone ? 'Giỏi quá!' : 'Vào tình huống này nhé!') + '</span>'
@@ -812,8 +835,9 @@
     var p = pathData || {};
     var sec = p.secondary;
     var progress = p.progress || {};
-    var passed = Number(progress.passedTopics || 0);
-    var total = Number(progress.totalTopics || 0);
+    // walkthrough 25/11: the same count as the my-paths card ("Đã xong 2/7 tình huống", 29%), not passed topics
+    var passed = Number(progress.doneSituations || 0);
+    var total = Number(progress.totalSituations || 0);
     var pct = total ? Math.round(100 * passed / total) : 0;
     var fin = p.finished;
     var others = list(p.finishedPaths);
@@ -823,12 +847,12 @@
       + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp')
       + (fin && fin.finishedAt ? ' · xong ' + esc(fmtFullDate(fin.finishedAt)) : '') + '</span>'
       + '<a class="cp-goal-card__progress" href="' + esc(fin && fin.certificateUrl || '/learning/comm/certificate') + '" title="Xem chứng nhận">'
-      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' chủ đề</span>'
+      + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' tình huống</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
       + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
       + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
       + '<span class="cp-goal-card__pace-options">'
-      + [1, 2].map(function (n) {
+      + [1, 2, 3, 4].map(function (n) {
         return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
           + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
       }).join('')
@@ -930,8 +954,17 @@
         bannerBottom = Math.max(bannerBottom, bRect.bottom);
       }
     }
-    var minTop = Math.min(vh * 0.42, bannerBottom + 10);
+    // owner 24/11 (reported many times): the site's fixed header counts too, so the popover never slides under it
+    var header = root.document.getElementById('jlabBaseHeader');
+    var headerBottom = 0;
+    if (header && typeof header.getBoundingClientRect === 'function') {
+      var hRect = header.getBoundingClientRect();
+      if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
+    }
+    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
     var maxBottom = vh - 14;
+    pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
+    pop.style.overflowY = 'auto';
     var rect = pop.getBoundingClientRect();
     var shiftY = 0;
 
@@ -978,7 +1011,7 @@
       var alert = doc.createElement('p');
       alert.className = 'jp-alert';
       alert.setAttribute('role', 'alert');
-      alert.textContent = error && error.message || 'Không thực hiện được thao tác.';
+      alert.textContent = error && (error.code || error.status) && error.message || 'Không thực hiện được thao tác.';
       var code = error && error.code;
       var button;
       if (code === 'CPATH_PREMIUM_REQUIRED') {
@@ -1011,9 +1044,9 @@
     // [JLAS-W0108] C5: first visit (or ?tour=1) gets a 4-step guide; "seen" is a per-browser convenience
     var TOUR_KEY = 'cpath.tourDone';
     var TOUR_STEPS = [
-      { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–2 tình huống giao tiếp. Bấm Học tiếp để vào tình huống kế tiếp.' },
+      { target: '[data-tour="cp-today"]', text: 'Mỗi ngày có 1–4 tình huống giao tiếp (theo thời gian rảnh bạn chọn). Bấm Học tiếp để vào tình huống kế tiếp.' },
       { target: '[data-tour="cp-map"]', text: 'Bản đồ theo tuần: mỗi tình huống có 4 bước, cuối tuần có bài kiểm tra để mở tuần sau.' },
-      { target: '[data-tour="cp-pace"]', text: 'Chọn học 1 hay 2 tình huống mỗi ngày; đổi lúc nào cũng được.' },
+      { target: '[data-tour="cp-pace"]', text: 'Chọn học 1–4 tình huống mỗi ngày (mỗi tình huống khoảng 15 phút); đổi lúc nào cũng được.' },
       { target: '[data-tour="cp-goal"]', text: 'Vào Cài đặt lộ trình để đổi mục tiêu chính hoặc thêm mục tiêu phụ; tiến độ đã học vẫn được giữ.' }
     ];
     function startTour() {
@@ -1023,9 +1056,19 @@
       var seen = false;
       try { seen = root.localStorage.getItem(TOUR_KEY) === '1'; } catch (e) { seen = false; }
       if (seen && !forced) return;
-      tour.create({ doc: root.document, steps: TOUR_STEPS, onFinish: function () {
-        try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
-      } }).start();
+      // owner 17/11: the guide shows once (first visit after the path is made); later only from "Xem hướng dẫn"
+      try { root.localStorage.setItem(TOUR_KEY, '1'); } catch (e) { /* shows again next time */ }
+      // a finished path hands out no new situation: step 1 says how to review instead of "Học tiếp"
+      var steps = pathData && pathData.finished
+        ? [{ target: TOUR_STEPS[0].target, text: 'Lộ trình này đã xong nên không có tình huống mới. Bấm Ôn tập hôm nay hoặc một tình huống trên bản đồ để ôn lại.' }].concat(TOUR_STEPS.slice(1))
+        : TOUR_STEPS;
+      tour.create({ doc: root.document, steps: steps, onFinish: function () {} }).start();
+    }
+
+    // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
+    function planToday() {
+      if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
+      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
     }
 
     function renderAll() {
@@ -1110,7 +1153,7 @@
         var n = Number(dailyBtn.getAttribute('data-cp-daily'));
         Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/daily', { dailySituations: n })).then(function () {
           // today's plan and the map both change with the pace: reload both
-          return Promise.all([root.JpathApi.get('/api/learning/comm/path'), root.JpathApi.get('/api/learning/comm/map')])
+          return planToday().then(function () { return Promise.all([root.JpathApi.get('/api/learning/comm/path'), root.JpathApi.get('/api/learning/comm/map')]); })
             .then(function (res) {
               pathData = res[0] || pathData;
               lastPathData = pathData;
@@ -1147,11 +1190,32 @@
       }
     });
 
-    Promise.all([
+    // owner 24/11 (reported many times): while scrolling the popover is fitted again so it never slides under the site
+    // header; once its node is hidden behind the header or below the screen the popover closes
+    var scrollFrame = 0;
+    if (typeof root.addEventListener === 'function') root.addEventListener('scroll', function () {
+      if (scrollFrame || !state.selectedId || typeof root.requestAnimationFrame !== 'function') return;
+      scrollFrame = root.requestAnimationFrame(function () {
+        scrollFrame = 0;
+        if (!state.selectedId || !mapSlot) return;
+        var node = mapSlot.querySelector('[data-cp-node="' + String(state.selectedId).replace(/"/g, '') + '"]');
+        var header = root.document.getElementById('jlabBaseHeader');
+        var top = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+        var r = node && node.getBoundingClientRect();
+        if (!r || r.bottom < top || r.top > (Number(root.innerHeight) || 760)) {
+          state.selectedId = '';
+          renderAll();
+          return;
+        }
+        adjustPopoverInViewport(mapSlot);
+      });
+    }, { passive: true });
+
+    planToday().then(function () { return Promise.all([
       root.JpathApi.get('/api/learning/comm/path'),
       root.JpathApi.get('/api/learning/comm/map'),
       root.JpathApi.get('/api/learning/comm/goal-test').catch(function () { return null; })
-    ]).then(function (res) {
+    ]); }).then(function (res) {
       if (!res[0] || !res[1]) throw new Error('Dữ liệu lộ trình chưa đầy đủ.');
       pathData = res[0];
       lastPathData = pathData;
@@ -1206,7 +1270,7 @@
         return;
       }
       if (mapSlot) {
-        mapSlot.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && e.message || 'Không tải được lộ trình giao tiếp.')
+        mapSlot.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Không tải được lộ trình giao tiếp.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         mapSlot.querySelector('[data-cp-retry]').addEventListener('click', function () { root.location.reload(); });
       }

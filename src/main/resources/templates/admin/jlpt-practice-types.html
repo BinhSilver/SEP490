@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: standard('Quản lý dạng luyện JLPT - KotsuKotsu', 'jlpt-practice-admin')}"></head>
-<body id="jlabBasePage" class="app-body jpta-body">
+<body id="jlabBasePage" class="app-body jpta-body jlas-ui-owned">
+<link rel="stylesheet" th:href="@{/css/admin-shell.css(v=20261125-largescreen)}"/>
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jpta">
     <a class="jpta__back" href="/admin/jlpt"><span class="material-symbols-outlined">arrow_back</span>Quản lý đề JLPT</a>
@@ -12,8 +13,8 @@
     <section class="jpta__workspace">
         <div class="jpta__toolbar">
             <label class="jpta__search"><span class="material-symbols-outlined">search</span><input id="searchFilter" type="search" placeholder="Tìm dạng luyện" /></label>
-            <select id="levelFilter" aria-label="Lọc cấp độ"><option value="">Tất cả cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
-            <select id="sectionFilter" aria-label="Lọc phần thi"><option value="">Tất cả phần thi</option><option value="vocabulary">Từ vựng</option><option value="grammar">Ngữ pháp</option><option value="reading">Đọc hiểu</option><option value="listening">Nghe hiểu</option></select>
+            <select data-jl-select id="levelFilter" aria-label="Lọc cấp độ"><option value="">Tất cả cấp độ</option><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+            <select data-jl-select id="sectionFilter" aria-label="Lọc phần thi"><option value="">Tất cả phần thi</option><option value="vocabulary">Từ vựng</option><option value="grammar">Ngữ pháp</option><option value="reading">Đọc hiểu</option><option value="listening">Nghe hiểu</option></select>
             <label class="jpta__enabled-filter"><input id="enabledOnly" type="checkbox" /> Chỉ hiện đang bật</label>
         </div>
         <div class="jpta__table-wrap"><table><thead><tr><th>Dạng luyện</th><th>Cấp độ / Phần thi</th><th>Số câu</th><th>Tên hiển thị · Tiếng Việt</th><th>Tên hiển thị · Tiếng Nhật</th><th>Thứ tự</th><th>Hiển thị</th></tr></thead><tbody id="typeRows"></tbody></table>
@@ -32,5 +33,5 @@
     <footer class="jpta-dialog__footer"><span id="questionsPageLabel"></span><div><button id="questionsPrev" type="button">← Trước</button><button id="questionsNext" type="button">Tiếp →</button></div></footer>
 </dialog>
 <div id="adminToast" class="jpta-toast" role="status" aria-live="polite" hidden></div>
-<script th:src="@{/js/jlab-base-shell.js?v=20261109-kotsu}"></script><script th:src="@{/js/pages/jlpt-practice-admin.js?v=2}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261125-icons-vi}"></script><script th:src="@{/js/pages/jlpt-practice-admin.js?v=2}"></script>
 </body></html>

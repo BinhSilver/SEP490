@@ -4,14 +4,14 @@
 <body data-mobile-adapt="owned" id="jlabBasePage" class="app-body onyomi-body">
 <div id="jlabBaseShellMount"></div>
 
-<main id="jlabBaseContent" class="oy-page" th:with="rule=${page.rule}">
+<main id="jlabBaseContent" class="jl-ui-kit oy-page" th:with="rule=${page.rule}">
     <div class="oy-narrow">
         <nav class="oy-breadcrumb" aria-label="Breadcrumb">
             <a th:href="@{/learning/onyomi}">Onyomi</a>
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <span class="oy-breadcrumb__separator" aria-hidden="true">/</span>
             <a th:href="@{/learning/onyomi/lessons/{id}(id=${page.lessonId})}"
                th:text="'Giai đoạn ' + ${page.stageOrder} + ' · Bài ' + ${page.lessonOrder}">Bài 1</a>
-            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+            <span class="oy-breadcrumb__separator" aria-hidden="true">/</span>
             <span aria-current="page" th:text="${rule.title}">Quy tắc</span>
         </nav>
 
@@ -85,7 +85,7 @@
 
         <div class="oy-summary__next">
             <a class="oy-button" th:href="@{/learning/onyomi/lessons/{id}(id=${page.lessonId})}">
-                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Về bài học
+                 Về bài học
             </a>
             <a class="oy-button oy-button--primary" th:href="@{/learning/onyomi/lessons/{id}/practice(id=${page.lessonId})}">
                 <i class="fa-solid fa-circle-question" aria-hidden="true"></i> Luyện tập bài này
@@ -95,6 +95,6 @@
 </main>
 
 <script th:src="@{/js/pages/onyomi-page.js(v=20261107-practice-page)}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 </body>
 </html>

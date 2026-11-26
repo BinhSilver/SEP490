@@ -1,27 +1,28 @@
-.ad-hangar { min-width: 0; padding-bottom: 18px; border-bottom: 1px solid var(--battle-border); }
+/* No rule along the bottom: the hangar sits inside the setup panel, which already frames it. */
+.ad-hangar { min-width: 0; padding-bottom: 4px; border: 0; }
 .ad-hangar__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .ad-hangar h2 { margin: 0; color: var(--battle-fg); font-weight: 750; line-height: 1.35; }
 .ad-hangar h2 { font-size: 18px; }
-.ad-hangar__hint { margin: 4px 0 0; color: #b8c9df; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.ad-hangar__hint { margin: 4px 0 0; color: var(--dark-muted, #d9c9df); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
 .ad-hangar__balance { flex-shrink: 0; display: flex; align-items: center; gap: 6px; color: var(--battle-amber); font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums; padding: 5px 0; }
 .ad-hangar__skins { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .ad-hangar__skin { min-width: 0; padding: 6px 6px 9px; display: flex; align-items: center; flex-direction: column; gap: 4px; border: 1px solid var(--battle-border); border-radius: 12px; background: rgba(0, 0, 0, .18); color: var(--battle-fg); cursor: pointer; transition: background-color 160ms ease-out, border-color 160ms ease-out; }
-.ad-hangar__skin:hover:not(:disabled), .ad-hangar__skin.is-selected { border-color: var(--battle-cyan); background: rgba(85, 244, 255, .09); }
+.ad-hangar__skin:hover:not(:disabled), .ad-hangar__skin.is-selected { border-color: var(--dark-accent, #dcaee8); background: rgb(220 174 232 / 12%); }
 .ad-hangar__skin strong { min-height: 34px; font-size: 12px; font-weight: 650; line-height: 1.4; text-align: center; overflow-wrap: anywhere; }
-.ad-hangar__skin small { color: var(--battle-cyan); font-size: 11px; font-weight: 650; }
+.ad-hangar__skin small { color: var(--dark-accent, #dcaee8); font-size: 11px; font-weight: 650; }
 .ad-hangar__preview { width: 100%; height: 74px; display: grid; place-items: center; }
 .ad-hangar__preview img, .ad-hangar__preview canvas { width: 100%; max-width: 110px; height: 74px; object-fit: contain; }
 .ad-hangar__preview [hidden] { display: none; }
-.ad-hangar__preview-loading { color: #b8c9df; font-size: 11px; }
+.ad-hangar__preview-loading { color: var(--dark-muted, #d9c9df); font-size: 11px; }
 .ad-hangar__selection { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .ad-hangar__selection > .ad-hangar__hint { color: var(--battle-amber); }
-.ad-hangar__action, .ad-hangar__error button { min-height: 44px; padding: 8px 12px; border: 1px solid rgba(85, 244, 255, .5); border-radius: 10px; background: rgba(85, 244, 255, .1); color: var(--battle-cyan); font: 700 12px Inter, sans-serif; cursor: pointer; line-height: 1.4; }
-.ad-hangar__action:hover:not(:disabled), .ad-hangar__error button:hover:not(:disabled) { background: rgba(85, 244, 255, .2); }
+.ad-hangar__action, .ad-hangar__error button { min-height: 44px; padding: 8px 12px; border: 1px solid rgb(220 174 232 / 50%); border-radius: 10px; background: rgb(220 174 232 / 12%); color: var(--dark-accent, #dcaee8); font: 700 12px Inter, sans-serif; cursor: pointer; line-height: 1.4; }
+.ad-hangar__action:hover:not(:disabled), .ad-hangar__error button:hover:not(:disabled) { background: rgb(220 174 232 / 22%); }
 .ad-hangar button:disabled { cursor: default; opacity: .55; }
-.ad-hangar button:focus-visible { outline: 2px solid var(--battle-cyan); outline-offset: 3px; }
+.ad-hangar button:focus-visible { outline: 2px solid var(--dark-accent, #dcaee8); outline-offset: 3px; }
 .ad-hangar__error { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 8px 0; color: var(--battle-amber); font-size: 12px; }
 .ad-hangar__error p { flex: 1 1 180px; margin: 0; }
-.ad-hangar__notice { margin: 8px 0 0; color: var(--battle-cyan); font-size: 12px; line-height: 1.5; }
+.ad-hangar__notice { margin: 8px 0 0; color: var(--dark-accent, #dcaee8); font-size: 12px; line-height: 1.5; }
 .ad-hangar__notice:empty { display: none; }
 @media (max-width: 560px) {
   .ad-hangar__skins { grid-template-columns: repeat(3, minmax(0, 1fr)); }

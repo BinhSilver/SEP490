@@ -1,5 +1,7 @@
 package com.jlas.community.service;
 
+import com.jlas.common.exception.ApiException;
+import com.jlas.common.exception.ErrorCode;
 import com.jlas.community.entity.CommunityComment;
 import com.jlas.community.entity.CommunityContent;
 import com.jlas.community.entity.CommunityReport;
@@ -8,6 +10,7 @@ import com.jlas.community.enums.CommunityStatus;
 import com.jlas.community.enums.ReportReason;
 import com.jlas.community.enums.ReportStatus;
 import com.jlas.community.enums.ReportTargetType;
+import com.jlas.community.handler.CommunityPostHandler;
 import com.jlas.community.handler.CommunitySource;
 import com.jlas.community.repository.CommunityCommentRepository;
 import com.jlas.community.repository.CommunityContentRepository;
@@ -35,6 +38,8 @@ public class CommunityReportedContentPort implements ReportedContentPort {
     public static final String CONTENT = "COMMUNITY_CONTENT";
     public static final String COMMENT = "COMMUNITY_COMMENT";
     private static final String HIDDEN = CommunityStatus.TEMPORARILY_HIDDEN.name();
+    /** Độ dài cột community_report.resolution_note. */
+    static final int MAX_NOTE = 500;
 
     private final CommunityAccessService access;
     private final CommunityContentRepository contents;
@@ -64,34 +69,54 @@ public class CommunityReportedContentPort implements ReportedContentPort {
         return Optional.empty();
     }
 
+    /**
+     * Khoá rồi đọc lại bản mới nhất ({@link CommunityAccessService#fresh}) trước khi đổi trạng thái: đối tượng đã bị gỡ
+     * (vd kiểm duyệt viên khác vừa gỡ trực tiếp trong lúc người này xử lý hàng chờ) thì 409, không hồi sinh / gỡ lại.
+     */
     @Override
     @Transactional
     public void resolve(String targetType, Long targetId, ReportDecision decision) {
         if (CONTENT.equals(targetType)) {
-            CommunityContent row = contents.lockById(targetId).orElseThrow(CommunityAccessService::notFound);
+            CommunityContent row = access.fresh(contents.lockById(targetId).orElseThrow(CommunityAccessService::notFound));
+            requireNotRemoved(row.getStatus());
             row.setStatus(decision.newState());
             contents.save(row);
             closeReports(ReportTargetType.CONTENT, targetId, decision);
             return;
         }
         CommunityComment existing = comments.findById(targetId).orElseThrow(CommunityAccessService::notFound);
-        CommunityContent row = contents.lockById(existing.getCommunityContentId())
-                .orElseThrow(CommunityAccessService::notFound);
-        CommunityComment comment = comments.lockById(targetId).orElseThrow(CommunityAccessService::notFound);
+        CommunityContent row = access.fresh(contents.lockById(existing.getCommunityContentId())
+                .orElseThrow(CommunityAccessService::notFound));
+        CommunityComment comment = access.fresh(comments.lockById(targetId).orElseThrow(CommunityAccessService::notFound));
+        requireNotRemoved(comment.getStatus());
         comment.setStatus(decision.newState());
         comments.saveAndFlush(comment);
         closeReports(ReportTargetType.COMMENT, targetId, decision);
         access.refreshCommentCount(row);
     }
 
+    private static void requireNotRemoved(String status) {
+        if (CommunityStatus.REMOVED.name().equals(status)) {
+            throw new ApiException(ErrorCode.CONFLICT, "Nội dung đã bị gỡ");
+        }
+    }
+
     private void closeReports(ReportTargetType type, Long targetId, ReportDecision decision) {
         String status = decision.valid() ? ReportStatus.RESOLVED.name() : ReportStatus.REJECTED.name();
-        for (CommunityReport report : openReports(type, targetId)) {
+        for (CommunityReport report : reports.lockOpen(type.name(), targetId)) {
             report.setStatus(status);
             report.setResolvedBy(decision.moderatorId());
             report.setResolvedAt(decision.decidedAt());
-            report.setResolutionNote(decision.reason());
+            report.setResolutionNote(note(decision.reason()));
         }
+    }
+
+    /**
+     * community_report.resolution_note là VARCHAR(500) còn hàng chờ cho lý do tới 1000 ký tự (lý do đầy đủ vẫn nằm
+     * trong moderation_audit_log.reason): cắt cho vừa thay vì để MySQL báo lỗi 1406 làm hỏng cả lần xử lý.
+     */
+    static String note(String reason) {
+        return reason == null ? null : CommunityPostHandler.cut(reason, MAX_NOTE - 1);
     }
 
     private ReportedTarget toTarget(CommunityContent row) {
@@ -126,7 +151,7 @@ public class CommunityReportedContentPort implements ReportedContentPort {
     }
 
     private static String pageUrl(CommunityContent row) {
-        return "/community/" + row.getContentType() + "/" + row.getContentId();
+        return CommunityContentType.pageUrl(row.getContentType(), row.getContentId());
     }
 
     private static List<String> reasons(List<CommunityReport> open) {

@@ -24,6 +24,14 @@
     });
   }
 
+
+  // owner 17/11: romaji wherever Japanese is shown (Hepburn from the reading, same converter as the situation page)
+  function ro(text) {
+    var S = root && root.CpathSituation;
+    var r = S && typeof S.toRomaji === 'function' ? S.toRomaji(text || '') : '';
+    return r ? '<span class="cp-romaji">' + esc(r) + '</span>' : '';
+  }
+
   function listHtml(data) {
     var items = (data && data.items) || [];
     if (!items.length) {
@@ -35,6 +43,7 @@
         + '<span class="jp-today__pill-count">' + (x.kind === 'LINE' ? 'Câu thoại' : 'Từ · mẫu câu')
         + ' · sai ' + esc(x.wrongCount) + ' lần</span></div>'
         + (x.reading && x.reading !== x.ja ? '<div class="cp-survey__sub" lang="ja">' + esc(x.reading) + '</div>' : '')
+        + ro(x.reading || x.ja)
         + '<div class="cp-survey__sub">' + esc(x.vi) + '</div></div>'
         + (x.audioUrl ? '<button type="button" class="jp-speak-btn" data-note-play="' + esc(x.audioUrl) + '" aria-label="Nghe phát âm ' + esc(x.ja) + '" title="Nghe phát âm">' + '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true"><path d="M9.5 4.5L5.8 7.5H3.2v5h2.6l3.7 3v-11z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M12.8 7.2a4 4 0 0 1 0 5.6M15 5.2a7 7 0 0 1 0 9.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' + '</button>' : '')
         + (x.situation ? '<a class="cp-btn-ghost" href="/learning/comm/situation?id=' + encodeURIComponent(x.situation) + '">Mở tình huống</a>' : '')
@@ -66,7 +75,7 @@
         if (el.setAttribute) el.setAttribute('aria-busy', 'false');
         el.innerHTML = e && e.status === 404
           ? '<p class="jp-side__note">Bạn chưa có lộ trình giao tiếp. <a href="/learning/comm/survey">Làm khảo sát</a> để bắt đầu.</p>'
-          : '<p class="jp-alert" role="alert">Chưa tải được sổ tay. <button type="button" class="jp-btn" data-note-retry>Thử lại</button></p>';
+          : '<p class="jp-alert jp-alert--page" role="alert">Chưa tải được sổ tay. <button type="button" class="jp-btn" data-note-retry>Thử lại</button></p>';
       });
     }
     return load();

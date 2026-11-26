@@ -584,7 +584,6 @@
     var meta = [];
     if (data.skill) meta.push('<span class="tb-badge tb-badge--level">' + escapeHtml(SKILL_LABELS[data.skill] || data.skill) + '</span>');
     if (data.knowledgeTagName) meta.push('<span class="tb-badge"><i class="fa-solid fa-tag" aria-hidden="true"></i> ' + escapeHtml(data.knowledgeTagName) + '</span>');
-    if (data.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + data.estimatedMinutes + ' phút</span>');
     meta.push(statusToggle('lesson', data.id, data.status));
     document.getElementById('lessonMeta').innerHTML = meta.join('');
     document.title = (data.title || 'Bài học') + ' - KotsuKotsu';
@@ -1122,6 +1121,11 @@
   var QUESTION_PLACEHOLDER = /^\((Nghe|Đọc) và chọn đáp án đúng\)$/;
   var BLANK_MARK = /[（(]\s*[）)]|＿|_{2,}|★|\[\s*\]/;
 
+  /** Đề có thẻ <u>: escape TOÀN BỘ trước, rồi chỉ bật lại cặp <u>…</u> (không thuộc tính) — mọi thẻ khác vẫn là chữ. */
+  function underlineMarkup(text) {
+    return escapeHtml(text).replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/gi, '<u class="practice-q__target">$1</u>');
+  }
+
   /**
    * Dạng "cách đọc chữ Hán": phương án toàn kana và đề có đúng MỘT cụm chữ Hán → gạch chân cụm đó, kéo dài qua
    * phần okurigana khớp với đuôi đáp án (白い ↔ しろい, 作って ↔ つくって). Không chắc (nhiều cụm, phương án có
@@ -1129,6 +1133,8 @@
    */
   function underlineTarget(q) {
     var text = q.questionText || '';
+    // Dữ liệu đã đánh dấu sẵn <u>…</u> (migration 085, lấy từ nguồn hoặc quy tắc) → dùng đúng chỗ đó, không đoán.
+    if (/<u>[\s\S]*?<\/u>/i.test(text)) return underlineMarkup(text);
     // Backend đã đối chiếu từ điển (chữ Hán có cách đọc = đáp án) → gạch đúng cụm đó.
     if (q.targetText && text.indexOf(q.targetText) !== -1) {
       var at = text.indexOf(q.targetText);
@@ -1561,7 +1567,8 @@
 
   /** Khoá so khớp dòng: NFKC + bỏ mọi khoảng trắng ("Ⓜ： ここ" và "Ⓜ：ここ", "１．" và "1." là một). */
   function matchKey(value) {
-    return String(value || '').normalize('NFKC').replace(/\s+/g, '');
+    // Bỏ thẻ gạch chân <u> của đề để vẫn khớp với lời thoại / bài đọc (không có thẻ).
+    return String(value || '').replace(/<\/?u>/gi, '').normalize('NFKC').replace(/\s+/g, '');
   }
 
   var OPTION_LINE = /^(\S{1,3}[:：])?\s*[1-9１-９][.．、]/;
@@ -2713,12 +2720,9 @@
       '</div>';
   }
 
-  function kanjiWord(w) {
-    return '<li class="kanji-word">' +
-      '<span class="kanji-word__ja" lang="ja">' + escapeHtml(w.expression) + '</span>' +
-      (w.reading ? '<span class="kanji-word__reading" lang="ja">' + escapeHtml(w.reading) + '</span>' : '') +
-      (w.meaning ? '<span class="kanji-word__meaning">' + escapeHtml(w.meaning) + '</span>' : '') +
-      '</li>';
+  /** Từ chứa Kanji → mục ví dụ của examplesHtml (từ, cách đọc, nghĩa). */
+  function kanjiWordExamples(words) {
+    return (words || []).map(function (w) { return { ja: w.expression, kana: w.reading, vi: w.meaning }; });
   }
 
   function kanjiItem(k) {
@@ -2742,9 +2746,7 @@
           (readings.length
             ? '<div class="kanji-readings">' + typeOrder.map(function (t) { return readingGroup(t, readings); }).join('') + '</div>'
             : '') +
-          (words.length
-            ? '<div class="kanji-words"><span class="kanji-readings__label">Từ trong bài</span><ul class="kanji-words__list">' + words.map(kanjiWord).join('') + '</ul></div>'
-            : '') +
+          examplesHtml(kanjiWordExamples(words), 'Từ trong bài') +
         '</div>' +
       '</article>';
   }
@@ -2760,19 +2762,37 @@
 
   /* ---------- Từ vựng ---------- */
 
+  /** Ví dụ của chính bài (lessonExamples) trước; bài không có thì dùng ví dụ chung của từ điển (exampleJa). */
+  function vocabExamples(v) {
+    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; })
+      .map(function (e) { return { ja: e.textJa, vi: e.textVi }; });
+    return lessonExamples.length ? lessonExamples : (v.exampleJa ? [{ ja: v.exampleJa, vi: v.exampleVi }] : []);
+  }
+
+  /**
+   * Phần ví dụ DÙNG CHUNG (thẻ từ vựng mọi trang phân trang, thẻ từ ở trang lộ trình, "Từ ví dụ" tab Kanji):
+   * text thường dưới nghĩa, ngăn bằng đường kẻ mảnh, chữ nhỏ màu phụ — câu Nhật (kèm cách đọc nếu có) rồi nghĩa Việt.
+   * items: [{ ja, kana?, vi? }]; không có mục nào thì trả '' để ẩn hẳn, không để khung rỗng. CSS: .lp-exs (textbooks.css).
+   */
+  function examplesHtml(items, label) {
+    var list = (items || []).filter(function (e) { return e && String(e.ja || '').trim(); });
+    if (!list.length) return '';
+    return '<div class="lp-exs">' +
+      (label ? '<span class="lp-exs__label">' + escapeHtml(label) + '</span>' : '') +
+      list.map(function (e) {
+        return '<div class="lp-exs__item">' +
+          '<p class="lp-exs__ja" lang="ja">' + escapeHtml(e.ja) +
+            (e.kana && e.kana !== e.ja ? '<span class="lp-exs__kana" lang="ja">' + escapeHtml(e.kana) + '</span>' : '') + '</p>' +
+          (e.vi ? '<p class="lp-exs__vi">' + escapeHtml(e.vi) + '</p>' : '') +
+        '</div>';
+      }).join('') +
+      '</div>';
+  }
+
   function vocabItem(v) {
     var tags = [];
     if (v.wordType) tags.push('<span class="tb-badge">' + escapeHtml(v.wordType) + '</span>');
-    // Ví dụ của chính bài (lessonExamples) trước; bài không có thì dùng ví dụ chung của từ điển (exampleJa).
-    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; });
-    var example = lessonExamples.length
-      ? lessonExamples.map(function (e) {
-          return '<p class="vocab-item__example"><span class="ja" lang="ja">' + escapeHtml(e.textJa) + '</span>' +
-            escapeHtml(e.textVi || '') + '</p>';
-        }).join('')
-      : (v.exampleJa
-        ? '<p class="vocab-item__example"><span class="ja">' + escapeHtml(v.exampleJa) + '</span>' + escapeHtml(v.exampleVi || '') + '</p>'
-        : '');
+    var example = examplesHtml(vocabExamples(v));
     return '' +
       '<article class="vocab-item">' +
         '<div class="vocab-item__word">' +
@@ -3025,22 +3045,100 @@
     headerEl.hidden = false;
   }
 
-  function heroChip(icon, text) {
-    return '<span class="lp-hero__chip"><i class="' + icon + '" aria-hidden="true"></i> ' + escapeHtml(text) + '</span>';
+  /**
+   * Meta hero: không còn chip loại bài / "Ôn tập" / "N mục" (thừa với người học). Chỉ còn nút đổi trạng thái của
+   * CONTENT_CREATOR và nhãn "Chưa duyệt" cho bài chưa công bố (statusBadge); không có gì thì ẩn cả hàng.
+   */
+  function renderHeroMeta(data) {
+    var metaEl = document.getElementById('lessonMeta');
+    metaEl.innerHTML = [statusToggle('lesson', data.id, data.status)].filter(Boolean).join('');
+    metaEl.hidden = !metaEl.innerHTML;
   }
 
-  /** Meta hero: trạng thái thật (nút đổi trạng thái cho CONTENT_CREATOR), thời lượng, loại bài, tổng số mục = tổng các tab. */
-  function renderHeroMeta(data, counts) {
-    var total = Object.keys(counts).reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
-    var published = data.status === 'PUBLISHED';
-    var meta = [isContentCreator ? statusToggle('lesson', data.id, data.status)
-      : '<span class="lp-status ' + (published ? 'lp-status--published' : 'lp-status--draft') + '">' +
-        (published ? 'Đã công bố' : 'Bản nháp') + '</span>'];
-    if (data.estimatedMinutes) meta.push(heroChip('fa-regular fa-clock', data.estimatedMinutes + ' phút'));
-    if (data.skill) meta.push(heroChip('fa-solid fa-book-open', SKILL_LABELS[data.skill] || data.skill));
-    if (data.lessonType === 'REVIEW') meta.push(heroChip('fa-solid fa-rotate', 'Ôn tập'));
-    meta.push(heroChip('fa-solid fa-layer-group', total + ' mục'));
-    document.getElementById('lessonMeta').innerHTML = meta.join('');
+  /**
+   * Bài chỉ có MỘT loại nội dung (vd. bài bảng chữ): thanh tab một nút trông như nút bấm → ẩn thanh tab, thay bằng
+   * tiêu đề mục (không bấm được). Bài nhiều loại nội dung giữ thanh tab như cũ.
+   */
+  function applySingleSection() {
+    var bar = document.querySelector('.lesson-tabs');
+    if (!bar) return;
+    var visible = Array.prototype.filter.call(document.querySelectorAll('.lesson-tab'), function (t) { return !t.hidden; });
+    var heading = document.getElementById('lessonSectionTitle');
+    var single = visible.length === 1;
+    bar.hidden = single;
+    if (!single) { if (heading) heading.hidden = true; return; }
+    if (!heading) {
+      heading = document.createElement('h2');
+      heading.id = 'lessonSectionTitle';
+      heading.className = 'lp-section-title';
+      bar.parentNode.insertBefore(heading, bar.nextSibling);
+    }
+    var label = visible[0].cloneNode(true);
+    Array.prototype.forEach.call(label.querySelectorAll('.lesson-tab__count'), function (c) { c.remove(); });
+    heading.textContent = label.textContent.trim();
+    heading.hidden = false;
+    var panel = document.querySelector('.lesson-panel[data-panel="' + visible[0].getAttribute('data-tab') + '"]');
+    if (panel) {
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-labelledby', heading.id);
+      panel.removeAttribute('tabindex');
+    }
+  }
+
+  /**
+   * Cuối bài: "Bài trước" / "Bài tiếp theo" theo thứ tự cả giáo trình (unit rồi tới bài, như trang danh sách bài).
+   * Hết một unit thì bài tiếp theo là bài đầu của unit sau ("Sang phần mới"); bài cuối giáo trình → về danh sách bài.
+   */
+  function loadLessonNav() {
+    if (!NEW_UI || !IS_TEXTBOOK_PAGE || !textbookId || !lessonId) return;
+    var headers = window.JlasAuth && typeof JlasAuth.authHeaders === 'function' ? JlasAuth.authHeaders() : {};
+    fetch('/api/dictionary/textbooks/' + encodeURIComponent(textbookId) + '/units', { headers: headers })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (json) {
+        var units = json && json.data && json.data.units;
+        if (!units) return;
+        var flat = [];
+        units.forEach(function (unit) {
+          (unit.lessons || []).forEach(function (l) { flat.push({ id: l.id, title: l.title, unitId: unit.id, unitTitle: unit.title }); });
+        });
+        var index = -1;
+        for (var i = 0; i < flat.length; i++) if (String(flat[i].id) === String(lessonId)) index = i;
+        if (index < 0) return;
+        renderLessonNav(flat[index], flat[index - 1], flat[index + 1]);
+      })
+      .catch(function () { /* thanh chuyển bài là phụ: lỗi mạng thì bỏ qua */ });
+  }
+
+  function lessonHref(item) {
+    return '/textbooks/' + encodeURIComponent(textbookId) + '/lessons/' + encodeURIComponent(item.id);
+  }
+
+  function renderLessonNav(current, prev, next) {
+    var old = document.getElementById('lessonNav');
+    if (old) old.remove();
+    // Nút chỉ có chữ; tên bài đích nằm ở tooltip (title) và aria-label.
+    function link(item, cls, rel, label) {
+      var name = item.title + (item.unitId !== current.unitId ? ' (' + item.unitTitle + ')' : '');
+      return '<a class="lp-lesson-nav__link ' + cls + '" href="' + lessonHref(item) + '" rel="' + rel + '" title="' +
+        escapeHtml(name) + '" aria-label="' + escapeHtml(label + ': ' + name) + '">' + escapeHtml(label) + '</a>';
+    }
+    var html = prev ? link(prev, 'lp-lesson-nav__link--prev', 'prev', 'Bài trước')
+      : '<span class="lp-lesson-nav__spacer" aria-hidden="true"></span>';
+    if (next) {
+      var newUnit = next.unitId !== current.unitId;
+      html += link(next, 'lp-lesson-nav__link--next' + (newUnit ? ' is-new-unit' : ''), 'next',
+        newUnit ? 'Sang phần mới' : 'Bài tiếp theo');
+    } else {
+      html += '<a class="lp-lesson-nav__link lp-lesson-nav__link--next is-done" href="/textbooks/' +
+        encodeURIComponent(textbookId) + '">Về danh sách bài</a>';
+    }
+    var nav = document.createElement('nav');
+    nav.id = 'lessonNav';
+    nav.className = 'lp-lesson-nav';
+    nav.setAttribute('aria-label', 'Chuyển bài');
+    nav.innerHTML = html;
+    var note = document.getElementById('lessonSourceNote');
+    contentEl.parentNode.insertBefore(nav, note ? note.nextSibling : contentEl.nextSibling);
   }
 
   /* ---------- Tab trượt + xuất hiện lần lượt ---------- */
@@ -3169,10 +3267,6 @@
   /* ---------- Tab Từ vựng ---------- */
 
   function vocabCard(v) {
-    var lessonExamples = (v.lessonExamples || []).filter(function (e) { return e && e.textJa; })
-      .map(function (e) { return { ja: e.textJa, vi: e.textVi }; });
-    var examples = lessonExamples.length ? lessonExamples
-      : (v.exampleJa ? [{ ja: v.exampleJa, vi: v.exampleVi }] : []);
     var showKana = v.reading && v.reading !== v.expression;
     return '<article class="lp-vcard lp-anim">' +
       '<div class="lp-vcard__head">' +
@@ -3185,12 +3279,7 @@
       '</div>' +
       (v.meaning ? '<p class="lp-vcard__meaning">' + escapeHtml(v.meaning) + '</p>' : '') +
       (v.wordType ? '<span class="lp-tag">' + escapeHtml(v.wordType) + '</span>' : '') +
-      (examples.length
-        ? '<div class="lp-vcard__example">' + examples.slice(0, 2).map(function (e) {
-            return '<p class="lp-ex__ja" lang="ja">' + escapeHtml(e.ja) + '</p>' +
-              (e.vi ? '<p class="lp-ex__vi">' + escapeHtml(e.vi) + '</p>' : '');
-          }).join('') + '</div>'
-        : '') +
+      examplesHtml(vocabExamples(v).slice(0, 2)) +
       '</article>';
   }
 
@@ -3282,13 +3371,7 @@
       (k.meaning ? '<p class="lp-kdetail__hv">' + escapeHtml(k.meaning) + '</p>' : '') +
       (k.strokeCount != null ? '<p class="lp-muted lp-kdetail__strokes">' + k.strokeCount + ' nét</p>' : '') +
       kanjiReadBox('Âm On', on) + kanjiReadBox('Âm Kun', kun) +
-      (words.length
-        ? '<div class="lp-kwords"><span class="lp-kread__label">Từ ví dụ</span><ul>' + words.map(function (w) {
-            return '<li><span class="lp-kwords__ja" lang="ja">' + escapeHtml(w.expression) + '</span>' +
-              (w.reading ? '<span class="lp-kwords__kana" lang="ja">' + escapeHtml(w.reading) + '</span>' : '') +
-              (w.meaning ? '<span class="lp-kwords__vi">' + escapeHtml(w.meaning) + '</span>' : '') + '</li>';
-          }).join('') + '</ul></div>'
-        : '') +
+      examplesHtml(kanjiWordExamples(words), 'Từ ví dụ') +
       '<button type="button" class="speak-btn lp-keep lp-listen" data-src="" data-text="' + escapeHtml(speakText) + '"' +
         ' aria-label="Nghe cách đọc ' + escapeHtml(k.character) + '">' +
         '<i class="fa-solid fa-volume-high speak-btn__icon" aria-hidden="true"></i>' +
@@ -3628,7 +3711,7 @@
     applyTabVisibility(counts);
     contentEl.hidden = false;
     renderSourceNote(data);
-    if (NEW_UI) { renderHeroMeta(data, counts); syncTabA11y(); moveTabSlider(); staggerPanel(activePanel()); }
+    if (NEW_UI) { renderHeroMeta(data); syncTabA11y(); applySingleSection(); moveTabSlider(); staggerPanel(activePanel()); }
     assignRoleVoices();   // giọng có thể đã sẵn sàng trước khi dữ liệu về
     probeAudioFiles(data);
     applySpeakButtonVisibility();
@@ -3663,6 +3746,7 @@
         });
       })
       .then(render)
+      .then(loadLessonNav)
       .then(loadReadingImages)
       .then(loadPageImages)
       .catch(function (err) { showError(err.message || 'Không tải được bài học.'); });

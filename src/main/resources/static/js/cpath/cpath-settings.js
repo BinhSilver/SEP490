@@ -34,7 +34,7 @@
     return String(text == null ? '' : text).trim().normalize('NFC').toLocaleUpperCase('vi') === RESTART_TEXT;
   }
   function payload(path) {
-    return { dailySituations: Number(path.dailySituations) === 2 ? 2 : 1,
+    return { dailySituations: Math.min(4, Math.max(1, Number(path.dailySituations) || 1)),
       restDays: Array.isArray(path.restDays) ? path.restDays.slice() : [],
       finishDate: path.finishDate || '' };
   }
@@ -75,16 +75,18 @@
       + '<p class="cp-settings__desc">Chỉnh số tình huống, ngày nghỉ và ngày muốn hoàn thành. Bài đã học được giữ nguyên; '
       + 'lịch hôm nay chỉ đổi phần bạn chưa bắt đầu.</p>'
       + '<fieldset><legend>Tình huống mỗi ngày</legend><div class="cp-settings__options">'
-      + [1, 2].map(function (n) { return '<label><input type="radio" name="cp-daily" value="' + n + '"'
+      + [1, 2, 3, 4].map(function (n) { return '<label><input type="radio" name="cp-daily" value="' + n + '"'
         + (draft.dailySituations === n ? ' checked' : '') + '> ' + n + ' tình huống (khoảng ' + (n * 15) + ' phút)</label>'; }).join('')
       + '</div></fieldset>'
       + '<fieldset><legend>Ngày nghỉ</legend><div class="cp-settings__options">'
       + DAYS.map(function (d) { return '<label><input type="checkbox" data-cp-rest="' + d[0] + '"'
         + (draft.restDays.indexOf(d[0]) >= 0 ? ' checked' : '') + '> ' + d[1] + '</label>'; }).join('')
       + '</div></fieldset>'
-      + '<label class="cp-settings__date">Muốn hoàn thành trước ngày <input type="date" data-cp-finish value="' + esc(draft.finishDate) + '"></label>'
-      + '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến học xong các tình huống '
-      + shortDate(calc.date) + ' (' + draft.dailySituations + ' tình huống/ngày học).</p>'
+      + '<label class="cp-settings__date">Muốn hoàn thành trước ngày <input type="date" data-cp-finish min="' + (function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() + '" value="' + esc(draft.finishDate) + '"></label>'
+      + (calc.remaining > 0
+        ? '<p class="cp-settings__preview" role="status">Còn ' + calc.remaining + ' tình huống. Với nhịp này, dự kiến học xong các tình huống '
+          + shortDate(calc.date) + ' (' + draft.dailySituations + ' tình huống/ngày học).</p>'
+        : '<p class="cp-settings__preview" role="status">Bạn đã học hết các tình huống của lộ trình này. Nhịp học chỉ còn dùng cho phần ôn tập.</p>')
       + (calc.late ? '<p class="jp-alert" role="alert">Nhịp hiện chọn có thể không kịp ngày hoàn thành. Hãy tăng số tình huống hoặc giảm ngày nghỉ.</p>' : '')
       + note(notices.pace, notices.paceError)
       + '<div class="cp-settings__actions"><button type="button" class="cp-btn-primary" data-cp-save-pace>Lưu nhịp học</button>'
@@ -162,14 +164,9 @@
       + '</section>';
   }
 
-  function goalSection(path) {
-    return '<section class="jp-card cp-settings" id="cpSetGoal" aria-labelledby="cpGoalSettingsTitle">'
-      + '<h2 id="cpGoalSettingsTitle">Mục tiêu chính và mục tiêu phụ</h2>'
-      + '<p class="cp-settings__desc">Mục tiêu đang học: <strong>' + esc(path.nameVi || 'Giao tiếp') + '</strong>. '
-      + 'Đổi mục tiêu chính sẽ giữ tiến độ cũ, chọn lại mục tiêu này là học tiếp. Mục tiêu phụ học xen với mục tiêu chính.</p>'
-      + '<div class="cp-settings__actions"><a class="cp-btn-ghost" href="/survey?edit=goal">Đổi mục tiêu chính</a>'
-      + '<a class="cp-btn-ghost" href="/learning/comm/survey?secondary=1">Thêm mục tiêu phụ</a>'
-      + '<a class="cp-btn-ghost" href="/learning/comm/path?tour=1">Xem lại hướng dẫn</a></div></section>';
+  /** Owner 17/11: the shared "Mục tiêu học của bạn" panel (jpath-goals.js), the same on the JLPT settings. */
+  function goalSection() {
+    return '<div id="cpSetGoal" data-jpath-goals></div>';
   }
 
   function manageSection(path, notices) {
@@ -221,24 +218,34 @@
       var focusId = root.document && root.document.activeElement && root.document.activeElement.getAttribute
         ? root.document.activeElement.getAttribute('data-cp-display') : null;
       el.innerHTML = view(path, draft, '', !!undo, notices, core);
+      var goalsEl = el.querySelector && el.querySelector('[data-jpath-goals]');
+      if (goalsEl && typeof window !== 'undefined' && window.JpathGoals) window.JpathGoals.mount(goalsEl);
       if (focusId) {
         var again = el.querySelector('[data-cp-display="' + focusId + '"]');
         if (again) again.focus();
       }
     }
-    function fail(e, fallback) { return e && e.message || fallback; }
+    function fail(e, fallback) { return e && (e.code || e.status) && e.message || fallback; }
+    // I20/I29: a save shows one toast like the JLPT settings page; the inline note stays only when no toast is drawn
+    function saved(key, text) {
+      var toast = root.JlasToast;
+      var o = {};
+      if (toast && typeof toast.show === 'function' && toast.show(text, 'success')) return o;
+      o[key] = text;
+      return o;
+    }
     function savePace(next, undoValue) {
       busy = true;
       el.querySelector('[data-cp-save-pace]').disabled = true;
       Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/pace', next)).then(function (p) {
         busy = false; path = p; draft = payload(p); undo = undoValue;
-        notices = { pace: undoValue ? 'Đã lưu nhịp học.' : 'Đã hoàn tác về nhịp học trước.' }; render();
+        notices = saved('pace', undoValue ? 'Đã lưu nhịp học.' : 'Đã hoàn tác về nhịp học trước.'); render();
       }).catch(function (e) { busy = false; notices = { pace: fail(e, 'Chưa lưu được nhịp học.'), paceError: true }; render(); });
     }
     function saveDisplay(body) {
       busy = true;
       Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/display', body)).then(function (p) {
-        busy = false; path = p; notices = { display: body.reset ? 'Đã về mặc định theo trình độ.' : 'Đã lưu cách hiển thị.' }; render();
+        busy = false; path = p; notices = saved('display', body.reset ? 'Đã về mặc định theo trình độ.' : 'Đã lưu cách hiển thị.'); render();
       }).catch(function (e) { busy = false; notices = { display: fail(e, 'Chưa lưu được cách hiển thị.'), displayError: true }; render(); });
     }
     function danger(message, opts, request, fallbackUrl) {
@@ -254,7 +261,7 @@
     function saveDepth(depth) {
       busy = true;
       Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/depth', { depth: depth })).then(function (c) {
-        busy = false; core = c; notices = { depth: 'Đã đổi độ sâu sang ' + (c && c.depthLabel || '') + '.' };
+        busy = false; core = c; notices = saved('depth', 'Đã đổi độ sâu sang ' + (c && c.depthLabel || '') + '.');
         return Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) { path = p; render(); });
       }).catch(function (e) { busy = false; notices = { depth: fail(e, 'Chưa đổi được độ sâu.'), depthError: true }; render(); });
     }
@@ -294,6 +301,13 @@
       else if (t.hasAttribute('data-cp-rest')) {
         var code = t.getAttribute('data-cp-rest');
         draft.restDays = draft.restDays.filter(function (x) { return x !== code; });
+        // bug 17: the server keeps one study day; a 7th rest day is undone with a reason
+        if (t.checked && draft.restDays.length >= 6) {
+          t.checked = false;
+          notices = { pace: 'Cần giữ ít nhất một ngày học trong tuần.', paceError: true };
+          render();
+          return;
+        }
         if (t.checked) draft.restDays.push(code);
       } else if (t.hasAttribute('data-cp-finish')) draft.finishDate = t.value;
       else return;
@@ -331,7 +345,7 @@
     Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
       path = p; draft = payload(p); render();
       return Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (c) { core = c; render(); }, function () { /* no base set */ });
-    }).catch(function (e) { el.innerHTML = '<p class="jp-alert" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
+    }).catch(function (e) { el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
   }
   return { RESTART_TEXT: RESTART_TEXT, restartTextOk: restartTextOk, payload: payload, displayOf: displayOf,
     estimate: estimate, view: view, mount: mount };

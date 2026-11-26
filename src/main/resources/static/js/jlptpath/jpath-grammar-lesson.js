@@ -179,6 +179,8 @@
     html += '</div>' + exampleCol + '</div>';
     html += lessonPart('Mẫu phụ đi kèm', attached ? '<ul class="jp-attached-list">' + attached + '</ul>' : '');
     html += '</article>';
+    // owner 18/11: units that teach a verb form get an optional "Luyện chia động từ" card
+    if (root.JpathVerbs && root.location) html += root.JpathVerbs.blockHtml(g.level, g.unitNo, root.location.pathname + root.location.search);
     if (g.practiceAvailable || g.extraAvailable) {
       html += '<section class="jp-lesson-practice" data-practice="GRAMMAR_PRACTICE"'
         + ' aria-labelledby="jp-practice-title"><h3 class="jp-lesson-practice__title" id="jp-practice-title">Luyện ngay</h3>';
@@ -316,7 +318,7 @@
       if (doc && has(lesson.pattern)) doc.title = lesson.pattern + ' - KotsuKotsu';
       rendered(el);
     }, function (e) {
-      el.innerHTML = '<p class="jp-alert" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
+      el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
       el.setAttribute('aria-busy', 'false');
     });
   }

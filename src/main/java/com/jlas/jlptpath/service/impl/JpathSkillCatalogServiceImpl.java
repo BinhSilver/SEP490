@@ -158,10 +158,13 @@ public class JpathSkillCatalogServiceImpl implements JpathSkillCatalogService {
         Optional<JpathSkillSession> open = planId == null ? Optional.empty()
                 : sessions.findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNullOrderByIdDesc(userId, planId,
                         skill, JpathSkillSessionKind.DAY).filter(s -> level.equals(s.getLevel()));
-        boolean doneToday = planId != null && sessions
+        Optional<JpathSkillSession> done = planId == null ? Optional.empty() : sessions
                 .findFirstByUserIdAndPlanIdAndSkillAndKindAndCompletedAtIsNotNullOrderByIdDesc(userId, planId, skill,
-                        JpathSkillSessionKind.DAY).filter(s -> level.equals(s.getLevel())).isPresent();
+                        JpathSkillSessionKind.DAY).filter(s -> level.equals(s.getLevel()));
+        boolean doneToday = done.isPresent();
+        // walkthrough 24/11: once today's session is done the card names the type learnt today, not the next one
         String typeCode = open.map(JpathSkillSession::getTypeCode)
+                .or(() -> done.map(JpathSkillSession::getTypeCode))
                 .orElseGet(() -> picker.nextType(userId, content, skill).orElse(null));
         JpathSkillType type = typeCode == null ? null
                 : content.types().stream().filter(t -> t.getCode().equals(typeCode)).findFirst().orElse(null);

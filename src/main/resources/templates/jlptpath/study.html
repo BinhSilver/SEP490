@@ -12,10 +12,10 @@
     <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Học hôm nay')}"></th:block>
     <div class="jp-study-head">
         <h1 class="jp-study-title">Học hôm nay</h1>
-        <a class="jp-link-btn" href="/learning">Tạm dừng</a>
+        <a class="jp-link-btn" href="/learning?view=jlpt">Tạm dừng</a>
     </div>
     <div id="jpathStudyRoot" class="jp-study-root" aria-busy="true" th:attr="data-session-id=${sessionId}">
-        <p class="jp-study-muted" role="status">Đang tải thẻ học…</p>
+        <p class="jp-study-muted jp-skel jp-skel--lesson" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải thẻ học…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__b jp-skel__b--tall"></i><i class="jp-skel__b jp-skel__b--btn"></i></p>
     </div>
 </main>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
@@ -26,6 +26,7 @@
 <!-- "Bỏ qua (kiểm 1 câu)" draws its one-question check under the card with jpath-check.js. -->
 <script th:src="@{/js/jlptpath/jpath-check.js(v=${jpathAssetVersion})}"></script>
 <script th:src="@{/js/jlptpath/jpath-study.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
 </body>
 </html>

@@ -165,7 +165,8 @@
     var active = !s.revokedAt && (!s.endsAt || new Date(s.endsAt) > new Date());
     return '<tr data-id="' + s.id + '">' +
       (withUser ? '<td>#' + s.userId + '</td>' : '') +
-      '<td>' + A.esc(A.sanctionLabel(s.type, s.endsAt)) + '</td>' +
+      '<td>' + A.esc(A.sanctionLabel(s.type, s.endsAt)) +
+        (s.automatic ? ' <span class="adm-badge">Hệ thống tự động</span>' : '') + '</td>' +
       '<td>' + A.esc(s.reason || '—') + '</td>' +
       '<td class="adm-muted">' + A.date(s.startsAt) + '</td>' +
       '<td>' + (active ? '<span class="adm-badge adm-badge--danger">Đang hiệu lực</span>'
@@ -184,6 +185,55 @@
       '</tbody></table></div>';
   }
 
+  // Chống tải nội dung hàng loạt: vi phạm do hệ thống ghi, admin gỡ để reset số lần tái phạm.
+  var BULK_KIND = { DOWNLOAD: 'Tải xuống', UPLOAD: 'Đăng tải' };
+  var BULK_ACTION = { WARN: 'Cảnh báo', SUSPEND: 'Tạm ngưng', LOCK: 'Khoá tài khoản' };
+
+  function windowLabel(seconds) {
+    if (seconds % 86400 === 0) return seconds / 86400 + ' ngày';
+    if (seconds % 3600 === 0) return seconds / 3600 + ' giờ';
+    if (seconds % 60 === 0) return seconds / 60 + ' phút';
+    return seconds + ' giây';
+  }
+
+  function violationRow(v, withUser) {
+    return '<tr data-violation="' + v.id + '">' +
+      (withUser ? '<td>#' + v.userId + '</td>' : '') +
+      '<td>' + A.esc(BULK_KIND[v.kind] || v.kind) + '</td>' +
+      '<td>' + v.requestCount + ' / ' + v.requestLimit + ' trong ' + A.esc(windowLabel(v.windowSeconds)) +
+        (v.samplePath ? '<div class="adm-muted">' + A.esc(v.samplePath) + '</div>' : '') + '</td>' +
+      '<td><span class="adm-badge' + (v.actionTaken === 'WARN' ? '' : ' adm-badge--danger') + '">' +
+        A.esc(BULK_ACTION[v.actionTaken] || v.actionTaken) + '</span>' +
+        (v.sanctionId ? ' <span class="adm-muted">chế tài #' + v.sanctionId + '</span>' : '') + '</td>' +
+      '<td class="adm-muted">' + A.date(v.createdAt) + '</td>' +
+      '<td>' + (v.clearedAt
+        ? '<span class="adm-badge" title="' + A.esc(v.clearReason || '') + '">Đã gỡ ' + A.date(v.clearedAt) + '</span>'
+        : '<span class="adm-badge adm-badge--danger">Đang tính</span>') + '</td>' +
+      '<td>' + (v.clearedAt ? '' : '<button type="button" class="btn btn--secondary btn--sm" data-clear-violation>Gỡ vi phạm</button>') + '</td>' +
+    '</tr>';
+  }
+
+  function violationTable(list, withUser) {
+    return '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
+      (withUser ? '<th scope="col">Người dùng</th>' : '') +
+      '<th scope="col">Loại</th><th scope="col">Số request</th><th scope="col">Xử lý</th><th scope="col">Thời điểm</th>' +
+      '<th scope="col">Trạng thái</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead><tbody>' +
+      (list.length ? list.map(function (v) { return violationRow(v, withUser); }).join('')
+        : '<tr><td colspan="' + (withUser ? 7 : 6) + '">' + A.empty('fa-inbox', 'Chưa có vi phạm nào') + '</td></tr>') +
+      '</tbody></table></div>';
+  }
+
+  function bulkSettingsText(settings) {
+    if (!settings.enabled) return 'Đang tắt (moderation.bulk-guard.enabled).';
+    var limits = settings.limits.map(function (l) {
+      return (BULK_KIND[l.kind] || l.kind) + ' tối đa ' + l.max + ' request / ' + windowLabel(l.windowSeconds);
+    }).join(' · ');
+    return limits + '. Vi phạm lần 1: cảnh báo, lần 2: tạm ngưng ' + settings.suspendHours +
+      ' giờ, lần 3: khoá tài khoản (tính các vi phạm chưa gỡ trong ' + settings.strikeDays +
+      ' ngày, hai lần ghi cách nhau ít nhất ' + settings.violationCooldownMinutes + ' phút). Miễn: ' +
+      settings.exemptRoles.map(function (r) { return A.ROLE_LABELS[r] || r; }).join(', ') + '.';
+  }
+
   A.section('sanctions', {
     subtitle: 'Cấm bình luận hoặc khoá tài khoản người dùng vi phạm. Mọi thao tác đều được ghi nhật ký.',
     render: async function (root, ctx) {
@@ -197,10 +247,19 @@
           '</form>' +
           '<div data-user></div>' +
         '</section>' +
-        '<section class="adm-section"><h2 class="adm-panel__title">Chế tài đang hiệu lực</h2><div data-active></div></section>';
+        '<section class="adm-section"><h2 class="adm-panel__title">Chế tài đang hiệu lực</h2><div data-active></div></section>' +
+        '<section class="adm-section"><h2 class="adm-panel__title">Chống tải nội dung hàng loạt</h2>' +
+          '<p class="adm-muted" data-bulk-settings></p><div data-bulk></div></section>';
 
       async function loadActive() {
         root.querySelector('[data-active]').innerHTML = sanctionTable(await A.api.get(API + '/sanctions/active'), true);
+      }
+
+      async function loadBulk() {
+        var results = await Promise.all([A.api.get(API + '/sanctions/bulk-violations?limit=100'),
+          A.api.get(API + '/sanctions/bulk-guard/settings')]);
+        root.querySelector('[data-bulk]').innerHTML = violationTable(results[0], true);
+        root.querySelector('[data-bulk-settings]').textContent = bulkSettingsText(results[1]);
       }
 
       async function lookup(email) {
@@ -213,7 +272,8 @@
             '<div class="adm-user"><strong>' + A.esc(u.fullName || u.email) + '</strong>' +
               '<span class="adm-muted">' + A.esc(u.email) + ' · #' + u.id + ' · ' + A.esc(A.ROLE_LABELS[u.role] || 'Học viên') + '</span></div>' +
             '<button type="button" class="btn btn--sm adm-btn--danger" data-apply><i class="fa-solid fa-user-lock" aria-hidden="true"></i> Áp chế tài</button>' +
-            '<h3 class="adm-panel__subtitle">Lịch sử chế tài</h3>' + sanctionTable(found.history, false);
+            '<h3 class="adm-panel__subtitle">Lịch sử chế tài</h3>' + sanctionTable(found.history, false) +
+            '<h3 class="adm-panel__subtitle">Vi phạm tải nội dung hàng loạt</h3>' + violationTable(found.bulkViolations || [], false);
         } catch (e) {
           found = null;
           box.innerHTML = '<p class="adm-error">' + A.esc(e.message) + '</p>';
@@ -252,6 +312,20 @@
           }
           return;
         }
+        var clear = event.target.closest('[data-clear-violation]');
+        if (clear) {
+          var violationId = clear.closest('tr').dataset.violation;
+          var decision3 = await A.decide({ title: 'Gỡ vi phạm #' + violationId + '?', confirmText: 'Gỡ vi phạm' });
+          if (!decision3) return;
+          try {
+            await A.api.post(API + '/sanctions/bulk-violations/' + violationId + '/clear', { reason: decision3.reason });
+            A.toast('Đã gỡ vi phạm. Chế tài đi kèm (nếu có) gỡ ở bảng chế tài.', 'success');
+            await Promise.all([found ? lookup(found.user.email) : null, loadBulk()]);
+          } catch (e) {
+            A.toast(e.message, 'error');
+          }
+          return;
+        }
         var revoke = event.target.closest('[data-revoke]');
         if (!revoke) return;
         var id = revoke.closest('tr').dataset.id;
@@ -267,25 +341,28 @@
         }
       });
 
-      await loadActive();
+      await Promise.all([loadActive(), loadBulk()]);
     }
   });
 
   // ── Audit trail ────────────────────────────────────────────────────────
   var AUDIT_ACTIONS = {
     REPORT_VALID: 'Báo cáo đúng, gỡ nội dung', REPORT_INVALID: 'Báo cáo sai, khôi phục',
+    COMMUNITY_REMOVE: 'Gỡ trực tiếp (Cộng đồng)',
     QUEUE_APPROVE: 'Hàng đợi: cho phép', QUEUE_REJECT: 'Hàng đợi: ẩn nội dung',
     DICTIONARY_APPROVE: 'Duyệt đóng góp từ điển', DICTIONARY_REJECT: 'Từ chối đóng góp từ điển',
     APPEAL_APPROVE: 'Chấp nhận kháng nghị', APPEAL_REJECT: 'Từ chối kháng nghị',
     SANCTION_APPLY: 'Áp chế tài', SANCTION_REVOKE: 'Gỡ chế tài', SANCTION_REPLACE: 'Thay chế tài cũ',
     DENYLIST_CREATE: 'Thêm từ khoá cấm', DENYLIST_UPDATE: 'Sửa từ khoá cấm', DENYLIST_DISABLE: 'Tắt từ khoá cấm',
     QUEUE_REVISE: 'Hàng đợi: đổi quyết định', DICTIONARY_REVISE: 'Từ điển: đổi quyết định',
-    APPEAL_REVISE: 'Kháng nghị: đổi quyết định', SANCTION_REINSTATE: 'Áp lại chế tài'
+    APPEAL_REVISE: 'Kháng nghị: đổi quyết định', SANCTION_REINSTATE: 'Áp lại chế tài',
+    BULK_VIOLATION_CLEAR: 'Gỡ vi phạm tải hàng loạt'
   };
 
   var STATE_LABELS = {
     OPEN: 'Chờ xử lý', APPROVED: 'Đã duyệt', REJECTED: 'Từ chối', ACTIVE: 'Đang hiệu lực', REVOKED: 'Đã gỡ',
-    PUBLISHED: 'Hiển thị', TEMPORARILY_HIDDEN: 'Ẩn tạm thời', REMOVED: 'Đã gỡ'
+    PUBLISHED: 'Hiển thị', TEMPORARILY_HIDDEN: 'Ẩn tạm thời', REMOVED: 'Đã gỡ',
+    CLEARED: 'Đã gỡ vi phạm', 'BAN:AUTO': 'Tạm ngưng tài khoản (tự động)'
   };
 
   function stateLabel(value) {

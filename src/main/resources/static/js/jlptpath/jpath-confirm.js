@@ -5,8 +5,12 @@
  *   paceLine(pace)                {tone:'ok'|'warn'|'block', text}; blocked wins, then late / over budget / any warning
  *   suggestionLabel(s)            button text of a MORE_MINUTES / LATER_EXAM / LOWER_TARGET suggestion
  *   initialState(view)            editable state from GET /confirmation
- *   setSlider / setMinutes / applySuggestion   new state, never mutate; a minutes change moves only the sliders still
- *                                 at the old recommendation, the MORE_MINUTES suggestion resets all three
+ *   setWords / applySuggestion    new state, never mutate. Owner 22/11 (F230): the learner picks WORDS per day; Kanji
+ *                                 and grammar per day come back from the server (pace.balanced) so all three finish on
+ *                                 the same day; the minutes sent are the option that holds that many words
+ *   wordOptions(bounds, current)  words-per-day choices inside the level's limits
+ *   minutesForWords(words, opts)  smallest minute option whose recommendation reaches that many words
+ *   dayLoad(state)                '20 từ + 3 Kanji + 2 ngữ pháp mỗi ngày'
  *   recommend(minutes, bounds)    slider recommendation (policy #2) clamped to the level's bounds
  *   estimateBody(state) / createBody(state)    bodies of POST /estimate and POST /paths
  *   canCreate(state)              false while blocked, a Smart Test is unfinished, an estimate is pending or failed,
@@ -43,6 +47,8 @@
   // Share of the daily minutes and minutes per unit of each slider (policy #1/#2). Source of truth:
   // JpathPacingEngine.recommend (VOCAB_SHARE / VOCAB_MIN …); keep these numbers in step with it.
   var SHARE = { vocab: [0.40, 0.6], kanji: [0.33, 1.25], grammar: [0.27, 4.0] };
+  var WORD_OPTIONS = [5, 10, 15, 20, 25, 30, 40, 50];
+  var MINUTE_OPTIONS = [15, 20, 30, 45, 60, 90, 120, 180];
   var ATTEMPT_KEY = 'jlasSmartTestAttemptId';
   var DEBOUNCE_MS = 300;
   var MSG_LOAD_FAILED = 'Không tải được màn xác nhận. Thử tải lại trang.';
@@ -99,7 +105,7 @@
   function suggestionLabel(s) {
     if (!s) return '';
     switch (s.kind) {
-      case 'MORE_MINUTES': return 'Học ' + s.minutes + ' phút/ngày' + finishPart(s.finish);
+      case 'MORE_WORDS': return 'Học ' + s.words + ' từ mỗi ngày' + finishPart(s.finish);
       case 'LATER_EXAM': return 'Thi kỳ ' + formatDate(s.examDate);
       case 'LOWER_TARGET': return 'Thi ' + s.level + ' trước' + finishPart(s.finish);
       default: return '';
@@ -123,7 +129,12 @@
     var parts = [];
     if (state.targetLevel) parts.push('Mục tiêu ' + state.targetLevel);
     parts.push(state.examDate ? 'Thi ' + formatDate(state.examDate) : 'Chưa có ngày thi');
-    if (state.dailyMinutes) parts.push(state.dailyMinutes + ' phút/ngày');
+    if (state.sliders && state.sliders.vocab) parts.push(state.sliders.vocab + ' từ mỗi ngày');
+    if (state.view && state.view.smartTest && state.view.source === 'SMART_TEST') {
+      var baseline = recommend(state.view.dailyMinutes, state.view.bounds).vocab;
+      var suggested = state.view.sliders && state.view.sliders.vocab;
+      if (suggested !== baseline) parts.push('Nhịp gợi ý từ kết quả Smart Test');
+    }
     var skill = list(state.skillDays).map(function (d) { return DAY_VI[d] || d; });
     if (skill.length) parts.push('Kỹ năng ' + skill.join(', '));
     var rest = list(state.restDays).map(function (d) { return DAY_VI[d] || d; });
@@ -144,6 +155,10 @@
   }
 
   function initialState(view) {
+    return withBalanced(baseState(view), view && view.pace);
+  }
+
+  function baseState(view) {
     var v = view || {};
     var sliders = v.sliders || {};
     return {
@@ -173,39 +188,49 @@
     return next;
   }
 
-  function setSlider(state, key, value) {
-    var spec = SLIDERS.filter(function (s) { return s.key === key; })[0];
+  function wordOptions(bounds, current) {
+    var b = bound(bounds, 'VOCAB');
+    var out = WORD_OPTIONS.filter(function (w) { return w >= b.min && w <= b.max; });
+    var c = Number(current);
+    if (isFinite(c) && c >= b.min && c <= b.max && out.indexOf(c) < 0) out.push(c);
+    return out.sort(function (x, y) { return x - y; });
+  }
+
+  /** Smallest minute option whose recommended words (policy #2) reach {@code words}; the largest when none does. */
+  function minutesForWords(words, options) {
+    var opts = Array.isArray(options) && options.length ? options : MINUTE_OPTIONS;
+    for (var i = 0; i < opts.length; i++) {
+      if (Math.round(SHARE.vocab[0] * opts[i] / SHARE.vocab[1]) >= words) return opts[i];
+    }
+    return opts[opts.length - 1];
+  }
+
+  function setWords(state, value) {
     var number = Number(value);
-    if (!spec || !isFinite(number)) return with_(state, {});
-    var sliders = { vocab: state.sliders.vocab, kanji: state.sliders.kanji, grammar: state.sliders.grammar };
-    sliders[key] = clamp(Math.round(number), bound(state.view && state.view.bounds, spec.tab));
-    return with_(state, { sliders: sliders });
-  }
-
-  /** Minutes change: sliders still at the old recommendation follow the new one; sliders the learner moved stay. */
-  function setMinutes(state, minutes) {
-    var m = Number(minutes);
-    if (!isFinite(m) || m <= 0) return with_(state, {});
-    var bounds = state.view && state.view.bounds;
-    var before = recommend(state.dailyMinutes, bounds);
-    var after = recommend(m, bounds);
-    var sliders = {};
-    SLIDERS.forEach(function (s) {
-      sliders[s.key] = state.sliders[s.key] === before[s.key] ? after[s.key] : state.sliders[s.key];
+    if (!isFinite(number) || number <= 0) return with_(state, {});
+    var vocab = clamp(Math.round(number), bound(state.view && state.view.bounds, 'VOCAB'));
+    return with_(state, {
+      dailyMinutes: minutesForWords(vocab, state.view && state.view.minuteOptions),
+      sliders: { vocab: vocab, kanji: state.sliders.kanji, grammar: state.sliders.grammar }
     });
-    return with_(state, { dailyMinutes: m, sliders: sliders });
   }
 
-  /** Minutes change that puts all three sliders back to the recommendation (MORE_MINUTES suggestion). */
-  function resetMinutes(state, minutes) {
-    var m = Number(minutes);
-    if (!isFinite(m) || m <= 0) return with_(state, {});
-    return with_(state, { dailyMinutes: m, sliders: recommend(m, state.view && state.view.bounds) });
+  /** Kanji and grammar per day the server balanced with the words (they finish together); null before an estimate. */
+  function withBalanced(state, pace) {
+    var b = pace && pace.balanced;
+    if (!b || typeof b.kanji !== 'number' || typeof b.grammar !== 'number') return state;
+    return with_(state, { sliders: { vocab: state.sliders.vocab, kanji: b.kanji, grammar: b.grammar } });
+  }
+
+  function dayLoad(state) {
+    var s = state && state.sliders;
+    if (!s || s.vocab == null) return '';
+    return s.vocab + ' từ + ' + s.kanji + ' Kanji + ' + s.grammar + ' ngữ pháp mỗi ngày';
   }
 
   function applySuggestion(state, s) {
     if (!s) return with_(state, {});
-    if (s.kind === 'MORE_MINUTES' && s.minutes) return resetMinutes(state, s.minutes);
+    if (s.kind === 'MORE_WORDS' && s.words) return setWords(state, s.words);
     if (s.kind === 'LATER_EXAM' && s.examDate) return with_(state, { examDate: s.examDate });
     if (s.kind === 'LOWER_TARGET' && s.level) return with_(state, { targetLevel: s.level });
     return with_(state, {});
@@ -301,7 +326,10 @@
       var st = view.smartTest;
       box.hidden = !(view.source === 'SMART_TEST' && st);
       if (box.hidden) return;
-      part('smart-level').textContent = st.abilityBand || 'Chưa xác định';
+      // Owner 20/11: the path opens at the estimated overall level; the band is shown only to explain it.
+      var levelText = st.estimatedLevel || st.abilityBand || 'Chưa xác định';
+      if (st.estimatedLevel && st.abilityBand && st.abilityBand !== st.estimatedLevel) levelText += ' (mức ' + st.abilityBand + ')';
+      part('smart-level').textContent = levelText;
       part('smart-partial').hidden = !st.partial;
       var scores = part('smart-scores');
       scores.textContent = '';
@@ -361,52 +389,20 @@
         });
       }
 
-      var minutes = part('minutes');
-      minutes.textContent = '';
-      list(view.minuteOptions).forEach(function (m) {
-        var option = make('option', null, m + ' phút');
-        option.value = String(m);
-        minutes.appendChild(option);
+      var words = part('words');
+      words.textContent = '';
+      wordOptions(view.bounds, state.sliders.vocab).forEach(function (w) {
+        var option = make('option', null, w + ' từ');
+        option.value = String(w);
+        words.appendChild(option);
       });
-      minutes.addEventListener('change', function () { change(setMinutes(state, minutes.value)); });
+      words.addEventListener('change', function () { change(setWords(state, words.value)); });
 
       if (dayPicker) {
         dayPicker.mount(part('days'), { skillDays: state.skillDays, restDays: state.restDays }, function (days) {
           change(with_(state, { skillDays: days.skillDays, restDays: days.restDays }));
         });
       }
-    }
-
-    function drawSliders(view) {
-      var box = part('slider-list');
-      box.textContent = '';
-      SLIDERS.forEach(function (s) {
-        var b = bound(view.bounds, s.tab);
-        var id = 'jp-confirm-slider-' + s.key;
-        var row = make('div', 'jp-confirm-slider');
-        var head = make('div', 'jp-confirm-slider__head');
-        var label = make('label', 'jp-confirm-slider__label', s.label);
-        label.htmlFor = id;
-        var value = make('output', 'jp-confirm-slider__value');
-        value.htmlFor = id;
-        value.dataset.sliderValue = s.key;
-        head.appendChild(label);
-        head.appendChild(value);
-        var input = make('input', 'jp-confirm-slider__input');
-        input.type = 'range';
-        input.id = id;
-        input.min = String(b.min);
-        input.max = String(b.max);
-        input.step = '1';
-        input.dataset.slider = s.key;
-        input.addEventListener('input', function () { change(setSlider(state, s.key, input.value)); });
-        var foot = make('p', 'jp-confirm-slider__foot');
-        foot.dataset.sliderFinish = s.tab;
-        row.appendChild(head);
-        row.appendChild(input);
-        row.appendChild(foot);
-        box.appendChild(row);
-      });
     }
 
     function drawModes(view) {
@@ -452,7 +448,7 @@
       target.value = state.targetLevel || '';
       part('exam').value = state.examDate || '';
       part('exam-clear').hidden = !state.examDate;
-      part('minutes').value = String(state.dailyMinutes);
+      part('words').value = String(state.sliders.vocab);
       var summary = el.querySelector('[data-role="plan-summary"]');
       if (summary) summary.textContent = planSummary(state);
       // something still missing (e.g. the two skill days): open the fields instead of hiding the problem
@@ -463,22 +459,13 @@
         if (editBtn) { editBtn.setAttribute('aria-expanded', 'true'); editBtn.textContent = 'Thu gọn'; }
       }
 
-      SLIDERS.forEach(function (s) {
-        var input = el.querySelector('[data-slider="' + s.key + '"]');
-        if (input && String(input.value) !== String(state.sliders[s.key])) input.value = String(state.sliders[s.key]);
-        var out = el.querySelector('[data-slider-value="' + s.key + '"]');
-        if (out) out.textContent = state.sliders[s.key] + ' ' + s.unit + '/ngày';
-        var foot = el.querySelector('[data-slider-finish="' + s.tab + '"]');
-        var finish = state.pace && state.pace.tabFinish ? state.pace.tabFinish[s.tab] : null;
-        if (foot) foot.textContent = finish ? 'Dự kiến xong ' + formatDate(finish) : '';
-      });
-
       var pace = state.pace;
+      part('day-load').textContent = state.pending ? 'Đang tính…' : dayLoad(state);
       var minutesLine = part('minutes-line');
-      minutesLine.textContent = pace
-        ? 'Ước tính khoảng ' + pace.estimatedMinutes + ' phút/ngày · bạn rảnh ' + state.dailyMinutes + ' phút'
+      var done = pace && pace.levelFinish ? formatDate(pace.levelFinish) : '';
+      minutesLine.textContent = pace && !state.pending
+        ? 'Khoảng ' + pace.estimatedMinutes + ' phút mỗi ngày' + (done ? ' · cả 3 phần ' + (state.openLevel || '') + ' xong ngày ' + done : '')
         : '';
-      minutesLine.classList.toggle('jp-confirm-minutes--over', !!(pace && pace.overBudget));
 
       var line = paceLine(pace);
       var paceBox = part('pace');
@@ -543,13 +530,13 @@
       var mine = ++seq;
       api.send('POST', '/api/learning/jlpt/estimate', estimateBody(state)).then(function (pace) {
         if (mine !== seq) return;
-        state = with_(state, { pace: pace, pending: false, estimateFailed: false });
+        state = withBalanced(with_(state, { pace: pace, pending: false, estimateFailed: false }), pace);
         update();
       }, function (error) {
         if (mine !== seq) return;
         state = with_(state, { pending: false, estimateFailed: true });
         update();
-        showError(error && error.message ? error.message : MSG_LOAD_FAILED);
+        showError(error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
       });
     }
 
@@ -558,10 +545,10 @@
       state = with_(state, { saving: true });
       update();
       api.send('POST', '/api/learning/jlpt/paths', createBody(state)).then(function () {
-        go('/learning');
+        go('/learning?view=jlpt');
       }, function (error) {
-        if (error && error.code === 'JPATH_ACTIVE_PATH_EXISTS') { go('/learning'); return; }
-        var message = error && error.message ? error.message : MSG_LOAD_FAILED;
+        if (error && error.code === 'JPATH_ACTIVE_PATH_EXISTS') { go('/learning?view=jlpt'); return; }
+        var message = error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED;
         state = with_(state, { saving: false });
         if (error && error.code === 'JPATH_TARGET_TOO_SOON') change(state); // re-estimate: pace and lock catch up
         else update();
@@ -574,7 +561,6 @@
       drawSmart(view);
       drawUnfinished(view);
       drawPlan(view);
-      drawSliders(view);
       drawModes(view);
       part('create').addEventListener('click', submit);
       part('loading').hidden = true;
@@ -586,7 +572,7 @@
     var attempt = el.getAttribute('data-attempt-id');
     return api.get(confirmationUrl(source, attempt || null)).then(start, function (error) {
       part('loading').hidden = true;
-      showError(error && error.message ? error.message : MSG_LOAD_FAILED);
+      showError(error && (error.code || error.status) && error.message ? error.message : MSG_LOAD_FAILED);
     });
   }
 
@@ -597,8 +583,10 @@
     formatDate: formatDate,
     recommend: recommend,
     initialState: initialState,
-    setSlider: setSlider,
-    setMinutes: setMinutes,
+    setWords: setWords,
+    wordOptions: wordOptions,
+    minutesForWords: minutesForWords,
+    dayLoad: dayLoad,
     applySuggestion: applySuggestion,
     estimateBody: estimateBody,
     createBody: createBody,

@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<!-- [JLAS-W0108] History page of the JLPT path; jpath-history.js fills it from GET /api/learning/jlpt/history
+<!-- [JLAS-W0108] History page of the JLPT path. F232 (owner 23/11): three views — Tổng quan (the former stats page,
+     jpath-stats.js on [data-jpath-stats]; default), Ngày đã học (?view=days or ?day=…), Đã biết trước (?filter=known).
+     The days view: jpath-history.js fills it from GET /api/learning/jlpt/history
      (?day=YYYY-MM-DD opens that day from GET /history/{day}). "Làm lại" issues a FREE_QUIZ redo of a check. -->
-<head th:replace="~{fragments/head :: standard('Lịch sử học - KotsuKotsu', null)}"></head>
+<head th:replace="~{fragments/head :: standard('Lịch sử và thống kê - KotsuKotsu', null)}"></head>
 <th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-side')}"></th:block>
 <body id="jlabBasePage" class="app-body jp-body">
 <div id="jlabBaseShellMount"></div>
-<main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary data-jpath-history>
+<main id="jlabBaseContent" class="jp-page jp-side" data-inline-dictionary>
 <div class="jp-ws jp-ws--norail">
     <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Lịch sử học')}"></th:block>
     <aside class="jp-ws__side" aria-label="Điều hướng lộ trình">
@@ -14,13 +16,75 @@
     </aside>
     <div class="jp-ws__main">
         <header class="jp-page-head"><h1 class="jp-page-head__title jp-side__title">Lịch sử học</h1></header>
+        <!-- owner 22/11 (F224): the old "Kho đã biết" page is the "Đã biết trước" view here (?filter=known);
+             owner 23/11 (F232): the old stats page is the "Tổng quan" view (default) -->
+        <div class="jp-side__views" role="group" aria-label="Xem theo">
+            <button type="button" class="jp-side-btn" data-history-view="overview" aria-pressed="true">Tổng quan</button>
+            <button type="button" class="jp-side-btn" data-history-view="days" aria-pressed="false">Ngày đã học</button>
+            <button type="button" class="jp-side-btn" data-history-view="known" aria-pressed="false">Đã biết trước</button>
+        </div>
+        <div class="jp-history-overview" data-jpath-stats data-history-panel="overview">
+            <!-- owner 22/11 (F224): badges first, stat cards, then the calendar beside the progress of each part -->
+            <section class="jp-side-card jp-stat-badges" aria-labelledby="jpsBadgeTitle">
+                <!-- owner 23/11: earned/total, a small progress ring and the square chevron button on the title row -->
+                <div class="jp-stat-badges__head">
+                    <h2 id="jpsBadgeTitle">Huy hiệu</h2>
+                    <div class="jp-stat-badges__foot">
+                        <span class="jp-stat-badges__tally" data-role="badges-tally"></span>
+                        <button type="button" class="jp-side-btn jp-stat-badges__more" data-role="badges-more" aria-expanded="false" hidden></button>
+                    </div>
+                </div>
+                <ul class="jp-side-badges" data-role="badges"></ul>
+            </section>
+            <div class="jp-stat-range">
+                <div class="jp-side__range" role="group" aria-label="Khoảng thời gian">
+                    <button type="button" class="jp-side-btn" data-range="7" aria-pressed="true">7 ngày</button>
+                    <button type="button" class="jp-side-btn" data-range="30" aria-pressed="false">30 ngày</button>
+                </div>
+                <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+            </div>
+            <div class="jp-stat-cards" data-role="summary" aria-label="Số liệu chính"></div>
+            <div class="jp-stat-grid">
+                <section class="jp-side-card" aria-labelledby="jpsHeatTitle">
+                    <div class="jp-side-month-head">
+                        <h2 id="jpsHeatTitle">Lịch học</h2>
+                        <div class="jp-side-month-controls jp-month-pill" role="group" aria-label="Chọn tháng">
+                            <button type="button" class="jp-side-btn" data-month-step="-1" aria-label="Tháng trước"></button>
+                            <span data-role="month-label" aria-live="polite"></span>
+                            <button type="button" class="jp-side-btn" data-month-step="1" aria-label="Tháng sau"></button>
+                        </div>
+                    </div>
+                    <div class="jp-side-heat" data-role="heatmap"></div>
+                    <p class="jp-side__note">Ngày nghỉ và ngày kỹ năng được đánh dấu. Chọn một ngày để xem lịch sử.</p>
+                </section>
+                <section class="jp-side-card" aria-labelledby="jpsSkillTitle">
+                    <h2 id="jpsSkillTitle">Tiến độ từng phần</h2>
+                    <ul class="jp-stat-skills" data-role="skills"></ul>
+                </section>
+            </div>
+            <section class="jp-side-card" aria-labelledby="jpsEntryTitle" data-jpath-entry hidden>
+                <h2 id="jpsEntryTitle">Đầu vào</h2>
+                <div data-role="entry"></div>
+            </section>
+            <section class="jp-side-card" aria-labelledby="jpsCommTitle" data-cpath-stats hidden>
+                <h2 id="jpsCommTitle">Lộ trình giao tiếp</h2>
+                <div data-role="comm"></div>
+            </section>
+            <!-- owner 23/11: the day chart is always shown (no "Số liệu chi tiết" fold); accuracy and counts are in the
+                 cards and "Tiến độ từng phần" above -->
+            <section class="jp-side-card jp-stat-days" aria-labelledby="jpsDaysTitle">
+                <h2 id="jpsDaysTitle">Mỗi ngày</h2>
+                <div data-role="bars"></div>
+            </section>
+        </div>
+        <div data-jpath-history data-history-panel="days" hidden>
         <p class="jp-side-summary" data-role="summary" aria-live="polite"></p>
         <div class="jp-side__range" role="group" aria-label="Khoảng thời gian">
             <button type="button" class="jp-side-btn" data-range="14" aria-pressed="true">14 ngày</button>
             <button type="button" class="jp-side-btn" data-range="30" aria-pressed="false">30 ngày</button>
         </div>
         <label class="jp-side__note">Tìm ngày hoặc loại ngày <input type="search" data-role="search" autocomplete="off"></label>
-        <p class="jp-side__status" role="status" data-role="status">Đang tải…</p>
+        <p class="jp-side__status jp-skel jp-skel--list" role="status" data-role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i><i class="jp-skel__grid"><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i><i class="jp-skel__b jp-skel__b--card"></i></i></p>
         <section class="jp-side-card" data-role="detail" hidden aria-live="polite"></section>
         <ul class="jp-side-days" data-role="days"></ul>
         <nav class="jp-side__pager" data-role="pager" aria-label="Trang" hidden>
@@ -28,11 +92,35 @@
             <span data-role="page"></span>
             <button type="button" class="jp-side-btn" data-page="next">Sau</button>
         </nav>
+        </div>
+        <div data-jpath-wordbank="KNOWN" data-history-panel="known" hidden>
+            <p class="jp-side__note">Mục bạn báo đã biết hoặc qua bài kiểm tra bỏ qua. Không cần học lại, vẫn được tính tiến độ.</p>
+            <div class="jp-side__range" role="group" aria-label="Loại mục">
+                <button type="button" class="jp-side-btn" data-tab="VOCAB" aria-pressed="true">Từ vựng</button>
+                <button type="button" class="jp-side-btn" data-tab="KANJI" aria-pressed="false">Kanji</button>
+                <button type="button" class="jp-side-btn" data-tab="GRAMMAR" aria-pressed="false">Ngữ pháp</button>
+                <button type="button" class="jp-side-btn" data-tab="KANA" aria-pressed="false">Chữ cái</button>
+            </div>
+            <label class="jp-side__note">Tìm trong trang hiện tại <input type="search" data-role="search" autocomplete="off"></label>
+            <p class="jp-side__status" role="status" data-role="status"></p>
+            <ul class="jp-bank" data-role="rows"></ul>
+            <nav class="jp-side__pager" data-role="pager" aria-label="Trang" hidden>
+                <button type="button" class="jp-side-btn" data-page="prev">Trước</button>
+                <span data-role="page"></span>
+                <button type="button" class="jp-side-btn" data-page="next">Sau</button>
+            </nav>
+        </div>
     </div>
 </div>
 </main>
+<!-- F220: the team's shared site footer -->
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 <th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
 <script th:src="@{/js/jlptpath/jpath-history.js(v=${jpathAssetVersion})}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlptpath/jpath-wordbank.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-stats.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlptpath/jpath-entry.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/cpath/cpath-stats.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 </body>
 </html>

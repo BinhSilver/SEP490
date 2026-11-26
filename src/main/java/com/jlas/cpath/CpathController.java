@@ -64,10 +64,33 @@ public class CpathController {
     @Autowired(required = false)
     private PremiumAccess premium;
 
+    @Autowired
+    private CpathFlashcardService flashcardService;
+
+    /** Owner 24/11 "Lộ trình của tôi" notices (added / pace changed), sent after the service transaction. */
+    @Autowired(required = false)
+    private com.jlas.mypaths.MyPathsService myPaths;
+
+    @Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
+
+    /** Owner 18/11: the situation's flashcard set ("Đã nhớ x/y"); POST makes it. */
+    @GetMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> flashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, false)));
+    }
+
+    @PostMapping("/situations/{id}/flashcards")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> openFlashcards(@AuthenticationPrincipal UserPrincipal user,
+            @PathVariable String id) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", flashcardService.set(user.userId(), id, true)));
+    }
+
     /** Owner 11/11: the whole communication path is Premium; survey, path page, map and settings stay open. */
-    private static final List<String> FREE_PATHS = List.of("/goals", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
+    private static final List<String> FREE_PATHS = List.of("/goals", "/goals/overview", "/goals/pause-for-jlpt", "/path", "/map", "/premium-gate", "/path/daily", "/path/pace",
             "/path/display", "/path/pause", "/path/restart", "/path/depth", "/path/promote-secondary", "/core",
-            "/notebook", "/day");
+            "/notebook", "/day", "/today/plan");
 
     private boolean locked(Long userId) {
         if (premium == null || userId == null || ContentReviewAccess.allowed(userId)) return false;
@@ -96,7 +119,21 @@ public class CpathController {
     @PostMapping("/path")
     public ResponseEntity<ApiResponse<Map<String, Object>>> create(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", service.createPath(user.userId(), body)));
+        Map<String, Object> made = service.createPath(user.userId(), body);
+        if (myPaths != null && body != null && body.get("goal") != null) myPaths.notifyAdded(user.userId(), "COMM:" + body.get("goal"));
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình giao tiếp.", made));
+    }
+
+    /** Owner 17/11: main goal, secondary goal and paused paths of both paths, for every goal panel and message. */
+    @GetMapping("/goals/overview")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> goalsOverview(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.goalsOverview(user.userId())));
+    }
+
+    /** Owner 17/11: main goal switched to JLPT → communication paths pause (progress kept). */
+    @PostMapping("/goals/pause-for-jlpt")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> pauseForJlpt(@AuthenticationPrincipal UserPrincipal user) {
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạm dừng lộ trình Giao tiếp. Tiến độ được giữ nguyên.", service.pauseForJlptMain(user.userId())));
     }
 
     @GetMapping("/path")
@@ -297,13 +334,22 @@ public class CpathController {
     @org.springframework.web.bind.annotation.PutMapping("/path/daily")
     public ResponseEntity<ApiResponse<Map<String, Object>>> setDaily(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody(required = false) Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", service.setDaily(user.userId(), body)));
+        Map<String, Object> out = service.setDaily(user.userId(), body);
+        if (learningPace != null && myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) learningPace.manualChange(user.userId(), k); }
+        if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
+        return ResponseEntity.ok(ApiResponse.ok("Đã đổi số tình huống mỗi ngày.", out));
     }
 
     @org.springframework.web.bind.annotation.PutMapping("/path/pace")
     public ResponseEntity<ApiResponse<Map<String, Object>>> setPace(@AuthenticationPrincipal UserPrincipal user,
             @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", service.setPace(user.userId(), body)));
+        Map<String, Object> out = service.setPace(user.userId(), body);
+        if (learningPace != null && body != null && body.get("dailySituations") != null && myPaths != null) {
+            String k = myPaths.commKey(user.userId(), null);
+            if (k != null) learningPace.manualChange(user.userId(), k);
+        }
+        if (myPaths != null) { String k = myPaths.commKey(user.userId(), null); if (k != null) myPaths.notifyPace(user.userId(), k); }
+        return ResponseEntity.ok(ApiResponse.ok("Đã lưu nhịp học.", out));
     }
 
     /** F61: furigana / romaji / translation saved for the main path. */
@@ -359,6 +405,18 @@ public class CpathController {
     // ------------------------------------------------------------------------------------- F70 base set
 
     /** The base-set block of the path page and Settings (enabled false when the goal or the DB has none). */
+    /** Bug 108 (I4): plans today (situations, base lesson); the pages send it before reading, GETs never write. */
+    @PostMapping("/today/plan")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> planToday(@AuthenticationPrincipal UserPrincipal user) {
+        Map<String, Object> out = service.planToday(user.userId());
+        try {
+            core.planDay(user.userId());
+        } catch (ApiException e) {
+            // no MAIN communication path (secondary only): the situations are planned, there is no base lesson
+        }
+        return ResponseEntity.ok(ApiResponse.ok("OK", out));
+    }
+
     @GetMapping("/core")
     public ResponseEntity<ApiResponse<Map<String, Object>>> core(@AuthenticationPrincipal UserPrincipal user) {
         return ResponseEntity.ok(ApiResponse.ok("OK", core.overview(user.userId())));

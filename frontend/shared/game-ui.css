@@ -1,0 +1,100 @@
+/* Controls around the three games use the app palette. Canvas rendering and board geometry are untouched. */
+#arenaGamePage.game-ui-standard {
+  color: var(--color-on-surface);
+  background: var(--color-background);
+  font-family: var(--font-body);
+  --ok-background: var(--color-background);
+  --ok-surface: var(--color-surface-lowest);
+  --ok-surface-low: var(--color-surface-low);
+  --ok-surface-container: var(--color-surface-container);
+  --ok-surface-container-high: var(--color-surface-container-high);
+  --ok-surface-container-highest: var(--color-surface-variant);
+  --ok-surface-white: var(--color-surface-lowest);
+  --ok-on-surface: var(--color-on-surface);
+  --ok-on-surface-variant: var(--color-on-surface-variant);
+  --ok-outline: var(--color-outline);
+  --ok-outline-variant: var(--color-outline-variant);
+  --ok-primary: var(--color-primary);
+  --ok-primary-container: var(--color-primary-container);
+  --ok-on-primary: var(--color-on-primary);
+  --ok-primary-fixed: var(--color-primary-fixed);
+  --ok-success: var(--color-success);
+  --ok-error: var(--color-error);
+  --ok-error-container: var(--color-error-container);
+  --ok-warning: var(--color-warning);
+  --memory-primary: var(--color-primary);
+  --memory-primary-dark: var(--color-primary-container);
+  --memory-deep: var(--color-on-surface);
+  --memory-navy: var(--color-surface-lowest);
+  --memory-navy-mid: var(--color-surface-container);
+  --memory-mint: var(--color-success);
+  --memory-orange: var(--color-warning);
+  --memory-ice: var(--color-primary-fixed);
+  .neko-hud :is(.neko-hud__score,.neko-hud__combo,.neko-hud__target) { color: var(--dark-ink) !important; background: var(--dark-surface) !important; border: 1px solid var(--dark-line) !important; border-radius: var(--radius-control); box-shadow: none !important; }
+  .neko-hud :is(span,p,strong,b,button) { font-family: var(--font-body) !important; font-weight: 500 !important; letter-spacing: normal !important; text-transform: none !important; text-shadow: none !important; }
+  .neko-hud :is(.neko-hud__score,.neko-hud__combo,.neko-hud__target) :is(span,p,strong,b) { color: var(--dark-ink) !important; }
+  .neko-hud .neko-hud__prompt { font-family: var(--font-jp) !important; font-weight: 500 !important; }
+  .neko-hud button { color: var(--dark-ink) !important; background: var(--dark-raised) !important; border-color: var(--dark-line) !important; border-radius: var(--radius-control); box-shadow: none !important; }
+  .neko-hud button:hover { color: var(--dark-on-button) !important; background: var(--dark-button) !important; transform: none; }
+  :is([data-game-ui-panel],.memory-setup,.memory-setup__panel,.memory-result,.memory-final,.memory-player-panel,.memory-loading,.memory-modal,.memory-modal__box,.memory-setup__dialog-box,.ad-setup,.ad-setup__panel,.ad-setup__dialog-box,.ad-settings-drawer,.ad-menu,.ad-menu-panel,.ad-result,.ad-result-panel,.ad-device-notice,.ok-page,.ok-card) {
+    color: var(--color-on-surface) !important;
+    background: var(--color-surface-lowest) !important;
+    border-color: var(--color-outline-variant) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: none !important;
+    font-family: var(--font-body) !important;
+    :is(h1,h2,h3) { color: var(--color-on-surface) !important; font-family: var(--font-body) !important; font-weight: 600 !important; letter-spacing: normal !important; text-transform: none !important; text-shadow: none !important; }
+    :is(p,span,small,label,li,dt,dd,strong,b,button,a,summary) { color: var(--color-on-surface) !important; font-family: var(--font-body) !important; font-weight: 400 !important; letter-spacing: normal !important; text-transform: none !important; text-shadow: none !important; }
+    :is(button,a,label,summary) { font-weight: 500 !important; }
+    :is(.jp,[lang='ja'],[style*='Noto Sans JP']) { font-family: var(--font-jp) !important; }
+    :is([class*='text-white'],[class*='text-slate'],[class*='text-amber'],[class*='text-sky']) { color: var(--color-on-surface) !important; }
+    :is([class*='text-emerald'],[class*='text-green']) { color: var(--color-success) !important; }
+    :is([class*='text-rose'],[class*='text-red']) { color: var(--color-error) !important; }
+    :is([class*='bg-white/'],[class*='bg-amber'],[class*='bg-rose'],[class*='bg-emerald'],[class*='bg-sky']) { background: transparent !important; box-shadow: none !important; border-color: var(--color-outline-variant) !important; }
+    button { min-height: 44px; border-radius: var(--radius-control) !important; color: var(--color-primary) !important; background: var(--color-surface-lowest) !important; border-color: var(--color-outline-variant) !important; box-shadow: none !important; text-shadow: none !important; }
+    button:hover { background: var(--color-primary-fixed) !important; transform: none !important; box-shadow: none !important; }
+    button :is(span,svg,i) { color: inherit !important; }
+    :is(button[aria-pressed='true'],button[aria-checked='true'],button[role='option'][aria-selected='true']) { color: var(--color-primary) !important; background: transparent !important; border-color: var(--color-primary) !important; }
+    :is(button[data-game-ui-primary],.memory-btn--primary,.ad-setup__start,.ad-btn--primary) { color: var(--color-on-primary) !important; background: var(--color-primary) !important; border-color: transparent !important; }
+    :is(button[data-game-ui-primary],.memory-btn--primary,.ad-setup__start,.ad-btn--primary):hover { background: var(--color-primary-container) !important; }
+    :is(.ok-btn-primary,.ok-btn-danger) { color: var(--color-on-primary) !important; background: var(--color-primary) !important; }
+    :is(.ok-badge,.ok-badge-success,.ok-badge-gold,.ok-badge-error) { background: transparent !important; border-color: transparent !important; color: var(--color-primary) !important; }
+    :is(input:not([type='checkbox']):not([type='radio']):not([type='range']),select,textarea,[role='combobox']) { color: var(--color-on-surface) !important; background: var(--color-surface-lowest) !important; border-color: var(--color-outline) !important; border-radius: var(--radius-input) !important; font-weight: 400 !important; }
+    :is([role='listbox'],.memory-dd__list,.ad-dd__list) { color: var(--color-on-surface); background: var(--color-surface-lowest) !important; border-color: var(--color-outline-variant) !important; border-radius: var(--radius-md); box-shadow: var(--shadow-2) !important; }
+    [role='option'] { color: var(--color-on-surface) !important; background: transparent !important; }
+    [role='option']:is(:hover,[aria-selected='true']) { color: var(--color-primary) !important; background: var(--color-primary-fixed) !important; }
+    :is([role='status'],.memory-setup__problem,.ad-setup__problem) { color: var(--color-on-surface-variant) !important; }
+    [role='alert'] { color: var(--color-error) !important; background: transparent !important; }
+    :is(.memory-setup__tag,.ad-setup__tag,.memory-mini-tag,.neko-skins__price) { color: var(--color-primary) !important; background: transparent !important; border-color: transparent !important; font-size: var(--text-xs); font-weight: 500 !important; box-shadow: none !important; }
+    :is(.memory-setup__group,.memory-setup__cards,.memory-setup__cards label,.ad-setup__group,.ad-setup__cards,.ad-setup__cards label) { background: transparent !important; color: var(--color-on-surface) !important; border-color: var(--color-outline-variant) !important; box-shadow: none !important; }
+    :is(.memory-setup__cards label.is-checked,.ad-setup__cards label.is-checked) { border-color: var(--color-primary) !important; }
+    :is(.memory-setup__label,.ad-setup__label,.memory-setup__deck,.ad-setup__deck) { color: var(--color-on-surface-variant) !important; font-size: var(--text-xs); font-weight: 400 !important; }
+    :is(.ad-hangar__balance,.neko-skins output) { color: var(--color-on-surface) !important; font-family: var(--font-body); font-weight: 500 !important; }
+    .neko-skins__preview > p { color: var(--dark-ink) !important; background: transparent !important; border-radius: var(--radius-sm); font-size: var(--text-xs); }
+    .ok-page div[style*='font-weight'] { font-weight: 500 !important; }
+  }
+  #memory-root { color: var(--color-on-surface); background: var(--color-background); font-family: var(--font-body); }
+  :is(.memory-shell::before,.memory-shell::after) { background: none; }
+  :is(.memory-header,.memory-player,.memory-head-metrics,.memory-sidebar-controls,.memory-mobile-settings-panel,.memory-volume-popover) { background: var(--color-surface-lowest); color: var(--color-on-surface); border-color: var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: none; font-family: var(--font-body); }
+  :is(.memory-header,.memory-player,.memory-head-metrics,.memory-sidebar-controls) :is(strong,b,span,small,h1,h2) { color: var(--color-on-surface); font-family: var(--font-body); text-shadow: none; text-transform: none; letter-spacing: normal; font-weight: 500; }
+  :is(.memory-btn,.memory-icon-btn,.memory-mobile-settings-toggle,.ad-menu button) { color: var(--color-primary); background: var(--color-surface-lowest); border-color: var(--color-outline-variant); border-radius: var(--radius-control); font-family: var(--font-body); font-weight: 500; text-shadow: none; box-shadow: none; }
+  :is(.memory-mini-tag,.memory-connection,.memory-setup__tag,.ad-setup__tag,.ad-duel-tag) { background: transparent; color: var(--color-primary); border-color: transparent; font-weight: 500; box-shadow: none; }
+  .memory-final :is(.memory-final__stats > div,.memory-final__review,.memory-final__players li) { color: var(--color-on-surface); background: transparent; border-color: var(--color-outline-variant); box-shadow: none; }
+  .memory-final .memory-final__badge { color: var(--color-success) !important; background: transparent !important; border-color: transparent; font-size: var(--text-xs); font-weight: 500 !important; }
+  .memory-color-key { background: transparent !important; border: 1px solid currentColor; }
+  .memory-player-panel.is-active { border-color: var(--color-primary); box-shadow: none; }
+  :is(.memory-btn--primary,.ad-btn--primary) { background: var(--color-primary); color: var(--color-on-primary); }
+  :is(button,a):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; box-shadow: none !important; }
+  :is(input:not([type='checkbox']):not([type='radio']):not([type='range']),textarea,[role='combobox']):focus-visible { outline-offset: -2px; }
+  :is(input[type='checkbox'],input[type='radio'],input[type='range']) { accent-color: var(--color-primary); }
+  /* Not on Memory cards: an opened card is disabled, and opacity below 1 flattens its 3D flip, so the face-down
+     side kept showing (only paler) instead of the word. */
+  :is(button[disabled],button[aria-disabled='true']):not(.memory-card) { opacity: .55; }
+  :is(.ad-skin-purchase,.neko-skin-purchase,.memory-confirm) { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); margin: auto; inset: 0; padding: var(--space-5); overflow: auto; color: var(--color-on-surface) !important; background: var(--color-surface-lowest) !important; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: var(--shadow-2); }
+  .ad-skin-purchase h3 { font-size: var(--text-lg); line-height: 1.4; margin-bottom: var(--space-3); }
+  :is(.ad-skin-purchase,.memory-confirm)::backdrop { background: var(--jl-scrim, #0008); backdrop-filter: blur(4px); }
+  :is(.ad-skin-purchase__actions,.memory-confirm__actions) { display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-5); }
+  :is(.ad-skin-purchase__actions,.memory-confirm__actions) button { padding-inline: var(--space-4); }
+  ::selection { color: var(--color-on-surface); background: var(--color-primary-fixed); }
+}
+@media(prefers-reduced-motion:reduce) { #arenaGamePage.game-ui-standard [data-game-ui-panel] { animation: none !important; } }

@@ -1,19 +1,20 @@
+@import url("../dark-page.css");
 .goals-retention-page {
   min-height: 100vh;
-  background: var(--color-surface, #f7f9fb);
-  color: var(--color-on-surface, #191c1e);
+  background: var(--color-surface, var(--color-surface-container));
+  color: var(--color-on-surface, var(--color-on-surface));
   font-family: var(--font-body);
 }
 
 .goals-retention-page h1,
 .goals-retention-page h2,
 .goals-retention-page h3 {
-  font-family: var(--font-headline);
+  font-family: var(--font-body);
 }
 
 .goals-retention-page #jlabBaseContent {
   width: 100%;
-  padding: 32px 24px 64px;
+  padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
 .goals-retention-shell {
@@ -27,8 +28,8 @@
   justify-content: center;
   gap: 10px;
   min-height: 160px;
-  color: var(--color-secondary, #712ae2);
-  font-weight: 700;
+  color: var(--color-secondary, var(--color-primary));
+  font-weight: 600;
 }
 
 .goals-retention-loading[hidden] {
@@ -44,10 +45,10 @@
   overflow: hidden;
   margin-bottom: 28px;
   padding: 30px 34px;
-  border: 1px solid rgba(79, 70, 229, .08);
-  border-radius: 24px;
-  background: linear-gradient(135deg, #fff, #f4f1ff 72%, #fff7ed);
-  box-shadow: 0 12px 36px rgba(79, 70, 229, .08);
+  border: 1px solid color-mix(in srgb, var(--color-on-surface-variant) 8%, transparent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container);
+  box-shadow:  var(--shadow-1);
 }
 
 .goals-retention-hero::after {
@@ -57,7 +58,7 @@
   width: 280px;
   height: 280px;
   border-radius: 50%;
-  background: rgba(79, 70, 229, .08);
+  background: color-mix(in srgb, var(--color-on-surface-variant) 8%, transparent);
   content: "";
   filter: blur(2px);
 }
@@ -80,11 +81,11 @@
   height: 60px;
   flex: 0 0 60px;
   place-items: center;
-  border-radius: 17px;
-  background: linear-gradient(135deg, #4f46e5, #8a4cfc);
-  color: white;
-  font-size: 27px;
-  box-shadow: 0 12px 22px rgba(79, 70, 229, .22);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container);
+  color: var(--color-on-primary);
+  font-size: var(--text-2xl);
+  box-shadow:  var(--shadow-1);
   animation: retention-hero-flame 2.6s ease-in-out infinite;
 }
 
@@ -94,33 +95,31 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  color: var(--color-secondary, #712ae2);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .1em;
-  text-transform: uppercase;
+  color: var(--color-secondary, var(--color-primary));
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: none;
 }
 
 .goals-retention-kicker b {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--color-outline, #777587);
+  background: var(--color-outline, var(--color-outline));
 }
 
 .goals-retention-hero h1 {
-  margin: 8px 0 7px;
-  color: var(--color-on-surface, #191c1e);
+  margin: var(--space-2) 0 7px;
+  color: var(--color-on-surface, var(--color-on-surface));
   font-size: clamp(28px, 4vw, 40px);
   line-height: 1.08;
-  letter-spacing: -.045em;
 }
 
 .goals-retention-hero p {
   max-width: 650px;
   margin: 0;
-  color: var(--color-on-surface-variant, #464555);
-  font-size: 14px;
+  color: var(--color-on-surface-variant, var(--color-on-surface-variant));
+  font-size: var(--text-sm);
   line-height: 1.65;
 }
 
@@ -131,26 +130,26 @@
   column-gap: 18px;
   min-width: 190px;
   padding: 15px 17px;
-  border: 1px solid rgba(79, 70, 229, .1);
-  border-radius: 17px;
-  background: rgba(255, 255, 255, .72);
+  border: 1px solid color-mix(in srgb, var(--color-on-surface-variant) 10%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface-lowest) 72%, transparent);
 }
 
 .goals-retention-credit > span {
   grid-column: 1 / -1;
   color: var(--color-on-surface-variant);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
 }
 
 .goals-retention-credit strong {
-  color: var(--color-primary, #3525cd);
-  font-size: 25px;
+  color: var(--color-primary, var(--color-on-surface-variant));
+  font-size: var(--text-2xl);
 }
 
 .goals-retention-credit strong em { font-style: normal; }
-.goals-retention-credit small { color: var(--color-on-surface-variant); font-size: 11px; font-weight: 500; }
-.goals-retention-credit > i { color: #e3a62e; font-size: 27px; }
+.goals-retention-credit small { color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 500; }
+.goals-retention-credit > i { color: var(--color-warning); font-size: var(--text-2xl); }
 
 .goals-retention-topgrid,
 #retentionMainGrid {
@@ -163,10 +162,10 @@
 .goals-retention-card {
   min-width: 0;
   padding: 26px;
-  border: 1px solid rgba(119, 117, 135, .12);
-  border-radius: 21px;
-  background: var(--color-surface-container-lowest, #fff);
-  box-shadow: 0 7px 25px rgba(35, 38, 47, .055);
+  border: 1px solid color-mix(in srgb, var(--color-outline) 12%, transparent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container-lowest, var(--color-surface-lowest));
+  box-shadow:  var(--shadow-1);
 }
 
 .goals-retention-card__head {
@@ -180,17 +179,16 @@
 .goals-retention-card__head h2 {
   margin: 5px 0 0;
   color: var(--color-on-surface);
-  font-size: 21px;
-  letter-spacing: -.025em;
+  font-size: var(--text-xl);
 }
 
 .goals-retention-status,
 .goals-retention-refresh {
   padding: 6px 10px;
-  border-radius: 9px;
-  background: #eeeaff;
-  color: var(--color-primary, #3525cd);
-  font-size: 10px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container);
+  color: var(--color-primary, var(--color-on-surface-variant));
+  font-size: var(--text-xs);
   white-space: nowrap;
 }
 
@@ -219,14 +217,14 @@
   stroke-width: 8;
 }
 
-.goals-retention-rings .ring-track { stroke: #e9ebef; }
+.goals-retention-rings .ring-track { stroke: var(--color-surface-container); }
 .goals-retention-rings .ring-value { stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(.2, .8, .2, 1); }
 .ring-track--outer, .ring-value--outer { stroke-dasharray: 314; stroke-dashoffset: 0; }
 .ring-track--middle, .ring-value--middle { stroke-dasharray: 239; stroke-dashoffset: 0; }
 .ring-track--inner, .ring-value--inner { stroke-dasharray: 163; stroke-dashoffset: 0; }
-.ring-value--outer { stroke: #4f46e5; }
-.ring-value--middle { stroke: #8a4cfc; }
-.ring-value--inner { stroke: #006a7c; }
+.ring-value--outer { stroke: var(--color-on-surface-variant); }
+.ring-value--middle { stroke: var(--color-primary); }
+.ring-value--inner { stroke: var(--color-on-surface-variant); }
 
 .goals-retention-rings > div {
   position: absolute;
@@ -239,15 +237,15 @@
 
 .goals-retention-rings strong {
   color: var(--color-on-surface);
-  font-size: 26px;
+  font-size: var(--text-2xl);
 }
 
-.goals-retention-rings span { color: var(--color-on-surface-variant); font-size: 10px; }
+.goals-retention-rings span { color: var(--color-on-surface-variant); font-size: var(--text-xs); }
 
 .goals-retention-metrics { display: grid; gap: 13px; }
-.goals-retention-metrics > div:not(.goals-retention-mascot-note) { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 9px; border-bottom: 1px solid #eef0f3; color: var(--color-on-surface-variant); font-size: 12px; }
+.goals-retention-metrics > div:not(.goals-retention-mascot-note) { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 9px; border-bottom: 1px solid var(--color-surface-container); color: var(--color-on-surface-variant); font-size: var(--text-xs); }
 .goals-retention-metrics i { width: 21px; color: var(--color-primary); }
-.goals-retention-metrics strong { color: var(--color-on-surface); font-size: 13px; }
+.goals-retention-metrics strong { color: var(--color-on-surface); font-size: var(--text-xs); }
 
 .goals-retention-mascot-note {
   display: flex;
@@ -255,59 +253,59 @@
   gap: 9px;
   margin-top: 3px;
   padding: 9px;
-  border-radius: 13px;
-  background: #f3f1ff;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container);
 }
 
 .goals-retention-mascot { width: 39px; height: 39px; flex: 0 0 39px; overflow: hidden; }
 .goals-retention-mascot .fox-mascot,
 .goals-retention-mascot svg { display: block; width: 100%; height: auto; }
-.goals-retention-mascot-note p { margin: 0; color: var(--color-on-surface-variant); font-size: 10px; line-height: 1.35; }
+.goals-retention-mascot-note p { margin: 0; color: var(--color-on-surface-variant); font-size: var(--text-xs); line-height: 1.35; }
 .goals-retention-mascot-note b { color: var(--color-primary); }
 
-.goals-retention-streak-card { background: linear-gradient(145deg, #fff, #fff8ef); }
-.goals-retention-streak-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: 10px; background: #ffe7df; color: #d94e32; font-size: 11px; white-space: nowrap; }
+.goals-retention-streak-card { background: var(--color-surface-container); }
+.goals-retention-streak-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border-radius: var(--radius-control); background: var(--color-error-container); color: var(--color-error); font-size: var(--text-xs); white-space: nowrap; }
 .goals-retention-streak-main { display: flex; align-items: center; gap: 17px; min-height: 112px; }
-.goals-retention-flame { display: grid; width: 76px; height: 76px; flex: 0 0 76px; place-items: center; border-radius: 24px; background: #fff0df; color: #ff684d; font-size: 35px; box-shadow: 0 12px 25px rgba(255, 104, 77, .16); animation: goals-flame-pulse 1.8s ease-in-out infinite; }
-.goals-retention-streak-main strong { display: block; color: var(--color-on-surface); font-size: 20px; }
-.goals-retention-streak-main p { margin: 6px 0 0; color: var(--color-on-surface-variant); font-size: 12px; }
-.goals-retention-stats { display: flex; gap: 12px; margin: 15px 0; padding: 13px 0; border-top: 1px solid #f0e9e2; border-bottom: 1px solid #f0e9e2; }
-.goals-retention-stats span { flex: 1; color: var(--color-on-surface-variant); font-size: 11px; }
-.goals-retention-stats span + span { padding-left: 14px; border-left: 1px solid #f0e9e2; }
-.goals-retention-stats small { display: block; margin-bottom: 4px; font-size: 10px; }
-.goals-retention-stats strong { color: var(--color-primary); font-size: 21px; }
+.goals-retention-flame { display: grid; width: 76px; height: 76px; flex: 0 0 76px; place-items: center; border-radius: var(--radius-lg); background: var(--color-warning-bg); color: var(--color-error); font-size: var(--text-3xl); box-shadow:  var(--shadow-1); animation: goals-flame-pulse 1.8s ease-in-out infinite; }
+.goals-retention-streak-main strong { display: block; color: var(--color-on-surface); font-size: var(--text-xl); }
+.goals-retention-streak-main p { margin: 6px 0 0; color: var(--color-on-surface-variant); font-size: var(--text-xs); }
+.goals-retention-stats { display: flex; gap: var(--space-3); margin: 15px 0; padding: 13px 0; border-top: 1px solid var(--color-warning-bg); border-bottom: 1px solid var(--color-warning-bg); }
+.goals-retention-stats span { flex: 1; color: var(--color-on-surface-variant); font-size: var(--text-xs); }
+.goals-retention-stats span + span { padding-left: 14px; border-left: 1px solid var(--color-warning-bg); }
+.goals-retention-stats small { display: block; margin-bottom: var(--space-1); font-size: var(--text-xs); }
+.goals-retention-stats strong { color: var(--color-primary); font-size: var(--text-xl); }
 
 .goals-retention-main-grid { align-items: start; }
 .goals-retention-main-grid > .goals-retention-card:first-child { min-height: 330px; }
-.goals-retention-missions { display: grid; gap: 12px; }
-.goals-retention-missions .retention-mission { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 13px; border: 1px solid #e9e8ed; border-radius: 14px; background: #f7f8fa; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-.goals-retention-missions .retention-mission:hover { border-color: #b9b3ff; box-shadow: 0 8px 18px rgba(79, 70, 229, .09); transform: translateY(-2px); }
-.goals-retention-missions .retention-mission.is-complete { border-color: #bce7d6; background: #f0fcf6; }
-.goals-retention-missions .retention-mission__icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 12px; background: #ece9ff; color: var(--color-primary); }
-.goals-retention-missions .retention-mission h3 { margin: 0 0 4px; color: var(--color-on-surface); font-size: 13px; }
-.goals-retention-missions .retention-mission p { margin: 0; color: var(--color-on-surface-variant); font-size: 11px; }
-.goals-retention-missions .retention-mission__reward { color: #11805d; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.goals-retention-missions { display: grid; gap: var(--space-3); }
+.goals-retention-missions .retention-mission { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); padding: 13px; border: 1px solid var(--color-surface-container); border-radius: var(--radius-lg); background: var(--color-surface-container); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.goals-retention-missions .retention-mission:hover { border-color: var(--color-surface-container); box-shadow:  var(--shadow-1);  }
+.goals-retention-missions .retention-mission.is-complete { border-color: var(--color-success-bg); background: var(--color-success-bg); }
+.goals-retention-missions .retention-mission__icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: var(--radius-md); background: var(--color-surface-container); color: var(--color-primary); }
+.goals-retention-missions .retention-mission h3 { margin: 0 0 var(--space-1); color: var(--color-on-surface); font-size: var(--text-xs); }
+.goals-retention-missions .retention-mission p { margin: 0; color: var(--color-on-surface-variant); font-size: var(--text-xs); }
+.goals-retention-missions .retention-mission__reward { color: var(--color-success); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
 
 .goals-retention-form { display: grid; gap: 9px; }
-.goals-retention-form label { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; color: var(--color-on-surface-variant); font-size: 12px; font-weight: 600; }
-.goals-retention-form output { color: var(--color-primary); font-weight: 800; }
+.goals-retention-form label { display: flex; justify-content: space-between; gap: var(--space-3); margin-top: 6px; color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
+.goals-retention-form output { color: var(--color-primary); font-weight: 600; }
 .goals-retention-form input[type="range"] { width: 100%; accent-color: var(--color-primary); cursor: pointer; }
-.goals-retention-form button { margin-top: 12px; }
+.goals-retention-form button { margin-top: var(--space-3); }
 
 .goals-retention-leaderboard-card { margin-bottom: 0; }
 .goals-retention-leaderboard-title { display: flex; align-items: center; gap: 13px; }
-.goals-retention-trophy { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 13px; background: #fff2cc; color: #d89c31; font-size: 21px; }
+.goals-retention-trophy { display: grid; width: 46px; height: 46px; place-items: center; border-radius: var(--radius-lg); background: var(--color-warning-bg); color: var(--color-warning); font-size: var(--text-xl); }
 .goals-retention-leaderboard-card .goals-retention-card__head { align-items: center; }
-.goals-retention-leaderboard-card .goals-retention-card__head > p { max-width: 300px; margin: 0; padding: 10px 13px; border-radius: 11px; background: #f3f1ff; color: var(--color-on-surface-variant); font-size: 11px; text-align: right; }
+.goals-retention-leaderboard-card .goals-retention-card__head > p { max-width: 300px; margin: 0; padding: 10px 13px; border-radius: var(--radius-lg); background: var(--color-surface-container); color: var(--color-on-surface-variant); font-size: var(--text-xs); text-align: right; }
 .goals-retention-ranking { display: grid; gap: 7px; }
-.goals-retention-ranking .retention-leaderboard__row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 7px 12px; border-radius: 12px; color: var(--color-on-surface-variant); transition: background .2s ease, transform .2s ease; }
-.goals-retention-ranking .retention-leaderboard__row:hover { background: #f5f5f8; transform: translateX(3px); }
-.goals-retention-ranking .retention-leaderboard__row.is-current { background: #f1efff; box-shadow: inset 4px 0 var(--color-primary); color: var(--color-on-surface); }
-.goals-retention-ranking .retention-leaderboard__rank { width: 32px; color: #777587; font-weight: 800; text-align: center; }
-.goals-retention-ranking .retention-leaderboard__avatar { display: grid; width: 34px; height: 34px; place-items: center; overflow: hidden; border-radius: 50%; background: #e2dfff; color: var(--color-primary); font-size: 11px; font-weight: 800; }
+.goals-retention-ranking .retention-leaderboard__row { display: flex; align-items: center; gap: var(--space-3); min-height: 48px; padding: 7px var(--space-3); border-radius: var(--radius-md); color: var(--color-on-surface-variant); transition: background .2s ease, transform .2s ease; }
+.goals-retention-ranking .retention-leaderboard__row:hover { background: var(--color-surface-container);  }
+.goals-retention-ranking .retention-leaderboard__row.is-current { background: var(--color-surface-container); box-shadow: inset 4px 0 var(--color-primary); color: var(--color-on-surface); }
+.goals-retention-ranking .retention-leaderboard__rank { width: 32px; color: var(--color-outline); font-weight: 600; text-align: center; }
+.goals-retention-ranking .retention-leaderboard__avatar { display: grid; width: 34px; height: 34px; place-items: center; overflow: hidden; border-radius: 50%; background: var(--color-surface-container); color: var(--color-primary); font-size: var(--text-xs); font-weight: 600; }
 .goals-retention-ranking .retention-leaderboard__avatar img { width: 100%; height: 100%; object-fit: cover; }
-.goals-retention-ranking .retention-leaderboard__name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 700; }
-.goals-retention-ranking .retention-leaderboard__points { color: #d89c31; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.goals-retention-ranking .retention-leaderboard__name { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-xs); font-weight: 600; }
+.goals-retention-ranking .retention-leaderboard__points { color: var(--color-warning); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
 
 @keyframes retention-hero-flame { 0%, 100% { transform: rotate(-3deg) scale(1); } 50% { transform: rotate(3deg) scale(1.05); } }
 @keyframes goals-flame-pulse { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.06); } }
@@ -320,7 +318,7 @@
 
 @media (max-width: 720px) {
   .goals-retention-page #jlabBaseContent { padding: 20px 14px 45px; }
-  .goals-retention-hero, .goals-retention-card { padding: 20px; border-radius: 18px; }
+  .goals-retention-hero, .goals-retention-card { padding: 20px; border-radius: var(--radius-lg); }
   .goals-retention-topgrid, #retentionMainGrid { grid-template-columns: 1fr; gap: 15px; }
   .goals-retention-progress-body { grid-template-columns: 1fr; gap: 20px; }
   .goals-retention-rings { width: 168px; height: 168px; }
@@ -335,41 +333,41 @@
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
  * Palette follows Learning Path dark reference (110f0bf); scoped roles retain each page's hierarchy. */
 html[data-theme="dark"] {
-  --dm-goals-bg: #0b0d13;
-  --dm-goals-surface: #171b26;
-  --dm-goals-raised: #252c39;
-  --dm-goals-ink: #f8fafc;
-  --dm-goals-muted: #b2bfd2;
-  --dm-goals-line: #40485d;
-  --dm-goals-accent: #c084fc;
-  --dm-goals-action: #7335a6;
-  --dm-goals-accent-soft: #2a203d;
-  --dm-goals-on-accent: #211b34;
-  --dm-goals-success: #8eddb6;
-  --dm-goals-success-bg: #1b3d32;
-  --dm-goals-success-line: #43816b;
-  --dm-goals-danger: #ffb4bd;
-  --dm-goals-danger-bg: #452832;
-  --dm-goals-danger-line: #96616d;
-  --dm-goals-warning: #f3d28a;
-  --dm-goals-warning-bg: #403522;
-  --dm-goals-warning-line: #947a46;
-  --dm-goals-pink: #f4aed2;
-  --dm-goals-pink-bg: #432d40;
-  --dm-goals-pink-line: #88637b;
+  --dm-goals-bg: var(--color-on-surface-variant);
+  --dm-goals-surface: var(--color-on-surface-variant);
+  --dm-goals-raised: var(--color-on-surface-variant);
+  --dm-goals-ink: var(--color-surface-container);
+  --dm-goals-muted: var(--color-surface-container);
+  --dm-goals-line: var(--color-on-surface-variant);
+  --dm-goals-accent: var(--color-outline-variant);
+  --dm-goals-action: var(--color-primary);
+  --dm-goals-accent-soft: var(--color-primary);
+  --dm-goals-on-accent: var(--color-on-surface-variant);
+  --dm-goals-success: var(--color-success);
+  --dm-goals-success-bg: var(--color-success);
+  --dm-goals-success-line: var(--color-success);
+  --dm-goals-danger: var(--color-error-container);
+  --dm-goals-danger-bg: var(--color-primary);
+  --dm-goals-danger-line: var(--color-error);
+  --dm-goals-warning: var(--color-warning);
+  --dm-goals-warning-bg: var(--color-warning);
+  --dm-goals-warning-line: var(--color-warning);
+  --dm-goals-pink: var(--color-outline-variant);
+  --dm-goals-pink-bg: var(--color-primary);
+  --dm-goals-pink-line: var(--color-primary);
 }
 html[data-theme="dark"] .goals-retention-hero {
     border: 1px solid var(--dm-goals-line);
-    background: linear-gradient(135deg, var(--dm-goals-surface), var(--dm-goals-accent-soft) 72%, var(--dm-goals-warning-bg));
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.20)
+    background: var(--color-surface-container);
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] .goals-retention-hero::after {
     background: var(--dm-goals-action)
 }
 html[data-theme="dark"] .goals-retention-hero__mark {
-    background: linear-gradient(135deg, var(--dm-goals-action), var(--dm-goals-action));
+    background: var(--color-surface-container);
     color: var(--dm-goals-ink);
-    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.34)
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] .goals-retention-credit {
     border: 1px solid var(--dm-goals-line);
@@ -380,7 +378,7 @@ html[data-theme="dark"] .goals-retention-credit > i {
 }
 html[data-theme="dark"] .goals-retention-card {
     border: 1px solid var(--dm-goals-line);
-    box-shadow: 0 7px 25px rgba(0, 0, 0, 0.17)
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] .goals-retention-status,
 html[data-theme="dark"] .goals-retention-refresh {
@@ -405,7 +403,7 @@ html[data-theme="dark"] .goals-retention-mascot-note {
     background: var(--dm-goals-accent-soft)
 }
 html[data-theme="dark"] .goals-retention-streak-card {
-    background: linear-gradient(145deg, var(--dm-goals-surface), var(--dm-goals-warning-bg))
+    background: var(--color-surface-container)
 }
 html[data-theme="dark"] .goals-retention-streak-badge {
     background: var(--dm-goals-warning-bg);
@@ -414,7 +412,7 @@ html[data-theme="dark"] .goals-retention-streak-badge {
 html[data-theme="dark"] .goals-retention-flame {
     background: var(--dm-goals-warning-bg);
     color: var(--dm-goals-danger);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.28)
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] .goals-retention-stats {
     border-top: 1px solid var(--dm-goals-warning-line);
@@ -429,7 +427,7 @@ html[data-theme="dark"] .goals-retention-missions .retention-mission {
 }
 html[data-theme="dark"] .goals-retention-missions .retention-mission:hover {
     border-color: var(--dm-goals-line);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.21)
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] .goals-retention-missions .retention-mission.is-complete {
     border-color: var(--dm-goals-success-line);
@@ -463,3 +461,7 @@ html[data-theme="dark"] .goals-retention-ranking .retention-leaderboard__avatar 
 html[data-theme="dark"] .goals-retention-ranking .retention-leaderboard__points {
     color: var(--dm-goals-warning)
 }
+
+/* Shared keyboard and numeric treatment for this page. */
+.goals-retention-page { font-variant-numeric: tabular-nums; }
+.goals-retention-page :is(button, a, [role="tab"]):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }

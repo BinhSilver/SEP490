@@ -228,9 +228,10 @@
           (unitCount > 0
             ? '<span><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ' + unitCount + ' unit</span>'
             : '<span class="tb-badge">Chưa có nội dung</span>') +
+          // Nút CTA là <span> vì cả thẻ đã là <a>; thẻ khóa hiện nút xám có ổ khóa (bấm mở hộp thoại Premium).
           (locked
-            ? PREMIUM_BADGE
-            : '<span class="textbook-card__cta">Xem giáo trình <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>') +
+            ? '<span class="textbook-card__cta textbook-card__cta--locked"><i class="fa-solid fa-lock" aria-hidden="true"></i> Premium</span>'
+            : '<span class="textbook-card__cta">Xem giáo trình</span>') +
         '</div>' +
       '</a>';
   }
@@ -344,7 +345,6 @@
   function topicLessonRow(l, index) {
     var meta = [];
     if (l.unitTitle) meta.push('<span class="tb-badge">' + escapeHtml(l.unitTitle) + '</span>');
-    if (l.estimatedMinutes) meta.push('<span class="tb-badge"><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + l.estimatedMinutes + ' phút</span>');
     meta.push(statusBadge(l.status));
     var locked = l.locked === true;
     if (locked) meta.push(PREMIUM_BADGE);

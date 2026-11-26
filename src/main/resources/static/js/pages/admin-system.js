@@ -148,6 +148,9 @@
       var page = 0;
       var rows = {};
       var detailId = null;
+      var detailModal = null;
+      var detailRequest = 0;
+      var detailOpener = null;
       root.innerHTML =
         '<form class="adm-toolbar" data-filters novalidate>' +
           '<input class="input" type="search" name="q" maxlength="100" placeholder="Email, tên đăng nhập hoặc họ tên" aria-label="Tìm người dùng">' +
@@ -159,7 +162,7 @@
             '<option value="ACTIVE">' + STATUS.ACTIVE + '</option><option value="LOCKED">' + STATUS.LOCKED + '</option></select>' +
           '<select class="select" name="premium" aria-label="Premium"><option value="">Miễn phí và Premium</option>' +
             '<option value="true">Premium còn hạn</option><option value="false">Không có Premium</option></select>' +
-        '</form><div data-detail></div><div data-list></div>';
+        '</form><div data-list></div>';
       var form = root.querySelector('[data-filters]');
       A.filterPopover(form);
 
@@ -210,11 +213,11 @@
         try {
           await A.api.post(API + '/users/' + id + '/role', { role: decision.extra.role, reason: decision.reason });
           A.toast('Đã đổi vai trò', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        await showDetail(id);
       }
 
       async function grantPremium(id) {
@@ -263,11 +266,11 @@
             planId: decision.extra.planId, durationDays: decision.extra.durationDays, reason: decision.reason
           });
           A.toast('Đã cấp Premium', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        await showDetail(id);
       }
 
       // Plan choice pre-fills its duration; the days field accepts digits only.
@@ -319,12 +322,60 @@
         }
       }
 
-      async function showDetail(id) {
-        var box = root.querySelector('[data-detail]');
+      function userInUrl() {
+        var value = new URL(window.location.href).searchParams.get('user');
+        return /^\d+$/.test(value || '') && Number(value) > 0 ? Number(value) : null;
+      }
+
+      function closeDetail(updateUrl) {
+        if (!detailModal) return;
+        detailModal.remove();
+        detailModal = null;
+        detailId = null;
+        detailRequest++;
+        if (!document.querySelector('.adm-modal')) document.body.classList.remove('adm-modal-open');
+        if (updateUrl) {
+          var url = new URL(window.location.href);
+          url.searchParams.delete('user');
+          history.replaceState(history.state, '', url);
+        }
+        var row = detailOpener && root.contains(detailOpener) ? detailOpener
+          : detailOpener && root.querySelector('tr[data-detail-id="' + detailOpener.dataset.detailId + '"]');
+        if (row) row.focus();
+        else form.elements.q.focus();
+        detailOpener = null;
+      }
+
+      async function showDetail(id, pushUrl, opener) {
+        if (!detailModal) {
+          detailModal = document.createElement('div');
+          detailModal.className = 'adm-modal adm-modal--user-detail';
+          detailModal.setAttribute('role', 'dialog');
+          detailModal.setAttribute('aria-modal', 'true');
+          detailModal.setAttribute('aria-labelledby', 'admUserDetailTitle');
+          detailModal.innerHTML = '<section class="adm-modal__dialog adm-modal__dialog--wide">' +
+            '<div class="adm-user-detail__header"><h2 class="adm-modal__title" id="admUserDetailTitle">Tài khoản #' + id + '</h2>' +
+            '<button type="button" class="adm-user-detail__close" data-close-detail aria-label="Đóng chi tiết tài khoản">&times;</button></div>' +
+            '<div data-user-detail-body></div></section>';
+          detailModal.addEventListener('click', onUserClick);
+          document.body.appendChild(detailModal);
+          document.body.classList.add('adm-modal-open');
+          detailModal.querySelector('[data-close-detail]').focus();
+        }
         detailId = id;
-        box.innerHTML = '<section class="adm-panel">' + A.loading() + '</section>';
+        if (opener) detailOpener = opener;
+        if (pushUrl) {
+          var url = new URL(window.location.href);
+          url.searchParams.set('user', id);
+          history.pushState(history.state, '', url);
+        }
+        var box = detailModal.querySelector('[data-user-detail-body]');
+        var request = ++detailRequest;
+        if (box.contains(document.activeElement)) detailModal.querySelector('[data-close-detail]').focus();
+        box.innerHTML = A.loading();
         try {
           var u = await A.api.get(API + '/users/' + id);
+          if (request !== detailRequest || !detailModal) return;
           var fields = [
             ['Email', u.email], ['Tên đăng nhập', u.username], ['Họ tên', u.fullName], ['Vai trò', roleLabel(u.role)],
             ['Đăng nhập bằng', u.loginType === 'GOOGLE' ? 'Google' : 'Email/mật khẩu'],
@@ -336,19 +387,17 @@
             ['Ngày sinh', birthDateText(u.dateOfBirth)],
             ['Ngày tạo', A.date(u.createdAt)], ['Đăng nhập gần nhất', A.date(u.lastLoginAt)]
           ];
-          box.innerHTML = '<section class="adm-panel" aria-label="Chi tiết tài khoản">' +
-            '<h2 class="adm-panel__title">Tài khoản #' + u.id + '</h2>' +
-            '<dl class="adm-detail">' + fields.filter(function (f) { return f[1] != null && f[1] !== ''; }).map(function (f) {
-              return '<dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd>';
+          detailModal.querySelector('#admUserDetailTitle').textContent = 'Tài khoản #' + u.id;
+          box.innerHTML = '<dl class="adm-user-detail__fields">' + fields.filter(function (f) { return f[1] != null && f[1] !== ''; }).map(function (f) {
+              return '<div><dt>' + f[0] + '</dt><dd>' + A.esc(f[1]) + '</dd></div>';
             }).join('') + '</dl>' +
-            '<p class="adm-toolbar">' + lockButton(u) + manageButtons(u) +
+            '<div class="adm-modal__actions">' + lockButton(u) + manageButtons(u) +
               '<button type="button" class="btn btn--secondary btn--sm" data-adjust="' + u.id + '">Điều chỉnh CP</button>' +
               '<button type="button" class="btn btn--secondary btn--sm" data-birth-date="' + u.id + '">Sửa ngày sinh</button>' +
-              '<button type="button" class="btn btn--secondary btn--sm" data-close-detail>Đóng</button></p>' +
-          '</section>';
+            '</div>';
           rows[u.id] = u;
-          box.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } catch (e) {
+          if (request !== detailRequest || !detailModal) return;
           box.innerHTML = '<p class="adm-error">' + A.esc(e.message) + '</p>';
         }
       }
@@ -366,11 +415,11 @@
         try {
           await A.api.post(API + '/users/' + id + (lock ? '/lock' : '/unlock'), { reason: decision.reason });
           A.toast(lock ? 'Đã khoá tài khoản' : 'Đã mở khoá tài khoản', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        if (detailId === id) await showDetail(id);
       }
 
       async function adjustCredits(id) {
@@ -392,7 +441,8 @@
         try {
           await A.api.post(API + '/users/' + id + '/credits', { amount: decision.extra.amount, reason: decision.reason });
           A.toast('Đã điều chỉnh CP', 'success');
-          await load(); await showDetail(id);
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) { A.toast(e.message, 'error'); }
       }
 
@@ -432,17 +482,18 @@
             dateOfBirth: decision.extra.dateOfBirth, reason: decision.reason
           });
           A.toast('Đã cập nhật ngày sinh', 'success');
+          await load();
+          if (detailId === id) await showDetail(id);
         } catch (e) {
           A.toast(e.message, 'error');
         }
-        await load();
-        await showDetail(id);
       }
 
       form.addEventListener('submit', function (event) { event.preventDefault(); page = 0; load(); });
-      root.addEventListener('click', function (event) {
+      function onUserClick(event) {
         var target = event.target;
         var el;
+        if (target === detailModal || target.closest('[data-close-detail]')) { closeDetail(true); return; }
         if ((el = target.closest('[data-page]'))) { page += Number(el.dataset.page); load(); return; }
         if ((el = target.closest('[data-lock]'))) { setLocked(Number(el.dataset.lock), true); return; }
         if ((el = target.closest('[data-unlock]'))) { setLocked(Number(el.dataset.unlock), false); return; }
@@ -451,17 +502,41 @@
         if ((el = target.closest('[data-adjust]'))) { adjustCredits(Number(el.dataset.adjust)); return; }
         if ((el = target.closest('[data-birth-date]'))) { changeBirthDate(Number(el.dataset.birthDate)); return; }
         // Checked after the row's own buttons so "Khoá"/"Mở khoá" inside a row don't also open the detail.
-        if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId)); return; }
-        if (target.closest('[data-close-detail]')) { detailId = null; root.querySelector('[data-detail]').innerHTML = ''; }
-      });
+        if ((el = target.closest('[data-detail-id]'))) { showDetail(Number(el.dataset.detailId), true, el); }
+      }
+      root.addEventListener('click', onUserClick);
       root.addEventListener('keydown', function (event) {
         var row = event.target.closest && event.target.closest('tr[data-detail-id]');
         if (row && event.target === row && (event.key === 'Enter' || event.key === ' ')) {
           event.preventDefault();
-          showDetail(Number(row.dataset.detailId));
+          showDetail(Number(row.dataset.detailId), true, row);
         }
       });
+      document.addEventListener('keydown', function (event) {
+        if (!detailModal || document.querySelector('.adm-modal--decision')) return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeDetail(true);
+        } else if (event.key === 'Tab') {
+          var focusable = Array.from(detailModal.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'));
+          var first = focusable[0];
+          var last = focusable[focusable.length - 1];
+          if (!first) return;
+          if (event.shiftKey && (document.activeElement === first || !detailModal.contains(document.activeElement))) {
+            event.preventDefault(); last.focus();
+          } else if (!event.shiftKey && (document.activeElement === last || !detailModal.contains(document.activeElement))) {
+            event.preventDefault(); first.focus();
+          }
+        }
+      });
+      window.addEventListener('popstate', function () {
+        var id = userInUrl();
+        if (id && id !== detailId) showDetail(id);
+        else if (!id) closeDetail(false);
+      });
       await load();
+      var linkedUser = userInUrl();
+      if (linkedUser) await showDetail(linkedUser);
     }
   });
 
@@ -907,9 +982,9 @@
 
   function countTable(caption, rows) {
     return '<section class="adm-panel"><h2 class="adm-panel__title">' + A.esc(caption) + '</h2>' +
-      (rows.length ? '<table class="adm-table"><tbody>' + rows.map(function (r) {
+      (rows.length ? '<div class="adm-table-wrap"><table class="adm-table"><tbody>' + rows.map(function (r) {
         return '<tr><td>' + r[0] + '</td><td class="adm-nowrap"><strong>' + A.esc(r[1]) + '</strong></td></tr>';
-      }).join('') + '</tbody></table>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
+      }).join('') + '</tbody></table></div>' : A.empty('fa-inbox', 'Chưa có dữ liệu')) + '</section>';
   }
 
   // ── Dashboard: every figure comes from GET /api/admin/system/dashboard?period=… ─────────────────
@@ -1491,20 +1566,26 @@
             }).join('') + '</tbody></table></div>';
         }
         async function edit(p) {
-          function field(id, label, value, type) {
-            return '<label>' + label + '<input class="input" id="cat' + id + '" type="' + (type || 'text') + '" value="' + A.esc(value == null ? '' : value) + '"></label>';
+          function field(id, label, value, type, hint) {
+            return '<label>' + label + '<input class="input" id="cat' + id + '" type="' + (type || 'text') + '" value="' + A.esc(value == null ? '' : value) + '">' +
+              (hint ? '<small class="adm-field-hint">' + A.esc(hint) + '</small>' : '') + '</label>';
           }
-          var html = coupon ? field('Code', 'Mã', p && p.code) + field('Description', 'Mô tả', p && p.description) +
-            '<label>Loại<select class="select" id="catType"><option value="PERCENT"' + (!p || p.discountType === 'PERCENT' ? ' selected' : '') + '>Phần trăm</option><option value="FIXED"' + (p && p.discountType === 'FIXED' ? ' selected' : '') + '>Số tiền</option></select></label>' +
-            field('Value', 'Giá trị', p && p.discountValue, 'number') + field('Max', 'Giảm tối đa', p && p.maxDiscount, 'number') +
-            field('Min', 'Đơn tối thiểu', p && p.minOrderAmount, 'number') +
-            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Premium</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select></label>' +
-            field('Start', 'Bắt đầu', p && p.startsAt, 'datetime-local') + field('End', 'Kết thúc', p && p.endsAt, 'datetime-local') +
-            field('Limit', 'Tổng lượt', p && p.usageLimit, 'number') + field('UserLimit', 'Lượt mỗi người', p && p.perUserLimit, 'number')
+          var html = coupon ? field('Code', 'Mã', p && p.code, null, 'Khách nhập mã này khi thanh toán. 3–40 ký tự A–Z, 0–9, _ hoặc -; tự chuyển thành chữ in hoa.') +
+            field('Description', 'Mô tả', p && p.description, null, 'Ghi chú nội bộ, khách không thấy.') +
+            '<label>Loại<select class="select" id="catType"><option value="PERCENT"' + (!p || p.discountType === 'PERCENT' ? ' selected' : '') + '>Phần trăm</option><option value="FIXED"' + (p && p.discountType === 'FIXED' ? ' selected' : '') + '>Số tiền</option></select><small class="adm-field-hint">Phần trăm: giảm theo % giá gói. Số tiền: giảm một khoản cố định.</small></label>' +
+            field('Value', 'Giá trị (% hoặc VND)', p && p.discountValue, 'number', 'Phần trăm: nhập 1–100. Số tiền: nhập số VND được giảm.') +
+            field('Max', 'Giảm tối đa (VND)', p && p.maxDiscount, 'number', 'Chỉ dùng với Phần trăm. Số tiền giảm tối đa (VND, không phải %). Để trống nếu không giới hạn.') +
+            field('Min', 'Đơn tối thiểu (VND)', p && p.minOrderAmount, 'number', 'Giá gói phải từ mức này trở lên mới dùng được mã. Để trống nếu không yêu cầu.') +
+            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Premium</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select><small class="adm-field-hint">Tất cả: mọi sản phẩm. Premium: chỉ gói Premium. CP: chỉ gói mua điểm CP.</small></label>' +
+            field('Start', 'Bắt đầu', p && p.startsAt, 'datetime-local', 'Thời điểm mã bắt đầu có hiệu lực. Để trống = dùng được ngay.') +
+            field('End', 'Kết thúc', p && p.endsAt, 'datetime-local', 'Thời điểm mã hết hạn, phải sau Bắt đầu. Để trống = không hết hạn.') +
+            field('Limit', 'Tổng lượt', p && p.usageLimit, 'number', 'Tổng số đơn được dùng mã (mọi khách cộng lại). Để trống = không giới hạn.') +
+            field('UserLimit', 'Lượt mỗi người', p && p.perUserLimit, 'number', 'Số lần tối đa một tài khoản được dùng mã. Để trống = không giới hạn.')
             : field('Name', 'Tên gói', p && p.name) + field('Description', 'Mô tả', p && p.description) +
               field('Credits', 'Số CP', p && p.creditAmount, 'number') + field('Price', 'Giá VND', p && p.price, 'number');
-          var decision = await A.decide({ title: p ? 'Sửa' : 'Tạo mới', confirmText: 'Lưu', maxLength: 500,
-            extraHtml: '<div class="adm-form-grid">' + html + '</div>',
+          var pending = A.decide({ title: p ? 'Sửa' : 'Tạo mới', confirmText: 'Lưu', maxLength: 500,
+            extraHtml: (coupon ? '<p class="adm-form-note">Đơn giảm còn 0đ được cấp ngay, không cần thanh toán. Đơn còn tiền phải trả từ 2.000đ.</p>' : '') +
+              '<div class="adm-form-grid">' + html + '</div>',
             collect: function (modal) {
               var value = function (id) { return modal.querySelector('#cat' + id).value.trim(); };
               return reasonLength(modal) || (coupon ? {
@@ -1518,6 +1599,17 @@
                 creditAmount: Number(value('Credits')), price: Number(value('Price')) });
             }
           });
+          if (coupon) {
+            var typeSelect = document.querySelector('#catType');
+            var maxInput = document.querySelector('#catMax');
+            function updateMax() {
+              maxInput.disabled = typeSelect.value === 'FIXED';
+              if (maxInput.disabled) maxInput.value = '';
+            }
+            typeSelect.addEventListener('change', updateMax);
+            updateMax();
+          }
+          var decision = await pending;
           if (!decision) return;
           try {
             var body = Object.assign({ reason: decision.reason }, decision.extra);

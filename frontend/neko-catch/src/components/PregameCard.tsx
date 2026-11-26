@@ -7,9 +7,11 @@ import { difficultyLabel, DISPLAY_FONT_STACK, VI_FONT_STACK } from '../lib/text'
 import { MOBILE_GAME_MAX_WIDTH, MOBILE_MAX_FISH } from '../lib/playfield';
 import { durationLabel, recommendDuration, SECONDS_PER_TURN, SOLO_DURATIONS as DURATIONS } from '../lib/setup';
 import { Avatar } from './Avatar';
-import { ArrowLeftIcon, MaximizeIcon as Maximize, MinimizeIcon as Minimize } from './Icons';
+import { MaximizeIcon as Maximize, MinimizeIcon as Minimize } from './Icons';
 import { LobbyCat } from './LobbyCat';
 import { ResultCatCanvas } from './ResultCatCanvas';
+import { CpText } from './CpText';
+import { containDialogTab } from '../../../shared/dialogKeyboard';
 
 interface PregameCardProps {
   state: NekoStateView;
@@ -110,7 +112,7 @@ const SkinPanel: React.FC<{
     <section className="neko-skins w-full p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left" aria-label="Trang phục" aria-busy={!!busy}>
       <div className="neko-skins__header">
         <h3>Trang phục</h3>
-        <output aria-label="Số dư" aria-live="polite">{balance === null ? '…' : balance.toLocaleString('vi-VN')} CP</output>
+        <output aria-label="Số dư" aria-live="polite"><CpText text={`${balance === null ? '…' : balance.toLocaleString('vi-VN')} CP`} /></output>
       </div>
       <div className="neko-skins__preview relative w-full h-44 overflow-hidden rounded-xl border border-amber-300/30 bg-slate-950">
         <img src={assetUrl('/sprites/tasser_hand_drawn/bg_panoramic_composite.png')} alt="" aria-hidden="true"
@@ -151,7 +153,7 @@ const SkinPanel: React.FC<{
               className={`neko-skins__item ${selected ? 'is-selected' : ''}`}>
               <img className="neko-skins__image" src={option.image} alt="" loading="lazy" />
               <span className="neko-skins__name">{option.name}</span>
-              <span className="neko-skins__action">{label}</span>
+              <span className="neko-skins__action"><CpText text={label} /></span>
             </button>
           );
         })}
@@ -159,20 +161,22 @@ const SkinPanel: React.FC<{
       </div>
       {options === null && !error && <p className="mt-2 text-[11px] text-white/50">Đang tải trang phục…</p>}
       <dialog ref={confirmRef} className="neko-skin-purchase" aria-labelledby="neko-skin-purchase-title"
+        onKeyDown={containDialogTab}
         aria-describedby="neko-skin-purchase-details"
         onCancel={event => { if (busy) event.preventDefault(); else setPendingCode(null); }}
         onClose={() => setPendingCode(null)}>
         {pending && <>
           <h3 id="neko-skin-purchase-title">Xác nhận mua skin</h3>
           <img src={pending.image} alt="" />
-          <p id="neko-skin-purchase-details">Mua <strong>{pending.name}</strong> với <strong>{pending.price} CP</strong>?</p>
-          <p className="neko-skin-purchase__balance">Số dư sau khi mua: {Math.max(0, (balance ?? 0) - pending.price).toLocaleString('vi-VN')} CP</p>
+          <p id="neko-skin-purchase-details">Mua <strong>{pending.name}</strong> với <strong><CpText text={`${pending.price} CP`} /></strong>?</p>
+          <p className="neko-skin-purchase__balance">Số dư sau khi mua: <CpText text={`${Math.max(0, (balance ?? 0) - pending.price).toLocaleString('vi-VN')} CP`} /></p>
           {error && <p className="neko-skins__error" role="alert">{error}</p>}
           <div className="neko-skin-purchase__actions">
             <button type="button" autoFocus disabled={disabled || !!busy} onClick={() => setPendingCode(null)}>Hủy</button>
             <button type="button" disabled={disabled || !!busy || balance === null || balance < pending.price}
+              data-game-ui-primary
               onClick={async () => { if (await onChange(pending.id)) setPendingCode(null); }}>
-              {busy ? 'Đang mua…' : `Mua · ${pending.price} CP`}
+              <CpText text={busy ? 'Đang mua…' : `Mua · ${pending.price} CP`} />
             </button>
           </div>
         </>}
@@ -219,136 +223,39 @@ function fieldValue(card: DeckCardView, field: DeckField): string | null {
   }
 }
 
-/** Một nhóm lựa chọn dạng nút bấm (radiogroup); nút bị khoá có lý do ở tooltip. */
-function OptionGroup<T extends string | number>({ label, value, options, format, onChange, disabledReason, stretch = false }: {
+/**
+ * One setting as the shared J-LAS dropdown (data-jl-select), the same on phone and desktop. An option that cannot be
+ * used is disabled and says why on its second line.
+ */
+function SelectField<T extends string | number>({ label, value, options, format, onChange, disabledReason, disabled = false, hint }: {
   label: string;
   value: T;
   options: T[];
   format: (option: T) => string;
   onChange: (option: T) => void;
   disabledReason?: (option: T) => string | null;
-  /** Các nút giãn đều lấp kín ô, không xuống dòng. */
-  stretch?: boolean;
+  disabled?: boolean;
+  hint?: string;
 }) {
   return (
-    <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left">
-      <span className="block text-[10px] text-amber-300/70 uppercase tracking-widest mb-1.5">{label}</span>
-      <div className={`flex gap-1 ${stretch ? '' : 'flex-wrap'}`} role="radiogroup" aria-label={label}>
+    <label className="neko-setup__field">
+      <span>{label}</span>
+      <select data-jl-select aria-label={label} value={String(value)} disabled={disabled} title={hint}
+        onChange={event => {
+          const picked = options.find(option => String(option) === event.target.value);
+          if (picked !== undefined) onChange(picked);
+        }}>
         {options.map(option => {
-          const selected = option === value;
           const reason = disabledReason ? disabledReason(option) : null;
           return (
-            <button
-              key={String(option)}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              disabled={!!reason && !selected}
-              title={reason ?? undefined}
-              onClick={() => onChange(option)}
-              className={`relative ${stretch ? 'flex-1 min-w-0 px-1' : 'min-w-[36px] px-2'} min-h-[32px] rounded-lg text-xs font-black transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:opacity-35 disabled:cursor-not-allowed ${
-                selected ? 'bg-amber-400 text-slate-950' : 'bg-white/10 text-white/80 hover:bg-white/20'
-              }`}
-            >
+            <option key={String(option)} value={String(option)} disabled={!!reason && option !== value}
+              data-hint={reason ?? undefined}>
               {format(option)}
-            </button>
+            </option>
           );
         })}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Ô chọn thả xuống (như Bắn máy bay, Lật thẻ): bấm vào để xổ danh sách; mức hợp với số thẻ có nhãn "Gợi ý".
- * Danh sách mở lên trên vì ô nằm sát đáy thẻ cài đặt (thẻ cắt phần tràn).
- */
-function DropdownGroup<T extends string | number>({ label, value, options, format, onChange, recommended, disabled = false }: {
-  label: string;
-  value: T;
-  options: T[];
-  format: (option: T) => string;
-  onChange: (option: T) => void;
-  recommended?: T | null;
-  disabled?: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(0);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const id = useId();
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
-
-  useEffect(() => {
-    if (open) listRef.current?.children[active]?.scrollIntoView({ block: 'nearest' });
-  }, [open, active]);
-
-  useEffect(() => { if (disabled) setOpen(false); }, [disabled]);
-
-  const tag = (option: T) => (recommended != null && option === recommended
-    ? <span className="shrink-0 whitespace-nowrap px-1.5 rounded-full bg-emerald-400 text-slate-950 text-[9px] font-black leading-[16px]">Gợi ý</span>
-    : null);
-  const choose = (option: T) => { onChange(option); setOpen(false); };
-  const openAtValue = () => { setOpen(true); setActive(Math.max(0, options.indexOf(value))); };
-  const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Escape') { setOpen(false); return; }
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      if (!open) { openAtValue(); return; }
-      const step = event.key === 'ArrowDown' ? 1 : -1;
-      setActive(index => (index + step + options.length) % options.length);
-      return;
-    }
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      if (open) choose(options[active]);
-      else openAtValue();
-    }
-  };
-
-  return (
-    <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left">
-      <span className="block text-[10px] text-amber-300/70 uppercase tracking-widest mb-1.5" id={`${id}-label`}>{label}</span>
-      <div className="relative" ref={rootRef}>
-        <button type="button" disabled={disabled} aria-haspopup="listbox" aria-expanded={open}
-          aria-labelledby={`${id}-label`} aria-controls={`${id}-list`} onKeyDown={onKeyDown}
-          onClick={() => (open ? setOpen(false) : openAtValue())}
-          className={`w-full min-h-[36px] flex items-center justify-between gap-2 px-3 rounded-lg border text-xs font-black text-white bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 disabled:opacity-50 disabled:cursor-not-allowed ${
-            open ? 'border-amber-300' : 'border-white/10'
-          }`}>
-          <span className="flex items-center gap-1.5 min-w-0"><span className="min-w-0 truncate">{format(value)}</span>{tag(value)}</span>
-          <svg className={`w-3 h-3 shrink-0 text-amber-300 transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 12 12" aria-hidden="true">
-            <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        {open && (
-          <ul ref={listRef} id={`${id}-list`} role="listbox" aria-labelledby={`${id}-label`}
-            className="absolute left-0 right-0 bottom-[calc(100%+4px)] z-30 max-h-60 overflow-y-auto custom-scrollbar p-1 rounded-xl border border-white/15 bg-[#1e1638] shadow-[0_16px_40px_rgba(0,0,0,.5)]">
-            {options.map((option, index) => {
-              const selected = option === value;
-              return (
-                <li key={String(option)} role="option" aria-selected={selected}
-                  onMouseEnter={() => setActive(index)}
-                  onMouseDown={event => { event.preventDefault(); choose(option); }}
-                  className={`flex items-center justify-between gap-2 min-h-[32px] px-2.5 rounded-lg text-xs font-black cursor-pointer ${
-                    selected ? 'bg-amber-400 text-slate-950' : index === active ? 'bg-white/15 text-white' : 'text-white/80'
-                  }`}>
-                  <span>{format(option)}</span>{tag(option)}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </div>
+      </select>
+    </label>
   );
 }
 
@@ -443,11 +350,11 @@ const SoloSetup: React.FC<{
 
   return (
     <>
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 text-xs">
-        <OptionGroup<DeckField> label="Hỏi bằng" value={question} options={FIELDS} format={field => FIELD_LABELS[field]}
-          disabledReason={field => fieldReason(field, answer)} onChange={setQuestion} />
-        <OptionGroup<DeckField> label="Đáp bằng" value={answer} options={FIELDS} format={field => FIELD_LABELS[field]}
-          disabledReason={field => fieldReason(field, question)} onChange={setAnswer} />
+      <div className="neko-setup__fields neko-setup__fields--2">
+        <SelectField<DeckField> label="Hỏi bằng" value={question} options={FIELDS} format={field => FIELD_LABELS[field]}
+          disabledReason={field => fieldReason(field, answer)} onChange={setQuestion} disabled={starting || skinSaving} />
+        <SelectField<DeckField> label="Đáp bằng" value={answer} options={FIELDS} format={field => FIELD_LABELS[field]}
+          disabledReason={field => fieldReason(field, question)} onChange={setAnswer} disabled={starting || skinSaving} />
       </div>
 
       <div className="w-full mt-2 p-2.5 rounded-2xl bg-white/5 border border-white/10 text-left">
@@ -492,29 +399,14 @@ const SoloSetup: React.FC<{
         </ul>
       </div>
 
-      <div className="neko-setup__quick-mobile">
-        <label><span>Thời gian</span>
-          <select aria-label="Thời gian" value={durationSeconds} onChange={event => setDuration(Number(event.target.value))}
-            disabled={starting || skinSaving} title={`Gợi ý: ${suggested}s`}>
-            {DURATIONS.map(seconds => <option key={seconds} value={seconds}>{durationLabel(seconds)}{seconds === suggested ? ' · Gợi ý' : ''}</option>)}
-          </select>
-        </label>
-        <label><span>Số tim</span>
-          <select aria-label="Số tim" value={lives} onChange={event => setLives(Number(event.target.value))} disabled={starting || skinSaving}>
-            {LIVES.map(count => <option key={count} value={count}>{count}</option>)}
-          </select>
-        </label>
-        <label><span>Số cá/lượt</span>
-          <select aria-label="Số cá/lượt" value={fishCount} onChange={event => setChoices(Number(event.target.value))} disabled={starting || skinSaving}>
-            {choiceOptions.map(count => <option key={count} value={count}>{count}</option>)}
-          </select>
-        </label>
-      </div>
-      <div className="neko-setup__quick-desktop w-full grid grid-cols-1 sm:grid-cols-[minmax(0,4fr)_minmax(0,5fr)_minmax(0,5fr)] gap-2 mt-2 text-xs">
-        <DropdownGroup label="Thời gian" value={durationSeconds} options={DURATIONS} format={durationLabel} onChange={setDuration}
-          recommended={deckCards ? suggested : null} disabled={starting || skinSaving} />
-        <OptionGroup label="Số tim" value={lives} options={LIVES} format={String} onChange={setLives} stretch />
-        <OptionGroup label="Số cá / lượt" value={fishCount} options={choiceOptions} format={String} onChange={setChoices} stretch />
+      <div className="neko-setup__fields neko-setup__fields--3">
+        <SelectField<number> label="Thời gian" value={durationSeconds} options={DURATIONS}
+          format={seconds => durationLabel(seconds) + (seconds === suggested ? ' · Gợi ý' : '')}
+          onChange={setDuration} disabled={starting || skinSaving} hint={`Gợi ý: ${suggested}s`} />
+        <SelectField<number> label="Số tim" value={lives} options={LIVES} format={String} onChange={setLives}
+          disabled={starting || skinSaving} />
+        <SelectField<number> label="Số cá / lượt" value={fishCount} options={choiceOptions} format={String}
+          onChange={setChoices} disabled={starting || skinSaving} />
       </div>
 
       {problem && <p className="w-full mt-2 text-xs font-bold text-amber-200" role="status">{problem}</p>}
@@ -526,6 +418,7 @@ const SoloSetup: React.FC<{
       <button
         type="button"
         onClick={() => start(durationSeconds)}
+        data-game-ui-primary
         disabled={starting || skinSaving || !assetsReady || !!problem}
         autoFocus
         className="self-center w-full sm:w-auto sm:min-w-[14rem] mt-3 px-8 py-2.5 min-h-[44px] rounded-xl text-base font-black uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-300 to-orange-400 shadow-[0_4px_0_#b45309] hover:brightness-105 active:translate-y-0.5 active:shadow-[0_2px_0_#b45309] disabled:opacity-50 disabled:cursor-not-allowed transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200"
@@ -595,6 +488,7 @@ export const PregameCard: React.FC<PregameCardProps> = ({
     <div className="absolute inset-0 z-30 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md">
       <div
         role="dialog"
+        data-game-ui-panel
         aria-modal="false"
         aria-labelledby="pregame-title"
         aria-describedby={awaitingStart ? undefined : 'pregame-countdown'}
@@ -613,7 +507,7 @@ export const PregameCard: React.FC<PregameCardProps> = ({
             onClick={onBack}
             className="absolute left-3 top-3 inline-flex items-center gap-1 h-9 pl-2 pr-3 rounded-xl text-xs font-bold text-white/80 bg-white/10 border border-white/15 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
           >
-            <ArrowLeftIcon className="w-4 h-4" /> Quay về
+            Quay về
           </button>
         )}
         <button

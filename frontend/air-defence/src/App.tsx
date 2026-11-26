@@ -563,10 +563,10 @@ function MatchMenu() {
             aria-labelledby="ad-leave-title"
             style={{
               marginBottom: 16, padding: 16, borderRadius: 12,
-              background: "#ffdad6", border: "1px solid rgba(186,26,26,.3)",
+              background: "var(--ok-error-container)", border: "1px solid var(--ok-error)",
             }}
           >
-            <p id="ad-leave-title" style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 600, color: "#410002" }}>
+            <p id="ad-leave-title" style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 600, color: "var(--ok-on-error-container)" }}>
               {match.versus
                 ? "Rời trận lúc này đồng nghĩa với THUA trận đối kháng. Bạn chắc chắn muốn rời?"
                 : "Rời trận lúc này sẽ bỏ dở lượt chơi (không có màn tổng kết). Bạn chắc chắn muốn rời?"}

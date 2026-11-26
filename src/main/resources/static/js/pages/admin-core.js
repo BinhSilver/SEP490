@@ -21,6 +21,8 @@
     { title: 'Quản lý nội dung', items: [
       { key: 'content-textbooks', label: 'Giáo trình và bài học', icon: 'fa-book-open', href: '/textbooks/manage', roles: ['CONTENT_CREATOR'] },
       { key: 'content-jlpt', label: 'Đề thi JLPT', icon: 'fa-file-pen', href: '/admin/jlpt', roles: ['CONTENT_CREATOR'] },
+      { key: 'content-learning-reports', label: 'Báo lỗi học tập', icon: 'fa-flag', href: '/admin/learning-content-reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
+      { key: 'content-community-reports', label: 'Báo cáo cộng đồng', icon: 'fa-people-group', href: '/admin/community-reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-jpath-reports', label: 'Báo sai lộ trình', icon: 'fa-flag', href: '/admin/learning-path/reports', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-tutor-review', label: 'Duyệt câu trả lời AI', icon: 'fa-robot', href: '/admin/tutor-review', roles: ['CONTENT_CREATOR', 'ADMIN'] },
       { key: 'content-verb-practice', label: 'Luyện chia động từ', icon: 'fa-language', href: '/admin/verb-practice', roles: ['CONTENT_CREATOR'] },
@@ -63,7 +65,8 @@
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
     APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
-    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống'
+    COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống',
+    COMMUNITY_CONTENT: 'Nội dung cộng đồng', COMMUNITY_COMMENT: 'Bình luận cộng đồng'
   };
 
   // ── Auth & API ─────────────────────────────────────────────────────────
@@ -189,7 +192,7 @@
     return new Promise(function (resolve) {
       var last = document.activeElement;
       var modal = document.createElement('div');
-      modal.className = 'adm-modal';
+      modal.className = 'adm-modal adm-modal--decision';
       modal.setAttribute('role', 'dialog');
       modal.setAttribute('aria-modal', 'true');
       modal.setAttribute('aria-labelledby', 'admDecideTitle');
@@ -223,10 +226,12 @@
       var reason = modal.querySelector('#admReason');
       var errorEl = modal.querySelector('[data-error]');
       var count = modal.querySelector('[data-count]');
+      var focusTimer;
 
       function close(value) {
+        clearTimeout(focusTimer);
         modal.remove();
-        document.body.classList.remove('adm-modal-open');
+        if (!document.querySelector('.adm-modal')) document.body.classList.remove('adm-modal-open');
         document.removeEventListener('keydown', onKey);
         if (last && last.focus) last.focus();
         resolve(value);
@@ -258,7 +263,7 @@
         close({ reason: value, extra: extra });
       });
       var focus = modal.querySelector('[data-autofocus]') || reason || modal.querySelector('button[type="submit"]');
-      setTimeout(function () { focus.focus(); }, 20);
+      focusTimer = setTimeout(function () { focus.focus(); }, 20);
     });
   }
 

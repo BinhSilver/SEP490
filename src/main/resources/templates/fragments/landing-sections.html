@@ -315,48 +315,8 @@
         </div>
     </section>
 
-    <!-- 04 Footer -->
-    <footer class="lp-foot">
-        <div class="lp-wrap">
-            <div class="lp-foot__card">
-                <span class="lp-foot__ring" aria-hidden="true"></span>
-                <p class="lp-kicker">05 / Cùng đi xa hơn</p>
-                <div class="lp-foot__grid">
-                    <div class="lp-foot__brand">
-                        <strong>KotsuKotsu</strong>
-                        <h2>Mỗi ngày một chút.<br>Tiến xa cùng nhau.</h2>
-                        <p>Một nơi để học, luyện tập và giữ thói quen tiếng Nhật mỗi ngày.</p>
-                        <p class="lp-foot__jp" lang="ja">毎日、こつこつ。</p>
-                    </div>
-                    <nav class="lp-foot__col" aria-label="Học nền tảng">
-                        <h3><span>01</span>Học nền tảng</h3>
-                        <a th:href="@{/dictionary}">Từ điển</a>
-                        <a th:href="@{/flashcard/library.html}">Flashcard</a>
-                        <a th:href="@{/dictionary/kanji-map}">Lược đồ Kanji</a>
-                        <a th:href="@{/practice/verbs}">Luyện chia động từ</a>
-                    </nav>
-                    <nav class="lp-foot__col" aria-label="Thực hành">
-                        <h3><span>02</span>Thực hành &amp; khám phá</h3>
-                        <a th:href="@{/shadowing}">Shadowing</a>
-                        <a th:href="@{/ai-call}">AI Call</a>
-                        <a th:href="@{/textbooks}">Giáo trình</a>
-                        <a th:href="@{/games}">Mini-game</a>
-                    </nav>
-                    <nav class="lp-foot__col" aria-label="Hành trình">
-                        <h3><span>03</span>Hành trình của bạn</h3>
-                        <a th:href="@{/survey}">Smart Test</a>
-                        <a th:href="@{/learning}">Lộ trình học</a>
-                        <a th:href="@{/jlpt}">Đề thi JLPT</a>
-                        <a th:href="@{/premium}">Premium</a>
-                    </nav>
-                </div>
-                <div class="lp-foot__bottom">
-                    <span>© 2026 KotsuKotsu</span>
-                    <span data-lp-guest-only><a th:href="@{/login}">Đăng nhập</a> · <a th:href="@{/register}">Đăng ký</a></span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- 04 Footer: F220 (owner 23/11) the shared site footer, the same card on every page -->
+    <th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 </div>
 </body>
 </html>

@@ -421,7 +421,8 @@
 .memory-setup__back:hover { background: #eef5fb; }
 .memory-setup__row { display: grid; gap: 12px; }
 .memory-setup__row--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.memory-setup__group { display: grid; gap: 8px; padding: 12px; border: 1px solid #dbe7f1; border-radius: 14px; background: #fff; }
+/* Setting groups sit straight on the setup panel, without a frame of their own. */
+.memory-setup__group { display: grid; gap: 8px; padding: 0; border: 0; border-radius: 0; background: transparent; }
 .memory-setup__label { color: #5f7482; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .memory-setup__options { display: flex; flex-wrap: wrap; gap: 6px; }
 .memory-setup__options button { min-height: 36px; padding: 0 14px; border: 1px solid #cddbe7; border-radius: 10px; background: #f3f8fc; color: #2b4252; font-size: 13px; font-weight: 700; cursor: pointer; }
@@ -1134,8 +1135,8 @@ html[data-theme="dark"] .memory-setup__back:hover {
     background: var(--dm-memory-accent-soft)
 }
 html[data-theme="dark"] .memory-setup__group {
-    border: 1px solid var(--dm-memory-line);
-    background: var(--dm-memory-surface)
+    border: 0;
+    background: transparent
 }
 html[data-theme="dark"] .memory-setup__label {
     color: var(--dm-memory-muted)
@@ -1523,3 +1524,24 @@ html[data-theme="dark"] .memory-final .memory-btn--primary:hover:not(:disabled) 
 .memory-dd__hint { flex-basis: 100%; color: #7a8792; font-size: 11px; font-weight: 500; line-height: 1.3; }
 html[data-theme="dark"] .memory-dd__list li.is-disabled { color: var(--dark-faint); }
 html[data-theme="dark"] .memory-dd__hint { color: var(--dark-faint); }
+
+/* Dark board: face down, open and matched cards must not look alike (open and matched shared one colour, close to the
+   face-down one, so nobody could tell which cards were turned). Face down stays dark plum; open is light lavender;
+   matched is green. */
+html[data-theme="dark"] .memory-card.is-revealed .memory-card__front {
+    border-color: var(--dark-accent);
+    background: linear-gradient(145deg, #ecd3f3, var(--dark-accent));
+    box-shadow: 0 0 18px rgba(220, 174, 232, .35), 0 10px 22px rgba(0, 0, 0, .35)
+}
+html[data-theme="dark"] .memory-card.is-matched .memory-card__front {
+    border-color: var(--dark-success);
+    background: linear-gradient(145deg, var(--dark-success), var(--dark-success-line));
+    box-shadow: 0 0 18px rgba(142, 221, 182, .35), 0 10px 22px rgba(0, 0, 0, .35)
+}
+html[data-theme="dark"] .memory-card.is-revealed .memory-card__front .memory-card__content {
+    color: var(--dark-on-button);
+    text-shadow: none
+}
+html[data-theme="dark"] .memory-card.is-matched .memory-card__front .memory-card__content {
+    color: #0f2a1f
+}

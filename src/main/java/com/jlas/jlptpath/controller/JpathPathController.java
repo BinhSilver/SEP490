@@ -38,6 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class JpathPathController {
 
     private final JpathPathService pathService;
+    private final org.springframework.beans.factory.ObjectProvider<com.jlas.mypaths.MyPathsService> myPaths;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.learning.pace.LearningPaceService learningPace;
 
     @GetMapping("/entry-status")
     public ResponseEntity<ApiResponse<JpathEntryStatusView>> entryStatus(
@@ -69,7 +72,9 @@ public class JpathPathController {
     @PostMapping("/paths")
     public ResponseEntity<ApiResponse<JpathPathView>> create(
             @AuthenticationPrincipal UserPrincipal user, @Valid @RequestBody JpathCreateRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình.", pathService.create(user.userId(), request)));
+        JpathPathView made = pathService.create(user.userId(), request);
+        myPaths.ifAvailable(m -> m.notifyAdded(user.userId(), com.jlas.mypaths.MyPathsService.JLPT));
+        return ResponseEntity.ok(ApiResponse.ok("Đã tạo lộ trình.", made));
     }
 
     @GetMapping("/path")
@@ -86,8 +91,10 @@ public class JpathPathController {
     @PutMapping("/path/sliders")
     public ResponseEntity<ApiResponse<JpathSliderView>> updateSliders(@AuthenticationPrincipal UserPrincipal user,
             @Valid @RequestBody JpathSliderUpdateRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật lộ trình.",
-                pathService.updateSliders(user.userId(), request)));
+        JpathSliderView out = pathService.updateSliders(user.userId(), request);
+        if (learningPace != null) learningPace.manualChange(user.userId(), "JLPT");
+        myPaths.ifAvailable(m -> m.notifyPace(user.userId(), com.jlas.mypaths.MyPathsService.JLPT));
+        return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật lộ trình.", out));
     }
 
     @PostMapping("/path/rebalance")

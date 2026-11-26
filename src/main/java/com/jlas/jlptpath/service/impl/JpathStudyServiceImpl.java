@@ -232,12 +232,29 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             if (t == JpathTab.KANA) {
                 rows = nextKanaRows(userId, remaining);
             } else {
-                newCodes.put(t, newCodes(userId, plan.getLevel(), t, plan.isKanaPhase(), open.isPriorityMode(),
-                        remaining, kanaRemaining));
+                newCodes.put(t, withUnfinished(userId, plan, t, remaining, newCodes(userId, plan.getLevel(), t,
+                        plan.isKanaPhase(), open.isPriorityMode(), remaining - unfinished(userId, plan, t, remaining).size(),
+                        kanaRemaining)));
             }
         }
-        // Plan 3 Task 16: the skill-day quiz (#25) is gone; skill days are done by skill sessions
-        boolean skillQuizNeeded = false;
+        // Q8: an unfinished item brought back as a new card is not also asked as a review card
+        for (Map.Entry<JpathTab, List<String>> e : newCodes.entrySet()) {
+            Set<String> again = new HashSet<>(e.getValue());
+            if (again.isEmpty()) continue;
+            if (e.getKey() == JpathTab.GRAMMAR) {
+                grammarDue = grammarDue.stream().filter(c -> !again.contains(c)).toList();
+            } else if (due.containsKey(e.getKey())) {
+                due.put(e.getKey(), due.get(e.getKey()).stream().filter(d -> !again.contains(d.code())).toList());
+            }
+        }
+        // Plan 3 Task 16: Reading and Listening are skill sessions. QA 20/11: the day completion still waits for the
+        // skill-day quiz (#25, bug 95) whenever the path has a quiz source, so the review round must offer it, else the
+        // day can never be finished ("Ôn và quiz" opened an empty round)
+        JpathDailyTab skillTab = tabs.get(JpathTab.SKILL);
+        boolean skillQuizNeeded = skillDay && skillTab != null && skillTab.getCheckPassedAt() == null
+                && (st == JpathSessionTab.COMBINED || st == JpathSessionTab.SKILL)
+                && JpathPathRules.skillQuizSource(userItems, kanaRows, userId, plan.getLevel(), plan.isKanaPhase())
+                        .isPresent();
         List<JpathQueueStep> q = JpathQueueBuilder.build(new JpathQueueInput(st, JpathSessionMode.TODAY,
                 plan.getDayKind(), plan.isKanaPhase(), due, room, grammarDue, newCodes,
                 practiceCodes(newCodes.getOrDefault(JpathTab.GRAMMAR, List.of())), rows, skillQuizNeeded));
@@ -246,6 +263,7 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         }
         q = heroFirst(q, r.startItemCode());
         if (q.isEmpty()) {
+            settleUnreachableTargets(userId, plan, tabs, st, newCodes);
             // nothing left today on this tab: answer with the last finished session instead of a new empty one
             Optional<JpathStudySession> done = sessions.findByUserIdAndStatusAndModeOrderByIdDesc(userId, COMPLETED,
                     JpathSessionMode.TODAY.name()).stream()
@@ -255,6 +273,33 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             }
         }
         return save(userId, plan.getId(), st, JpathSessionMode.TODAY, q);
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private JpathDayCompletion dayCompletion;
+
+    /**
+     * Walkthrough 25/11: a day planned for 20 words where only 17 could still be queued (the rest learned or known
+     * meanwhile) stayed "17/20" for ever and "Học hôm nay" opened nothing. When the queue is empty, a tab with new
+     * items still owed and none to give is lowered to what was done, and the day is evaluated again.
+     */
+    private void settleUnreachableTargets(Long userId, JpathDailyPlan plan, Map<JpathTab, JpathDailyTab> tabs,
+            JpathSessionTab st, Map<JpathTab, List<String>> newCodes) {
+        if (plan.getAllDoneAt() != null || plan.getDayKind() != JpathDayKind.STUDY) return;
+        JpathTab lowered = null;
+        for (JpathTab t : newTabs(st, plan.isKanaPhase())) {
+            JpathDailyTab row = tabs.get(t);
+            if (t == JpathTab.KANA || row == null || row.getDoneAt() != null) continue;
+            if (row.getNewDone() < row.getNewTarget() && newCodes.getOrDefault(t, List.of()).isEmpty()) {
+                row.setNewTarget(row.getNewDone());
+                dailyTabs.save(row);
+                lowered = t;
+            }
+        }
+        if (lowered != null && dayCompletion != null) {
+            dailyTabs.flush();
+            dayCompletion.evaluate(userId, plan, new ArrayList<>(tabs.values()), lowered, true);
+        }
     }
 
     /** F65 (owner 11/11): extra sessions a tab allows before a passed weekly check (≈ one week ahead). */
@@ -595,6 +640,33 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         return content.nextNewCodes(userId, level, JpathItemType.valueOf(tab.name()), limit, priorityMode, null);
     }
 
+    /**
+     * Q8 (owner 24/11): a study day counts only once its check is passed. Items of an earlier day that were learned
+     * but never passed their check come first today and take places of today's new items, so the day's minutes stay
+     * the same and nothing new comes before the unfinished part. Not in the kana stage (its own row order).
+     */
+    private List<String> unfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit) {
+        if (limit <= 0 || plan.isKanaPhase() || plan.getDayKind() != JpathDayKind.STUDY) {
+            return List.of();
+        }
+        LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
+        return userItems.unfinishedBefore(userId, JpathItemType.valueOf(t.name()), plan.getLevel(), startOfToday,
+                PageRequest.of(0, limit));
+    }
+
+    private List<String> withUnfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit, List<String> fresh) {
+        List<String> carried = unfinished(userId, plan, t, limit);
+        if (carried.isEmpty()) {
+            return fresh;
+        }
+        List<String> out = new ArrayList<>(carried);
+        for (String c : fresh) {
+            if (out.size() >= limit) break;
+            if (!out.contains(c)) out.add(c);
+        }
+        return out;
+    }
+
     /** Patterns with a visible ORDER and a visible FILL exercise get the GRAMMAR_PRACTICE step. */
     private Set<String> practiceCodes(List<String> grammarCodes) {
         Set<String> out = new HashSet<>();
@@ -922,12 +994,17 @@ public class JpathStudyServiceImpl implements JpathStudyService {
 
     /**
      * Segments of the queue in order of first appearance: REVIEW (reviews, retypes, the grammar review),
-     * SKILL_QUIZ (skill-day check), otherwise the step's tab; done = steps before {@code position}.
+     * SKILL_QUIZ (skill-day check), otherwise the step's tab; done = steps before {@code position}. Owner 23/11: KANA
+     * counts kana rows (its KANA_ROW checks), the unit of the path page ("Chữ cái 1/4 hàng"), not the letters.
      */
-    private static List<JpathCombinedStep> segments(List<JpathQueueStep> q, int position) {
+    static List<JpathCombinedStep> segments(List<JpathQueueStep> q, int position) {
         Map<String, int[]> counts = new LinkedHashMap<>();
         for (int i = 0; i < q.size(); i++) {
-            int[] c = counts.computeIfAbsent(segment(q.get(i)), x -> new int[2]);
+            String seg = segment(q.get(i));
+            int[] c = counts.computeIfAbsent(seg, x -> new int[2]);
+            if ("KANA".equals(seg) && q.get(i).checkKind() != JpathCheckKind.KANA_ROW) {
+                continue;
+            }
             c[1]++;
             if (i < position) {
                 c[0]++;

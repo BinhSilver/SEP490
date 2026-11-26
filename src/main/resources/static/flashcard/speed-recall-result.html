@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Gõ phản xạ · Flashcard KotsuKotsu</title>
   <link rel="icon" href="/images/jlab.png" type="image/png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="/css/theme-bridge.css">
@@ -14,14 +14,16 @@
 <link rel="stylesheet" href="/flashcard/speed-recall.css">
 <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261116-quiz-fill">
   <link rel="stylesheet" href="/flashcard/speed-recall-arcade.css?v=20261111-no-lip">
-  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap">
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261125-largescreen">
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
-    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261125-largescreen">
     <script defer src="/js/components/select.js?v=20261111-select2"></script>
+  <link rel="stylesheet" href="/css/components/ui-kit.css?v=20261123-ghost">
+  <link rel="stylesheet" href="/flashcard/ui-standard.css?v=20261123-clean-heading">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--speed-recall speed-recall-page">
   <div id="jlabBaseShellMount"></div>
-  <main id="jlabBaseContent" class="sr-main">
+  <main id="jlabBaseContent" class="sr-main jl-ui-kit">
     <p id="loading" role="status">Đang tải bộ thẻ…</p>
     <div id="error-box" class="sr-error" role="alert" hidden>
       <p id="error-message"></p>
@@ -29,9 +31,8 @@
     </div>
 
     <section id="setup" class="sr-setup" aria-labelledby="set-title" hidden>
-      <h1 id="set-title" class="sr-set-title"></h1>
-      <p id="eligible-count"></p>
       <form id="setup-form">
+        <h1 id="set-title" class="sr-set-title"></h1>
         <div class="sr-fields">
           <label>Thẻ muốn luyện
             <select id="filter" data-jl-select><option value="ALL">Tất cả thẻ hợp lệ</option><option value="LEARNING">Thẻ mới / chưa nhớ</option><option value="CUSTOM">Chọn cặp từ tùy ý</option><option value="RANDOM">Ngẫu nhiên</option></select>
@@ -104,8 +105,8 @@
       <div class="sr-review-heading">
         <h2 id="review-title">Thử lại những từ này</h2>
         <div id="review-navigation" class="sr-review-navigation" hidden>
-          <button id="review-previous" type="button" aria-label="Xem các từ trước" aria-controls="review-list"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
-          <button id="review-next" type="button" aria-label="Xem các từ tiếp theo" aria-controls="review-list"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          <button id="review-previous" type="button" aria-label="Xem các từ trước" aria-controls="review-list">Trước</button>
+          <button id="review-next" type="button" aria-label="Xem các từ tiếp theo" aria-controls="review-list">Tiếp</button>
         </div>
       </div>
       <ul id="review-list" class="sr-review" tabindex="0" aria-labelledby="review-title"></ul>
@@ -124,7 +125,7 @@
       <ul id="history-list" class="sr-history"></ul>
       <p id="history-empty" hidden>Chưa có phiên gõ phản xạ nào trong bộ thẻ này.</p>
       <div class="sr-actions"><button id="previous-page" class="sr-button" type="button">Trang trước</button><span id="history-page"></span><button id="next-page" class="sr-button" type="button">Trang sau</button></div>
-      <a id="history-start" class="sr-link" href="#">Bắt đầu luyện →</a>
+      <a id="history-start" class="sr-link" href="#">Bắt đầu luyện</a>
     </section>
     <p id="live-announcement" class="sr-only" aria-live="polite"></p>
   <dialog id="pause-dialog" class="sr-dialog" aria-labelledby="pause-title">
@@ -136,6 +137,6 @@
   <script src="/js/auth-session.js"></script>
   <script src="/js/jlab-base-shell.js"></script>
   <script src="/flashcard/js/api-client.js"></script>
-  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261111-select"></script>
+  <script type="module" src="/flashcard/js/speed-recall/page.js?v=20261123-heading-inside"></script>
 </body>
 </html>

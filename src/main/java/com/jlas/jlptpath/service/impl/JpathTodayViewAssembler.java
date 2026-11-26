@@ -7,7 +7,6 @@ import com.jlas.jlptpath.dto.JpathCombinedStep;
 import com.jlas.jlptpath.dto.JpathHeroCard;
 import com.jlas.jlptpath.dto.JpathItemRef;
 import com.jlas.jlptpath.dto.JpathResumeView;
-import com.jlas.jlptpath.dto.JpathSliderValues;
 import com.jlas.jlptpath.dto.JpathTodayTab;
 import com.jlas.jlptpath.dto.JpathTodayView;
 import com.jlas.jlptpath.entity.JpathDailyPlan;
@@ -36,7 +35,6 @@ import com.jlas.jlptpath.repository.JpathUserLevelRepository;
 import com.jlas.jlptpath.repository.JpathUserPathRepository;
 import com.jlas.jlptpath.service.JpathCalendarService;
 import com.jlas.jlptpath.service.JpathClock;
-import com.jlas.jlptpath.util.JpathPacingEngine;
 import com.jlas.jlptpath.util.JpathQueueStep;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -159,7 +157,7 @@ public class JpathTodayViewAssembler {
         JpathUserLevel open = openLevel(path);
         JpathDayRules.DayPlan day = JpathDayRules.dayPlan(content, calendar, plans, path, open, today);
         List<JpathDailyTab> tabRows = JpathDayRules.tabRows(day.kind(), day.kanaPhase(), path.isKanaTab(),
-                path.getStudyMode(), open, path.getDailyMinutes());
+                path.getStudyMode(), open, path.getDailyMinutes(), JpathDayRules.kanaRows(path, today));
         int remaining = tabRows.stream()
                 .filter(t -> t.getTab() == tab).findFirst().map(JpathDailyTab::getNewTarget).orElse(0);
         int kanaRemaining = day.kanaPhase() && tab == JpathTab.VOCAB
@@ -202,10 +200,11 @@ public class JpathTodayViewAssembler {
                     t.getDoneAt() != null, required.contains(t.getTab())));
         }
         boolean study = plan.getDayKind() == JpathDayKind.STUDY;
-        JpathSliderValues targets = new JpathSliderValues(target(tabs, JpathTab.VOCAB), target(tabs, JpathTab.KANJI),
-                target(tabs, JpathTab.GRAMMAR));
-        int minutes = study ? JpathPacingEngine.dayMinutes(targets, plan.isKanaPhase(), path.getStudyMode(),
-                path.getDailyMinutes()) : 0;
+        int minutes = study ? minutesLeft(tabs.values()) : 0;
+        JpathTodayTab skillLeft = tabs.get(JpathTab.SKILL);
+        if (plan.getDayKind() == JpathDayKind.SKILL && skillLeft != null && skillLeft.required() && !skillLeft.done()) {
+            minutes = Math.max(minutes, SKILL_QUIZ_MINUTES);
+        }
         boolean reviewDayHint = study && tabs.values().stream()
                 .anyMatch(t -> t.reviewCap() > 0 && t.reviewDue() > 3 * t.reviewCap());
         List<JpathStudySession> open = openTodaySessions(userId, plan);
@@ -217,9 +216,31 @@ public class JpathTodayViewAssembler {
                         .orElse(null));
     }
 
-    private static int target(Map<JpathTab, JpathTodayTab> tabs, JpathTab tab) {
-        JpathTodayTab t = tabs.get(tab);
-        return t == null ? 0 : t.newTarget();
+    /**
+     * Owner 23/11: the minutes of the path page are the study page's ("~30 phút còn lại" there, "khoảng 24 phút" here):
+     * what is left of today's new items with the session's weights (JpathStudyServiceImpl#minutesLeft: word 0.6,
+     * kanji 1.25, pattern 4.0, kana row 6.0) plus the due reviews the day still takes (0.15 each).
+     */
+    /** A 10-question skill quiz still to pass: about 3 minutes. */
+    static final int SKILL_QUIZ_MINUTES = 3;
+
+    static int minutesLeft(java.util.Collection<JpathTodayTab> tabs) {
+        double total = 0;
+        for (JpathTodayTab t : tabs) {
+            int left = Math.max(0, t.newTarget() - t.newDone());
+            total += left * switch (t.tab()) {
+                case VOCAB -> JpathStudyServiceImpl.MIN_VOCAB;
+                case KANJI -> JpathStudyServiceImpl.MIN_KANJI;
+                case GRAMMAR -> JpathStudyServiceImpl.MIN_GRAMMAR;
+                case KANA -> JpathStudyServiceImpl.MIN_KANA_ROW;
+                case SKILL -> 0.0;
+            };
+            if (t.tab() != JpathTab.SKILL) {
+                int room = t.reviewCap() > 0 ? Math.max(0, t.reviewCap() - t.reviewDone()) : t.reviewDue();
+                total += Math.min(t.reviewDue(), room) * JpathStudyServiceImpl.MIN_REVIEW;
+            }
+        }
+        return (int) Math.ceil(total - 1e-9);
     }
 
     /**
@@ -261,7 +282,9 @@ public class JpathTodayViewAssembler {
                 JpathTodayTab skill = tabs.get(JpathTab.SKILL);
                 done = skill == null ? 0 : skill.newDone();
                 total = skill == null ? 0 : skill.newTarget();
-                complete = skill == null || skill.done() || done >= total;
+                // the skill day ends with its quiz (#25): sessions done is not enough while the tab is not done,
+                // else a failed quiz left the step ticked, 0 minutes and a day that could never finish
+                complete = skill == null || skill.done() || (done >= total && !skill.required());
             } else {
                 JpathTodayTab t = tabs.get(JpathTab.valueOf(key));
                 done = t == null ? 0 : t.newDone();

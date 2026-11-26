@@ -6,17 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${pageTitle}">Bắt cá · KotsuKotsu</title>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
-    <link rel="stylesheet" th:href="@{/arena/app/neko/neko-app.css(v='20261112-one-catch')}" />
+    <link rel="stylesheet" th:href="@{/arena/app/neko/neko-app.css(v='20261126-hangar')}" />
     <link rel="stylesheet" th:href="@{/arena/css/voice.css}" />
+    <link rel="stylesheet" href="/css/components/select.css?v=20261124-ui-standard" />
+    <script defer src="/js/components/select.js?v=20261124-ui-standard"></script>
 </head>
-<body id="arenaGamePage" class="arena-play arena-play--neko">
-<div id="neko-root"
+<body id="arenaGamePage" class="arena-play arena-play--neko game-ui-standard">
+<link rel="stylesheet" href="/css/tokens.css?v=20261119-compact">
+<link rel="stylesheet" href="/css/dark-page.css">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
+<div id="neko-root" data-cp-plain
      th:attr="data-session-id=${sessionId},data-room-id=${session.roomId},data-mode=${session.mode},data-back-url=${session.backUrl},data-me-id=${session.meUserId},data-skin=${skin},data-skin-id=${skinItem?.id},data-skin-render-code=${skinItem?.renderCode},data-skin-image=${skinItem?.image},data-skin-pack=${skinItem?.packPath},data-skin-weapon=${skinItem?.weaponTheme},data-skin-name=${skinItem?.name}">
 </div>
 <noscript>Trình duyệt này chưa chạy được game. Hãy mở bằng Chrome, Edge hoặc Safari bản mới.</noscript>
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/arena/js/arena-client.js}"></script>
+<script th:src="@{/arena/js/arena-client.js(v='20261119-leave-fast')}"></script>
 <script th:src="@{/arena/js/voice-client.js}"></script>
-<script type="module" th:src="@{/arena/app/neko/neko-app.js(v='20261112-one-catch')}"></script>
+<script type="module" th:src="@{/arena/app/neko/neko-app.js(v='20261126-hangar')}"></script>
 </body>
 </html>

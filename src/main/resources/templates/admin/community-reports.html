@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" class="light" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-head :: head('Báo cáo cộng đồng - KotsuKotsu', 'learning-content-reports')}"></head>
+<body id="jlabBasePage" class="admin-portal">
+<!-- Tab loại + nhãn loại trên thẻ; phần còn lại dùng chung learning-content-reports.css (lcr-*). -->
+<style>
+    .cr-kinds { display:flex; flex-wrap:wrap; gap:8px; margin:-8px 0 20px; border-bottom:1px solid var(--color-outline-variant); }
+    .lcr-page .cr-kinds button { display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:8px 14px; border:0; border-bottom:2px solid transparent; border-radius:0; background:none; color:var(--color-on-surface-variant); font-weight:600; cursor:pointer; }
+    .lcr-page .cr-kinds button[aria-selected="true"] { color:var(--color-primary); border-bottom-color:var(--color-primary); }
+    .cr-kinds .cr-count { min-width:22px; padding:1px 7px; border-radius:999px; background:var(--color-surface-container, rgba(0,0,0,.06)); font-size:var(--text-xs); text-align:center; }
+    .cr-kinds [aria-selected="true"] .cr-count { background:var(--color-primary); color:var(--color-on-primary); }
+    .cr-badge { display:inline-block; margin-right:6px; padding:1px 8px; border-radius:999px; font-size:11px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; vertical-align:1px; background:var(--color-surface-container, rgba(0,0,0,.06)); color:var(--color-on-surface); }
+    .cr-badge--POST { background:var(--color-primary-fixed); color:var(--color-primary); }
+    .cr-badge--COMMENT { background:var(--color-tertiary-container); color:var(--color-tertiary); }
+    .cr-badge--FLASHCARD_SET { background:var(--color-secondary-container); color:var(--color-secondary); }
+    .cr-badge--SHADOWING_VIDEO { background:var(--color-warning-bg); color:var(--color-warning); }
+</style>
+<div id="adminShellMount"></div>
+<main id="jlabBaseContent" class="lcr-page" hidden>
+    <header><h1>Báo cáo cộng đồng</h1><p>Bài viết, nội dung chia sẻ và bình luận bị người học báo cáo trong Cộng đồng. Gỡ nội dung vi phạm hoặc giữ lại nếu báo cáo không đúng; tác giả nhận thông báo kèm lý do.</p></header>
+    <form id="crFilters" class="lcr-filters">
+        <label>Trạng thái<select data-jl-select id="crStatus"><option value="OPEN">Chờ xử lý</option><option value="CLOSED">Đã xử lý</option></select></label>
+        <button type="submit">Tải lại</button><span id="lcrCount" role="status"></span>
+    </form>
+    <div id="crKinds" class="cr-kinds" role="tablist" aria-label="Loại nội dung bị báo cáo"></div>
+    <p id="lcrNotice" role="status" hidden></p>
+    <div class="lcr-workspace"><section aria-label="Danh sách báo cáo"><div id="lcrList"></div><nav class="lcr-pagination" aria-label="Trang báo cáo"><button id="lcrPrevious" type="button">Trang trước</button><span id="lcrPage"></span><button id="lcrNext" type="button">Trang tiếp</button></nav></section>
+        <article id="lcrDetail" aria-label="Chi tiết báo cáo"><p>Chọn một báo cáo để xem nội dung.</p></article>
+    </div>
+</main>
+<script th:src="@{/js/pages/admin-core.js(v=20261125-user-detail-modal)}"></script>
+<script th:src="@{/js/admin-shell.js(v=20261109-kotsu)}"></script>
+<script th:src="@{/js/pages/community-reports.js(v=20261123-kinds)}"></script>
+</body></html>

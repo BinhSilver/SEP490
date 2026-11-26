@@ -37,4 +37,12 @@ public class YoutubeAnalyzeResultDto {
     private boolean blockedNoSubtitleTooLong;
     private String aiCostLabel;
     private String message;
+    /**
+     * Ngôn ngữ lời thoại gốc (mã 2 chữ, vd. "ja", "vi"): từ phụ đề tự động gốc của YouTube (khoá "xx-orig"), không có
+     * thì từ ngôn ngữ khai báo; null = không rõ. Khác {@link #language}: phụ đề "ja" do YouTube tự dịch không tính.
+     */
+    private String spokenLanguage;
+    /** Mô tả video (cắt còn 1000 ký tự) và tối đa 15 thẻ, để AI xét chủ đề video ở Cộng đồng. */
+    private String description;
+    private java.util.List<String> tags;
 }

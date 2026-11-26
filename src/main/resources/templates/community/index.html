@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Cộng đồng | KotsuKotsu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261108-plum)}"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -20,62 +22,134 @@
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent">
-    <div class="cm-page">
-        <header class="cm-hero">
-            <div>
-                <h1 class="cm-title">Cộng đồng</h1>
-                <p class="cm-subtitle">Khám phá nội dung học do người học chia sẻ công khai: đánh giá, bình luận và báo cáo nội dung không phù hợp.</p>
-            </div>
+    <div class="cm-page cm-page--feed">
+        <header class="cm-hero cm-hero--compact">
+            <h1 class="cm-title">Cộng đồng</h1>
+            <p class="cm-subtitle">Chia sẻ kinh nghiệm học tiếng Nhật, hỏi đáp và khám phá nội dung người học chia sẻ.</p>
         </header>
 
-        <form class="cm-filters" id="cmFilters" role="search" aria-label="Tìm kiếm nội dung cộng đồng">
-            <label class="cm-search">
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <span class="cm-visually-hidden">Từ khoá</span>
-                <input type="search" name="keyword" id="cmKeyword" maxlength="100" placeholder="Tìm theo tên hoặc mô tả…" autocomplete="off">
-            </label>
-            <label class="cm-field">
-                <span>Loại nội dung</span>
-                <select name="contentType" id="cmType"><option value="">Tất cả</option></select>
-            </label>
-            <label class="cm-field">
-                <span>Cấp độ</span>
-                <select name="jlptLevel" id="cmLevel"><option value="">Tất cả</option></select>
-            </label>
-            <label class="cm-field">
-                <span>Đánh giá</span>
-                <select name="minRating" id="cmRating">
-                    <option value="">Tất cả</option>
-                    <option value="4">Từ 4 sao</option>
-                    <option value="3">Từ 3 sao</option>
-                    <option value="2">Từ 2 sao</option>
-                    <option value="1">Từ 1 sao</option>
-                </select>
-            </label>
-            <label class="cm-field">
-                <span>Sắp xếp</span>
-                <select name="sort" id="cmSort"><option value="newest">Mới nhất</option></select>
-            </label>
-            <div class="cm-filters__actions">
-                <button type="submit" class="btn btn--primary btn--sm">Tìm kiếm</button>
-                <button type="button" class="btn btn--secondary btn--sm" id="cmReset">Xoá lọc</button>
-            </div>
-        </form>
+        <div class="cm-layout">
+            <section class="cm-feed" aria-label="Bảng tin cộng đồng">
 
-        <p class="cm-summary" id="cmSummary" aria-live="polite"></p>
-        <section class="cm-grid" id="cmGrid" aria-live="polite" aria-busy="true"></section>
+                <!-- Thanh công cụ: tìm kiếm (debounce) · nút Bộ lọc (popover pill) · Sắp xếp (áp dụng ngay). -->
+                <div class="cm-toolbar" role="search" aria-label="Tìm kiếm và lọc nội dung cộng đồng">
+                    <label class="cm-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <span class="cm-visually-hidden">Từ khoá</span>
+                        <input type="search" id="cmKeyword" maxlength="100" placeholder="Tìm bài viết, nội dung…" autocomplete="off">
+                    </label>
+                    <div class="cm-filter-wrap" id="cmFilterWrap">
+                        <button type="button" class="cm-filter-btn" id="cmFilterToggle" aria-haspopup="dialog" aria-controls="cmSide" aria-expanded="false">
+                            <i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="cm-filter-btn__text">Bộ lọc</span>
+                            <span class="cm-filter-btn__count" id="cmFilterCount" hidden></span>
+                        </button>
+                        <div class="cm-filter-panel" id="cmSide" role="dialog" aria-labelledby="cmFilterTitle">
+                            <div class="cm-side__head">
+                                <h2 id="cmFilterTitle">Bộ lọc</h2>
+                                <button type="button" class="cm-icon-btn" id="cmFilterClose" aria-label="Đóng bộ lọc"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="cm-pill-group">
+                                <span class="cm-pill-group__label" id="cmTypeLabel">Loại nội dung</span>
+                                <div class="cm-pills" id="cmTypePills" role="radiogroup" aria-labelledby="cmTypeLabel"></div>
+                            </div>
+                            <div class="cm-pill-group">
+                                <span class="cm-pill-group__label" id="cmLevelLabel">Cấp độ</span>
+                                <div class="cm-pills" id="cmLevelPills" role="radiogroup" aria-labelledby="cmLevelLabel"></div>
+                            </div>
+                            <div class="cm-pill-group">
+                                <span class="cm-pill-group__label" id="cmRatingLabel">Đánh giá</span>
+                                <div class="cm-pills" id="cmRatingPills" role="radiogroup" aria-labelledby="cmRatingLabel"></div>
+                            </div>
+                            <div class="cm-filter-panel__foot">
+                                <button type="button" class="cm-link-btn" id="cmReset">Xoá lọc</button>
+                                <button type="button" class="btn btn--primary btn--sm" id="cmApply">Áp dụng</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="cm-filter-btn cm-saved-btn" id="cmSavedToggle" aria-pressed="false" title="Chỉ hiện bài bạn đã lưu">
+                        <i class="fa-regular fa-bookmark" aria-hidden="true"></i><span class="cm-filter-btn__text">Đã lưu</span>
+                    </button>
+                    <label class="cm-sort">
+                        <span class="cm-visually-hidden">Sắp xếp</span>
+                        <select class="select" data-jl-select data-variant="filter" id="cmSort"><option value="newest">Mới nhất</option></select>
+                    </label>
+                </div>
+                <div class="cm-drawer-backdrop" id="cmDrawerBackdrop" hidden></div>
+                <div class="cm-active-chips" id="cmChips" aria-label="Bộ lọc đang dùng" hidden></div>
 
-        <nav class="cm-pager" id="cmPager" aria-label="Phân trang" hidden>
-            <button type="button" class="btn btn--secondary btn--sm" data-step="-1">Trang trước</button>
-            <span id="cmPageInfo"></span>
-            <button type="button" class="btn btn--secondary btn--sm" data-step="1">Trang sau</button>
-        </nav>
+                <!-- Ô soạn bài (dưới thanh tìm kiếm): chữ + tối đa 4 ảnh + 1 video (tải lên hoặc YouTube). -->
+                <div class="cm-composer" id="cmComposer">
+                    <div class="cm-composer__row">
+                        <span id="cmComposerAvatar"></span>
+                        <button type="button" class="cm-composer__open" id="cmComposerOpen" aria-controls="cmComposerForm" aria-expanded="false">
+                            <span id="cmComposerPrompt">Bạn đang nghĩ gì thế?</span>
+                        </button>
+                        <div class="cm-composer__quick">
+                            <button type="button" class="cm-quick cm-quick--video" id="cmQuickVideo" title="Video" aria-label="Thêm video">
+                                <i class="fa-solid fa-video" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--photo" id="cmQuickPhoto" title="Ảnh" aria-label="Thêm ảnh">
+                                <i class="fa-solid fa-images" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--youtube" id="cmQuickYoutube" title="Link YouTube" aria-label="Thêm link YouTube">
+                                <i class="fa-brands fa-youtube" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+                    <form class="cm-composer__form" id="cmComposerForm" hidden>
+                        <label class="cm-visually-hidden" for="cmComposerBody">Nội dung bài viết</label>
+                        <textarea id="cmComposerBody" class="cm-composer__input" rows="4" maxlength="5000"
+                                  placeholder="Chia sẻ kinh nghiệm, câu hỏi hoặc tài liệu học tiếng Nhật…"></textarea>
+                        <div class="cm-attach-list" id="cmAttachList" hidden></div>
+                        <div class="cm-youtube-row" id="cmYoutubeRow" hidden>
+                            <i class="fa-brands fa-youtube" aria-hidden="true"></i>
+                            <label class="cm-visually-hidden" for="cmYoutubeInput">Link YouTube</label>
+                            <input class="input" type="url" id="cmYoutubeInput" placeholder="Dán link YouTube (youtube.com/watch?v=… hoặc youtu.be/…)" autocomplete="off">
+                            <button type="button" class="cm-icon-btn" id="cmYoutubeClear" aria-label="Bỏ link YouTube"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                        </div>
+                        <input type="file" id="cmPickImage" accept="image/jpeg,image/png,image/webp" multiple hidden>
+                        <input type="file" id="cmPickVideo" accept="video/mp4,video/webm" hidden>
+                        <div class="cm-composer__tools">
+                            <span class="cm-composer__tools-label">Thêm vào bài viết</span>
+                            <button type="button" class="cm-quick cm-quick--photo" id="cmToolPhoto" aria-label="Thêm ảnh (tối đa 4, mỗi ảnh ≤ 5MB)" title="Ảnh (tối đa 4, ≤ 5MB/ảnh)"><i class="fa-solid fa-images" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--video" id="cmToolVideo" aria-label="Thêm video (MP4/WebM ≤ 50MB)" title="Video MP4/WebM ≤ 50MB"><i class="fa-solid fa-video" aria-hidden="true"></i></button>
+                            <button type="button" class="cm-quick cm-quick--youtube" id="cmToolYoutube" aria-label="Thêm link YouTube" title="Link YouTube"><i class="fa-brands fa-youtube" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="cm-composer__foot">
+                            <label class="cm-composer__level">
+                                <span>Cấp độ</span>
+                                <select class="select" data-jl-select id="cmComposerLevel">
+                                    <option value="">Chung</option>
+                                    <option value="N5">N5</option>
+                                    <option value="N4">N4</option>
+                                    <option value="N3">N3</option>
+                                    <option value="N2">N2</option>
+                                    <option value="N1">N1</option>
+                                </select>
+                            </label>
+                            <span class="cm-composer__count" id="cmComposerCount">0/5000</span>
+                            <button type="button" class="btn btn--secondary btn--sm" id="cmComposerCancel">Huỷ</button>
+                            <button type="submit" class="btn btn--primary btn--sm" id="cmComposerSubmit" disabled>Đăng</button>
+                        </div>
+                    </form>
+                </div>
+
+                <p class="cm-summary" id="cmSummary" aria-live="polite"></p>
+                <div class="cm-feed__list" id="cmFeed" aria-live="polite" aria-busy="true"></div>
+                <div id="cmFeedState"></div>
+                <div class="cm-feed__sentinel" id="cmSentinel" aria-hidden="true"></div>
+                <div class="cm-feed__more">
+                    <button type="button" class="btn btn--secondary btn--sm" id="cmLoadMore" hidden>Xem thêm</button>
+                </div>
+            </section>
+        </div>
     </div>
+
+    <th:block th:replace="~{community/modals :: modals}"></th:block>
 </main>
 
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
-<script th:src="@{/js/pages/community-common.js(v=20261102)}"></script>
-<script th:src="@{/js/pages/community-feed.js(v=20261102)}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
+<script th:src="@{/js/pages/community-common.js(v=20261124-toast)}"></script>
+<script th:src="@{/js/pages/community-cards.js(v=20261125-phase2a)}"></script>
+<script th:src="@{/js/pages/community-feed.js(v=20261124-saved)}"></script>
+<script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
 </body>
 </html>

@@ -35,7 +35,7 @@ public class JpathUserBadge {
     @PrePersist
     void fillEarnedAt() {
         if (earnedAt == null) {
-            earnedAt = LocalDateTime.now();
+            earnedAt = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
         }
     }
 }

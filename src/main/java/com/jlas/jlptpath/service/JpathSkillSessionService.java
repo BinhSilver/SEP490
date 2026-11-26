@@ -22,6 +22,14 @@ public interface JpathSkillSessionService {
     JpathSkillSessionView get(Long userId, Long sessionId);
 
     /**
+     * F238: skill sessions carried from earlier weeks (no active path → nothing owed). A DAY session may start on a
+     * normal study day while {@code offerToday}; it pays one carried session and does not touch the day's tabs.
+     */
+    default com.jlas.jlptpath.dto.JpathSkillCarryView carry(Long userId) {
+        return new com.jlas.jlptpath.dto.JpathSkillCarryView(0, "READING", false, false);
+    }
+
+    /**
      * Moves the session one step when it may: THEORY → PRACTICE once the lesson check is passed (otherwise
      * JPATH_SKILL_LESSON_REQUIRED); PRACTICE → DICTATION (listening) or DONE (reading) once the practice check is
      * SUBMITTED; DICTATION → DONE once the dictation check is SUBMITTED. Otherwise the session stays as it is. DONE sets

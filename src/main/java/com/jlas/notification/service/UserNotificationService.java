@@ -26,10 +26,19 @@ public class UserNotificationService implements UserNotificationPort {
                 .title(title).message(message).targetUrl(targetUrl).eventKey(eventKey).build());
     }
 
-    /** Once-a-day greeting, sent at login (reading the feed must not write data). */
+    /**
+     * Once-a-day greeting, sent at login (reading the feed must not write data). The first login of a new account
+     * says "welcome to KotsuKotsu"; later days say "welcome back".
+     */
     @Override
-    public void greetDaily(Long userId, String fullName) {
+    public void greetDaily(Long userId, String fullName, boolean firstLogin) {
         String name = fullName == null || fullName.isBlank() ? "bạn" : fullName.trim();
+        if (firstLogin) {
+            notifyUser(userId, "WELCOME", "Chào mừng bạn đến với KotsuKotsu",
+                    "Chào " + name + ", rất vui được đồng hành cùng bạn học tiếng Nhật!", "/",
+                    "WELCOME_" + LocalDate.now());
+            return;
+        }
         notifyUser(userId, "WELCOME", "Chào mừng bạn quay lại", "Chúc mừng bạn quay lại, " + name + "!", "/",
                 "WELCOME_" + LocalDate.now());
     }

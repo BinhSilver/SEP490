@@ -14,14 +14,24 @@ public record JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSession
                                     JpathSkillStep step, int setCount, int questionCount, int dictationCount,
                                     boolean reused, String practiceToken, String dictationToken, boolean done,
                                     int cpAwarded, java.time.LocalDate studyDay,
-                                    Integer practiceCorrect, Integer dictationCorrect) {
+                                    Integer practiceCorrect, Integer dictationCorrect, Integer retryPct) {
+    /** Q7 (owner 24/11): {@code retryPct} = score of the last practice of a skill day below 50% (to redo), else null. */
+    public JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
+                                 JpathSkillStep step, int setCount, int questionCount, int dictationCount,
+                                 boolean reused, String practiceToken, String dictationToken, boolean done,
+                                 int cpAwarded, java.time.LocalDate studyDay,
+                                 Integer practiceCorrect, Integer dictationCorrect) {
+        this(id, skill, kind, typeCode, step, setCount, questionCount, dictationCount, reused, practiceToken,
+                dictationToken, done, cpAwarded, studyDay, practiceCorrect, dictationCorrect, null);
+    }
+
     /** Canonical view before per-section correct counts (05/11 caller compatibility). */
     public JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSessionKind kind, String typeCode,
                                  JpathSkillStep step, int setCount, int questionCount, int dictationCount,
                                  boolean reused, String practiceToken, String dictationToken, boolean done,
                                  int cpAwarded, java.time.LocalDate studyDay) {
         this(id, skill, kind, typeCode, step, setCount, questionCount, dictationCount, reused, practiceToken,
-                dictationToken, done, cpAwarded, studyDay, null, null);
+                dictationToken, done, cpAwarded, studyDay, null, null, null);
     }
 
     /** Owner 05/11: the study day of the session, so the practice page names the right date. */
@@ -30,6 +40,6 @@ public record JpathSkillSessionView(Long id, JpathSkill skill, JpathSkillSession
                                  boolean reused, String practiceToken, String dictationToken, boolean done,
                                  int cpAwarded) {
         this(id, skill, kind, typeCode, step, setCount, questionCount, dictationCount, reused, practiceToken,
-                dictationToken, done, cpAwarded, null, null, null);
+                dictationToken, done, cpAwarded, null, null, null, null);
     }
 }

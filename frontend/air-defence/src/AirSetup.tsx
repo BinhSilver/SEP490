@@ -233,7 +233,7 @@ export function AirSetup() {
       <section className="ad-setup__panel" aria-labelledby="ad-setup-title">
         <header className="ad-setup__head">
           <button type="button" className="ad-setup__back" onClick={() => void leaveSetup()}>
-            <i className="fa-solid fa-chevron-left" aria-hidden="true" /> Quay về
+            Quay về
           </button>
           <div>
             <p className="ad-setup__kicker">Luyện tập một mình</p>

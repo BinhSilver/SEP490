@@ -114,6 +114,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathCheckServiceImpl implements JpathCheckService {
 
+    /** Q5: pass mark of the weekly check, the same as the comm path (CpathService.WEEKLY_PASS). */
+    static final int WEEKLY_PASS_PCT = 80;
+
     static final String ISSUED = "ISSUED";
     static final String SUBMITTED = "SUBMITTED";
     static final String EXPIRED = "EXPIRED";
@@ -149,6 +152,7 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             JpathCheckKind.SKILL_DICTATION, JpathCheckKind.SKILL_SECTION);
     /** Plan 3 #40: a timed section refuses answers this long after its deadline (network latency). */
     static final long SECTION_GRACE_SECONDS = 5;
+    static final int SKILL_DAY_QUIZ_PCT = 50;
     static final String SKILL_SESSION_URL = "/learning/jlpt/skills/session/";
     private static final Set<JpathTab> CARD_TABS = EnumSet.of(JpathTab.VOCAB, JpathTab.KANJI, JpathTab.GRAMMAR);
     /** Kinds bound to one item of the step: a check of another item is never reused for them. */
@@ -604,11 +608,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             case TOPIC_KNOWN -> picker.topic(userId, spec.level(), r.topicKey(), timerOn, seed);
             case WEEK_KNOWN -> {
                 JpathPartsService parts = partsService == null ? null : partsService.getIfAvailable();
-                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count());
+                JpathPartsService.WeekSkip w = parts == null ? null : parts.weekSkip(userId, spec.tab(), r.count(),
+                        spec.tab() == JpathTab.KANA ? r.topicKey() : null);
                 if (w == null || !w.offer()) {
                     throw new ApiException(ErrorCode.VALIDATION_FAILED, "Bài kiểm tra bỏ qua tuần chưa mở cho bạn.");
                 }
-                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed);
+                yield picker.week(userId, spec.tab(), spec.level(), w.codes(), timerOn, seed,
+                        spec.tab() == JpathTab.KANA && r.topicKey() != null);
             }
             case FREE_QUIZ -> picker.freeQuiz(userId, spec.tab(), spec.level(), open, e.topicKey(), e.unitNo(),
                     e.source(), e.count(), e.direction(), timerOn, seed);
@@ -900,6 +906,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         if (r.value() != null && r.value().length() > 1000) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Câu trả lời quá dài.");
         }
+        // a timed check sends a blank answer when the question's timer runs out: that one counts wrong (bug 91 only
+        // refuses blanks the learner could still answer)
+        if (("MCQ".equals(qv.type()) || "AUDIO_MCQ".equals(qv.type()))
+                && (r.value() == null || r.value().isBlank()) && !set.isTimerOn()) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "Hãy chọn đáp án trước khi nộp.");
+        }
         requireOpen(set);
         LocalDateTime now = clock.now();
         if (pastDeadline(set, now)) {
@@ -1097,7 +1109,9 @@ public class JpathCheckServiceImpl implements JpathCheckService {
             }
         }
         int percent = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
-        Boolean passed = passed(set.getKind(), correct, total);
+        // owner 18/11 kana stage: the kana skip test passes at 80% like the kana row check
+        Boolean passed = set.getKind() == JpathCheckKind.WEEK_KNOWN && set.getTab() == JpathTab.KANA
+                ? passed(JpathCheckKind.KANA_ROW, correct, total) : passed(set.getKind(), correct, total);
         LocalDateTime last = set.getLastAnswerAt() != null ? set.getLastAnswerAt() : now;
         long spentMs = Duration.between(set.getIssuedAt(), last).toMillis();
         boolean tooFast = total > 0 && spentMs < (long) JpathCheckSizing.TOO_FAST_MS_PER_UNIT * total;
@@ -1108,7 +1122,13 @@ public class JpathCheckServiceImpl implements JpathCheckService {
         // #25 / D4: only a quiz of ≥ 10 questions on LEARNED or NOTEBOOK items counts for the skill day.
         // The server-chosen skill-day step counts whatever its size (its pool may give fewer than 10 questions).
         // Plan 3 Task 16 removed rule #25: a free quiz never completes a skill day any more
-        boolean skillDayQuiz = false;
+        // Q5 (owner 24/11): the weekly check (FREE_QUIZ source WEEK, 10+ questions, not a redo) — 80% pays CP
+        boolean weeklyCheck = set.getKind() == JpathCheckKind.FREE_QUIZ
+                && JpathStudyServiceImpl.weekly(set.getIssueJson());
+        // Q7 (owner 24/11) + bug 25/11: the skill day's quiz counts at 50%+ (JpathDayCompletion still waits for it;
+        // it was switched off, so a skill day never finished and every next day became a make-up skill day)
+        boolean skillDayQuiz = set.getKind() == JpathCheckKind.FREE_QUIZ && !weeklyCheck
+                && percent >= SKILL_DAY_QUIZ_PCT;
 
         List<String> itemCodes = readList(set.getItemCodesJson());
         JpathStudySession session = set.getSessionId() == null ? null
@@ -1125,9 +1145,12 @@ public class JpathCheckServiceImpl implements JpathCheckService {
                 tabs = dailyTabs.findForUpdateByPlanId(today.getId());
             }
         }
+        // only the quiz step of today's skill-day session ("Ôn và quiz") takes it; a free quiz from a list never does
+        skillDayQuiz = skillDayQuiz && session != null && today != null && today.getDayKind() == JpathDayKind.SKILL;
         JpathCheckEffects.Applied applied = effects.apply(set,
                 new JpathCheckEffects.Scored(passed, tooFast, itemCodes, wrong, grammarRatings, keys.pending(),
-                        skillReview, skillDayQuiz), session, today, tabs);
+                        skillReview, skillDayQuiz, weeklyCheck, weeklyCheck && percent >= WEEKLY_PASS_PCT),
+                session, today, tabs);
 
         boolean rewardEligible = !tooFast && applied.dayCredit();
         boolean skillKind = SKILL_KINDS.contains(set.getKind());

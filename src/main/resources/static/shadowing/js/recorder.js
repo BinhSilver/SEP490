@@ -125,6 +125,24 @@
     button.setAttribute('aria-label', recording ? 'Dừng thu câu này' : 'Thu câu này');
     const icon = button.querySelector('i');
     if (icon) icon.className = recording ? 'fa-solid fa-stop' : 'fa-solid fa-microphone';
+    if (!recording) button.querySelector('.sub-pron-record-btn__time')?.remove();
+  }
+
+  /** While recording, the button itself shows the seconds left, so a press is clearly taken and the end is in sight. */
+  function setRecordingCountdown(card, secondsLeft) {
+    const button = card.querySelector('[data-action="record"]');
+    if (!button || !button.classList.contains('recording')) return;
+    let time = button.querySelector('.sub-pron-record-btn__time');
+    if (!time) {
+      time = document.createElement('span');
+      time.className = 'sub-pron-record-btn__time';
+      button.appendChild(time);
+    }
+    const seconds = Math.max(0, Math.ceil(secondsLeft));
+    if (time.dataset.seconds === String(seconds)) return;
+    time.dataset.seconds = String(seconds);
+    time.textContent = seconds + 's';
+    button.title = 'Dừng thu câu này · còn ' + seconds + ' giây';
   }
 
   async function startRecording(card, index, options = {}) {
@@ -223,6 +241,7 @@
       setStatus(card, 'Đang thu câu #' + context.sentenceNumber + ' · ' + formatTime(elapsed) + ' / ' + formatTime(limit)
         + (Number.isFinite(sentenceSeconds) ? ' · câu dài ' + sentenceSeconds.toFixed(1).replace('.', ',')
           + ' giây + ' + EXTRA_SECONDS + ' giây' : ''));
+      setRecordingCountdown(card, limit - elapsed);
       options.onState?.('recording', Math.max(0, limit - elapsed));
     }
     tick();
