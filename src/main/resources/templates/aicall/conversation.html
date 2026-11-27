@@ -392,11 +392,13 @@
         <p style="color:var(--muted)">Bạn đã hoàn thành nhiệm vụ. Xem kết quả hoặc luyện tiếp.</p>
         <div class="complete-actions">
             <a class="btn btn-primary" id="btnResult" href="#"><i class="fa-solid fa-chart-simple"></i> Kết quả</a>
+            <th:block th:unless="${scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-test-')}">
             <a class="btn btn-secondary" th:href="@{'/scenario/' + ${scenario.id} + '/start'}">
                 <i class="fa-solid fa-rotate-left"></i> Luyện lại
             </a>
             <a class="btn btn-secondary" th:if="${scenario.category != null}" th:href="@{'/category/' + ${scenario.category.id}}"><i class="fa-solid fa-forward"></i> Tiếp theo</a>
             <a class="btn btn-ghost" th:href="@{/ai-call}"><i class="fa-solid fa-house"></i> Trang chủ</a>
+            </th:block>
         </div>
     </div>
 </div>
