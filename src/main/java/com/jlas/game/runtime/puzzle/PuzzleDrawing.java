@@ -55,6 +55,12 @@ final class PuzzleDrawing {
         }
 
         List<Segment> added = List.copyOf(action.segments());
+        // A paint-bucket fill is a single point on its own, never an eraser mark.
+        boolean filling = added.stream().anyMatch(Segment::fill);
+        if (filling && (added.size() != 1 || added.getFirst().erase()
+                || added.getFirst().x() != added.getFirst().toX() || added.getFirst().y() != added.getFirst().toY())) {
+            throw invalidAction();
+        }
         if (board.size() + added.size() > MAX_SEGMENTS) {
             throw new ApiException(ErrorCode.CONFLICT, "Bảng vẽ đã đầy. Hãy dùng Xóa bảng để vẽ tiếp.");
         }

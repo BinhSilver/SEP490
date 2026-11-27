@@ -7,6 +7,12 @@ const effects = {
     finish: memoryAudio + 'complete.mp3',
     countdown: '/arena/app/neko/sound/countdown-beep-377323.mp3'
 };
+// The clips are already mastered near full scale (peaks about -1 dB), so they play close to it; the old 0.3-0.4
+// levels sat about 10 dB under the rest of the site and the music was hard to hear even at full speaker volume.
+// The mismatch buzz is far louder on its own (mean about -4 dB), so it stays lower.
+const MUSIC_VOLUME = 0.85;
+const EFFECT_VOLUMES = { countdown: 0.75, wrong: 0.55 };
+const EFFECT_VOLUME = 0.9;
 
 export function mountPuzzleAudio(button) {
     const storageKey = 'jlas.arena.puzzle.audio';
@@ -14,7 +20,7 @@ export function mountPuzzleAudio(button) {
     try { enabled = localStorage.getItem(storageKey) !== 'off'; } catch { /* Optional preference. */ }
     const music = new Audio(memoryAudio + 'background.mp3');
     music.loop = true;
-    music.volume = 0.32;
+    music.volume = MUSIC_VOLUME;
     music.preload = 'auto';
     const icon = button.querySelector('i');
     const label = button.querySelector('span');
@@ -74,7 +80,7 @@ export function mountPuzzleAudio(button) {
             if (!enabled || !unlocked || document.hidden) return;
             if (!sounds.has(effect)) {
                 const sound = new Audio(effects[effect]);
-                sound.volume = effect === 'countdown' ? 0.26 : 0.42;
+                sound.volume = EFFECT_VOLUMES[effect] ?? EFFECT_VOLUME;
                 sounds.set(effect, sound);
             }
             const sound = sounds.get(effect);
