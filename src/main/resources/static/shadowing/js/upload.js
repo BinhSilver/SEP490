@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const left = Math.max(0, q.weeklyMinutes - q.usedMinutes);
         if (left > 0) return `Tuần này còn ${left}/${q.weeklyMinutes} phút tạo video miễn phí.`;
         return `Đã dùng hết ${q.weeklyMinutes} phút miễn phí tuần này · phút vượt ${q.creditPerMinute} CP`
-            + (q.pro ? '.' : ' · Pro được 120 phút/tuần.');
+            + (q.pro ? '.' : ' · Gói Cao cấp được 120 phút/tuần.');
     }
 
     /**

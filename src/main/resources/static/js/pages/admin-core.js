@@ -37,7 +37,7 @@
       { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
     { title: 'Kinh doanh', items: [
-      { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
+      { key: 'system-plans', label: 'Gói Cao cấp', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
       { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
       { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
       { key: 'system-ai-cost', label: 'Chi phí AI', icon: 'fa-calculator', href: '/admin/system/ai-cost', roles: SYSTEM },
@@ -64,7 +64,7 @@
     USER_AVATAR: 'Ảnh đại diện', FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
-    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
+    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Cao cấp',
     COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống',
     COMMUNITY_CONTENT: 'Nội dung cộng đồng', COMMUNITY_COMMENT: 'Bình luận cộng đồng'
   };

@@ -56,13 +56,13 @@
                 </div>
             </div>
             <button type="button" class="profile-nav__item" data-tab="premium">
-                        <span class="material-symbols-outlined">workspace_premium</span> Gói cao cấp
+                        <span class="material-symbols-outlined">workspace_premium</span> Gói Cao cấp
             </button>
         </nav>
 
         <button type="button" class="btn btn--primary btn--block" data-tab="premium">
             <span class="material-symbols-outlined">rocket_launch</span>
-            Nâng cấp lên Pro
+            Nâng cấp gói Cao cấp
         </button>
         <button type="button" class="btn btn--primary btn--block" data-auth-logout>
             <span class="material-symbols-outlined" aria-hidden="true">logout</span>
@@ -463,11 +463,11 @@
                 <ul style="margin:var(--space-4) 0;padding-left:1.2rem;color:var(--color-secondary);font-size:var(--text-sm);line-height:1.7">
                     <li>Hệ thống bài học JLPT lộ trình chuẩn hóa</li>
                     <li>Theo dõi và phân tích tiến độ học chi tiết</li>
-                    <li>Hỗ trợ ưu tiên riêng biệt (Gói Pro)</li>
+                    <li>Hỗ trợ ưu tiên riêng biệt (gói Cao cấp)</li>
                 </ul>
                 <button type="button" class="btn btn--primary"
-                        onclick="JlasUI.toast('Tính năng đăng ký gói Pro đang được phát triển!', 'info')">
-                    Nâng cấp lên Pro
+                        onclick="JlasUI.toast('Tính năng đăng ký gói Cao cấp đang được phát triển!', 'info')">
+                    Nâng cấp gói Cao cấp
                 </button>
             </div>
 
@@ -634,7 +634,7 @@
         document.getElementById('emailReadonly').value = user.email || '';
 
         var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
-        document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Pro (Đang dùng)' : 'Gói Miễn phí';
+        document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Cao cấp (Đang dùng)' : 'Gói Miễn phí';
         document.getElementById('premiumExpires').textContent = fmtDate(user.premiumExpiredAt);
     }
 

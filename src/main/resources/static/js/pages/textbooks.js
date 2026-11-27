@@ -189,7 +189,7 @@
    * Thẻ/bài bị khóa vẫn hiện, có ổ khóa + nhãn "Premium"; bấm vào mở hộp thoại nâng cấp (#tbPremiumDialog,
    * fragment textbooks/premium-dialog) thay vì mở sách. Route trang cũng tự chặn ở backend.
    */
-  var PREMIUM_BADGE = '<span class="tb-premium-badge"><i class="fa-solid fa-lock" aria-hidden="true"></i> Premium</span>';
+  var PREMIUM_BADGE = '<span class="tb-premium-badge"><i class="fa-solid fa-lock" aria-hidden="true"></i> Cao cấp</span>';
 
   function openPremiumDialog() {
     var dialog = document.getElementById('tbPremiumDialog');
@@ -219,7 +219,7 @@
     var locked = t.locked === true;
     return '' +
       '<a class="textbook-card' + (locked ? ' textbook-card--locked' : '') + '" href="/textbooks/' + encodeURIComponent(t.id) + '"' +
-        (locked ? ' data-locked="true" aria-label="' + escapeHtml(t.title) + ' (cần Premium)"' : '') + '>' +
+        (locked ? ' data-locked="true" aria-label="' + escapeHtml(t.title) + ' (cần gói Cao cấp)"' : '') + '>' +
         textbookThumbnail(t) +
         '<h3 class="textbook-card__title">' + escapeHtml(t.title) + '</h3>' +
         // Mô tả chỉ hiện khi giáo trình chưa có nội dung (unitCount = 0): đó là lời giải thích vì sao trống.
@@ -230,7 +230,7 @@
             : '<span class="tb-badge">Chưa có nội dung</span>') +
           // Nút CTA là <span> vì cả thẻ đã là <a>; thẻ khóa hiện nút xám có ổ khóa (bấm mở hộp thoại Premium).
           (locked
-            ? '<span class="textbook-card__cta textbook-card__cta--locked"><i class="fa-solid fa-lock" aria-hidden="true"></i> Premium</span>'
+            ? '<span class="textbook-card__cta textbook-card__cta--locked"><i class="fa-solid fa-lock" aria-hidden="true"></i> Cao cấp</span>'
             : '<span class="textbook-card__cta">Xem giáo trình</span>') +
         '</div>' +
       '</a>';

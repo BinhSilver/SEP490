@@ -314,7 +314,7 @@
 
     roleLabel: function (user) {
       if (!user || !user.role) return 'Học viên';
-      if (user.role === 'PREMIUM') return 'Thành viên Pro';
+      if (user.role === 'PREMIUM') return 'Thành viên Cao cấp';
       if (user.role === 'ADMIN') return 'Quản trị viên';
       if (user.role === 'MODERATOR') return 'Kiểm duyệt viên';
       if (user.role === 'CONTENT_CREATOR') return 'Người biên soạn';

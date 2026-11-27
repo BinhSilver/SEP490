@@ -1018,7 +1018,7 @@
         button = doc.createElement('a');
         button.className = 'jp-btn jp-btn--primary';
         button.href = '/premium';
-        button.textContent = 'Nâng cấp Premium';
+        button.textContent = 'Nâng cấp gói Cao cấp';
       } else if (code === 'CPATH_WEEK_TEST_REQUIRED') {
         // F63: learning ahead needs this week's test first
         button = doc.createElement('a');
@@ -1243,9 +1243,9 @@
         if (!gate || !gate.locked || rootEl.querySelector('.jp-premium-box')) return;
         rootEl.insertAdjacentHTML('afterbegin', '<section class="jp-premium-box" role="note">'
           + '<img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
-          + '<div><p class="jp-premium-box__title">Lộ trình Giao tiếp dành cho tài khoản Premium</p>'
-          + '<p class="jp-premium-box__text">Bạn xem được bản đồ và cài đặt. Nâng cấp Premium để học các tình huống, nhập vai và luyện nói.</p></div>'
-          + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></section>');
+          + '<div><p class="jp-premium-box__title">Lộ trình Giao tiếp dành cho tài khoản Cao cấp</p>'
+          + '<p class="jp-premium-box__text">Bạn xem được bản đồ và cài đặt. Nâng cấp gói Cao cấp để học các tình huống, nhập vai và luyện nói.</p></div>'
+          + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp gói Cao cấp</a></section>');
       }, function () { /* the server still blocks the study calls */ });
       startTour();
       // a goal AI call taken since the last visit: read its score (kaiwa, read only) and redraw when it passed

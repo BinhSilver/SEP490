@@ -3737,7 +3737,7 @@
           if (res.status === 404) throw new Error('Không tìm thấy bài học hoặc bài chưa được công bố.');
           if (IS_TEXTBOOK_PAGE && res.status === 403 && json && json.message === PREMIUM_REQUIRED) {
             openPremiumDialog();
-            throw new Error('Bài học này thuộc giáo trình Premium. Nâng cấp để mở toàn bộ giáo trình.');
+            throw new Error('Bài học này thuộc giáo trình Cao cấp. Nâng cấp để mở toàn bộ giáo trình.');
           }
           if (!res.ok || !json || json.success === false) {
             throw new Error((json && json.message) || ('Không tải được bài học (HTTP ' + res.status + ')'));

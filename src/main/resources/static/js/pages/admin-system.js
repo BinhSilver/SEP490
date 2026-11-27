@@ -11,9 +11,9 @@
   var STATUS = { ACTIVE: 'Đang hoạt động', LOCKED: 'Đã khoá' };
   var ACTIONS = {
     USER_LOCK: 'Khoá tài khoản', USER_UNLOCK: 'Mở khoá tài khoản',
-    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp Premium thủ công', USER_CREDIT_ADJUST: 'Điều chỉnh CP',
+    USER_ROLE_CHANGE: 'Đổi vai trò', PREMIUM_GRANT: 'Cấp gói Cao cấp thủ công', USER_CREDIT_ADJUST: 'Điều chỉnh CP',
     USER_BIRTH_DATE_CHANGE: 'Sửa ngày sinh',
-    PREMIUM_PLAN_CREATE: 'Tạo gói Premium', PREMIUM_PLAN_UPDATE: 'Sửa gói Premium',
+    PREMIUM_PLAN_CREATE: 'Tạo gói Cao cấp', PREMIUM_PLAN_UPDATE: 'Sửa gói Cao cấp',
     PREMIUM_PLAN_DEACTIVATE: 'Ngừng bán gói', PREMIUM_PLAN_ACTIVATE: 'Mở bán gói',
     COUPON_CREATE: 'Tạo mã giảm giá', COUPON_UPDATE: 'Sửa mã giảm giá', COUPON_ACTIVE: 'Bật/tắt mã giảm giá',
     COUPON_DELETE: 'Xoá mã giảm giá', CREDIT_PACKAGE_CREATE: 'Tạo gói CP', CREDIT_PACKAGE_UPDATE: 'Sửa gói CP',
@@ -160,8 +160,8 @@
             }).join('') + '</select>' +
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
             '<option value="ACTIVE">' + STATUS.ACTIVE + '</option><option value="LOCKED">' + STATUS.LOCKED + '</option></select>' +
-          '<select class="select" name="premium" aria-label="Premium"><option value="">Miễn phí và Premium</option>' +
-            '<option value="true">Premium còn hạn</option><option value="false">Không có Premium</option></select>' +
+          '<select class="select" name="premium" aria-label="Gói Cao cấp"><option value="">Miễn phí và Cao cấp</option>' +
+            '<option value="true">Gói Cao cấp còn hạn</option><option value="false">Không có gói Cao cấp</option></select>' +
         '</form><div data-list></div>';
       var form = root.querySelector('[data-filters]');
       A.filterPopover(form);
@@ -188,7 +188,7 @@
         return '<button type="button" class="btn btn--secondary btn--sm adm-nowrap" data-role-change="' + u.id + '">' +
             '<i class="fa-solid fa-user-gear" aria-hidden="true"></i> Đổi vai trò</button>' +
           '<button type="button" class="btn btn--primary btn--sm adm-nowrap" data-grant="' + u.id + '">' +
-            '<i class="fa-solid fa-crown" aria-hidden="true"></i> Cấp Premium</button>';
+            '<i class="fa-solid fa-crown" aria-hidden="true"></i> Cấp gói Cao cấp</button>';
       }
 
       async function changeRole(id) {
@@ -232,19 +232,19 @@
           return;
         }
         if (!plans.length) {
-          A.toast('Chưa có gói Premium nào đang bán để cấp.', 'warning');
+          A.toast('Chưa có gói Cao cấp nào đang bán để cấp.', 'warning');
           return;
         }
         var stacking = u.premiumActive
-          ? 'Người dùng đang có Premium đến ' + A.esc(A.date(u.premiumExpiredAt)) + ': số ngày cấp sẽ được <strong>cộng dồn</strong> vào hạn này.'
-          : 'Người dùng chưa có Premium còn hạn: thời hạn tính từ bây giờ.';
+          ? 'Người dùng đang dùng gói Cao cấp đến ' + A.esc(A.date(u.premiumExpiredAt)) + ': số ngày cấp sẽ được <strong>cộng dồn</strong> vào hạn này.'
+          : 'Người dùng chưa có gói Cao cấp còn hạn: thời hạn tính từ bây giờ.';
         var decision = await A.decide({
-          title: 'Cấp Premium cho ' + (u.fullName || u.email) + '?',
+          title: 'Cấp gói Cao cấp cho ' + (u.fullName || u.email) + '?',
           message: stacking + ' Không tạo giao dịch thanh toán; người dùng nhận thông báo về gói và hạn mới.',
-          confirmText: 'Cấp Premium', maxLength: 500,
+          confirmText: 'Cấp gói Cao cấp', maxLength: 500,
           placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
           extraHtml:
-            '<div class="field"><label class="field__label" for="admPlanSelect">Gói Premium</label>' +
+            '<div class="field"><label class="field__label" for="admPlanSelect">Gói Cao cấp</label>' +
               '<select class="select" id="admPlanSelect" data-autofocus>' + plans.map(function (p) {
                 return '<option value="' + p.id + '" data-days="' + p.durationDays + '">' + A.esc(p.name) + ' · ' +
                   p.durationDays + ' ngày</option>';
@@ -265,7 +265,7 @@
           await A.api.post(API + '/users/' + id + '/premium-grants', {
             planId: decision.extra.planId, durationDays: decision.extra.durationDays, reason: decision.reason
           });
-          A.toast('Đã cấp Premium', 'success');
+          A.toast('Đã cấp gói Cao cấp', 'success');
           await load();
           if (detailId === id) await showDetail(id);
         } catch (e) {
@@ -302,7 +302,7 @@
           list.innerHTML = (data.items.length ?
             '<div class="adm-table-wrap"><table class="adm-table"><thead><tr>' +
               '<th scope="col">Người dùng</th><th scope="col">Vai trò</th><th scope="col">Trạng thái</th>' +
-              '<th scope="col">Premium</th><th scope="col">CP</th><th scope="col">Đăng nhập gần nhất</th>' +
+              '<th scope="col">Cao cấp</th><th scope="col">CP</th><th scope="col">Đăng nhập gần nhất</th>' +
               '<th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead><tbody>' +
               data.items.map(function (u) {
                 return '<tr class="adm-row-link" data-detail-id="' + u.id + '" tabindex="0">' +
@@ -382,7 +382,7 @@
             ['Xác thực email', u.verified ? 'Đã xác thực' : 'Chưa xác thực'],
             ['Trạng thái', u.locked ? STATUS.LOCKED + ' lúc ' + A.date(u.lockedAt) : STATUS.ACTIVE],
             ['Lý do khoá', u.lockedReason],
-            ['Premium', u.premiumActive ? (u.premiumPlanName || 'Premium') + ' đến ' + A.date(u.premiumExpiredAt) : 'Miễn phí'],
+            ['Cao cấp', u.premiumActive ? (u.premiumPlanName || 'Cao cấp') + ' đến ' + A.date(u.premiumExpiredAt) : 'Miễn phí'],
             ['Số dư CP', u.creditBalance], ['Điện thoại', u.phoneNumber], ['Trình độ', u.japaneseLevel],
             ['Ngày sinh', birthDateText(u.dateOfBirth)],
             ['Ngày tạo', A.date(u.createdAt)], ['Đăng nhập gần nhất', A.date(u.lastLoginAt)]
@@ -568,7 +568,7 @@
       return A.esc(roleLabel(c.before.role)) + to + A.esc(roleLabel(c.after.role));
     }
     if (c.before && c.after && 'expiresAt' in c.after) {
-      var was = c.before.active ? (c.before.plan || 'Premium') + ' đến ' + A.date(c.before.expiresAt) : 'Không có Premium';
+      var was = c.before.active ? (c.before.plan || 'Cao cấp') + ' đến ' + A.date(c.before.expiresAt) : 'Không có gói Cao cấp';
       return A.esc(was) + to + A.esc(c.after.plan + ' đến ' + A.date(c.after.expiresAt)) +
         '<br><span class="adm-muted">+' + A.esc(c.durationDays) + ' ngày' + (c.stacked ? ', cộng dồn' : '') + '</span>';
     }
@@ -995,7 +995,7 @@
   ];
   /** periodStats.period (server enum) → the key above. */
   var PERIOD_KEYS = { YEAR: 'year', DAYS_30: '30d', DAYS_7: '7d' };
-  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Premium', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP',
+  var TARGET_TYPES = { USER: 'Người dùng', PREMIUM_PLAN: 'Gói Cao cấp', COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP',
     SYSTEM_CONFIG: 'Cấu hình hệ thống' };
 
   function numberVi(n) { return Number(n || 0).toLocaleString('vi-VN'); }
@@ -1161,8 +1161,8 @@
       '<div class="st-grid-trio">' +
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
           '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
-            '<h2 class="st-card__title">Số lượng người đăng ký Premium mỗi tháng (' + A.esc(d.premiumYear) + ')</h2>' +
-            sourceButton(['premiumByMonth'], 'Đăng ký Premium mỗi tháng') + '</div></div>' +
+            '<h2 class="st-card__title">Số lượng người đăng ký gói Cao cấp mỗi tháng (' + A.esc(d.premiumYear) + ')</h2>' +
+            sourceButton(['premiumByMonth'], 'Đăng ký gói Cao cấp mỗi tháng') + '</div></div>' +
             '<span class="st-pill st-pill--purple">Tổng ' + numberVi(premiumTotal) + ' lượt</span>' +
           '</div>' +
           '<div class="st-monthly-chart"><div class="st-monthly-chart__bars">' +
@@ -1181,8 +1181,8 @@
 
         '<div class="st-card" style="display:flex; flex-direction:column; justify-content:space-between;"><div>' +
           '<div class="st-card__header"><div class="st-card__title-group"><div class="st-card__title-row">' +
-            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Premium / Miễn phí</h2>' +
-            sourceButton(['premiumActive', 'usersByRole'], 'Tỉ lệ Premium / Miễn phí') + '</div></div></div>' +
+            '<h2 class="st-card__title" style="font-size:15px;">Tỉ lệ Cao cấp / Miễn phí</h2>' +
+            sourceButton(['premiumActive', 'usersByRole'], 'Tỉ lệ Cao cấp / Miễn phí') + '</div></div></div>' +
           '<div class="st-donut-wrap"><div class="st-donut"><svg viewBox="0 0 160 160">' +
             '<circle cx="80" cy="80" r="62" fill="none" stroke="#EEF5F7" stroke-width="18"></circle>' +
             '<circle cx="80" cy="80" r="62" fill="none" stroke="#4F378A" stroke-width="18" stroke-dasharray="' + premiumLen + ' ' + donutCirc + '" stroke-dashoffset="0" stroke-linecap="round"></circle>' +
@@ -1191,7 +1191,7 @@
             '<span class="st-donut__center-label">Học viên</span></div></div></div>' +
         '</div>' +
         '<div class="st-legend-list">' +
-          legendItem('#4F378A', 'Premium', premiumActive, premiumPct, 'purple') +
+          legendItem('#4F378A', 'Cao cấp', premiumActive, premiumPct, 'purple') +
           legendItem('#EAB308', 'Miễn phí', freeCount, freePct, 'amber') +
         '</div></div>' +
 
@@ -1423,7 +1423,7 @@
   });
 
   A.section('system-plans', {
-    subtitle: 'Gói Premium đang bán. Sửa gói chỉ áp dụng cho lần mua sau: giao dịch cũ giữ thông tin lúc mua, ' +
+    subtitle: 'Gói Cao cấp đang bán. Sửa gói chỉ áp dụng cho lần mua sau: giao dịch cũ giữ thông tin lúc mua, ' +
       'người đang dùng giữ nguyên hạn. Gói không bị xoá, chỉ ngừng bán.',
     render: async function (root) {
       var plans = {};
@@ -1472,7 +1472,7 @@
 
       async function edit(p) {
         var decision = await A.decide({
-          title: p ? 'Sửa gói ' + p.name : 'Tạo gói Premium mới',
+          title: p ? 'Sửa gói ' + p.name : 'Tạo gói Cao cấp mới',
           message: p ? 'Thay đổi áp dụng cho lần mua sau; người đang dùng gói giữ nguyên hạn.' : 'Gói mới được mở bán ngay sau khi tạo.',
           confirmText: p ? 'Lưu thay đổi' : 'Tạo gói', maxLength: 500,
           placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị',
@@ -1515,7 +1515,7 @@
         var decision = await A.decide({
           title: (stop ? 'Ngừng bán gói ' : 'Mở bán lại gói ') + p.name + '?',
           message: stop ? 'Người dùng không mua được gói này nữa. ' + p.activeSubscribers +
-              ' tài khoản đang dùng gói vẫn giữ Premium đến hết hạn.' : 'Người dùng mua được gói này trở lại.',
+              ' tài khoản đang dùng gói vẫn giữ gói Cao cấp đến hết hạn.' : 'Người dùng mua được gói này trở lại.',
           danger: stop, confirmText: stop ? 'Ngừng bán' : 'Mở bán', maxLength: 500,
           placeholder: 'Lý do (ít nhất 5 ký tự), lưu vào nhật ký quản trị', collect: reasonLength
         });
@@ -1576,7 +1576,7 @@
             field('Value', 'Giá trị (% hoặc VND)', p && p.discountValue, 'number', 'Phần trăm: nhập 1–100. Số tiền: nhập số VND được giảm.') +
             field('Max', 'Giảm tối đa (VND)', p && p.maxDiscount, 'number', 'Chỉ dùng với Phần trăm. Số tiền giảm tối đa (VND, không phải %). Để trống nếu không giới hạn.') +
             field('Min', 'Đơn tối thiểu (VND)', p && p.minOrderAmount, 'number', 'Giá gói phải từ mức này trở lên mới dùng được mã. Để trống nếu không yêu cầu.') +
-            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Premium</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select><small class="adm-field-hint">Tất cả: mọi sản phẩm. Premium: chỉ gói Premium. CP: chỉ gói mua điểm CP.</small></label>' +
+            '<label>Phạm vi<select class="select" id="catApplies"><option value="ALL"' + (!p || p.appliesTo === 'ALL' ? ' selected' : '') + '>Tất cả</option><option value="PREMIUM"' + (p && p.appliesTo === 'PREMIUM' ? ' selected' : '') + '>Cao cấp</option><option value="CREDIT"' + (p && p.appliesTo === 'CREDIT' ? ' selected' : '') + '>CP</option></select><small class="adm-field-hint">Tất cả: mọi sản phẩm. Cao cấp: chỉ gói Cao cấp. CP: chỉ gói mua điểm CP.</small></label>' +
             field('Start', 'Bắt đầu', p && p.startsAt, 'datetime-local', 'Thời điểm mã bắt đầu có hiệu lực. Để trống = dùng được ngay.') +
             field('End', 'Kết thúc', p && p.endsAt, 'datetime-local', 'Thời điểm mã hết hạn, phải sau Bắt đầu. Để trống = không hết hạn.') +
             field('Limit', 'Tổng lượt', p && p.usageLimit, 'number', 'Tổng số đơn được dùng mã (mọi khách cộng lại). Để trống = không giới hạn.') +
@@ -1642,7 +1642,7 @@
   A.section('system-credit-packages', catalogSection('credit-packages'));
 
   A.section('system-payments', {
-    subtitle: 'Tra cứu giao dịch mua Premium và CP. Chỉ xem: không sửa, không hoàn tiền tại đây.',
+    subtitle: 'Tra cứu giao dịch mua gói Cao cấp và CP. Chỉ xem: không sửa, không hoàn tiền tại đây.',
     render: async function (root) {
       var page = 0;
       root.innerHTML =
@@ -1651,7 +1651,7 @@
           '<select class="select" name="status" aria-label="Trạng thái"><option value="">Mọi trạng thái</option>' +
             Object.keys(PAYMENT_STATUS).map(function (k) { return '<option value="' + k + '">' + PAYMENT_STATUS[k][0] + '</option>'; }).join('') +
           '</select>' +
-          '<select class="select" name="productType" aria-label="Sản phẩm"><option value="">Mọi sản phẩm</option><option value="PREMIUM">Premium</option><option value="CREDIT">CP</option></select>' +
+          '<select class="select" name="productType" aria-label="Sản phẩm"><option value="">Mọi sản phẩm</option><option value="PREMIUM">Cao cấp</option><option value="CREDIT">CP</option></select>' +
           '<div class="adm-filter-range" data-in-filter="Khoảng thời gian">' +
             '<label class="adm-inline">Từ <input class="input" type="date" name="from"></label>' +
             '<label class="adm-inline">Đến <input class="input" type="date" name="to"></label></div>' +
@@ -1687,7 +1687,7 @@
                   '<td><button type="button" class="btn btn--secondary btn--sm" data-payment="' + p.id + '">Chi tiết</button></td></tr>';
               }).join('') + '</tbody></table></div>'
             : A.empty('fa-receipt', 'Chưa có giao dịch phù hợp',
-                'Giao dịch xuất hiện ở đây khi người dùng mua Premium qua cổng thanh toán.')) +
+                'Giao dịch xuất hiện ở đây khi người dùng mua gói Cao cấp qua cổng thanh toán.')) +
             pager(page, data.totalPages);
         } catch (e) {
           list.innerHTML = A.empty('fa-circle-exclamation', 'Không tải được giao dịch', e.message);
@@ -1702,7 +1702,7 @@
           var fields = [
             ['Mã đơn', p.orderCode], ['Cổng thanh toán', p.provider], ['Mã giao dịch cổng', p.providerTransactionId],
             ['Mã kết quả', p.responseCode], ['Trạng thái', (PAYMENT_STATUS[p.status] || [p.status])[0]],
-            ['Sản phẩm', p.productType === 'CREDIT' ? 'CP' : 'Premium'],
+            ['Sản phẩm', p.productType === 'CREDIT' ? 'CP' : 'Cao cấp'],
             ['Giá gốc', money(p.originalAmount, p.currency)], ['Giảm giá', money(p.discountAmount, p.currency)],
             ['Mã giảm giá', p.couponCode], ['Số tiền', money(p.amountPaid, p.currency)],
             ['Gói lúc mua', p.planName + ' · ' + (p.productType === 'CREDIT' ? p.creditAmount + ' CP' : p.durationDays + ' ngày')],

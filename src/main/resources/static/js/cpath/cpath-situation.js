@@ -1584,7 +1584,7 @@
         if (error && error.code === 'CPATH_PREMIUM_REQUIRED') {
           // owner 11/11: the communication path is Premium
           el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error.message)
-            + ' <a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a></p>';
+            + ' <a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp gói Cao cấp</a></p>';
           return;
         }
         el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Không tải được tình huống.')

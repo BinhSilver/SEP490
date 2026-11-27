@@ -182,7 +182,7 @@
           if (res.status === 404) throw new Error('Không tìm thấy giáo trình hoặc bạn chưa được xem giáo trình này.');
           if (res.status === 403 && json && json.message === PREMIUM_REQUIRED) {
             openPremiumDialog();
-            throw new Error('Giáo trình này cần Premium. Nâng cấp để mở toàn bộ giáo trình.');
+            throw new Error('Giáo trình này cần gói Cao cấp. Nâng cấp để mở toàn bộ giáo trình.');
           }
           if (!res.ok || !json || json.success === false) {
             throw new Error((json && json.message) || ('Không tải được giáo trình (HTTP ' + res.status + ')'));

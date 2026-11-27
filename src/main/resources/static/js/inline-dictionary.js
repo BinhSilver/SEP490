@@ -148,11 +148,11 @@
       ? '<label class="inline-dict__auto"><input type="checkbox" data-inline-auto> Không hỏi lại hôm nay (tự mua khi hết lượt, tối đa '
         + auto.DAILY_CAP + ' CP/ngày)</label>' : '';
     return '<div class="inline-dict__paywall"><strong>Bạn đã hết lượt tra từ nhanh</strong><p>' + detail + '</p>' + capNote +
-      '<p class="inline-dict__hint">Tài khoản thường có 1 lượt dùng thử đầu tiên; tài khoản Pro tra từ không giới hạn. Tra lại cùng từ trong ngày không tốn lượt.</p>' +
+      '<p class="inline-dict__hint">Tài khoản thường có 1 lượt dùng thử đầu tiên; tài khoản Cao cấp tra từ không giới hạn. Tra lại cùng từ trong ngày không tốn lượt.</p>' +
       skipHint + '</div>' +
       confirmBox +
       autoOption +
-      '<div class="inline-dict__actions" data-inline-main-actions>' + buy + '<a href="/premium">Nâng cấp Pro</a></div>' +
+      '<div class="inline-dict__actions" data-inline-main-actions>' + buy + '<a href="/premium">Nâng cấp gói Cao cấp</a></div>' +
       '<p class="inline-dict__status" role="status" aria-live="polite"></p>';
   }
 

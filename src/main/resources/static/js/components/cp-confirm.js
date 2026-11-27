@@ -46,7 +46,7 @@
       (enough ? '' : '<p class="cp-confirm__short">Bạn còn thiếu <strong>' + numbers.shortBy + ' CP</strong>.</p>') +
       option +
       '<div class="cp-confirm__actions"><button type="button" data-cp-cancel>Huỷ</button>' +
-      '<a href="' + UPGRADE_URL + '">Nâng cấp Pro</a>' + primary + '</div></div>';
+      '<a href="' + UPGRADE_URL + '">Nâng cấp gói Cao cấp</a>' + primary + '</div></div>';
   }
 
   function open(options) {

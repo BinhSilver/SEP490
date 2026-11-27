@@ -78,7 +78,7 @@
       if (!data.paymentsEnabled) return '<button class="btn btn--primary" type="button" disabled>Thanh toán đang bảo trì</button>';
       if (!loggedIn()) return '<a class="btn btn--primary" href="/login?redirect=%2Fpremium">Đăng nhập để nâng cấp</a>';
       return '<button class="btn btn--primary" type="button" data-buy="' + plan.id + '">' +
-        (current && current.premiumActive ? 'Gia hạn thêm' : 'Nâng cấp lên Premium') + '</button>';
+        (current && current.premiumActive ? 'Gia hạn thêm' : 'Nâng cấp gói Cao cấp') + '</button>';
     }
 
     function render() {
@@ -87,7 +87,7 @@
       var premiumMonthly = Number(q.premiumMonthlyMinutes) > 0 ? 'tối đa ' + minutes(q.premiumMonthlyMinutes) + ' phút/tháng'
         : 'không giới hạn số phút trong tháng';
       root.innerHTML =
-        '<header class="pm-hero"><h1>Nâng cấp lên Premium</h1>' +
+        '<header class="pm-hero"><h1>Nâng cấp gói Cao cấp</h1>' +
           '<p>Luyện hội thoại tiếng Nhật với AI nhiều hơn mỗi ngày.</p>' +
           (monthly && yearly ? '<div class="pm-toggle" role="group" aria-label="Chu kỳ thanh toán">' +
             '<button type="button" data-period="month" aria-pressed="' + (period === 'month') + '">Theo tháng</button>' +
@@ -105,7 +105,7 @@
             (current && !current.premiumActive ? '<button class="btn btn--secondary" type="button" disabled>Gói hiện tại của bạn</button>' : '') +
           '</article>' +
           (plan ? '<article class="pm-plan pm-plan--featured"><span class="pm-plan__tag">Khuyên dùng</span>' +
-            '<div><h2>Premium</h2>' + (plan.description ? '<p class="pm-plan__desc">' + esc(plan.description) + '</p>' : '') + '</div>' +
+            '<div><h2>Gói Cao cấp</h2>' + (plan.description ? '<p class="pm-plan__desc">' + esc(plan.description) + '</p>' : '') + '</div>' +
             '<div class="pm-price">' + (period === 'year' && yearlyOriginal() > Number(plan.price)
               ? '<s class="pm-price__original">' + vnd(yearlyOriginal()) + '</s>' : '') +
               '<strong class="jl-num">' + vnd(plan.price) + '</strong><span>/ ' + (period === 'year' ? 'năm' : plan.durationDays + ' ngày') + '</span>' +
@@ -116,17 +116,17 @@
               '<li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Mọi tính năng của gói Miễn phí</span></li>' +
               '<li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Thanh toán một lần cho ' + plan.durationDays + ' ngày, không tự gia hạn</span></li>' +
             '</ul>' +
-            (current && current.premiumActive ? '<p class="pm-note">Bạn đang có Premium đến ' + date(current.expiresAt) +
+            (current && current.premiumActive ? '<p class="pm-note">Gói Cao cấp của bạn có hiệu lực đến ' + date(current.expiresAt) +
               '. Mua thêm sẽ cộng ' + plan.durationDays + ' ngày vào hạn này.</p>' : '') +
             '<p class="pm-error" data-error aria-live="assertive"></p>' + cta(plan) +
-          '</article>' : '<article class="pm-plan"><h2>Premium</h2><p class="pm-muted">Hiện chưa có gói Premium nào đang bán.</p></article>') +
+          '</article>' : '<article class="pm-plan"><h2>Gói Cao cấp</h2><p class="pm-muted">Hiện chưa có gói Cao cấp nào đang bán.</p></article>') +
         '</div>' +
         '<section class="pm-faq" aria-label="Câu hỏi thường gặp"><h2>Câu hỏi thường gặp</h2>' +
           '<details><summary>Thanh toán bằng cách nào?</summary><p>Quét mã QR bằng ứng dụng ngân hàng bất kỳ (qua cổng PayOS). ' +
-            'Premium được kích hoạt ngay khi hệ thống xác nhận giao dịch với cổng thanh toán.</p></details>' +
+            'Gói Cao cấp được kích hoạt ngay khi hệ thống xác nhận giao dịch với cổng thanh toán.</p></details>' +
           '<details><summary>Gói có tự động gia hạn không?</summary><p>Không. Mỗi lần mua là một khoản thanh toán duy nhất; ' +
             'hết hạn bạn có thể mua tiếp.</p></details>' +
-          '<details><summary>Đang có Premium thì mua thêm thế nào?</summary><p>Số ngày của gói mới được cộng dồn vào hạn Premium hiện tại.</p></details>' +
+          '<details><summary>Đang dùng gói Cao cấp thì mua thêm thế nào?</summary><p>Số ngày của gói mới được cộng dồn vào hạn gói Cao cấp hiện tại.</p></details>' +
         '</section>' +
         (loggedIn() ? '<p class="pm-note" style="text-align:center;margin-top:20px"><a href="/premium/billing">Xem gói của bạn và lịch sử thanh toán</a></p>' : '');
     }
@@ -164,7 +164,7 @@
 
     function summary(o) {
       return '<section class="pm-card"><h2>Đơn hàng</h2><dl class="pm-summary">' +
-        '<div><dt>Gói</dt><dd>' + (o.productType === 'CREDIT' ? 'CP' : 'Premium') + ' · ' + esc(o.planName) + '</dd></div>' +
+        '<div><dt>Gói</dt><dd>' + (o.productType === 'CREDIT' ? 'CP' : 'Cao cấp') + ' · ' + esc(o.planName) + '</dd></div>' +
         (o.productType === 'CREDIT' ? '<div><dt>Số CP</dt><dd>' + o.creditAmount + ' CP</dd></div>'
           : '<div><dt>Thời hạn</dt><dd>' + o.durationDays + ' ngày</dd></div>') +
         '<div><dt>Mã đơn</dt><dd>' + esc(o.orderCode) + '</dd></div>' +
@@ -188,7 +188,7 @@
         root.innerHTML = '<div class="pm-card pm-result pm-result--ok"><i class="fa-solid fa-circle-check pm-result__icon" aria-hidden="true"></i>' +
           '<h1>Thanh toán thành công</h1><p>' + (o.productType === 'CREDIT'
             ? 'Đã cộng <strong>' + o.creditAmount + ' CP</strong> vào tài khoản.'
-            : 'Premium của bạn có hiệu lực đến <strong>' + date(o.premiumUntil, true) + '</strong>.') + '</p>' +
+            : 'Gói Cao cấp của bạn có hiệu lực đến <strong>' + date(o.premiumUntil, true) + '</strong>.') + '</p>' +
           '<div class="pm-actions"><a class="btn btn--primary" href="/ai-call">Bắt đầu luyện hội thoại AI</a>' +
           '<a class="btn btn--secondary" href="/premium/billing">Xem lịch sử thanh toán</a></div></div>';
         if (window.JlasAuth && JlasAuth.refreshUser) JlasAuth.refreshUser();
@@ -316,15 +316,15 @@
       '<header class="pm-hero" style="text-align:left;margin:0"><h1>Gói &amp; thanh toán</h1></header>' +
       '<section class="pm-card pm-current">' +
         (current && current.premiumActive
-          ? '<div><h2 style="margin:0 0 6px">Premium · ' + esc(current.planName) + '</h2><p class="pm-muted" style="margin:0">Có hiệu lực đến ' +
+          ? '<div><h2 style="margin:0 0 6px">Cao cấp · ' + esc(current.planName) + '</h2><p class="pm-muted" style="margin:0">Có hiệu lực đến ' +
             date(current.expiresAt, true) + '. Không tự gia hạn.</p></div><a class="btn btn--primary" href="/premium">Gia hạn thêm</a>'
           : '<div><h2 style="margin:0 0 6px">Miễn phí</h2><p class="pm-muted" style="margin:0">Nâng cấp để luyện hội thoại AI nhiều hơn mỗi ngày.</p></div>' +
-            '<a class="btn btn--primary" href="/premium">Nâng cấp lên Premium</a>') +
+            '<a class="btn btn--primary" href="/premium">Nâng cấp gói Cao cấp</a>') +
       '</section>' +
       '<p><a class="btn btn--secondary" href="/credits">Mua thêm CP</a></p>' +
       '<section class="pm-card"><h2>Lịch sử thanh toán</h2>' +
         (orders.length ? '<div class="pm-table-wrap"><table class="pm-table"><thead><tr><th scope="col">Ngày</th><th scope="col">Gói</th>' +
-          '<th scope="col">Số tiền</th><th scope="col">Trạng thái</th><th scope="col">Premium đến</th><th scope="col">Mã đơn</th></tr></thead><tbody>' +
+          '<th scope="col">Số tiền</th><th scope="col">Trạng thái</th><th scope="col">Hạn Cao cấp</th><th scope="col">Mã đơn</th></tr></thead><tbody>' +
           orders.map(function (o) {
             return '<tr><td>' + date(o.createdAt, true) + '</td><td>' + esc(o.planName) + ' · ' +
               (o.productType === 'CREDIT' ? o.creditAmount + ' CP' : o.durationDays + ' ngày') + '</td>' +
