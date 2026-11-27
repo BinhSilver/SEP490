@@ -7,7 +7,10 @@ import com.jlas.game.dto.GameDtos.ResultLine;
 import com.jlas.game.dto.GameDtos.ResultSummary;
 import com.jlas.game.dto.PuzzleDtos.InkAction;
 import com.jlas.game.dto.PuzzleDtos.InkDelta;
+import com.jlas.game.dto.PuzzleDtos.Guess;
 import com.jlas.game.dto.PuzzleDtos.Player;
+import com.jlas.game.dto.PuzzleDtos.RoundPoint;
+import com.jlas.game.dto.PuzzleDtos.RoundResult;
 import com.jlas.game.dto.PuzzleDtos.View;
 import com.jlas.game.dto.PuzzleDtos.Word;
 import com.jlas.game.enums.GameType;
@@ -33,6 +36,9 @@ public final class PuzzleSession extends GameSession {
     private static final int HINT_SECONDS = 30;
     private static final int RIDDLE_SECONDS = 30;
     private static final int REVEAL_SECONDS = 7;
+    /** Guesses kept per Draw & Guess round, enough for the visible chat. */
+    private static final int GUESS_LIMIT = 40;
+    private static final int GUESS_TEXT_LIMIT = 30;
 
     private final String jlpt;
     private final String map;
@@ -43,6 +49,11 @@ public final class PuzzleSession extends GameSession {
     private final Set<Long> skipVotes = new HashSet<>();
     private final Set<Long> ready = new HashSet<>();
     private final PuzzleDrawing board = new PuzzleDrawing();
+    private final List<RoundResult> history = new ArrayList<>();
+    private final Map<Long, Integer> roundStartScores = new HashMap<>();
+    private final List<Guess> guesses = new ArrayList<>();
+    private final Map<Long, Integer> streaks = new HashMap<>();
+    private final Map<Long, Integer> bestStreaks = new HashMap<>();
     private int index;
     private int visibleHintCount;
     private long version;
@@ -90,7 +101,10 @@ public final class PuzzleSession extends GameSession {
         String input = Normalizer.normalize(supplied, Normalizer.Form.NFKC).replaceAll("(?U)\\s+", "");
         if (input.matches("[A-Za-z'-]+")) input = RomajiKana.toHiragana(input.toLowerCase(Locale.ROOT));
         String kana = foldKana(input);
-        if (entry().accepted().stream().noneMatch(answer -> foldKana(answer).equals(kana))) return false;
+        boolean correct = entry().accepted().stream().anyMatch(answer -> foldKana(answer).equals(kana));
+        // Draw & Guess shows every guess to both players; a wrong one also bumps the version so the drawer sees it.
+        if (isDrawing()) remember(userId, supplied, correct);
+        if (!correct) return false;
         solved.add(userId);
         version++;
         if (getGameType() == GameType.SPHINX_RIDDLE) {
@@ -104,6 +118,16 @@ public final class PuzzleSession extends GameSession {
             reveal(now);
         }
         return true;
+    }
+
+    private void remember(long userId, String supplied, boolean correct) {
+        String text = supplied.strip();
+        if (text.codePointCount(0, text.length()) > GUESS_TEXT_LIMIT) {
+            text = text.substring(0, text.offsetByCodePoints(0, GUESS_TEXT_LIMIT)) + "…";
+        }
+        guesses.add(new Guess(userId, text, correct));
+        if (guesses.size() > GUESS_LIMIT) guesses.removeFirst();
+        if (!correct) version++;
     }
 
     private static String foldKana(String value) {
@@ -124,15 +148,37 @@ public final class PuzzleSession extends GameSession {
     public void ready(long userId, int round, Instant now) {
         requireRound(round);
         if (revealedAt == null) throw unavailable();
+        // Draw & Guess: the player who just drew moves the game on alone; the other games wait for everyone.
+        if (isDrawing() && userId != drawerId()) throw unavailable();
         touch(now);
         if (ready.add(userId)) version++;
-        if (ready.size() == getSeats().size()) next(now);
+        if (isDrawing() || ready.size() == getSeats().size()) next(now);
     }
 
     private void reveal(Instant now) {
         revealedAt = now;
+        record();
         version++;
         touch(now);
+    }
+
+    /** Closes the round for the result screen and the run of correct answers. */
+    private void record() {
+        List<RoundPoint> points = getSeats().stream()
+                .map(seat -> new RoundPoint(seat.userId(), score(seat.userId()) - roundStartScores.getOrDefault(seat.userId(), 0)))
+                .toList();
+        List<Long> solvedBy = getSeats().stream().map(PlayerSeat::userId).filter(solved::contains).toList();
+        PuzzleContent.Entry entry = entry();
+        history.add(new RoundResult(round(), entry.answer(), entry.reading(), entry.meaning(), solvedBy, points,
+                isDrawing() ? drawerId() : null));
+        for (PlayerSeat seat : getSeats()) {
+            long id = seat.userId();
+            // The drawer cannot answer, so their turn neither builds nor breaks a run.
+            if (isDrawing() && id == drawerId()) continue;
+            int run = solved.contains(id) ? streaks.getOrDefault(id, 0) + 1 : 0;
+            streaks.put(id, run);
+            bestStreaks.merge(id, run, Math::max);
+        }
     }
 
     private void next(Instant now) {
@@ -148,6 +194,8 @@ public final class PuzzleSession extends GameSession {
         solved.clear();
         ready.clear();
         skipVotes.clear();
+        guesses.clear();
+        getSeats().forEach(seat -> roundStartScores.put(seat.userId(), score(seat.userId())));
         board.reset();
         version++;
         touch(now);
@@ -224,7 +272,10 @@ public final class PuzzleSession extends GameSession {
                 millis(nextHint), revealedAt == null && !getStatus().isTerminal() ? millis(deadline()) : null,
                 images(), hints, entry.prompt(), word, entry.reading().codePointCount(0, entry.reading().length()),
                 canAnswer(userId), canDraw, canSkip(userId), ready.contains(userId),
-                roundWinner, players, board.sequence(), board.segments(), canDraw && board.canUndo(), canDraw && board.canRedo(), getSummary());
+                roundWinner, players, board.sequence(), board.segments(), canDraw && board.canUndo(), canDraw && board.canRedo(), getSummary(),
+                List.copyOf(history), isDrawing() ? List.copyOf(guesses) : List.of(),
+                isDrawing() && !getStatus().isTerminal() ? drawerId() : null,
+                streaks.getOrDefault(userId, 0), bestStreaks.getOrDefault(userId, 0), soloSeconds() > 0 ? soloSeconds() : null);
     }
 
     private List<String> images() {
@@ -239,7 +290,17 @@ public final class PuzzleSession extends GameSession {
     }
 
     private boolean canDraw(long userId) {
-        return isDrawing() && activeRound() && getSeats().get((firstDrawer + index) % 2).userId() == userId;
+        return isDrawing() && activeRound() && drawerId() == userId;
+    }
+
+    private long drawerId() {
+        return getSeats().get((firstDrawer + index) % 2).userId();
+    }
+
+    /** Seconds per question chosen for a solo riddle or picture game; 0 means no clock. */
+    private int soloSeconds() {
+        if (isVersus() || isDrawing() || getOptions() == null || getOptions().durationSeconds() == null) return 0;
+        return getOptions().durationSeconds();
     }
 
     private boolean canSkip(long userId) {
@@ -257,7 +318,8 @@ public final class PuzzleSession extends GameSession {
     private PuzzleContent.Entry entry() { return entries.get(index); }
 
     private Instant deadline() {
-        return isVersus() && getGameType() == GameType.SPHINX_RIDDLE ? roundStarted.plusSeconds(RIDDLE_SECONDS) : null;
+        if (isVersus() && getGameType() == GameType.SPHINX_RIDDLE) return roundStarted.plusSeconds(RIDDLE_SECONDS);
+        return soloSeconds() > 0 ? roundStarted.plusSeconds(soloSeconds()) : null;
     }
 
     private static Long millis(Instant instant) { return instant == null ? null : instant.toEpochMilli(); }

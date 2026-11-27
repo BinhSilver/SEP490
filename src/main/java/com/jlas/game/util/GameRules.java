@@ -109,6 +109,9 @@ public final class GameRules {
     }
 
     /** Điền giá trị mặc định và từ chối mọi giá trị ngoài danh sách cho phép. */
+    /** Solo clock per question for the riddle and picture games; 0 plays without a clock. */
+    public static final List<Integer> PUZZLE_SOLO_SECONDS = List.of(0, 20, 30, 45);
+
     public static GameOptions normalize(GameType type, PlayMode mode, GameOptions raw) {
         GameOptions in = raw == null ? new GameOptions(null, null, null, null, null, null, null, null) : raw;
         return switch (type) {
@@ -139,8 +142,11 @@ public final class GameRules {
                             : AIR_SOLO_DURATIONS.get(0),
                     null, null, null, null, null, null, null, null,
                     in.cardIds() == null ? null : List.copyOf(in.cardIds()));
-            case SPHINX_RIDDLE, PICTURE_REBUS, DRAW_GUESS ->
-                    new GameOptions(null, null, null, null, null, null, null, null);
+            // Solo riddles and picture puzzles may run against the clock (seconds per question, 0 = no clock).
+            case SPHINX_RIDDLE, PICTURE_REBUS -> new GameOptions(null,
+                    mode == PlayMode.SOLO ? pick("Thời gian mỗi câu", in.durationSeconds(), PUZZLE_SOLO_SECONDS, 0) : null,
+                    null, null, null, null, null, null);
+            case DRAW_GUESS -> new GameOptions(null, null, null, null, null, null, null, null);
         };
     }
 
