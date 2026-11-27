@@ -150,18 +150,21 @@ select option,
 }
 
 /* Large screens (2K, 2.5K, 4K): grow the root size so rem-based type, spacing and controls scale
-   with the screen and the page keeps its Full HD proportions. (CSS zoom would also scale vh/vw
-   units and break full-height layouts, so it is not used.) Games, the Kanji map and the home page
-   keep their own sizing. */
+   with the screen and the page keeps its Full HD proportions. Full-screen games, Kana, Kanji maps
+   and the home page keep their own sizing; zoom only their header to match the other pages. */
 @media (min-width: 2000px) {
-  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 18px; }
+  :root:not(:has(> body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home))) { font-size: 18px; }
+  body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home) .site-header { zoom: 1.125; }
 }
 @media (min-width: 2300px) {
-  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 20px; }
+  :root:not(:has(> body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home))) { font-size: 20px; }
+  body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home) .site-header { zoom: 1.25; }
 }
 @media (min-width: 2500px) {
-  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 21.33px; }
+  :root:not(:has(> body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home))) { font-size: 21.33px; }
+  body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home) .site-header { zoom: 1.333; }
 }
 @media (min-width: 3200px) {
-  :root:not(:has(> body:is(.arena-body, .kana-page, .km-page, .kma-body, .page-home))) { font-size: 26.66px; }
+  :root:not(:has(> body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home))) { font-size: 26.66px; }
+  body:is(.arena-body:not(.arena-body--page), .kana-page, .km-page, .kma-body, .page-home) .site-header { zoom: 1.666; }
 }
