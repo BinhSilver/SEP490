@@ -7,17 +7,20 @@
     <title>Chủ đề hội thoại · AI Call</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/app.css(v=20261125-phase1)}"/>
     <link rel="stylesheet" th:href="@{/css/aicall-tree.css}"/>
     <link rel="stylesheet" th:href="@{/css/aicall-catalog.css(v='20261114-path-chip')}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v='20261111-nav-nowrap')}"/>
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
+<link rel="stylesheet" href="/css/pages/aicall-standard.css?v=20261126-fixes">
+<link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold">
+<script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
 </head>
-<body data-mobile-adapt="owned" id="jlabBasePage">
+<body data-mobile-adapt="owned" id="jlabBasePage" class="aicall-standard jl-ui-kit">
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="aicall-topic-list">
 
@@ -36,7 +39,6 @@
                     <span class="topic-japanese" lang="ja" th:text="${c.titleJa}">日本語</span>
                 </div>
                 <span class="topic-count" th:text="${scenarioCounts[c.id]} + ' kịch bản'">1 kịch bản</span>
-                <i class="fa-solid fa-chevron-right topic-arrow" aria-hidden="true"></i>
             </summary>
             <ul class="topic-scenarios" th:unless="${#lists.isEmpty(scenariosByCategory[c.id])}">
                 <li th:each="s : ${scenariosByCategory[c.id]}">
@@ -57,6 +59,6 @@
 
 </main>
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 </body>
 </html>

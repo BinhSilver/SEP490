@@ -607,7 +607,10 @@
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 11px;
-  white-space: nowrap;
+  max-width: min(240px, calc(100vw - 64px));
+  box-sizing: border-box;
+  white-space: normal;
+  text-align: center;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
@@ -674,6 +677,7 @@
 
 .st-bar-tooltip__detail {
   color: #83d7ad;
+  overflow-wrap: anywhere;
 }
 
 /* Donut Chart (SVG) */
@@ -1214,10 +1218,15 @@ html[data-theme="dark"] ::selection { background: var(--dark-selection); color: 
 .st-annual-col--peak .st-annual-col__bar, .st-monthly-col--peak .st-monthly-col__bar { background: var(--admin-accent-hover); }
 @media (max-width: 1100px) { .st-grid-kpi { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
-  .st-grid-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .st-grid-kpi .st-card { border-bottom: 1px solid var(--admin-line); }
-  .st-grid-kpi .st-card:nth-child(2n) { border-right: 0; }
-  .st-topbar { align-items: flex-start; }
+  .st-grid-kpi { grid-template-columns: minmax(0, 1fr); }
+  .st-grid-kpi .st-card { min-width: 0; border-right: 0; border-bottom: 1px solid var(--admin-line); }
+  .st-topbar { min-width: 0; align-items: flex-start; }
+  .st-topbar__actions { min-width: 0; width: 100%; }
+  .st-segmented { flex-wrap: wrap; min-width: 0; max-width: 100%; }
+  .st-segmented__btn { white-space: normal; }
+  .st-kpi-card__val-block, .st-kpi-card__pill-wrap { min-width: 0; }
+  .st-kpi-card__value { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+  .st-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 }
 html[data-theme="dark"] :is(.st-dashboard, .st-source-pop) {
   --st-bg: var(--admin-bg); --st-surface: var(--admin-surface);

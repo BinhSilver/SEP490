@@ -167,8 +167,8 @@
       ? 'Mua ' + packTurns + ' lượt giải thích: <strong>' + price + ' CP</strong>. Số dư: ' + balance + ' CP → ' + (balance - price) + ' CP.'
       : 'Mua ' + packTurns + ' lượt cần <strong>' + price + ' CP</strong>. Bạn đang có ' + balance + ' CP, còn thiếu <strong>' + (price - balance) + ' CP</strong>.';
     var hint = st.pro
-      ? 'Lượt miễn phí gói Pro sẽ làm mới vào ngày mai.'
-      : 'Tài khoản thường có 1 lượt dùng thử đầu tiên; gói Pro có ' + (st.proDailyLimit || 30) + ' lượt miễn phí mỗi ngày. Xem lại cùng câu trong ngày không tốn lượt.';
+      ? 'Lượt miễn phí của gói Cao cấp sẽ làm mới vào ngày mai.'
+      : 'Tài khoản thường có 1 lượt dùng thử đầu tiên; gói Cao cấp có ' + (st.proDailyLimit || 30) + ' lượt miễn phí mỗi ngày. Xem lại cùng câu trong ngày không tốn lượt.';
     var skipLine = enough && skipConfirm
       ? '<p class="jp-ai__meta" data-ai-skip-note>Mua nhanh 1 chạm đang bật · <button type="button" class="jp-ai__inline-link" data-ai-reset-confirm>Hỏi lại trước khi mua</button></p>'
       : '';
@@ -192,7 +192,7 @@
       + skipLine
       + confirmBox
       + '<div class="jp-ai__actions" data-ai-main-actions>' + buyBtn
-      + (st.pro ? '' : '<a class="jp-btn" href="/premium">Nâng cấp Pro</a>')
+      + (st.pro ? '' : '<a class="jp-btn" href="/premium">Nâng cấp gói Cao cấp</a>')
       + '</div>'
       + '<p class="jp-ai__status" role="status" data-ai-pay-status></p>'
       + '</div>';

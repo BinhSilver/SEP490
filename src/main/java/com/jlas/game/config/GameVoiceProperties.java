@@ -11,6 +11,7 @@ public record GameVoiceProperties(
         @DefaultValue("") String apiKey,
         @DefaultValue("") String apiSecret,
         @DefaultValue("") String allowedOrigins,
+        @DefaultValue("false") boolean allowInsecureLocalhost,
         @DefaultValue("60") int tokenTtlSeconds,
         @DefaultValue("10") int tokensPerMinute) {
 }

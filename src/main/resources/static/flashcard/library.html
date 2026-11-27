@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thư viện thẻ từ · KotsuKotsu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&amp;family=Klee+One:wght@600&amp;display=swap">
   <link rel="stylesheet" href="/css/tokens.css" />
   <link rel="stylesheet" href="/css/theme-bridge.css" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -15,20 +15,22 @@
   <link rel="stylesheet" href="/css/components/cards.css" />
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
-  <link rel="stylesheet" href="/flashcard/styles.css" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261014-srs-due" />
+  <link rel="stylesheet" href="/flashcard/styles.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261123-ui" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
   <link rel="stylesheet" href="/flashcard/library-theme.css?v=20261118-unslop" />
   <link rel="stylesheet" href="/flashcard/review-theme.css?v=20261025-review-tab" />
-  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261111-nav-nowrap" />
+  <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261125-largescreen" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
-    <link rel="stylesheet" href="/css/components/select.css?v=20261111-select2">
+    <link rel="stylesheet" href="/css/components/select.css?v=20261125-largescreen">
     <script defer src="/js/components/select.js?v=20261111-select2"></script>
+  <link rel="stylesheet" href="/css/components/ui-kit.css?v=20261123-ghost">
+  <link rel="stylesheet" href="/flashcard/ui-standard.css?v=20261123-ghost">
 </head>
 <body data-mobile-adapt="owned" id="jlabBasePage" class="flashcard-page flashcard-page--library">
   <div id="jlabBaseShellMount"></div>
 
-  <main id="jlabBaseContent" class="app-main">
+  <main id="jlabBaseContent" class="app-main jl-ui-kit">
     <aside class="fc-stitch-sidebar" aria-label="Thư viện Flashcard">
       <div class="fc-stitch-sidebar__label">Thư viện</div>
       <nav class="fc-stitch-sidebar__nav">
@@ -84,7 +86,7 @@
       <section id="library-review" class="srs-page library-review" data-srs-lazy hidden aria-label="Ôn hôm nay">
       <header class="srs-head">
         <div>
-          <h2 class="srs-title">Ôn hôm nay</h2>
+          <h2 class="srs-title jl-h1">Ôn hôm nay</h2>
         </div>
         <dl class="srs-tiles" aria-label="Tổng quan ôn tập">
           <div><dt>Đến hạn</dt><dd id="srs-due">–</dd></div>

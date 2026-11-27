@@ -1,59 +1,59 @@
+@import url("../dark-page.css");
 @import url("../controls.css");
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 
-#jlabBasePage.credit-history-page { background: #ffffff; }
+#jlabBasePage.credit-history-page { background: var(--color-surface-lowest); }
 #jlabBaseContent.credit-history-page__content {
-  --credit-bg: #ffffff;
-  --credit-surface: #ffffff;
-  --credit-purple: #4f378a;
-  --credit-purple-soft: #e9ddff;
-  --credit-ink: #161d1f;
-  --credit-muted: #494551;
-  --credit-grey: #79747e;
-  --credit-line: #cbc4d2;
-  min-height: calc(100dvh - 84px);
-  padding: 38px clamp(16px, 4vw, 40px) 64px;
+  --credit-bg: var(--color-surface-lowest);
+  --credit-surface: var(--color-surface-lowest);
+  --credit-purple: var(--color-primary);
+  --credit-purple-soft: var(--color-primary-fixed);
+  --credit-ink: var(--color-on-surface);
+  --credit-muted: var(--color-on-surface-variant);
+  --credit-grey: var(--color-outline);
+  --credit-line: var(--color-outline-variant);
+  min-height: calc(100dvh - 5.25rem);
+  padding: 2.375rem clamp(var(--space-4), 4vw, 2.5rem) var(--space-8);
   color: var(--credit-ink);
   background: var(--credit-bg) !important;
-  font-family: "Plus Jakarta Sans", "Hanken Grotesk", sans-serif;
+  font-family: var(--font-body);
 }
-#jlabBaseContent .credit-history-page__container { width: min(1280px, 100%); margin: 0 auto; }
-#jlabBaseContent .credit-history-page__heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 26px; border-bottom: 1px solid rgba(203,196,210,.45); }
-#jlabBaseContent .credit-history-page__back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--credit-purple); font-size: .72rem; font-weight: 700; text-decoration: none; }
-#jlabBaseContent .credit-history-page__heading h1 { margin-top: 18px; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 800; letter-spacing: 0; }
-#jlabBaseContent .credit-history-page__heading p { margin-top: 8px; color: var(--credit-muted); font-size: .82rem; }
-#jlabBaseContent .credit-history-page__badge { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; color: var(--credit-purple); background: var(--credit-purple-soft); border: 1px solid rgba(103,80,164,.22); border-radius: 999px; font-family: "JetBrains Mono", monospace; font-size: .65rem; font-weight: 700; white-space: nowrap; }
-#jlabBaseContent .credit-history-page__summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 26px; }
-#jlabBaseContent .credit-history-page__summary-card { min-height: 142px; padding: 20px; background: var(--credit-surface); border: 1px solid rgba(203,196,210,.42); border-radius: 20px; box-shadow: 0 4px 20px -2px rgba(0,0,0,.04); }
-#jlabBaseContent .credit-history-page__summary-card > div { display: flex; align-items: center; justify-content: space-between; color: var(--credit-grey); font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-#jlabBaseContent .credit-history-page__summary-card > div i { width: 38px; height: 38px; display: grid; place-items: center; color: var(--credit-purple); background: var(--credit-purple-soft); border-radius: 12px; }
-#jlabBaseContent .credit-history-page__summary-card strong { display: block; margin-top: 19px; font-family: "JetBrains Mono", monospace; font-size: 1.85rem; line-height: 1; }
-#jlabBaseContent .credit-history-page__summary-card small { display: block; margin-top: 9px; color: var(--credit-muted); font-size: .68rem; }
+#jlabBaseContent .credit-history-page__container { width: min(80rem, 100%); margin: 0 auto; }
+#jlabBaseContent .credit-history-page__heading { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-5); padding-bottom: 1.625rem; border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 45%, transparent); }
+#jlabBaseContent .credit-history-page__back-link { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--credit-purple); font-size: var(--text-xs); font-weight: 600; text-decoration: none; }
+#jlabBaseContent .credit-history-page__heading h1 { margin-top: 1.125rem; font-size: clamp(1.7rem, 3vw, 2.35rem); font-weight: 600; }
+#jlabBaseContent .credit-history-page__heading p { margin-top: var(--space-2); color: var(--credit-muted); font-size: var(--text-sm); }
+#jlabBaseContent .credit-history-page__badge { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0.5625rem 0.875rem; color: var(--credit-purple); background: var(--credit-purple-soft); border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent); border-radius: var(--radius-full); font-family: var(--font-body); font-size: var(--text-xs); font-weight: 600; white-space: nowrap; }
+#jlabBaseContent .credit-history-page__summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.125rem; margin-top: 1.625rem; }
+#jlabBaseContent .credit-history-page__summary-card { min-height: 8.875rem; padding: 1.25rem; background: var(--credit-surface); border: 1px solid color-mix(in srgb, var(--color-outline-variant) 42%, transparent); border-radius: var(--radius-lg); box-shadow:  var(--shadow-1); }
+#jlabBaseContent .credit-history-page__summary-card > div { display: flex; align-items: center; justify-content: space-between; color: var(--credit-grey); font-size: var(--text-xs); font-weight: 600; text-transform: none; }
+#jlabBaseContent .credit-history-page__summary-card > div i { width: 2.375rem; height: 2.375rem; display: grid; place-items: center; color: var(--credit-purple); background: var(--credit-purple-soft); border-radius: var(--radius-md); }
+#jlabBaseContent .credit-history-page__summary-card strong { display: block; margin-top: 1.1875rem; font-family: var(--font-body); font-size: var(--text-3xl); line-height: 1; }
+#jlabBaseContent .credit-history-page__summary-card small { display: block; margin-top: 0.5625rem; color: var(--credit-muted); font-size: var(--text-xs); }
 #jlabBaseContent .credit-history-page__summary-card--balance strong { color: var(--credit-purple); }
-#jlabBaseContent .credit-history-page__card { margin-top: 26px; padding: 28px; background: #fff; border: 1px solid rgba(203,196,210,.42); border-radius: 24px; box-shadow: 0 4px 20px -2px rgba(0,0,0,.04); }
-#jlabBaseContent .credit-history-page__card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(203,196,210,.35); }
-#jlabBaseContent .credit-history-page__card-head h2 { font-size: 1.2rem; font-weight: 800; }
-#jlabBaseContent .credit-history-page__card-head p { margin-top: 5px; color: var(--credit-muted); font-size: .75rem; }
-#jlabBaseContent .credit-history-page__filters { display: inline-flex; gap: 3px; padding: 4px; background: #eef5f7; border: 1px solid rgba(203,196,210,.42); border-radius: 11px; }
-#jlabBaseContent .credit-history-page__filters button { padding: 7px 14px; color: var(--credit-muted); background: transparent; border: 0; border-radius: 8px; cursor: pointer; font-size: .66rem; font-weight: 600; }
-#jlabBaseContent .credit-history-page__filters button.is-active, #jlabBaseContent .credit-history-page__filters button:hover { color: #fff; background: var(--credit-purple); font-weight: 800; }
+#jlabBaseContent .credit-history-page__card { margin-top: 1.625rem; padding: 1.75rem; background: var(--color-surface-lowest); border: 1px solid color-mix(in srgb, var(--color-outline-variant) 42%, transparent); border-radius: var(--radius-lg); box-shadow:  var(--shadow-1); }
+#jlabBaseContent .credit-history-page__card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 35%, transparent); }
+#jlabBaseContent .credit-history-page__card-head h2 { font-size: var(--text-xl); font-weight: 600; }
+#jlabBaseContent .credit-history-page__card-head p { margin-top: 0.3125rem; color: var(--credit-muted); font-size: var(--text-xs); }
+#jlabBaseContent .credit-history-page__filters { display: inline-flex; gap: 0.1875rem; padding: var(--space-1); background: var(--color-surface-container); border: 1px solid color-mix(in srgb, var(--color-outline-variant) 42%, transparent); border-radius: var(--radius-lg); }
+#jlabBaseContent .credit-history-page__filters button { padding: 0.4375rem 0.875rem; color: var(--credit-muted); background: transparent; border: 0; border-radius: var(--radius-input); cursor: pointer; font-size: var(--text-xs); font-weight: 600; }
+#jlabBaseContent .credit-history-page__filters button.is-active, #jlabBaseContent .credit-history-page__filters button:hover { color: var(--color-surface-lowest); background: var(--credit-purple); font-weight: 600; }
 #jlabBaseContent .credit-history-page__list { display: grid; }
-#jlabBaseContent .credit-history-page__row { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto auto; align-items: center; gap: 14px; padding: 17px 6px; border-bottom: 1px solid rgba(203,196,210,.3); }
+#jlabBaseContent .credit-history-page__row { display: grid; grid-template-columns: 2.625rem minmax(0, 1fr) auto auto; align-items: center; gap: 0.875rem; padding: 1.0625rem 0.375rem; border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent); }
 #jlabBaseContent .credit-history-page__row:last-child { border-bottom: 0; }
-#jlabBaseContent .credit-history-page__row-icon { width: 42px; height: 42px; display: grid; place-items: center; color: #006947; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 13px; }
-#jlabBaseContent .credit-history-page__row.is-negative .credit-history-page__row-icon { color: #ba1a1a; background: #ffebee; border-color: #ffcdd2; }
-#jlabBaseContent .credit-history-page__row-title { display: block; font-size: .8rem; font-weight: 800; }
-#jlabBaseContent .credit-history-page__row-note { display: block; margin-top: 4px; color: var(--credit-grey); font-size: .68rem; }
-#jlabBaseContent .credit-history-page__row-date { color: var(--credit-grey); font-family: "JetBrains Mono", monospace; font-size: .63rem; white-space: nowrap; }
-#jlabBaseContent .credit-history-page__row-amount { min-width: 76px; padding: 7px 10px; color: #006947; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; font-family: "JetBrains Mono", monospace; font-size: .7rem; font-weight: 700; text-align: center; }
-#jlabBaseContent .credit-history-page__row.is-negative .credit-history-page__row-amount { color: #ba1a1a; background: #ffebee; border-color: #ffcdd2; }
-#jlabBaseContent .credit-history-page__empty, #jlabBaseContent .credit-history-page__error { display: grid; place-items: center; gap: 8px; padding: 58px 20px; color: var(--credit-muted); text-align: center; }
-#jlabBaseContent .credit-history-page__empty i { color: var(--credit-purple); font-size: 2rem; }
-#jlabBaseContent .credit-history-page__empty strong { font-size: .9rem; }
-#jlabBaseContent .credit-history-page__empty span { color: var(--credit-grey); font-size: .72rem; }
-#jlabBaseContent .credit-history-page__error { color: #ba1a1a; }
+#jlabBaseContent .credit-history-page__row-icon { width: 2.625rem; height: 2.625rem; display: grid; place-items: center; color: var(--color-success); background: var(--color-success-bg); border: 1px solid var(--color-success-bg); border-radius: var(--radius-lg); }
+#jlabBaseContent .credit-history-page__row.is-negative .credit-history-page__row-icon { color: var(--color-error); background: var(--color-error-container); border-color: var(--color-error-container); }
+#jlabBaseContent .credit-history-page__row-title { display: block; font-size: var(--text-xs); font-weight: 600; }
+#jlabBaseContent .credit-history-page__row-note { display: block; margin-top: var(--space-1); color: var(--credit-grey); font-size: var(--text-xs); }
+#jlabBaseContent .credit-history-page__row-date { color: var(--credit-grey); font-family: var(--font-body); font-size: var(--text-xs); white-space: nowrap; }
+#jlabBaseContent .credit-history-page__row-amount { min-width: 4.75rem; padding: 0.4375rem 0.625rem; color: var(--color-success); background: var(--color-success-bg); border: 1px solid var(--color-success-bg); border-radius: var(--radius-input); font-family: var(--font-body); font-size: var(--text-xs); font-weight: 600; text-align: center; }
+#jlabBaseContent .credit-history-page__row.is-negative .credit-history-page__row-amount { color: var(--color-error); background: var(--color-error-container); border-color: var(--color-error-container); }
+#jlabBaseContent .credit-history-page__empty, #jlabBaseContent .credit-history-page__error { display: grid; place-items: center; gap: var(--space-2); padding: 3.625rem 1.25rem; color: var(--credit-muted); text-align: center; }
+#jlabBaseContent .credit-history-page__empty i { color: var(--credit-purple); font-size: var(--text-3xl); }
+#jlabBaseContent .credit-history-page__empty strong { font-size: var(--text-sm); }
+#jlabBaseContent .credit-history-page__empty span { color: var(--credit-grey); font-size: var(--text-xs); }
+#jlabBaseContent .credit-history-page__error { color: var(--color-error); }
 @media (max-width: 900px) { #jlabBaseContent .credit-history-page__summary { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px) { #jlabBaseContent.credit-history-page__content { padding: 26px 16px 48px; } #jlabBaseContent .credit-history-page__heading { align-items: flex-start; flex-direction: column; } #jlabBaseContent .credit-history-page__summary { gap: 10px; } #jlabBaseContent .credit-history-page__summary-card { min-height: 124px; padding: 15px; } #jlabBaseContent .credit-history-page__summary-card strong { font-size: 1.4rem; } #jlabBaseContent .credit-history-page__card { padding: 18px; border-radius: 20px; } #jlabBaseContent .credit-history-page__card-head { align-items: stretch; flex-direction: column; } #jlabBaseContent .credit-history-page__filters { justify-content: center; } #jlabBaseContent .credit-history-page__row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 9px; } #jlabBaseContent .credit-history-page__row-icon { width: 36px; height: 36px; } #jlabBaseContent .credit-history-page__row-date { grid-column: 2; grid-row: 2; } #jlabBaseContent .credit-history-page__row-amount { grid-column: 3; grid-row: 1 / span 2; } }
+@media (max-width: 640px) { #jlabBaseContent.credit-history-page__content { padding: 1.625rem var(--space-4) var(--space-7); } #jlabBaseContent .credit-history-page__heading { align-items: flex-start; flex-direction: column; } #jlabBaseContent .credit-history-page__summary { gap: 0.625rem; } #jlabBaseContent .credit-history-page__summary-card { min-height: 7.75rem; padding: 0.9375rem; } #jlabBaseContent .credit-history-page__summary-card strong { font-size: var(--text-2xl); } #jlabBaseContent .credit-history-page__card { padding: 1.125rem; border-radius: var(--radius-lg); } #jlabBaseContent .credit-history-page__card-head { align-items: stretch; flex-direction: column; } #jlabBaseContent .credit-history-page__filters { justify-content: center; } #jlabBaseContent .credit-history-page__row { grid-template-columns: 2.25rem minmax(0, 1fr) auto; gap: 0.5625rem; } #jlabBaseContent .credit-history-page__row-icon { width: 2.25rem; height: 2.25rem; } #jlabBaseContent .credit-history-page__row-date { grid-column: 2; grid-row: 2; } #jlabBaseContent .credit-history-page__row-amount { grid-column: 3; grid-row: 1 / span 2; } }
 
 /* Page-owned dark mode: css/pages/credit-history.css.
  * Preserve the light layout; explicitly pair dark surfaces, text, borders and states.
@@ -103,12 +103,12 @@ html[data-theme="dark"] #jlabBaseContent .credit-history-page__badge {
 }
 html[data-theme="dark"] #jlabBaseContent .credit-history-page__summary-card {
     border: 1px solid var(--dm-progress-line);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.16)
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] #jlabBaseContent .credit-history-page__card {
     background: var(--dm-progress-surface);
     border: 1px solid var(--dm-progress-line);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.16)
+    box-shadow: var(--shadow-1)
 }
 html[data-theme="dark"] #jlabBaseContent .credit-history-page__card-head {
     border-bottom: 1px solid var(--dm-progress-line)
@@ -152,3 +152,7 @@ html[data-theme="dark"] #jlabBaseContent .credit-history-page__error {
 html[data-theme="dark"] .credit-history-page{--color-background:var(--dm-progress-bg);--color-surface:var(--dm-progress-bg);--color-surface-lowest:var(--dm-progress-surface);--color-surface-low:var(--dm-progress-raised);--color-surface-mid:var(--dm-progress-raised);--color-surface-high:var(--dm-progress-raised);--color-surface-container:var(--dm-progress-raised);--color-surface-container-high:var(--dm-progress-raised);--color-on-surface:var(--dm-progress-ink);--color-on-surface-variant:var(--dm-progress-muted);--color-secondary:var(--dm-progress-muted);--color-outline:var(--dm-progress-muted);--color-outline-variant:var(--dm-progress-line);--color-primary:var(--dm-progress-accent);--color-primary-container:var(--dm-progress-action);--color-on-primary:var(--dm-progress-on-accent);--color-on-primary-container:var(--dark-on-button);--color-primary-fixed:var(--dm-progress-accent-soft);--color-on-primary-fixed:var(--dm-progress-accent);--color-secondary-container:var(--dm-progress-accent-soft);--color-secondary-fixed:var(--dm-progress-accent-soft);--color-success:var(--dm-progress-success);--color-success-bg:var(--dm-progress-success-bg);--color-error:var(--dm-progress-danger);--color-error-container:var(--dm-progress-danger-bg);--color-on-error-container:var(--dm-progress-danger);--color-tertiary:var(--dm-progress-warning);--color-tertiary-container:var(--dm-progress-warning-bg);--color-on-tertiary-container:var(--dm-progress-warning);--color-focus:var(--dm-progress-accent);--jlab-base-page-background:var(--dm-progress-bg);}
 html[data-theme="dark"] #jlabBaseContent .credit-history-page__filters button:is(.is-active,:hover){background:var(--dm-progress-action);color:var(--dark-on-button);}
 #jlabBaseContent :is(.credit-history-page__empty,.credit-history-page__error)[hidden]{display:none!important;}
+
+/* Shared keyboard and numeric treatment for this page. */
+#jlabBaseContent.credit-history-page__content { font-variant-numeric: tabular-nums; }
+#jlabBaseContent.credit-history-page__content :is(button, a, [role="tab"]):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }

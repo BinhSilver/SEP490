@@ -170,12 +170,12 @@
       var total = state.questions.length;
       if (state.index < total - 1) {
         return '<div class="oy-quiz__next-row"><button class="oy-button oy-button--primary oy-quiz__next--page" type="button"' +
-          ' data-action="forward"><span>Câu tiếp theo</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>';
+          ' data-action="forward"><span>Câu tiếp theo</span></button></div>';
       }
       var open = state.questions.findIndex(function (question) { return !state.feedback[question.questionId]; });
       if (open < 0) return '';
       return '<div class="oy-quiz__next-row"><button class="oy-button oy-button--primary oy-quiz__next--page" type="button"' +
-        ' data-action="go" data-index="' + open + '"><span>Về câu chưa làm</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>';
+        ' data-action="go" data-index="' + open + '"><span>Về câu chưa làm</span></button></div>';
     }
 
     // holds the place of the explanation until the question is answered
@@ -207,9 +207,9 @@
         '<nav class="oy-quiz__steps" aria-label="Chọn câu hỏi">' + steps + '</nav>' +
         '<div class="oy-quiz__nav">' +
         '<button class="oy-button" type="button" data-action="prev" aria-label="Câu trước"' + (state.index === 0 ? ' disabled' : '') + '>' +
-        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Câu trước</span></button>' +
+        '<span>Câu trước</span></button>' +
         '<button class="oy-button" type="button" data-action="forward" aria-label="Câu sau"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
-        '<span>Câu sau</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>' +
+        '<span>Câu sau</span></button>' +
         restartHtml(total - left) + '</div>' +
         (left ? '<p class="oy-quiz__left">Còn ' + left + ' câu chưa làm</p>' : finish) +
         '</aside>' +
@@ -269,9 +269,9 @@
         '<li><i class="oy-exam__swatch is-current"></i>Đang chọn</li></ul>' +
         '<div class="oy-quiz__nav">' +
         '<button class="oy-button" type="button" data-action="prev"' + (state.index === 0 ? ' disabled' : '') + '>' +
-        '<i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>Câu trước</span></button>' +
+        '<span>Câu trước</span></button>' +
         '<button class="oy-button oy-button--primary" type="button" data-action="forward"' + (state.index === total - 1 ? ' disabled' : '') + '>' +
-        '<span>Câu sau</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
+        '<span>Câu sau</span></button></div>' +
         submitArea + '</aside>';
     }
 

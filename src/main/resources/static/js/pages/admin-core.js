@@ -37,7 +37,7 @@
       { key: 'system-audit', label: 'Nhật ký quản trị', icon: 'fa-clipboard-list', href: '/admin/system/audit', roles: SYSTEM }
     ] },
     { title: 'Kinh doanh', items: [
-      { key: 'system-plans', label: 'Gói Premium', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
+      { key: 'system-plans', label: 'Gói Cao cấp', icon: 'fa-crown', href: '/admin/system/plans', roles: SYSTEM },
       { key: 'system-coupons', label: 'Mã giảm giá', icon: 'fa-tags', href: '/admin/system/coupons', roles: SYSTEM },
       { key: 'system-credit-packages', label: 'Gói CP', icon: 'fa-coins', href: '/admin/system/credit-packages', roles: SYSTEM },
       { key: 'system-ai-cost', label: 'Chi phí AI', icon: 'fa-calculator', href: '/admin/system/ai-cost', roles: SYSTEM },
@@ -64,7 +64,7 @@
     USER_AVATAR: 'Ảnh đại diện', FLASHCARD_SET: 'Bộ thẻ', FLASHCARD_COMMENT: 'Bình luận bộ thẻ', VIDEO: 'Video Shadowing',
     VIDEO_COMMENT: 'Bình luận video', WORD_CONTRIBUTION: 'Đóng góp từ vựng', LESSON: 'Bài học',
     SCENARIO: 'Kịch bản', TEXTBOOK: 'Giáo trình', USER: 'Người dùng', USER_SANCTION: 'Chế tài',
-    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Premium',
+    APPEAL: 'Kháng nghị', DENYLIST_TERM: 'Từ khoá cấm', PREMIUM_PLAN: 'Gói Cao cấp',
     COUPON: 'Mã giảm giá', CREDIT_PACKAGE: 'Gói CP', SYSTEM_CONFIG: 'Cấu hình hệ thống',
     COMMUNITY_CONTENT: 'Nội dung cộng đồng', COMMUNITY_COMMENT: 'Bình luận cộng đồng'
   };
@@ -192,7 +192,7 @@
     return new Promise(function (resolve) {
       var last = document.activeElement;
       var modal = document.createElement('div');
-      modal.className = 'adm-modal';
+      modal.className = 'adm-modal adm-modal--decision';
       modal.setAttribute('role', 'dialog');
       modal.setAttribute('aria-modal', 'true');
       modal.setAttribute('aria-labelledby', 'admDecideTitle');
@@ -226,10 +226,12 @@
       var reason = modal.querySelector('#admReason');
       var errorEl = modal.querySelector('[data-error]');
       var count = modal.querySelector('[data-count]');
+      var focusTimer;
 
       function close(value) {
+        clearTimeout(focusTimer);
         modal.remove();
-        document.body.classList.remove('adm-modal-open');
+        if (!document.querySelector('.adm-modal')) document.body.classList.remove('adm-modal-open');
         document.removeEventListener('keydown', onKey);
         if (last && last.focus) last.focus();
         resolve(value);
@@ -261,7 +263,7 @@
         close({ reason: value, extra: extra });
       });
       var focus = modal.querySelector('[data-autofocus]') || reason || modal.querySelector('button[type="submit"]');
-      setTimeout(function () { focus.focus(); }, 20);
+      focusTimer = setTimeout(function () { focus.focus(); }, 20);
     });
   }
 

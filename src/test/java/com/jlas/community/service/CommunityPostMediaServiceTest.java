@@ -5,11 +5,13 @@ import com.jlas.community.repository.CommunityPostMediaRepository;
 import com.jlas.moderation.dto.ModerationResult;
 import com.jlas.moderation.model.ModerationVerdict;
 import com.jlas.moderation.service.ContentModerationService;
+import com.jlas.shadowing.dto.SttResult;
 import com.jlas.shadowing.dto.YoutubeAnalyzeResultDto;
 import com.jlas.shadowing.service.DeepgramService;
 import com.jlas.shadowing.service.FfmpegService;
 import com.jlas.shadowing.service.ShadowingBlobStore;
 import com.jlas.shadowing.service.YoutubeAnalyzeService;
+import com.jlas.shadowing.service.YoutubeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
@@ -32,14 +34,42 @@ class CommunityPostMediaServiceTest {
     private final ShadowingBlobStore blobs = mock(ShadowingBlobStore.class);
     private final ContentModerationService moderation = mock(ContentModerationService.class);
     private final YoutubeAnalyzeService youtube = mock(YoutubeAnalyzeService.class);
+    private final YoutubeService youtubeDownloads = mock(YoutubeService.class);
+    private final FfmpegService ffmpeg = mock(FfmpegService.class);
+    private final DeepgramService deepgram = mock(DeepgramService.class);
     private final CommunityPostMediaService service = new CommunityPostMediaService(repo, blobs, moderation, youtube,
-            mock(FfmpegService.class), mock(DeepgramService.class));
+            youtubeDownloads, ffmpeg, deepgram);
 
     @BeforeEach
     void moderationPassesByDefault() throws Exception {
         when(moderation.scanText(anyString())).thenReturn(SAFE);
         when(moderation.scanJapaneseTopic(anyString(), anyList())).thenReturn(SAFE);
-        when(youtube.analyze(anyString())).thenThrow(new IllegalStateException("yt-dlp unavailable"));
+        when(moderation.scanYoutubeRelated(anyString())).thenReturn(SAFE);
+        when(youtube.analyze(anyString())).thenReturn(video("日本語の勉強", "ja"));
+    }
+
+    /** Video YouTube; {@code spoken} = ngôn ngữ lời thoại gốc (null = không rõ). */
+    private static YoutubeAnalyzeResultDto video(String title, String spoken) {
+        YoutubeAnalyzeResultDto meta = new YoutubeAnalyzeResultDto();
+        meta.setTitle(title);
+        meta.setChannel("Kênh A");
+        meta.setSpokenLanguage(spoken);
+        meta.setDuration(180);
+        // YouTube tự dịch phụ đề sang tiếng Nhật cho hầu hết video: không được dùng để xét.
+        meta.setJapaneseSubtitleLang("ja");
+        return meta;
+    }
+
+    private void unknownLanguageVideoSays(String transcript) throws Exception {
+        when(youtube.analyze(anyString())).thenReturn(video("Video #12", null));
+        when(youtubeDownloads.downloadAudio(anyString())).thenReturn("yt_audio.mp3");
+        SttResult stt = new SttResult();
+        stt.setTranscript(transcript);
+        when(deepgram.transcribeWavFile(any(), anyDouble())).thenReturn(stt);
+    }
+
+    private static ModerationResult unrelated(String reason) {
+        return ModerationResult.builder().verdict(ModerationVerdict.BLOCKED).summary(reason).build();
     }
 
     @Test
@@ -59,24 +89,85 @@ class CommunityPostMediaServiceTest {
     }
 
     @Test
-    void nonJapaneseYoutubeVideoIsRejectedLikeShadowing() throws Exception {
-        YoutubeAnalyzeResultDto meta = new YoutubeAnalyzeResultDto();
-        meta.setBlockedNonJapanese(true);
-        meta.setLanguageMessage("Video được nhận diện là Tiếng Việt. KotsuKotsu chỉ nhận nội dung tiếng Nhật.");
-        doReturn(meta).when(youtube).analyze(anyString());
-        assertThatThrownBy(() -> service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ"))
-                .isInstanceOf(ApiException.class).hasMessageContaining("Tiếng Việt");
+    void japaneseSpokenVideoIsRelatedWithoutAskingAi() throws Exception {
+        service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ");
+        verify(moderation, never()).scanYoutubeRelated(anyString());
+        verify(moderation).scanJapaneseTopic(eq(BODY), argThat(context -> context.size() == 1
+                && context.get(0).contains("日本語の勉強") && context.get(0).contains("Tiếng Nhật")));
+        verifyNoInteractions(youtubeDownloads, deepgram);
     }
 
     @Test
-    void japaneseYoutubeVideoTitleIsGivenToTopicCheck() throws Exception {
-        YoutubeAnalyzeResultDto meta = new YoutubeAnalyzeResultDto();
-        meta.setTitle("日本語の勉強");
-        meta.setDetectedLanguageLabel("Tiếng Nhật");
-        doReturn(meta).when(youtube).analyze(anyString());
+    void unrelatedVideoInAnotherLanguageIsRejected() throws Exception {
+        YoutubeAnalyzeResultDto meta = video("Trường Giang nấu Bún Bò Huế nóng hổi cho ngày mưa to", "vi");
+        meta.setDescription("Vào bếp cùng Giang");
+        when(youtube.analyze(anyString())).thenReturn(meta);
+        when(moderation.scanYoutubeRelated(argThat(info -> info.contains("Bún Bò Huế") && info.contains("Tiếng Việt")
+                && info.contains("Vào bếp cùng Giang")))).thenReturn(unrelated("Video là vlog nấu ăn, không liên quan tiếng Nhật"));
+        assertThatThrownBy(() -> service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ"))
+                .isInstanceOf(ApiException.class).hasMessageContaining("liên quan tới tiếng Nhật")
+                .hasMessageContaining("vlog nấu ăn");
+        verify(moderation, never()).scanJapaneseTopic(anyString(), anyList());
+    }
+
+    @Test
+    void japaneseLessonExplainedInVietnameseIsAllowed() throws Exception {
+        when(youtube.analyze(anyString())).thenReturn(video("Ngữ pháp Minna 1 - Bài 1 - Học Tiếng Nhật Minna No Nihongo", "vi"));
         service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ");
-        verify(moderation).scanJapaneseTopic(eq(BODY), argThat(context -> context.size() == 1
-                && context.get(0).contains("日本語の勉強") && context.get(0).contains("Tiếng Nhật")));
+        verify(moderation).scanYoutubeRelated(argThat(info -> info.contains("Minna") && info.contains("Tiếng Việt")));
+        verify(moderation).scanJapaneseTopic(eq(BODY), anyList());
+    }
+
+    @Test
+    void unsureOrFailedAiBlocksANonJapaneseVideo() throws Exception {
+        when(youtube.analyze(anyString())).thenReturn(video("Never Gonna Give You Up", "en"));
+        when(moderation.scanYoutubeRelated(anyString())).thenReturn(unrelated("Chưa kiểm tra được nội dung video, hãy thử lại sau."));
+        assertThatThrownBy(() -> service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ"))
+                .isInstanceOf(ApiException.class).hasMessageContaining("Chưa kiểm tra được");
+    }
+
+    @Test
+    void unknownLanguageVideoSpeakingJapaneseIsRelated() throws Exception {
+        unknownLanguageVideoSays("こんにちは、今日は日本語の勉強をしましょう。よろしくお願いします。");
+        service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ");
+        verify(moderation, never()).scanYoutubeRelated(anyString());
+        verify(moderation).scanJapaneseTopic(eq(BODY), argThat(context -> context.get(0).contains("こんにちは")));
+    }
+
+    @Test
+    void unknownLanguageVideoSpeakingVietnameseGoesToAiWithTheTranscript() throws Exception {
+        unknownLanguageVideoSays("Hôm nay mình sẽ nấu món bún bò Huế thật ngon cho cả nhà cùng ăn nhé các bạn");
+        when(moderation.scanYoutubeRelated(argThat(info -> info.contains("bún bò Huế"))))
+                .thenReturn(unrelated("Video là vlog nấu ăn"));
+        assertThatThrownBy(() -> service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ"))
+                .isInstanceOf(ApiException.class).hasMessageContaining("vlog nấu ăn");
+    }
+
+    @Test
+    void longUnknownLanguageVideoIsJudgedWithoutDownloadingAudio() throws Exception {
+        YoutubeAnalyzeResultDto meta = video("Video #12", null);
+        meta.setDuration(CommunityPostMediaService.SPEECH_SAMPLE_MAX_SECONDS + 1);
+        when(youtube.analyze(anyString())).thenReturn(meta);
+        service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ");
+        verifyNoInteractions(youtubeDownloads);
+        verify(moderation).scanYoutubeRelated(argThat(info -> info.contains("chưa xác định")));
+    }
+
+    @Test
+    void youtubeThatCannotBeAnalyzedIsRejectedLikeShadowing() throws Exception {
+        when(youtube.analyze(anyString())).thenThrow(new IllegalStateException("Sign in to confirm you're not a bot"));
+        assertThatThrownBy(() -> service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ"))
+                .isInstanceOf(ApiException.class).hasMessageContaining("Không phân tích được video YouTube");
+        verify(moderation, never()).scanJapaneseTopic(anyString(), anyList());
+    }
+
+    @Test
+    void notEmbeddableYoutubeIsRejectedLikeShadowing() throws Exception {
+        YoutubeAnalyzeResultDto meta = video("日本語の勉強", "ja");
+        meta.setEmbeddable(false);
+        when(youtube.analyze(anyString())).thenReturn(meta);
+        assertThatThrownBy(() -> service.prepare(BODY, null, null, "https://youtu.be/dQw4w9WgXcQ"))
+                .isInstanceOf(ApiException.class).hasMessageContaining("bản quyền");
     }
 
     @Test

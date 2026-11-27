@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Cộng đồng | KotsuKotsu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/tokens.css}"/>
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}"/>
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}"/>
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}"/>
-    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261124-toast)}"/>
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css}"/>
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/pages/community.css(v=20261125-largescreen)}"/>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css(v=20261125-largescreen)}"/>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png"/>
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
 </head>
@@ -69,7 +71,7 @@
                     </button>
                     <label class="cm-sort">
                         <span class="cm-visually-hidden">Sắp xếp</span>
-                        <select id="cmSort"><option value="newest">Mới nhất</option></select>
+                        <select class="select" data-jl-select data-variant="filter" id="cmSort"><option value="newest">Mới nhất</option></select>
                     </label>
                 </div>
                 <div class="cm-drawer-backdrop" id="cmDrawerBackdrop" hidden></div>
@@ -99,7 +101,7 @@
                         <div class="cm-youtube-row" id="cmYoutubeRow" hidden>
                             <i class="fa-brands fa-youtube" aria-hidden="true"></i>
                             <label class="cm-visually-hidden" for="cmYoutubeInput">Link YouTube</label>
-                            <input type="url" id="cmYoutubeInput" placeholder="Dán link YouTube (youtube.com/watch?v=… hoặc youtu.be/…)" autocomplete="off">
+                            <input class="input" type="url" id="cmYoutubeInput" placeholder="Dán link YouTube (youtube.com/watch?v=… hoặc youtu.be/…)" autocomplete="off">
                             <button type="button" class="cm-icon-btn" id="cmYoutubeClear" aria-label="Bỏ link YouTube"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                         </div>
                         <input type="file" id="cmPickImage" accept="image/jpeg,image/png,image/webp" multiple hidden>
@@ -113,7 +115,7 @@
                         <div class="cm-composer__foot">
                             <label class="cm-composer__level">
                                 <span>Cấp độ</span>
-                                <select id="cmComposerLevel">
+                                <select class="select" data-jl-select id="cmComposerLevel">
                                     <option value="">Chung</option>
                                     <option value="N5">N5</option>
                                     <option value="N4">N4</option>
@@ -144,9 +146,10 @@
 </main>
 
 <script th:src="@{/js/auth-session.js}"></script>
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 <script th:src="@{/js/pages/community-common.js(v=20261124-toast)}"></script>
-<script th:src="@{/js/pages/community-cards.js(v=20261124-notice2)}"></script>
+<script th:src="@{/js/pages/community-cards.js(v=20261125-phase2a)}"></script>
 <script th:src="@{/js/pages/community-feed.js(v=20261124-saved)}"></script>
+<script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
 </body>
 </html>

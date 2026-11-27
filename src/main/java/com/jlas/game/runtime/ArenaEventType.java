@@ -14,6 +14,8 @@ public final class ArenaEventType {
     public static final String MEMORY_STATE = "MEMORY_STATE";
     public static final String AIR_PROGRESS = "AIR_PROGRESS";
     public static final String AIR_ATTACK = "AIR_ATTACK";
+    public static final String PUZZLE_STATE = "PUZZLE_STATE";
+    public static final String PUZZLE_INK = "PUZZLE_INK";
 
     private ArenaEventType() { }
 }

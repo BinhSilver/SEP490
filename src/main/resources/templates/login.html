@@ -59,7 +59,16 @@
                         </p>
                     </div>
 
-                    <button id="submitBtn" type="submit" class="btn btn--primary btn--block">
+                    <div class="login-consent">
+                        <input id="loginConsent" type="checkbox" required autocomplete="off"
+                               aria-label="Đồng ý với Điều khoản sử dụng và Chính sách bảo mật">
+                        <span><button id="loginPolicyLink" type="button" class="login-consent__link"
+                                      aria-haspopup="dialog" aria-controls="loginPolicyDialog">Điều khoản sử dụng và Chính sách bảo mật</button></span>
+                        <!-- Shown when Đăng nhập or Google is pressed before agreeing; sits in the gap, so nothing moves. -->
+                        <p id="loginConsentError" class="login-consent__error" role="alert" hidden>Bạn cần đồng ý với Điều khoản để có thể đăng nhập.</p>
+                    </div>
+
+                    <button id="submitBtn" type="submit" class="btn btn--primary btn--block" disabled>
                         <span class="btn__label">Đăng nhập</span>
                     </button>
                 </form>
@@ -70,12 +79,12 @@
                     <div class="form-divider"><span class="login-divider-desktop">Hoặc tiếp tục với</span><span class="login-divider-mobile">Hoặc đăng nhập bằng</span></div>
                     <!-- Google draws its own button (max 400px wide, 40px tall), so the visible face below takes
                          the form's button size and Google's real button sits over it, invisible, to take the click. -->
-                    <div class="google-login">
+                    <div class="google-login" role="group" aria-label="Đăng nhập bằng Google" aria-disabled="true">
                         <span class="google-login__face" aria-hidden="true">
                             <svg viewBox="0 0 48 48" width="18" height="18"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
                             <span>Đăng nhập bằng Google</span>
                         </span>
-                        <div id="googleBtnContainer"></div>
+                        <div id="googleBtnContainer" inert></div>
                     </div>
                 </div>
             </div>
@@ -89,11 +98,90 @@
     </div>
 </main>
 
+<dialog id="loginPolicyDialog" class="login-policy" aria-labelledby="loginPolicyTitle">
+    <header class="login-policy__header">
+        <h2 id="loginPolicyTitle" tabindex="-1" autofocus>ĐIỀU KHOẢN SỬ DỤNG VÀ CHÍNH SÁCH BẢO MẬT</h2>
+    </header>
+    <div class="login-policy__body" tabindex="0" role="region" aria-label="Nội dung chính sách">
+        <p>Chào mừng bạn đến với Kotsukotsu, nền tảng học tiếng Nhật trực tuyến. Vui lòng đọc kỹ các điều khoản dưới đây và bấm "Tôi đồng ý" để bắt đầu học.</p>
+        <section>
+            <h3>1. Tài khoản</h3>
+            <ul>
+                <li>Thông tin đăng ký phải trung thực và chính xác.</li>
+                <li>Mỗi người chỉ dùng một tài khoản; không chia sẻ, cho mượn hoặc mua bán tài khoản.</li>
+                <li>Bạn tự bảo mật mật khẩu và chịu trách nhiệm với mọi hoạt động trên tài khoản của mình.</li>
+                <li>Người dưới 16 tuổi cần có sự đồng ý của cha mẹ hoặc người giám hộ.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>2. Gói Miễn phí và Cao cấp</h3>
+            <ul>
+                <li>Free: học toàn bộ Nhập môn và N5, học thử một số bài đầu của N4, N3, N2, N1; sử dụng flashcard, lộ trình học và Cộng đồng.</li>
+                <li>Gói Cao cấp: mở toàn bộ giáo trình N4, N3, N2, N1 và các giáo trình chủ đề (IT, du lịch, đời sống).</li>
+            </ul>
+        </section>
+        <section>
+            <h3>3. Quy định khi học và tham gia Cộng đồng</h3>
+            <p>Bạn không được:</p>
+            <ul>
+                <li>Sao chép, tải hàng loạt hoặc phát tán nội dung bài học khi chưa được Kotsukotsu cho phép.</li>
+                <li>Dùng công cụ tự động để thu thập dữ liệu, tấn công hoặc can thiệp vào hệ thống.</li>
+                <li>Đăng nội dung vi phạm pháp luật, xúc phạm, quấy rối, lừa đảo, quảng cáo hoặc spam.</li>
+                <li>Đăng nội dung vi phạm bản quyền của người khác.</li>
+            </ul>
+            <p>Bài đăng bị nhiều người báo cáo có thể bị tự động ẩn để kiểm duyệt. Kotsukotsu có quyền xóa nội dung vi phạm.</p>
+        </section>
+        <section>
+            <h3>4. Quyền sở hữu nội dung</h3>
+            <ul>
+                <li>Nội dung học tập thuộc quyền của Kotsukotsu hoặc bên cấp phép, chỉ dùng cho mục đích học cá nhân.</li>
+                <li>Bạn giữ quyền với bài đăng của mình và cho phép Kotsukotsu hiển thị nội dung đó trên hệ thống.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>5. Bảo vệ dữ liệu cá nhân</h3>
+            <ul>
+                <li>Dữ liệu thu thập: họ tên, email, ảnh đại diện, tiến độ học, kết quả luyện tập, lịch sử giao dịch và nội dung bạn đăng.</li>
+                <li>Mục đích: quản lý tài khoản, cá nhân hóa việc học, xử lý thanh toán, hỗ trợ người dùng và cải thiện hệ thống.</li>
+                <li>Kotsukotsu không mua bán dữ liệu cá nhân. Dữ liệu chỉ được chia sẻ khi cần để vận hành dịch vụ hoặc theo yêu cầu của cơ quan nhà nước có thẩm quyền.</li>
+                <li>Quyền của bạn: được biết, xem, sửa, yêu cầu xóa dữ liệu và rút lại sự đồng ý.</li>
+                <li>Dữ liệu được xử lý theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và các văn bản hướng dẫn.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>6. Khóa và chấm dứt tài khoản</h3>
+            <ul>
+                <li>Tài khoản vi phạm điều khoản có thể bị tạm khóa hoặc khóa vĩnh viễn và không được hoàn phí gói Cao cấp.</li>
+                <li>Bạn có thể yêu cầu xóa tài khoản bất kỳ lúc nào; dữ liệu được xóa theo quy định, trừ phần pháp luật yêu cầu lưu trữ.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>7. Giới hạn trách nhiệm</h3>
+            <ul>
+                <li>Kotsukotsu hỗ trợ việc học nhưng không cam kết bạn sẽ đỗ JLPT hay đạt một trình độ cụ thể.</li>
+                <li>Hệ thống có thể tạm gián đoạn để bảo trì; chúng tôi sẽ cố gắng thông báo trước.</li>
+            </ul>
+        </section>
+        <section>
+            <h3>8. Thay đổi điều khoản</h3>
+            <p>Khi điều khoản thay đổi, Kotsukotsu sẽ thông báo và yêu cầu bạn đồng ý lại trước khi tiếp tục sử dụng.</p>
+        </section>
+        <p>Liên hệ hỗ trợ: <a href="mailto:kotsukotsusupport@gmail.com">kotsukotsusupport@gmail.com</a></p>
+    </div>
+    <form method="dialog" class="login-policy__actions">
+        <label class="login-policy__consent"><input id="loginPolicyConsent" type="checkbox" autocomplete="off">
+            <span>Tôi đã đọc và đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Kotsukotsu.</span>
+        </label>
+        <button type="submit" class="btn btn--secondary" value="decline">Từ chối</button>
+        <button id="loginPolicyAccept" type="submit" class="btn btn--primary" value="accept" disabled>Tôi đồng ý</button>
+    </form>
+</dialog>
+
 <div th:replace="~{fragments/components/toast :: toast-host}"></div>
 <script th:src="@{/js/components.js}"></script>
 <script th:src="@{/js/pages/auth-common.js}"></script>
 <script th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}"
         src="https://accounts.google.com/gsi/client" async defer></script>
-<script th:src="@{/js/pages/login.js(v='20261111-google-face')}"></script>
+<script th:src="@{/js/pages/login.js(v='20261126-consent-warn')}"></script>
 </body>
 </html>

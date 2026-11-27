@@ -30,7 +30,9 @@ public interface VocabularyEntryRepository extends JpaRepository<VocabularyEntry
     /** Same cap as the old query: callers only need the longest matches. */
     int CONTAINED_LIMIT = 100;
 
-    @Query("select v from VocabularyEntry v where v.normalizedExpression in :keys")
+    // Native SQL on purpose: the dictionary module maps the same table to another entity also named
+    // VocabularyEntry, and JPQL picked that one ("No converter found" and a 500 on the sample page).
+    @Query(value = "select * from vocabulary_entry where normalized_expression in (:keys)", nativeQuery = true)
     List<VocabularyEntry> findByNormalizedExpressionIn(@Param("keys") Collection<String> keys);
 
     /** Dictionary words that occur in the text, longest first (any status). */

@@ -5,7 +5,7 @@
 <div id="jlabBaseShellMount"></div>
 <div th:replace="~{learning/fragments/welcome-modal :: welcome-modal}"></div>
 
-<main id="jlabBaseContent" class="oy-page">
+<main id="jlabBaseContent" class="jl-ui-kit oy-page">
     <div class="oy-shell">
         <div class="oy-notice" th:if="${course.unrestricted}" role="status">
             <i class="fa-solid fa-lock-open" aria-hidden="true"></i>
@@ -15,7 +15,7 @@
         <div class="oy-notice" th:if="${lockedNotice}" role="status">
             <i class="fa-solid fa-lock" aria-hidden="true"></i>
             <span th:if="${lockedNotice == 'final'}">Bài kiểm tra cuối giai đoạn mở khoá khi bạn hoàn thành mọi bài trong giai đoạn đó.</span>
-            <span th:if="${lockedNotice == 'pro'}">Bài đó dành cho tài khoản Pro. <a th:href="@{/premium}">Nâng cấp Pro</a> để học toàn bộ giáo trình và làm các bài kiểm tra.</span>
+            <span th:if="${lockedNotice == 'pro'}">Bài đó dành cho tài khoản Cao cấp. <a th:href="@{/premium}">Nâng cấp gói Cao cấp</a> để học toàn bộ giáo trình và làm các bài kiểm tra.</span>
             <span th:unless="${lockedNotice == 'final' or lockedNotice == 'pro'}">Bài đó chưa mở khoá. Các bài mở lần lượt: vượt qua bài luyện tập (từ 60%) của bài trước để học bài tiếp theo.</span>
         </div>
 
@@ -66,7 +66,7 @@
                                 <span th:text="${done} ? 'Ôn lại' : (${card.status == 'IN_PROGRESS'} ? 'Học tiếp' : 'Bắt đầu học')">Bắt đầu học</span>
                             </a>
                             <a th:if="${locked and card.proOnly}" class="oy-lesson-card__locked" th:href="@{/premium}">
-                                <i class="fa-solid fa-crown" aria-hidden="true"></i> Nâng cấp Pro để mở khoá
+                                <i class="fa-solid fa-crown" aria-hidden="true"></i> Nâng cấp gói Cao cấp để mở khoá
                             </a>
                             <span th:if="${locked and !card.proOnly}" class="oy-lesson-card__locked">
                                 <i class="fa-solid fa-lock" aria-hidden="true"></i> Vượt qua bài trước để mở khoá
@@ -91,7 +91,7 @@
                     <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
                     <span th:text="${stage.finalTest.passed} ? 'Làm lại' : 'Làm bài kiểm tra'">Làm bài kiểm tra</span>
                 </a>
-                <span th:if="${!stage.finalTest.unlocked and stage.finalTest.proOnly}" class="oy-pill oy-pill--pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Pro</span>
+                <span th:if="${!stage.finalTest.unlocked and stage.finalTest.proOnly}" class="oy-pill oy-pill--pro"><i class="fa-solid fa-crown" aria-hidden="true"></i> Cao cấp</span>
                 <span th:if="${!stage.finalTest.unlocked and !stage.finalTest.proOnly}" class="oy-pill"><i class="fa-solid fa-lock" aria-hidden="true"></i> Chưa mở</span>
             </div>
             </div>
@@ -99,7 +99,7 @@
     </div>
 </main>
 
-<script th:src="@{/js/jlab-base-shell.js}"></script>
+<script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 <script th:src="@{/js/pages/onyomi-page.js(v=20261107-practice-page)}"></script>
 </body>
 </html>

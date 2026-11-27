@@ -3036,10 +3036,11 @@ CREATE TABLE review_case (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Lich su mute/ban cua user.
+-- [Chong tai hang loat] created_by NULL = he thong tu ap (tam ngung / khoa vi tai hang loat), xem 096.
 CREATE TABLE user_sanction (
     id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id       BIGINT UNSIGNED NOT NULL,
-    created_by    BIGINT UNSIGNED NOT NULL,
+    created_by    BIGINT UNSIGNED NULL,
     sanction_type VARCHAR(20) NOT NULL,
     reason        VARCHAR(500) NULL,
     starts_at     DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
@@ -3054,6 +3055,33 @@ CREATE TABLE user_sanction (
         REFERENCES users(id),
     CONSTRAINT chk_user_sanction_type CHECK (sanction_type IN ('MUTE','BAN')),
     CONSTRAINT chk_user_sanction_time CHECK (ends_at IS NULL OR ends_at > starts_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- [Chong tai hang loat] Moi dong = mot lan tai khoan vuot nguong request (tai xuong / dang tai hang loat) va muc
+-- xu ly he thong da ap: WARN canh bao, SUSPEND tam ngung (BAN co thoi han), LOCK khoa (BAN vinh vien).
+-- So lan chua go (cleared_at IS NULL) trong 30 ngay quyet dinh muc tiep theo. Migration 096.
+CREATE TABLE user_bulk_violation (
+    id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id        BIGINT UNSIGNED NOT NULL,
+    kind           VARCHAR(10)     NOT NULL,
+    request_count  INT UNSIGNED    NOT NULL,
+    request_limit  INT UNSIGNED    NOT NULL,
+    window_seconds INT UNSIGNED    NOT NULL,
+    sample_path    VARCHAR(255)    NULL,
+    action_taken   VARCHAR(10)     NOT NULL,
+    sanction_id    BIGINT UNSIGNED NULL,
+    created_at     DATETIME(6)     NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    cleared_at     DATETIME(6)     NULL,
+    cleared_by     BIGINT UNSIGNED NULL,
+    clear_reason   VARCHAR(500)    NULL,
+    PRIMARY KEY (id),
+    KEY idx_user_bulk_violation_user (user_id, created_at),
+    KEY idx_user_bulk_violation_created (created_at),
+    CONSTRAINT fk_user_bulk_violation_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_user_bulk_violation_sanction FOREIGN KEY (sanction_id) REFERENCES user_sanction(id) ON DELETE SET NULL,
+    CONSTRAINT fk_user_bulk_violation_cleared_by FOREIGN KEY (cleared_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT chk_user_bulk_violation_kind CHECK (kind IN ('DOWNLOAD','UPLOAD')),
+    CONSTRAINT chk_user_bulk_violation_action CHECK (action_taken IN ('WARN','SUSPEND','LOCK'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tong quota AI theo ngay; quota thang tinh SUM theo date range.
@@ -3287,13 +3315,13 @@ CREATE TABLE streak_freeze_day (
 
 -- #############################################################################
 -- 10) GAMES
--- Game lay cau hoi tu flashcard_card cua flashcard_set duoc chon.
+-- [JLAS-1095] Game dung flashcard hoac ngan hang cau hoi JLPT, tuy game_type.
 -- #############################################################################
 
 -- Thong tin mot tran; room runtime nam trong WebSocket/in-memory.
 CREATE TABLE game_match (
     match_id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    flashcard_set_id  BIGINT UNSIGNED NOT NULL, -- Nguon card cua tran.
+    flashcard_set_id  BIGINT UNSIGNED NULL, -- [JLAS-1095] Chi co gia tri cho game dung flashcard.
     room_id           VARCHAR(64) NOT NULL,
     room_code         VARCHAR(16) NOT NULL,
     game_type         VARCHAR(32) NOT NULL,
@@ -3313,7 +3341,7 @@ CREATE TABLE game_match (
     CONSTRAINT fk_game_match_winner FOREIGN KEY (winner_user_id)
         REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT chk_game_match_type
-        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH')),
+        CHECK (game_type IN ('CANNON_BATTLE','MEMORY_MATCH','AIR_DEFENSE','NEKO_CATCH','SPHINX_RIDDLE','PICTURE_REBUS','DRAW_GUESS')),
     CONSTRAINT chk_game_match_status
         CHECK (status IN ('IN_PROGRESS','COMPLETED','ABORTED')),
     CONSTRAINT chk_game_match_time CHECK (ended_at IS NULL OR ended_at >= started_at)
@@ -3340,7 +3368,7 @@ CREATE TABLE game_match_player (
     CONSTRAINT fk_game_match_player_user FOREIGN KEY (user_id)
         REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT chk_game_match_player_result
-        CHECK (result IN ('PENDING','WIN','LOSE','DRAW','FORFEIT'))
+        CHECK (result IN ('PENDING','WIN','LOSE','DRAW','FORFEIT','COMPLETED')) -- [JLAS-1095] Ket thuc khong tinh diem.
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ket qua Memory Match cua tung user.

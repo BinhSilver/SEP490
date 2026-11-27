@@ -2,6 +2,7 @@ package com.jlas.config;
 
 import com.jlas.auth.security.JwtAuthenticationFilter;
 import com.jlas.moderation.security.BanEnforcementFilter;
+import com.jlas.moderation.security.BulkContentGuardFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final BanEnforcementFilter banEnforcementFilter;
+    private final BulkContentGuardFilter bulkContentGuardFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -69,6 +71,8 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
                         .requestMatchers("/admin/avatar-frames", "/api/admin/avatar-frames", "/api/admin/avatar-frames/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/games/sphinx/**", "/games/picture-rebus/**", "/games/draw-guess/**",
+                                "/api/games/puzzles/**").hasRole("ADMIN")
                         // [JLAS2-270] Learners submit; only content creators/admins review learning error reports.
                         .requestMatchers("/admin/learning-content-reports", "/api/admin/learning-content-reports", "/api/admin/learning-content-reports/**")
                         .hasAnyRole("CONTENT_CREATOR", "ADMIN")
@@ -90,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error", "/about", "/policy").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
+                        .requestMatchers("/api/kanji-map/heartbeat", "/api/kanji-map/kanji/**").permitAll()
                         .requestMatchers("/search", "/search/**", "/dictionary/index.html",
                                 "/dictionary/css/**", "/dictionary/js/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",
@@ -122,6 +127,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(banEnforcementFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(bulkContentGuardFilter, BanEnforcementFilter.class)
                 .build();
     }
 

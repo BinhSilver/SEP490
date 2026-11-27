@@ -51,7 +51,6 @@
             dialog.innerHTML = `
                 <div class="confirm-modal-icon danger"><i class="fa-solid fa-flag" aria-hidden="true"></i></div>
                 <h2 class="confirm-modal-title" id="report-dialog-title">Báo cáo video</h2>
-                <p class="confirm-modal-message">Khi có từ 3 người báo cáo, video sẽ được ẩn tạm thời để quản trị viên xem xét. Nếu báo cáo đúng, video bị gỡ và link gốc bị chặn, không ai nhập lại được.</p>
                 <fieldset class="report-reasons">
                     <legend class="sr-only">Lý do báo cáo</legend>
                     ${REASONS.map((r, i) => `

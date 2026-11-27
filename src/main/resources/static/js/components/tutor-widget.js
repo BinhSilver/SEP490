@@ -161,7 +161,8 @@
       return '<div class="tutor-msg tutor-msg--user" lang="ja">' + escapeHtml(message.content) + '</div>';
     }
     if (message.role === 'error') {
-      return '<div class="tutor-msg tutor-msg--error" role="alert">' + escapeHtml(message.content) + '</div>';
+      return '<div class="tutor-msg tutor-msg--error" role="alert">' + escapeHtml(message.content)
+        + (message.premium ? ' <a href="/premium">Nâng cấp gói Cao cấp</a>' : '') + '</div>';
     }
     // Câu trả lời AI tổng hợp (J-LAS không có nội dung) có khung và nhãn riêng để người học không nhầm với giáo trình.
     var tierLabel = { AI: 'AI tổng hợp · chưa duyệt', AI_REVIEWED: 'AI tổng hợp · đã duyệt', AI_TRANSLATION: 'AI dịch · chưa duyệt' }[message.tier];
@@ -203,7 +204,7 @@
     var draft = null; // câu trả lời đang hiện dần; dòng "done" thay nó bằng bản đã lọc kèm nguồn
     try {
       await streamChat({ question: q, history: history }, function (line) {
-        if (line.error) throw new Error(line.error);
+        if (line.error) { var failure = new Error(line.error); failure.code = line.code; throw failure; }
         if (line.delta) {
           if (!draft) { draft = { role: 'assistant', content: '', sources: [] }; state.messages.push(draft); }
           draft.content += line.delta;
@@ -220,7 +221,8 @@
       if (!draft || !draft.complete) throw new Error('Gia sư chưa trả lời xong, bạn thử lại nhé.');
     } catch (e) {
       if (draft) state.messages.splice(state.messages.indexOf(draft), 1);
-      state.messages.push({ role: 'error', content: e.message || 'Gia sư chưa trả lời được, bạn thử lại sau nhé.' });
+      state.messages.push({ role: 'error', content: e.message || 'Gia sư chưa trả lời được, bạn thử lại sau nhé.',
+        premium: e.code === 'TUTOR_DAILY_PREMIUM_REQUIRED' });
     } finally {
       state.busy = false;
       save();

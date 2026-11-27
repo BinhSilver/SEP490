@@ -1352,11 +1352,12 @@ html[data-theme="dark"] .live-visualizer {
 html[data-theme="dark"] .live-visualizer.is-user {
     background: var(--dm-ai-pink-bg)
 }
+/* The bars were the same colour as their pill and showed as a dark smudge; they now stand out from it. */
 html[data-theme="dark"] .live-visualizer .vis-bar {
-    background: linear-gradient(180deg, var(--dm-ai-action), var(--dm-ai-action))
+    background: linear-gradient(180deg, var(--dark-accent), var(--color-primary))
 }
 html[data-theme="dark"] .live-visualizer.is-user .vis-bar {
-    background: linear-gradient(180deg, var(--dm-ai-pink-bg), var(--dm-ai-danger-bg))
+    background: linear-gradient(180deg, #f9a8d4, #f472b6)
 }
 html[data-theme="dark"] .cv-main-top,
 html[data-theme="dark"] .side-card,
@@ -1428,6 +1429,8 @@ html[data-theme="dark"] .mode-card :is(h3,.jp,.mode-desc){color:var(--dm-ai-ink)
 html[data-theme="dark"] .word-modal{background:var(--dm-ai-surface);color:var(--dm-ai-ink);}
 html[data-theme="dark"] body:not(.mode-free-chat) .cv-main{background-color:var(--dm-ai-bg)!important;background-image:linear-gradient(90deg,rgba(17,25,39,.92),rgba(17,25,39,.78)),var(--scenario-chat-background-image,none)!important;}
 html[data-theme="dark"] .cv-messages{background:rgba(26,38,56,.9)!important;}
+/* Free chat has no scene picture behind it: the messages sit on the page background, not on a navy panel. */
+html[data-theme="dark"] body.mode-free-chat :is(.cv-main,.cv-messages){background:var(--color-background)!important;}
 html[data-theme="dark"] .cv-messages .bubble{background:var(--dm-ai-raised)!important;}
 html[data-theme="dark"] .msg-row.user .bubble{background:var(--dark-soft)!important;}
 html[data-theme="dark"] .msg-row .token:hover{background:var(--dm-ai-accent-soft);color:var(--dm-ai-accent);}
@@ -1437,3 +1440,16 @@ html[data-theme="dark"] .msg-row .token:hover{background:var(--dm-ai-accent-soft
 .freechat-past a { color: var(--color-primary); font-weight: 700; }
 html[data-theme="dark"] .freechat-past { color: var(--dm-ai-muted); }
 html[data-theme="dark"] .freechat-past a { color: var(--dm-ai-accent); }
+
+/* Folding side card (free chat "Công cụ"): the heading is the button. */
+.side-card--fold h3 { margin: 0; }
+.side-card__fold { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.side-card__fold > i:first-child { color: var(--color-primary); }
+.side-card__fold-icon { margin-left: auto; font-size: .8em; transition: transform .2s ease; }
+.side-card__fold[aria-expanded="true"] .side-card__fold-icon { transform: rotate(180deg); }
+.side-card__fold:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: 6px; }
+.side-card--fold.is-open .side-card__fold-body { margin-top: 12px; }
+/* In the phone settings dialog the card is the dialog's content: always open, no fold control. */
+.cv-settings-dialog .side-card__fold-body[hidden] { display: block; }
+.cv-settings-dialog .side-card__fold { pointer-events: none; min-height: 0; }
+.cv-settings-dialog .side-card__fold-icon { display: none; }

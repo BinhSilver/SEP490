@@ -242,6 +242,7 @@ tutor:
   max-concurrent: ${TUTOR_MAX_CONCURRENT:10}
   wait-seconds: ${TUTOR_WAIT_SECONDS:30}
   questions-per-hour: ${TUTOR_QUESTIONS_PER_HOUR:60}
+  questions-per-day: ${TUTOR_QUESTIONS_PER_DAY:5}
   max-question-chars: 500
   history-messages: 6
   # Tầng 2: J-LAS không có nội dung cho một câu hỏi có chữ Nhật thì AI tổng hợp câu trả lời có nhãn "chưa có trong tài liệu
@@ -353,6 +354,18 @@ moderation:
     comment-per-minute: ${MODERATION_COMMENT_PER_MINUTE:30}
     image-per-hour: ${MODERATION_IMAGE_PER_HOUR:40}
     publish-per-hour: ${MODERATION_PUBLISH_PER_HOUR:20}
+  # Chống tải nội dung hàng loạt: vượt ngưỡng → 429; vi phạm lần 1 cảnh báo, lần 2 tạm ngưng, lần 3 khoá tài khoản.
+  bulk-guard:
+    enabled: ${BULK_GUARD_ENABLED:true}
+    download:
+      per-minute: ${BULK_GUARD_DOWNLOAD_PER_MINUTE:300}
+      per-hour: ${BULK_GUARD_DOWNLOAD_PER_HOUR:3000}
+    upload:
+      per-5-minutes: ${BULK_GUARD_UPLOAD_PER_5_MINUTES:10}
+      per-day: ${BULK_GUARD_UPLOAD_PER_DAY:40}
+    suspend-hours: ${BULK_GUARD_SUSPEND_HOURS:24}
+    strike-days: ${BULK_GUARD_STRIKE_DAYS:30}
+    violation-cooldown-minutes: ${BULK_GUARD_VIOLATION_COOLDOWN_MINUTES:60}
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging:

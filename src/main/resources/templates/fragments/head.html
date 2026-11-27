@@ -21,39 +21,40 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" />
 
     <!-- Shared design system (index = source of truth) -->
-    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261119-compact)}" />
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}" />
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
-    <link rel="stylesheet" th:href="@{/css/base.css(v=20261119-compact)}" />
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}" />
     <link rel="stylesheet" th:href="@{/css/layout.css}" />
     <link rel="stylesheet" th:href="@{/css/sakura-background.css}" />
 
     <!-- Shared components -->
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/cards.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261119-compact)}" />
-    <link rel="stylesheet" th:href="@{/css/components/forms.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/toast.css?v=20261011-mobile-toast}" />
-    <link rel="stylesheet" th:href="@{/css/components/header.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/footer.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/user-menu.css?v=20261014-frames}" />
-    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}" />
-    <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20260903-motion}" />
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/cards.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inputs.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/forms.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/dropdowns.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/toast.css?v=20261125-largescreen}" />
+    <link rel="stylesheet" th:href="@{/css/components/header.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/brand.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/footer.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/user-menu.css?v=20261125-largescreen}" />
+    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css(v=20261125-phase1)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/retention-live.css?v=20261125-phase1}" />
     <link rel="stylesheet" th:href="@{/css/components/avatar-frame.css?v=20261021-catalog}" />
 
     <!-- Page-specific CSS (optional) -->
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
-        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${(pageCss == 'jlpt' or pageCss == 'jlpt-exam' or pageCss == 'jlpt-study' or pageCss == 'jlpt-practice' or pageCss == 'jlpt-practice-admin' or pageCss == 'verb-practice-admin' or pageCss == 'kanji-map' or pageCss == 'kanji-map-admin' or pageCss == 'weakness-notebook' or (pageCss == 'jlas-certificates' and ownedUi == true)) ? '20261119-deploy-merge' : (pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261118-kana-snake2' : (pageCss == 'login' ? '20261111-google-face' : (pageCss == 'profile' ? '20261103-auto' : (pageCss == 'onyomi' ? '20261118-unslop' : (pageCss == 'textbooks' ? '20261108-plum' : '20261105-plum')))))))}}" />
+        th:href="@{'/css/pages/' + ${pageCss} + '.css?v=' + ${(pageCss == 'jlpt' or pageCss == 'jlpt-exam' or pageCss == 'jlpt-study' or pageCss == 'jlpt-practice' or pageCss == 'jlpt-practice-admin' or pageCss == 'verb-practice-admin' or pageCss == 'kanji-map' or pageCss == 'kanji-map-admin' or pageCss == 'weakness-notebook' or (pageCss == 'jlas-certificates' and ownedUi == true)) ? '20261119-deploy-merge' : (pageCss == 'weakness-notebook' ? '20261021-notebook-sort-menu' : (pageCss == 'home' ? '20261105-plum' : (pageCss == 'arena' ? '20261118-kana-snake2' : (pageCss == 'login' ? '20261126-consent-warn' : ((pageCss == 'profile' or pageCss == 'credit-history') ? '20261125-largescreen' : (pageCss == 'onyomi' ? '20261123-ui-standard' : (pageCss == 'textbooks' ? '20261108-plum' : '20261105-plum')))))))}}" />
     <link th:if="${pageCss == 'kanji-map'}" rel="stylesheet" th:href="@{/css/pages/kanji-map.css(v='20261119-toast')}" />
     <link th:if="${pageCss == 'kanji-map-admin'}" rel="stylesheet" th:href="@{/css/pages/kanji-map-admin.css(v=20261119-deploy-merge)}" />
     <link th:if="${pageCss == 'jlpt-study'}" rel="stylesheet" th:href="@{/css/pages/jlpt-study.css?v=20261119-compact}" />
     <link th:if="${pageCss == 'jlpt'}" rel="stylesheet" th:href="@{/css/pages/jlpt.css?v=20261119-compact}" />
-    <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=20261105-plum}" />
+    <link th:if="${pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/pages/retention-demo.css?v=20261125-phase2a}" />
     <link th:if="${pageCss == 'register' or pageCss == 'profile'}" rel="stylesheet" th:href="@{/css/components/date-wheel.css?v=20261102-wheel2}" />
     <link th:if="${pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-practice.css?v=20261119-compact}" />
     <link th:if="${pageCss == 'jlpt-exam'}" rel="stylesheet" th:href="@{/css/pages/jlpt-exam-furigana.css?v=20261119-compact}" />
@@ -65,7 +66,7 @@
         <script th:src="@{/js/components/learning-report.js(v=20261120-report-fix)}"></script>
     </th:block>
     <!-- Shared shell styles are loaded last so every standard page uses the contract-owned navigation. -->
-    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261111-nav-nowrap}" />
+    <link rel="stylesheet" th:href="@{/css/jlab-base-shell.css?v=20261125-largescreen}" />
     <link rel="stylesheet" th:href="@{/css/pages/learning-journey.css}" />
     <link th:if="${pageCss == 'smart-test'}" rel="stylesheet" th:href="@{/css/learning-v2-tokens.css?v=20261111-smart-test}" />
     <link th:if="${pageCss == 'smart-test'}" rel="stylesheet" th:href="@{/css/pages/jpath-base.css?v=20261111-smart-test}" />
@@ -78,22 +79,23 @@
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
     <!-- Chatbot gia sư (nút nổi); tự ẩn với khách, trang quản trị, bài kiểm tra, hoặc khi máy chủ chưa bật -->
-    <link rel="stylesheet" th:href="@{/css/components/tutor-widget.css(v=20261125-cleanup)}" />
+    <link rel="stylesheet" th:href="@{/css/components/tutor-widget.css(v=20261125-largescreen)}" />
     <script defer th:src="@{/js/pages/home-mascot.js?v=20261115-f129}"></script>
     <script defer th:src="@{/js/components/tutor-widget.js(v=20261125-cleanup)}"></script>
+    <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold" />
+    <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261119-compact" />
     <!-- Shared dropdown for <select data-jl-select> (css/components/select.css, js/components/select.js) -->
-    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261111-select2)}" />
-    <script defer th:src="@{/js/components/select.js(v=20261111-select2)}"></script>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-largescreen)}" />
+    <script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
 
     <!-- UI contract for the owned feature pages; other modules keep their existing styles. -->
     <th:block th:if="${pageCss == 'jlpt' or pageCss == 'jlpt-exam' or pageCss == 'jlpt-study' or pageCss == 'jlpt-practice' or pageCss == 'jlpt-admin' or pageCss == 'jlpt-practice-admin' or pageCss == 'verb-practice' or pageCss == 'verb-practice-admin' or pageCss == 'kanji-map' or pageCss == 'kanji-map-admin' or pageCss == 'weakness-notebook' or (pageCss == 'jlas-certificates' and ownedUi == true)}">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" />
-        <link rel="stylesheet" th:href="@{/css/controls.css(v=20261119-compact)}" />
-        <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261119-setup-v2)}" />
+        <link rel="stylesheet" th:href="@{/css/controls.css(v=20261125-largescreen)}" />
         <script defer th:src="@{/js/components/owned-ui.js(v=20261119-compact)}"></script>
     </th:block>
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-largescreen)}" />
     <link th:if="${pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-practice-setup.css(v=20261119-instant-mark)}" />
     <link th:if="${pageCss == 'jlpt-practice'}" rel="stylesheet" th:href="@{/css/pages/jlpt-practice-player.css(v=20261119-instant-mark)}" />
 </head>
@@ -119,26 +121,30 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261119-compact)}" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@600&amp;display=swap" />
+    <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261125-largescreen)}" />
     <link rel="stylesheet" th:href="@{/css/theme-bridge.css}" />
-    <link rel="stylesheet" th:href="@{/css/base.css(v=20261119-compact)}" />
+    <link rel="stylesheet" th:href="@{/css/base.css(v=20261125-largescreen)}" />
     <link rel="stylesheet" th:href="@{/css/layout.css}" />
     <link rel="stylesheet" th:href="@{/css/sakura-background.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/buttons.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/cards.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/brand.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css}" />
-    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261103-auto)}" />
+    <link rel="stylesheet" th:href="@{/css/components/buttons.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/cards.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/brand.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/platform-nav.css(v=20261125-largescreen)}" />
+    <link rel="stylesheet" th:href="@{/css/components/kitsu-guide.css(v=20261125-phase1)}" />
+    <link rel="stylesheet" th:href="@{/css/components/inline-dictionary.css(v=20261125-largescreen)}" />
     <link th:if="${extraCss != null and !#strings.isEmpty(extraCss)}" rel="stylesheet" th:href="@{${extraCss}}" />
     <script defer th:src="@{/js/sakura-background.js}"></script>
     <script th:src="@{/js/components/cp-auto-pay.js(v=20261116-minutes)}"></script>
     <script defer th:src="@{/js/inline-dictionary.js(v=20261103-auto)}"></script>
+    <link rel="stylesheet" href="/css/components/cp-unit.css?v=20261123-gold" />
+    <script defer src="/js/components/cp-unit.js?v=20261123-gold"></script>
     <link rel="icon" th:href="@{/images/jlab.png}" type="image/png" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261119-compact" />
     <!-- Shared dropdown for <select data-jl-select> (css/components/select.css, js/components/select.js) -->
-    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261111-select2)}" />
-    <script defer th:src="@{/js/components/select.js(v=20261111-select2)}"></script>
+    <link rel="stylesheet" th:href="@{/css/components/select.css(v=20261125-largescreen)}" />
+    <script defer th:src="@{/js/components/select.js(v=20261125-icons-vi)}"></script>
+    <link rel="stylesheet" th:href="@{/css/components/ui-chuan.css(v=20261125-largescreen)}" />
 </head>
 
 </html>

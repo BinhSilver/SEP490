@@ -112,13 +112,13 @@
 
   function markup(usage) {
     var plan = usage.pro
-      ? '<span class="status-pill status-pill--ok">Gói Pro</span>'
+      ? '<span class="status-pill status-pill--ok">Gói Cao cấp</span>'
       : '<span class="status-pill status-pill--muted">Gói Miễn phí</span>';
     return '<div class="profile-usage__summary">' + plan + '<span class="profile-usage__balance">Số dư: <strong>'
       + (Number(usage.creditBalance) || 0).toLocaleString('vi-VN') + ' CP</strong></span></div>'
       + rows(usage).map(rowMarkup).join('')
       + (usage.pro ? '' : '<a class="btn btn--primary btn--sm profile-usage__upgrade" href="' + UPGRADE_URL
-        + '">Nâng cấp Pro để dùng nhiều hơn</a>');
+        + '">Nâng cấp gói Cao cấp để dùng nhiều hơn</a>');
   }
 
   /** Fills the popup body; called every time the popup opens so the numbers are current. */

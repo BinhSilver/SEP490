@@ -54,3 +54,5 @@ if (root) {
     </React.StrictMode>
   );
 }
+
+import '../../shared/game-ui.css';

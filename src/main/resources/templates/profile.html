@@ -14,7 +14,7 @@
                 <div class="user-avatar user-avatar--lg" data-user-avatar>
                     <span class="user-avatar__initials">?</span>
                 </div>
-                <button type="button" class="profile-sidebar__camera" id="sidebarCameraBtn" title="Cập nhật ảnh đại diện">
+                <button type="button" class="profile-sidebar__camera jl-icon-btn" id="sidebarCameraBtn" title="Cập nhật ảnh đại diện">
                     <span class="material-symbols-outlined" style="font-size:16px">photo_camera</span>
                 </button>
             </div>
@@ -56,13 +56,13 @@
                 </div>
             </div>
             <button type="button" class="profile-nav__item" data-tab="premium">
-                        <span class="material-symbols-outlined">workspace_premium</span> Gói cao cấp
+                        <span class="material-symbols-outlined">workspace_premium</span> Gói Cao cấp
             </button>
         </nav>
 
         <button type="button" class="btn btn--primary btn--block" data-tab="premium">
             <span class="material-symbols-outlined">rocket_launch</span>
-            Nâng cấp lên Pro
+            Nâng cấp gói Cao cấp
         </button>
         <button type="button" class="btn btn--primary btn--block" data-auth-logout>
             <span class="material-symbols-outlined" aria-hidden="true">logout</span>
@@ -463,11 +463,11 @@
                 <ul style="margin:var(--space-4) 0;padding-left:1.2rem;color:var(--color-secondary);font-size:var(--text-sm);line-height:1.7">
                     <li>Hệ thống bài học JLPT lộ trình chuẩn hóa</li>
                     <li>Theo dõi và phân tích tiến độ học chi tiết</li>
-                    <li>Hỗ trợ ưu tiên riêng biệt (Gói Pro)</li>
+                    <li>Hỗ trợ ưu tiên riêng biệt (gói Cao cấp)</li>
                 </ul>
                 <button type="button" class="btn btn--primary"
-                        onclick="JlasUI.toast('Tính năng đăng ký gói Pro đang được phát triển!', 'info')">
-                    Nâng cấp lên Pro
+                        onclick="JlasUI.toast('Tính năng đăng ký gói Cao cấp đang được phát triển!', 'info')">
+                    Nâng cấp gói Cao cấp
                 </button>
             </div>
 
@@ -495,7 +495,7 @@
                     <h2 class="profile-card__title" id="profileCosmeticsTitle">Khung avatar &amp; màu tên</h2>
                 </div>
             </div>
-            <button type="button" class="profile-modal__close" data-cosmetics-close aria-label="Đóng">
+            <button type="button" class="profile-modal__close jl-icon-btn" data-cosmetics-close aria-label="Đóng">
                 <span class="material-symbols-outlined" aria-hidden="true">close</span>
             </button>
         </div>
@@ -532,7 +532,7 @@
                 <span class="material-symbols-outlined">monitoring</span>
             </div>
             <h2 class="profile-card__title" id="profileUsageTitle">Mức sử dụng hôm nay</h2>
-            <button type="button" class="profile-modal__close" data-usage-close aria-label="Đóng">
+            <button type="button" class="profile-modal__close jl-icon-btn" data-usage-close aria-label="Đóng">
                 <span class="material-symbols-outlined" aria-hidden="true">close</span>
             </button>
         </div>
@@ -634,7 +634,7 @@
         document.getElementById('emailReadonly').value = user.email || '';
 
         var premiumActive = user.premiumExpiredAt && new Date(user.premiumExpiredAt) > new Date();
-        document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Pro (Đang dùng)' : 'Gói Miễn phí';
+        document.getElementById('premiumStatus').textContent = premiumActive ? 'Gói Cao cấp (Đang dùng)' : 'Gói Miễn phí';
         document.getElementById('premiumExpires').textContent = fmtDate(user.premiumExpiredAt);
     }
 
@@ -889,6 +889,6 @@
 <script th:src="@{/js/pages/profile-retention.js?v=20261031-pro-cp}"></script>
 <script th:src="@{/js/pages/profile-account.js?v=20261012-profile-summary}"></script>
 <script th:src="@{/js/pages/profile-cosmetics.js?v=20261031-popup}"></script>
-<script th:src="@{/js/jlab-base-shell.js?v=20261119-nav-deploy}"></script>
+<script th:src="@{/js/jlab-base-shell.js?v=20261125-icons-vi}"></script>
 </body>
 </html>

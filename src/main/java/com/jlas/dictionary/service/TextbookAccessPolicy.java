@@ -4,6 +4,7 @@ import com.jlas.auth.security.CurrentUser;
 import com.jlas.auth.service.PremiumAccess;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.security.ContentReviewAccess;
 import com.jlas.dictionary.entity.Textbook;
 import com.jlas.dictionary.repository.LessonRepository;
 import com.jlas.dictionary.repository.TextbookRepository;
@@ -19,8 +20,8 @@ import java.util.Set;
  * <ul>
  *   <li>Chưa đăng nhập: không xem được giáo trình nào (API → 401).</li>
  *   <li>Đã đăng nhập, miễn phí: cấp trong {@link #FREE_LEVELS} — "Nhập môn" (không cấp JLPT, không phải sách chủ đề,
- *       vd. Bảng chữ cái, Quy tắc đọc Kana) và N5.</li>
- *   <li>Premium ({@link PremiumAccess#isActive(Long)}): mọi sách — N4–N1 và sách theo chủ đề.</li>
+ *       vd. Bảng chữ cái, Quy tắc đọc Kana), N5 và N4.</li>
+ *   <li>Premium ({@link PremiumAccess#isActive(Long)}): mọi sách — N3–N1 và sách theo chủ đề.</li>
  *   <li>Người duyệt nội dung (CONTENT_CREATOR, cùng điều kiện canViewDraft()): không bị khóa.</li>
  * </ul>
  * Sách chủ đề = không cấp JLPT và có bài gắn tag chủ đề, HOẶC sách giao tiếp của lộ trình ({@code LP-OWNED-COMM-*}).
@@ -39,11 +40,10 @@ public class TextbookAccessPolicy {
     /** Cấp "Nhập môn": sách không có cấp JLPT và không phải sách chủ đề. */
     public static final String LEVEL_INTRO = "INTRO";
     /** Cấp học miễn phí khi đã đăng nhập. */
-    public static final Set<String> FREE_LEVELS = Set.of(LEVEL_INTRO, "N5");
+    public static final Set<String> FREE_LEVELS = Set.of(LEVEL_INTRO, "N5", "N4");
 
     static final String LEVEL_TOPIC = "TOPIC";
     static final String COMMUNICATION_BOOK_PREFIX = "LP-OWNED-COMM-";
-    private static final String ROLE_CONTENT_CREATOR = "ROLE_CONTENT_CREATOR";
     private static final String TAG_TYPE_TOPIC = "SITUATION";
 
     private final PremiumAccess premiumAccess;
@@ -79,7 +79,7 @@ public class TextbookAccessPolicy {
     /** Người xem hiện tại (có thể là khách). */
     public Viewer currentViewer() {
         Long userId = CurrentUser.currentUserId().orElse(null);
-        return new Viewer(userId, userId != null && CurrentUser.hasRole(ROLE_CONTENT_CREATOR));
+        return new Viewer(userId, userId != null && ContentReviewAccess.allowed(userId));
     }
 
     /** Người xem hiện tại; khách → 401. */

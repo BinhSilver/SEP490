@@ -35,7 +35,7 @@
       '<div><dt>Số dư</dt><dd>' + numbers.balance + ' CP' +
       (enough ? ' → <strong>' + numbers.after + ' CP</strong>' : '') + '</dd></div>';
     var option = options.option && enough
-      ? '<label class="cp-confirm__option"><input type="checkbox" data-cp-option> ' + escapeHtml(options.option) + '</label>' : '';
+      ? '<label class="cp-confirm__option"><input type="checkbox" data-cp-option><span>' + escapeHtml(options.option) + '</span></label>' : '';
     var primary = enough
       ? '<button type="button" class="cp-confirm__primary" data-cp-ok>' + escapeHtml(options.confirmLabel || ('Dùng ' + numbers.cost + ' CP')) + '</button>'
       : '<a class="cp-confirm__primary" href="' + TOP_UP_URL + '">Nạp CP</a>';
@@ -46,7 +46,7 @@
       (enough ? '' : '<p class="cp-confirm__short">Bạn còn thiếu <strong>' + numbers.shortBy + ' CP</strong>.</p>') +
       option +
       '<div class="cp-confirm__actions"><button type="button" data-cp-cancel>Huỷ</button>' +
-      '<a href="' + UPGRADE_URL + '">Nâng cấp Pro</a>' + primary + '</div></div>';
+      '<a href="' + UPGRADE_URL + '">Nâng cấp gói Cao cấp</a>' + primary + '</div></div>';
   }
 
   function open(options) {

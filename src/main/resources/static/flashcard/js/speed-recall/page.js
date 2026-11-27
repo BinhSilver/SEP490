@@ -4,7 +4,7 @@ import { romajiToHiragana } from './romaji.js';
 import { normalizeAnswer, ANSWER_TYPES } from './rules.js';
 import { createTimer } from './timer.js';
 import { $, text, show, slots, review } from './view.js';
-import { bindSetupUi } from './setup-ui.js?v=20261111-select';
+import { bindSetupUi } from './setup-ui.js?v=20261123-heading-inside';
 import '../card-selection.js?v=20261015-pager';
 
 const params = new URLSearchParams(location.search);
@@ -14,7 +14,7 @@ let sessionId = params.get('sessionId'), page = 0, options, retryOperation;
 let pendingEnterQuestionId, compositionEnded = -Infinity, lastRenderedQuestion, disposed = false, canAdvance = false;
 const api = createApi(setId), engine = new RecallEngine(), timer = createTimer();
 const events = new AbortController();
-bindSetupUi(events.signal);
+bindSetupUi();
 const studyUrl = '/flashcard/speed-recall.html?setId=' + encodeURIComponent(setId || '');
 const setUrl = '/flashcard/study.html?setId=' + encodeURIComponent(setId || '');
 const terminal = state => ['FINISHED', 'ABANDONED', 'EXPIRED'].includes(state);
@@ -57,7 +57,7 @@ function modeCount(m) {
 function validMode(m) { return m.question !== m.answer && modeCount(m) > 0; }
 function modeLabel(name) {
   const m = parseMode(name);
-  return FIELD_NAMES[m.question] + ' → ' + FIELD_NAMES[m.answer];
+  return FIELD_NAMES[m.question] + ' sang ' + FIELD_NAMES[m.answer];
 }
 /** Closest usable mode: keep the question if possible, else the first question that has any answer. */
 function nearestMode(preferred) {
@@ -110,7 +110,6 @@ function renderModePicker() {
     });
     answer.value = mode.answer;
   }
-  text('mode-summary', 'Nhìn ' + FIELD_LABELS[mode.question] + ', gõ ' + FIELD_LABELS[mode.answer] + '.');
   text('answer-hint', ANSWER_HINTS[mode.answer]);
 }
 async function changeMode(next) {
@@ -127,7 +126,7 @@ function applySessionMode(name) {
   engine.type = ANSWER_TYPES[m.answer];
   if (!$('playing') || !$('typing-input')) return; // result/history pages have no play surface
   // Read by CSS (::before / ::after) for the mode chip and the footer line.
-  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name).replace(' → ', '  →  ');
+  document.querySelector('#playing .sr-question').dataset.modeLabel = modeLabel(name);
   $('playing').dataset.answerHint = ANSWER_HINTS[m.answer] + ' để trả lời';
   $('question-word').lang = m.question === 'KANJI' || m.question === 'HIRAGANA' ? 'ja' : 'vi';
   const input = $('typing-input');
@@ -212,7 +211,6 @@ function optionSummary() {
     : Number.isInteger(current) ? Math.min(total, Math.max(1, current)) : total);
   text('count-label', 'Số câu');
   text('count-suffix', '/ ' + total + ' thẻ');
-  text('eligible-count', total + ' thẻ sẵn sàng');
   renderSelection();
   controls();
 }

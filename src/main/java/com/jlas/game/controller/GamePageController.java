@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.Arrays;
+
 /**
  * Trang Game Arena: sảnh chọn game, trang thiết lập (tạo phòng / chơi đơn), phòng chờ và trang chơi
  * của từng game. Trang chơi chỉ mở cho người tham gia trận; người khác được đưa về sảnh.
@@ -29,7 +31,7 @@ public class GamePageController {
 
     @GetMapping
     public String hub(Model model) {
-        model.addAttribute("games", GameRules.catalog());
+        model.addAttribute("games", GameRules.visibleCatalog());
         model.addAttribute("pageTitle", "Trò chơi - KotsuKotsu");
         model.addAttribute("layoutMode", "app");
         return "arena/games";
@@ -75,6 +77,13 @@ public class GamePageController {
         return play(GameType.AIR_DEFENSE, "air-defense/board", sessionId, user, model);
     }
 
+    @GetMapping("/{slug:sphinx|picture-rebus|draw-guess}/{sessionId}")
+    public String puzzle(@PathVariable String slug, @PathVariable String sessionId,
+                         @AuthenticationPrincipal UserPrincipal user, Model model) {
+        GameType type = Arrays.stream(GameType.values()).filter(game -> game.slug().equals(slug)).findFirst().orElseThrow();
+        return play(type, "arena/puzzle", sessionId, user, model);
+    }
+
     private String play(GameType type, String view, String sessionId, UserPrincipal user, Model model) {
         SessionInfoView session;
         try {
@@ -88,12 +97,20 @@ public class GamePageController {
             return "redirect:" + session.playUrl();
         }
         model.addAttribute("session", session);
+        if (!type.usesDeck()) {
+            model.addAttribute("puzzleSession", session);
+            model.addAttribute("puzzleSlug", type.slug());
+        }
         // Trang phục mèo / máy bay đang dùng; chọn ở Cửa hàng, trong trận không đổi được.
-        String skinCode = shopService.equippedCode(user.userId(), type);
-        model.addAttribute("skin", skinCode);
-        model.addAttribute("skinItem", skinCatalog.find(skinCode).orElse(null));
+        if (type.usesDeck()) {
+            String skinCode = shopService.equippedCode(user.userId(), type);
+            model.addAttribute("skin", skinCode);
+            model.addAttribute("skinItem", skinCatalog.find(skinCode).orElse(null));
+        }
         model.addAttribute("sessionId", sessionId);
-        model.addAttribute("pageTitle", session.deckTitle() + " - Trò chơi - KotsuKotsu");
+        model.addAttribute("gameName", GameRules.gameName(type));
+        model.addAttribute("pageTitle", (type.usesDeck() ? session.deckTitle() : GameRules.gameName(type))
+                + " - Trò chơi - KotsuKotsu");
         return view;
     }
 }

@@ -1039,3 +1039,220 @@ html[data-theme="dark"] .page-login .login-background {
   vertical-align: top;
   filter: none !important;
 }
+
+.page-login .login-consent {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  color: var(--login-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.page-login .login-consent input {
+  inline-size: 18px;
+  block-size: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--login-action);
+  cursor: pointer;
+}
+
+.page-login .login-consent__link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--login-action);
+  font: inherit;
+  font-weight: 600;
+  text-align: start;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+}
+
+.page-login .login-consent__link:hover {
+  color: var(--login-action-hover);
+}
+
+/* Consent warning: one short line in the gap under the consent row, so showing it moves nothing. */
+.page-login .login-consent {
+  position: relative;
+}
+
+.page-login .login-consent__error {
+  position: absolute;
+  top: calc(100% + 1px);
+  left: 28px;
+  right: 0;
+  margin: 0;
+  color: var(--login-error);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+.page-login .login-consent__error[hidden] {
+  display: none;
+}
+
+.page-login .login-consent.is-invalid input {
+  outline: 2px solid var(--login-error);
+  outline-offset: 2px;
+  animation: login-consent-shake .36s ease-in-out;
+}
+
+@keyframes login-consent-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* Not agreed yet: looks unavailable like a disabled button, but still takes the press to show the warning. */
+.page-login #submitBtn.needs-consent {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.page-login .google-login[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* No hover colour while it only explains that the box must be ticked. */
+html .page-login #jlabBaseContent #submitBtn.needs-consent:hover {
+  background: var(--login-action) !important;
+}
+
+html[data-theme="dark"] .page-login #jlabBaseContent #submitBtn.needs-consent:hover {
+  background: var(--login-button) !important;
+}
+
+.page-login .google-login[aria-disabled="true"] .google-login__face {
+  border-color: var(--login-border);
+  background: var(--login-surface);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.page-login .login-policy {
+  box-sizing: border-box;
+  width: min(100% - 32px, 620px);
+  max-height: min(100dvh - 32px, 680px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--login-border);
+  border-radius: 16px;
+  background: var(--login-surface);
+  color: var(--login-ink);
+}
+
+.page-login .login-policy[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-login .login-policy::backdrop {
+  background: rgb(17 24 39 / 62%);
+}
+
+.page-login .login-policy__header,
+.page-login .login-policy__actions {
+  padding: 16px clamp(16px, 4vw, 26px);
+}
+
+.page-login .login-policy__header {
+  border-bottom: 1px solid var(--login-border);
+}
+
+.page-login .login-policy__header h2 {
+  margin: 0;
+  font-size: clamp(18px, 4vw, 22px);
+  line-height: 1.3;
+}
+
+.page-login .login-policy__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px clamp(16px, 4vw, 26px);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.page-login .login-policy__body :is(section, p, h3, ul) {
+  margin: 0;
+}
+
+.page-login .login-policy__body h3 {
+  font-size: 1em;
+}
+
+.page-login .login-policy__body :is(p, ul) {
+  color: var(--login-muted);
+}
+
+.page-login .login-policy__body ul {
+  list-style: disc;
+  padding-inline-start: 1.5em;
+}
+
+.page-login .login-policy__body a {
+  color: var(--login-action);
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.page-login .login-policy__body section p {
+  margin-top: 6px;
+}
+
+.page-login .login-policy__body > :is(p, section) + * {
+  margin-top: 16px;
+}
+
+.page-login .login-policy__body > p + p {
+  margin-top: 6px;
+}
+
+.page-login .login-policy__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--login-border);
+}
+
+.page-login .login-policy__actions .btn {
+  min-height: 44px;
+}
+
+.page-login .login-policy__consent {
+  display: flex;
+  flex: 0 0 100%;
+  align-items: flex-start;
+  gap: 10px;
+  margin-block-end: 4px;
+  color: var(--login-ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.page-login .login-policy__consent input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--login-action);
+}
+
+.page-login .login-policy__actions .btn--primary {
+  background: var(--login-button, var(--login-action));
+  color: var(--login-on-action);
+}
+
+.page-login .login-policy__actions .btn--primary:hover {
+  background: var(--login-button-hover, var(--login-action-hover));
+}

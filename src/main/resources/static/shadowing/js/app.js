@@ -218,14 +218,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** Reactions a learner can leave on a comment (same list as CommentThreadRepository.REACTIONS). */
     const COMMENT_REACTIONS = [
-        { key: 'LIKE', emoji: '👍', label: 'Thích' },
-        { key: 'LOVE', emoji: '❤️', label: 'Yêu thích' },
-        { key: 'HAHA', emoji: '😂', label: 'Haha' },
-        { key: 'WOW', emoji: '😮', label: 'Wow' },
-        { key: 'SAD', emoji: '😢', label: 'Buồn' },
-        { key: 'CLAP', emoji: '👏', label: 'Hoan hô' }
+        { key: 'LIKE', icon: 'fa-thumbs-up', label: 'Thích' },
+        { key: 'LOVE', icon: 'fa-heart', label: 'Yêu thích' },
+        { key: 'HAHA', icon: 'fa-face-laugh-squint', label: 'Haha' },
+        { key: 'WOW', icon: 'fa-face-surprise', label: 'Wow' },
+        { key: 'SAD', icon: 'fa-face-sad-tear', label: 'Buồn' },
+        { key: 'CLAP', icon: 'fa-hands-clapping', label: 'Hoan hô' }
     ];
     const reactionOf = key => COMMENT_REACTIONS.find(r => r.key === key);
+    const reactionIcon = reaction => reaction ? `<i class="fa-solid ${reaction.icon}" aria-hidden="true"></i>` : '';
 
     function renderComments(comments) {
         if (!commentList) return;
@@ -266,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="comment-react">
                     <button type="button" class="comment-action comment-react-btn" aria-haspopup="true" aria-expanded="false"></button>
                     <div class="comment-react-picker" role="group" aria-label="Thả cảm xúc" hidden>
-                        ${COMMENT_REACTIONS.map(r => `<button type="button" data-reaction="${r.key}" title="${r.label}" aria-label="${r.label}">${r.emoji}</button>`).join('')}
+                        ${COMMENT_REACTIONS.map(r => `<button type="button" data-reaction="${r.key}" title="${r.label}" aria-label="${r.label}">${reactionIcon(r)}</button>`).join('')}
                     </div>
                 </div>
                 <button type="button" class="comment-action comment-reply-btn">Trả lời</button>
@@ -323,16 +324,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function paintReactions(item, reactions, mine) {
         const button = item.querySelector('.comment-react-btn');
         const chosen = reactionOf(mine);
-        button.textContent = chosen ? `${chosen.emoji} ${chosen.label}` : '👍 Thích';
+        button.innerHTML = `${reactionIcon(chosen || reactionOf('LIKE'))}<span>${chosen ? chosen.label : 'Thích'}</span>`;
         button.classList.toggle('is-active', Boolean(chosen));
         item.querySelectorAll('.comment-react-picker [data-reaction]').forEach(b => {
             b.setAttribute('aria-pressed', String(b.dataset.reaction === mine));
         });
         const total = Object.values(reactions).reduce((n, v) => n + Number(v || 0), 0);
         const top = Object.entries(reactions).sort((a, b) => b[1] - a[1]).slice(0, 3)
-            .map(([key]) => reactionOf(key)?.emoji || '').join('');
+            .map(([key]) => reactionIcon(reactionOf(key))).join('');
         const summary = item.querySelector('.comment-reaction-summary');
-        summary.textContent = total ? `${top} ${total}` : '';
+        summary.innerHTML = total ? `${top}<span>${total}</span>` : '';
         summary.title = Object.entries(reactions).map(([key, n]) => `${reactionOf(key)?.label || key}: ${n}`).join(' · ');
     }
 

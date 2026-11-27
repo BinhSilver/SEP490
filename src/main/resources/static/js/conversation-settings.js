@@ -1,6 +1,19 @@
 (function () {
   'use strict';
 
+  // Folding side cards (free chat "Công cụ"): closed on arrival, the heading button opens and closes it.
+  document.querySelectorAll('[data-fold]').forEach(function (card) {
+    const button = card.querySelector('.side-card__fold');
+    const body = card.querySelector('.side-card__fold-body');
+    if (!button || !body) return;
+    button.addEventListener('click', function () {
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(open));
+      body.hidden = !open;
+      card.classList.toggle('is-open', open);
+    });
+  });
+
   const trigger = document.getElementById('btnConversationSettings');
   const dialog = document.getElementById('conversationSettingsDialog');
   const content = document.getElementById('conversationSettingsContent');

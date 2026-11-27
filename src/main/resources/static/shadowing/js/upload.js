@@ -97,6 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Phút tạo video mỗi tuần (Free 20, Pro 120); phần vượt 50 CP/phút, báo giá và hỏi trước khi tạo.
     const AUTO_PAY = 'shadowingCreate';
     const quotaLine = document.getElementById('create-quota');
+    const quotaMeter = window.JlasQuotaMeter && window.JlasQuotaMeter.mount(quotaLine, {
+        label: 'Phút tạo video miễn phí tuần này', caption: 'Còn lại'
+    });
     let createQuota = null;
 
     async function loadCreateQuota() {
@@ -104,7 +107,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/youtube/create-quota', { headers: authHeaders() });
             if (res.ok) createQuota = await res.json();
         } catch { /* the popup still shows the price */ }
-        if (quotaLine) quotaLine.textContent = createQuotaText(createQuota);
+        if (quotaMeter) {
+            const q = createQuota;
+            const valid = q && Number.isFinite(q.weeklyMinutes) && q.weeklyMinutes >= 0 && Number.isFinite(q.usedMinutes) && q.usedMinutes >= 0;
+            const price = q && Number(q.creditPerMinute);
+            quotaMeter.update(q ? {
+                limit: q.weeklyMinutes, used: q.usedMinutes, unlimited: q.unlimited,
+                description: q.unlimited || valid ? createQuotaText(q) : 'Chưa có thông tin hạn mức tuần này.',
+                note: !q.unlimited && Number.isFinite(price) ? `Phần vượt hạn mức: ${price} CP/phút.` : ''
+            } : null);
+        } else if (quotaLine) quotaLine.textContent = createQuotaText(createQuota);
         return createQuota;
     }
 
@@ -114,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const left = Math.max(0, q.weeklyMinutes - q.usedMinutes);
         if (left > 0) return `Tuần này còn ${left}/${q.weeklyMinutes} phút tạo video miễn phí.`;
         return `Đã dùng hết ${q.weeklyMinutes} phút miễn phí tuần này · phút vượt ${q.creditPerMinute} CP`
-            + (q.pro ? '.' : ' · Pro được 120 phút/tuần.');
+            + (q.pro ? '.' : ' · Gói Cao cấp được 120 phút/tuần.');
     }
 
     /**
@@ -190,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modeTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const mode = tab.dataset.mode;
+            tab.closest('.create-mode-tabs').dataset.activeMode = mode;
             modeTabs.forEach(t => {
                 const active = t.dataset.mode === mode;
                 t.classList.toggle('active', active);

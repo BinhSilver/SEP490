@@ -14,6 +14,46 @@
   var diagramMotion = null;
   var compareDiagramMotions = [];
   var lastViewKey = null, lastViewReady = false, lastViewTimer = null;
+  var quotaTimer = null, quotaLocked = false;
+  function showQuotaLock() {
+    if (quotaLocked) return;
+    quotaLocked = true;
+    window.clearInterval(quotaTimer);
+    var overlay = document.createElement('div');
+    overlay.id = 'km-premium-lock';
+    overlay.setAttribute('role', 'alertdialog');
+    overlay.setAttribute('aria-label', 'Hết thời gian dùng Lược đồ Kanji');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.84);display:grid;place-items:center;padding:24px;text-align:center;color:white';
+    overlay.innerHTML = '<div><h2>Đã hết 10 phút Lược đồ Kanji hôm nay</h2><p>Nâng cấp gói Cao cấp để tiếp tục sử dụng không giới hạn.</p>'
+      + (loggedIn() ? '' : '<a href="/login?redirect=%2Fdictionary%2Fkanji-map" style="color:white;margin-right:16px">Đăng nhập</a>')
+      + '<a href="/premium" style="color:white">Nâng cấp gói Cao cấp</a></div>';
+    (document.fullscreenElement || document.body).appendChild(overlay);
+  }
+  async function heartbeat(active) {
+    var status = await request('/api/kanji-map/heartbeat', { method: 'POST',
+      headers: Object.assign({}, headers(), { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ active: active }) });
+    if (!status.unlimited && status.remainingSeconds <= 0) showQuotaLock();
+    return status;
+  }
+  async function startQuota() {
+    if (document.hidden || quotaLocked) return;
+    var status = await heartbeat(true);
+    if (!status.unlimited && !quotaLocked && !quotaTimer) {
+      quotaTimer = window.setInterval(function () { heartbeat(true).catch(function () {}); }, 60000);
+    }
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      window.clearInterval(quotaTimer); quotaTimer = null;
+      if (!quotaLocked) heartbeat(false).catch(function () {});
+    } else if (!state.graph) load();
+    else startQuota().catch(function () {});
+  });
+  document.addEventListener('fullscreenchange', function () {
+    var overlay = document.getElementById('km-premium-lock');
+    if (overlay) (document.fullscreenElement || document.body).appendChild(overlay);
+  });
   var notebook = window.KanjiMapNotebook.create({request:request, headers:headers, loggedIn:loggedIn, notice:notice, onChange:updateNotebookButton});
   function updateNotebookButton() {
     var button = detail.querySelector('[data-action="notebook"]');
@@ -90,7 +130,10 @@
   async function request(path, options) {
     var response = await fetch(path, Object.assign({ headers: headers() }, options || {}));
     var body = await response.json();
-    if (!response.ok || body.success === false) throw new Error(body.message || 'Chưa thể hoàn tất. Vui lòng thử lại.');
+    if (!response.ok || body.success === false) {
+      if (body.code === 'KANJI_MAP_PREMIUM_REQUIRED') showQuotaLock();
+      throw new Error(body.message || 'Chưa thể hoàn tất. Vui lòng thử lại.');
+    }
     return body.data === undefined ? body : body.data;
   }
   function viewStorageKey() {
@@ -378,7 +421,7 @@
     requestAnimationFrame(function () { if (state.selected === character) animateStrokes(); });
     if (n.isKanji) {
       try {
-        var data = await request('/api/dictionary/kanji/' + encodeURIComponent(character));
+        var data = await request('/api/kanji-map/kanji/' + encodeURIComponent(character));
         if (version !== state.detailVersion || state.selected !== character) return;
         // Legacy dictionary seeds put English glosses in meaning_vi. Keep the
         // bundled, attributed Vietnamese translation and use this API for words only.
@@ -611,6 +654,9 @@
     try {
       lastViewReady = false;
       if (window.JlasAuth && window.JlasAuth.ready) await window.JlasAuth.ready;
+      if (document.hidden) return;
+      await startQuota();
+      if (quotaLocked) return;
       lastViewKey = viewStorageKey();
       state.data = await request('/api/dictionary/kanji-map/catalog'); state.graph = model.index(state.data);
       refreshBranches();

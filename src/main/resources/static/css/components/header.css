@@ -1,14 +1,12 @@
 /* Header / Top nav — exact v0.app template (Auw4otwlr20) design */
 
 :root {
-  --charcoal: #161d1f;
-  --charcoal-2: #494551;
-  --pink-deep: #4f378a;
-  --pink-accent: #6750a4;
-  --sakura: #e9ddff;
-  --ivory: #f4fafd;
-  --bg-gradient-static: linear-gradient(135deg, #f4fafd 0%, #eef5f7 64%, #e9ddff 100%);
-  --bg-gradient-animated: linear-gradient(135deg, #f4fafd, #eef5f7, #e9ddff);
+  --charcoal: var(--color-on-surface);
+  --charcoal-2: var(--color-on-surface-variant);
+  --pink-deep: var(--color-primary);
+  --pink-accent: var(--color-primary-container);
+  --sakura: var(--color-primary-fixed);
+  --ivory: var(--color-background);
 }
 
 .site-header {
@@ -17,10 +15,10 @@
   left: 0;
   right: 0;
   z-index: var(--z-header, 100);
-  height: 72px;
+  height: 4.5rem;
   display: flex;
   align-items: center;
-  background: var(--color-surface-lowest, #ffffff) !important;
+  background: var(--color-surface-lowest) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
@@ -29,15 +27,15 @@
 
 /* Ensure all page content starts cleanly below fixed 72px header on non-home pages */
 body:not(.page-home) {
-  padding-top: 80px !important;
+  padding-top: 5rem !important;
 }
 
 /* Non-home pages need an opaque fixed bar so scrolling content never shows through it. */
 body:not(.page-home) .site-header {
   position: fixed;
-  background: var(--color-surface-lowest, #ffffff) !important;
+  background: var(--color-surface-lowest) !important;
   border-bottom: 1px solid var(--color-outline-variant) !important;
-  box-shadow: 0 5px 20px rgba(22, 29, 31, 0.08);
+  box-shadow: var(--shadow-1);
 }
 
 .site-header__inner {
@@ -52,27 +50,26 @@ body:not(.page-home) .site-header {
 }
 
 .site-header__brand {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-size: var(--text-2xl);
+  font-weight: 600;
   color: var(--color-primary) !important;
-  letter-spacing: -0.04em;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .site-header__brand span.tm {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
   color: var(--color-outline);
 }
 
 .site-header__nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 2rem;
 }
 
 .site-header__nav a,
@@ -104,7 +101,7 @@ body:not(.page-home) .site-header {
 .nav-link::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: -0.25rem;
   left: 0;
   width: 0;
   height: 1px;
@@ -125,8 +122,8 @@ body:not(.page-home) .site-header {
 .nav-tools-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 0;
+  gap: 0.4375rem;
+  padding: 0.5rem 0;
   border: 0;
   background: transparent;
   color: var(--color-on-surface-variant);
@@ -152,18 +149,18 @@ body:not(.page-home) .site-header {
 }
 
 .nav-tools-menu {
-  top: calc(100% + 10px);
+  top: calc(100% + 0.625rem);
   right: auto;
   left: 0;
-  min-width: 184px;
+  min-width: 11.5rem;
 }
 
 .nav-tools-menu .dropdown__item {
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .nav-tools-menu .dropdown__item i {
-  width: 18px;
+  width: 1.125rem;
   color: inherit;
   text-align: center;
 }
@@ -171,7 +168,7 @@ body:not(.page-home) .site-header {
 .site-header__actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .site-header__spacer {

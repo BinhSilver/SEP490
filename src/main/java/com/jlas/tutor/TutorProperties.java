@@ -19,6 +19,7 @@ public record TutorProperties(
         @DefaultValue("2") int maxConcurrent,
         @DefaultValue("30") int waitSeconds,
         @DefaultValue("60") int questionsPerHour,
+        @DefaultValue("5") int questionsPerDay,
         @DefaultValue("500") int maxQuestionChars,
         @DefaultValue("6") int historyMessages,
         @DefaultValue("true") boolean aiFallback,
@@ -29,6 +30,7 @@ public record TutorProperties(
         maxConcurrent = Math.max(1, maxConcurrent);
         waitSeconds = Math.max(0, waitSeconds);
         questionsPerHour = Math.max(1, questionsPerHour);
+        questionsPerDay = Math.max(1, questionsPerDay);
         maxQuestionChars = Math.clamp(maxQuestionChars, 20, 2_000);
         historyMessages = Math.clamp(historyMessages, 0, 20);
     }

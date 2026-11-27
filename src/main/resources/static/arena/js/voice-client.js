@@ -25,7 +25,9 @@
   document.body.appendChild(media);
 
   var box = document.createElement('aside');
-  box.className = 'arena-voice';
+  var dock = root.querySelector('[data-arena-voice-dock]');
+  var compact = dock && dock.hasAttribute('data-voice-compact');
+  box.className = compact ? 'arena-voice arena-voice--compact' : 'arena-voice';
   box.hidden = true;
   box.setAttribute('aria-label', 'Voice chat trận đấu');
   box.innerHTML = '<div class="arena-voice__top">'
@@ -36,17 +38,39 @@
     + '<button type="button" class="arena-voice__button" data-voice-listen aria-pressed="false" disabled>Tắt tiếng đối thủ</button>'
     + '<button type="button" class="arena-voice__button arena-voice__button--leave" data-voice-leave disabled>Rời voice</button>'
     + '</div>';
-  document.body.appendChild(box);
+  (dock || document.body).appendChild(box);
 
   var dot = box.querySelector('[data-voice-dot]');
   var status = box.querySelector('[data-voice-status]');
   var toggle = box.querySelector('[data-voice-toggle]');
   var listen = box.querySelector('[data-voice-listen]');
   var leave = box.querySelector('[data-voice-leave]');
+  if (compact) {
+    var menu = document.createElement('details');
+    menu.className = 'arena-voice__menu';
+    menu.innerHTML = '<summary class="ar-btn ar-btn--sm" aria-label="Tùy chọn voice"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></summary>';
+    var panel = document.createElement('div');
+    panel.className = 'arena-voice__panel';
+    panel.append(box.querySelector('.arena-voice__top'), box.querySelector('.arena-voice__actions'));
+    menu.append(panel);
+    toggle.className = 'ar-btn ar-btn--sm';
+    box.append(toggle, menu);
+    toggle.disabled = true;
+    toggle.title = 'Voice chat chưa khả dụng';
+    menu.hidden = true;
+    box.hidden = false;
+    document.addEventListener('click', function (event) {
+      if (!menu.contains(event.target)) menu.open = false;
+    });
+  }
 
   function setStatus(message, state) {
     status.textContent = message;
     dot.dataset.state = state || 'idle';
+    if (compact) {
+      toggle.title = state === 'error' || state === 'warning' ? message : '';
+      if (state === 'error' || state === 'warning') menu.open = true;
+    }
   }
 
   function updateButtons() {
@@ -217,6 +241,10 @@
     return loadSdk().then(function () {
       enabled = true;
       box.hidden = false;
+      if (compact) {
+        toggle.title = '';
+        menu.hidden = false;
+      }
       updateButtons();
       if (hasIntent()) connect();
     });

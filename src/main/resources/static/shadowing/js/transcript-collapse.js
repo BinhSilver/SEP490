@@ -18,7 +18,6 @@
         const button = doc.getElementById('transcript-collapse-btn');
         if (!layout || !button) return;
         const column = doc.querySelector('.transcript-column');
-        const icon = button.querySelector('i');
 
         function render(collapsed) {
             const label = collapsed ? 'Mở rộng phụ đề' : 'Thu gọn phụ đề';
@@ -26,7 +25,7 @@
             button.title = label;
             button.setAttribute('aria-label', label);
             button.setAttribute('aria-expanded', String(!collapsed));
-            icon.className = 'fa-solid ' + (collapsed ? 'fa-angles-left' : 'fa-angles-right');
+            button.textContent = collapsed ? 'Hiện' : 'Ẩn';
         }
 
         function revealActiveSubtitle() {

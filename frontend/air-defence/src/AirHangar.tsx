@@ -5,6 +5,8 @@ import { setPlaneSkin } from "./game/useAirDefenseStore";
 import { animatePlanePreview } from "./game/planePreview";
 import { registerSpaceshipPack, spaceshipSource } from "./game/spaceshipSprites";
 import "./air-hangar.css";
+import { CpText } from "./CpText";
+import { containDialogTab } from "../../shared/dialogKeyboard";
 
 const money = (value: number) => value.toLocaleString("vi-VN");
 const shopItems = (view: ShopView) => view.sections.find((s) => s.gameType === "AIR_DEFENSE")?.items ?? [];
@@ -45,6 +47,25 @@ export function AirHangar({ starting, onBusyChange }: {
   const [loading, setLoading] = useState(true);
   const [shopError, setShopError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [purchase, setPurchase] = useState<ShopItemView | null>(null);
+  const purchaseDialog = useRef<HTMLDialogElement>(null);
+  const purchaseDecision = useRef<((confirmed: boolean) => void) | null>(null);
+  const decidePurchase = (confirmed: boolean) => {
+    const resolve = purchaseDecision.current;
+    purchaseDecision.current = null;
+    setPurchase(null);
+    resolve?.(confirmed);
+  };
+  const confirmPurchase = (item: ShopItemView) => new Promise<boolean>((resolve) => {
+    purchaseDecision.current = resolve;
+    setPurchase(item);
+  });
+  useEffect(() => {
+    const dialog = purchaseDialog.current;
+    if (purchase && dialog && !dialog.open) dialog.showModal();
+    else if (!purchase && dialog?.open) dialog.close();
+  }, [purchase]);
+  useEffect(() => () => { purchaseDecision.current?.(false); purchaseDecision.current = null; }, []);
   const inFlight = useRef(false);
   const alive = useRef(true);
   const initialLoad = useRef(true);
@@ -99,7 +120,7 @@ export function AirHangar({ starting, onBusyChange }: {
   const useSkin = async (item: ShopItemView) => {
     if (starting || inFlight.current || initialLoad.current) return;
     if (item.equipped || (!item.owned && (balance === null || balance < item.price))) return;
-    if (!item.owned && !window.confirm(`Mua ${item.name} với ${money(item.price)} CP và dùng ngay?`)) return;
+    if (!item.owned && !await confirmPurchase(item)) return;
     await runAction(item.code, async () => {
       setShopError(null);
       try {
@@ -121,7 +142,7 @@ export function AirHangar({ starting, onBusyChange }: {
     <div className="ad-hangar__head">
       <h2 id="ad-hangar-title">Máy bay của bạn</h2>
       <span className="ad-hangar__balance" aria-label={balance === null ? "Đang tải số dư CP" : `Số dư ${money(balance)} CP`}>
-        <i className="fa-solid fa-coins" aria-hidden="true" /> {balance === null ? "…" : money(balance)} CP
+        <CpText text={`${balance === null ? "…" : money(balance)} CP`} />
       </span>
     </div>
 
@@ -137,18 +158,31 @@ export function AirHangar({ starting, onBusyChange }: {
           onClick={() => setPreviewCode(item.code)}>
           <PlanePreview item={item} />
           <strong>{item.name}</strong>
-          <small>{item.equipped ? "Đang dùng" : item.owned ? "Đã sở hữu" : `${money(item.price)} CP`}</small>
+          <small><CpText text={item.equipped ? "Đang dùng" : item.owned ? "Đã sở hữu" : `${money(item.price)} CP`} /></small>
         </button>)}
       </div>
       {selected && <div className="ad-hangar__selection">
         <button type="button" className="ad-hangar__action" disabled={disabled || selected.equipped || (!selected.owned && (balance === null || balance < selected.price))}
           onClick={() => void useSkin(selected)}>
-          {busy === selected.code ? "Đang xử lý…" : selected.equipped ? "Đang dùng" : selected.owned ? "Dùng skin này" : `Mua & dùng · ${money(selected.price)} CP`}
+          <CpText text={busy === selected.code ? "Đang xử lý…" : selected.equipped ? "Đang dùng" : selected.owned ? "Dùng skin này" : `Mua & dùng · ${money(selected.price)} CP`} />
         </button>
-        {!selected.owned && balance !== null && balance < selected.price && <p className="ad-hangar__hint">Thiếu {money(selected.price - balance)} CP để mua skin này.</p>}
+        {!selected.owned && balance !== null && balance < selected.price && <p className="ad-hangar__hint">Thiếu <CpText text={`${money(selected.price - balance)} CP`} /> để mua skin này.</p>}
       </div>}
     </>}
 
     <p className="ad-hangar__notice" role="status" aria-live="polite">{notice}</p>
+    <dialog ref={purchaseDialog} className="ad-skin-purchase" data-game-ui-panel
+      aria-labelledby="ad-skin-purchase-title"
+      onKeyDown={containDialogTab} onCancel={() => decidePurchase(false)} onClose={() => decidePurchase(false)}>
+      {purchase && <>
+        <h3 id="ad-skin-purchase-title">Xác nhận mua máy bay</h3>
+        <p>Mua <strong>{purchase.name}</strong> với <CpText text={`${money(purchase.price)} CP`} /> và dùng ngay?</p>
+        <p>Số dư sau khi mua: <CpText text={`${money(Math.max(0, (balance ?? 0) - purchase.price))} CP`} /></p>
+        <div className="ad-skin-purchase__actions">
+          <button type="button" autoFocus onClick={() => decidePurchase(false)}>Hủy</button>
+          <button type="button" data-game-ui-primary onClick={() => decidePurchase(true)}><CpText text={`Mua · ${money(purchase.price)} CP`} /></button>
+        </div>
+      </>}
+    </dialog>
   </section>;
 }
