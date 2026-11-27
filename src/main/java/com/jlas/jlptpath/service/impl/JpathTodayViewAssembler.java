@@ -164,7 +164,7 @@ public class JpathTodayViewAssembler {
                 ? tabRows.stream().filter(t -> t.getTab() == JpathTab.KANA).findFirst()
                         .map(JpathDailyTab::getNewTarget).orElse(0)
                 : 0;
-        return newRefs(userId, open.getLevel(), tab, day.kanaPhase(), open.isPriorityMode(), remaining, kanaRemaining);
+        return newRefs(userId, open.getLevel(), day.kind(), tab, day.kanaPhase(), open.isPriorityMode(), remaining, kanaRemaining);
     }
 
     @Transactional(readOnly = true)
@@ -183,6 +183,26 @@ public class JpathTodayViewAssembler {
     }
 
     // ---- view --------------------------------------------------------------------------------------------------
+
+    /**
+     * owner 27/11: the level today's new items were learned at. A level-up the same day rewrites the plan's level,
+     * so the plan alone hid that the 30 words of the day were N5 words while the map already showed N3.
+     */
+    private String studiedLevel(Long userId, JpathDailyPlan plan) {
+        LocalDateTime start = plan.getStudyDay().atStartOfDay();
+        java.util.Map<String, Long> byLevel = new java.util.HashMap<>();
+        for (JpathItemType t : new JpathItemType[] {JpathItemType.VOCAB, JpathItemType.KANJI, JpathItemType.GRAMMAR}) {
+            for (JpathUserItem u : userItems
+                    .findByUserIdAndItemTypeAndFirstLearnedAtGreaterThanEqualOrderByFirstLearnedAtAsc(userId, t, start)) {
+                if (u.getLevel() != null && u.getFirstLearnedAt() != null
+                        && u.getFirstLearnedAt().toLocalDate().equals(plan.getStudyDay())) {
+                    byLevel.merge(u.getLevel(), 1L, Long::sum);
+                }
+            }
+        }
+        return byLevel.entrySet().stream().max(java.util.Map.Entry.comparingByValue())
+                .map(java.util.Map.Entry::getKey).orElse(plan.getLevel());
+    }
 
     private JpathTodayView view(Long userId, JpathUserPath path, JpathUserLevel level, JpathDailyPlan plan,
             List<JpathDailyTab> rows, LocalDate today) {
@@ -213,7 +233,8 @@ public class JpathTodayViewAssembler {
                 heroCards(userId, plan, rows, priority, localNow), plan.getAllDoneAt() != null, reviewDayHint,
                 skillDayMissed(path, level, Optional.of(plan), today),
                 open.stream().findFirst().map(s -> new JpathResumeView(s.getId(), s.getPosition(), s.getTotal()))
-                        .orElse(null));
+                        .orElse(null),
+                studiedLevel(userId, plan), path == null ? null : path.getOpenLevel());
     }
 
     /**
@@ -330,8 +351,8 @@ public class JpathTodayViewAssembler {
         }
         int available = tab.getTab() == JpathTab.KANA
                 ? Math.max(0, JpathTabCountsReader.KANA_ROWS - (int) kanaRows.countCompletedRows(plan.getUserId()))
-                : newCodes(plan.getUserId(), plan.getLevel(), tab.getTab(), plan.isKanaPhase(), priority, remaining,
-                        plannedKanaRows).size();
+                : newCodesForDay(plan.getUserId(), plan.getLevel(), plan.getDayKind(), tab.getTab(), plan.isKanaPhase(),
+                        priority, remaining, plannedKanaRows).size();
         return tab.getNewDone() + Math.min(remaining, available);
     }
 
@@ -345,7 +366,7 @@ public class JpathTodayViewAssembler {
         int remaining = rows.stream().filter(t -> t.getTab() == tab).findFirst()
                 .map(t -> t.getNewTarget() - t.getNewDone()).orElse(0);
         int kanaRemaining = plan.isKanaPhase() && tab == JpathTab.VOCAB ? plannedKanaRows(plan, rows) : 0;
-        return newRefs(userId, plan.getLevel(), tab, plan.isKanaPhase(), priority, remaining, kanaRemaining);
+        return newRefs(userId, plan.getLevel(), plan.getDayKind(), tab, plan.isKanaPhase(), priority, remaining, kanaRemaining);
     }
 
     /** [JLAS-W0108] F148: remaining Kana rows on today's Kana-phase plan so VOCAB counts words unlocked today. */
@@ -443,14 +464,38 @@ public class JpathTodayViewAssembler {
         }
     }
 
-    private List<JpathItemRef> newRefs(Long userId, String level, JpathTab tab, boolean kanaPhase, boolean priority,
-            int remaining, int plannedKanaRows) {
+    private List<JpathItemRef> newRefs(Long userId, String level, JpathDayKind dayKind, JpathTab tab, boolean kanaPhase,
+            boolean priority, int remaining, int plannedKanaRows) {
         if (remaining <= 0 || tab == JpathTab.KANA || tab == JpathTab.SKILL) {
             return List.of();
         }
         JpathItemType type = JpathItemType.valueOf(tab.name());
-        return newCodes(userId, level, tab, kanaPhase, priority, remaining, plannedKanaRows).stream()
+        return newCodesForDay(userId, level, dayKind, tab, kanaPhase, priority, remaining, plannedKanaRows).stream()
                 .map(code -> new JpathItemRef(type, code)).toList();
+    }
+
+    private List<String> newCodesForDay(Long userId, String level, JpathDayKind dayKind, JpathTab tab, boolean kanaPhase,
+            boolean priority, int limit, int plannedKanaRows) {
+        if (limit <= 0) {
+            return List.of();
+        }
+        List<String> carried = (!kanaPhase && dayKind == JpathDayKind.STUDY)
+                ? userItems.unfinishedBefore(userId, JpathItemType.valueOf(tab.name()), level,
+                        clock.localNow(userId).plusSeconds(1), PageRequest.of(0, limit))
+                : List.of();
+        if (carried.size() >= limit) {
+            return carried;
+        }
+        List<String> fresh = newCodes(userId, level, tab, kanaPhase, priority, limit - carried.size(), plannedKanaRows);
+        if (carried.isEmpty()) {
+            return fresh;
+        }
+        List<String> out = new ArrayList<>(carried);
+        for (String c : fresh) {
+            if (out.size() >= limit) break;
+            if (!out.contains(c)) out.add(c);
+        }
+        return out;
     }
 
     /**

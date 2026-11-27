@@ -245,12 +245,20 @@ public class CpathService {
         return Map.of("pathId", id, "role", role);
     }
 
+    private static final String NOT_FINISHED_SQL = " AND NOT EXISTS (SELECT 1 FROM cpath_user_goal_test gt WHERE gt.path_id = cpath_user_path.id AND gt.passed = TRUE)";
+
     /** Owner 24/11: at most this many paths (JLPT and communication together) are studied at once. */
     public static final int MAX_ACTIVE = 2;
 
-    /** Owner 24/11: active paths of the learner, JLPT and communication together. */
+    /** Owner 24/11: active paths of the learner, JLPT and communication together (finished paths no longer occupy a slot). */
     public int activeCount(Long userId) {
-        Integer comm = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+        Integer comm;
+        try {
+            comm = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'" + NOT_FINISHED_SQL,
+                    Integer.class, userId);
+        } catch (org.springframework.dao.DataAccessException e) {
+            comm = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+        }
         return (comm == null ? 0 : comm) + jlptActiveCount(userId);
     }
 
@@ -295,10 +303,16 @@ public class CpathService {
         return true;
     }
 
-    /** The internal role of a path that just became active: MAIN when no other active path holds it (or asked). */
+    /** The internal role of a path that just became active: MAIN when no other unfinished active path holds it (or asked). */
     private String settleRole(Long userId, Long pathId, boolean wantMain) {
-        Integer otherMain = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' "
-                + "AND status = 'ACTIVE' AND id <> ?", Integer.class, userId, pathId);
+        Integer otherMain;
+        try {
+            otherMain = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' "
+                    + "AND status = 'ACTIVE' AND id <> ?" + NOT_FINISHED_SQL, Integer.class, userId, pathId);
+        } catch (org.springframework.dao.DataAccessException e) {
+            otherMain = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' "
+                    + "AND status = 'ACTIVE' AND id <> ?", Integer.class, userId, pathId);
+        }
         if (wantMain || otherMain == null || otherMain == 0) {
             db.update("UPDATE cpath_user_path SET role = 'SECONDARY' WHERE user_id = ? AND role = 'MAIN' AND status = 'ACTIVE' AND id <> ?", userId, pathId);
             db.update("UPDATE cpath_user_path SET role = 'MAIN' WHERE id = ?", pathId);
@@ -371,6 +385,16 @@ public class CpathService {
         Map<String, Object> p = rows.isEmpty() ? null : rows.get(0);
         if (p == null) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
         return p;
+    }
+
+    /** Read the exact path requested by the dashboard, including paused and finished paths. */
+    private Map<String, Object> pathForView(Long userId, String goal) {
+        if (goal == null || goal.isBlank()) return requirePath(userId);
+        List<Map<String, Object>> rows = db.queryForList("SELECT p.*, g.name_vi FROM cpath_user_path p "
+                + "JOIN cpath_goal g ON g.code = p.goal_code WHERE p.user_id = ? AND p.goal_code = ? "
+                + "AND p.status IN ('ACTIVE','PAUSED','DONE') ORDER BY p.id DESC LIMIT 1", userId, goal.trim());
+        if (rows.isEmpty()) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp này.");
+        return rows.get(0);
     }
 
     /**
@@ -494,6 +518,15 @@ public class CpathService {
         return Map.of("situations", today(userId, requirePath(userId), true));
     }
 
+    @Transactional
+    public Map<String, Object> planToday(Long userId, String goal) {
+        Map<String, Object> path = pathForView(userId, goal);
+        if (!"ACTIVE".equals(path.get("status")) || isFinished(((Number) path.get("id")).longValue())) {
+            throw new ApiException(ErrorCode.CONFLICT, "Lộ trình này đang tạm dừng hoặc đã hoàn thành.");
+        }
+        return Map.of("situations", today(userId, path, true));
+    }
+
     /** {@code write} = store the plan; false = the same list worked out without writing (GET). */
     private List<Map<String, Object>> today(Long userId, Map<String, Object> path, boolean write) {
         Long pathId = ((Number) path.get("id")).longValue();
@@ -591,7 +624,12 @@ public class CpathService {
 
     @Transactional
     public Map<String, Object> path(Long userId) {
-        Map<String, Object> p = requirePath(userId);
+        return path(userId, null);
+    }
+
+    @Transactional
+    public Map<String, Object> path(Long userId, String goal) {
+        Map<String, Object> p = pathForView(userId, goal);
         Long pathId = ((Number) p.get("id")).longValue();
         List<Map<String, Object>> order = orderedSituations(p);
         Map<String, Map<String, Object>> prog = progressOf(pathId);
@@ -603,6 +641,8 @@ public class CpathService {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("pathId", pathId);
         m.put("goal", p.get("goal_code"));
+        m.put("role", p.get("role"));
+        m.put("status", p.get("status"));
         m.put("nameVi", p.get("name_vi"));
         m.put("selfLevel", level);
         m.put("dailySituations", p.get("daily_situations"));
@@ -629,7 +669,8 @@ public class CpathService {
         // owner 17/11: the path page offers "Ôn tập hôm nay" only when something is due (Sổ tay or 1/3/7/14/30-day items)
         todayMap.put("reviewDue", reviewQuestions(userId, p).size());
         m.put("today", todayMap);
-        Map<String, Object> sec = pathRow(userId, "SECONDARY");
+        Map<String, Object> sec = "ACTIVE".equals(p.get("status"))
+                ? pathRow(userId, "SECONDARY") : null;
         // owner 24/11: the path asked for by ?goal= may itself be the SECONDARY row; it is not its own secondary
         if (sec != null && ((Number) sec.get("id")).longValue() == pathId) sec = pathRow(userId, "MAIN");
         if (sec != null && ((Number) sec.get("id")).longValue() == pathId) sec = null;
@@ -652,7 +693,9 @@ public class CpathService {
             m.put("secondary", sm);
         }
         // F125 (owner 14/11): the final AI test passed → summary card, "Đã hoàn thành" label, no new daily plan
-        m.put("finished", finishedSummary(userId, p, order, prog, passed == null ? 0 : passed, topics.size()));
+        Map<String, Object> finished = finishedSummary(userId, p, order, prog, passed == null ? 0 : passed, topics.size());
+        m.put("finished", finished);
+        if (finished != null) m.put("status", "DONE");
         m.put("finishedPaths", otherFinishedPaths(userId, pathId));
         return m;
     }
@@ -825,7 +868,12 @@ public class CpathService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> map(Long userId) {
-        Map<String, Object> p = requirePath(userId);
+        return map(userId, null);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> map(Long userId, String goal) {
+        Map<String, Object> p = pathForView(userId, goal);
         Long pathId = ((Number) p.get("id")).longValue();
         List<Map<String, Object>> order = orderedSituations(p);
         Map<String, Map<String, Object>> prog = progressOf(pathId);
@@ -865,7 +913,7 @@ public class CpathService {
                 goalTest != null && Boolean.TRUE.equals(goalTest.get("passed")) ? "DONE" : "NEXT", goalTest == null ? null : goalTest.get("score"));
         goalNode.put("url", scenarioUrl(db.queryForList("SELECT test_scenario_slug FROM cpath_goal WHERE code = ?", String.class,
                 p.get("goal_code")).stream().findFirst().orElse(null)));
-        Map<String, Object> gt = goalTest(userId);
+        Map<String, Object> gt = goalTest(userId, p);
         goalNode.put("retryAt", gt.get("retryAt"));
         goalNode.put("weakTopics", gt.get("weakTopics"));
         goalNode.put("certificateUrl", gt.get("certificateUrl"));
@@ -991,16 +1039,21 @@ public class CpathService {
         }
         m.put("display", disp);
         String topic = (String) s.get("topic_code");
-        m.put("words", db.query("SELECT * FROM cpath_item WHERE topic_code = ? AND kind = 'WORD' ORDER BY sort_order", (rs, i) -> {
+        Set<String> seenWordJa = new LinkedHashSet<>();
+        List<Map<String, Object>> words = new ArrayList<>();
+        db.query("SELECT * FROM cpath_item WHERE topic_code = ? AND kind = 'WORD' ORDER BY sort_order", rs -> {
+            String ja = rs.getString("ja");
+            if (ja != null && !seenWordJa.add(normWordJa(ja))) return;
             Map<String, Object> w = new LinkedHashMap<>();
             w.put("id", rs.getString("code"));
-            w.put("word", rs.getString("ja"));
+            w.put("word", ja);
             w.put("reading", rs.getString("reading"));
             w.put("meaningVi", rs.getString("vi"));
             w.put("audioUrl", url(rs.getString("audio_path")));
-            return w;
-        }, topic));
-        m.put("vocab", m.get("words"));
+            words.add(w);
+        }, topic);
+        m.put("words", words);
+        m.put("vocab", words);
         m.put("phrases", db.query("SELECT * FROM cpath_item WHERE kind = 'PHRASE' AND situation_code = ? ORDER BY sort_order", (rs, i) -> {
             Map<String, Object> w = new LinkedHashMap<>();
             w.put("id", rs.getString("code"));
@@ -1043,6 +1096,17 @@ public class CpathService {
         m.put("steps", steps);
         m.put("aiCallUrl", scenarioUrl((String) s.get("scenario_slug")));
         return m;
+    }
+
+    /** Normalizes katakana to hiragana so duplicate kana variants (e.g. ごみ vs ゴミ) collapse cleanly. */
+    private static String normWordJa(String ja) {
+        String trimmed = ja.trim();
+        StringBuilder sb = new StringBuilder(trimmed.length());
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            sb.append((c >= '\u30A1' && c <= '\u30F6') ? (char) (c - 0x60) : c);
+        }
+        return sb.toString();
     }
 
     /** Role-play turns from the seeded challenge: the learner's line plus two distractors, shuffled by line order. */
@@ -2276,7 +2340,10 @@ public class CpathService {
     }
 
     boolean goalRetryOpen(Long userId) {
-        Map<String, Object> p = requirePath(userId);
+        return goalRetryOpen(userId, requirePath(userId));
+    }
+
+    private boolean goalRetryOpen(Long userId, Map<String, Object> p) {
         Map<String, Object> last = lastGoalTest(((Number) p.get("id")).longValue());
         if (last == null) return true;
         if (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed"))) return false;
@@ -2298,12 +2365,28 @@ public class CpathService {
     /** The goal's AI call test: where to take it, the last result, and when a retry opens (24 h after a fail). */
     @Transactional(readOnly = true)
     public Map<String, Object> goalTest(Long userId) {
-        Map<String, Object> p = requirePath(userId);
+        return goalTest(userId, (String) null);
+    }
+
+    /** Goal test details for the main path or a requested {@code goal}. */
+    @Transactional(readOnly = true)
+    public Map<String, Object> goalTest(Long userId, String goal) {
+        Map<String, Object> p = (goal == null || goal.isBlank()) ? requirePath(userId) : pathForView(userId, goal);
+        return goalTest(userId, p);
+    }
+
+    private Map<String, Object> goalTest(Long userId, Map<String, Object> p) {
         String slug = db.queryForObject("SELECT test_scenario_slug FROM cpath_goal WHERE code = ?", String.class, p.get("goal_code"));
         Map<String, Object> last = lastGoalTest(((Number) p.get("id")).longValue());
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("scenarioUrl", scenarioUrl(slug));
         m.put("aiAvailable", m.get("scenarioUrl") != null);
+        // owner 26/11: the final test page is the whole briefing, so the learner starts the call straight away
+        m.put("startUrl", m.get("scenarioUrl") == null ? null : m.get("scenarioUrl") + "/start");
+        m.put("brief", goalTestBrief(slug));
+        m.put("lastDetails", goalTestDetails(last, p.get("goal_code") == null ? null : String.valueOf(p.get("goal_code"))));
+        m.put("topics", db.queryForList("SELECT name_vi FROM cpath_topic WHERE goal_code = ? ORDER BY sort_order",
+                String.class, p.get("goal_code")));
         m.put("fallbackUrl", "/learning/comm/weekly?mode=fallback");
         m.put("passScore", GOAL_TEST_PASS);
         m.put("lastScore", last == null ? null : last.get("score"));
@@ -2322,16 +2405,22 @@ public class CpathService {
     /** Reads the learner's newest scored kaiwa session on the goal's test scenario (read only) and records it. */
     @Transactional
     public Map<String, Object> checkGoalTest(Long userId) {
-        Map<String, Object> p = requirePath(userId);
+        return checkGoalTest(userId, null);
+    }
+
+    /** Checks and records the goal test for the main path or a requested {@code goal}. */
+    @Transactional
+    public Map<String, Object> checkGoalTest(Long userId, String goal) {
+        Map<String, Object> p = (goal == null || goal.isBlank()) ? requirePath(userId) : pathForView(userId, goal);
         Long pathId = ((Number) p.get("id")).longValue();
         Map<String, Object> last = lastGoalTest(pathId);
-        if (last != null && (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed")))) return goalTest(userId);
-        if (!goalRetryOpen(userId)) return goalTest(userId);
+        if (last != null && (num(last.get("passed")) != 0 || Boolean.TRUE.equals(last.get("passed")))) return goalTest(userId, p);
+        if (!goalRetryOpen(userId, p)) return goalTest(userId, p);
         String slug = db.queryForObject("SELECT test_scenario_slug FROM cpath_goal WHERE code = ?", String.class, p.get("goal_code"));
         List<Map<String, Object>> rows = slug == null ? List.of() : db.queryForList("SELECT cs.id, cs.overall_score FROM conversation_session cs "
                 + "JOIN scenario sc ON sc.id = cs.scenario_id WHERE cs.user_id = ? AND sc.slug = ? AND cs.overall_score IS NOT NULL "
                 + "ORDER BY cs.started_at DESC LIMIT 1", userId, slug);
-        if (rows.isEmpty()) return goalTest(userId);
+        if (rows.isEmpty()) return goalTest(userId, p);
         Long session = ((Number) rows.get(0).get("id")).longValue();
         Integer seen = db.queryForObject("SELECT COUNT(*) FROM cpath_user_goal_test WHERE path_id = ? AND conversation_session_id = ?",
                 Integer.class, pathId, session);
@@ -2344,7 +2433,7 @@ public class CpathService {
                 award(userId, GOAL_CP, REF_GOAL, pathId, "Đạt bài test giao tiếp với AI");
             }
         }
-        return goalTest(userId);
+        return goalTest(userId, p);
     }
 
     /**
@@ -2421,6 +2510,59 @@ public class CpathService {
 
     // ---------------------------------------------------------------------------------------------- helpers
 
+    /** The scored criteria of the last test call (grammar, vocabulary, ...) and its review link; null when none. */
+    private Map<String, Object> goalTestDetails(Map<String, Object> last, String goal) {
+        if (last == null || last.get("conversation_session_id") == null) return null;
+        Object sid = last.get("conversation_session_id");
+        List<Map<String, Object>> rows;
+        try {
+            rows = db.queryForList("SELECT score_details_json, mistakes_count, "
+                    + "TIMESTAMPDIFF(SECOND, started_at, COALESCE(ended_at, scored_at)) AS seconds FROM conversation_session WHERE id = ?", sid);
+        } catch (org.springframework.dao.DataAccessException e) {
+            return null;
+        }
+        if (rows.isEmpty()) return null;
+        Map<String, Object> out = new LinkedHashMap<>();
+        List<Map<String, Object>> criteria = new ArrayList<>();
+        try {
+            Object raw = rows.get(0).get("score_details_json");
+            if (raw != null) JSON.readTree(raw.toString()).properties().forEach(e ->
+                    criteria.add(Map.of("name", e.getKey(), "score", (int) Math.round(e.getValue().asDouble()))));
+        } catch (Exception ignored) {
+            // broken JSON: the total still shows
+        }
+        out.put("criteria", criteria);
+        out.put("mistakes", rows.get(0).get("mistakes_count"));
+        out.put("seconds", rows.get(0).get("seconds"));
+        out.put("reviewUrl", "/conversation/" + sid + "/result?stay=1" + (goal != null && !goal.isBlank() ? "&goal=" + goal : ""));
+        return out;
+    }
+
+    /** The test scenario's briefing (title, setting, roles, minutes) for the final test page; null when none. */
+    private Map<String, Object> goalTestBrief(String slug) {
+        if (slug == null) return null;
+        List<Map<String, Object>> rows;
+        try {
+            rows = db.queryForList("SELECT s.title, s.description, s.background, s.location, "
+                    + "s.estimated_minutes, ar.name AS ai_role, lr.name AS learner_role FROM scenario s "
+                    + "LEFT JOIN scenario_role ar ON ar.id = s.ai_role_id LEFT JOIN scenario_role lr ON lr.id = s.learner_role_id "
+                    + "WHERE s.slug = ? AND s.is_active = 1", slug);
+        } catch (org.springframework.dao.DataAccessException e) {
+            return null;
+        }
+        if (rows.isEmpty()) return null;
+        Map<String, Object> r = rows.get(0);
+        Map<String, Object> b = new LinkedHashMap<>();
+        b.put("title", r.get("title"));
+        b.put("description", r.get("description"));
+        b.put("background", r.get("background"));
+        b.put("location", r.get("location"));
+        b.put("minutes", r.get("estimated_minutes"));
+        b.put("aiRole", r.get("ai_role"));
+        b.put("learnerRole", r.get("learner_role"));
+        return b;
+    }
+
     private String scenarioUrl(String slug) {
         if (slug == null) return null;
         List<Long> ids = db.queryForList("SELECT id FROM scenario WHERE slug = ? AND is_active = 1", Long.class, slug);
@@ -2475,6 +2617,7 @@ public class CpathService {
             Map<String, Map<String, Object>> prog = progressOf(pathId);
             long doneCount = order.stream().filter(x -> done(prog.get(x.get("code")))).count();
             boolean finished = "DONE".equals(p.get("status")) || isFinished(pathId);
+            boolean awaitingFinalTest = !finished && !order.isEmpty() && doneCount == order.size();
             int daily = ((Number) p.get("daily_situations")).intValue();
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("key", "COMM:" + goal);
@@ -2482,14 +2625,17 @@ public class CpathService {
             m.put("goal", goal);
             m.put("title", "Giao tiếp · " + p.get("name_vi"));
             m.put("status", finished ? "FINISHED" : String.valueOf(p.get("status")));
-            m.put("percent", order.isEmpty() ? 0 : (int) Math.round(100.0 * doneCount / order.size()));
+            // The final goal test is part of completing the path, so learned situations alone cannot show 100%.
+            m.put("percent", finished ? 100 : order.isEmpty() ? 0 : (int) Math.round(90.0 * doneCount / order.size()));
+            m.put("awaitingFinalTest", awaitingFinalTest);
+            m.put("role", p.get("role"));
             m.put("minutesPerDay", daily * MINUTES_PER_SITUATION);
             Object fd = p.get("finish_date");
             m.put("finishDate", fd != null ? fd.toString() : estimateFinish(p, today, order.size() - (int) doneCount, daily));
             boolean active = "ACTIVE".equals(p.get("status")) && !finished;
             int left = 0;
             boolean rest = isRest(p, today);
-            if (active && !rest) {
+            if (active && !rest && !awaitingFinalTest) {
                 List<Map<String, Object>> plan = today(userId, p, false);
                 long open = plan.stream().filter(x -> !"DONE".equals(x.get("status"))).count();
                 // nothing planned yet today (the page plans it on first open): the day's share is still ahead

@@ -26,12 +26,22 @@ public class JpathCommPathPauser {
     public int pauseCommPaths(Long userId) {
         int active;
         try {
-            Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'", Integer.class, userId);
+            Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'"
+                    + " AND NOT EXISTS (SELECT 1 FROM cpath_user_goal_test gt WHERE gt.path_id = cpath_user_path.id AND gt.passed = TRUE)",
+                    Integer.class, userId);
             active = n == null ? 0 : n;
         } catch (DataAccessException e) {
-            // a database without the communication tables (feature not installed) has nothing running
-            if (e instanceof org.springframework.jdbc.BadSqlGrammarException) return 0;
-            throw e;
+            if (e instanceof org.springframework.jdbc.BadSqlGrammarException) {
+                try {
+                    Integer n = db.queryForObject("SELECT COUNT(*) FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE'",
+                            Integer.class, userId);
+                    active = n == null ? 0 : n;
+                } catch (org.springframework.jdbc.BadSqlGrammarException ignored) {
+                    return 0;
+                }
+            } else {
+                throw e;
+            }
         }
         if (active >= com.jlas.cpath.CpathService.MAX_ACTIVE) {
             throw new com.jlas.common.exception.ApiException(com.jlas.common.exception.ErrorCode.MY_PATHS_FULL);

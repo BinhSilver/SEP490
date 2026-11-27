@@ -341,8 +341,18 @@ public class JpathSettingsWriter {
         boolean hasSmartTest = path.getEntrySource() == JpathEntrySource.SMART_TEST
                 && path.getAssessmentAttemptId() != null
                 && (path.getSmartAbilityBand() != null || vocab != null || kanji != null || grammar != null);
-        return hasSmartTest ? JpathModeRule.suggest(path.getDailyMinutes(), vocab, kanji, grammar, true)
+        JpathModeSuggestion s = hasSmartTest ? JpathModeRule.suggest(path.getDailyMinutes(), vocab, kanji, grammar, true)
                 : JpathModeRule.suggest(path.getDailyMinutes(), null, null, null, false);
+        // QA 27/11 C3: the stored scores are raw mastery, but the confirm page compared skills level-aware
+        // (JpathSmartTestReader.modeScore) — so Settings said "Từ vựng thấp hơn hẳn" where Confirm said "khá đều".
+        // A skill-based verdict keeps the one made at creation.
+        String stored = path.getSuggestionReason();
+        boolean skillBased = "EVEN_SKILLS".equals(s.reason()) || "WEAK_SKILL".equals(s.reason());
+        if (skillBased && path.getSuggestedMode() != null && "EVEN_SKILLS".equals(stored)) {
+            return new JpathModeSuggestion(JpathStudyMode.COMBINED, "EVEN_SKILLS",
+                    "Gợi ý Gộp vì điểm Từ vựng, Kanji, Ngữ pháp của bạn khá đều");
+        }
+        return s;
     }
 
     private static Integer score(BigDecimal value) {

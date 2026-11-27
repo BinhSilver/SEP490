@@ -243,7 +243,8 @@ public final class JpathPacingEngine {
             message = "Với " + words + " từ mỗi ngày bạn kịp xong " + targetLevel + " trước ngày thi (dự kiến "
                     + DATE_VI.format(walk.targetFinish()) + ")";
         } else {
-            message = "Dự kiến xong " + targetLevel + ": " + DATE_VI.format(walk.targetFinish());
+            // QA 27/11 C1: this is the exam-ready day (after the skill practice days), not the day the 3 parts end
+            message = "Dự kiến sẵn sàng thi thử " + targetLevel + ": " + DATE_VI.format(walk.targetFinish());
         }
 
         // F230: the day is costed with the balanced counts the walk actually uses

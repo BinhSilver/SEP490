@@ -269,6 +269,12 @@ public class JpathStudyEventApplier {
             if (rating != null) {
                 states.rate(existing.get(), rating);
             }
+            // Items started earlier via Flashcard Recall sync (no sessionId yet) still count toward today's target on FIRST_RATE.
+            if (!step.repeat() && existing.get().getCountedAt() == null
+                    && existing.get().getState() != JpathItemState.KNOWN
+                    && !events.existsSessionFirstRateOnDay(b.userId, type, step.itemCode(), b.plan.getStudyDay())) {
+                countNew(b, step, existing.get().getLevel());
+            }
         } else {
             Optional<Visible> item = visible(type, step.itemCode());
             if (item.isEmpty()) {

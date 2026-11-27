@@ -52,8 +52,10 @@ import com.jlas.jlptpath.util.JpathQueueInput.DueCard;
 import com.jlas.jlptpath.util.JpathQueueInput.KanaRowPlan;
 import com.jlas.jlptpath.util.JpathQueueStep;
 import com.jlas.jlptpath.util.JpathSrsPolicy;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -194,7 +196,14 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         Optional<JpathStudySession> existing = openTodaySessions(userId, plan).stream()
                 .filter(s -> s.getTab().equals(r.tab().name())).findFirst();
         if (existing.isPresent()) {
-            return moveUp(existing.get(), r.startItemCode());
+            JpathStudySession cur = existing.get();
+            if (staleTodaySession(userId, tabs, cur)) {
+                cur.setStatus(COMPLETED);
+                cur.setCompletedAt(clock.now());
+                sessions.save(cur);
+            } else {
+                return moveUp(cur, r.startItemCode());
+            }
         }
         LocalDateTime localNow = clock.localNow(userId);
         JpathSessionTab st = r.tab();
@@ -406,7 +415,9 @@ public class JpathStudyServiceImpl implements JpathStudyService {
                     : List.of(kanaRowPlan(userId, kanaRowCode(r.startItemCode())));
             rows = limitKanaRows(userId, selected);
         } else {
-            count = limitedExtraBrowseCount(userId, count);
+            if (!isRelearnRequest(userId, t, r)) {
+                count = limitedExtraBrowseCount(userId, count);
+            }
             String level = r.level() == null ? open.getLevel() : level(r.level());
             if (level == null) {
                 throw new ApiException(ErrorCode.VALIDATION_FAILED);
@@ -649,9 +660,34 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         if (limit <= 0 || plan.isKanaPhase() || plan.getDayKind() != JpathDayKind.STUDY) {
             return List.of();
         }
-        LocalDateTime startOfToday = clock.today(userId).atStartOfDay();
-        return userItems.unfinishedBefore(userId, JpathItemType.valueOf(t.name()), plan.getLevel(), startOfToday,
+        // Include items started earlier today (e.g. via Flashcard Recall) whose MICRO_CHECK is still pending.
+        LocalDateTime cutoff = clock.localNow(userId).plusSeconds(1);
+        return userItems.unfinishedBefore(userId, JpathItemType.valueOf(t.name()), plan.getLevel(), cutoff,
                 PageRequest.of(0, limit));
+    }
+
+    /** True when another session or check has already finished a tab or counted remaining NEW steps in {@code s}. */
+    private boolean staleTodaySession(Long userId, Map<JpathTab, JpathDailyTab> tabs, JpathStudySession s) {
+        List<JpathQueueStep> q = parse(s.getQueueJson());
+        int pos = Math.max(0, s.getPosition() == null ? 0 : s.getPosition());
+        if (pos >= q.size()) {
+            return true;
+        }
+        List<JpathQueueStep> rest = q.subList(pos, q.size());
+        Map<String, JpathUserItem> rows = rowsOf(userId, rest);
+        for (JpathQueueStep step : rest) {
+            JpathDailyTab tab = step.tab() == null ? null : tabs.get(step.tab());
+            if (tab != null && tab.getDoneAt() != null && (step.kind() == JpathStepKind.NEW || step.kind() == JpathStepKind.MICRO_CHECK)) {
+                return true;
+            }
+            if (step.kind() == JpathStepKind.NEW && !step.repeat() && step.itemType() != null && step.itemCode() != null) {
+                JpathUserItem row = rows.get(key(step.itemType(), step.itemCode()));
+                if (row != null && (row.getCountedAt() != null || row.getState() == JpathItemState.KNOWN)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private List<String> withUnfinished(Long userId, JpathDailyPlan plan, JpathTab t, int limit, List<String> fresh) {
@@ -734,9 +770,18 @@ public class JpathStudyServiceImpl implements JpathStudyService {
         return kana.stream().map(JpathKana::getCode).filter(c -> !started.containsKey(c)).toList();
     }
 
+    private boolean isRelearnRequest(Long userId, JpathTab t, JpathSessionStartRequest r) {
+        if (r.startItemCode() == null || r.topicKey() != null || r.unitNo() != null) {
+            return false;
+        }
+        return userItems.findByUserIdAndItemTypeAndItemCode(userId, JpathItemType.valueOf(t.name()), r.startItemCode())
+                .filter(i -> i.getFirstLearnedAt() != null || i.getState() == JpathItemState.KNOWN)
+                .isPresent();
+    }
+
     /**
-     * BROWSE codes: new items of the topic (words) or unit (grammar) by sort order, or only the start item; the start
-     * item first. An item the learner already started is left out.
+     * BROWSE codes: new items of the topic (words) or unit (grammar) by sort order, or a relearn slice starting from
+     * an already-learned item in that day/group; unstarted single items return only themselves.
      */
     private List<String> browseCodes(Long userId, String level, JpathTab t, JpathSessionStartRequest r, int count) {
         JpathItemType type = JpathItemType.valueOf(t.name());
@@ -745,6 +790,9 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             requireLearnable(type, start);
         }
         Set<String> rows = new HashSet<>(userItems.findCodesByUserIdAndItemType(userId, type));
+        if (start != null && r.topicKey() == null && r.unitNo() == null && rows.contains(start)) {
+            return relearnBrowseCodes(userId, level, type, start, count);
+        }
         List<String> codes;
         if (t == JpathTab.VOCAB && r.topicKey() != null) {
             codes = content.visibleVocabulary(level).stream()
@@ -757,7 +805,11 @@ public class JpathStudyServiceImpl implements JpathStudyService {
                             && content.learnable(g, checks.getOrDefault(g.getCode(), 0)))
                     .map(JpathGrammar::getCode).toList();
         } else if (start != null) {
-            codes = List.of(start);
+            // owner 27/11: "Học trước phần này" on the map sends the part's first item; take the part's items in
+            // map order from there (JpathPartsService uses the same learnable order), not that single item
+            List<String> ordered = content.learnableOrderedCodes(level, type, false);
+            int at = ordered.indexOf(start);
+            codes = at < 0 ? List.of(start) : ordered.subList(at, Math.min(ordered.size(), at + count + rows.size()));
         } else {
             return content.nextNewCodes(userId, level, type, count, false, null);
         }
@@ -774,6 +826,40 @@ public class JpathStudyServiceImpl implements JpathStudyService {
             }
         }
         return out;
+    }
+
+    /**
+     * Relearns up to {@code count} already-learned items of the part containing {@code start}, ordered identically to
+     * {@link JpathPartsService}: items learned on the same study day (or undated KNOWN items), starting at {@code start}.
+     */
+    private List<String> relearnBrowseCodes(Long userId, String level, JpathItemType type, String start, int count) {
+        Optional<JpathUserItem> startRow = userItems.findByUserIdAndItemTypeAndItemCode(userId, type, start);
+        if (startRow.isEmpty()) {
+            return List.of(start);
+        }
+        LocalDateTime startLearned = startRow.get().getFirstLearnedAt() != null
+                ? startRow.get().getFirstLearnedAt() : startRow.get().getCountedAt();
+        LocalDate partDay = startLearned != null ? startLearned.toLocalDate() : null;
+        List<JpathUserItem> sameGroup = userItems.findByUserIdAndItemType(userId, type).stream()
+                .filter(u -> (u.getLevel() == null || level.equals(u.getLevel())) && stillVisible(u))
+                .filter(u -> {
+                    LocalDateTime at = u.getFirstLearnedAt() != null ? u.getFirstLearnedAt() : u.getCountedAt();
+                    if (partDay != null) {
+                        return at != null && at.toLocalDate().equals(partDay);
+                    }
+                    return at == null && u.getState() == JpathItemState.KNOWN;
+                })
+                .sorted(Comparator.comparing((JpathUserItem u) -> u.getFirstLearnedAt() != null
+                                ? u.getFirstLearnedAt() : u.getCountedAt(),
+                        Comparator.nullsFirst(Comparator.naturalOrder()))
+                        .thenComparing(u -> u.getId() == null ? 0L : u.getId()))
+                .toList();
+        List<String> codes = sameGroup.stream().map(JpathUserItem::getItemCode).toList();
+        int idx = codes.indexOf(start);
+        if (idx < 0) {
+            return List.of(start);
+        }
+        return codes.subList(idx, Math.min(codes.size(), idx + count));
     }
 
     private boolean stillVisible(JpathUserItem i) {

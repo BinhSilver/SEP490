@@ -347,6 +347,13 @@ public class AssessmentServiceImpl implements AssessmentService {
                 SmartTestAdaptivePolicy.BATCH_SIZE, tags);
         if (candidates.size() < SmartTestAdaptivePolicy.BATCH_SIZE) {
             if (batchNumber == 1) {
+                // QA 27/11 ST1: N2/N1 kanji banks are still thin; start that skill one level lower instead of
+                // refusing the whole test (the adaptive steps can still move it up)
+                int at = java.util.List.of("N1", "N2", "N3", "N4", "N5").indexOf(level);
+                if (at >= 0 && at < 4) {
+                    return appendBatch(session, skill, java.util.List.of("N1", "N2", "N3", "N4", "N5").get(at + 1),
+                            batchNumber, questions);
+                }
                 throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "Ngân hàng câu hỏi chưa đủ 5 câu khác từ nhau " + skill + " ở cấp " + level + ".");
             }

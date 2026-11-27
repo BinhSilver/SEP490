@@ -168,7 +168,15 @@ public class JpathDailyPlanServiceImpl implements JpathDailyPlanService, JpathTo
             plan.setLevel(path.getOpenLevel());
         }
         Set<String> openTabs = new LinkedHashSet<>();
-        views.openTodaySessions(userId, plan).forEach(s -> openTabs.add(s.getTab()));
+        // [JLAS-W0108] C2: an open session nobody has started yet would keep the old counts ("0/59" while the card
+        // says 49); drop it so the next "Học hôm nay" builds a session from the new targets
+        views.openTodaySessions(userId, plan).forEach(s -> {
+            if (s.getPosition() == null || s.getPosition() == 0) {
+                s.setStatus("ABANDONED");
+            } else {
+                openTabs.add(s.getTab());
+            }
+        });
         List<JpathDailyTab> tabs = dailyTabs.findForUpdateByPlanId(plan.getId());
         Set<JpathTab> kept = EnumSet.noneOf(JpathTab.class);
         for (JpathDailyTab t : tabs) {

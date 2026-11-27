@@ -200,9 +200,7 @@ public class MyPathsService {
             try {
                 JpathPathView v = jpath.paused(userId);
                 if (v != null) {
-                    int learned = 0, total = 0;
-                    for (JpathLevelCell c : v.levels()) { learned += c.learned(); total += c.total(); }
-                    m.put("percent", total == 0 ? 0 : (int) Math.round(100.0 * learned / total));
+                    m.put("percent", openLevelPercent(v));
                 }
             } catch (RuntimeException e) {
                 // the dashboard still lists the path
@@ -213,9 +211,7 @@ public class MyPathsService {
                     .supplyAsync(() -> { try { return jpathDay.today(userId); } catch (RuntimeException e) { return null; } });
             try {
                 JpathPathView v = jpath.current(userId);
-                int learned = 0, total = 0;
-                for (JpathLevelCell c : v.levels()) { learned += c.learned(); total += c.total(); }
-                m.put("percent", total == 0 ? 0 : (int) Math.round(100.0 * learned / total));
+                m.put("percent", openLevelPercent(v));
                 m.put("finishDate", v.levelFinish() == null ? null : v.levelFinish().toString());
                 m.put("focusTopic", v.kanaTab() && !v.kanaCompleted() ? "Nhập môn" : v.openLevel());
                 if (v.sliders() != null) m.put("minutesPerDay", v.sliders().estimatedMinutes());
@@ -291,5 +287,18 @@ public class MyPathsService {
             goal = rows.isEmpty() ? null : rows.get(0);
         }
         return goal == null ? null : "COMM:" + goal;
+    }
+
+    /**
+     * QA 27/11 M1: the card summed every level N5–N1 (38/7 500 = 0%) while the JLPT page shows the open level
+     * (4%); both now show the level being studied.
+     */
+    private static int openLevelPercent(JpathPathView v) {
+        for (JpathLevelCell c : v.levels()) {
+            if (c.level() != null && c.level().equals(v.openLevel())) {
+                return c.total() == 0 ? 0 : (int) Math.round(100.0 * c.learned() / c.total());
+            }
+        }
+        return 0;
     }
 }

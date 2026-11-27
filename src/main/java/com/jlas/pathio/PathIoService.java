@@ -199,14 +199,17 @@ public class PathIoService {
         Map<String, Object> a = attempt(userId, attemptId);
         if (a == null) return null;
         String level = catalog.capToReleased(str(a.get("level")));
-        String target = jlpt == null ? null : str(((Map<?, ?>) jlpt.get("exit")).get("level"));
-        if (target == null) {
-            try {
-                List<String> t = db.queryForList("SELECT target_level FROM user_learning_survey WHERE user_id = ?", String.class, userId);
-                target = t.isEmpty() ? null : t.get(0);
-            } catch (DataAccessException e) {
-                target = null;
-            }
+        // QA 27/11 ST4: the goal of the survey this test belongs to wins; the running path's target only fills in
+        // when no survey goal is stored (it showed "Kết thúc: N5" for a test taken toward N3)
+        String target;
+        try {
+            List<String> t = db.queryForList("SELECT target_level FROM user_learning_survey WHERE user_id = ?", String.class, userId);
+            target = t.isEmpty() ? null : t.get(0);
+        } catch (DataAccessException e) {
+            target = null;
+        }
+        if ((target == null || !LEVELS.contains(target)) && jlpt != null) {
+            target = str(((Map<?, ?>) jlpt.get("exit")).get("level"));
         }
         if (target == null || !LEVELS.contains(target) || LEVELS.indexOf(target) < LEVELS.indexOf(level)) target = level;
         Map<String, Object> entry = smartEntry(level, (LocalDate) a.get("day"));

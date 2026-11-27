@@ -26,20 +26,25 @@ public class JpathEntryPageController {
     private final JpathEntryRouter router;
     private final org.springframework.beans.factory.ObjectProvider<com.jlas.mypaths.MyPathsService> myPaths;
 
+    String learning(UserPrincipal user, String tab, String topic, String q, String view, Model model) {
+        return learning(user, tab, topic, q, view, null, model);
+    }
+
     @GetMapping("/learning")
     public String learning(@AuthenticationPrincipal UserPrincipal user,
             @RequestParam(required = false) String tab,
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String view,
+            @RequestParam(required = false) String tour,
             Model model) {
         if (user == null) {
             return "redirect:/login"; // I21: no learning page for a guest
         }
         // Owner 24/11 "Lộ trình của tôi": with two or more paths the plain /learning opens the dashboard; the JLPT
-        // card links to ?view=jlpt, and deep links (tab / topic / word) keep going to the path page as before
+        // card links to ?view=jlpt, and deep links (tab / topic / word / tour) keep going to the path page as before
         boolean forceJlpt = "jlpt".equalsIgnoreCase(view);
-        boolean deepLink = tab != null || topic != null || q != null;
+        boolean deepLink = tab != null || topic != null || q != null || "1".equals(tour);
         if (!forceJlpt && !deepLink && myPathCount(user.userId()) >= 2) {
             return "redirect:/learning/my";
         }
