@@ -58,7 +58,7 @@
     toggle.disabled = true;
     toggle.title = 'Voice chat chưa khả dụng';
     menu.hidden = true;
-    box.hidden = false;
+    // The dock stays hidden until the server says voice is on: a greyed-out mic only raised the question why.
     document.addEventListener('click', function (event) {
       if (!menu.contains(event.target)) menu.open = false;
     });
