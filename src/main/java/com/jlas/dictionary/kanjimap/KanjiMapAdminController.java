@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jlas.auth.dto.ApiResponse;
 import com.jlas.auth.security.CurrentUser;
+import com.jlas.auth.security.UserPrincipal;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +16,11 @@ import java.util.Map;
 @Controller
 public class KanjiMapAdminController {
     private final KanjiMapContentService content;
-    public KanjiMapAdminController(KanjiMapContentService content) { this.content = content; }
+    private final KanjiMapQuota quota;
+    public KanjiMapAdminController(KanjiMapContentService content, KanjiMapQuota quota) {
+        this.content = content;
+        this.quota = quota;
+    }
 
     @GetMapping("/admin/kanji-map")
     @PreAuthorize("hasRole('CONTENT_CREATOR')")
@@ -21,7 +28,10 @@ public class KanjiMapAdminController {
 
     @GetMapping("/api/dictionary/kanji-map/catalog")
     @ResponseBody
-    public ApiResponse<Map<String, Object>> published() { return ApiResponse.ok("OK", json(content.graph(false))); }
+    public ApiResponse<Map<String, Object>> published(@AuthenticationPrincipal UserPrincipal user, HttpServletRequest request) {
+        quota.requireAvailable(user == null ? null : user.userId(), request.getRemoteAddr());
+        return ApiResponse.ok("OK", json(content.graph(false)));
+    }
 
     @GetMapping("/api/admin/kanji-map/catalog")
     @PreAuthorize("hasRole('CONTENT_CREATOR')")

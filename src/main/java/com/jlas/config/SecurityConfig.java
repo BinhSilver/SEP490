@@ -94,6 +94,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/premium", "/credits", "/login", "/register", "/forgot-password", "/verify-email",
                                 "/profile", "/profile/security/**", "/goals", "/learning/goals", "/streak", "/kana-connect", "/credit-history", "/retention-demo", "/practice/verbs", "/error", "/about", "/policy").permitAll()
                         .requestMatchers("/dictionary/kanji-map", "/dictionary/kanji-map.html").permitAll()
+                        .requestMatchers("/api/kanji-map/heartbeat", "/api/kanji-map/kanji/**").permitAll()
                         .requestMatchers("/search", "/search/**", "/dictionary/index.html",
                                 "/dictionary/css/**", "/dictionary/js/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/fonts/**",

@@ -69,6 +69,8 @@ public enum ErrorCode {
     JPATH_LEVEL_NOT_RELEASED(HttpStatus.CONFLICT, "Cấp này sắp có, hiện chưa mở."),
     JPATH_LEVEL_LOCKED(HttpStatus.FORBIDDEN, "Cấp này chưa mở. Hãy hoàn thành cấp hiện tại và Thi thử JLPT."),
     JPATH_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Cấp N4–N1 dành cho tài khoản Premium. Nâng cấp để học tiếp."),
+    KANJI_MAP_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Bạn đã dùng hết 10 phút Lược đồ Kanji hôm nay. Nâng cấp Premium để tiếp tục."),
+    TUTOR_DAILY_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Bạn đã hỏi đủ 5 câu miễn phí hôm nay. Nâng cấp Premium để hỏi tiếp."),
     CPATH_PREMIUM_REQUIRED(HttpStatus.FORBIDDEN, "Lộ trình Giao tiếp dành cho tài khoản Premium. Nâng cấp để học."),
     CPATH_CORE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Máy chủ chưa có bài nền Giao tiếp. Bạn vẫn học tình huống như thường."),
     CPATH_DISPLAY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Máy chủ chưa sẵn sàng lưu cách hiển thị. Bạn vẫn bật/tắt furigana và bản dịch ngay trong bài học."),
