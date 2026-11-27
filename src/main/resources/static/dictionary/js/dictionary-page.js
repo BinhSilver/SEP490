@@ -137,10 +137,6 @@
         }).join('') + '</section>';
     }).join('');
   }
-  function actionButton(label, icon, extraClass) {
-    return '<button type="button" class="dict-action ' + (extraClass || '') + '" data-coming-soon>' +
-      (icon ? '<i class="fa-solid fa-' + icon + '"></i> ' : '') + esc(label) + '</button>';
-  }
   function relatedRowHtml(word) {
     return '<button type="button" class="dict-related-row" data-word="' + esc(word.expression) + '"' +
       (word.id == null ? '' : ' data-vocab-id="' + esc(String(word.id)) + '"') + '>' +
@@ -217,7 +213,7 @@
           data.pitchAccentSource === 'KANJIUM' ? 'Trọng âm: Kanjium – Uros O. (CC BY-SA 4.0)' : '') + '</div>') +
       '<div class="dict-actions">' + '<button type="button" class="dict-action dict-action--ai" data-tutor-ask="' +
       esc('Giải thích từ 「' + data.expression + '」: nghĩa, cách đọc và ví dụ.') + '"><i class="fa-solid fa-sparkles"></i> Giải nghĩa AI</button>' +
-      actionButton('Luyện phát âm', 'microphone') + '</div>' + ui.jlptBadgeHtml(data.jlptLevel) +
+      '</div>' + ui.jlptBadgeHtml(data.jlptLevel) +
       sensesHtml(data.senses);
     if (data.exampleJa) html += '<div class="dict-word-section dict-example">' +
       '<p lang="ja">' + esc(data.exampleJa) + ui.speakerButtonHtml(data.exampleJa) + '</p>' +
@@ -682,6 +678,7 @@
   }
 
   function renderKanjiDetail(kanji) {
+    state.kanjiDetail = kanji;
     var relatedVocabulary = kanji.relatedVocabulary || [];
     state.kanjiRelated = relatedVocabulary;
     state.kanjiCharacter = kanji.character;
@@ -752,9 +749,9 @@
         '<footer class="dict-kanji-cta">' +
           '<div><span class="dict-kanji-cta__icon"><i class="fa-solid fa-graduation-cap"></i></span>' +
             '<div><strong>Luyện ghi nhớ ' + escapeHtml(kanji.character) + '</strong>' +
-              '<p>Bài luyện viết đang được phát triển và sẽ sớm ra mắt.</p></div></div>' +
+              '<p>Xem thứ tự nét, tập viết và luyện từng nét.</p></div></div>' +
           '<div class="dict-kanji-cta__actions">' +
-            '<button type="button" class="btn btn--primary" disabled title="Sắp ra mắt">Luyện viết · Sắp ra mắt</button>' +
+            '<button type="button" class="btn btn--primary" data-dict-writing>Luyện viết</button>' +
           '</div>' +
         '</footer>' +
       '</article>';
@@ -1155,6 +1152,19 @@
       if (button) navigate(button.dataset.tab, state.query);
     });
     document.addEventListener('click', function (event) {
+      var writing = event.target.closest('[data-dict-writing]');
+      if (writing) {
+        if (state.kanjiDetail && window.DictWriting) {
+          var selected = state.kanjiDetail;
+          var routeToken = state.token;
+          var detailToken = state.kanjiDetailToken;
+          window.DictWriting.open(selected, function () {
+            return state.tab === 'kanji' && state.token === routeToken &&
+              state.kanjiDetailToken === detailToken && state.kanjiDetail === selected;
+          }).catch(function () { ui.toast('Chưa mở được bài luyện viết. Thử lại sau.'); });
+        }
+        return;
+      }
       var saveWord = event.target.closest('[data-save-word]');
       if (saveWord) { openNotebookChooser(saveWord); return; }
       if (event.target.closest('[data-contribution-page], [data-contribution-vote], [data-contribution-report], [data-contribution-send]')) {
