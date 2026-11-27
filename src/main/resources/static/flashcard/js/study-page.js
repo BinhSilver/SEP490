@@ -5,7 +5,9 @@
   var params = new URLSearchParams(location.search);
   var setId = Number(params.get('setId') || 0);
   var mode = (params.get('mode') || 'ALL').toUpperCase();
-  var studyMode = normalizeStudyMode(params.get('studyMode') || localStorage.getItem('jlab.flashcard.studyMode') || 'RECALL');
+  var requiredPathStudy = params.get('learningPath') === '1' || params.get('from') === 'jlpt' || params.get('from') === 'comm';
+  var pathGeneratedSet = false;
+  var studyMode = requiredPathStudy ? 'RECALL' : normalizeStudyMode(params.get('studyMode') || localStorage.getItem('jlab.flashcard.studyMode') || 'RECALL');
   var cards = [];
   var index = 0;
   var flipped = false;
@@ -144,6 +146,7 @@
     document.getElementById('btn-close-rating').addEventListener('click', closeRating);
     document.getElementById('btn-cancel-rating').addEventListener('click', closeRating);
     document.getElementById('btn-save-rating').addEventListener('click', saveRating);
+    document.getElementById('btn-retry-path-complete').addEventListener('click', function () { savePathCompletion(); });
 
     document.addEventListener('keydown', function (e) {
       if (!document.getElementById('settings-modal').hidden) return;
@@ -170,6 +173,11 @@
 
   async function load() {
     try {
+      if (!requiredPathStudy && !pathGeneratedSet) {
+        var setMeta = await FlashApi.get('/api/flashcards/' + setId);
+        pathGeneratedSet = !!setMeta.learningPathGenerated;
+        if (pathGeneratedSet) document.getElementById('study-set-summary').classList.add('is-learning-path-generated');
+      }
       var q = mode && mode !== 'ALL' ? ('?mode=' + encodeURIComponent(mode)) : '';
       var session = await FlashApi.get('/api/study/' + setId + q);
       applySession(session);
@@ -374,7 +382,7 @@
       // Bản lưu cũ chỉ có mốc bắt đầu, không biết thời gian thực học: giữ tiến độ,
       // nhưng không cộng khoảng nghỉ vào phiên đang tiếp tục.
       studyClock.reset(saved.elapsedMs);
-      delete recall.startedAt;
+      recall.startedAt = recall.startedAt || new Date().toISOString();
       flipCount = saved.flipCount || 0;
     } else {
       recall = {
@@ -383,7 +391,8 @@
         pending: ids.slice(RECALL_GROUP),
         need: {},
         attempts: {},
-        gained: 0
+        gained: 0,
+        startedAt: new Date().toISOString()
       };
       ids.forEach(function (id) {
         recall.need[id] = RECALL_START_NEED;
@@ -607,15 +616,16 @@
     document.getElementById('btn-recall-hard').hidden = true;
 
     var studyTime = Math.max(1, Math.round(studyClock.elapsedMs() / 1000));
+    var completeUrl = '/api/study/' + setId + '/complete?mode=' + encodeURIComponent(studyMode);
     if (recall) {
       // Kết quả Ghi nhớ tính từ chính phiên vừa học; vẫn báo server để đếm lượt học bộ thẻ.
       paintRecallSummary(studyTime);
-      FlashApi.post('/api/study/' + setId + '/complete', { studyTime: studyTime, flipCount: flipCount })
-        .catch(function () { /* khách hoặc mất mạng: kết quả đã hiện đủ */ });
+      if (requiredPathStudy) await savePathCompletion();
+      else FlashApi.post(completeUrl, { studyTime: studyTime, flipCount: flipCount }).catch(function () {});
       return;
     }
     try {
-      await FlashApi.post('/api/study/' + setId + '/complete', {
+      await FlashApi.post(completeUrl, {
         studyTime: studyTime,
         flipCount: flipCount
       });
@@ -636,6 +646,29 @@
         studyTime: studyTime,
         flipCount: flipCount
       }, studyMode === 'BROWSE');
+    }
+  }
+
+  async function savePathCompletion() {
+    var status = document.getElementById('study-path-complete-status');
+    var retry = document.getElementById('btn-retry-path-complete');
+    var requiredHint = document.getElementById('study-path-required');
+    if (!status || !retry) return;
+    retry.disabled = true;
+    status.hidden = false;
+    status.textContent = 'Đang lưu lượt Ghi nhớ…';
+    try {
+      await FlashApi.post('/api/study/' + setId + '/complete?mode=RECALL', { studyTime: Math.max(1, Math.round(studyClock.elapsedMs() / 1000)), flipCount: flipCount });
+      status.textContent = 'Đã lưu lượt Ghi nhớ. Quay lại lộ trình để làm bài kiểm tra.';
+      retry.hidden = true;
+      if (requiredHint) requiredHint.textContent = 'Đã hoàn tất chế độ Ghi nhớ. Quay lại lộ trình để tiếp tục bài kiểm tra.';
+      var back = window.FlashcardPathBack && window.FlashcardPathBack.backFor(location.search, sessionStorage);
+      if (back) location.assign(back);
+    } catch (e) {
+      status.textContent = e.message || 'Chưa lưu được lượt học. Kiểm tra mạng rồi thử lại.';
+      retry.hidden = false;
+    } finally {
+      retry.disabled = false;
     }
   }
 
@@ -726,6 +759,7 @@
     try {
       var set = await FlashApi.get('/api/flashcards/' + setId);
       setDetail = set;
+      pathGeneratedSet = requiredPathStudy || !!set.learningPathGenerated;
       totalSetCards = Number(set.totalCards != null
         ? set.totalCards
         : (set.cards || []).length);
@@ -739,6 +773,7 @@
   /** Heart toggle next to the rating; the set then shows in the library's "Yêu thích" tab. */
   function renderFavorite(set) {
     var button = document.getElementById('btn-favorite-set');
+    if (requiredPathStudy || pathGeneratedSet || set.learningPathGenerated) { if (button) button.hidden = true; return; }
     if (!button || set.draft || !set.id) return;
     paintFavorite(button, Boolean(set.favorited));
     button.hidden = false;
@@ -759,14 +794,6 @@
     });
   }
 
-  function paintFavorite(button, favorited) {
-    button.setAttribute('aria-pressed', String(favorited));
-    button.classList.toggle('is-favorite', favorited);
-    button.title = favorited ? 'Bỏ yêu thích' : 'Thêm vào Yêu thích';
-    button.querySelector('i').className = (favorited ? 'fa-solid' : 'fa-regular') + ' fa-heart';
-    button.querySelector('span').textContent = favorited ? 'Đã yêu thích' : 'Yêu thích';
-  }
-
   function renderSetRating(set) {
     var ratingCount = Number(set.ratingCount || 0);
     document.getElementById('study-set-rating-value').textContent = ratingCount
@@ -775,20 +802,30 @@
     document.getElementById('study-set-rating-count').textContent = '(' + ratingCount + ' đánh giá)';
   }
 
+  function paintFavorite(button, favorited) {
+    button.setAttribute('aria-pressed', String(favorited));
+    button.classList.toggle('is-favorite', favorited);
+    button.title = favorited ? 'Bỏ yêu thích' : 'Thêm vào Yêu thích';
+    button.querySelector('i').className = (favorited ? 'fa-solid' : 'fa-regular') + ' fa-heart';
+    button.querySelector('span').textContent = favorited ? 'Đã yêu thích' : 'Yêu thích';
+  }
+
   function renderSetDetail(set) {
     var summary = document.getElementById('study-set-summary');
     var list = document.getElementById('study-card-list');
     if (!set) return;
     summary.hidden = false;
+    summary.classList.toggle('is-learning-path-generated', !!(requiredPathStudy || pathGeneratedSet || set.learningPathGenerated));
     document.getElementById('study-set-title').textContent = set.title || 'Bộ Flashcard';
-    document.getElementById('study-set-study-count').textContent = Number(set.studyCount || 0).toLocaleString('vi-VN');
-    renderSetRating(set);
-
-    var ratingButton = document.getElementById('btn-open-rating');
-    var canRate = !set.ownedByMe;
-    ratingButton.disabled = !canRate;
-    ratingButton.title = canRate ? 'Đánh giá bộ thẻ' : 'Bạn không thể đánh giá bộ thẻ của mình';
-    renderFavorite(set);
+    if (!(requiredPathStudy || pathGeneratedSet || set.learningPathGenerated)) {
+      document.getElementById('study-set-study-count').textContent = Number(set.studyCount || 0).toLocaleString('vi-VN');
+      renderSetRating(set);
+      var ratingButton = document.getElementById('btn-open-rating');
+      var canRate = !set.ownedByMe;
+      ratingButton.disabled = !canRate;
+      ratingButton.title = canRate ? 'Đánh giá bộ thẻ' : 'Bạn không thể đánh giá bộ thẻ của mình';
+      renderFavorite(set);
+    }
     renderStudyCardList(set.cards || []);
     list.hidden = false;
   }
@@ -1037,6 +1074,8 @@
   function updateStudyModeUi() {
     if (swipeController) swipeController.cancel();
     var isBrowse = studyMode === 'BROWSE';
+    var requiredHint = document.getElementById('study-path-required');
+    if (requiredHint) requiredHint.hidden = !requiredPathStudy;
     document.querySelectorAll('[data-study-mode]').forEach(function (button) {
       button.classList.toggle('is-active', button.getAttribute('data-study-mode') === studyMode);
     });
