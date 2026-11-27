@@ -157,22 +157,9 @@
     return line + ' trước ' + D().fmtMonth(p.examDate) + (p.onTrack ? ' · kịp tiến độ' : ' · chậm tiến độ');
   }
 
-  function heroCardHtml(card, index) {
-    var c = card || {};
-    var back = index > 0;
-    return '<li class="jp-hero-card jp-hero-card--' + index + '" data-start-item="' + esc(c.itemCode) + '"'
-      + (back ? ' aria-hidden="true"' : '') + '>'
-      + '<button type="button" class="jp-hero-card__face" data-flip aria-pressed="false" aria-label="Lật xem nghĩa"'
-      + (back ? ' tabindex="-1"' : '') + '>'
-      + '<span class="jp-hero-card__word" lang="ja">' + esc(c.expression) + '</span>'
-      + '<span class="jp-hero-card__reading" lang="ja">' + esc(c.reading) + '</span>'
-      + '<span class="jp-hero-card__meaning">' + esc(c.meaning) + '</span></button></li>';
-  }
-
   function heroHtml(path, today) {
     var p = path || {};
     var t = today || {};
-    var cards = list(t.heroCards).slice(0, 3);
     var tone = !p.examDate ? '' : (p.onTrack ? ' jp-hero__target--ok' : ' jp-hero__target--late');
     var html = '<div class="jp-hero__text"><h1 class="jp-hero__title">Lộ trình JLPT</h1>'
       + (p.examDate ? '<p class="jp-hero__target' + tone + '">Kỳ thi: ' + esc(p.examDate) + '</p>' : '');
@@ -181,7 +168,6 @@
     }
     html += '</div>';
     // owner 04/11: the suggested-word stack is gone from the hero; "Học hôm nay" in the today panel starts the day
-    void cards;
     return html;
   }
 

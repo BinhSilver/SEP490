@@ -132,12 +132,6 @@
       + '</svg>';
   }
 
-  function svgCheckSmall() {
-    return '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">'
-      + '<path d="M3.5 8.2l3 3 6-6.2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>'
-      + '</svg>';
-  }
-
   function buildDeck(sit) {
     var words = list(sit && sit.words).map(function (w) {
       return {
