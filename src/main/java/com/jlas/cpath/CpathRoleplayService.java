@@ -189,7 +189,14 @@ public class CpathRoleplayService {
         if (optionIndex < 0 || optionIndex >= q.options().size()) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Lựa chọn không hợp lệ.");
         }
-        return Map.of("correct", optionIndex == q.answer());
+        boolean correct = optionIndex == q.answer();
+        Map<String, Object> verdict = new LinkedHashMap<>();
+        verdict.put("correct", correct);
+        if (!correct) {
+            verdict.put("correctOptionIndex", q.answer());
+            verdict.put("correctAnswer", q.options().get(q.answer()));
+        }
+        return verdict;
     }
 
     @Transactional

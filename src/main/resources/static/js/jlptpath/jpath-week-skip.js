@@ -71,7 +71,8 @@
       + '<p class="jp-warmup__sub">Làm bài kiểm tra ngắn (tối đa 20 câu) '
       + 'cho tuần tới; đúng từ 90% thì tuần đó được bỏ qua trên lộ trình.</p></div>'
       + '<div class="jp-warmup__actions">' + buttons
-      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div></div>';
+      + '<button type="button" class="jp-link-btn" data-week-skip-later>Để sau</button></div>'
+      + '<p class="jp-warmup__err" role="status" aria-live="polite" data-week-skip-err hidden></p></div>';
   }
 
   function offers(client) {
@@ -100,17 +101,29 @@
       el.onclick = function (ev) {
         var t = ev.target;
         var b = t.closest && t.closest('[data-week-skip-tab]');
-        if (!b) return;
+        if (!b || b.disabled) return;
+        var label = b.textContent;
         b.disabled = true;
+        b.setAttribute('aria-busy', 'true');
+        b.textContent = 'Đang mở…';
+        var errBox = el.querySelector('[data-week-skip-err]');
+        if (errBox) { errBox.textContent = ''; errBox.hidden = true; }
         var url = BASE + '/' + encodeURIComponent(b.getAttribute('data-week-skip-tab')) + '/check';
         Promise.resolve(client.send('POST', url))
           .then(function (res) {
             var token = res && (res.token || res.checkToken);
-            if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');
+            if (token) {
+              root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=' + encodeURIComponent(root.location.pathname.indexOf('/learning/jlpt/settings') === 0 ? '/learning/jlpt/settings' : '/learning'));
+              return;
+            }
+            throw new Error('Chưa mở được bài kiểm tra. Thử lại sau.');
           })
-          .catch(function () {
+          .catch(function (err) {
             b.disabled = false;
-            b.insertAdjacentHTML('afterend', '<span class="jp-warmup__err">Chưa mở được bài kiểm tra. Thử lại sau.</span>');
+            b.removeAttribute('aria-busy');
+            b.textContent = label;
+            var msg = (err && (err.code || err.status) && err.message) || (err && err.message) || 'Chưa mở được bài kiểm tra. Thử lại sau.';
+            if (errBox) { errBox.textContent = msg; errBox.hidden = false; }
           });
       };
     }, function () { el.hidden = false; el.innerHTML = '<p class="jp-settings-muted">Chưa tải được gợi ý. Thử lại sau.</p>'; });

@@ -42,6 +42,15 @@ public interface JpathStudyEventRepository extends JpaRepository<JpathStudyEvent
     boolean existsForgotToday(@Param("userId") Long userId, @Param("t") JpathItemType t,
                               @Param("code") String code, @Param("day") LocalDate day);
 
+    /** True when the learner already submitted a session-bound FIRST_RATE for this item on {@code day}. */
+    @Query("""
+            select count(e) > 0 from JpathStudyEvent e
+            where e.userId = :userId and e.itemType = :t and e.itemCode = :code
+              and e.action = 'FIRST_RATE' and e.sessionId is not null and e.studyDay = :day
+            """)
+    boolean existsSessionFirstRateOnDay(@Param("userId") Long userId, @Param("t") JpathItemType t,
+                                        @Param("code") String code, @Param("day") LocalDate day);
+
     /**
      * Distinct (study_day, item_type, item_code) of items newly learned in {@code [from, to]}: a FIRST_RATE or a
      * correct SKIP_KNOWN. Read through {@link #newLearnedByDay}.

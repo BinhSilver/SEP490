@@ -9,6 +9,15 @@
 <main id="jlabBaseContent" class="jp-page jp-check-page" data-inline-dictionary data-jpath-auto-furigana>
     <div class="jp-check-topBar jp-page-head">
         <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Bài kiểm tra')}"></th:block>
+        <script>
+            /* QA 27/11 A2: "Quay về" follows ?return= (same-site /learning… only) instead of always the path page */
+            (function () {
+                var a = document.currentScript && document.currentScript.previousElementSibling;
+                var r = null;
+                try { r = new URLSearchParams(location.search).get('return'); } catch (e) { r = null; }
+                if (a && a.matches && a.matches('a.jp-back') && r && /^\/learning(?:[/?#]|$)/.test(r) && r.indexOf('//') < 0) a.setAttribute('href', r);
+            })();
+        </script>
         <div class="jp-check-topBar__actions" data-jpath-furi-slot>
             <a class="jp-check-back" href="/learning?view=jlpt" data-check-exit>Quay lại lộ trình</a>
         </div>

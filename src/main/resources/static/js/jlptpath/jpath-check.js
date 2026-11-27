@@ -115,7 +115,7 @@
     var byId = {};
     var state = { token: check && check.token, kind: check && check.kind, tab: check && check.tab,
       timerOn: !!(check && check.timerOn), questions: qs, types: {}, boards: {}, answers: {}, pending: {}, placed: {},
-      stalled: {},
+      firstWrong: {}, retryFlash: {}, stalled: {},
       qStartedMs: now || 0, index: 0 };
     qs.forEach(function (q) {
       byId[q.id] = q;
@@ -365,6 +365,7 @@
         value = state.types[qid] === 'FILL_TEXT' ? normFill(e.value) : (has(e.value) ? String(e.value) : '');
         if (!value) return { state: state };
       }
+      if (state.retryFlash && state.retryFlash[qid]) { s.retryFlash = copy(state.retryFlash); delete s.retryFlash[qid]; }
       s.pending[qid] = value;
       return { state: s, request: { questionId: qid, value: value,
         elapsedMs: Math.max(0, Math.round(Number(e.nowMs || 0) - Number(state.qStartedMs || 0))) } };
@@ -374,6 +375,10 @@
       s.answers = copy(state.answers);
       if (!r.correct && r.correctValue == null && RETRY_PRACTICE_KINDS[state.kind]
           && !r.checkClosed && r.lockedValue == null) {
+        s.firstWrong = copy(state.firstWrong);
+        if (!Object.prototype.hasOwnProperty.call(s.firstWrong, qid)) s.firstWrong[qid] = state.pending[qid];
+        s.retryFlash = copy(state.retryFlash);
+        s.retryFlash[qid] = true;
         delete s.pending[qid];
         s.placed = copy(state.placed);
         delete s.placed[qid];
@@ -384,7 +389,11 @@
       var mine = state.pending[qid] === undefined ? null : state.pending[qid];
       var locked = r.lockedValue !== undefined && r.lockedValue !== null
         && String(r.lockedValue) !== String(mine == null ? '' : mine);
+      var firstWrongValue = state.firstWrong && Object.prototype.hasOwnProperty.call(state.firstWrong, qid)
+        ? state.firstWrong[qid] : null;
+      if (state.retryFlash && state.retryFlash[qid]) { s.retryFlash = copy(state.retryFlash); delete s.retryFlash[qid]; }
       s.answers[qid] = { value: locked ? r.lockedValue : mine, correct: !!r.correct, lockedElsewhere: locked,
+        firstWrongValue: firstWrongValue,
         correctValue: r.correctValue, explanation: r.explanation, compare: r.compare || null, report: r.report || null };
       delete s.pending[qid];
       if (state.stalled && state.stalled[qid]) { s.stalled = copy(state.stalled); delete s.stalled[qid]; }
@@ -405,6 +414,10 @@
     s.placed = copy(state.placed);
     var list = (state.placed[e.questionId] || []).slice();
     if (!state.answers[e.questionId] && !Object.prototype.hasOwnProperty.call(state.pending, e.questionId)) {
+      if (state.retryFlash && state.retryFlash[e.questionId]) {
+        s.retryFlash = copy(state.retryFlash);
+        delete s.retryFlash[e.questionId];
+      }
       if (e.type === 'TAP_PIECE' && list.indexOf(e.pieceId) < 0) list.push(e.pieceId);
       if (e.type === 'TAP_PLACED') list = list.filter(function (p) { return p !== e.pieceId; });
     }
@@ -418,6 +431,7 @@
     return { token: state.token, board: isBoard(q) ? state.boards[q.board.boardId] : null,
       answer: state.answers[q.id] || null, pending: Object.prototype.hasOwnProperty.call(state.pending, q.id),
       placed: state.placed[q.id] || [],
+      retryFlash: !!(state.retryFlash && state.retryFlash[q.id]),
       hasNext: Array.isArray(state.questions) ? (state.index + 1 < state.questions.length) : true };
   }
 
@@ -567,6 +581,10 @@
         speech = st && st.hasNext === false ? 'Tiếc quá, xem kỹ đáp án nhé!' : 'Tiếc quá, cố lên ở câu sau nhé!';
         mood = 'bad';
       }
+    } else if (st.retryFlash) {
+      img = '/images/mascots/fox/kitsu-confused-30.webp';
+      speech = q && q.type === 'ORDER' ? 'Chưa đúng. Hãy xếp lại theo thứ tự đúng nhé!' : 'Chưa đúng. Hãy chọn lại đáp án khác nhé!';
+      mood = 'bad';
     }
     return '<div class="jp-check__head"><div class="jp-check__mascot jp-check__mascot--' + mood + '" aria-hidden="true">'
       + '<img class="jp-check__mascot-img" src="' + img + '" alt="" width="76" height="76" loading="eager">'
@@ -753,8 +771,10 @@
     var kind = check && check.kind;
     var o = opts || {};
     var pct = Number(r.scorePercent) || 0;
-    // owner 25/11: a free quiz under 50% is never praised
-    var mood = kind === 'FREE_QUIZ' ? pct >= (isWeekly(check) ? PASS_PERCENT : 50) : r.passed;
+    // owner 25/11: a free quiz under 50% (or group exercise under 80%) is never praised as excellent
+    var mood = kind === 'FREE_QUIZ'
+      ? pct >= (isWeekly(check) ? PASS_PERCENT : 50)
+      : (kind === 'GROUP_EXERCISE' ? pct >= PASS_PERCENT : r.passed);
     var celCls = mood === false ? ' jp-celebrate jp-result--retry' : ' jp-celebrate jp-result--pass';
     var html = '<section class="jp-result jp-card' + celCls + '" aria-labelledby="jp-result-title">'
       + celebrateArtHtml(mood);
@@ -817,7 +837,7 @@
   }
 
   /** Wrong answers of this check: question, options (picked = jp-bad, right = jp-ok), explanation and report target. */
-  function reviewWrongHtml(check, state) {
+  function reviewWrongHtml(check, state, result) {
     var answered = {};
     ((check && check.answered) || []).forEach(function (a) { answered[a.questionId] = a; });
     var boardNotes = [];
@@ -830,14 +850,16 @@
         return;
       }
       var a = (state && state.answers[q.id]) || answered[q.id];
-      if (!a || a.correct) return;
+      var missedVal = a && a.correct && a.firstWrongValue !== undefined && a.firstWrongValue !== null ? a.firstWrongValue : null;
+      if (!a || (a.correct && missedVal === null)) return;
+      var shownVal = missedVal !== null ? missedVal : a.value;
       var report = a.report || (answered[q.id] && answered[q.id].report);
       html += '<li class="jp-review__item"' + (report && report.targetType && report.targetCode ? ' data-jpath-report="'
         + esc(JSON.stringify({ targetType: report.targetType, targetCode: report.targetCode, pageContext: 'CHECK_REVIEW' })) + '"' : '') + '>';
       html += '<div class="jp-review__head"><span class="jp-review__dir">' + esc(cleanDirectionLabel(q) || 'Xem lại câu sai') + '</span><span class="jp-review__flag-slot" data-report-slot></span></div>';
       html += promptHtml(q, true).replace(/<button[^>]*data-action="play-audio"[^>]*>[\s\S]*?<\/button>/, '');
       if (q.type === 'ORDER') {
-        var pickedOrd = String(a.value || '').split(',').filter(Boolean).map(function (p) { return optionLabel(q, p); }).join(' ') || '—';
+        var pickedOrd = String(shownVal || '').split(',').filter(Boolean).map(function (p) { return optionLabel(q, p); }).join(' ') || '—';
         var rightOrd = String(a.correctValue || '').split(',').filter(Boolean).map(function (p) { return optionLabel(q, p); }).join(' ');
         html += '<div class="jp-review__rows">'
           + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn xếp</span><span class="jp-review__val" lang="ja">' + esc(pickedOrd) + '</span>' + icon('circle-x') + '</div>'
@@ -845,11 +867,11 @@
           + '</div>';
       } else if (q.type === 'FILL_TEXT') {
         html += '<div class="jp-review__rows">'
-          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn điền</span><span class="jp-review__val" lang="ja">' + esc(a.value || '—') + '</span>' + icon('circle-x') + '</div>'
+          + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn điền</span><span class="jp-review__val" lang="ja">' + esc(shownVal || '—') + '</span>' + icon('circle-x') + '</div>'
           + '<div class="jp-review__row jp-review__row--answer jp-ok"><span class="jp-review__tag">Đáp án</span><span class="jp-review__val" lang="ja">' + esc(a.correctValue || '') + '</span>' + icon('circle-check') + '</div>'
           + '</div>';
       } else {
-        var pickedLbl = (a.value === null || a.value === undefined) ? 'Hết giờ' : (optionLabel(q, a.value) || String(a.value || '—'));
+        var pickedLbl = (shownVal === null || shownVal === undefined) ? 'Hết giờ' : (optionLabel(q, shownVal) || String(shownVal || '—'));
         var rightLbl = optionLabel(q, a.correctValue) || String(a.correctValue || '');
         html += '<div class="jp-review__rows">'
           + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + esc(pickedLbl) + '</span>' + icon('circle-x') + '</div>'
@@ -857,9 +879,9 @@
           + '</div>';
         if ((q.options || []).length > 2) {
           html += '<details class="jp-review__more"><summary class="jp-link-btn">Xem cả câu</summary><ul class="jp-review__options">' + (q.options || []).map(function (o) {
-            var cls = 'jp-check-opt' + (o.id === a.correctValue ? ' jp-ok' : (o.id === a.value ? ' jp-bad' : ''));
+            var cls = 'jp-check-opt' + (o.id === a.correctValue ? ' jp-ok' : (o.id === shownVal ? ' jp-bad' : ''));
             var oJa = /[\u3040-\u30ff\u4e00-\u9fff]/.test(String(o.label || ''));
-            return '<li class="' + cls + '"><span' + (oJa ? ' lang="ja"' : '') + '>' + esc(o.label) + '</span>' + (o.id === a.correctValue ? ' ' + icon('circle-check') : (o.id === a.value ? ' ' + icon('circle-x') : '')) + '</li>';
+            return '<li class="' + cls + '"><span' + (oJa ? ' lang="ja"' : '') + '>' + esc(o.label) + '</span>' + (o.id === a.correctValue ? ' ' + icon('circle-check') : (o.id === shownVal ? ' ' + icon('circle-x') : '')) + '</li>';
           }).join('') + '</ul></details>';
         }
       }
@@ -867,7 +889,13 @@
       html += aiSlotHtml(check && check.token, q.id);
       html += '</li>';
     });
-    if (!boardNotes.length && !html) return '<p class="jp-status">Không có câu sai.</p>';
+    if (!boardNotes.length && !html) {
+      if (result && (result.wrongItems || []).length) {
+        return '<section class="jp-review" aria-label="Câu sai"><h2 class="jp-review__title">Các mục sai</h2>'
+          + wrongCardsHtml(result).replace(/^<h2[^>]*>.*?<\/h2>/, '') + '</section>';
+      }
+      return '<p class="jp-status">Không có câu sai.</p>';
+    }
     return '<section class="jp-review" aria-label="Câu sai"><h2 class="jp-review__title">Câu sai</h2>'
       + boardNotes.join('')
       + (html ? '<ol class="jp-review__list">' + html + '</ol>' : '')
@@ -1054,7 +1082,9 @@
         announce(said);
         if (!lockedElsewhere) env.tone(res && res.correct ? 'correct' : 'wrong', display);
         draw();
-        if (retryPractice) status('Chưa đúng. Hãy chọn lại để tiếp tục.');
+        if (retryPractice) status((state.types && state.types[r.request.questionId] === 'ORDER')
+          ? 'Chưa đúng. Hãy xếp lại theo thứ tự đúng.'
+          : 'Chưa đúng. Hãy chọn lại để tiếp tục.');
         if (lockedElsewhere) {
           status(MSG_LOCKED_ELSEWHERE);
           // the other tab may have submitted already — then the result is shown here too
@@ -1248,7 +1278,7 @@
     function drawResult() {
       announce('');
       var html = resultHtml(result, check, { inline: env.inline, embedded: env.embedded, reviewOpen: reviewOpen });
-      if (reviewOpen) html += reviewWrongHtml(check, state);
+      if (reviewOpen) html += reviewWrongHtml(check, state, result);
       el.innerHTML = '<div class="jp-check jp-check--result">' + html + '</div>';
       if (D()) D().rendered(el, env.doc);
       focusFirst(['#jp-result-title']);

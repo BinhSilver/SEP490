@@ -137,13 +137,15 @@ public class CpathController {
     }
 
     @GetMapping("/path")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> path(@AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(ApiResponse.ok("OK", service.path(user.userId())));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> path(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(name = "goal", required = false) String goal) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.path(user.userId(), goal)));
     }
 
     @GetMapping("/map")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> map(@AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(ApiResponse.ok("OK", service.map(user.userId())));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> map(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(name = "goal", required = false) String goal) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.map(user.userId(), goal)));
     }
 
     @PostMapping("/today/extra")
@@ -204,8 +206,9 @@ public class CpathController {
     }
 
     @GetMapping("/goal-test")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> goalTest(@AuthenticationPrincipal UserPrincipal user) {
-        Map<String, Object> result = service.goalTest(user.userId());
+    public ResponseEntity<ApiResponse<Map<String, Object>>> goalTest(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(name = "goal", required = false) String goal) {
+        Map<String, Object> result = service.goalTest(user.userId(), goal);
         AiCallQuotaService.UsageSnapshot usage = quota.snapshot(user);
         boolean available = result.get("scenarioUrl") != null && (usage.unlimited()
                 || (usage.dailyMinutes() < usage.dailyLimitMin() && usage.monthlyMinutes() < usage.monthlyLimitMin()));
@@ -274,8 +277,9 @@ public class CpathController {
     }
 
     @PostMapping("/goal-test/check")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> checkGoalTest(@AuthenticationPrincipal UserPrincipal user) {
-        return ResponseEntity.ok(ApiResponse.ok("OK", service.checkGoalTest(user.userId())));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> checkGoalTest(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(name = "goal", required = false) String goal) {
+        return ResponseEntity.ok(ApiResponse.ok("OK", service.checkGoalTest(user.userId(), goal)));
     }
 
     /** Owner 06/11: the weekly test of the communication path (questions without answers). */
@@ -407,8 +411,9 @@ public class CpathController {
     /** The base-set block of the path page and Settings (enabled false when the goal or the DB has none). */
     /** Bug 108 (I4): plans today (situations, base lesson); the pages send it before reading, GETs never write. */
     @PostMapping("/today/plan")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> planToday(@AuthenticationPrincipal UserPrincipal user) {
-        Map<String, Object> out = service.planToday(user.userId());
+    public ResponseEntity<ApiResponse<Map<String, Object>>> planToday(@AuthenticationPrincipal UserPrincipal user,
+            @RequestParam(name = "goal", required = false) String goal) {
+        Map<String, Object> out = service.planToday(user.userId(), goal);
         try {
             core.planDay(user.userId());
         } catch (ApiException e) {

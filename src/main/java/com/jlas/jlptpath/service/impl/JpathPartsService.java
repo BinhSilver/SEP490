@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -319,12 +320,22 @@ public class JpathPartsService {
                 byDay.computeIfAbsent(at.toLocalDate(), d -> new ArrayList<>()).add(u.getItemCode());
             }
         }
+        Set<String> uncountedToday = new HashSet<>();
+        for (JpathUserItem u : learned) {
+            LocalDateTime at = learnedAt(u);
+            if (at != null && at.toLocalDate().equals(today)
+                    && u.getState() == JpathItemState.LEARNING && u.getCountedAt() == null) {
+                uncountedToday.add(u.getItemCode());
+            }
+        }
         List<String> todayCodes = new ArrayList<>(byDay.getOrDefault(today, List.of()));
         byDay.remove(today);
         boolean todayLeft = false;
         for (JpathItemRef ref : dailyPlan.plannedNewItems(userId, tab)) {
             if (placed.add(ref.code())) {
                 todayCodes.add(ref.code());
+                todayLeft = true;
+            } else if (uncountedToday.contains(ref.code())) {
                 todayLeft = true;
             }
         }

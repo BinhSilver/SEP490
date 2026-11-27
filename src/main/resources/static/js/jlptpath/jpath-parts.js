@@ -31,7 +31,7 @@
   if (root) root.JpathParts = api;
   if (root && root.location && /[?&]saved=1\b/.test(String(root.location.search || '')) && root.document) {
     var notice = function () {
-      var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem ngày học hôm nay".';
+      var msg = 'Đã lưu tiến trình hôm nay! Kitsu chúc mừng bạn hoàn thành bài học. Xem lại ở "Xem lại phần đã học hôm nay".';
       if (root.JlasToast && typeof root.JlasToast.show === 'function' && root.JlasToast.show(msg, 'success')) {
         try { root.history.replaceState(null, '', root.location.pathname); } catch (e) { /* keep the url */ }
         return;
@@ -97,7 +97,7 @@
       + '<img class="jp-saved-note__kitsu" src="/images/mascots/kitsu/kitsu-celebrate-30-128.webp" width="56" height="56" alt="Kitsu ăn mừng"/>'
       + '<div class="jp-saved-note__body">'
       + '<strong class="jp-saved-note__title">Hoàn thành xuất sắc!</strong>'
-      + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem ngày học hôm nay".') + '</span>'
+      + '<span class="jp-saved-note__text">' + esc(msg || 'Đã lưu tiến trình hôm nay. Xem lại ở "Xem lại phần đã học hôm nay".') + '</span>'
       + '</div>';
   }
 
@@ -593,7 +593,7 @@
   var lockedByKana = false;
   var TAB_NAME = { vocab: 'Từ vựng', kanji: 'Kanji', grammar: 'Ngữ pháp' };
 
-  function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) {
+  function partPopoverHtml(p, unit, tabKey, pos, pillsExpanded, todayDone) {
     var items = list(p.items).length ? list(p.items) : list(p.preview);
     var n = Number(p.totalCount) || items.length || 10;
     var status = String(p.status || 'NEXT');
@@ -640,13 +640,20 @@
         + ' mở sau khi học xong Nhập môn (chữ cái)</span>'
         + '<a class="jp-btn jp-btn--primary jp-parts__pop-main-btn" href="/learning?tab=kana">Học Nhập môn</a>';
     } else {
-      actions = '<span class="jp-parts__locked-note">Học xong phần hôm nay để mở khóa</span>';
+      // owner 27/11: a coming part opens the study page too (study ahead); flashcard lives inside the study page
+      var next0 = items[0];
+      var nextCode = (next0 && next0.code) || p.firstItemCode || '';
+      actions = nextCode
+        ? '<button type="button" class="jp-btn jp-btn--primary jp-parts__pop-main-btn" data-parts-relearn="' + esc(nextCode)
+          + '" data-parts-count="' + n + '">Học trước phần này</button>'
+          + '<span class="jp-parts__err" role="status" data-parts-relearn-error></span>'
+        : '<span class="jp-parts__locked-note">'
+          + (todayDone ? 'Bạn đã xong phần hôm nay · dùng Học thêm hoặc học vào ngày tiếp theo' : 'Học xong phần hôm nay để mở khóa')
+          + '</span>';
     }
-    // owner 18/11: every vocab/kanji part can be studied with the team's flashcard (upcoming: set made on press)
+    // owner 27/11: flashcard moved into the study page (it opens from there); the popover keeps only "In cả phần"
     if (/^(vocab|kanji)$/i.test(String(tabKey || '')) && items.length) {
-      actions += '<button type="button" class="jp-btn jp-btn--sm" data-parts-fc="' + esc(p.index) + '">Học bằng flashcard</button>'
-        + printPartHtml(String(tabKey).toUpperCase(), p.index)
-        + '<span class="jp-parts__err" role="status" data-parts-fc-error></span>';
+      actions += printPartHtml(String(tabKey).toUpperCase(), p.index);
     }
 
     return '<div class="jp-parts__popover jp-parts__popover--' + tone + ' jp-parts__popover--side-' + popSide + '"'
@@ -715,7 +722,7 @@
       + '</div>';
   }
 
-  function partNodeHtml(p, unit, tabKey, pos, nextPos, hasNext, nextStatus, stepIdx, weekObj, isSelected, pillsExpanded, isFirstInWeek, globalStepIdx) {
+  function partNodeHtml(p, unit, tabKey, pos, nextPos, hasNext, nextStatus, stepIdx, weekObj, isSelected, pillsExpanded, isFirstInWeek, globalStepIdx, todayDone) {
     var items = list(p.items);
     var n = Number(p.totalCount) || items.length || 10;
     var status = String(p.status || 'NEXT');
@@ -798,7 +805,7 @@
         + '</li>';
     }
 
-    var popHtml = isSelected ? partPopoverHtml(p, unit, tabKey, pos, pillsExpanded) : '';
+    var popHtml = isSelected ? partPopoverHtml(p, unit, tabKey, pos, pillsExpanded, todayDone) : '';
 
     return '<li class="jp-parts__step jp-parts__step--' + stepMod
       + (isPastWeek ? ' jp-parts__step--past-week' : '')
@@ -1040,8 +1047,10 @@
     for (var i = 0; i < weeks.length; i++) {
       if (weeks[i].isCurrent) { currentWeekNum = weeks[i].weekNum; break; }
     }
+    var maxVisibleWeek = Math.min(totalWeeks, currentWeekNum + UPCOMING_WEEKS_SHOWN);
+    var todayDone = parts.some(function (x) { return x && x.status === 'TODAY_DONE'; });
 
-    var focusedWeek = Math.min(currentWeekNum, Math.max(1, o.focusedWeek || currentWeekNum));
+    var focusedWeek = Math.min(maxVisibleWeek, Math.max(1, o.focusedWeek || currentWeekNum));
     var activeKey = o.selectedKey != null ? String(o.selectedKey) : '';
     var pillsExpanded = !!o.pillsExpanded;
 
@@ -1056,7 +1065,7 @@
       + '<span class="jp-parts__banner-icon" aria-hidden="true">' + tabBannerIconSvg(sceneKey) + '</span>'
       + '<div class="jp-parts__banner-titles">'
       + '<h2 class="jp-parts__title">' + esc(t[2]) + (d.level ? ' ' + esc(d.level) : '') + '</h2>'
-      + '<p class="jp-parts__sub">' + esc(totalNum) + ' ' + esc(t[1]) + ' · xong dự kiến <strong>' + esc(est) + '</strong></p>'
+      + '<p class="jp-parts__sub">' + esc(totalNum) + ' ' + esc(t[1]) + ' · học hết dự kiến <strong>' + esc(est) + '</strong></p>'
       + '</div>'
       + '</div>'
       + '<div class="jp-parts__banner-center">'
@@ -1068,7 +1077,7 @@
       + (focusedWeek <= 1 ? ' disabled' : '') + ' aria-label="Tuần trước">' + svgChevron('left') + '</button>'
       + '<span class="jp-parts__week-ind">Tuần <strong>' + focusedWeek + '/' + totalWeeks + '</strong></span>'
       + '<button type="button" class="jp-parts__week-btn" data-parts-week-nav="next"'
-      + (focusedWeek >= currentWeekNum ? ' disabled' : '') + ' aria-label="Tuần tiếp theo">' + svgChevron('right') + '</button>'
+      + (focusedWeek >= maxVisibleWeek ? ' disabled' : '') + ' aria-label="Tuần tiếp theo">' + svgChevron('right') + '</button>'
       + '</div>'
       + '</div>'
       + '</div>'
@@ -1084,7 +1093,6 @@
       + '</div>'
       + '</header>';
 
-    var maxVisibleWeek = Math.min(totalWeeks, currentWeekNum + UPCOMING_WEEKS_SHOWN);
     var remainingWeeks = Math.max(0, totalWeeks - maxVisibleWeek);
     var flatSteps = [];
     for (var wIdx = 0; wIdx < maxVisibleWeek; wIdx++) {
@@ -1119,7 +1127,7 @@
       if (cur.kind === 'part') {
         var pKey = 'part-' + cur.part.index;
         var isSel = activeKey === pKey;
-        mapItemsHtml += partNodeHtml(cur.part, t[1], sceneKey, pos, nextPos, hasNext, nextStatus, cur.stepInWeek, cur.weekObj, isSel, isSel && pillsExpanded, cur.isFirstInWeek, s);
+        mapItemsHtml += partNodeHtml(cur.part, t[1], sceneKey, pos, nextPos, hasNext, nextStatus, cur.stepInWeek, cur.weekObj, isSel, isSel && pillsExpanded, cur.isFirstInWeek, s, todayDone);
       } else {
         var mKey = cur.milestone.key;
         var mSel = activeKey === mKey;
@@ -1173,7 +1181,7 @@
     var bannerBottom = 64;
     if (banner && typeof banner.getBoundingClientRect === 'function') {
       var bRect = banner.getBoundingClientRect();
-      if (bRect.bottom > 0 && bRect.top < vh * 0.45) {
+      if (bRect.bottom > 0 && bRect.top < vh * 0.65) {
         bannerBottom = Math.max(bannerBottom, bRect.bottom);
       }
     }
@@ -1184,7 +1192,7 @@
       var hRect = header.getBoundingClientRect();
       if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
     }
-    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
+    var minTop = Math.max(Math.min(vh * 0.58, bannerBottom + 12), headerBottom + 12);
     var maxBottom = vh - 14;
     pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
     pop.style.overflowY = 'auto';
@@ -1224,7 +1232,7 @@
       timerOn: false
     })).then(function (res) {
       var token = res && (res.token || res.checkToken);
-      if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=%2Flearning');
+      if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token) + '?return=' + encodeURIComponent('/learning?view=jlpt&mode=free&tab=' + (partsEl.__tab || 'vocab')));
       else wk.disabled = false;
     }, function (e) {
       wk.disabled = false;
@@ -1328,8 +1336,61 @@
     var params = new URLSearchParams(search);
     return LIST_QUERY_KEYS.some(function (k) {
       var v = params.get(k);
+      // owner 27/11: ?view=jlpt / ?view=comm pick the path, not a list view; they opened the full list under the map
+      if (k === 'view' && (v === 'jlpt' || v === 'comm')) return false;
       return v !== null && v !== '';
     });
+  }
+
+
+  /**
+   * owner 27/11: "Bản đồ | Toàn bộ danh sách" tabs above the map. The full list takes the map's place instead of
+   * piling up under it; ?show=list keeps the choice on reload and Back.
+   */
+  var VIEW_TAB_LABEL = { vocab: 'Toàn bộ chủ đề', kanji: 'Toàn bộ chữ Kanji', grammar: 'Toàn bộ mẫu ngữ pháp' };
+  function viewTabs(partsEl, listEl, key) {
+    var doc = root && root.document;
+    if (!doc || !partsEl.insertAdjacentHTML) return;
+    var bar = partsEl.__viewTabs;
+    if (!bar) {
+      partsEl.insertAdjacentHTML('beforebegin', '<div class="rf-viewtabs" role="tablist" aria-label="Cách xem">'
+        + '<button type="button" role="tab" class="rf-viewtabs__tab" data-rf-view="map">Bản đồ</button>'
+        + '<button type="button" role="tab" class="rf-viewtabs__tab" data-rf-view="list"></button></div>');
+      bar = partsEl.previousElementSibling;
+      partsEl.__viewTabs = bar;
+      try {
+        if (typeof URLSearchParams === 'function' && new URLSearchParams(root.location.search).get('show') === 'list') partsEl.__allOpen = true;
+      } catch (e) { /* ignore */ }
+      partsEl.__setView = function (open, fromHistory) {
+        partsEl.__allOpen = !!open;
+        var lst = partsEl.__listEl;
+        if (lst) lst.hidden = !open;
+        partsEl.classList.toggle('is-list-view', !!open);
+        Array.prototype.forEach.call(bar.querySelectorAll('[data-rf-view]'), function (b) {
+          var on = (b.getAttribute('data-rf-view') === 'list') === !!open;
+          b.classList.toggle('is-on', on);
+          b.setAttribute('aria-selected', String(on));
+        });
+        if (!fromHistory && root.history && root.history.replaceState && typeof URLSearchParams === 'function') {
+          try {
+            var q = new URLSearchParams(root.location.search);
+            if (open) q.set('show', 'list'); else q.delete('show');
+            var qs = q.toString();
+            root.history.replaceState(root.history.state, '', root.location.pathname + (qs ? '?' + qs : '') + (root.location.hash || ''));
+          } catch (e) { /* ignore */ }
+        }
+        if (bar.getBoundingClientRect && bar.getBoundingClientRect().top < 60 && bar.scrollIntoView) bar.scrollIntoView({ block: 'start' });
+      };
+      bar.addEventListener('click', function (ev) {
+        var b = ev.target && ev.target.closest ? ev.target.closest('[data-rf-view]') : null;
+        if (b) partsEl.__setView(b.getAttribute('data-rf-view') === 'list');
+      });
+    }
+    partsEl.__listEl = listEl;
+    bar.hidden = false;
+    var lb = bar.querySelector('[data-rf-view="list"]');
+    if (lb) lb.textContent = VIEW_TAB_LABEL[key] || 'Toàn bộ danh sách';
+    partsEl.__setView(!!partsEl.__allOpen, true);
   }
 
   function mount(partsEl, listEl, tabKey, opts) {
@@ -1342,12 +1403,14 @@
     if (!TABS[key] || o.ownLevel === false || !client) {
       partsEl.innerHTML = '';
       partsEl.hidden = true;
+      if (partsEl.__viewTabs) partsEl.__viewTabs.hidden = true;
       if (listEl) listEl.hidden = false;
       return null;
     }
     if (partsEl.__allOpen === undefined && hasListQuery()) partsEl.__allOpen = true;
     partsEl.hidden = false;
     if (listEl) listEl.hidden = !partsEl.__allOpen;
+    viewTabs(partsEl, listEl, key);
     var mine = (partsEl.__seq || 0) + 1;
     partsEl.__seq = mine;
     partsEl.__tab = key;
@@ -1371,6 +1434,15 @@
         adjustPopoverInViewport(partsEl);
         if (root && typeof root.requestAnimationFrame === 'function') {
           root.requestAnimationFrame(function () { adjustPopoverInViewport(partsEl); });
+        }
+        if (root && typeof root.setTimeout === 'function' && typeof root.getComputedStyle === 'function') {
+          var selSnapshot = partsEl.__selectedKey;
+          root.setTimeout(function () {
+            if (partsEl.__selectedKey === selSnapshot) adjustPopoverInViewport(partsEl);
+          }, 120);
+          root.setTimeout(function () {
+            if (partsEl.__selectedKey === selSnapshot) adjustPopoverInViewport(partsEl);
+          }, 320);
         }
       }
     }
@@ -1423,12 +1495,14 @@
         if (weekNav && !weekNav.disabled) {
           var dir = weekNav.getAttribute('data-parts-week-nav');
           var weeks = buildWeeks(list(partsEl.__data && partsEl.__data.parts));
+          var totalW = Math.max(1, weeks.length);
           var curWeekLimit = 1;
           for (var i = 0; i < weeks.length; i++) {
             if (weeks[i].isCurrent) { curWeekLimit = weeks[i].weekNum; break; }
           }
-          var curW = partsEl.__focusedWeek || curWeekLimit;
-          var targetW = dir === 'prev' ? Math.max(1, curW - 1) : Math.min(curWeekLimit, curW + 1);
+          var maxW = Math.min(totalW, curWeekLimit + UPCOMING_WEEKS_SHOWN);
+          var curW = Math.min(maxW, Math.max(1, partsEl.__focusedWeek || curWeekLimit));
+          var targetW = dir === 'prev' ? Math.max(1, curW - 1) : Math.min(maxW, curW + 1);
           partsEl.__focusedWeek = targetW;
           partsEl.__selectedKey = '';
           partsEl.__pillsExpanded = false;
@@ -1463,7 +1537,7 @@
                 })).then(function (res) {
                   var token = res && (res.token || res.checkToken);
                   if (token) root.location.assign('/learning/jlpt/check/' + encodeURIComponent(token)
-                    + '?return=' + encodeURIComponent('/learning?tab=' + partsEl.__tab));
+                    + '?return=' + encodeURIComponent('/learning?view=jlpt&mode=free&tab=' + partsEl.__tab));
                 }).catch(function (checkError) {
                   if (errorBox) errorBox.textContent = checkError && checkError.message || 'Chưa mở được bài kiểm tra tuần.';
                 });
@@ -1519,6 +1593,7 @@
 
         var all = t.closest('[data-parts-all]');
         if (all) {
+          if (partsEl.__viewTabs) { partsEl.__setView(!partsEl.__allOpen); return; }
           partsEl.__allOpen = !partsEl.__allOpen;
           if (listEl) listEl.hidden = !partsEl.__allOpen;
           all.setAttribute('aria-expanded', String(!!partsEl.__allOpen));

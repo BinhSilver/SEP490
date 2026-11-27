@@ -10,7 +10,7 @@
 .page-textbooks [hidden] { display: none !important; }
 
 .textbooks-main {
-  width: min(var(--max-width, 1120px), 100%);
+  width: min(var(--max-width, 70rem), 100%);
   margin: 0 auto;
   padding: var(--space-5) var(--space-4) var(--space-8);
   display: flex;
@@ -94,7 +94,7 @@
   background: var(--color-surface-lowest);
   box-shadow: var(--shadow-1);
 }
-.textbooks-empty .fox-mascot { width: min(220px, 60%); }
+.textbooks-empty .fox-mascot { width: min(13.75rem, 60%); }
 .textbooks-empty strong { font-size: var(--text-lg); color: var(--color-on-surface); }
 .textbooks-empty p { margin: 0; color: var(--color-on-surface-variant); }
 
@@ -103,7 +103,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 2px 10px;
+  padding: 0.125rem 0.625rem;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -133,7 +133,7 @@
   color: var(--color-on-surface);
 }
 /* Nhóm sau ngăn với nhóm trước bằng đường kẻ mảnh để mắt tách được các cấp độ */
-.level-section + .level-section { padding-top: var(--space-6); border-top: 1px solid var(--color-outline-variant); }
+.level-section + .level-section { padding-top: var(--space-6); border-top: 0.0625rem solid var(--color-outline-variant); }
 .level-section__count { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 /* Chú thích nhóm "Nhập môn" (jlptLevel = null): giải thích vị trí trong lộ trình */
 .level-section__note { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
@@ -141,8 +141,8 @@
 
 .textbook-grid {
   display: grid;
-  /* Thẻ tối thiểu 360px, auto-fill để nhóm 1 sách không bị kéo full-width; min(…,100%) tránh tràn ở mobile */
-  grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
+  /* Thẻ tối thiểu 22.5rem, auto-fill để nhóm 1 sách không bị kéo full-width; min(…,100%) tránh tràn ở mobile */
+  grid-template-columns: repeat(auto-fill, minmax(min(22.5rem, 100%), 1fr));
   gap: var(--space-5);
 }
 .textbook-card {
@@ -157,7 +157,7 @@
   color: inherit;
   transition: transform var(--transition), box-shadow var(--transition);
 }
-.textbook-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.textbook-card:hover { transform: translateY(-0.125rem); box-shadow: var(--shadow-2); }
 .textbook-card__top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
 .textbook-card__title { margin: 0; font-size: var(--text-xl); font-weight: 600; color: var(--color-on-surface); }
 
@@ -205,14 +205,14 @@
 }
 .textbook-thumb__badge--level {
   left: var(--space-3);
-  padding: 2px 10px;
-  border-radius: 999px;
+  padding: 0.125rem 0.625rem;
+  border-radius: 62.4375rem;
   background: rgba(255, 255, 255, 0.88);
   color: #161d1f;
   font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
-  box-shadow: 0 1px 2px rgba(22, 29, 31, 0.12);
+  box-shadow: 0 0.0625rem 0.125rem rgba(22, 29, 31, 0.12);
 }
 .textbook-thumb__badge--status { right: var(--space-3); }
 .textbook-card__desc {
@@ -239,18 +239,18 @@
   align-items: center;
   gap: var(--space-1);
   flex-shrink: 0;
-  padding: 8px 16px;
-  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.625rem;
   background: var(--color-primary);
   color: var(--color-on-primary);
   font-weight: 600;
-  line-height: 20px;
+  line-height: 1.25rem;
   white-space: nowrap;
   transition: background-color var(--transition), box-shadow var(--transition);
 }
 .textbook-card:hover .textbook-card__cta { background: var(--color-primary-container); }
 .textbook-card:focus-visible { outline: none; }
-.textbook-card:focus-visible .textbook-card__cta { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.textbook-card:focus-visible .textbook-card__cta { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .textbook-card__cta--locked,
 .textbook-card:hover .textbook-card__cta--locked {
   background: var(--color-surface-container-high, #e8e3ee);
@@ -267,11 +267,11 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 0.125rem;
   max-width: 100%;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
   font: inherit;
@@ -306,7 +306,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   align-items: baseline;
   gap: var(--space-3);
   padding: var(--space-4);
-  border-bottom: 1px solid var(--color-outline-variant);
+  border-bottom: 0.0625rem solid var(--color-outline-variant);
 }
 .unit-card__index {
   font-family: var(--font-mono);
@@ -325,7 +325,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-outline-variant);
+  border-bottom: 0.0625rem solid var(--color-outline-variant);
   text-decoration: none;
   color: inherit;
   transition: background var(--transition);
@@ -338,7 +338,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   color: var(--color-on-surface-variant);
 }
 .lesson-row__title { margin: 0; font-weight: 600; color: var(--color-on-surface); }
-.lesson-row__meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 2px; }
+.lesson-row__meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: 0.125rem; }
 .lesson-row__arrow { color: var(--color-primary); }
 
 /* ---------- /textbooks/{id}/lessons/{id}: nội dung bài ---------- */
@@ -349,7 +349,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  border-bottom: 1px solid var(--color-outline-variant);
+  border-bottom: 0.0625rem solid var(--color-outline-variant);
 }
 .lesson-tab {
   border: 0;
@@ -359,13 +359,13 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   font-weight: 600;
   color: var(--color-on-surface-variant);
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  border-bottom: 0.125rem solid transparent;
+  margin-bottom: -0.0625rem;
 }
 .lesson-tab.is-active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
 .lesson-tab__count {
   margin-left: var(--space-1);
-  padding: 0 8px;
+  padding: 0 0.5rem;
   border-radius: var(--radius-full);
   background: var(--color-surface-container);
   font-size: var(--text-xs);
@@ -387,14 +387,14 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   width: 2.5rem;
   height: 2.5rem;
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   background: var(--color-surface-lowest);
   color: var(--color-primary);
   cursor: pointer;
   transition: background var(--transition), color var(--transition), transform var(--transition);
 }
 .speak-btn:hover { background: var(--color-primary-fixed); border-color: var(--color-primary); }
-.speak-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.speak-btn:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .speak-btn[hidden] { display: none; }
 .speak-btn__spinner, .speak-btn__tts { display: none; }
 .speak-btn.is-loading .speak-btn__icon { display: none; }
@@ -404,15 +404,15 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .speak-btn.is-tts .speak-btn__tts {
   display: inline-block;
   position: absolute;
-  right: -6px;
-  bottom: -6px;
-  padding: 0 4px;
+  right: -0.375rem;
+  bottom: -0.375rem;
+  padding: 0 0.25rem;
   border-radius: var(--radius-full);
   background: var(--color-tertiary-container);
   color: var(--color-on-tertiary-container);
-  font-size: 9px;
+  font-size: 0.5625rem;
   font-weight: 700;
-  line-height: 14px;
+  line-height: 0.875rem;
   letter-spacing: 0.04em;
 }
 @keyframes speak-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
@@ -427,7 +427,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   background: var(--color-surface-low);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   box-shadow: var(--shadow-1);
 }
 .kanji-item__glyph {
@@ -459,9 +459,9 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   margin-right: var(--space-1);
 }
 .kanji-reading {
-  padding: 2px 10px;
+  padding: 0.125rem 0.625rem;
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   font-size: var(--text-sm);
   color: var(--color-on-surface);
 }
@@ -476,28 +476,28 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .lp-exs {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
   margin: 0;
-  padding: 10px 0 0;
-  border-top: 1px solid var(--color-outline-variant);
+  padding: 0.625rem 0 0;
+  border-top: 0.0625rem solid var(--color-outline-variant);
 }
 .lp-exs__label {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: .02em;
   color: var(--color-on-surface-variant);
 }
 .lp-exs__ja {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.6;
   color: var(--color-on-surface-variant);
   overflow-wrap: anywhere;
 }
-.lp-exs__kana { margin-left: 6px; font-size: 13px; color: var(--color-primary); }
+.lp-exs__kana { margin-left: 0.375rem; font-size: 0.8125rem; color: var(--color-primary); }
 .lp-exs__vi {
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.5;
   color: var(--color-on-surface-variant);
   opacity: .85;
@@ -521,7 +521,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   background: var(--color-surface-low);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   box-shadow: var(--shadow-1);
 }
 .vocab-item__word { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -548,12 +548,12 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-md);
   background: var(--color-surface-low);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   box-shadow: var(--shadow-1);
 }
 .example-item__order { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .example-item__ja { margin: 0; font-size: var(--text-lg); color: var(--color-on-surface); }
-.example-item__vi { margin: 2px 0 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
+.example-item__vi { margin: 0.125rem 0 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .example-item__section { font-size: var(--text-xs); color: var(--color-primary); }
 
 /* Ngữ pháp */
@@ -562,9 +562,9 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   background: var(--color-surface-low);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   box-shadow: var(--shadow-1);
-  border-left: 4px solid var(--color-primary);
+  border-left: 0.25rem solid var(--color-primary);
 }
 .grammar-item__pattern { margin: 0 0 var(--space-1); font-size: var(--text-lg); font-weight: 600; color: var(--color-on-surface); }
 .grammar-item__meaning { margin: 0; }
@@ -591,20 +591,20 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
   background: var(--color-surface-low);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   box-shadow: var(--shadow-1);
 }
 .dialogue-line--right .dialogue-bubble { background: var(--color-primary-fixed); color: var(--color-on-primary-fixed); border-color: var(--color-secondary-fixed-dim); }
-.dialogue-bubble__ja { font-size: var(--text-lg); line-height: 1.7; display: flex; flex-wrap: wrap; gap: 2px 6px; }
+.dialogue-bubble__ja { font-size: var(--text-lg); line-height: 1.7; display: flex; flex-wrap: wrap; gap: 0.125rem 0.375rem; }
 .dialogue-bubble__vi { margin: var(--space-1) 0 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .dialogue-line--right .dialogue-bubble__vi { color: var(--color-on-surface-variant); }
-.chunk { display: inline-flex; flex-direction: column; align-items: center; border-bottom: 1px dotted var(--color-outline); cursor: help; }
+.chunk { display: inline-flex; flex-direction: column; align-items: center; border-bottom: 0.0625rem dotted var(--color-outline); cursor: help; }
 .chunk--punct { border-bottom: 0; cursor: default; }
 .chunk__meaning { font-size: var(--text-xs); color: var(--color-primary); display: none; }
 .lesson-content.show-chunk-meaning .chunk__meaning { display: block; }
 .dialogue-line--right .chunk__meaning { color: var(--color-primary); }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .kanji-item { grid-template-columns: 4.5rem minmax(0, 1fr); gap: var(--space-3); }
   .kanji-item__glyph { font-size: 2.5rem; }
   .vocab-item { grid-template-columns: 1fr; }
@@ -617,9 +617,9 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 2px 10px;
+  padding: 0.125rem 0.625rem;
   border-radius: var(--radius-full);
-  border: 1px solid transparent;
+  border: 0.0625rem solid transparent;
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 700;
@@ -634,7 +634,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 /* Bảng chữ kana (giáo trình bảng chữ cái): lưới ô lớn, bấm để nghe TTS */
 .kana-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
   gap: var(--space-4);
 }
 .kana-tile {
@@ -649,13 +649,13 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   min-height: 8.5rem;
   padding: var(--space-3);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
-.kana-tile:hover { border-color: var(--color-primary); transform: translateY(-2px); }
+.kana-tile:hover { border-color: var(--color-primary); transform: translateY(-0.125rem); }
 .kana-tile.is-playing { background: var(--color-primary-fixed); color: var(--color-on-primary-fixed); border-color: var(--color-primary); }
 .kana-tile__kana {
   font-family: var(--font-display);
@@ -668,14 +668,14 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   color: var(--color-on-surface-variant);
 }
 .kana-tile.is-playing .kana-tile__romaji { color: var(--color-on-surface-variant); }
-.kana-tile .speak-btn__spinner { position: absolute; top: 6px; right: 8px; }
-.kana-tile.is-tts .speak-btn__tts { right: 6px; bottom: 6px; }
+.kana-tile .speak-btn__spinner { position: absolute; top: 0.375rem; right: 0.5rem; }
+.kana-tile.is-tts .speak-btn__tts { right: 0.375rem; bottom: 0.375rem; }
 .kana-hint { margin: var(--space-3) 0 0; font-size: var(--text-xs); color: var(--color-on-surface-variant); }
 .kana-tile.speak-btn--silent { cursor: default; }
 .kana-tile.speak-btn--silent:hover { transform: none; border-color: var(--color-outline-variant); }
 
 /* ═══ Bài đọc / bài nghe (tab "Bài đọc"): khung chiếm hết chiều rộng vùng nội dung ═══════════
- * Trước đây đoạn văn bị vẽ thành .kana-tile trong lưới minmax(112px) nên co còn ~120px.
+ * Trước đây đoạn văn bị vẽ thành .kana-tile trong lưới minmax(7rem) nên co còn ~7.5rem.
  * Mỗi dòng của dữ liệu là một .reading-line (giữ xuống dòng gốc, khoảng trắng gốc qua pre-wrap).
  * Không dùng word-break: break-all — tiếng Việt ngắt theo từ, tiếng Nhật theo quy tắc kinsoku (strict).
  */
@@ -689,19 +689,19 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   min-width: 0;
   padding: var(--space-4);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-lg, 16px);
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: var(--radius-lg, 1rem);
 }
 
 .reading-block__title { margin: 0 0 var(--space-3); font-size: var(--text-base); font-weight: 600; }
 .reading-block__audio { display: block; width: 100%; margin-bottom: var(--space-3); }
 .reading-block__text,
-.reading-block__translation { display: flex; flex-direction: column; gap: 2px; }
+.reading-block__translation { display: flex; flex-direction: column; gap: 0.125rem; }
 
 .reading-block__translation {
   margin-top: var(--space-3);
   padding-top: var(--space-3);
-  border-top: 1px dashed var(--color-outline-variant);
+  border-top: 0.0625rem dashed var(--color-outline-variant);
 }
 
 .reading-block__label {
@@ -729,15 +729,15 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 
 /* ─── Thẻ câu hỏi luyện tập (đọc từ quiz của bài): chọn là báo đúng/sai ngay, không lưu điểm ─── */
 .practice-list { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
-.reading-block__text + .practice-list { padding-top: var(--space-3); border-top: 1px dashed var(--color-outline-variant); }
+.reading-block__text + .practice-list { padding-top: var(--space-3); border-top: 0.0625rem dashed var(--color-outline-variant); }
 
 .practice-q {
   box-sizing: border-box;
   width: 100%;
   padding: var(--space-3) var(--space-4);
   background: var(--color-surface-low, #f4f6fb);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 14px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.875rem;
 }
 
 .practice-q__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
@@ -754,7 +754,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .practice-q__passage {
   margin: 0 0 var(--space-3);
   padding: var(--space-3);
-  border-left: 3px solid var(--color-primary);
+  border-left: 0.1875rem solid var(--color-primary);
   border-radius: var(--radius-lg);
   background: var(--color-surface-container-low, var(--color-surface));
 }
@@ -763,22 +763,22 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: block;
   max-width: 100%;
   height: auto;
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-lg);
 }
-.practice-q__target { text-decoration-thickness: 2px; text-underline-offset: 4px; text-decoration-color: var(--color-primary); font-weight: 600; }
+.practice-q__target { text-decoration-thickness: 0.125rem; text-underline-offset: 0.25rem; text-decoration-color: var(--color-primary); font-weight: 600; }
 .practice-q__note {
   margin: 0 0 var(--space-2);
-  padding: 6px 10px;
+  padding: 0.375rem 0.625rem;
   font-size: var(--text-xs);
   color: var(--color-on-surface-variant);
   background: var(--color-surface-container);
-  border-radius: 8px;
+  border-radius: 0.5rem;
 }
 .reading-picture-note { margin-bottom: var(--space-4); font-size: var(--text-sm); }
 /* 発話表現: chữ câu đáp ẩn tới khi chọn (phải nghe), nút chỉ còn số. */
 .practice-q--listen-options:not(.is-answered) .practice-q__option-text { display: none; }
-.practice-q--listen-options:not(.is-answered) .practice-q__options { grid-template-columns: repeat(auto-fit, minmax(56px, 72px)); }
+.practice-q--listen-options:not(.is-answered) .practice-q__options { grid-template-columns: repeat(auto-fit, minmax(3.5rem, 4.5rem)); }
 .practice-q--listen-options:not(.is-answered) .practice-q__option { justify-content: center; }
 .practice-q__hint { margin: 0 0 var(--space-2); font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .practice-q__translation { margin-bottom: var(--space-2); font-size: var(--text-sm); color: var(--color-on-surface-variant); }
@@ -787,12 +787,12 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 
 .practice-q__options {
   display: grid;
-  /* 120px: phương án kana ngắn thành 2 cột trên mobile 375px, 4 cột trên desktop; phương án dài tự xuống dòng. */
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  /* 7.5rem: phương án kana ngắn thành 2 cột trên mobile 23.4375rem, 4 cột trên desktop; phương án dài tự xuống dòng. */
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   gap: var(--space-2);
 }
 
-.practice-q__options--numbers { grid-template-columns: repeat(auto-fit, minmax(56px, 72px)); }
+.practice-q__options--numbers { grid-template-columns: repeat(auto-fit, minmax(3.5rem, 4.5rem)); }
 .practice-q__options--numbers .practice-q__option { justify-content: center; }
 .practice-q__options--numbers .practice-q__option-text { display: none; }
 
@@ -800,28 +800,28 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: 44px;
-  padding: 8px 12px;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
   font: inherit;
   font-size: 1rem;
   text-align: left;
   color: var(--color-on-surface);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
   cursor: pointer;
   transition: border-color 120ms ease, background 120ms ease;
 }
 .practice-q__option:hover:not(:disabled) { border-color: var(--color-primary); }
-.practice-q__option:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.practice-q__option:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .practice-q__option:disabled { cursor: default; }
 .practice-q__option-no {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
   font-size: var(--text-xs);
   font-weight: 700;
   border-radius: 50%;
@@ -840,43 +840,43 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .practice-q__feedback.is-unknown { color: var(--color-on-surface-variant); }
 .practice-q__retry {
   margin-left: var(--space-2);
-  padding: 2px 10px;
+  padding: 0.125rem 0.625rem;
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-primary);
   background: transparent;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 999px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 62.4375rem;
   cursor: pointer;
 }
 .practice-q__script p { margin: var(--space-1) 0 0; }
 .practice-q__script .practice-q__text { margin-bottom: 0; }
 .practice-q__script-vi { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 /* Song ngữ: mỗi câu Nhật một cặp, bản dịch ngay dưới; đoạn chính ẩn dòng Việt tới khi bấm "Hiện bản dịch". */
-.reading-pair { display: flex; flex-direction: column; padding: 4px 0; }
-.reading-pair + .reading-pair { border-top: 1px dashed var(--color-outline-variant); }
-.reading-pair .reading-line--vi { padding-left: var(--space-3); border-left: 2px solid var(--color-primary-fixed, #e9ddff); }
+.reading-pair { display: flex; flex-direction: column; padding: 0.25rem 0; }
+.reading-pair + .reading-pair { border-top: 0.0625rem dashed var(--color-outline-variant); }
+.reading-pair .reading-line--vi { padding-left: var(--space-3); border-left: 0.125rem solid var(--color-primary-fixed, #e9ddff); }
 .reading-block__bilingual.is-vi-hidden .reading-line--vi { display: none; }
 .reading-block__bilingual.is-vi-hidden .reading-pair + .reading-pair { border-top: 0; }
 .reading-block__bilingual.is-vi-hidden .reading-pair { padding: 0; }
 .reading-block__toggle-vi {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   margin-bottom: var(--space-2);
-  padding: 4px 12px;
+  padding: 0.25rem 0.75rem;
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-primary);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 999px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 62.4375rem;
   cursor: pointer;
 }
 .reading-block__toggle-vi[aria-pressed="true"] { background: var(--color-primary-fixed, #e9ddff); }
-.reading-block__solution { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--color-outline-variant); }
+.reading-block__solution { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 0.0625rem dashed var(--color-outline-variant); }
 
 .reading-block__script > summary {
   cursor: pointer;
@@ -897,9 +897,9 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   margin-top: var(--space-5);
   padding: var(--space-4);
   background: var(--color-primary-fixed, #e9ddff);
-  border-radius: 14px;
+  border-radius: 0.875rem;
 }
-.practice-cta p { margin: 2px 0 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
+.practice-cta p { margin: 0.125rem 0 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 
 /* [JLAS-W0108] Nút "Học bằng flashcard" + overlay lật thẻ kana → romaji */
 .kana-toolbar { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
@@ -908,32 +908,32 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: flex; align-items: center; justify-content: center;
   padding: var(--space-4);
   background: rgba(16, 24, 40, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(0.5rem);
+  -webkit-backdrop-filter: blur(0.5rem);
 }
 .kana-fc-overlay[hidden] { display: none; }
 .kana-fc {
-  width: min(380px, 100%);
+  width: min(23.75rem, 100%);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   box-shadow: var(--shadow-2);
-  perspective: 1200px;
+  perspective: 75rem;
 }
 .kana-fc__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
 .kana-fc__count { font-size: var(--text-sm); font-weight: 700; color: var(--color-primary); }
 .kana-fc__close {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 50%;
+  width: 2.125rem; height: 2.125rem; border-radius: 50%;
   border: none; background: transparent; color: var(--color-on-surface-variant);
   font-size: 1.2rem; cursor: pointer;
 }
 .kana-fc__close:hover { background: var(--color-surface-container); color: var(--color-on-surface); }
 .kana-fc__card {
   position: relative;
-  width: min(300px, 78vw);
-  height: min(300px, 78vw);
+  width: min(18.75rem, 78vw);
+  height: min(18.75rem, 78vw);
   margin: 0 auto;
   border: none; padding: 0; background: none; cursor: pointer;
   transform-style: preserve-3d;
@@ -944,7 +944,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   background: var(--color-surface-lowest);
   box-shadow: var(--shadow-1);
   backface-visibility: hidden;
@@ -989,13 +989,13 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8px 14px;
+  padding: 0.5rem 0.875rem;
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-on-surface);
   background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
   cursor: pointer;
 }
 
@@ -1011,8 +1011,8 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 
 .manage-book {
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 14px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.875rem;
   overflow: hidden;
 }
 
@@ -1020,15 +1020,15 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 10px 12px;
+  padding: 0.625rem 0.75rem;
 }
 
 .manage-row--book { background: var(--color-surface-low); }
-.manage-row--unit { border-top: 1px solid var(--color-outline-variant); }
+.manage-row--unit { border-top: 0.0625rem solid var(--color-outline-variant); }
 
 .manage-row--lesson {
-  border-top: 1px dashed var(--color-outline-variant);
-  padding-left: 34px;
+  border-top: 0.0625rem dashed var(--color-outline-variant);
+  padding-left: 2.125rem;
 }
 
 /* Mục đã lưu trữ: làm mờ và gạch tên để không nhầm với mục đang dùng. */
@@ -1041,14 +1041,14 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .manage-row__meta { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
 
 .manage-row__order {
-  min-width: 26px;
+  min-width: 1.625rem;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-on-surface-variant);
   text-align: right;
 }
 
-.manage-row__actions { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.manage-row__actions { display: flex; align-items: center; gap: 0.25rem; flex: 0 0 auto; }
 
 .manage-grip { color: var(--color-outline); cursor: grab; }
 .manage-row.is-dragging,
@@ -1058,12 +1058,12 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 1.875rem;
+  height: 1.875rem;
   color: var(--color-on-surface-variant);
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border: 0.0625rem solid transparent;
+  border-radius: 0.5rem;
   cursor: pointer;
 }
 
@@ -1090,15 +1090,15 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 
 /* Tách nút xoá khỏi nhóm nút thường để không bấm nhầm khi quét mắt theo hàng. */
 .manage-actions-sep {
-  width: 1px;
-  height: 18px;
-  margin: 0 4px;
+  width: 0.0625rem;
+  height: 1.125rem;
+  margin: 0 0.25rem;
   background: var(--color-outline-variant);
 }
 
 .manage-toggle {
-  width: 28px;
-  height: 28px;
+  width: 1.75rem;
+  height: 1.75rem;
   color: var(--color-on-surface-variant);
   background: transparent;
   border: none;
@@ -1106,10 +1106,10 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 }
 
 .manage-status {
-  padding: 2px 8px;
+  padding: 0.125rem 0.5rem;
   font-size: var(--text-xs);
   font-weight: 600;
-  border-radius: 999px;
+  border-radius: 62.4375rem;
   white-space: nowrap;
 }
 
@@ -1120,13 +1120,13 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .manage-units, .manage-lessons { margin: 0; padding: 0; list-style: none; }
 
 .manage-empty-hint {
-  padding: 10px 12px 10px 34px;
+  padding: 0.625rem 0.75rem 0.625rem 2.125rem;
   font-size: var(--text-xs);
   color: var(--color-on-surface-variant);
 }
 
 .manage-tree__loading {
-  padding: 12px;
+  padding: 0.75rem;
   font-size: var(--text-sm);
   color: var(--color-on-surface-variant);
 }
@@ -1137,39 +1137,39 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 
 .manage-modal__panel {
   position: relative;
-  width: min(520px, calc(100vw - 32px));
-  max-height: calc(100vh - 64px);
+  width: min(32.5rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 4rem);
   overflow: auto;
   padding: var(--space-4);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 16px;
-  box-shadow: 0 18px 50px rgba(22, 29, 31, 0.22);
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 1rem;
+  box-shadow: 0 1.125rem 3.125rem rgba(22, 29, 31, 0.22);
 }
 
 .manage-modal__title { margin: 0 0 var(--space-3); font-size: var(--text-lg); }
 .manage-form { display: grid; gap: var(--space-3); }
-.manage-field { display: grid; gap: 4px; font-size: var(--text-sm); }
+.manage-field { display: grid; gap: 0.25rem; font-size: var(--text-sm); }
 .manage-field > span { color: var(--color-on-surface-variant); }
 
 .manage-input {
   width: 100%;
-  padding: 8px 10px;
+  padding: 0.5rem 0.625rem;
   font: inherit;
   color: var(--color-on-surface);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
 }
 
-.manage-input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.manage-input:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.0625rem; }
 
 .manage-newtag {
   display: grid;
   gap: var(--space-2);
   padding: var(--space-3);
   background: var(--color-surface-low);
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
 .manage-link-btn {
@@ -1190,12 +1190,12 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .theme-color-field { display: flex; align-items: center; gap: var(--space-2); }
 .theme-color-field__picker {
   flex: none;
-  width: 40px;
-  height: 36px;
-  padding: 2px;
+  width: 2.5rem;
+  height: 2.25rem;
+  padding: 0.125rem;
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
   cursor: pointer;
 }
 
@@ -1208,8 +1208,8 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   place-items: center;
   aspect-ratio: 16 / 5;
   overflow: hidden;
-  border: 1.5px dashed var(--color-outline-variant);
-  border-radius: 12px;
+  border: 0.0938rem dashed var(--color-outline-variant);
+  border-radius: 0.75rem;
   background: var(--color-surface-low);
   color: var(--color-on-surface-variant);
   cursor: pointer;
@@ -1217,22 +1217,22 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 }
 .thumb-uploader__drop:hover,
 .thumb-uploader__drop.is-dragover { border-color: var(--color-primary); background: var(--color-primary-fixed); }
-.thumb-uploader__drop:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.thumb-uploader__drop:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .thumb-uploader__preview { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .thumb-uploader__placeholder { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); text-align: center; }
 .thumb-uploader__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .thumb-uploader__actions .manage-btn:disabled { opacity: 0.6; cursor: progress; }
 
-@media (max-width: 560px) {
+@media (max-width: 35rem) {
   .manage-row { flex-wrap: wrap; }
-  .manage-row--lesson { padding-left: 16px; }
-  .manage-empty-hint { padding-left: 16px; }
+  .manage-row--lesson { padding-left: 1rem; }
+  .manage-empty-hint { padding-left: 1rem; }
 }
 
 /* ═══ /textbooks/lessons/{id}/edit — trang biên soạn nội dung trong bài ═══════
  * Khác màn quản lý ở chỗ đây là soạn thảo: trường văn bản dài, mẫu và ví dụ nhìn cùng lúc.
  */
-.editor-main { max-width: 1100px; }
+.editor-main { max-width: 68.75rem; }
 
 .editor-panel__bar {
   display: flex;
@@ -1252,8 +1252,8 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .editor-card {
   padding: var(--space-4);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 14px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.875rem;
 }
 
 .editor-card__head {
@@ -1287,7 +1287,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   padding-left: var(--space-3);
   font-size: var(--text-sm);
   color: var(--color-on-surface-variant);
-  border-left: 2px solid var(--color-outline-variant);
+  border-left: 0.125rem solid var(--color-outline-variant);
   white-space: pre-line;
 }
 
@@ -1306,14 +1306,14 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface-low);
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
-.editor-example__text { display: grid; gap: 2px; min-width: 0; }
+.editor-example__text { display: grid; gap: 0.125rem; min-width: 0; }
 .editor-example__ja { font-weight: 500; overflow-wrap: anywhere; }
 .editor-example__vi { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .editor-example__meta { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
-.editor-row__actions { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.editor-row__actions { display: flex; align-items: center; gap: 0.25rem; flex: 0 0 auto; }
 
 /* ─── Từ vựng: cột trái là từ của bài, cột phải là tìm trong từ điển ──────── */
 .editor-vocab {
@@ -1332,11 +1332,11 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
 }
 
-.editor-word__text { display: grid; gap: 2px; min-width: 0; }
+.editor-word__text { display: grid; gap: 0.125rem; min-width: 0; }
 .editor-word__expression { font-weight: 600; overflow-wrap: anywhere; }
 .editor-word__meta { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
 .editor-word__meaning { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
@@ -1360,7 +1360,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .editor-pager .manage-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Form của mẫu ngữ pháp có bốn trường dài nên cần rộng hơn modal của màn quản lý. */
-.manage-modal__panel--wide { width: min(760px, calc(100vw - 32px)); }
+.manage-modal__panel--wide { width: min(47.5rem, calc(100vw - 2rem)); }
 
 /* ─── Import Excel: thanh công cụ + kết quả nằm lại ───────────────────────── */
 .editor-import {
@@ -1372,13 +1372,13 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   margin-bottom: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--color-surface-lowest);
-  border: 1px dashed var(--color-outline-variant);
-  border-radius: 14px;
+  border: 0.0625rem dashed var(--color-outline-variant);
+  border-radius: 0.875rem;
 }
 
 .editor-import[hidden],
 .editor-import-result[hidden] { display: none; }
-.editor-import__text { display: grid; gap: 2px; min-width: 0; }
+.editor-import__text { display: grid; gap: 0.125rem; min-width: 0; }
 .editor-import__actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .editor-import__actions .manage-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
@@ -1388,7 +1388,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   font-size: var(--text-sm);
   color: var(--color-success);
   background: var(--color-success-bg);
-  border-radius: 12px;
+  border-radius: 0.75rem;
 }
 
 .editor-import-result.is-error {
@@ -1397,7 +1397,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 }
 
 .editor-import-result__errors {
-  max-height: 280px;
+  max-height: 17.5rem;
   margin: var(--space-2) 0 0;
   padding-left: var(--space-4);
   overflow: auto;
@@ -1415,7 +1415,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 
 .editor-kanji-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
@@ -1426,8 +1426,8 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
 }
 
 .editor-kanji__glyph {
@@ -1438,7 +1438,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   color: var(--color-primary);
 }
 
-.editor-kanji__text { display: grid; flex: 1 1 auto; gap: 2px; min-width: 0; }
+.editor-kanji__text { display: grid; flex: 1 1 auto; gap: 0.125rem; min-width: 0; }
 .editor-kanji__meta { font-size: var(--text-xs); font-weight: 600; color: var(--color-on-surface-variant); }
 .editor-kanji__meaning { font-size: var(--text-sm); overflow-wrap: anywhere; }
 .editor-kanji__readings { font-size: var(--text-xs); color: var(--color-on-surface-variant); }
@@ -1446,12 +1446,12 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 /* ─── Hội thoại: cột vai bên trái, các đoạn bên phải ─────────────────────── */
 .editor-dialogue {
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) 2fr;
+  grid-template-columns: minmax(15rem, 1fr) 2fr;
   gap: var(--space-4);
   align-items: start;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 53.75rem) {
   .editor-vocab { grid-template-columns: 1fr; }
   .editor-dialogue { grid-template-columns: 1fr; }
 }
@@ -1463,60 +1463,60 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 /* [JLAS2-17] "Thêm giáo trình" là link sang trang tạo 3 bước */
 .manage-main a.manage-btn { text-decoration: none; }
 .manage-main .manage-select {
-  padding: 6px 10px;
+  padding: 0.375rem 0.625rem;
   font: inherit;
   color: var(--color-on-surface);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.5rem;
 }
 .manage-main .manage-check {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
+  width: 1.125rem;
+  height: 1.125rem;
   margin: 0;
   accent-color: var(--color-primary);
   cursor: pointer;
 }
 .manage-main .manage-check:disabled { cursor: not-allowed; opacity: 0.45; }
-.manage-main .manage-bulk-scope { display: inline-flex; flex-wrap: wrap; gap: 6px; flex: 0 0 auto; }
+.manage-main .manage-bulk-scope { display: inline-flex; flex-wrap: wrap; gap: 0.375rem; flex: 0 0 auto; }
 .manage-main .manage-chip-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-primary);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 999px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 62.4375rem;
   cursor: pointer;
 }
 .manage-main .manage-chip-btn:hover:not(:disabled) { border-color: var(--color-primary); }
 .manage-main .manage-chip-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .manage-main .manage-chip-btn:focus-visible,
-.manage-main .manage-check:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.manage-main .manage-check:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .manage-main .manage-book-bulk {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  padding: 8px 12px;
-  border-top: 1px solid var(--color-outline-variant);
+  padding: 0.5rem 0.75rem;
+  border-top: 0.0625rem solid var(--color-outline-variant);
   background: var(--color-surface-lowest);
 }
 .manage-main .manage-book-bulk__label { font-size: var(--text-xs); font-weight: 600; color: var(--color-on-surface-variant); }
 .manage-main .manage-bulkbar {
   position: sticky;
-  bottom: 12px;
+  bottom: 0.75rem;
   z-index: 5;
   margin-top: var(--space-4);
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-primary);
-  border-radius: 14px;
-  box-shadow: 0 8px 28px rgba(22, 29, 31, 0.16);
+  border: 0.0625rem solid var(--color-primary);
+  border-radius: 0.875rem;
+  box-shadow: 0 0.5rem 1.75rem rgba(22, 29, 31, 0.16);
 }
 .manage-main .manage-bulkbar[hidden] { display: none; }
 .manage-main .manage-bulkbar__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
@@ -1524,31 +1524,31 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 .manage-main .manage-bulkbar .manage-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .manage-main .manage-btn--ghost { background: transparent; }
 .manage-main .manage-bulkbar__progress { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
-.manage-main .manage-bulkbar__result { position: relative; margin-top: 8px; padding: 8px 32px 8px 10px; border-radius: 10px; font-size: var(--text-sm); }
+.manage-main .manage-bulkbar__result { position: relative; margin-top: 0.5rem; padding: 0.5rem 2rem 0.5rem 0.625rem; border-radius: 0.625rem; font-size: var(--text-sm); }
 .manage-main .manage-bulkbar__result.is-ok { background: var(--color-success-bg); color: var(--color-success); }
 .manage-main .manage-bulkbar__result.is-error { background: #FDECEA; color: #8A1C12; }
-.manage-main .manage-bulkbar__result ul { margin: 4px 0 0; padding-left: 18px; }
+.manage-main .manage-bulkbar__result ul { margin: 0.25rem 0 0; padding-left: 1.125rem; }
 .manage-main .manage-bulkbar__dismiss {
   position: absolute;
-  top: 4px;
-  right: 6px;
-  width: 26px;
-  height: 26px;
-  font-size: 18px;
+  top: 0.25rem;
+  right: 0.375rem;
+  width: 1.625rem;
+  height: 1.625rem;
+  font-size: 1.125rem;
   line-height: 1;
   color: inherit;
   background: transparent;
   border: 0;
   cursor: pointer;
 }
-@media (max-width: 560px) {
+@media (max-width: 35rem) {
   .manage-main .manage-bulk-scope { flex-basis: 100%; }
-  .manage-main .manage-bulkbar { bottom: 8px; padding: 8px 10px; }
+  .manage-main .manage-bulkbar { bottom: 0.5rem; padding: 0.5rem 0.625rem; }
   .manage-main .manage-bulkbar__count { flex-basis: 100%; }
 }
 
 /* ═══ [JLAS2-17] /textbooks/manage — tìm kiếm + bộ lọc (chỉ trong trang quản lý) ═══════════════
- * Desktop: khung lọc hiện sẵn dưới ô tìm. ≤ 760px: khung lọc là ngăn trượt từ phải, mở bằng nút "Bộ lọc".
+ * Desktop: khung lọc hiện sẵn dưới ô tìm. ≤ 47.5rem: khung lọc là ngăn trượt từ phải, mở bằng nút "Bộ lọc".
  */
 .manage-main .manage-toolbar--top { justify-content: flex-start; margin-bottom: var(--space-3); }
 .manage-main .manage-toolbar--top #addTextbookBtn { margin-left: auto; }
@@ -1556,54 +1556,54 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   position: relative;
   display: flex;
   align-items: center;
-  flex: 1 1 320px;
-  max-width: 520px;
+  flex: 1 1 20rem;
+  max-width: 32.5rem;
   min-width: 0;
 }
 .manage-main .manage-search > .fa-magnifying-glass {
   position: absolute;
-  left: 12px;
+  left: 0.75rem;
   color: var(--color-on-surface-variant);
   pointer-events: none;
 }
 .manage-main .manage-search__input {
   width: 100%;
   min-width: 0;
-  padding: 9px 38px 9px 36px;
+  padding: 0.5625rem 2.375rem 0.5625rem 2.25rem;
   font: inherit;
   font-size: var(--text-sm);
   color: var(--color-on-surface);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
 }
 .manage-main .manage-search__input::-webkit-search-cancel-button { display: none; }
-.manage-main .manage-search__input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.manage-main .manage-search__input:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.0625rem; }
 .manage-main .manage-search__clear {
   position: absolute;
-  right: 6px;
+  right: 0.375rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 1.75rem;
+  height: 1.75rem;
   color: var(--color-on-surface-variant);
   background: none;
   border: none;
-  border-radius: 999px;
+  border-radius: 62.4375rem;
   cursor: pointer;
 }
 .manage-main .manage-search__clear:hover { background: var(--color-surface-container); color: var(--color-on-surface); }
 .manage-main .manage-filters-toggle { display: none; }
 .manage-main .manage-filters-toggle__count {
-  min-width: 20px;
-  padding: 0 6px;
+  min-width: 1.25rem;
+  padding: 0 0.375rem;
   font-size: var(--text-xs);
-  line-height: 20px;
+  line-height: 1.25rem;
   text-align: center;
   color: #fff;
   background: var(--color-primary);
-  border-radius: 999px;
+  border-radius: 62.4375rem;
 }
 .manage-main .manage-filters {
   display: grid;
@@ -1611,41 +1611,41 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   margin-bottom: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 14px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.875rem;
 }
 .manage-main .manage-filters__head,
 .manage-main .manage-filters__foot { display: none; }
 .manage-main .manage-filters__group { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .manage-main .manage-filters__label {
-  min-width: 64px;
+  min-width: 4rem;
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-on-surface-variant);
 }
 .manage-main .manage-filters__row { display: flex; align-items: center; gap: var(--space-2) var(--space-4); flex-wrap: wrap; }
-.manage-main .manage-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.manage-main .manage-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
 .manage-main .manage-chip {
-  padding: 5px 12px;
+  padding: 0.3125rem 0.75rem;
   font: inherit;
   font-size: var(--text-sm);
   color: var(--color-on-surface);
   background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 999px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 62.4375rem;
   cursor: pointer;
   transition: background-color .15s, border-color .15s, color .15s;
 }
 .manage-main .manage-chip:hover { border-color: var(--color-primary); }
 .manage-main .manage-chip.is-on { color: #fff; background: var(--color-primary); border-color: var(--color-primary); }
-.manage-main .manage-chip:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.manage-main .manage-chip:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .manage-main .manage-resultbar { justify-content: flex-start; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-3); }
 .manage-main .manage-resultbar__count { font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .manage-main .manage-resultbar__select { margin-left: auto; }
-.manage-main .manage-hit { padding: 0 4px; color: var(--color-on-surface); background: #FFF1C2; border-radius: 4px; }
+.manage-main .manage-hit { padding: 0 0.25rem; color: var(--color-on-surface); background: #FFF1C2; border-radius: 0.25rem; }
 .manage-main .manage-filters-backdrop { display: none; }
 
-@media (max-width: 760px) {
+@media (max-width: 47.5rem) {
   .manage-main .manage-toolbar--top { flex-wrap: wrap; }
   .manage-main .manage-search { flex: 1 1 100%; max-width: none; order: 1; }
   .manage-main .manage-filters-toggle { display: inline-flex; order: 2; }
@@ -1656,13 +1656,13 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
     right: 0;
     bottom: 0;
     z-index: 1200;
-    width: min(360px, 88vw);
+    width: min(22.5rem, 88vw);
     margin: 0;
     padding: var(--space-4);
     overflow-y: auto;
     align-content: start;
-    border-radius: 18px 0 0 18px;
-    box-shadow: -12px 0 32px rgba(20, 16, 40, .18);
+    border-radius: 1.125rem 0 0 1.125rem;
+    box-shadow: -0.75rem 0 2rem rgba(20, 16, 40, .18);
     transform: translateX(105%);
     visibility: hidden;
     transition: transform .25s ease, visibility 0s linear .25s;
@@ -1698,57 +1698,57 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   position: relative;
   display: grid;
   gap: var(--space-3);
-  width: min(520px, 100%);
-  max-height: calc(100vh - 32px);
-  max-height: calc(100dvh - 32px);
+  width: min(32.5rem, 100%);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   overflow: auto;
   padding: var(--space-5);
   color: var(--color-on-surface);
   background: var(--color-surface-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 16px;
-  box-shadow: 0 18px 50px rgba(22, 29, 31, 0.25);
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 1rem;
+  box-shadow: 0 1.125rem 3.125rem rgba(22, 29, 31, 0.25);
 }
-.editor-dlg--wide { width: min(720px, 100%); }
+.editor-dlg--wide { width: min(45rem, 100%); }
 .editor-dlg__title { margin: 0; font-size: var(--text-lg); line-height: 1.35; overflow-wrap: anywhere; }
 .editor-dlg__body { display: grid; gap: var(--space-3); font-size: var(--text-sm); line-height: 1.55; min-width: 0; }
 .editor-dlg__body p { margin: 0; }
 .editor-dlg__file { font-weight: 600; overflow-wrap: anywhere; }
-.editor-dlg__file i { color: var(--color-success); margin-right: 4px; }
+.editor-dlg__file i { color: var(--color-success); margin-right: 0.25rem; }
 .editor-dlg__quote {
   margin: 0;
   padding: var(--space-2) var(--space-3);
-  border-left: 3px solid var(--color-outline-variant);
+  border-left: 0.1875rem solid var(--color-outline-variant);
   background: var(--color-surface-low);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 0.5rem 0.5rem 0;
   overflow-wrap: anywhere;
 }
 .editor-dlg__note {
   padding: var(--space-2) var(--space-3);
   background: var(--color-primary-container);
   color: var(--color-on-primary-container);
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 .editor-dlg__warn {
   margin: 0;
   padding: var(--space-2) var(--space-3);
   background: var(--color-error-container);
   color: var(--color-on-error-container);
-  border-radius: 10px;
+  border-radius: 0.625rem;
   overflow-wrap: anywhere;
 }
 .editor-dlg__errors {
-  max-height: 260px;
+  max-height: 16.25rem;
   margin: 0;
   padding-left: var(--space-5);
   overflow: auto;
   overflow-wrap: anywhere;
 }
-.editor-dlg__errors li + li { margin-top: 4px; }
+.editor-dlg__errors li + li { margin-top: 0.25rem; }
 .editor-dlg__table { width: 100%; border-collapse: collapse; }
 .editor-dlg__table caption { text-align: left; font-weight: 600; padding-bottom: var(--space-2); }
 .editor-dlg__table th,
-.editor-dlg__table td { padding: 8px 4px; border-bottom: 1px solid var(--color-outline-variant); text-align: left; }
+.editor-dlg__table td { padding: 0.5rem 0.25rem; border-bottom: 0.0625rem solid var(--color-outline-variant); text-align: left; }
 .editor-dlg__table th { font-weight: 500; }
 .editor-dlg__table td { text-align: right; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .editor-dlg__error {
@@ -1758,16 +1758,16 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
 }
 .editor-dlg__error[hidden] { display: none; }
 .editor-dlg__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); }
-.editor-dlg__btn { min-height: 44px; min-width: 44px; justify-content: center; }
+.editor-dlg__btn { min-height: 2.75rem; min-width: 2.75rem; justify-content: center; }
 .editor-dlg__btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.editor-dlg__btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.editor-dlg__btn:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
 .editor-dlg__btn--danger {
   color: var(--color-on-error, #fff);
   background: var(--color-error);
   border-color: var(--color-error);
 }
 .editor-dlg__btn--danger:hover { border-color: var(--color-on-error-container); }
-@media (max-width: 560px) {
+@media (max-width: 35rem) {
   .editor-dlg { padding: var(--space-4); }
   .editor-dlg__actions { flex-direction: column-reverse; }
   .editor-dlg__btn { width: 100%; }
@@ -1776,7 +1776,7 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   .editor-dlg-host:not([hidden]) .editor-dlg { animation: editor-dlg-in 160ms ease-out; }
   .editor-dlg-host:not([hidden]) .editor-dlg__backdrop { animation: editor-dlg-fade 160ms ease-out; }
 }
-@keyframes editor-dlg-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes editor-dlg-in { from { opacity: 0; transform: translateY(0.5rem) scale(0.98); } to { opacity: 1; transform: none; } }
 @keyframes editor-dlg-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ─── [JLAS2-17] Lối về trang học viên / xem trước — chỉ trong trang Quản lý nội dung và Biên soạn bài ──── */
@@ -1790,37 +1790,37 @@ html[data-theme="dark"] .textbook-card:hover .textbook-card__cta:not(.textbook-c
   min-width: 0;
 }
 .manage-main .tb-hero-row .textbooks-hero__title,
-.editor-main .tb-hero-row .textbooks-hero__title { flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; }
+.editor-main .tb-hero-row .textbooks-hero__title { flex: 1 1 16.25rem; min-width: 0; overflow-wrap: anywhere; }
 .editor-main .tb-hero-links { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .manage-main .tb-learner-link,
 .editor-main .tb-learner-link {
-  min-height: 44px;
+  min-height: 2.75rem;
   justify-content: center;
   text-decoration: none;
   white-space: nowrap;
 }
 .editor-main .tb-learner-link[hidden] { display: none; }
 .manage-main .tb-learner-link:focus-visible,
-.editor-main .tb-learner-link:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
-/* Nút xem trước trong cây: vùng bấm 44px nhưng lề âm giữ nguyên chiều cao dòng như các nút 30px bên cạnh */
+.editor-main .tb-learner-link:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.125rem; }
+/* Nút xem trước trong cây: vùng bấm 2.75rem nhưng lề âm giữ nguyên chiều cao dòng như các nút 1.875rem bên cạnh */
 .manage-main .manage-preview-btn {
-  width: 44px;
-  height: 44px;
-  margin: -7px 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.4375rem 0;
   text-decoration: none;
 }
 .manage-main .manage-preview-btn.is-hidden-from-learner { color: var(--color-on-surface-variant); opacity: 0.85; }
 .manage-main .manage-preview-btn.is-disabled { opacity: 0.38; cursor: not-allowed; }
 .manage-main .manage-preview-btn.is-disabled:hover { color: var(--color-on-surface-variant); border-color: transparent; }
-.manage-main .manage-preview-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
-@media (max-width: 560px) {
+.manage-main .manage-preview-btn:focus-visible { outline: 0.125rem solid var(--color-primary); outline-offset: 0.0625rem; }
+@media (max-width: 35rem) {
   .manage-main .tb-learner-link,
   .editor-main .tb-learner-link { flex: 1 1 auto; }
   .editor-main .tb-hero-links { width: 100%; }
 }
 
 /* Plum dark mode */
-html[data-theme="dark"] .textbook-thumb__badge--level { background: var(--dark-raised); color: var(--dark-ink); box-shadow: 0 1px 2px var(--dark-shadow); }
+html[data-theme="dark"] .textbook-thumb__badge--level { background: var(--dark-raised); color: var(--dark-ink); box-shadow: 0 0.0625rem 0.125rem var(--dark-shadow); }
 html[data-theme="dark"] .textbook-thumb:not(.textbook-thumb--custom) { background: var(--dark-raised); }
 html[data-theme="dark"] .textbook-thumb:not(.textbook-thumb--custom) .textbook-thumb__kanji { color: var(--dark-accent); }
 html[data-theme="dark"] .practice-q__option.is-correct .practice-q__option-no,
@@ -1830,19 +1830,19 @@ html[data-theme="dark"] .manage-main .manage-bulkbar__result.is-error { backgrou
 html[data-theme="dark"] .manage-main .manage-filters-toggle__count { color: var(--dark-on-button); }
 html[data-theme="dark"] .manage-main .manage-hit { background: var(--dark-warning-bg); color: var(--dark-warning); }
 html[data-theme="dark"] .kana-fc-overlay { background: var(--dark-shadow); }
-html[data-theme="dark"] .manage-main .manage-bulkbar { box-shadow: 0 8px 28px var(--dark-shadow); }
+html[data-theme="dark"] .manage-main .manage-bulkbar { box-shadow: 0 0.5rem 1.75rem var(--dark-shadow); }
 html[data-theme="dark"] .editor-dlg__btn--danger { color: var(--dark-on-button); }
 html[data-theme="dark"] .manage-modal__backdrop,
 html[data-theme="dark"] .editor-dlg__backdrop,
 html[data-theme="dark"] .manage-main .manage-filters-backdrop:not([hidden]) { background: var(--dark-shadow); }
 html[data-theme="dark"] .manage-modal__panel,
-html[data-theme="dark"] .editor-dlg { box-shadow: 0 18px 50px var(--dark-shadow); }
-@media (max-width: 760px) {
-  html[data-theme="dark"] .manage-main .manage-filters { box-shadow: -12px 0 32px var(--dark-shadow); }
+html[data-theme="dark"] .editor-dlg { box-shadow: 0 1.125rem 3.125rem var(--dark-shadow); }
+@media (max-width: 47.5rem) {
+  html[data-theme="dark"] .manage-main .manage-filters { box-shadow: -0.75rem 0 2rem var(--dark-shadow); }
 }
 html[data-theme="dark"] :is(.manage-input, .manage-select) { background: var(--dark-input); border-color: var(--dark-input-line); color: var(--dark-ink); }
 html[data-theme="dark"] .manage-main :is(input, select, textarea) { caret-color: var(--dark-accent); }
-html[data-theme="dark"] .manage-main :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 1000px var(--dark-input) inset; }
+html[data-theme="dark"] .manage-main :is(input, select, textarea):-webkit-autofill { -webkit-text-fill-color: var(--dark-ink); box-shadow: 0 0 0 62.5rem var(--dark-input) inset; }
 html[data-theme="dark"] ::selection { background: var(--dark-selection); color: var(--dark-ink); }
 
 /* ---------- Khóa Premium (textbooks.js: cờ locked; fragment textbooks/premium-dialog) ---------- */
@@ -1850,7 +1850,7 @@ html[data-theme="dark"] ::selection { background: var(--dark-selection); color: 
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 2px 10px;
+  padding: 0.125rem 0.625rem;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: 700;
@@ -1865,7 +1865,7 @@ html[data-theme="dark"] ::selection { background: var(--dark-selection); color: 
 .lesson-row--locked .lesson-row__arrow { color: var(--color-primary); }
 
 .tb-premium-dialog {
-  width: min(440px, calc(100vw - 32px));
+  width: min(27.5rem, calc(100vw - 2rem));
   padding: 0;
   border: 0;
   border-radius: var(--radius-lg);
@@ -1879,7 +1879,7 @@ html[data-theme="dark"] ::selection { background: var(--dark-selection); color: 
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-6, 24px) var(--space-5);
+  padding: var(--space-6, 1.5rem) var(--space-5);
   text-align: center;
 }
 .tb-premium-dialog__icon {
@@ -1895,4 +1895,4 @@ html[data-theme="dark"] ::selection { background: var(--dark-selection); color: 
 .tb-premium-dialog__title { margin: 0; font-size: var(--text-lg); font-weight: 700; color: var(--color-on-surface); }
 .tb-premium-dialog__text { margin: 0; font-size: var(--text-sm); color: var(--color-on-surface-variant); }
 .tb-premium-dialog__actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--space-2); margin-top: var(--space-2); }
-.tb-premium-dialog__actions .btn { min-height: 44px; }
+.tb-premium-dialog__actions .btn { min-height: 2.75rem; }

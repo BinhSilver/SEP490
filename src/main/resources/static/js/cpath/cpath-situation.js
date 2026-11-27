@@ -132,12 +132,6 @@
       + '</svg>';
   }
 
-  function svgCheckSmall() {
-    return '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">'
-      + '<path d="M3.5 8.2l3 3 6-6.2" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>'
-      + '</svg>';
-  }
-
   function buildDeck(sit) {
     var words = list(sit && sit.words).map(function (w) {
       return {
@@ -483,17 +477,17 @@
         + romajiHtml(furiSource, state)
         + '<div class="cp-line__vi">' + esc(ln.vi) + '</div>'
         + '</div>'
-        + '<button type="button" class="cp-audio-btn" data-cp-listen-line="' + idx + '" aria-label="Nghe câu ' + (idx + 1) + '">'
+        + '<button type="button" class="cp-audio-btn' + (isPlaying ? ' is-playing' : '') + '" data-cp-listen-line="' + idx + '" aria-label="' + (isPlaying ? 'Đang phát câu ' : 'Nghe câu ') + (idx + 1) + '" aria-pressed="' + (isPlaying ? 'true' : 'false') + '">'
         + svgSpeaker()
         + '</button>'
         + '</li>';
     }).join('');
 
-    return '<div class="cp-sit-stage">'
+    return '<div class="cp-sit-stage cp-sit-stage--conversation">'
       + '<div class="cp-listen-bar">'
       + '<div><strong>Bối cảnh:</strong> ' + esc(sit.situationVi || sit.titleVi)
       + (showTrans ? '' : ' <span class="cp-survey__sub">(Bản dịch đang ẩn; bấm nút Bản dịch ở đầu trang để hiện.)</span>') + '</div>'
-      + '<button type="button" class="cp-btn-primary" data-cp-play-all>'
+      + '<button type="button" class="cp-btn-primary' + (state.playingAll ? ' is-playing' : '') + '" data-cp-play-all aria-pressed="' + (state.playingAll ? 'true' : 'false') + '">'
       + svgSpeaker()
       + '<span>' + (state.playingAll ? 'Đang phát lần lượt…' : 'Phát lần lượt cả hội thoại') + '</span>'
       + '</button>'
@@ -546,12 +540,14 @@
 
     var promptHtml = prevLine
       ? '<div class="cp-roleplay-context">'
-        + '<span class="cp-survey__sub">Lời của <strong>' + esc(prevLine.speaker) + '</strong>:</span>'
+        + '<span class="cp-roleplay-context__label">Người đối thoại vừa nói</span>'
+        + '<span class="cp-survey__sub">' + esc(prevLine.speaker) + '</span>'
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(prevLine.furigana || prevLine.ja, state.display.furigana) + '</div>'
         + romajiHtml(prevLine.furigana || prevLine.ja, state)
         + (state.display.translation ? '<div class="cp-line__vi">' + esc(prevLine.vi) + '</div>' : '')
         + '</div>'
-      : '<div class="cp-roleplay-context"><span class="cp-survey__sub">Mở đầu cuộc hội thoại — Đến lượt <strong>' + esc(learnerName) + '</strong> nói câu đầu tiên:</span></div>';
+      : '<div class="cp-roleplay-context"><span class="cp-roleplay-context__label">Bắt đầu cuộc hội thoại</span>'
+        + '<span class="cp-survey__sub">Đến lượt <strong>' + esc(learnerName) + '</strong> nói câu đầu tiên.</span></div>';
 
     var optsHtml = list(turn.options).map(function (opt, oIdx) {
       var cls = 'cp-option';
@@ -565,7 +561,7 @@
         + '<div class="cp-line__content">'
         + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(optSrc, state.display.furigana) + '</div>'
         + romajiHtml(optSrc, state)
-        + (isAnswered || sit.selfLevel === 'BEGINNER' ? '<div class="cp-line__vi">' + esc(opt.vi) + '</div>' : '')
+        + (state.display.translation && (isAnswered || sit.selfLevel === 'BEGINNER') ? '<div class="cp-line__vi">' + esc(opt.vi) + '</div>' : '')
         + '</div>'
         + '</button>';
     }).join('');
@@ -601,9 +597,10 @@
     return '<div class="cp-sit-stage cp-sit-stage--roleplay">'
       + '<div class="cp-deck-switch">'
       + '<strong>Nhập vai ' + esc(learnerName) + ' · Lượt ' + (tIdx + 1) + '/' + turns.length + '</strong>'
-      + '<span class="cp-survey__sub">Chọn 1 trong 3 câu trả lời phù hợp nhất</span>'
+      + '<span class="cp-survey__sub">Hãy chọn câu bạn sẽ nói để đáp lại.</span>'
       + '</div>'
       + promptHtml
+      + '<div class="cp-roleplay-choice-label"><strong>Câu trả lời của bạn</strong><span>Chọn một phương án bên dưới</span></div>'
       + (isAnswered && !ansCorrect
         ? '<div class="jp-review__rows cp-roleplay-review">'
           + '<div class="jp-review__row jp-review__row--picked jp-bad"><span class="jp-review__tag">Bạn chọn</span><span class="jp-review__val" lang="ja">' + pickedReviewHtml + '</span></div>'
@@ -675,26 +672,51 @@
     }
     var sIdx = Math.max(0, Math.min(lLines.length - 1, state.speakIdx || 0));
     var targetLine = lLines[sIdx];
-    var partnerLine = findLineByOrder(sit, Number(targetLine.order) - 1);
     var scoreObj = state.speakScores[sIdx];
     var isLow = scoreObj && Number(scoreObj.score) < 70;
     var isPass = scoreObj && Number(scoreObj.score) >= 70;
+    var replyLine = isPass ? findLineByOrder(sit, Number(targetLine.order) + 1) : null;
+    if (replyLine && learnerLines({ lines: [replyLine] }).length) replyLine = null;
     var noMicSupport = !hasMicrophone(root);
     var micBlocked = noMicSupport || !!state.micUnavailable;
     var outOfAttempts = state.attemptsLeft === 0;
     var saving = !!(state && state.savingStep);
-    var recordLocked = outOfAttempts || !!state.scoring || saving;
+    var recordLocked = outOfAttempts || !!state.scoring || saving || !!state.playingSpeakPartnerAuto;
 
-    var partnerHtml = partnerLine
-      ? '<div class="cp-roleplay-context">'
-        + '<div class="cp-deck-switch">'
-        + '<span class="cp-survey__sub">Nhân vật đối thoại (<strong>' + esc(partnerLine.speaker) + '</strong>) nói trước:</span>'
-        + '<button type="button" class="cp-btn-ghost" data-cp-play-audio="' + esc(partnerLine.audioUrl) + '" data-cp-play-text="' + esc(partnerLine.ja) + '">'
-        + svgSpeaker() + '<span>Phát lời bên kia</span></button>'
+    var historyLines = list(sit && sit.lines).filter(function (line) {
+      return line && Number(line.order) < Number(targetLine.order);
+    }).sort(function (a, b) { return Number(a.order) - Number(b.order); });
+    var historyHtml = historyLines.map(function (line) {
+      var learnerIdx = lLines.findIndex(function (learnerLine) { return Number(learnerLine.order) === Number(line.order); });
+      var learnerTurn = learnerIdx >= 0;
+      var turnScore = learnerTurn ? state.speakScores[learnerIdx] : null;
+      var skippedTurn = learnerTurn && !!state.speakSkipped[learnerIdx];
+      if (learnerTurn && !(turnScore && Number(turnScore.score) >= 70) && !skippedTurn) return '';
+      var lineClass = learnerTurn ? 'cp-line cp-speak-history cp-speak-history--learner' : 'cp-line cp-speak-history cp-speak-history--partner';
+      var label = learnerTurn
+        ? (skippedTurn ? 'Bạn · đã bỏ qua lượt nói' : 'Bạn · đạt ' + esc(turnScore.score) + '/100')
+        : 'Người đối thoại · ' + esc(line.speaker);
+      return '<div class="' + lineClass + '">'
+        + '<span class="cp-line__avatar" aria-hidden="true">' + (learnerTurn ? '私' : '相') + '</span>'
+        + '<span class="cp-line__speaker">' + label + '</span>'
+        + '<div class="cp-line__content">'
+        + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(line.furigana || line.ja, state.display.furigana) + '</div>'
+        + romajiHtml(line.furigana || line.ja, state)
+        + (state.display.translation ? '<div class="cp-line__vi">' + esc(line.vi) + '</div>' : '')
         + '</div>'
-        + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(partnerLine.furigana || partnerLine.ja, state.display.furigana) + '</div>'
-        + romajiHtml(partnerLine.furigana || partnerLine.ja, state)
-        + '<div class="cp-line__vi">' + esc(partnerLine.vi) + '</div>'
+        + (!learnerTurn ? '<button type="button" class="cp-audio-btn" data-cp-play-audio="' + esc(line.audioUrl || '') + '" data-cp-play-text="' + esc(line.ja) + '" aria-label="Phát lời người đối thoại">' + svgSpeaker() + '</button>' : '')
+        + '</div>';
+    }).join('');
+
+    var replyHtml = replyLine
+      ? '<div class="cp-line cp-speak-reply' + (state.playingSpeakReply ? ' is-playing' : '') + '">'
+        + '<span class="cp-line__avatar" aria-hidden="true">相</span>'
+        + '<span class="cp-line__speaker">Người đối thoại · ' + esc(replyLine.speaker) + '</span>'
+        + '<div class="cp-line__content"><span class="cp-roleplay-context__label">Bên kia đáp lại</span>'
+        + '<div class="cp-line__ja" lang="ja">' + toRubyHtml(replyLine.furigana || replyLine.ja, state.display.furigana) + '</div>'
+        + romajiHtml(replyLine.furigana || replyLine.ja, state)
+        + (state.display.translation ? '<div class="cp-line__vi">' + esc(replyLine.vi) + '</div>' : '') + '</div>'
+        + '<button type="button" class="cp-audio-btn' + (state.playingSpeakReply ? ' is-playing' : '') + '" data-cp-speak-reply-audio aria-label="' + (state.playingSpeakReply ? 'Đang phát lời đáp' : 'Nghe lời đáp') + '" aria-pressed="' + (state.playingSpeakReply ? 'true' : 'false') + '">' + svgSpeaker() + '</button>'
         + '</div>'
       : '';
 
@@ -752,13 +774,15 @@
         + '</div>'
       : '';
 
-    var recLabel = state.scoring
-      ? 'Đang chấm điểm phát âm…'
-      : (state.recording
-        ? '■ Dừng ghi âm & Chấm điểm (tự dừng sau 10s)'
-        : (outOfAttempts ? 'Đã hết lượt ghi âm hôm nay' : '● Bấm ghi âm câu của ' + esc(learnerName) + ''));
+    var recLabel = state.playingSpeakPartnerAuto
+      ? 'Đang phát lời người đối thoại…'
+      : (state.scoring
+        ? 'Đang chấm điểm phát âm…'
+        : (state.recording
+          ? '■ Dừng ghi âm & Chấm điểm (tự dừng sau 10s)'
+          : (outOfAttempts ? 'Đã hết lượt ghi âm hôm nay' : '● Bấm ghi âm câu của ' + esc(learnerName) + '')));
 
-    return '<div class="cp-sit-stage">'
+    return '<div class="cp-sit-stage cp-sit-stage--speak">'
       + '<div class="cp-deck-switch">'
       + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
       + '<strong>Đóng vai ' + esc(learnerName) + ' · Câu ' + (sIdx + 1) + '/' + lLines.length + '</strong>'
@@ -768,13 +792,13 @@
       + (state.hideSpeakText ? 'Hiện chữ câu của ' + esc(learnerName) + '' : 'Ẩn chữ để tự nhớ')
       + '</button>'
       + '</div>'
-      + partnerHtml
-      + '<div class="cp-speak-box">'
+      + '<div class="cp-speak-transcript" aria-label="Hội thoại đã luyện">' + historyHtml + '</div>'
+      + '<div class="cp-speak-box cp-speak-box--learner">'
       + '<div class="cp-speak-target' + (state.hideSpeakText ? ' is-hidden-text' : '') + '">'
       + '<span class="cp-survey__sub">Câu của <strong>' + esc(learnerName) + '</strong>:</span>'
       + '<div class="cp-line__ja cp-speak-target__ja" lang="ja">' + toRubyHtml(targetLine.furigana || targetLine.ja, state.display.furigana) + '</div>'
       + romajiHtml(targetLine.furigana || targetLine.ja, state)
-      + '<div class="cp-line__vi">' + esc(targetLine.vi) + '</div>'
+      + (state.display.translation ? '<div class="cp-line__vi">' + esc(targetLine.vi) + '</div>' : '')
       + '</div>'
       + '<div class="cp-speak-controls">'
       + '<button type="button" class="cp-rec-btn' + (state.recording ? ' is-recording' : '') + '" data-cp-record' + (recordLocked ? ' disabled' : '') + '>'
@@ -787,11 +811,12 @@
       + noticeHtml
       + '</div>'
       + scoreHtml
+      + replyHtml
       + '</div>'
       + '<footer class="cp-sit-foot">'
       + '<button type="button" class="cp-btn-ghost" data-cp-goto-step="ROLEPLAY">Quay lại Nhập vai</button>'
       + (sIdx + 1 < lLines.length
-        ? '<button type="button" class="cp-btn-primary" data-cp-speak-next' + (!isPass && !state.speakSkipped[sIdx] ? ' disabled' : '') + '>Câu tiếp theo</button>'
+        ? '<span class="cp-survey__sub cp-speak-auto-note">Hoàn tất lượt này, hội thoại sẽ tự nối tiếp.</span>'
         : '<button type="button" class="cp-btn-primary" data-cp-finish-step="SPEAK"' + ((!isPass && !state.speakSkipped[sIdx]) || saving ? ' disabled' : '') + '>'
           + (saving ? 'Đang lưu…' : 'Hoàn thành 4 bước') + '</button>')
       + '</footer>';
@@ -1003,12 +1028,16 @@
       notesOpen: false,
       playingLineIdx: -1,
       playingAll: false,
+      playingSpeakReply: false,
       turnIdx: 0,
       roleplayAnswers: {},
       roleplayMisses: {},
       speakIdx: 0,
       speakScores: {},
       speakSkipped: {},
+      speakAutoPlayedOrders: {},
+      speakAutoQueue: [],
+      playingSpeakPartnerAuto: false,
       anyMicSkipped: false,
       attemptsLeft: null,
       micUnavailable: !hasMicrophone(root),
@@ -1025,6 +1054,50 @@
     };
 
     var shownStep = null;
+    var shownSpeakIdx = -1;
+    function autoPlayNewSpeakPartnerLines() {
+      if (state.activeStep !== 'SPEAK' || state.showDoneScreen) return false;
+      var speakLines = learnerLines(sitData);
+      var target = speakLines[state.speakIdx];
+      if (!target) return false;
+      var score = state.speakScores[state.speakIdx];
+      var candidates = list(sitData && sitData.lines).filter(function (line) {
+        if (!line || line.learner === true || line.speaker === 'リン') return false;
+        var beforeCurrent = Number(line.order) < Number(target.order);
+        var finalReply = score && Number(score.score) >= 70 && state.speakIdx === speakLines.length - 1
+          && Number(line.order) === Number(target.order) + 1;
+        return beforeCurrent || finalReply;
+      }).sort(function (a, b) { return Number(a.order) - Number(b.order); });
+      var fresh = candidates.filter(function (line) {
+        return !state.speakAutoPlayedOrders[String(line.order)];
+      });
+      if (!fresh.length) return false;
+
+      fresh.forEach(function (line) { state.speakAutoPlayedOrders[String(line.order)] = true; });
+      state.speakAutoQueue = fresh.slice();
+      state.playingSpeakPartnerAuto = true;
+      var recordBtn = el.querySelector('[data-cp-record]');
+      if (recordBtn) {
+        recordBtn.disabled = true;
+        var label = recordBtn.querySelector('span');
+        if (label) label.textContent = 'Đang phát lời người đối thoại…';
+      }
+      var skipBtn = el.querySelector('[data-cp-speak-skip]');
+      if (skipBtn) skipBtn.disabled = true;
+
+      function playNext() {
+        var line = state.speakAutoQueue.shift();
+        if (!line) {
+          state.playingSpeakPartnerAuto = false;
+          render();
+          return;
+        }
+        speakJapanese(line.ja, line.audioUrl, playNext);
+      }
+      playNext();
+      return true;
+    }
+
     function render() {
       el.setAttribute('aria-busy', 'false');
       el.innerHTML = situationHtml(sitData, state);
@@ -1035,7 +1108,21 @@
         var tabs = el.querySelector('.cp-sit-steps');
         if (tabs && typeof tabs.scrollIntoView === 'function') tabs.scrollIntoView({ block: 'start' });
       }
+      var speakIdxNow = stepNow === 'SPEAK' ? Number(state.speakIdx || 0) : -1;
+      var speakTurnChanged = stepNow === 'SPEAK' && (shownStep !== 'SPEAK' || shownSpeakIdx !== speakIdxNow);
+      var newPartnerAudio = autoPlayNewSpeakPartnerLines();
+      if (speakTurnChanged || newPartnerAudio) {
+        var scrollToTurn = function () {
+          var turn = el.querySelector('.cp-speak-box--learner');
+          if (turn && typeof turn.scrollIntoView === 'function') {
+            turn.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        };
+        if (root.requestAnimationFrame) root.requestAnimationFrame(scrollToTurn);
+        else setTimeout(scrollToTurn, 0);
+      }
       shownStep = stepNow;
+      shownSpeakIdx = speakIdxNow;
     }
 
     function clearRecordTimer() {
@@ -1164,6 +1251,9 @@
           state.attemptsLeft = normalized.attemptsLeft;
         }
         state.speakScores[state.speakIdx] = normalized;
+        if (Number(normalized.score) >= 70 && state.speakIdx + 1 < lLines.length) {
+          state.speakIdx += 1;
+        }
         render();
       }, function (err) {
         state.scoring = false;
@@ -1347,6 +1437,21 @@
         return;
       }
 
+      if (t.closest('[data-cp-speak-reply-audio]')) {
+        var speakLines = learnerLines(sitData);
+        var speakTarget = speakLines[state.speakIdx];
+        var speakReply = speakTarget && findLineByOrder(sitData, Number(speakTarget.order) + 1);
+        if (speakReply) {
+          state.playingSpeakReply = true;
+          render();
+          speakJapanese(speakReply.ja, speakReply.audioUrl, function () {
+            state.playingSpeakReply = false;
+            render();
+          });
+        }
+        return;
+      }
+
       if (t.closest('[data-cp-flip-card]') || t.closest('[data-cp-flip-btn]')) {
         state.cardFlipped = !state.cardFlipped;
         render();
@@ -1506,13 +1611,6 @@
         } else {
           submitStep('SPEAK', '');
         }
-        return;
-      }
-
-      if (t.closest('[data-cp-speak-next]')) {
-        cancelRecordingSilently();
-        state.speakIdx += 1;
-        render();
         return;
       }
 

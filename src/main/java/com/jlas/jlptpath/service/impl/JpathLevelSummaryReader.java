@@ -30,7 +30,7 @@ public class JpathLevelSummaryReader {
         int known = count("select count(*) from jpath_user_item where user_id = ?1 and level = ?2 and state = 'KNOWN'",
                 userId, level);
         int learned = count("select count(*) from jpath_user_item where user_id = ?1 and level = ?2"
-                + " and counted_at is not null", userId, level);
+                + " and (first_learned_at is not null or counted_at is not null)", userId, level); // [JLAS-W0108] L2: match the today card (studied, not only checked)
         int days = count("select count(*) from jpath_daily_plan where user_id = ?1 and level = ?2"
                 + " and all_done_at is not null", userId, level);
         Object[] acc = (Object[]) em.createNativeQuery("select coalesce(sum(correct_count), 0), coalesce(sum(total_count), 0)"

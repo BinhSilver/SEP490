@@ -1,0 +1,1037 @@
+/* [JLAS-W0108] Owner 27/11: "sổ tay giấy" (paper notebook) look for the whole Learning flow (JLPT + Giao tiếp + Lộ trình của tôi).
+   Rules: one frame per area, no underlined links, soft status chips, one strong accent per screen, flat hint rows,
+   paper + washi tape + ink stamp 済 for the day card. Tokens only (paper/tape mixed from existing tokens).
+   Loaded last by jlptpath/fragments/jpath :: assets, so every path page gets it. */
+
+html body main.jp-page.jp-page.jp-page {
+  --rf-ink: var(--color-on-surface);
+  --rf-muted: var(--color-on-surface-variant);
+  --rf-line: var(--color-outline-variant);
+  --rf-soft: var(--color-surface-low);
+  --rf-card: var(--color-surface-lowest);
+  --rf-accent: var(--color-primary);
+  --rf-tint: var(--color-primary-fixed);
+}
+
+/* ---------- Shared: ghost buttons replace underlined links ---------- */
+html body main.jp-page.jp-page.jp-page .jp-link-btn,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__summary,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__preview,
+html body main.jp-page.jp-page.jp-page .jp-stage__passed a,
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble {
+  display: inline-flex !important;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 12px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--rf-soft) !important;
+  color: var(--rf-accent) !important;
+  font-size: .82rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+html body main.jp-page.jp-page.jp-page .jp-link-btn:hover,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__summary:hover,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__preview:hover,
+html body main.jp-page.jp-page.jp-page .jp-stage__passed a:hover,
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble:hover { background: var(--rf-tint) !important; }
+
+html body main.jp-page.jp-page.jp-page .jp-btn:not(.jp-btn--primary) {
+  border: 1px solid var(--rf-line) !important;
+  background: var(--rf-card) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+}
+
+/* ---------- Path switch: no box around the tabs ---------- */
+html body main.jp-page.jp-page.jp-page .mp-switch {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 0 4px !important;
+  border-bottom: 1px solid var(--rf-line) !important;
+  border-radius: 0 !important;
+  gap: 20px;
+}
+html body main.jp-page.jp-page.jp-page .mp-switch__tabs { background: transparent !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; gap: 4px; }
+html body main.jp-page.jp-page.jp-page .mp-switch__tabs::before,
+html body main.jp-page.jp-page.jp-page .mp-switch__tabs::after { display: none !important; }
+html body main.jp-page.jp-page.jp-page .mp-switch__home,
+html body main.jp-page.jp-page.jp-page .mp-switch__tab {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
+  padding: 8px 14px !important;
+  color: var(--rf-muted) !important;
+  font-size: .95rem !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-switch__tab.is-current { background: var(--rf-tint) !important; color: var(--rf-accent) !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .mp-switch__tab:hover { color: var(--rf-accent) !important; }
+html body main.jp-page.jp-page.jp-page .mp-switch__done {
+  margin-left: 8px; padding: 1px 8px; border-radius: 999px;
+  background: var(--color-success-bg) !important; color: var(--color-success) !important;
+  font-size: .72rem !important; font-weight: 500 !important; border: 0 !important;
+}
+
+/* ---------- Sidebar ---------- */
+@media (min-width: 900px) {
+  html body main.jp-page.jp-page.jp-page .jp-ws--norail { grid-template-columns: clamp(232px, 21%, 268px) minmax(0, 1fr) !important; column-gap: 40px !important; }
+}
+html body main.jp-page.jp-page.jp-page .jp-level-bar { gap: 2px !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell .jp-step__body {
+  display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px 8px !important; padding-bottom: 14px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-level-cell__name { font-size: 1.05rem !important; font-weight: 600 !important; color: var(--rf-ink) !important; }
+html body main.jp-page.jp-page.jp-page .jp-step--todo .jp-level-cell__name { color: var(--rf-muted) !important; font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell__badge,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__state {
+  padding: 2px 10px !important; border-radius: 999px !important; border: 0 !important;
+  font-size: .74rem !important; font-weight: 500 !important; text-decoration: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-level-cell__badge { background: var(--color-success-bg) !important; color: var(--color-success) !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell__state { background: var(--rf-tint) !important; color: var(--rf-accent) !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell__preview,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__summary { min-height: 26px !important; padding: 2px 10px !important; font-size: .76rem !important; }
+html body main.jp-page.jp-page.jp-page .jp-step--todo .jp-level-cell__preview { background: transparent !important; color: var(--rf-muted) !important; box-shadow: inset 0 0 0 1px var(--rf-line) !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell__bar { flex-basis: 100%; height: 4px !important; border-radius: 999px !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell .jp-step__mark svg { width: 14px; height: 14px; }
+
+html body main.jp-page.jp-page.jp-page .jp-sidenav {
+  margin-top: 8px !important; padding: 16px 0 0 !important;
+  border: 0 !important; border-top: 1px solid var(--rf-line) !important; border-radius: 0 !important;
+  background: transparent !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-sidenav__title { padding: 0 12px; font-size: .78rem !important; font-weight: 500 !important; color: var(--rf-muted) !important; }
+html body main.jp-page.jp-page.jp-page .jp-sidenav__link {
+  border: 0 !important; border-radius: 10px !important; white-space: nowrap;
+  padding: 8px 12px !important; font-weight: 500 !important; color: var(--rf-ink) !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-sidenav__link[aria-current="page"],
+html body main.jp-page.jp-page.jp-page .jp-sidenav__link.is-current { background: var(--rf-tint) !important; color: var(--rf-accent) !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .jp-sidenav__link--sub { color: var(--rf-muted) !important; font-size: .9rem !important; }
+html body main.jp-page.jp-page.jp-page .jp-sidenav__link:hover { color: var(--rf-accent) !important; }
+
+/* ---------- Title + mode switch ---------- */
+html body main.jp-page.jp-page.jp-page .jp-hero__title { font-weight: 600 !important; letter-spacing: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-modebar {
+  display: inline-flex !important; width: auto !important; gap: 4px;
+  padding: 4px !important; border: 0 !important; border-radius: 999px !important;
+  background: var(--rf-soft) !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-modebar__tab {
+  border: 0 !important; border-radius: 999px !important; padding: 8px 20px !important;
+  background: transparent !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-modebar__tab.is-on { background: var(--rf-card) !important; box-shadow: inset 0 0 0 1px var(--rf-line) !important; }
+html body main.jp-page.jp-page.jp-page .jp-modebar__sub { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-modebar__label { font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .jp-modebar__tab.is-on .jp-modebar__label { font-weight: 600 !important; color: var(--rf-accent) !important; }
+
+/* ---------- Today: one frame, flat tiles inside ---------- */
+html body main.jp-page.jp-page.jp-page .jp-today {
+  border: 1px solid var(--rf-line) !important; border-radius: 16px !important;
+  background: var(--rf-card) !important; box-shadow: none !important; padding: 24px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__pills {
+  display: grid !important; gap: 0 !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  border-top: 1px solid var(--rf-line); margin-top: 8px !important;
+}
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill {
+  border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
+  padding: 16px 16px 16px 0 !important; min-height: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__pill + .jp-today__pill { padding-left: 16px !important; border-left: 1px solid var(--rf-line) !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__pill::before,
+html body main.jp-page.jp-page.jp-page .jp-today__pill::after { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__ring { box-shadow: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-todo__done {
+  padding: 1px 8px !important; border-radius: 999px !important; border: 0 !important;
+  background: var(--color-success-bg) !important; color: var(--color-success) !important;
+  font-size: .72rem !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__bottom {
+  border: 0 !important; border-top: 1px solid var(--rf-line) !important; border-radius: 0 !important;
+  background: transparent !important; padding: 16px 0 0 !important; margin-top: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__weekly {
+  border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__weekly-countdown {
+  background: var(--color-warning-bg) !important; color: var(--rf-ink) !important;
+  border-radius: 999px !important; padding: 1px 8px !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-stage__passed {
+  background: transparent !important; border: 0 !important; padding: 0 !important;
+  display: flex !important; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--rf-muted) !important;
+}
+
+/* ---------- Hints: one flat list instead of four coloured bands ---------- */
+html body main.jp-page.jp-page.jp-page .jp-why-today,
+html body main.jp-page.jp-page.jp-page .jp-warmup,
+html body main.jp-page.jp-page.jp-page .jp-nudge__row {
+  border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
+  border-top: 1px solid var(--rf-line) !important; padding: 18px 0 !important; margin: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-path__today { display: grid; gap: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-path__today > .jp-today { margin-bottom: 24px !important; }
+html body main.jp-page.jp-page.jp-page .jp-path__warmup,
+html body main.jp-page.jp-page.jp-page .jp-path__nudge { margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-nudge { display: grid; gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-why-today__title,
+html body main.jp-page.jp-page.jp-page .jp-warmup__title { font-size: 1rem !important; font-weight: 600 !important; color: var(--rf-ink) !important; margin: 0 0 6px !important; }
+html body main.jp-page.jp-page.jp-page .jp-why-today__list { margin: 0 !important; padding-left: 18px !important; color: var(--rf-muted); }
+html body main.jp-page.jp-page.jp-page .jp-warmup { display: flex !important; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+html body main.jp-page.jp-page.jp-page .jp-warmup__sub,
+html body main.jp-page.jp-page.jp-page .jp-nudge__text { color: var(--rf-muted) !important; font-size: .9rem !important; }
+html body main.jp-page.jp-page.jp-page .jp-nudge__row { display: flex !important; align-items: center; justify-content: space-between; gap: 16px; }
+html body main.jp-page.jp-page.jp-page .jp-nudge__actions { display: inline-flex; gap: 8px; flex-shrink: 0; }
+html body main.jp-page.jp-page.jp-page .jp-warmup__actions { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 899px) {
+  html body main.jp-page.jp-page.jp-page .mp-switch { overflow-x: auto; flex-wrap: nowrap; }
+  html body main.jp-page.jp-page.jp-page .jp-today { padding: 16px !important; }
+  html body main.jp-page.jp-page.jp-page ol.jp-today__pills { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill { padding: 14px 12px 14px 0 !important; border-left: 0 !important; border-bottom: 1px solid var(--rf-line) !important; }
+  html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill:nth-child(even) { padding-left: 12px !important; border-left: 1px solid var(--rf-line) !important; }
+  html body main.jp-page.jp-page.jp-page .jp-modebar { display: flex !important; width: 100% !important; }
+  html body main.jp-page.jp-page.jp-page .jp-modebar__tab { flex: 1; }
+  html body main.jp-page.jp-page.jp-page .jp-nudge__row { flex-direction: column; align-items: flex-start; }
+}
+
+/* Status chips keep their own width next to the level name. */
+html body main.jp-page.jp-page.jp-page .jp-level-cell__badge,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__state { flex: 0 0 auto !important; width: auto !important; display: inline-flex !important; }
+html body main.jp-page.jp-page.jp-page .jp-level-cell__preview,
+html body main.jp-page.jp-page.jp-page .jp-level-cell__summary { flex: 0 0 auto !important; }
+
+/* Mobile: path switch stays on one scrollable line. */
+@media (max-width: 899px) {
+  html body main.jp-page.jp-page.jp-page .mp-switch,
+  html body main.jp-page.jp-page.jp-page .mp-switch__tabs { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
+  html body main.jp-page.jp-page.jp-page .mp-switch__home,
+  html body main.jp-page.jp-page.jp-page .mp-switch__tab { white-space: nowrap !important; flex: 0 0 auto !important; padding: 6px 12px !important; font-size: .88rem !important; }
+}
+
+/* ---------- Round 2 (owner 27/11): one button size, quiet text actions, tidy progress row ---------- */
+html body main.jp-page.jp-page.jp-page {
+  --rf-btn-h: 36px;
+  --rf-divider: var(--color-surface-container);
+}
+/* Outline button: every one the same height and type size. */
+html body main.jp-page.jp-page.jp-page .jp-btn:not(.jp-btn--primary) {
+  min-height: var(--rf-btn-h) !important; height: var(--rf-btn-h) !important;
+  padding: 0 16px !important; font-size: .875rem !important; line-height: 1 !important;
+  color: var(--rf-ink) !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-btn:not(.jp-btn--primary):hover { border-color: var(--rf-accent) !important; color: var(--rf-accent) !important; }
+/* Text action: same height, no chip, no underline. */
+html body main.jp-page.jp-page.jp-page .jp-link-btn,
+html body main.jp-page.jp-page.jp-page .jp-stage__passed a,
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble {
+  min-height: var(--rf-btn-h) !important; padding: 0 12px !important;
+  background: transparent !important; color: var(--rf-accent) !important;
+  font-size: .875rem !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-link-btn:hover,
+html body main.jp-page.jp-page.jp-page .jp-stage__passed a:hover,
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble:hover { background: var(--rf-soft) !important; }
+
+/* Lighter dividers everywhere on the page. */
+html body main.jp-page.jp-page.jp-page .jp-why-today,
+html body main.jp-page.jp-page.jp-page .jp-warmup,
+html body main.jp-page.jp-page.jp-page .jp-nudge__row,
+html body main.jp-page.jp-page.jp-page .jp-today__bottom,
+html body main.jp-page.jp-page.jp-page .jp-today__pills { border-top-color: var(--rf-divider) !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill + li.jp-today__pill { border-left-color: var(--rf-divider) !important; }
+
+/* Hint rows: text left, actions right, same rhythm for all three. */
+html body main.jp-page.jp-page.jp-page .jp-warmup,
+html body main.jp-page.jp-page.jp-page .jp-nudge__row {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 24px; row-gap: 12px;
+  padding: 20px 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-warmup__actions,
+html body main.jp-page.jp-page.jp-page .jp-nudge__actions { justify-content: flex-end; align-items: center; gap: 8px; }
+html body main.jp-page.jp-page.jp-page .jp-why-today { padding: 20px 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-why-today__list li { margin: 2px 0; }
+html body main.jp-page.jp-page.jp-page .jp-nudge__text { color: var(--rf-ink) !important; font-size: .9375rem !important; }
+
+/* Bottom of Today: weekly test and stage progress on one calm row. */
+html body main.jp-page.jp-page.jp-page .jp-today__bottom {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px 24px; padding-top: 20px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__side::before,
+html body main.jp-page.jp-page.jp-page .jp-stage::before { display: none !important; content: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__side { margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage { display: grid; gap: 8px; justify-items: end; }
+html body main.jp-page.jp-page.jp-page .jp-stage__steps { display: flex !important; gap: 20px !important; margin: 0 !important; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step { display: inline-flex !important; align-items: center; gap: 6px; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step::before,
+html body main.jp-page.jp-page.jp-page .jp-stage__step::after { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__body { display: inline-flex !important; gap: 6px; align-items: baseline; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__label { font-size: .875rem !important; font-weight: 500 !important; color: var(--rf-ink) !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__sub { font-size: .8125rem !important; color: var(--color-success) !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__passed { justify-content: flex-end; gap: 4px !important; font-size: .875rem; margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__weekly-info { display: inline-flex; align-items: center; gap: 8px; }
+html body main.jp-page.jp-page.jp-page .jp-today__weekly-info strong { font-weight: 500 !important; }
+
+@media (max-width: 899px) {
+  html body main.jp-page.jp-page.jp-page .jp-today__bottom,
+  html body main.jp-page.jp-page.jp-page .jp-warmup,
+  html body main.jp-page.jp-page.jp-page .jp-nudge__row { grid-template-columns: minmax(0, 1fr); }
+  html body main.jp-page.jp-page.jp-page .jp-stage { justify-items: start; }
+  html body main.jp-page.jp-page.jp-page .jp-stage__steps { flex-wrap: wrap; gap: 8px 16px !important; }
+  html body main.jp-page.jp-page.jp-page .jp-stage__passed,
+  html body main.jp-page.jp-page.jp-page .jp-warmup__actions,
+  html body main.jp-page.jp-page.jp-page .jp-nudge__actions { justify-content: flex-start; }
+}
+
+/* ---------- Levels: current level in full, the others as chips (jpath-refine.js) ---------- */
+html body main.jp-page.jp-page.jp-page .jp-level-bar.rf-levels {
+  display: flex !important; flex-wrap: wrap; gap: 8px !important; padding: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .rf-levels::before,
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-level-cell::before,
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-level-cell::after { display: none !important; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now {
+  order: -1; flex: 1 0 100%; display: block !important;
+  padding: 14px 16px !important; margin-bottom: 4px;
+  border-radius: 12px; background: var(--rf-tint);
+}
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-step__mark { display: none !important; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-step__body { padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__name { font-size: 1.5rem !important; color: var(--rf-accent) !important; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__state { background: var(--rf-card) !important; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__bar { background: var(--rf-card) !important; }
+
+html body main.jp-page.jp-page.jp-page .rf-level--folded {
+  display: inline-flex !important; flex: 0 0 auto; padding: 0 !important; margin: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-step__mark { display: none !important; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-step__body { padding: 0 !important; display: contents !important; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__name {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  min-height: 32px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--rf-line); background: var(--rf-card);
+  font-size: .875rem !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page .rf-level--folded.jp-step--done .jp-level-cell__name { color: var(--color-success) !important; border-color: var(--color-success-bg); background: var(--color-success-bg); }
+html body main.jp-page.jp-page.jp-page .rf-level--folded.jp-step--todo .jp-level-cell__name { color: var(--rf-muted) !important; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__name:hover { border-color: var(--rf-accent); }
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__badge,
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__state,
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__preview,
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__summary { display: none !important; }
+/* Opened chip: takes a full row with its actions under the name. */
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open {
+  flex: 1 0 100%; display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 10px 12px !important; border-radius: 12px; background: var(--rf-soft);
+}
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open .jp-level-cell__name { border-color: var(--rf-accent); }
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open .jp-level-cell__badge,
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open .jp-level-cell__preview,
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open .jp-level-cell__summary { display: inline-flex !important; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open .jp-level-cell__badge { display: none !important; }
+
+/* Round 3 fixes: level bar is a vertical stepper grid by default; progress labels must not wrap. */
+html body main.jp-page.jp-page.jp-page ol.jp-stepper.jp-level-bar.rf-levels {
+  display: flex !important; flex-direction: row !important; flex-wrap: wrap !important;
+  grid-template-columns: none !important; align-items: center;
+}
+html body main.jp-page.jp-page.jp-page ol.rf-levels > li.jp-step--now { width: 100%; height: auto !important; min-height: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__bottom { grid-template-columns: minmax(0, 1fr) !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage { justify-items: start !important; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 24px; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step,
+html body main.jp-page.jp-page.jp-page .jp-stage__step * { white-space: nowrap !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__mark { width: auto !important; height: auto !important; border: 0 !important; background: none !important; color: var(--color-success) !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__passed { justify-content: flex-start !important; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open .jp-level-cell__name { flex: 0 0 auto !important; width: auto !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__mark { position: static !important; transform: none !important; margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__sub { margin-left: 4px !important; position: static !important; }
+
+/* ---------- Round 4 (owner 27/11): tidy Today header, no overlaps, quieter icons ---------- */
+/* Header: date | title + subtitle | stamp link on the right. */
+html body main.jp-page.jp-page.jp-page .jp-today__top {
+  display: grid !important; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px; margin-bottom: 20px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__cal { margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__lead { display: grid; gap: 4px; padding: 0 !important; margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__title-row { display: flex !important; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+html body main.jp-page.jp-page.jp-page .jp-today__title-row .jp-section-title { font-size: 1.25rem !important; font-weight: 600 !important; margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__subtitle { margin: 0 !important; color: var(--rf-muted) !important; font-size: .9375rem !important; font-weight: 400 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-wrap { display: inline-flex !important; align-items: center; gap: 8px; position: static !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__stamp { width: 44px !important; height: 44px !important; position: static !important; transform: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__stamp::before,
+html body main.jp-page.jp-page.jp-page .jp-today__stamp::after,
+html body main.jp-page.jp-page.jp-page [data-tip]::after,
+html body main.jp-page.jp-page.jp-page [data-tip]::before { display: none !important; content: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble { position: static !important; transform: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble::before,
+html body main.jp-page.jp-page.jp-page .jp-today__stamp-bubble::after { display: none !important; }
+
+/* Tiles: no medal rings; status as a small green line under the count. */
+html body main.jp-page.jp-page.jp-page .jp-today__ring { display: none !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill {
+  display: flex !important; flex-direction: column; align-items: flex-start; gap: 4px;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__pill-body strong { font-size: 1rem !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__pill-sub { font-size: .8125rem !important; color: var(--rf-muted) !important; }
+html body main.jp-page.jp-page.jp-page .jp-todo__done {
+  margin: 6px 0 0 !important; padding: 0 !important; background: transparent !important;
+  display: inline-flex !important; align-items: center; gap: 6px; font-size: .8125rem !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-todo__done svg { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-todo__done::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-success);
+}
+
+/* Progress row: label only, green dot = done, no overlapping sub labels. */
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__mark { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__body::before,
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__body::after,
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__label::before,
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__label::after { display: none !important; content: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step::before {
+  display: inline-block !important; content: "" !important; position: static !important;
+  width: 8px !important; height: 8px !important; border-radius: 50%; background: var(--rf-line) !important; border: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-stage__step.jp-step--done::before { background: var(--color-success) !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__steps { gap: 24px !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__weekly-icon svg { width: 16px; height: 16px; opacity: .7; }
+html body main.jp-page.jp-page.jp-page .jp-stage__passed { color: var(--rf-ink) !important; }
+
+/* Levels: current level card tidier, chips evenly spaced. */
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-step__body { display: grid !important; gap: 8px !important; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__state { justify-self: start; }
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__bar { width: 100% !important; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded .jp-level-cell__name { min-width: 44px; justify-content: center; }
+html body main.jp-page.jp-page.jp-page .rf-level--folded.is-open { padding: 6px 8px !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__top { column-gap: 44px !important; }
+/* Round 5: progress label keeps its natural width so the status never runs into it; mascot back to its own spot. */
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__body { display: inline-flex !important; align-items: baseline; gap: 6px !important; width: auto !important; min-width: 0; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__label,
+html body main.jp-page.jp-page.jp-page .jp-stage__step .jp-step__sub { flex: 0 0 auto !important; width: auto !important; max-width: none !important; margin: 0 !important; overflow: visible !important; }
+html body main.jp-page.jp-page.jp-page .jp-stage__step { width: auto !important; flex: 0 0 auto !important; gap: 8px !important; }
+
+/* ---------- Direction A (owner 27/11): paper notebook for "Hôm nay của bạn" ----------
+   Paper, tape and ink are mixed from existing tokens (no new hex, follows dark mode). No ruled lines. */
+html body main.jp-page.jp-page.jp-page {
+  --rf-paper: color-mix(in srgb, var(--color-warning-bg) 45%, var(--color-surface-lowest));
+  --rf-paper-edge: color-mix(in srgb, var(--color-warning) 22%, var(--color-surface-lowest));
+  --rf-tape: color-mix(in srgb, var(--color-primary-fixed) 80%, transparent);
+  --rf-ink-done: var(--color-success);
+}
+html body main.jp-page.jp-page.jp-page .jp-today {
+  position: relative; overflow: visible !important;
+  background: var(--rf-paper) !important;
+  border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 14px 6px !important;
+  margin-top: 14px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-today::before {
+  content: ""; position: absolute; z-index: 2; top: -11px; left: 36px;
+  width: 96px; height: 22px; background: var(--rf-tape); transform: rotate(-3deg); pointer-events: none;
+}
+html body main.jp-page.jp-page.jp-page .jp-today::after {
+  content: ""; position: absolute; z-index: 2; top: -9px; right: 44px;
+  width: 64px; height: 20px; background: var(--rf-tape); transform: rotate(4deg); pointer-events: none;
+}
+html body main.jp-page.jp-page.jp-page .jp-today .jp-today__pills,
+html body main.jp-page.jp-page.jp-page .jp-today .jp-today__bottom { border-top: 1px dashed var(--rf-paper-edge) !important; }
+html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills > li.jp-today__pill + li.jp-today__pill { border-left: 1px dashed var(--rf-paper-edge) !important; }
+html body main.jp-page.jp-page.jp-page .jp-today .jp-today__cal { background: var(--rf-paper) !important; }
+html body main.jp-page.jp-page.jp-page .jp-today .jp-today__stamp { transform: rotate(-12deg) !important; }
+
+/* Check style 3: small ink stamp 済 instead of a tick or dot. */
+html body main.jp-page.jp-page.jp-page .jp-todo__done::before,
+html body main.jp-page.jp-page.jp-page .jp-stage__step.jp-step--done::before {
+  content: "済" !important; display: inline-flex !important; align-items: center; justify-content: center;
+  width: 20px !important; height: 20px !important; border-radius: 50% !important;
+  border: 1.5px solid var(--rf-ink-done) !important; background: transparent !important;
+  color: var(--rf-ink-done) !important; font-size: 10px !important; line-height: 1 !important; font-weight: 500;
+  transform: rotate(-10deg); flex: 0 0 auto;
+}
+html body main.jp-page.jp-page.jp-page .jp-stage__step:not(.jp-step--done)::before {
+  width: 20px !important; height: 20px !important; border-radius: 50% !important;
+  background: transparent !important; border: 1.5px dashed var(--rf-line) !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-todo__done { color: var(--rf-ink-done) !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill { justify-content: flex-start !important; height: auto !important; min-height: 0 !important; gap: 2px !important; }
+html body main.jp-page.jp-page.jp-page .jp-today__pill-body { display: grid !important; gap: 2px !important; height: auto !important; }
+html body main.jp-page.jp-page.jp-page .jp-todo__done { margin-top: 10px !important; }
+html body main.jp-page.jp-page.jp-page .jp-today .jp-today__stamp { width: 56px !important; height: 56px !important; opacity: 1 !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill > .jp-today__pill-body { flex: 0 0 auto !important; flex-basis: auto !important; align-content: start !important; grid-template-rows: auto !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill .jp-todo__done { min-height: 0 !important; }
+
+/* =====================================================================================
+   Flow-wide layer (owner 27/11 "theo phong cách này hãy sửa cho luồng")
+   ===================================================================================== */
+html body main.jp-page.jp-page.jp-page :is(a, button, summary):not(.jp-btn) { text-decoration: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-btn { border-radius: 999px !important; font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .jp-btn--primary { box-shadow: none !important; }
+
+/* Text actions (Tạm dừng, Xem, Xem lại, Xem chứng chỉ…) */
+html body main.jp-page.jp-page.jp-page .mp-link {
+  display: inline-flex; align-items: center; min-height: var(--rf-btn-h, 36px); padding: 0 12px !important;
+  border: 0 !important; border-radius: 999px !important; background: transparent !important;
+  color: var(--color-primary) !important; font-size: .875rem !important; font-weight: 500 !important; cursor: pointer;
+}
+html body main.jp-page.jp-page.jp-page .mp-link:hover { background: var(--color-surface-low) !important; }
+html body main.jp-page.jp-page.jp-page .mp-card__pause { color: var(--color-on-surface-variant) !important; }
+
+/* Paper note: the "today" summary of each page gets paper + washi tape (same as the JLPT day card). */
+html body main.jp-page.jp-page.jp-page .mp-today {
+  position: relative; overflow: visible !important;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 14px 6px !important; box-shadow: none !important; margin-top: 14px !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-today::before {
+  content: ""; position: absolute; z-index: 2; top: -11px; left: 36px; width: 96px; height: 22px;
+  background: var(--rf-tape); transform: rotate(-3deg); pointer-events: none;
+}
+html body main.jp-page.jp-page.jp-page .mp-today__warn {
+  border: 0 !important; padding: 0 !important; background: transparent !important;
+  color: var(--color-on-surface-variant) !important; font-size: .875rem !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-today h2 { font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .mp-today__remind { font-weight: 500 !important; }
+
+/* Path cards: plain white sheet, no thick coloured top bar. */
+html body main.jp-page.jp-page.jp-page .mp-card {
+  border: 1px solid var(--color-outline-variant) !important; border-radius: 12px !important;
+  box-shadow: none !important; background: var(--color-surface-lowest) !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-card::before { display: none !important; }
+html body main.jp-page.jp-page.jp-page .mp-chip { border-radius: 999px !important; font-weight: 500 !important; font-size: .75rem !important; }
+html body main.jp-page.jp-page.jp-page .mp-card__head h3 { font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .mp-card__today.is-done { color: var(--color-success) !important; font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .mp-io { border: 0 !important; background: transparent !important; padding: 12px 0 0 !important; border-top: 1px dashed var(--color-outline-variant) !important; }
+html body main.jp-page.jp-page.jp-page .mp-card__actions { align-items: center; gap: 8px !important; }
+
+/* Paused / finished list: flat rows, thin progress, no heavy bars under the names. */
+html body main.jp-page.jp-page.jp-page .mp-rows { border: 0 !important; border-radius: 0 !important; background: transparent !important; }
+html body main.jp-page.jp-page.jp-page .mp-row { border-bottom: 1px solid var(--color-surface-container) !important; padding: 12px 0 !important; align-items: center; }
+html body main.jp-page.jp-page.jp-page .mp-row__name { display: grid !important; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 10px; row-gap: 6px; }
+html body main.jp-page.jp-page.jp-page .mp-row__bar { grid-column: 2; width: min(100%, 160px) !important; height: 4px !important; border-radius: 999px !important; }
+html body main.jp-page.jp-page.jp-page .mp-row__note { color: var(--color-on-surface-variant) !important; font-size: .8125rem !important; }
+
+/* ---------- Giao tiếp path page ---------- */
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills.cp-today__list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)) !important; border-bottom: 0 !important; border-left: 0 !important; border-right: 0 !important; border-radius: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-today__item .jp-btn--sm { margin-top: 8px; }
+html body main.jp-page.jp-page.jp-page .jp-today__go { margin: 0 0 4px !important; }
+html body main.jp-page.jp-page.jp-page .cp-today__check {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+  margin: 0 !important; padding: 14px 0 0 !important; border-top: 1px dashed var(--rf-paper-edge);
+  color: var(--color-on-surface-variant); font-size: .875rem;
+}
+html body main.jp-page.jp-page.jp-page .jp-today__weekly-btns { margin-left: auto; }
+html body main.jp-page.jp-page.jp-page .jp-today__weekly { display: flex !important; align-items: center; gap: 10px; }
+
+/* Sidebar goal card: no outer box, sections split by dashed lines. */
+html body main.jp-page.jp-page.jp-page .cp-goal-card {
+  border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-goal-card__primary {
+  padding: 14px 16px !important; border-radius: 12px; background: var(--color-primary-fixed);
+}
+html body main.jp-page.jp-page.jp-page .cp-goal-card__sec,
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list li {
+  border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important;
+  border-top: 1px dashed var(--color-outline-variant) !important; padding: 14px 4px !important; margin: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list li:first-child { border-top: 0 !important; padding-top: 6px !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__related { margin-top: 8px !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__tag { font-size: .75rem !important; font-weight: 500 !important; color: var(--color-on-surface-variant) !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__primary .cp-goal-card__tag { color: var(--color-primary) !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__name { font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__pace-options { display: flex !important; flex-wrap: wrap; gap: 6px !important; }
+html body main.jp-page.jp-page.jp-page .cp-seg {
+  width: 34px !important; min-width: 0 !important; height: 34px !important; padding: 0 !important; border-radius: 999px !important;
+  border: 1px solid var(--color-outline-variant) !important; background: var(--color-surface-lowest) !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-seg[aria-pressed="true"],
+html body main.jp-page.jp-page.jp-page .cp-seg.is-on,
+html body main.jp-page.jp-page.jp-page .cp-seg.is-active { background: var(--color-primary) !important; border-color: var(--color-primary) !important; color: var(--color-on-primary) !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__link {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 !important;
+  border: 0 !important; background: transparent !important; color: var(--color-primary) !important; font-weight: 500 !important; font-size: .875rem !important; text-align: left;
+}
+html body main.jp-page.jp-page.jp-page .cp-goal-card__promote { padding: 0 12px !important; border-radius: 999px !important; background: var(--color-surface-lowest) !important; box-shadow: inset 0 0 0 1px var(--color-outline-variant) !important; margin-top: 8px; }
+
+/* ---------- Giao tiếp situation (lesson) page ---------- */
+html body main.jp-page.jp-page.jp-page .jp-back {
+  border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;
+  color: var(--color-on-surface-variant) !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-back:hover { color: var(--color-primary) !important; }
+html body main.jp-page.jp-page.jp-page .cp-sit-topbar { align-items: center; gap: 12px; flex-wrap: wrap; }
+html body main.jp-page.jp-page.jp-page .cp-sit-title { font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .cp-sit-topic-badge { border-radius: 999px !important; font-weight: 500 !important; border: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-btn-ghost {
+  min-height: 36px !important; padding: 0 14px !important; border-radius: 999px !important;
+  border: 1px solid var(--color-outline-variant) !important; background: var(--color-surface-lowest) !important;
+  box-shadow: none !important; font-weight: 500 !important; font-size: .875rem !important; color: var(--color-on-surface) !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-btn-ghost[aria-pressed="true"] { background: var(--color-primary-fixed) !important; border-color: transparent !important; color: var(--color-primary) !important; }
+
+/* Speed: a plain row, not a box. */
+html body main.jp-page.jp-page.jp-page .cp-speed {
+  border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 4px 0 !important;
+}
+/* Four steps: one quiet bar; current step = soft pill. */
+html body main.jp-page.jp-page.jp-page .cp-sit-steps { gap: 4px !important; padding: 4px !important; border-radius: 999px; background: var(--color-surface-low); }
+html body main.jp-page.jp-page.jp-page .cp-step-tab {
+  border: 0 !important; border-radius: 999px !important; background: transparent !important; box-shadow: none !important;
+  font-weight: 500 !important; color: var(--color-on-surface-variant) !important; min-height: 38px;
+}
+html body main.jp-page.jp-page.jp-page .cp-step-tab.is-active { background: var(--color-surface-lowest) !important; color: var(--color-primary) !important; font-weight: 600 !important; box-shadow: inset 0 0 0 1px var(--color-outline-variant) !important; }
+html body main.jp-page.jp-page.jp-page .cp-step-tab.is-done { color: var(--color-success) !important; }
+
+/* Lesson sheet: paper with tape, no box inside, no inner scroll. */
+html body main.jp-page.jp-page.jp-page .cp-sit-stage {
+  position: relative; overflow: visible !important; max-height: none !important; height: auto !important;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 14px 6px !important; box-shadow: none !important; margin-top: 14px; padding: 22px 24px !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-sit-stage::before {
+  content: ""; position: absolute; z-index: 2; top: -11px; left: 36px; width: 96px; height: 22px;
+  background: var(--rf-tape); transform: rotate(-3deg); pointer-events: none;
+}
+html body main.jp-page.jp-page.jp-page .cp-wordlist,
+html body main.jp-page.jp-page.jp-page .cp-sit-stage ul,
+html body main.jp-page.jp-page.jp-page .cp-sit-stage ol { border: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-wordrow { border: 0 !important; border-bottom: 1px dashed var(--rf-paper-edge) !important; border-radius: 0 !important; background: transparent !important; padding: 16px 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-wordrow:last-child { border-bottom: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-deck-tabs { display: inline-flex !important; gap: 4px; padding: 4px !important; border: 0 !important; border-radius: 999px !important; background: var(--color-surface-lowest) !important; }
+html body main.jp-page.jp-page.jp-page .cp-deck-tab { border: 0 !important; border-radius: 999px !important; background: transparent !important; font-weight: 500 !important; padding: 6px 14px !important; }
+html body main.jp-page.jp-page.jp-page .cp-deck-tab.is-active { background: var(--color-primary) !important; color: var(--color-on-primary) !important; }
+html body main.jp-page.jp-page.jp-page .cp-sit-foot {
+  border: 0 !important; border-top: 1px solid var(--color-outline-variant) !important; border-radius: 0 !important;
+  box-shadow: none !important; background: var(--color-background, var(--color-surface)) !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-btn-primary { border-radius: 999px !important; box-shadow: none !important; font-weight: 500 !important; }
+
+/* ---------- Level summary + stats tiles: paper index cards ---------- */
+html body main.jp-page.jp-page.jp-page .jp-side-tile {
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 12px 6px !important; box-shadow: none !important; padding: 16px 18px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-side-tile strong,
+html body main.jp-page.jp-page.jp-page .jp-side-tile b { font-size: 1.75rem !important; font-weight: 600 !important; color: var(--color-primary) !important; }
+html body main.jp-page.jp-page.jp-page .jp-side-tile span { color: var(--color-on-surface-variant) !important; }
+html body main.jp-page.jp-page.jp-page .jp-extra { border: 0 !important; border-top: 1px solid var(--color-outline-variant) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+html body main.jp-page.jp-page.jp-page h1 { font-weight: 600 !important; letter-spacing: 0 !important; }
+@media (max-width: 899px) {
+  html body main.jp-page.jp-page.jp-page ol.jp-today__pills.cp-today__list { grid-template-columns: minmax(0, 1fr) !important; }
+  html body main.jp-page.jp-page.jp-page ol.cp-today__list > li.jp-today__pill { padding-left: 0 !important; border-left: 0 !important; }
+}
+
+/* Owner 27/11: tiles line up — title/sub on top, the action always on the same baseline at the bottom. */
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill { display: flex !important; flex-direction: column !important; align-items: flex-start !important; height: 100% !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills { align-items: stretch !important; }
+html body main.jp-page.jp-page.jp-page ol.jp-today__pills > li.jp-today__pill > :last-child:not(.jp-today__pill-body) { margin-top: auto !important; padding-top: 10px; }
+html body main.jp-page.jp-page.jp-page .cp-today__item .jp-btn--sm { margin-top: auto !important; }
+html body main.jp-page.jp-page.jp-page .cp-today__check { flex-wrap: nowrap !important; }
+html body main.jp-page.jp-page.jp-page .cp-today__check .jp-btn { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 899px) { html body main.jp-page.jp-page.jp-page .cp-today__check { flex-wrap: wrap !important; } }
+
+/* =====================================================================================
+   One vocabulary for the whole flow (owner 27/11: "1 trang mà 3 4 phong cách").
+   NOTE  = paper sheet with washi tape: the main block of a page (Hôm nay, lesson sheet, day hero).
+   CARD  = paper index card, no tape: every small highlighted box (current level, main path, stats, badges, items).
+   Plain sections have no box at all: heading + thin line.
+   ===================================================================================== */
+html body main.jp-page.jp-page.jp-page :is(.jp-dayd__hero-card) {
+  position: relative; overflow: visible !important;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 14px 6px !important; box-shadow: none !important; margin-top: 14px;
+}
+html body main.jp-page.jp-page.jp-page .jp-dayd__hero-card::before {
+  content: ""; position: absolute; z-index: 2; top: -11px; left: 36px; width: 96px; height: 22px;
+  background: var(--rf-tape); transform: rotate(-3deg); pointer-events: none;
+}
+
+html body main.jp-page.jp-page.jp-page :is(
+  .rf-levels .jp-step--now, .cp-goal-card__primary,
+  .jp-side-tile, .jp-stat-card, .jp-side-badge, .jp-dayd__item, .jp-dayd__mascot) {
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 10px 6px !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__state,
+html body main.jp-page.jp-page.jp-page .rf-levels .jp-step--now .jp-level-cell__bar { background: var(--color-surface-lowest) !important; }
+html body main.jp-page.jp-page.jp-page .cp-seg { background: var(--color-surface-lowest) !important; }
+
+/* Plain sections: no frame. */
+html body main.jp-page.jp-page.jp-page :is(.jp-dayd__sec, .jp-dayd__banner) {
+  background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  border-top: 1px solid var(--color-outline-variant) !important; padding: 20px 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-dayd__actions { border: 0 !important; border-top: 1px solid var(--color-outline-variant) !important; border-radius: 0 !important; box-shadow: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-dayd__badge { border-radius: 999px !important; border: 0 !important; font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .jp-dayd__badge--done { background: var(--color-success-bg) !important; color: var(--color-success) !important; }
+html body main.jp-page.jp-page.jp-page .jp-dayd__badge--count { background: var(--color-primary-fixed) !important; color: var(--color-primary) !important; }
+
+/* ---- Comm core / settings / phrasebook: same paper vocabulary (owner 27/11 "1 trang 1 phong cách") ---- */
+html body main.jp-page.jp-page.jp-page :is(.cp-core-card, .cp-settings__option, .cp-settings__depth, .jp-goals__row) {
+  background: var(--rf-paper) !important;
+  border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 10px 6px !important;
+  box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-core-card__ex {
+  background: transparent !important;
+  border: 0 !important;
+  border-top: 1px dashed var(--rf-paper-edge) !important;
+  border-radius: 0 !important;
+  padding-inline: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page fieldset {
+  border: 0 !important;
+  border-top: 1px dashed var(--rf-paper-edge) !important;
+  border-radius: 0 !important;
+  padding: 12px 0 0 !important;
+  margin-inline: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page fieldset > legend { padding: 0 8px 0 0 !important; font-weight: 500; }
+
+/* owner 27/11: the ring covered Kitsu's face; Kitsu now peeks in front of the ring edge (tilt + animation kept). */
+html body main.jp-page.jp-page.jp-page .jp-today .jp-today__cal-kitsu { z-index: 3 !important; right: -44px !important; top: -40px !important; }
+
+/* owner 27/11: comm sidebar "lộ trình phụ" + "đã hoàn thành" — tighter, aligned, one line per finished path. */
+html body main.jp-page.jp-page.jp-page .cp-goal-card__sec { display: grid !important; gap: 4px !important; padding: 12px 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__sec .cp-goal-card__name { font-size: 15px !important; margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__sec .cp-goal-card__meta { font-size: 13px !important; line-height: 1.45 !important; margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__promote {
+  justify-self: start !important; width: auto !important; min-height: 32px !important; margin-top: 4px !important;
+  padding: 5px 12px !important; font-size: 13px !important; line-height: 1.35 !important; text-align: left !important; border-radius: 8px !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list { list-style: none !important; margin: 0 !important; padding: 0 !important; display: grid !important; gap: 0 !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list > li {
+  display: grid !important; grid-template-columns: 1fr auto !important; align-items: baseline !important;
+  column-gap: 8px !important; row-gap: 0 !important; padding: 8px 0 !important; margin: 0 !important; border: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list > li + li { border-top: 1px dashed var(--rf-paper-edge) !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list > li > strong { grid-column: 1; font-size: 14px !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list > li > .cp-goal-card__meta { grid-column: 1; }
+html body main.jp-page.jp-page.jp-page .cp-goal-card__done-list > li > a { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 13px !important; padding: 0 !important; min-height: 0 !important; }
+
+/* owner 27/11: path switch = notebook index tabs. Current tab is a paper tab joined to the ruled line; others are muted. */
+html body main.jp-page.jp-page.jp-page .mp-switch {
+  border: 0 !important; border-bottom: 1px solid var(--rf-paper-edge) !important; padding: 0 !important; gap: 2px !important; align-items: flex-end !important;
+}
+html body main.jp-page.jp-page.jp-page :is(.mp-switch__home, .mp-switch__tab) {
+  position: relative; margin-bottom: -1px !important; padding: 8px 16px !important; min-height: 38px !important;
+  border: 1px solid transparent !important; border-bottom: 0 !important; border-radius: 10px 10px 0 0 !important;
+  background: transparent !important; color: var(--rf-muted) !important; font-weight: 500 !important;
+}
+html body main.jp-page.jp-page.jp-page :is(.mp-switch__home, .mp-switch__tab):hover { color: var(--rf-ink) !important; background: color-mix(in srgb, var(--rf-paper) 50%, transparent) !important; }
+html body main.jp-page.jp-page.jp-page .mp-switch__tab.is-current {
+  background: var(--rf-paper) !important; border-color: var(--rf-paper-edge) !important; color: var(--rf-ink) !important; font-weight: 600 !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-switch__tab.is-current::before {
+  content: ""; position: absolute; left: 12px; right: 12px; top: -1px; height: 3px; border-radius: 0 0 3px 3px; background: var(--rf-accent);
+}
+html body main.jp-page.jp-page.jp-page .mp-switch__done {
+  background: transparent !important; border: 1px solid currentColor !important; color: var(--color-success) !important;
+  border-radius: 4px !important; padding: 0 5px !important; font-size: 11px !important; font-weight: 500 !important; line-height: 16px !important;
+  transform: rotate(-4deg); margin-left: 6px !important;
+}
+
+/* owner 27/11: "Học" buttons sat on the card's bottom edge; give the tiles room below and above the button. */
+html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills > li { padding-bottom: 16px !important; }
+html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills > li > :last-child { margin-top: auto !important; padding-top: 10px; }
+html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills > li .jp-btn { margin-top: 10px !important; }
+
+/* owner 27/11: tile text touched the dashed column line; keep 16px on both sides of each divider. */
+html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills > li { padding-left: 16px !important; padding-right: 16px !important; }
+html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills > li:first-child { padding-left: 0 !important; }
+
+/* owner 27/11: "Đang học" cards — paper card like the rest; straight dashed rule; start/end rows aligned. */
+html body main.jp-page.jp-page.jp-page .mp-card {
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 12px 6px !important; box-shadow: none !important; padding: 20px 22px !important; gap: 10px !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-io {
+  background: transparent !important; border: 0 !important; border-radius: 0 !important;
+  border-top: 1px dashed var(--rf-paper-edge) !important; margin: 4px 0 0 !important; padding: 12px 0 0 !important;
+  display: grid !important; gap: 6px !important;
+}
+html body main.jp-page.jp-page.jp-page .mp-io::before, html body main.jp-page.jp-page.jp-page .mp-io::after { display: none !important; }
+html body main.jp-page.jp-page.jp-page .mp-io__row { display: flex !important; flex-wrap: wrap; align-items: baseline; gap: 4px 6px !important; margin: 0 !important; font-size: 14px; }
+html body main.jp-page.jp-page.jp-page .mp-io__k { min-width: 64px; color: var(--rf-muted) !important; font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .mp-io__row :is(button, a) { padding: 0 !important; margin: 0 !important; min-height: 0 !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .mp-io__progress { margin: 0 !important; font-size: 13px; color: var(--rf-muted) !important; }
+html body main.jp-page.jp-page.jp-page .mp-card__actions { margin-top: auto !important; padding-top: 12px !important; border-top: 1px dashed var(--rf-paper-edge) !important; align-items: center !important; }
+
+/* owner 27/11: "Tạm dừng và đã xong" rows — percent and actions line up in fixed columns. */
+html body main.jp-page.jp-page.jp-page .mp-row { display: grid !important; grid-template-columns: minmax(0,1fr) 130px 230px !important; align-items: center !important; column-gap: 16px !important; }
+html body main.jp-page.jp-page.jp-page .mp-row__note { text-align: right !important; white-space: nowrap; }
+html body main.jp-page.jp-page.jp-page .mp-row__act { display: grid !important; grid-template-columns: 1fr 70px !important; align-items: center !important; justify-items: end !important; column-gap: 12px !important; }
+html body main.jp-page.jp-page.jp-page .mp-row__act > :only-child { grid-column: 2; }
+html body main.jp-page.jp-page.jp-page .mp-row__act > * { white-space: nowrap; }
+@media (max-width: 720px) {
+  html body main.jp-page.jp-page.jp-page .mp-row { grid-template-columns: minmax(0,1fr) auto !important; row-gap: 6px; }
+  html body main.jp-page.jp-page.jp-page .mp-row__act { grid-column: 1 / -1; justify-content: end; grid-template-columns: auto auto !important; }
+}
+
+/* Full-flow pass 27/11: lesson hero (grammar / study) = paper note with tape, not a purple slab. */
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero {
+  position: relative; background: var(--rf-paper) !important; background-image: none !important;
+  border: 1px solid var(--rf-paper-edge) !important; border-radius: 6px 6px 14px 6px !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero::before {
+  content: ""; position: absolute; z-index: 2; top: -9px; left: 28px; width: 72px; height: 20px;
+  background: var(--rf-tape); transform: rotate(-3deg); pointer-events: none;
+}
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero > :is(aside, [class*="struct"]) {
+  background: transparent !important; border: 0 !important; border-left: 1px dashed var(--rf-paper-edge) !important; border-radius: 0 !important; box-shadow: none !important;
+}
+
+/* Full-flow pass 27/11: day page week band = paper strip (scenery waves hidden). */
+html body main.jp-page.jp-page.jp-page .jp-dayd__scenery { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-dayd__banner {
+  position: relative; background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 12px 6px !important; padding: 14px 12px !important; margin-bottom: 18px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-dayd__banner::before {
+  content: ""; position: absolute; z-index: 2; top: -9px; right: 40px; width: 64px; height: 20px; background: var(--rf-tape); transform: rotate(3deg); pointer-events: none;
+}
+/* revisit rows: flat list with dashed separators */
+html body main.jp-page.jp-page.jp-page .jp-revisit__row { background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding-inline: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-revisit__row + .jp-revisit__row { border-top: 1px dashed var(--rf-paper-edge) !important; }
+/* comm final test: stepper + state card in paper, no shadow */
+html body main.jp-page.jp-page.jp-page :is(.cp-final-steps, .cp-ft__card) {
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important; box-shadow: none !important; border-radius: 6px 6px 12px 6px !important;
+}
+@media (max-width: 720px) {
+  html body main.jp-page.jp-page.jp-page .mp-row { grid-template-columns: minmax(0,1fr) auto !important; grid-template-areas: "name name" "note act" !important; row-gap: 6px !important; }
+  html body main.jp-page.jp-page.jp-page .mp-row__name { grid-area: name; }
+  html body main.jp-page.jp-page.jp-page .mp-row__note { grid-area: note; text-align: left !important; }
+  html body main.jp-page.jp-page.jp-page .mp-row__act { grid-area: act; grid-column: auto !important; display: flex !important; gap: 12px !important; justify-content: flex-end; }
+}
+/* 2-column tiles (< 900px): first tile of each row sits on the left edge; dashed column line only between columns. */
+@media (max-width: 899px) {
+  html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills:not(.cp-today__list) > li:nth-child(odd) { padding-left: 0 !important; border-left: 0 !important; }
+  html body main.jp-page.jp-page.jp-page .jp-today ol.jp-today__pills:not(.cp-today__list) > li:nth-child(n+3) { border-top: 1px dashed var(--rf-paper-edge) !important; padding-top: 12px !important; }
+}
+
+/* owner 27/11: grammar hero — one column. The narrow "Cấu trúc" column squeezed the chips into vertical text and
+   left a large empty block; structure now sits under the meaning as one horizontal row. */
+html body main.jp-page.jp-page.jp-page.jp-lesson-page .jp-lesson__hero,
+html body main.jp-page.jp-page.jp-page .jp-lesson-page .jp-lesson__hero,
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero { grid-template-columns: minmax(0, 1fr) !important; align-items: start !important; row-gap: 14px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__meaning { grid-column: 1 !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__formula,
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero > :is(aside, [class*="struct"]) {
+  grid-column: 1 !important; align-self: start !important; justify-self: stretch !important;
+  border-left: 0 !important; border-top: 1px dashed var(--rf-paper-edge) !important;
+  padding: 12px 0 0 !important; display: flex !important; flex-wrap: wrap; align-items: center; gap: 10px 14px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__formula .jp-struct { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__formula .jp-struct__chip { white-space: nowrap !important; width: auto !important; max-width: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__formula .jp-struct__chip:not(.jp-struct__chip--fixed) { background: var(--color-surface-lowest) !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero::before { top: -10px !important; left: auto !important; right: 36px !important; }
+
+/* ---- Sổ tay (/learning/notebook): same paper vocabulary ---- */
+html body main.notebook-page.notebook-page {
+  --rf-ink: var(--color-on-surface); --rf-muted: var(--color-on-surface-variant); --rf-accent: var(--color-primary);
+  --rf-tint: var(--color-primary-fixed);
+  --rf-paper: color-mix(in srgb, var(--color-warning-bg) 45%, var(--color-surface-lowest));
+  --rf-paper-edge: color-mix(in srgb, var(--color-warning) 22%, var(--color-surface-lowest));
+  --rf-tape: color-mix(in srgb, var(--color-primary-fixed) 80%, transparent);
+}
+html body main.notebook-page.notebook-page .notebook-entry {
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  border-radius: 6px 6px 10px 6px !important; box-shadow: none !important;
+}
+html body main.notebook-page.notebook-page .notebook-entry-example {
+  background: transparent !important; border: 0 !important; border-top: 1px dashed var(--rf-paper-edge) !important;
+  border-radius: 0 !important; padding-inline: 0 !important;
+}
+html body main.notebook-page.notebook-page input[type="search"], html body main.notebook-page.notebook-page input:not([type]) , html body main.notebook-page.notebook-page input[type="text"] {
+  border-radius: 10px !important; box-shadow: none !important;
+}
+html body main.notebook-page.notebook-page :is(a, button):not([class*="primary"]) { text-decoration: none !important; }
+
+/* ===== owner 27/11: grammar lesson page redesign - read the pattern, understand it, see examples, practise. ===== */
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero { padding: 28px 32px 24px !important; row-gap: 10px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__eyebrow { text-transform: none !important; letter-spacing: 0 !important; font-size: 13px !important; font-weight: 500 !important; color: var(--rf-muted) !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__pattern { font-size: clamp(34px, 4.6vw, 52px) !important; line-height: 1.15 !important; margin: 6px 0 0 !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__meaning { margin-top: 6px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__meaning p {
+  display: inline; font-size: 19px !important; font-weight: 600 !important; line-height: 1.7 !important;
+  background: color-mix(in srgb, var(--color-warning) 18%, transparent) !important; padding: 1px 6px; border-radius: 3px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+
+/* section labels: ink 600, not small grey captions */
+html body main.jp-page.jp-page.jp-page .jp-lesson__body .jp-lesson__label,
+html body main.jp-page.jp-page.jp-page .jp-lesson > .jp-lesson__part > .jp-lesson__label {
+  display: block; font-size: 15px !important; font-weight: 600 !important; color: var(--rf-ink) !important; margin-bottom: 8px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-lesson__body { column-gap: 40px !important; margin-top: 22px !important; align-items: start !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__explain { display: grid !important; gap: 14px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__explain .jp-lesson__part { border: 0 !important; padding: 0 !important; margin: 0 !important; background: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__explain .jp-lesson__part p { font-size: 15.5px !important; line-height: 1.75 !important; margin: 0 !important; }
+
+/* tip / warn: flat note with a coloured edge, small inline icon */
+html body main.jp-page.jp-page.jp-page .jp-lesson__explain .jp-lesson__part.jp-callout {
+  display: grid !important; grid-template-columns: 22px 1fr !important; gap: 10px !important; align-items: start !important;
+  padding: 12px 14px !important; border-radius: 4px 10px 10px 4px !important; box-shadow: none !important;
+  border-left: 3px solid var(--color-primary) !important; background: var(--rf-paper) !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-lesson__explain .jp-lesson__part.jp-callout--warn { border-left-color: var(--color-warning) !important; }
+html body main.jp-page.jp-page.jp-page .jp-callout__icon { width: 22px !important; height: 22px !important; background: none !important; border: 0 !important; color: var(--color-primary) !important; padding: 0 !important; margin-top: 1px; }
+html body main.jp-page.jp-page.jp-page .jp-callout--warn .jp-callout__icon { color: var(--color-warning) !important; }
+html body main.jp-page.jp-page.jp-page .jp-callout .jp-lesson__label { margin-bottom: 4px !important; }
+
+/* examples: numbered, roomy ruby, quiet translation */
+html body main.jp-page.jp-page.jp-page .jp-lesson__examples { border: 0 !important; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-examples { counter-reset: jpex; display: grid !important; gap: 0 !important; margin: 0 !important; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-examples > .jp-example {
+  counter-increment: jpex; display: grid !important; grid-template-columns: 36px 1fr !important; gap: 12px !important; align-items: start !important;
+  padding: 14px 0 !important; border: 0 !important; border-top: 1px dashed var(--rf-paper-edge) !important; background: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-examples > .jp-example:first-child { border-top: 0 !important; padding-top: 4px !important; }
+html body main.jp-page.jp-page.jp-page .jp-example .jp-icon-btn { width: 36px !important; height: 36px !important; border-radius: 50% !important; background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important; color: var(--rf-accent) !important; }
+html body main.jp-page.jp-page.jp-page .jp-example .jp-ex-ja { font-size: 20px !important; line-height: 2.1 !important; }
+html body main.jp-page.jp-page.jp-page .jp-example .jp-ex-vi { font-size: 14.5px !important; color: var(--rf-muted) !important; line-height: 1.55 !important; }
+
+/* attached pattern: small paper card */
+html body main.jp-page.jp-page.jp-page .jp-lesson > .jp-lesson__part { border: 0 !important; margin-top: 26px !important; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-attached-list { margin: 0 !important; padding: 0 !important; list-style: none !important; display: grid; gap: 10px; }
+html body main.jp-page.jp-page.jp-page .jp-attached {
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important; border-radius: 6px 6px 10px 6px !important;
+  padding: 14px 18px !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-attached__pattern { font-size: 20px !important; font-weight: 600 !important; margin: 0 0 2px !important; }
+html body main.jp-page.jp-page.jp-page .jp-attached__meaning { margin: 0 0 6px !important; font-weight: 500 !important; }
+html body main.jp-page.jp-page.jp-page .jp-attached__example { border-top: 1px dashed var(--rf-paper-edge) !important; padding-top: 8px !important; }
+
+/* practice: a pinned note, actions on one row */
+html body main.jp-page.jp-page.jp-page .jp-lesson-practice {
+  position: relative; margin-top: 28px !important; padding: 20px 24px !important;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important; border-radius: 6px 6px 14px 6px !important; box-shadow: none !important;
+  display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 8px 14px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-lesson-practice::before { content: ""; position: absolute; top: -9px; left: 30px; width: 64px; height: 20px; background: var(--rf-tape); transform: rotate(-3deg); }
+html body main.jp-page.jp-page.jp-page .jp-lesson-practice__title { flex: 1 0 100%; margin: 0 !important; font-size: 18px !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson-practice > .jp-muted { flex: 1 0 100%; margin: 0 0 4px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson-practice > .jp-btn--primary { min-height: 40px !important; padding: 0 22px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson-practice > :not(h3):not(p):not(button) { flex: 1 0 100%; }
+
+/* footer actions: one row, prev/next on the right */
+html body main.jp-page.jp-page.jp-page .jp-lesson__foot { display: flex !important; flex-wrap: wrap !important; align-items: center !important; gap: 10px !important; margin-top: 22px !important; padding-top: 16px !important; border-top: 1px dashed var(--rf-paper-edge) !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__nav { margin-left: auto !important; display: flex !important; gap: 8px !important; }
+html body main.jp-page.jp-page.jp-page .jp-lesson__hero .jp-lesson__meaning p { display: inline !important; width: auto !important; }
+html body main.jp-page.jp-page.jp-page .is-swapping { opacity: .55; transition: opacity .15s; pointer-events: none; }
+
+/* owner 27/11: "gọn gàng lại, không phải cái gì cũng to" — stat tiles become one thin paper strip; Luyện thêm = small chips. */
+html body main.jp-page.jp-page.jp-page .jp-side-tiles {
+  display: flex !important; flex-wrap: wrap !important; gap: 0 !important; width: fit-content; max-width: 100%;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important; border-radius: 6px 6px 10px 6px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-side-tiles > .jp-side-tile {
+  background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  min-height: 0 !important; width: auto !important; flex: 0 0 auto !important; padding: 10px 20px !important;
+  display: grid !important; gap: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-side-tiles > .jp-side-tile + .jp-side-tile { border-left: 1px dashed var(--rf-paper-edge) !important; }
+html body main.jp-page.jp-page.jp-page .jp-side-tiles > .jp-side-tile strong { font-size: 20px !important; line-height: 1.3 !important; }
+html body main.jp-page.jp-page.jp-page .jp-side-tiles > .jp-side-tile span { font-size: 13px !important; white-space: nowrap; }
+html body main.jp-page.jp-page.jp-page .jp-side-card > h2 { font-size: 16px !important; font-weight: 600 !important; margin: 18px 0 8px !important; }
+
+html body main.jp-page.jp-page.jp-page .jp-extra__list {
+  display: flex !important; flex-wrap: wrap !important; gap: 8px !important; grid-template-columns: none !important;
+  list-style: none !important; padding: 0 !important; margin: 8px 0 0 !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-extra__list > li {
+  display: inline-flex !important; flex-direction: column; align-items: flex-start !important; gap: 2px !important;
+  background: none !important; border: 0 !important; padding: 0 !important; min-height: 0 !important; width: auto !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-extra__link {
+  display: inline-flex !important; align-items: center; min-height: 32px !important; padding: 4px 14px !important;
+  font-size: 14px !important; font-weight: 500 !important; border-radius: 999px !important;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important; color: var(--rf-accent) !important; box-shadow: none !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-extra__link:hover { color: var(--rf-ink) !important; }
+html body main.jp-page.jp-page.jp-page .jp-extra__list > li > :not(.jp-extra__link) { font-size: 12px !important; color: var(--rf-muted) !important; padding-left: 14px; }
+html body main.jp-page.jp-page.jp-page .jp-extra__title { font-size: 15px !important; font-weight: 600 !important; }
+
+/* owner 27/11: "Kiểm tra nhanh" stays in reach at the bottom of the screen while the word list scrolls. */
+html body main.jp-page.jp-page.jp-page .cp-settings__actions:has(> [data-core-quiz]) {
+  position: sticky; bottom: 12px; z-index: 5; display: flex; justify-content: center; margin-top: 18px;
+  padding: 10px; border-radius: 999px; width: fit-content; margin-inline: auto;
+  background: color-mix(in srgb, var(--color-surface-lowest) 92%, transparent); border: 1px solid var(--rf-paper-edge);
+}
+html body main.jp-page.jp-page.jp-page [data-core-quiz] { min-height: 42px !important; padding: 0 26px !important; font-size: 15px !important; }
+
+/* owner 27/11: keep the speed slider, just nicer — thin rounded track, round thumb, value as a small chip by the title. */
+html body main.jp-page.jp-page.jp-page .cp-speed--compact { grid-template-columns: auto minmax(200px, 300px) 1fr !important; column-gap: 18px !important; row-gap: 2px !important; align-items: center !important; }
+html body main.jp-page.jp-page.jp-page .cp-speed__head { display: flex !important; flex-direction: column; align-items: flex-start !important; gap: 4px !important; }
+html body main.jp-page.jp-page.jp-page .cp-speed__title { font-size: 14px !important; font-weight: 600 !important; color: var(--rf-ink) !important; }
+html body main.jp-page.jp-page.jp-page .cp-speed__value {
+  display: inline-flex !important; width: auto !important; padding: 2px 10px !important; border-radius: 999px !important;
+  background: var(--rf-paper) !important; border: 1px solid var(--rf-paper-edge) !important;
+  font-size: 12.5px !important; font-weight: 600 !important; color: var(--rf-accent) !important; white-space: nowrap;
+}
+html body main.jp-page.jp-page.jp-page .cp-speed__range {
+  -webkit-appearance: none; appearance: none; width: 100% !important; height: 22px; margin: 0 !important; background: transparent !important; cursor: pointer;
+}
+html body main.jp-page.jp-page.jp-page .cp-speed__range::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: var(--color-surface-container); border: 1px solid var(--rf-paper-edge); }
+html body main.jp-page.jp-page.jp-page .cp-speed__range::-moz-range-track { height: 6px; border-radius: 999px; background: var(--color-surface-container); border: 1px solid var(--rf-paper-edge); }
+html body main.jp-page.jp-page.jp-page .cp-speed__range::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--color-primary); }
+html body main.jp-page.jp-page.jp-page .cp-speed__range::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%;
+  background: var(--color-surface-lowest); border: 3px solid var(--color-primary); transition: transform .12s;
+}
+html body main.jp-page.jp-page.jp-page .cp-speed__range::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--color-surface-lowest); border: 3px solid var(--color-primary); }
+html body main.jp-page.jp-page.jp-page .cp-speed__range:hover::-webkit-slider-thumb { transform: scale(1.12); }
+html body main.jp-page.jp-page.jp-page .cp-speed__range:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; border-radius: 999px; }
+html body main.jp-page.jp-page.jp-page .cp-speed__ticks { display: flex !important; justify-content: space-between !important; padding: 0 2px; font-size: 11.5px !important; color: var(--rf-muted) !important; }
+html body main.jp-page.jp-page.jp-page .cp-speed__tick.is-on { color: var(--rf-accent) !important; font-weight: 600 !important; }
+html body main.jp-page.jp-page.jp-page .cp-speed__hint { font-size: 13px !important; color: var(--rf-muted) !important; line-height: 1.45 !important; }
+
+/* owner 27/11 (trial): "Bản đồ | Toàn bộ ..." tabs; the list replaces the map; topics as compact one-line rows. */
+html body main.jp-page.jp-page.jp-page .rf-viewtabs { display: flex; gap: 4px; margin: 0 0 12px; border-bottom: 1px solid var(--rf-paper-edge); }
+html body main.jp-page.jp-page.jp-page .rf-viewtabs__tab {
+  padding: 8px 16px; border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; margin-bottom: -1px;
+  background: transparent; color: var(--rf-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+}
+html body main.jp-page.jp-page.jp-page .rf-viewtabs__tab:hover { color: var(--rf-ink); }
+html body main.jp-page.jp-page.jp-page .rf-viewtabs__tab.is-on { background: var(--rf-paper); border-color: var(--rf-paper-edge); color: var(--rf-ink); font-weight: 600; box-shadow: inset 0 3px 0 var(--rf-accent); }
+html body main.jp-page.jp-page.jp-page .is-list-view > :not(.rf-viewtabs) { display: none !important; }
+html body main.jp-page.jp-page.jp-page [data-parts-all] { display: none !important; }
+html body main.jp-page.jp-page.jp-page ul.jp-topic-grid { display: block !important; background: var(--rf-paper); border: 1px solid var(--rf-paper-edge); border-radius: 10px; padding: 0 !important; }
+html body main.jp-page.jp-page.jp-page li.jp-topic-card.jp-tcard {
+  display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(120px, 220px) auto; align-items: center; gap: 14px;
+  padding: 8px 14px !important; margin: 0 !important; border: 0 !important; border-top: 1px dashed var(--rf-paper-edge) !important;
+  border-radius: 0 !important; background: none !important; box-shadow: none !important; min-height: 0 !important;
+}
+html body main.jp-page.jp-page.jp-page li.jp-topic-card.jp-tcard:first-child { border-top: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-tcard .jp-topic-card__open { display: flex !important; align-items: baseline; gap: 8px; padding: 0 !important; background: none !important; border: 0 !important; text-align: left; min-width: 0; }
+html body main.jp-page.jp-page.jp-page .jp-tcard .jp-topic-card__title { font-size: 14.5px !important; font-weight: 600 !important; color: var(--rf-ink) !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body main.jp-page.jp-page.jp-page .jp-tcard .jp-topic-card__count { font-size: 12.5px !important; color: var(--rf-muted) !important; white-space: nowrap; }
+html body main.jp-page.jp-page.jp-page .jp-tcard__line { margin: 0 !important; }
+html body main.jp-page.jp-page.jp-page .jp-tcard__empty { display: none !important; }
+html body main.jp-page.jp-page.jp-page .jp-tcard__known { padding: 2px 10px !important; min-height: 28px !important; font-size: 12.5px !important; }
+@media (max-width: 640px) {
+  html body main.jp-page.jp-page.jp-page li.jp-topic-card.jp-tcard { grid-template-columns: minmax(0, 1fr) auto; }
+  html body main.jp-page.jp-page.jp-page .jp-tcard__line { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* owner 27/11: today's fox sat on the "Tuần 1" sign; it now stands lower beside the node, bubble above its head. */
+html body main.jp-page.jp-page.jp-page .jp-parts__mascot--today.jp-parts__mascot--left,
+html body main.jp-page.jp-page.jp-page .jp-parts__mascot--today.jp-parts__mascot--right {
+  flex-direction: column !important; align-items: center !important; gap: 4px !important; bottom: -64px !important;
+}
+html body main.jp-page.jp-page.jp-page .jp-parts__mascot--today .jp-parts__mascot-speech { white-space: nowrap; }

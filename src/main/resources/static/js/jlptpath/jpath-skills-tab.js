@@ -164,7 +164,7 @@
     if (!hasContent(o)) return comingSoonHtml();
     return '<h2 class="jp-section-title">Đọc · Nghe ' + esc(o.level || '') + '</h2>' + bannerHtml(o)
       + '<p class="jp-muted jp-skills__how">Mỗi ngày kỹ năng, hệ thống chọn dạng tiếp theo theo thứ tự đề thi; dạng còn yếu'
-      + ' sẽ được ôn lại. Bấm Học lại ở bất kỳ dạng nào để xem lại lý thuyết và luyện từ đầu.</p>'
+      + ' sẽ được ôn lại. Bấm Học (hoặc Học lại với dạng đã xong) ở bất kỳ dạng nào để xem lý thuyết và luyện từ đầu.</p>'
       + '<div class="jp-skill-groups">' + groupHtml('READING', o.reading, o) + groupHtml('LISTENING', o.listening, o) + '</div>'
       + '<details class="jp-skills__more"><summary>Luyện thi theo phần và mức sẵn sàng thi</summary>'
       + actionsHtml(o) + readinessHtml(o.readiness) + '</details>'

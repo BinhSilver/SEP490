@@ -1,7 +1,7 @@
 .jlpt-exam-question-meta > div {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 0.875rem;
 }
 
 .jlpt-exam-header h1 {
@@ -16,13 +16,13 @@
     align-items: center;
     justify-content: flex-end;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .jlpt-exam-mode,
 .jlpt-exam-step {
     display: inline-flex;
-    padding: 7px 10px;
+    padding: 0.4375rem 0.625rem;
     border-radius: var(--radius-full);
     background: var(--color-primary-fixed);
     color: var(--color-primary) !important;
@@ -31,10 +31,10 @@
 .jlpt-exam-timer {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-width: 92px;
-    padding: 8px 11px;
-    border: 1px solid var(--color-outline-variant);
+    gap: 0.375rem;
+    min-width: 5.75rem;
+    padding: 0.5rem 0.6875rem;
+    border: 0.0625rem solid var(--color-outline-variant);
     border-radius: var(--radius-control);
     background: var(--color-surface-lowest);
 }
@@ -44,122 +44,122 @@
 .jlpt-exam-timer.is-warning { border-color: var(--color-warning-bg); background: var(--color-warning-bg); color: var(--color-warning); }
 .jlpt-exam-tabs button:disabled { opacity: .42; cursor: not-allowed; }
 .jlpt-exam-sidebar button.is-locked { border-style: dashed; background: var(--color-surface-container); color: var(--color-on-surface-variant); opacity: .62; cursor: not-allowed; }
-.jlpt-exam-announcement { margin: 12px 0 0; padding: 11px 14px; border-radius: var(--radius-control); background: var(--color-surface-container); color: var(--color-warning); font-size: var(--text-xs); font-weight: 600; }
-.jlpt-exam-card > footer > div { display: flex; gap: 9px; }
+.jlpt-exam-announcement { margin: 0.75rem 0 0; padding: 0.6875rem 0.875rem; border-radius: var(--radius-control); background: var(--color-surface-container); color: var(--color-warning); font-size: var(--text-xs); font-weight: 600; }
+.jlpt-exam-card > footer > div { display: flex; gap: 0.5625rem; }
 .jlpt-exam-card > footer #jlptNext:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
 .jlpt-exam-card > footer .jlpt-exam-submit-mondai { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
 .is-jlpt-test-mode .jlpt-exam-review { display: none; }
 
 .jlpt-exam-result {
-    width: min(620px, 100%);
-    margin: 60px auto;
-    padding: 48px;
+    width: min(38.75rem, 100%);
+    margin: 3.75rem auto;
+    padding: 3rem;
     text-align: center;
-    border: 1px solid var(--color-outline-variant);
+    border: 0.0625rem solid var(--color-outline-variant);
     border-radius: var(--radius-lg);
     background: var(--color-surface-lowest);
     box-shadow: var(--shadow-1);
 }
 
 .jlpt-exam-result > .material-symbols-outlined { color: var(--color-success); font-size: var(--text-md); }
-.jlpt-exam-result > p:first-of-type { margin: 12px 0 5px; color: var(--color-primary); font-size: var(--text-xs); font-weight: 600; letter-spacing: normal; }
+.jlpt-exam-result > p:first-of-type { margin: 0.75rem 0 0.3125rem; color: var(--color-primary); font-size: var(--text-xs); font-weight: 600; letter-spacing: normal; }
 .jlpt-exam-result h2 { margin: 0; font-size: var(--text-xl); }
-.jlpt-exam-result > strong { display: block; margin: 25px 0 10px; color: var(--color-primary); font: 600 var(--text-4xl) var(--font-body); }
+.jlpt-exam-result > strong { display: block; margin: 1.5625rem 0 0.625rem; color: var(--color-primary); font: 600 var(--text-4xl) var(--font-body); }
 .jlpt-exam-result > p { color: var(--color-on-surface-variant); }
-.jlpt-exam-result > div { display: flex; justify-content: center; gap: 10px; margin-top: 26px; }
+.jlpt-exam-result > div { display: flex; justify-content: center; gap: 0.625rem; margin-top: 1.625rem; }
 .jlpt-exam-result a,
-.jlpt-exam-result button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 1px solid var(--color-primary); border-radius: var(--radius-control); background: var(--color-surface-lowest); color: var(--color-primary); font-weight: 600; text-decoration: none; cursor: pointer; }
+.jlpt-exam-result button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.625rem; padding: 0 1rem; border: 0.0625rem solid var(--color-primary); border-radius: var(--radius-control); background: var(--color-surface-lowest); color: var(--color-primary); font-weight: 600; text-decoration: none; cursor: pointer; }
 .jlpt-exam-result button { background: var(--color-primary); color: var(--color-on-primary); }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
     .jlpt-exam-header-actions { grid-column: 1 / -1; justify-content: flex-start; }
     .jlpt-exam-step { display: none; }
-    .jlpt-exam-card > footer { gap: 10px; }
+    .jlpt-exam-card > footer { gap: 0.625rem; }
     .jlpt-exam-card > footer > div { align-items: stretch; flex-direction: column; }
-    .jlpt-exam-result { margin: 25px auto; padding: 30px 20px; }
+    .jlpt-exam-result { margin: 1.5625rem auto; padding: 1.875rem 1.25rem; }
     .jlpt-exam-result > div { flex-direction: column; }
 }
 
-.jlpt-exam-result { width: min(1080px, 100%); font-family: var(--font-body); }
+.jlpt-exam-result { width: min(67.5rem, 100%); font-family: var(--font-body); }
 .jlpt-exam-result h2 { font-family: var(--font-body); font-weight: 600; letter-spacing: normal; }
 .jlpt-exam-result > p,
 .jlpt-exam-result > div,
 .jlpt-exam-result__review { font-family: var(--font-body); }
-.jlpt-exam-result__status { display: inline-flex; margin-top: 16px; padding: 7px 11px; border-radius: var(--radius-full); font: 600 var(--text-xs) var(--font-body); letter-spacing: normal; }
+.jlpt-exam-result__status { display: inline-flex; margin-top: 1rem; padding: 0.4375rem 0.6875rem; border-radius: var(--radius-full); font: 600 var(--text-xs) var(--font-body); letter-spacing: normal; }
 .jlpt-exam-result__status.is-pass { background: var(--color-success-bg); color: var(--color-success); }
 .jlpt-exam-result__status.is-fail { background: var(--color-error-container); color: var(--color-error); }
 .jlpt-exam-result__status.is-partial { background: var(--color-surface-container); color: var(--color-on-surface-variant); }
-.jlpt-exam-result > .jlpt-exam-result__breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 22px 0 4px; }
-.jlpt-exam-result__breakdown > div { display: grid; gap: 4px; padding: 15px; border-radius: var(--radius-md); background: var(--color-surface-mid); }
+.jlpt-exam-result > .jlpt-exam-result__breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr)); gap: 0.625rem; margin: 1.375rem 0 0.25rem; }
+.jlpt-exam-result__breakdown > div { display: grid; gap: 0.25rem; padding: 0.9375rem; border-radius: var(--radius-md); background: var(--color-surface-mid); }
 .jlpt-exam-result__breakdown span { color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
 .jlpt-exam-result__breakdown strong { font: 600 var(--text-lg) var(--font-body); }
 .jlpt-exam-result__breakdown small { color: var(--color-primary); font: 600 var(--text-xs) var(--font-body); }
-.jlpt-exam-result__review { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--color-outline-variant); text-align: left; }
+.jlpt-exam-result__review { margin-top: 2.125rem; padding-top: 1.375rem; border-top: 0.0625rem solid var(--color-outline-variant); text-align: left; }
 .jlpt-exam-result__review > summary { font-size: var(--text-md); font-weight: 600; cursor: pointer; }
 .jlpt-exam-result__review > p { color: var(--color-on-surface-variant); font-size: var(--text-xs); }
-.jlpt-review-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 18px 0; padding: 14px; border-radius: var(--radius-md); background: var(--color-surface-mid); }
-.jlpt-review-filters label { display: grid; gap: 5px; color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
-.jlpt-review-filters select { min-width: 175px; min-height: 40px; padding: 0 10px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-input); background: var(--color-surface-container); color: var(--color-on-surface); font: 600 var(--text-xs) var(--font-body); }
-.jlpt-review-filters > span { margin-left: auto; padding-bottom: 11px; color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
-.jlpt-review-part { margin-top: 30px; }
-.jlpt-review-part > h3 { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 2px solid var(--color-primary); color: var(--color-primary); font-size: var(--text-lg); }
+.jlpt-review-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 0.75rem; margin: 1.125rem 0; padding: 0.875rem; border-radius: var(--radius-md); background: var(--color-surface-mid); }
+.jlpt-review-filters label { display: grid; gap: 0.3125rem; color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
+.jlpt-review-filters select { min-width: 10.9375rem; min-height: 2.5rem; padding: 0 0.625rem; border: 0.0625rem solid var(--color-outline-variant); border-radius: var(--radius-input); background: var(--color-surface-container); color: var(--color-on-surface); font: 600 var(--text-xs) var(--font-body); }
+.jlpt-review-filters > span { margin-left: auto; padding-bottom: 0.6875rem; color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
+.jlpt-review-part { margin-top: 1.875rem; }
+.jlpt-review-part > h3 { display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.625rem; border-bottom: 0.125rem solid var(--color-primary); color: var(--color-primary); font-size: var(--text-lg); }
 .jlpt-review-part > h3 span { color: var(--color-on-surface-variant); font-size: var(--text-lg); }
-.jlpt-review-item { margin: 16px 0; padding: 20px; border: 1px solid var(--color-outline-variant); border-left: 5px solid var(--color-outline-variant); border-radius: var(--radius-md); background: var(--color-surface-lowest); }
+.jlpt-review-item { margin: 1rem 0; padding: 1.25rem; border: 0.0625rem solid var(--color-outline-variant); border-left: 0.3125rem solid var(--color-outline-variant); border-radius: var(--radius-md); background: var(--color-surface-lowest); }
 .jlpt-review-item.is-correct { border-left-color: var(--color-success-bg); }
 .jlpt-review-item.is-wrong { border-left-color: var(--color-error-container); }
-.jlpt-review-item > header { display: flex; justify-content: space-between; gap: 12px; }
+.jlpt-review-item > header { display: flex; justify-content: space-between; gap: 0.75rem; }
 .jlpt-review-item > header span { color: var(--color-on-surface-variant); font-size: var(--text-xs); font-weight: 600; }
 .jlpt-review-item > header strong { font-size: var(--text-xs); }
 .jlpt-review-item.is-correct > header strong { color: var(--color-success); }
 .jlpt-review-item.is-wrong > header strong { color: var(--color-error); }
-.jlpt-review-order { padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-surface-container); color: var(--color-on-surface); font: var(--text-xs)/1.6 var(--font-body); }
-.jlpt-review-order p { margin: 0 0 8px; }
+.jlpt-review-order { padding: 0.75rem 0.875rem; border-radius: var(--radius-md); background: var(--color-surface-container); color: var(--color-on-surface); font: var(--text-xs)/1.6 var(--font-body); }
+.jlpt-review-order p { margin: 0 0 0.5rem; }
 .jlpt-review-order p:last-child { margin-bottom: 0; }
-.jlpt-review-order ol { display: inline-flex; flex-wrap: wrap; gap: 8px 18px; margin: 6px 0 0; padding-left: 22px; }
-.jlpt-review-item h4 { margin: 16px 0; font-family: var(--font-body); font-size: var(--text-md); font-weight: 600; line-height: 1.7; }
-.jlpt-review-passage { margin: 15px 0; padding: 16px; border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--text-sm); line-height: 1.75; }
-.jlpt-review-image { display: block; max-width: 100%; max-height: 360px; margin: 15px auto; }
-.jlpt-review-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-.jlpt-review-option { display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 9px; min-height: 50px; padding: 9px 11px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-control); }
-.jlpt-review-option b { display: grid; place-items: center; width: 27px; height: 27px; border-radius: var(--radius-full); background: var(--color-surface-mid); font: 600 var(--text-xs) var(--font-body); }
+.jlpt-review-order ol { display: inline-flex; flex-wrap: wrap; gap: 0.5rem 1.125rem; margin: 0.375rem 0 0; padding-left: 1.375rem; }
+.jlpt-review-item h4 { margin: 1rem 0; font-family: var(--font-body); font-size: var(--text-md); font-weight: 600; line-height: 1.7; }
+.jlpt-review-passage { margin: 0.9375rem 0; padding: 1rem; border-radius: var(--radius-control); background: var(--color-surface); font-size: var(--text-sm); line-height: 1.75; }
+.jlpt-review-image { display: block; max-width: 100%; max-height: 22.5rem; margin: 0.9375rem auto; }
+.jlpt-review-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5625rem; }
+.jlpt-review-option { display: grid; grid-template-columns: 1.875rem 1fr; align-items: center; gap: 0.5625rem; min-height: 3.125rem; padding: 0.5625rem 0.6875rem; border: 0.0625rem solid var(--color-outline-variant); border-radius: var(--radius-control); }
+.jlpt-review-option b { display: grid; place-items: center; width: 1.6875rem; height: 1.6875rem; border-radius: var(--radius-full); background: var(--color-surface-mid); font: 600 var(--text-xs) var(--font-body); }
 .jlpt-review-option span { font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600; line-height: 1.5; }
 .jlpt-review-option em { grid-column: 2; color: inherit; font-size: var(--text-xs); font-style: normal; font-weight: 600; }
 .jlpt-review-option.is-correct { border-color: var(--color-success-bg); background: var(--color-success-bg); color: var(--color-success); }
 .jlpt-review-option.is-correct b { background: var(--color-success-bg); color: var(--color-success); }
 .jlpt-review-option.is-wrong { border-color: var(--color-error-container); background: var(--color-error-container); color: var(--color-error); }
 .jlpt-review-option.is-wrong b { background: var(--color-error-container); color: var(--color-error); }
-.jlpt-review-item > button { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; margin-top: 14px; padding: 0 13px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-input); background: var(--color-surface-lowest); color: var(--color-on-surface-variant); font-weight: 600; cursor: pointer; }
+.jlpt-review-item > button { display: inline-flex; align-items: center; gap: 0.375rem; min-height: 2.375rem; margin-top: 0.875rem; padding: 0 0.8125rem; border: 0.0625rem solid var(--color-outline-variant); border-radius: var(--radius-input); background: var(--color-surface-lowest); color: var(--color-on-surface-variant); font-weight: 600; cursor: pointer; }
 .jlpt-review-item > button .material-symbols-outlined { font-size: var(--text-md); }
-.jlpt-review-explanation { margin-top: 14px; padding: 17px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-control); background: var(--color-surface-lowest); }
+.jlpt-review-explanation { margin-top: 0.875rem; padding: 1.0625rem; border: 0.0625rem solid var(--color-outline-variant); border-radius: var(--radius-control); background: var(--color-surface-lowest); }
 .jlpt-review-explanation strong { color: var(--color-success); }
-.jlpt-review-explanation p { margin: 8px 0 0; color: var(--color-success); font-size: var(--text-xs); line-height: 1.7; }
+.jlpt-review-explanation p { margin: 0.5rem 0 0; color: var(--color-success); font-size: var(--text-xs); line-height: 1.7; }
 
-@media (max-width: 650px) {
+@media (max-width: 40.625rem) {
     .jlpt-exam-result > .jlpt-exam-result__breakdown { grid-template-columns: 1fr; }
     .jlpt-review-options { grid-template-columns: 1fr; }
-    .jlpt-review-item { padding: 15px; }
+    .jlpt-review-item { padding: 0.9375rem; }
 }
 
-.jlpt-submit-dialog { width: min(650px, calc(100% - 28px)); padding: 28px; border: 0; border-radius: var(--radius-lg); background: var(--color-surface-lowest); color: var(--color-on-surface); box-shadow: var(--shadow-2); }
-.jlpt-submit-dialog::backdrop { background: var(--jl-scrim); backdrop-filter: blur(5px); }
-.jlpt-submit-dialog[open] { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: center; gap: 24px; }
-.jlpt-submit-dialog img { display: block; width: 150px; height: 145px; object-fit: contain; }
+.jlpt-submit-dialog { width: min(40.625rem, calc(100% - 1.75rem)); padding: 1.75rem; border: 0; border-radius: var(--radius-lg); background: var(--color-surface-lowest); color: var(--color-on-surface); box-shadow: var(--shadow-2); }
+.jlpt-submit-dialog::backdrop { background: var(--jl-scrim); backdrop-filter: blur(0.3125rem); }
+.jlpt-submit-dialog[open] { display: grid; grid-template-columns: 9.375rem minmax(0, 1fr); align-items: center; gap: 1.5rem; }
+.jlpt-submit-dialog img { display: block; width: 9.375rem; height: 9.0625rem; object-fit: contain; }
 .jlpt-submit-dialog > div > span { color: var(--color-primary); font: 600 var(--text-xs) var(--font-body); letter-spacing: normal; }
-.jlpt-submit-dialog h2 { margin: 7px 0; font: 600 var(--text-xl)/1.2 var(--font-body); }
+.jlpt-submit-dialog h2 { margin: 0.4375rem 0; font: 600 var(--text-xl)/1.2 var(--font-body); }
 .jlpt-submit-dialog p { margin: 0; color: var(--color-on-surface-variant); font: var(--text-xs)/1.65 var(--font-body); }
 .jlpt-submit-dialog p strong { color: var(--color-error); font-weight: 600; }
-.jlpt-submit-dialog footer { display: flex; justify-content: flex-end; gap: 9px; margin-top: 22px; }
-.jlpt-submit-dialog footer button { min-height: 41px; padding: 0 14px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-input); background: var(--color-surface-lowest); color: var(--color-on-surface); font: 600 var(--text-xs) var(--font-body); cursor: pointer; }
+.jlpt-submit-dialog footer { display: flex; justify-content: flex-end; gap: 0.5625rem; margin-top: 1.375rem; }
+.jlpt-submit-dialog footer button { min-height: 2.5625rem; padding: 0 0.875rem; border: 0.0625rem solid var(--color-outline-variant); border-radius: var(--radius-input); background: var(--color-surface-lowest); color: var(--color-on-surface); font: 600 var(--text-xs) var(--font-body); cursor: pointer; }
 .jlpt-submit-dialog footer button:last-child { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
-@media (max-width: 560px) { .jlpt-submit-dialog[open] { grid-template-columns: 1fr; text-align: center; } .jlpt-submit-dialog img { width: 110px; height: 100px; margin: 0 auto -8px; } .jlpt-submit-dialog footer { flex-direction: column; } }
+@media (max-width: 35rem) { .jlpt-submit-dialog[open] { grid-template-columns: 1fr; text-align: center; } .jlpt-submit-dialog img { width: 6.875rem; height: 6.25rem; margin: 0 auto -0.5rem; } .jlpt-submit-dialog footer { flex-direction: column; } }
 
 .jlpt-exam-question-meta #jlptBookmark {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    min-height: 34px;
-    padding: 0 11px;
-    border: 1px solid var(--color-outline-variant);
+    gap: 0.3125rem;
+    min-height: 2.125rem;
+    padding: 0 0.6875rem;
+    border: 0.0625rem solid var(--color-outline-variant);
     border-radius: var(--radius-input);
     background: var(--color-surface-lowest);
     color: var(--color-on-surface-variant);
@@ -216,17 +216,17 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
-    margin-bottom: 14px;
-    padding: 4px;
+    margin-bottom: 0.875rem;
+    padding: 0.25rem;
     border-radius: var(--radius-control);
     background: var(--color-surface-container);
 }
 
 #jlptFilters button {
     width: 100% !important;
-    height: 32px !important;
-    min-height: 32px !important;
-    padding: 0 4px !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    padding: 0 0.25rem !important;
     margin: 0;
     min-width: 0;
     box-sizing: border-box;
@@ -239,7 +239,7 @@
     background: transparent;
     color: var(--color-on-surface-variant);
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 500;
     line-height: 1;
     white-space: nowrap;
@@ -266,7 +266,7 @@
 
 .jlpt-exam-filter-empty {
     grid-column: 1 / -1;
-    padding: 18px 4px;
+    padding: 1.125rem 0.25rem;
     color: var(--color-on-surface-variant);
     font-size: var(--text-xs);
     text-align: center;
@@ -278,11 +278,11 @@
 
 .jlpt-exam-audio__bar .jlpt-exam-audio__play {
     display: grid;
-    flex: 0 0 42px;
+    flex: 0 0 2.625rem;
     place-items: center;
-    width: 42px;
-    height: 42px;
-    min-height: 42px;
+    width: 2.625rem;
+    height: 2.625rem;
+    min-height: 2.625rem;
     padding: 0;
     border: 0;
     border-radius: var(--radius-full);
@@ -296,13 +296,13 @@
 
 .jlpt-exam-audio__range {
     flex: 1;
-    min-width: 100px;
+    min-width: 6.25rem;
     accent-color: var(--color-primary);
     cursor: pointer;
 }
 
 .jlpt-exam-audio__time {
-    min-width: 92px;
+    min-width: 5.75rem;
     color: var(--color-on-surface-variant);
     font: 600 var(--text-xs) var(--font-body);
     text-align: center;
@@ -311,14 +311,14 @@
 
 /* A reading passage and every question attached to it form one page. */
 .jlpt-exam-instruction {
-    margin-bottom: 16px;
-    padding-bottom: 13px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8125rem;
     line-height: 1.65;
 }
 
 .jlpt-exam-passage {
-    margin-bottom: 16px;
-    padding: 19px 21px;
+    margin-bottom: 1rem;
+    padding: 1.1875rem 1.3125rem;
     color: var(--color-on-surface);
     font-size: var(--text-md);
     font-weight: 600;
@@ -351,15 +351,15 @@
 }
 
 .jlpt-exam-passage hr {
-    margin: 14px 0;
+    margin: 0.875rem 0;
     border: 0;
-    border-top: 1px solid var(--color-outline-variant);
+    border-top: 0.0625rem solid var(--color-outline-variant);
 }
 
 .jlpt-exam-passage table {
     width: 100%;
-    min-width: 520px;
-    margin: 14px 0;
+    min-width: 32.5rem;
+    margin: 0.875rem 0;
     border-collapse: collapse;
     background: var(--color-surface-lowest);
     font-size: var(--text-sm);
@@ -368,8 +368,8 @@
 
 .jlpt-exam-passage th,
 .jlpt-exam-passage td {
-    padding: 9px 11px;
-    border: 1px solid var(--color-outline-variant);
+    padding: 0.5625rem 0.6875rem;
+    border: 0.0625rem solid var(--color-outline-variant);
     vertical-align: top;
     text-align: left;
 }
@@ -384,7 +384,7 @@
     display: block;
     max-width: 100%;
     height: auto;
-    margin: 14px auto;
+    margin: 0.875rem auto;
 }
 
 .jlpt-exam-question-group {
@@ -393,16 +393,16 @@
 }
 
 .jlpt-exam-question-block {
-    padding: 22px 0 25px;
-    border-bottom: 1px solid var(--color-outline-variant);
+    padding: 1.375rem 0 1.5625rem;
+    border-bottom: 0.0625rem solid var(--color-outline-variant);
 }
 
 .jlpt-exam-question-block:first-child {
-    padding-top: 8px;
+    padding-top: 0.5rem;
 }
 
 .jlpt-exam-question-block:last-child {
-    padding-bottom: 4px;
+    padding-bottom: 0.25rem;
     border-bottom: 0;
 }
 
@@ -410,7 +410,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
     color: var(--color-primary);
     font-size: var(--text-xs);
 }
@@ -418,10 +418,10 @@
 .jlpt-exam-question-block > header button {
     display: flex;
     align-items: center;
-    gap: 5px;
-    min-height: 34px;
-    padding: 0 10px;
-    border: 1px solid var(--color-outline-variant);
+    gap: 0.3125rem;
+    min-height: 2.125rem;
+    padding: 0 0.625rem;
+    border: 0.0625rem solid var(--color-outline-variant);
     border-radius: var(--radius-input);
     background: var(--color-surface-lowest);
     color: var(--color-on-surface-variant);
@@ -436,7 +436,7 @@
 }
 
 .jlpt-exam-question-block .jlpt-exam-question {
-    margin: 12px 0 16px;
+    margin: 0.75rem 0 1rem;
     font-size: var(--text-2xl);
     line-height: 1.65;
 }
@@ -448,21 +448,21 @@
     font-weight: 600;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 37.5rem) {
     .jlpt-exam-question-meta {
         align-items: flex-start;
-        gap: 10px;
+        gap: 0.625rem;
     }
 
     .jlpt-exam-question-meta > div {
         align-items: flex-end;
         flex-direction: column-reverse;
-        gap: 7px;
+        gap: 0.4375rem;
     }
 
     .jlpt-exam-audio__bar {
         display: grid;
-        grid-template-columns: 42px minmax(0, 1fr);
+        grid-template-columns: 2.625rem minmax(0, 1fr);
     }
 
     .jlpt-exam-audio__time {
@@ -471,11 +471,11 @@
     }
 
     .jlpt-exam-question-block {
-        padding: 18px 0 21px;
+        padding: 1.125rem 0 1.3125rem;
     }
 
     .jlpt-exam-passage {
-        padding: 16px;
+        padding: 1rem;
         line-height: 1.65;
     }
 

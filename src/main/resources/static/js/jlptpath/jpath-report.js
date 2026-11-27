@@ -67,6 +67,8 @@
     if (code === 'TOO_MANY_REQUESTS') return MSG_LIMIT;
     if (code === 'JPATH_ITEM_NOT_FOUND') return MSG_NOT_FOUND;
     if (code === 'UNAUTHORIZED' && error.message) return error.message;
+    // QA 27/11 R1: the content-report API answers a repeat with 409 CONFLICT, not JPATH_REPORT_DUPLICATE
+    if (code === 'CONFLICT' || (error && error.status === 409)) return error.message || MSG_DUPLICATE;
     return MSG_FAILED;
   }
 

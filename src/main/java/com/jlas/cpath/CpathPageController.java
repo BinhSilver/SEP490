@@ -18,6 +18,8 @@ public class CpathPageController {
     static final String LOGIN = "redirect:/login";
 
     private final CpathService service;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.jlas.auth.repository.UserRepository users;
 
     public CpathPageController(CpathService service) {
         this.service = service;
@@ -29,28 +31,60 @@ public class CpathPageController {
                               com.jlas.auth.security.UserPrincipal user, Model model,
                               @RequestParam(name = "goal", required = false) String goal) {
         if (user == null) return LOGIN;
+        model.addAttribute("learnerName", certificateName(user));
         // F125: ?goal= picks one finished path (a paused one after a promotion or a goal change); else the newest
         java.util.Optional<java.util.Map<String, Object>> c = service.certificate(user.userId(), goal);
         if (c.isPresent()) {
             String earnedGoal = String.valueOf(c.get().get("goal"));
             model.addAttribute("earned", true);
             model.addAttribute("targetLevel", "Giao tiếp · " + c.get().get("nameVi"));
+            model.addAttribute("pathGoal", earnedGoal);
+            model.addAttribute("certificateMascot", certificateMascot(earnedGoal));
             model.addAttribute("completedAt", c.get().get("takenAt"));
             model.addAttribute("workGoal", "WORK".equals(earnedGoal) || "BA".equals(earnedGoal));
             return "cpath/certificate";
         }
-        String gate = gate(user, model);
-        if (gate != null) return gate;
-        java.util.Map<String, Object> path = service.path(user.userId());
+        java.util.Map<String, Object> path;
+        if (goal != null && !goal.isBlank()) {
+            try {
+                path = service.path(user.userId(), goal);
+            } catch (com.jlas.common.exception.ApiException ex) {
+                String gate = gate(user, model);
+                if (gate != null) return gate;
+                path = service.path(user.userId());
+            }
+        } else {
+            String gate = gate(user, model);
+            if (gate != null) return gate;
+            path = service.path(user.userId());
+        }
         @SuppressWarnings("unchecked") java.util.Map<String, Object> progress = (java.util.Map<String, Object>) path.get("progress");
         model.addAttribute("earned", false);
         model.addAttribute("targetLevel", "Giao tiếp · " + path.get("nameVi"));
         model.addAttribute("completedAt", null);
         String pathGoal = String.valueOf(path.get("goal"));
+        model.addAttribute("pathGoal", pathGoal);
+        model.addAttribute("certificateMascot", certificateMascot(pathGoal));
         model.addAttribute("workGoal", "WORK".equals(pathGoal) || "BA".equals(pathGoal));
         model.addAttribute("passedTopics", progress.get("passedTopics"));
         model.addAttribute("totalTopics", progress.get("totalTopics"));
         return "cpath/certificate";
+    }
+
+    private static String certificateMascot(String goal) {
+        return switch (goal == null ? "" : goal) {
+            case "TRAVEL" -> "/images/mascots/certificates/kitsu-travel.png";
+            case "DAILY_LIFE" -> "/images/mascots/certificates/kitsu-daily-life.png";
+            case "WORK" -> "/images/mascots/certificates/kitsu-work.png";
+            case "BA" -> "/images/mascots/certificates/kitsu-brse.png";
+            default -> "/images/mascots/fox/kitsu-announcing-128.webp";
+        };
+    }
+
+    private String certificateName(UserPrincipal user) {
+        if (users == null) return user.username();
+        return users.findById(user.userId()).map(u -> u.getFullName() == null || u.getFullName().isBlank()
+                ? user.username() : u.getFullName()).orElse(user.username());
     }
 
     @GetMapping("/learning/comm/survey")
@@ -66,6 +100,11 @@ public class CpathPageController {
     @GetMapping({"/learning/comm", "/learning/comm/path"})
     public String path(@AuthenticationPrincipal UserPrincipal user, Model model) {
         return pathPage(user, model, "cpath/path");
+    }
+
+    @GetMapping("/learning/comm/final-test")
+    public String finalTest(@AuthenticationPrincipal UserPrincipal user, Model model) {
+        return pathPage(user, model, "cpath/final-test");
     }
 
     @GetMapping("/learning/comm/situation/{id}")

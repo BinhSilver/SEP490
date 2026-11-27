@@ -51,10 +51,16 @@
       start = levelBtn(e.label, e.level) + (reason ? ' — ' + esc(reason) : '');
       end = levelBtn(x.label, x.level) + ' · ' + esc(x.condition);
     }
-    return '<div class="mp-io">'
-      + '<p class="mp-io__row"><span class="mp-io__k">Bắt đầu:</span> ' + start + '</p>'
-      + '<p class="mp-io__row"><span class="mp-io__k">Kết thúc:</span> ' + end + '</p>'
-      + (io.progress ? '<p class="mp-io__progress">' + esc(io.progress) + '</p>' : '')
+    // QA 27/11 C5: start and end on the same level showed two identical level buttons; one row says both
+    var same = io.kind !== 'COMM' && e.level && e.level === x.level;
+    var rows = same
+      ? '<p class="mp-io__row"><span class="mp-io__k">Cấp học:</span> ' + levelBtn(x.label, x.level)
+        + (e.reason ? ' — ' + esc(e.reason) : '') + '</p>'
+        + '<p class="mp-io__row"><span class="mp-io__k">Kết thúc:</span> ' + esc(x.condition) + '</p>'
+      : '<p class="mp-io__row"><span class="mp-io__k">Bắt đầu:</span> ' + start + '</p>'
+        + '<p class="mp-io__row"><span class="mp-io__k">Kết thúc:</span> ' + end + '</p>';
+    return '<div class="mp-io">' + rows
+      + (io.progress && String(x.condition || '').indexOf(io.progress) < 0 ? '<p class="mp-io__progress">' + esc(io.progress) + '</p>' : '')
       + (io.kind === 'JLPT' && io.retestUrl && !(x.done) ? '<a class="jp-link-btn mp-io__retest" href="' + esc(io.retestUrl) + '">Làm lại Smart Test</a>' : '')
       + '</div>';
   }

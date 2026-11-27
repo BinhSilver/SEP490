@@ -124,8 +124,8 @@
       html += '<button type="button" class="jp-study-icon" data-jp-audio="' + esc(card.audioUrl)
         + '" aria-label="Nghe phát âm">' + icon('volume-2') + '</button>';
     }
-    // F196 (owner 15/11): save / unsave the card in the notebook from the card corner
-    if (has(card.code) && (card.itemType === 'VOCAB' || card.itemType === 'KANJI' || card.itemType === 'GRAMMAR') && !isCheck(card)) {
+    // F196 (owner 15/11): save / unsave VOCAB & KANJI in the notebook from the card corner (grammar has no notebook)
+    if (has(card.code) && (card.itemType === 'VOCAB' || card.itemType === 'KANJI') && !isCheck(card)) {
       var saved = !!card.notebook;
       html += '<button type="button" class="jp-study-icon jp-save-btn--inline' + (saved ? ' is-saved' : '') + '" data-jp-save'
         + ' aria-pressed="' + (saved ? 'true' : 'false') + '" aria-label="Lưu vào sổ tay điểm yếu"'
@@ -296,9 +296,9 @@
       attrs += ' data-jpath-report="' + attrJson({ targetType: type, targetCode: card.code, pageContext: PAGE_CONTEXT }) + '"';
       if (type === 'KANJI') attrs += ' data-jpath-writing="' + attrJson({ itemType: type, code: card.code }) + '"';
     }
-    // F64 (owner 11/11): "Đã biết" on every new card of Từ vựng, Kanji and Ngữ pháp (one question decides)
+    // F64 (owner 11/11): "Đã biết" on every fresh new card of Từ vựng, Kanji and Ngữ pháp (server rejects repeat=true)
     var SKIP_ASK = { VOCAB: 'Đã biết từ này?', KANJI: 'Đã biết chữ này?', GRAMMAR: 'Đã biết mẫu này?' };
-    var skip = card.kind === 'NEW' && SKIP_ASK[type]
+    var skip = card.kind === 'NEW' && !card.repeat && SKIP_ASK[type]
       ? '<p class="jp-study-skip">' + SKIP_ASK[type] + ' <button type="button" class="jp-link-btn" data-jp-skip>Bỏ qua (kiểm 1 câu)</button></p>'
       : '';
     var kindCls = esc(String(card.kind || '').toLowerCase());
@@ -324,7 +324,9 @@
         mImg = '/images/mascots/fox/kitsu-thinking-30.webp'; mSpeech = 'Gõ lại cách đọc nào!'; mMood = 'think';
       }
     } else if (card.kind === 'NEW') {
-      if (isFlipped) {
+      if (!flippable) {
+        mImg = '/images/mascots/fox/kitsu-cheer-30.webp'; mSpeech = 'Xem kỹ mẫu câu rồi bấm Tiếp nhé!'; mMood = 'flip';
+      } else if (isFlipped) {
         mImg = '/images/mascots/fox/kitsu-cheer-30.webp'; mSpeech = 'Cùng ghi nhớ mục mới nhé!'; mMood = 'flip';
       } else {
         mImg = '/images/mascots/fox/kitsu-encouraging.webp'; mSpeech = 'Chạm thẻ để xem ' + backWhat + ' nhé!'; mMood = 'encourage';
@@ -811,7 +813,7 @@
     var api = root.JpathApi;
     var page = { el: el, doc: d, sessionId: sessionId, display: {}, flow: null, shownKey: null, shownAt: Date.now(),
       offline: root.navigator && root.navigator.onLine === false, blocked: false, notice: '', busy: false,
-      checkFailed: null };
+      checkFailed: null, fc: null };
     var saver = D().createSaver({});
     page.saver = saver;
     page.controls = bindControls(el, { display: page.display, saver: saver, onChange: function (disp) {
@@ -830,6 +832,17 @@
     page.deps = { uuid: function () { return root.JpathOfflineQueue.uuid(root.crypto); }, now: Date.now };
 
     el.addEventListener('click', function (ev) { onClick(page, ev); });
+    page.onFlashcardShow = function () {
+      var returnedSet = null;
+      try { returnedSet = root.sessionStorage && root.sessionStorage.getItem('jlas.path.fcBackSet'); } catch (e) { returnedSet = null; }
+      if (page.fc && page.fc.url && returnedSet === String(new URL(page.fc.url, root.location.href).searchParams.get('setId'))) {
+        try { root.sessionStorage.removeItem('jlas.path.fcBackSet'); } catch (e) { /* session storage unavailable */ }
+        page.fc.tab = null;
+        page.fc.recallComplete = false;
+        reload(page).catch(function () {});
+      }
+    };
+    root.addEventListener('pageshow', page.onFlashcardShow);
     el.addEventListener('submit', function (ev) { onSubmit(page, ev); });
     el.addEventListener('pointerdown', function (ev) { onPointerDown(page, ev); });
     el.addEventListener('pointerup', function (ev) { onPointerUp(page, ev); });
@@ -1076,7 +1089,7 @@
 
   function skip(page) {
     var c = page.flow && page.flow.cards[0];
-    if (!c || page.busy) return;
+    if (!c || c.repeat || page.busy) return;
     if (page.offline) { setNotice(page, NEED_NETWORK_TEXT); return; }
     page.busy = true;
     var api = root.JpathApi;
@@ -1149,36 +1162,57 @@
   function listHtml(run, fc) {
     var kanji = run[0].itemType === 'KANJI';
     var what = kanji ? 'chữ Kanji' : 'từ mới';
-    var progress = fc && fc.total ? '<span class="jp-wlist__progress">Đã nhớ ' + fc.remembered + '/' + fc.total + '</span>' : '';
+    var isBrowse = !!(fc && fc.isBrowse);
+    var canCheck = !!(fc && (fc.recallComplete || isBrowse));
+    var progress = isBrowse
+      ? '<span class="jp-wlist__progress">Học riêng một phần, không ảnh hưởng tiến độ hôm nay</span>'
+      : (fc && fc.total ? '<span class="jp-wlist__progress">' + (fc.recallComplete ? 'Đã hoàn tất flashcard Ghi nhớ' : 'Bắt buộc: hoàn tất flashcard Ghi nhớ trước khi kiểm tra') + '</span>' : '<span class="jp-wlist__progress">Bắt buộc: học đủ flashcard ở chế độ Ghi nhớ</span>');
     return '<section class="jp-card jp-wlist" aria-label="Danh sách ' + what + '">'
-      + '<div class="jp-wlist__top"><h2 class="jp-wlist__title">' + run.length + ' ' + what + ' hôm nay</h2>' + progress + '</div>'
+      + '<div class="jp-wlist__top"><h2 class="jp-wlist__title">' + run.length + ' ' + what + (isBrowse ? ' của phần này' : ' hôm nay') + '</h2>' + progress + '</div>'
       + '<ul class="jp-wlist__list">' + run.map(listRowHtml).join('') + '</ul>'
       + '<div class="jp-wlist__actions">'
-      + '<button type="button" class="jp-btn" data-jp-list-fc' + (fc && fc.loading ? ' aria-busy="true" disabled' : '') + '>'
-      + (fc && fc.loading ? 'Đang mở' : 'Học bằng flashcard') + '</button>'
-      + '<button type="button" class="jp-btn jp-btn--primary" data-jp-list-done>Làm bài kiểm tra</button>'
+      + '<button type="button" class="jp-btn jp-btn--primary" data-jp-list-fc' + (fc && fc.loading ? ' aria-busy="true" disabled' : '') + '>'
+      + (fc && fc.loading ? 'Đang mở' : isBrowse ? 'Học bằng flashcard' : (fc && fc.recallComplete) ? 'Ôn lại flashcard Ghi nhớ' : 'Học flashcard · Ghi nhớ (bắt buộc)') + '</button>'
+      + '<button type="button" class="jp-btn" data-jp-list-done' + (canCheck ? '' : ' disabled aria-disabled="true" title="Hoàn tất flashcard Ghi nhớ để mở kiểm tra"') + '>Làm bài kiểm tra</button>'
       + '</div></section>';
   }
 
-  /** Today's flashcard set of this tab (made by the server without a button) and its "Đã nhớ x/y". */
-  function loadListSet(page, tab) {
-    if (page.fc && page.fc.tab === tab) return;
-    page.fc = { tab: tab, remembered: 0, total: 0, url: null };
-    Promise.resolve(root.JpathApi.send('GET', BASE + '/flashcards?tab=' + encodeURIComponent(tab))).then(function (res) {
+  /** Today's (or matching part's) flashcard set of this tab and its "Đã nhớ x/y". */
+  function loadListSet(page, tab, firstCode) {
+    var isBrowse = !!(page.flow && page.flow.session && page.flow.session.mode === 'BROWSE');
+    if (page.fc && page.fc.tab === tab && page.fc.firstCode === firstCode && page.fc.isBrowse === isBrowse) return;
+    var fc = { tab: tab, firstCode: firstCode, isBrowse: isBrowse, remembered: 0, total: 0, url: null, ready: false };
+    page.fc = fc;
+    fc.promise = Promise.resolve(root.JpathApi.send('GET', BASE + '/flashcards?tab=' + encodeURIComponent(tab))).then(function (res) {
+      fc.ready = true;
       var parts = (res && res.parts) || [];
-      var today = parts.filter(function (x) { return x && /^TODAY/.test(x.status); })[0];
-      if (!today || !page.fc || page.fc.tab !== tab) return;
-      page.fc.part = today.index;
-      if (!today.setId) return; // made on the first click (openListSet)
-      page.fc.remembered = today.remembered; page.fc.total = today.total; page.fc.url = today.url;
+      var matched = (firstCode && parts.filter(function (x) {
+        return x && (x.firstItemCode === firstCode
+          || (Array.isArray(x.itemCodes) && x.itemCodes.indexOf(firstCode) >= 0)
+          || (Array.isArray(x.items) && x.items.some(function (it) { return it && it.code === firstCode; })));
+      })[0]) || parts.filter(function (x) { return x && /^TODAY/.test(x.status); })[0];
+      if (!matched || page.fc !== fc) return;
+      fc.part = matched.index;
+      if (!matched.setId) { if (isBrowse) draw(page); return; } // made on the first click (openListSet)
+      fc.remembered = matched.remembered; fc.total = matched.total; fc.url = matched.url;
+      fc.recallComplete = !!matched.recallComplete;
       draw(page);
-    }, function () { /* the list still works without flashcards */ });
+    }, function () { fc.ready = true; /* the list still works without flashcards */ });
   }
 
   function openListSet(page) {
     var fc = page.fc;
     var back = root.location.pathname + root.location.search;
-    var go = function (url) { root.location.assign(url + '&back=' + encodeURIComponent(back)); };
+    var go = function (url) {
+      var setId = new URL(url, root.location.href).searchParams.get('setId');
+      try { if (setId && root.sessionStorage) root.sessionStorage.setItem('jlas.path.fcBackSet', setId); } catch (e) { /* session storage unavailable */ }
+      root.location.assign(url + '&back=' + encodeURIComponent(back));
+    };
+    if (fc && fc.promise && !fc.ready && !fc.waitingReady) {
+      fc.waitingReady = true; fc.loading = true; draw(page);
+      fc.promise.then(function () { fc.waitingReady = false; fc.loading = false; openListSet(page); });
+      return;
+    }
     if (fc && fc.url) { go(fc.url); return; }
     if (fc && fc.part != null && !fc.loading) {
       // today's set is not made yet: make it now, as the part map's button does
@@ -1186,7 +1220,7 @@
       Promise.resolve(root.JpathApi.send('POST', BASE + '/flashcards/open?tab=' + encodeURIComponent(fc.tab)
         + '&part=' + encodeURIComponent(fc.part))).then(function (set) {
         fc.loading = false;
-        if (set && set.url) { fc.url = set.url; go(set.url); return; }
+        if (set && set.url) { fc.url = set.url; fc.recallComplete = false; fc.openedAt = new Date().toISOString(); go(set.url); return; }
         draw(page); setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút');
       }, function () { fc.loading = false; draw(page); setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút'); });
       return;
@@ -1194,9 +1228,14 @@
     setNotice(page, 'Chưa mở được bộ thẻ, thử lại sau ít phút');
   }
 
-  /** "Làm bài kiểm tra": the list counts as seen (FIRST_RATE REMEMBERED each); the path's check decides. */
+  /** The required flashcard session must be completed before the path quick check can start. */
   function finishList(page) {
     if (page.blocked || page.replaying || page.waiting) return;
+    if (!page.fc || (!page.fc.recallComplete && !page.fc.isBrowse)) {
+      setNotice(page, 'Hãy hoàn tất bộ thẻ ở chế độ Ghi nhớ trước khi làm bài kiểm tra.');
+      draw(page);
+      return;
+    }
     var run = newRun(page.flow);
     run.forEach(function (c) {
       var cur = current(page);
@@ -1282,7 +1321,7 @@
     var body;
     var run = !f.retype ? newRun(f) : [];
     if (run.length) {
-      loadListSet(page, run[0].itemType);
+      loadListSet(page, run[0].itemType, run[0].code);
       var listSteps = viewSteps(f);
       el.innerHTML = banner + stepsHtml(listSteps.steps, listSteps.minutesLeft, s.tab)
         + '<div class="jp-study-main">' + listHtml(run, page.fc) + '</div>'
@@ -1369,7 +1408,7 @@
     var toast = function (m) { if (root.JlasToast && root.JlasToast.show) root.JlasToast.show(m); };
     Promise.resolve(root.JpathApi.send(willSave ? 'POST' : 'DELETE', url)).then(function () {
       c.notebook = willSave;
-      toast(willSave ? 'Đã lưu vào sổ tay điểm yếu.' : 'Đã bỏ khỏi sổ tay.');
+      toast(willSave ? 'Đã lưu vào Sổ tay Lộ trình học.' : 'Đã bỏ khỏi Sổ tay Lộ trình học.');
     }, function () { toast('Chưa lưu được. Thử lại sau.'); }).then(function () { page.savingNote = false; draw(page); });
   }
 

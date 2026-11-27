@@ -40,10 +40,12 @@ public class CpathTravelService {
         return path == null || path.toString().isBlank() ? null : CpathService.AUDIO_URL + path;
     }
 
-    /** The learner's active TRAVEL path (main or secondary), or null. */
+    /** The learner's TRAVEL path (active first, then finished/paused), or null if none/restarted. */
     private Map<String, Object> travelPath(Long userId) {
         List<Map<String, Object>> rows = db.queryForList("SELECT * FROM cpath_user_path WHERE user_id = ? AND goal_code = ? "
-                + "AND status = 'ACTIVE' ORDER BY role = 'MAIN' DESC, id DESC LIMIT 1", userId, GOAL);
+                + "AND status IN ('ACTIVE','PAUSED','DONE') "
+                + "ORDER BY CASE WHEN status = 'ACTIVE' THEN 0 WHEN status = 'DONE' THEN 1 ELSE 2 END, role = 'MAIN' DESC, id DESC LIMIT 1",
+                userId, GOAL);
         return rows.isEmpty() ? null : rows.get(0);
     }
 

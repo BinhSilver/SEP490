@@ -253,17 +253,38 @@
           if (day && day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
           day = String(data.day || today).slice(0, 10);
         }
-        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false'); if (el.classList) el.classList.remove('is-swapping');
         el.innerHTML = (notice ? '<p class="jp-day-notice" role="status">' + esc(notice) + '</p>' : '') + dayHtml(data, day, today);
         if (notice && root.history && root.history.replaceState) {
           try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
         }
       }).catch(function (error) {
-        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false'); if (el.classList) el.classList.remove('is-swapping');
         el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(error && (error.code || error.status) && error.message || 'Chưa tải được chi tiết ngày.')
           + ' <button type="button" class="jp-btn" data-cp-retry>Thử lại</button></p>';
         var retry = el.querySelector('[data-cp-retry]');
         if (retry) retry.addEventListener('click', load);
+      });
+    }
+    var startDay = day;
+    // owner 27/11: other days (Hôm trước / Hôm sau / week strip) load in place; Back/Forward still work
+    if (el.addEventListener && root.history && root.history.pushState) {
+      el.addEventListener('click', function (ev) {
+        var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+        if (!a || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.button === 1) return;
+        var dm = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(a.getAttribute('href') || '');
+        if (!dm) return;
+        ev.preventDefault();
+        if (dm[1] === day) return;
+        day = dm[1]; notice = '';
+        try { root.history.pushState({ jpDay: day }, '', a.getAttribute('href')); } catch (e) { /* ignore */ }
+        el.classList.add('is-swapping');
+        load();
+      });
+      root.addEventListener('popstate', function () {
+        var pm = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(String(root.location.search || ''));
+        var next = pm ? pm[1] : startDay;
+        if (next !== day) { day = next; notice = ''; el.classList.add('is-swapping'); load(); }
       });
     }
     load();

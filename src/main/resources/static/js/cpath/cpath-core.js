@@ -29,6 +29,23 @@
     });
   }
 
+  function selectedGoal(search) {
+    var s = search != null ? search : String(root && root.location && root.location.search || '');
+    var m = /(?:^|[?&])goal=([A-Z_]+)/.exec(s);
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  function goalApiUrl(url, search) {
+    var g = selectedGoal(search);
+    if (!g || /(?:^|[?&])goal=/.test(url)) return url;
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'goal=' + encodeURIComponent(g);
+  }
+
+  function pathHref(search) {
+    var g = selectedGoal(search);
+    return '/learning/comm/path' + (g ? '?goal=' + encodeURIComponent(g) : '');
+  }
+
   /** "私(わたし)は" → ruby when furigana is on, plain text otherwise. */
   function ruby(text, on) {
     var s = String(text == null ? '' : text);
@@ -141,7 +158,7 @@
       }).join('') + '</ul>' : '')
       + '<div class="cp-settings__actions cp-core-result__actions">'
       + (!isCheck && !res.lessonDone ? '<button type="button" class="cp-btn-primary" data-core-again>Học lại phần sai</button>' : '')
-      + '<a class="' + (isCheck || res.lessonDone ? 'cp-btn-primary' : 'cp-btn-ghost') + '" href="/learning/comm/path">Về lộ trình — học tình huống hôm nay</a>'
+      + '<a class="' + (isCheck || res.lessonDone ? 'cp-btn-primary' : 'cp-btn-ghost') + '" href="' + esc(pathHref()) + '">Về lộ trình — học tình huống hôm nay</a>'
       + '</div></section>';
   }
 
@@ -169,6 +186,11 @@
     var d = deps || {};
     var search = d.search != null ? d.search : String(root.location && root.location.search || '');
     var isCheck = /[?&]check=1/.test(search);
+    var backHref = pathHref(search);
+    if (root.document && typeof root.document.querySelector === 'function' && selectedGoal(search)) {
+      var backEl = root.document.querySelector('.jp-back[href^="/learning/comm/path"]');
+      if (backEl && backEl.setAttribute) backEl.setAttribute('href', backHref);
+    }
     var data = null, phase = 'learn', qi = 0, answers = {}, result = null, busy = false, quiz = null;
     var A = root.CpathAudio;
 
@@ -190,7 +212,7 @@
       if (!items.length) {
         el.innerHTML = header() + '<section class="jp-card"><p>' + (isCheck ? 'Không còn mục nào cần kiểm tra.'
           : (data.restDay ? 'Hôm nay là ngày nghỉ, không có bài nền.' : 'Bạn đã học hết bài nền ở độ sâu này. Đổi độ sâu trong Cài đặt nếu muốn học thêm.'))
-          + '</p><a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình</a></section>';
+          + '</p><a class="cp-btn-primary" href="' + esc(backHref) + '">Về lộ trình</a></section>';
         return;
       }
       if (phase === 'result' && result) {
@@ -201,7 +223,7 @@
       if (!isCheck && data.done) {
         el.innerHTML = header() + '<section class="jp-card cp-core-result" role="status"><h2>Bài nền hôm nay đã xong</h2>'
           + '<p>Bạn có thể xem lại thẻ bên dưới hoặc vào tình huống hôm nay.</p>'
-          + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình</a></section>'
+          + '<a class="cp-btn-primary" href="' + esc(backHref) + '">Về lộ trình</a></section>'
           + '<ul class="cp-core-cards">' + items.map(function (x) { return cardHtml(x, display); }).join('') + '</ul>';
         return;
       }
@@ -221,7 +243,7 @@
 
     function submit() {
       busy = true; render();
-      var url = isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson';
+      var url = goalApiUrl(isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson', search);
       Promise.resolve(root.JpathApi.send('POST', url, { answers: answers })).then(function (r) {
         busy = false; result = r || {}; phase = 'result'; render();
       }).catch(function (e) {
@@ -234,11 +256,11 @@
     // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
     function planToday() {
       if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
-      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+      return Promise.resolve(root.JpathApi.send('POST', goalApiUrl('/api/learning/comm/today/plan', search), {})).catch(function () { return null; });
     }
 
     function load() {
-      var url = isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson';
+      var url = goalApiUrl(isCheck ? '/api/learning/comm/core/check' : '/api/learning/comm/core/lesson', search);
       (isCheck ? Promise.resolve(null) : planToday()).then(function () { return root.JpathApi.get(url); }).then(function (x) {
         data = x || {}; phase = isCheck ? 'quiz' : 'learn'; qi = 0; answers = {}; result = null;
         quiz = isCheck ? quizOrder(data.questions) : null;
@@ -246,7 +268,7 @@
         render();
       }).catch(function (e) {
         el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được bài nền.')
-          + ' <a class="cp-btn-ghost" href="/learning/comm/path">Về lộ trình</a></p>';
+          + ' <a class="cp-btn-ghost" href="' + esc(backHref) + '">Về lộ trình</a></p>';
       });
     }
 

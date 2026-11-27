@@ -222,7 +222,13 @@
     var resumesSmartTest = Boolean(afterSurveyTarget) && !keepsPath && !fromZero;
     var needsPathOnly = fromZero || surveyOnlyGoal || Boolean(afterSurveyTarget);
     var hasResult = Boolean(entryStatus && entryStatus.smartTest && entryStatus.smartTest.status === 'SUBMITTED');
-    if (keepsPath) {
+    if (keepsPath && fromZero) {
+      // QA 27/11 ST6: "bắt đầu từ số 0" with a running path was offered Smart Test again; say how to restart instead
+      document.getElementById('inviteTitle').textContent = 'Bạn muốn học lại từ đầu?';
+      document.getElementById('inviteText').textContent = 'Lộ trình hiện tại vẫn giữ nguyên. Muốn học lại từ số 0, '
+        + 'vào Cài đặt lộ trình và chọn "Bắt đầu lại từ đầu" (tiến độ cũ sẽ được xoá).';
+      afterSurveyTarget = '/learning/jlpt/settings';
+    } else if (keepsPath) {
       document.getElementById('inviteTitle').textContent = hasResult ? 'Làm lại Smart Test?' : 'Đo trình độ bằng Smart Test';
       document.getElementById('inviteText').textContent = (hasResult
         ? 'Bài mới thay cho kết quả lần trước. '
@@ -245,11 +251,11 @@
     renderEntrySummary(keepsPath && !hasResult ? { survey: survey, entry: entryStatus, fromZero: fromZero } : null);
     // owner 17/11: a learner who keeps a JLPT path may still retake Smart Test (the result page offers the level move)
     // owner 23/11: a learner new to Japanese who keeps a path is not offered Smart Test (set after the summary)
-    startTest.hidden = (needsPathOnly && !keepsPath) || (keepsPath && !hasResult && fromZero);
+    startTest.hidden = (needsPathOnly && !keepsPath) || (keepsPath && fromZero);
     var startLabel = startTest.querySelector('span');
     if (startLabel) startLabel.textContent = keepsPath ? (hasResult ? 'Làm bài mới' : 'Làm Smart Test') : 'Bắt đầu Smart Test';
     noTest = needsPathOnly;
-    goHome.textContent = needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
+    goHome.textContent = keepsPath && fromZero ? 'Mở Cài đặt lộ trình' : needsPathOnly ? 'Xem lộ trình của bạn' : 'Để sau, về trang chủ';
     goHome.classList.toggle('smart-test-primary', needsPathOnly);
     goHome.classList.toggle('smart-test-secondary', !needsPathOnly);
     wizard.classList.add('survey-wizard--invitation');
@@ -419,12 +425,17 @@
 
   async function beginTest(survey) {
     startTest.disabled = true;
+    var startLabel = startTest.querySelector('span').textContent;
     startTest.querySelector('span').textContent = 'Đang tạo bài...';
     try {
       var test = await api('/api/assessment/smart-tests', { method: 'POST', body: JSON.stringify(survey) });
       localStorage.setItem(ACTIVE_ATTEMPT_KEY, test.attemptId);
       window.location.assign('/smart-test');
-    } catch (error) { showError(error.message); }
+    } catch (error) {
+      showError(error.message);
+      // QA 27/11 ST1: the label stayed "Đang tạo bài..." after an error
+      startTest.querySelector('span').textContent = startLabel;
+    }
     finally { startTest.disabled = false; }
   }
 
@@ -492,10 +503,39 @@
     });
   });
 
+  function validateTargetExamDate() {
+    var examInput = document.getElementById('surveyExamDateInput');
+    var errEl = document.getElementById('surveyExamDateError');
+    if (!examInput) return true;
+    var rawDate = examInput.value ? examInput.value.trim() : '';
+    if (!rawDate) {
+      if (errEl) { errEl.textContent = ''; errEl.hidden = true; }
+      return true;
+    }
+    var constraints = getExamDateConstraints();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate) && rawDate >= constraints.min && rawDate <= constraints.max) {
+      if (errEl) { errEl.textContent = ''; errEl.hidden = true; }
+      return true;
+    }
+    if (errEl) {
+      errEl.textContent = rawDate < constraints.min
+        ? 'Ngày thi dự kiến phải từ ngày mai trở đi.'
+        : 'Ngày thi dự kiến chỉ được chọn trong vòng 3 năm tới.';
+      errEl.hidden = false;
+    }
+    return false;
+  }
+
   backButton.addEventListener('click', function () { if (currentIndex > 0) { currentIndex--; render(); } });
   nextButton.addEventListener('click', async function () {
     var activeSlides = visibleSlides();
-    if (!hasAnswer(activeSlides[currentIndex])) return;
+    var curSlide = activeSlides[currentIndex];
+    if (!hasAnswer(curSlide)) return;
+    if (curSlide && curSlide.dataset.surveyStep === 'target' && !validateTargetExamDate()) {
+      var badDateInput = document.getElementById('surveyExamDateInput');
+      if (badDateInput) badDateInput.focus();
+      return;
+    }
     if (currentIndex < activeSlides.length - 1) { currentIndex++; render(); return; }
     var body = buildSurveyBody(form);
     // [JLAS-W0108] Preflight C37: entry answers are saved only for a JLPT goal with the path on.
@@ -557,6 +597,7 @@
         errEl.hidden = true;
       }
     });
+    examDateInput.addEventListener('change', validateTargetExamDate);
   }
   function httpFetch(url, options) {
     var fn = (typeof window !== 'undefined' && typeof window.fetch === 'function')

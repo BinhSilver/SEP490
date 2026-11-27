@@ -8,6 +8,7 @@ import com.jlas.flashcard.dto.FlashcardDtos.FolderRequest;
 import com.jlas.flashcard.dto.FlashcardDtos.SetRequest;
 import com.jlas.flashcard.dto.FlashcardDtos.StudySummaryDto;
 import com.jlas.flashcard.service.FlashcardService;
+import com.jlas.flashcard.repository.FlashcardStudySessionRepository;
 import com.jlas.jlptpath.entity.JpathExample;
 import com.jlas.jlptpath.entity.JpathGrammar;
 import com.jlas.jlptpath.entity.JpathKanji;
@@ -42,7 +43,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class JpathFlashcardService {
 
-    public record PartSet(int index, String status, Long setId, int remembered, int total, String url) {
+    public record PartSet(int index, String status, Long setId, int remembered, int total, boolean recallComplete, String url,
+            String firstItemCode, List<String> itemCodes) {
+        public PartSet(int index, String status, Long setId, int remembered, int total, boolean recallComplete, String url) {
+            this(index, status, setId, remembered, total, recallComplete, url, null, List.of());
+        }
     }
 
     public record PartSets(String tab, String level, List<PartSet> parts) {
@@ -58,6 +63,7 @@ public class JpathFlashcardService {
     private final FlashcardService flashcards;
     private final JpathPartsService parts;
     private final JpathContentReader content;
+    private final FlashcardStudySessionRepository studySessions;
     private volatile boolean tableReady;
     private JpathFlashcardProgressSync sync;
 
@@ -67,11 +73,12 @@ public class JpathFlashcardService {
     }
 
     public JpathFlashcardService(JdbcTemplate db, FlashcardService flashcards, JpathPartsService parts,
-            JpathContentReader content) {
+            JpathContentReader content, FlashcardStudySessionRepository studySessions) {
         this.db = db;
         this.flashcards = flashcards;
         this.parts = parts;
         this.content = content;
+        this.studySessions = studySessions;
     }
 
     /**
@@ -148,10 +155,15 @@ public class JpathFlashcardService {
     }
 
     private PartSet view(Long userId, JpathPartsService.Part part, Long setId) {
-        if (setId == null) return new PartSet(part.index(), part.status(), null, 0, part.items().size(), null);
+        List<String> codes = part.items().stream().map(JpathPartsService.Item::code).filter(c -> c != null).toList();
+        String firstCode = codes.isEmpty() ? null : codes.get(0);
+        if (setId == null) return new PartSet(part.index(), part.status(), null, 0, part.items().size(), false, null, firstCode, codes);
+        boolean recallComplete = studySessions.existsByUserIdAndSetIdAndSessionTypeAndModeAndStatus(
+                userId, setId, "FLASHCARD", "RECALL", "COMPLETED");
         StudySummaryDto s = flashcards.summary(setId, userId);
-        return new PartSet(part.index(), part.status(), setId, s.getRemembered(), s.getTotal(),
-                "/flashcard/study.html?setId=" + setId + "&from=jlpt");
+        return new PartSet(part.index(), part.status(), setId, s.getRemembered(), s.getTotal(), recallComplete,
+                "/flashcard/study.html?setId=" + setId + "&from=jlpt&studyMode=RECALL&learningPath=1",
+                firstCode, codes);
     }
 
     private Long ensure(Long userId, JpathTab tab, String level, JpathPartsService.Part part) {
