@@ -293,7 +293,11 @@
       + btn('redo', '', 'Làm lại', ctx.graded || !hasPicks(ctx.picks))
       + btn('answer', '', 'Đáp án', !ctx.graded)
       + (ctx.split ? '' : btn('translate', '', 'Dịch nghĩa', !ctx.graded, ctx.viOn))
-      + '</div>' + (!ctx.graded ? '<p class="jp-muted">Chọn đáp án trước</p>' : '');
+      // QA 27/11 B2: say how many are still missing; nothing once every question has a pick
+      + '</div>' + (!ctx.graded && !allPicked ? '<p class="jp-muted">Chọn đáp án cho cả '
+        + list(set.questionIds).length + ' câu rồi bấm Kết quả (đã chọn '
+        + list(set.questionIds).filter(function (id) { return !!ctx.answered[id] || !!ctx.picks[id]; }).length
+        + '/' + list(set.questionIds).length + ')</p>' : '');
   }
 
   /** One exam-style question (問1 …) with its four choices. */
@@ -659,6 +663,9 @@
       if (which === 'result') {
         var vals = {};
         list(set.questionIds).forEach(function (qid) { vals[qid] = state.picks[qid] || ''; });
+        // QA 27/11 B2: grading takes a few seconds; show it is working
+        var rb = body.querySelector('[data-skill-tool="result"]');
+        if (rb) { rb.disabled = true; rb.textContent = 'Đang chấm…'; }
         return lockSet(vals, false);
       }
       if (which === 'redo') {

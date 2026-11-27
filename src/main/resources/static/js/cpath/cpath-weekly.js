@@ -43,6 +43,11 @@
     return m ? m[3] + '/' + m[2] : '';
   }
 
+  function pathHref() {
+    var m = /(?:^|[?&])goal=([A-Z_]+)/.exec(String(root && root.location && root.location.search || ''));
+    return '/learning/comm/path' + (m ? '?goal=' + encodeURIComponent(m[1]) : '');
+  }
+
   // [JLAS-W0108] F154: refresh header CP chip after earning CP on weekly/roleplay submit
   function refreshRewardHeader(cp) {
     if (cp && root && root.RewardFX && typeof root.RewardFX.refreshChip === 'function') {
@@ -138,7 +143,7 @@
       + '<ul class="jp-review">' + rows + '</ul>'
       + '<div class="jp-result__actions">'
       + (ok || REVIEW ? '' : '<button type="button" class="jp-btn" data-weekly-retry>Làm lại</button>')
-      + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></div>'
+      + '<a class="cp-btn-primary" href="' + esc(pathHref()) + '">Về lộ trình giao tiếp</a></div>'
       + '</section>';
   }
 
@@ -148,13 +153,17 @@
       + '<img class="cp-state-card__pic" src="/images/mascots/fox/kitsu-thinking-30-128.webp" alt="" width="112" height="112" loading="lazy">'
       + '<h2 class="cp-state-card__title">' + esc(title || 'Kiểm tra tuần chưa mở') + '</h2>'
       + '<p class="cp-state-card__text">' + esc(text) + '</p>'
-      + '<a class="cp-btn-primary cp-state-card__btn" href="/learning/comm/path">Về lộ trình giao tiếp</a>'
+      + '<a class="cp-btn-primary cp-state-card__btn" href="' + esc(pathHref()) + '">Về lộ trình giao tiếp</a>'
       + '</section>';
   }
 
   function mount(el) {
     var client = root && root.JpathApi;
     if (!el || !client) return null;
+    if (root.document && typeof root.document.querySelector === 'function') {
+      var backEl = root.document.querySelector('.jp-back[href^="/learning/comm/path"]');
+      if (backEl && backEl.setAttribute) backEl.setAttribute('href', pathHref());
+    }
     if (ROLEPLAY) return mountRoleplay(el, client);
     var state = { data: null, i: 0, answers: {}, result: null, speechOnly: false, speechIndex: 0, speechClips: [], recorder: null, stream: null, timer: null, chunks: [] };
 
@@ -210,7 +219,7 @@
         // F110: keep the answers; show the server's reason and let the learner send the same answers again
         el.innerHTML = '<p class="jp-alert" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa chấm được bài. Thử lại sau.') + '</p>'
           + '<p><button type="button" class="jp-btn" data-weekly-resubmit>Gửi lại bài</button> '
-          + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></p>';
+          + '<a class="cp-btn-primary" href="' + esc(pathHref()) + '">Về lộ trình giao tiếp</a></p>';
       });
     }
     function showSpeech() {
@@ -273,6 +282,11 @@
         }
         show();
       }, function (e) {
+        // QA 27/11 G2: 403 offered "Thử lại"; it is a Premium part
+        if (e && (e.status === 403 || e.code === 'CPATH_PREMIUM_REQUIRED')) { el.innerHTML = '<section class="jp-premium-box" role="note"><img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+          + '<div><p class="jp-premium-box__title">Phần này dành cho tài khoản Premium</p>'
+          + '<p class="jp-premium-box__text">Nâng cấp Premium để luyện phần này, hoặc quay về lộ trình để học tiếp.</p></div>'
+          + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a> <a class="jp-btn" href="/learning?view=comm">Về lộ trình</a></section>'; return; }
         el.innerHTML = infoHtml(e && (e.code || e.status) && e.message || 'Chưa tải được bài kiểm tra tuần. Tải lại trang hoặc thử lại sau.', 'Chưa tải được bài');
       });
     }
@@ -423,13 +437,18 @@
       root.document.title = (scope === 'goal' ? 'Bài test cuối mục tiêu' : scope === 'topic' ? 'Nhập vai cuối chủ đề' : 'Luyện nhanh tình huống')
         + ' - KotsuKotsu';
     }
-    var state = { questions: [], goal: '', index: 0, answers: {}, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false, picking: false };
-    function error(message) {
+    var state = { questions: [], goal: '', index: 0, answers: {}, pickFeedback: {}, pendingPick: null, clips: [], recorder: null, stream: null, timer: null, chunks: [], busy: false, picking: false };
+    function error(message, e) {
+      if (e && (e.status === 403 || e.code === 'CPATH_PREMIUM_REQUIRED')) { el.innerHTML = '<section class="jp-premium-box" role="note"><img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+          + '<div><p class="jp-premium-box__title">Phần này dành cho tài khoản Premium</p>'
+          + '<p class="jp-premium-box__text">Nâng cấp Premium để luyện phần này, hoặc quay về lộ trình để học tiếp.</p></div>'
+          + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a> <a class="jp-btn" href="/learning?view=comm">Về lộ trình</a></section>'; return; }
       el.innerHTML = '<p class="jp-alert" role="alert">' + esc(message) + '</p><button type="button" class="jp-btn" data-rp-retry>Thử lại</button>';
     }
     function render() {
       var q = state.questions[state.index];
       if (!q) { submit(); return; }
+      var pickFeedback = state.pickFeedback[q.id];
       el.innerHTML = '<section class="jp-check" aria-labelledby="cpRoleplayQ">'
         + '<header class="jp-check__head"><span class="jp-check__count">Câu ' + (state.index + 1) + '/' + state.questions.length + '</span></header>'
         + '<p class="jp-check__dir">Người đối diện nói:</p><div class="jp-check__prompt">'
@@ -443,8 +462,17 @@
             + '<button type="button" class="jp-btn" data-rp-next disabled>Câu tiếp theo</button> '
             + '<button type="button" class="jp-btn" data-rp-skip>Bỏ qua phần nói</button>'
           : '<p class="jp-check__dir">Chọn câu đáp phù hợp</p><div class="jp-check__opts">'
-            + (q.options || []).map(function (o, i) { return '<button type="button" class="jp-check-opt" lang="ja" data-rp-pick="' + i + '">'
+            + (q.options || []).map(function (o, i) {
+              var cls = 'jp-check-opt';
+              if (pickFeedback && i === Number(pickFeedback.correctOptionIndex)) cls += ' jp-ok';
+              else if (pickFeedback && i === Number(pickFeedback.selectedOptionIndex)) cls += ' jp-bad';
+              else if (state.pendingPick && state.pendingPick.questionId === q.id && i === state.pendingPick.optionIndex) cls += ' is-picked';
+              return '<button type="button" class="' + cls + '" lang="ja" data-rp-pick="' + i + '"'
+                + (state.picking ? ' disabled aria-busy="true"' : '')
+                + (state.pendingPick && state.pendingPick.questionId === q.id && i === state.pendingPick.optionIndex ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>'
               + '<span class="jp-check-opt__key">' + (i + 1) + '</span> <span class="cp-rp-opt">' + ruby((q.optionsFurigana && q.optionsFurigana[i]) || o, state.furigana) + '</span></button>'; }).join('') + '</div>')
+        + (!q.speaking && state.picking ? '<p class="cp-quick-feedback" role="status">Đang kiểm tra lựa chọn…</p>' : '')
+        + (!q.speaking && pickFeedback ? '<div class="cp-quick-feedback cp-quick-feedback--wrong" role="status"><strong>Chưa đúng.</strong> Đáp án phù hợp là <span lang="ja">' + ruby((q.optionsFurigana && q.optionsFurigana[pickFeedback.correctOptionIndex]) || pickFeedback.correctAnswer, state.furigana) + '</span>. Đáp án của bạn đã được đánh dấu đỏ.</div>' : '')
         + '</section>';
     }
     function submit() {
@@ -475,16 +503,16 @@
           + (scope === 'goal' && result.passed ? '<nav class="jp-result__note" aria-label="Bước học tiếp"><h3>Gợi ý bước tiếp</h3>'
             + '<p><a href="/learning/comm/survey">Chọn mục tiêu giao tiếp khác</a></p>'
             + (state.goal === 'WORK' || state.goal === 'BA' ? '<p><a href="/learning/comm/survey?goal=WORK">Chọn lĩnh vực Công việc khác</a></p>' : '')
-            + '<p><a href="/learning/jlpt/start">Bắt đầu lộ trình JLPT</a></p></nav>' : '')
+            + '<p><a href="/learning?view=jlpt">Mở lộ trình JLPT</a></p></nav>' : '')
           + '<div class="jp-result__actions">'
           + (scope === 'situation' || !result.passed ? '<button type="button" class="jp-btn" data-rp-retry>Làm lại</button>' : '')
-          + '<a class="cp-btn-primary" href="/learning/comm/path">Về lộ trình giao tiếp</a></div></section>';
+          + '<a class="cp-btn-primary" href="' + esc(pathHref()) + '">Về lộ trình giao tiếp</a></div></section>';
         var head = el.querySelector('#cpRoleplayResult');
         if (head && head.focus) head.focus();
       }).catch(function (e) { state.busy = false; error(e && (e.code || e.status) && e.message || 'Chưa chấm được bài.'); });
     }
     function load() {
-      state.index = 0; state.answers = {}; state.clips = [];
+      state.index = 0; state.answers = {}; state.pickFeedback = {}; state.pendingPick = null; state.picking = false; state.clips = [];
       el.innerHTML = '<p class="jp-skel jp-skel--list" role="status" aria-busy="true"><span class="jp-skel__sr">Đang tải bài nhập vai…</span><i class="jp-skel__b jp-skel__b--title"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--line"></i><i class="jp-skel__b jp-skel__b--short"></i></p>';
       client.get(base).then(function (data) {
         if (!data || !data.open) { error('Bài kiểm tra chưa đến giờ làm lại hoặc đã đạt.'); return; }
@@ -494,7 +522,7 @@
         SHOW_RO = !!(data.display && (data.display.romaji || data.display.fullRomaji));
         if (!state.questions.length) { error('Chưa có câu thoại để luyện nhập vai.'); return; }
         render();
-      }).catch(function (e) { error(e && (e.code || e.status) && e.message || 'Chưa tải được bài nhập vai.'); });
+      }).catch(function (e) { error(e && (e.code || e.status) && e.message || 'Chưa tải được bài nhập vai.', e); });
     }
     el.addEventListener('click', function (ev) {
       var target = ev.target;
@@ -515,18 +543,25 @@
           state.answers[q.id] = optionIndex; state.index++; render(); return;
         }
         state.picking = true;
-        el.querySelectorAll('[data-rp-pick]').forEach(function (button) { button.disabled = true; });
+        state.pendingPick = { questionId: q.id, optionIndex: optionIndex };
+        render();
         client.send('POST', '/api/learning/comm/roleplay/pick?code=' + encodeURIComponent(code)
           + '&questionId=' + encodeURIComponent(q.id) + '&optionIndex=' + optionIndex).then(function (verdict) {
           state.picking = false;
+          state.pendingPick = null;
           if (verdict && verdict.correct) {
             state.answers[q.id] = optionIndex; state.index++; render();
           } else {
+            state.pickFeedback[q.id] = {
+              selectedOptionIndex: optionIndex,
+              correctOptionIndex: Number(verdict && verdict.correctOptionIndex),
+              correctAnswer: verdict && verdict.correctAnswer
+            };
             render();
-            el.insertAdjacentHTML('beforeend', '<p class="jp-status" role="status">Chưa đúng. Chọn lại để tiếp tục.</p>');
           }
         }, function (err) {
           state.picking = false;
+          state.pendingPick = null;
           render();
           el.insertAdjacentHTML('beforeend', '<p class="jp-alert" role="alert">' + esc(err && (err.code || err.status) && err.message || 'Chưa kiểm tra được. Thử lại.') + '</p>');
         });

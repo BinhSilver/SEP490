@@ -85,6 +85,7 @@
     var search = main.querySelector('[data-role="search"]');
     var state = { tab: 'VOCAB', page: 0 };
     var items = [];
+    var loadSeq = 0;
 
     // I12: same fold as the server's normalized_* columns (NFKC, katakana to hiragana), so a full-width or katakana query still matches
     function foldSearch(v) {
@@ -108,12 +109,17 @@
     }
 
     function load() {
+      var mine = ++loadSeq;
+      var reqTab = state.tab;
       main.querySelectorAll('[data-tab]').forEach(function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-tab') === state.tab));
       });
+      list.innerHTML = '';
+      if (pager) pager.hidden = true;
       status.textContent = 'Đang tải…';
       var url = BASE + (kind === 'NOTEBOOK' ? '/notebook' : '/known') + '?tab=' + state.tab + '&page=' + state.page;
       return api.get(url).then(function (p) {
+        if (mine !== loadSeq || state.tab !== reqTab) return;
         items = (p && Array.isArray(p.items)) ? p.items : [];
         var ps = pagerState(p);
         if (!items.length && state.page > 0) { state.page = ps.pages - 1; return load(); }
@@ -127,7 +133,10 @@
         pager.querySelector('[data-page="next"]').disabled = !ps.hasNext;
         pager.querySelector('[data-role="page"]').textContent = 'Trang ' + (ps.page + 1) + '/' + ps.pages;
         draw();
-      }, function (err) { status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được danh sách.'; });
+      }, function (err) {
+        if (mine !== loadSeq) return;
+        status.textContent = (err && (err.code || err.status) && err.message) || 'Không tải được danh sách.';
+      });
     }
 
     main.addEventListener('click', function (e) {

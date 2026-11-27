@@ -365,6 +365,10 @@
           return 'Đã học ' + d.days + ' ngày (' + d.from + ' → ' + d.to + '), ' + d.cards + ' thẻ, ' + d.checks + ' bài kiểm tra.'
             + (d.finished ? ' Đã học hết bài của lộ trình: có thể thi JLPT.' : '') + (d.note ? ' ' + d.note : '');
         });
+      }), button('Thi thử JLPT: trượt', function () {
+        return runAction('mockFail');
+      }), button('Thi thử JLPT: đạt (lên cấp)', function () {
+        return runAction('mockPass');
       }));
       body.append(label('Lộ trình JLPT'), jp);
     }
@@ -418,6 +422,13 @@
   }
 
   function start() {
+    try {
+      var q = new URLSearchParams(root.location && root.location.search || '');
+      var qt = q.get('access_token');
+      if (qt && root.JlasAuth && root.JlasAuth.setSession) {
+        root.JlasAuth.setSession(qt);
+      }
+    } catch (e) { /* ignore */ }
     if (!root.JlasAuth || !root.JlasAuth.isLoggedIn || !root.JlasAuth.isLoggedIn()) return Promise.resolve(null);
     return call('GET', '/api/dev/learning/state')
       .then(function (json) { return build(json.data || {}); })

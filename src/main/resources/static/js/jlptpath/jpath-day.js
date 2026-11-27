@@ -187,6 +187,10 @@
       return '<li><button type="button" class="' + cls + '" title="Bấm để luyện viết" data-jpath-writing="'
         + esc(JSON.stringify({ itemType: it.itemType, code: it.code })) + '">' + body + '</button></li>';
     }
+    // QA 27/11 B4: a grammar pattern opens its lesson (it has nothing to write)
+    if (it.itemType === 'GRAMMAR' && it.code) {
+      return '<li><a class="' + cls + '" title="Mở bài ngữ pháp" href="/learning/jlpt/grammar/' + encodeURIComponent(it.code) + '">' + body + '</a></li>';
+    }
     return '<li><span class="' + cls + '">' + body + '</span></li>';
   }
 
@@ -295,7 +299,7 @@
       + '">' + SVG_PRINT + '<span>In bảng từ vựng ngày này</span></button>' : '')
       + '</div>'
       + '<a class="jp-btn jp-dayd__back" href="/learning?view=jlpt">Về lộ trình</a></div>'
-      + '<p class="jp-side__note jp-dayd__footnote">Bấm vào một từ hay chữ để luyện viết. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
+      + '<p class="jp-side__note jp-dayd__footnote">Bấm vào một từ hay chữ để luyện viết, bấm mẫu ngữ pháp để mở bài. Mục màu đỏ là mục sai hoặc chọn "Chưa nhớ".</p>';
     return html;
   }
 
@@ -362,7 +366,7 @@
         if (d && d.today) today = String(d.today);
         if (day > today) { day = today; notice = 'Ngày đó chưa tới nên đang mở hôm nay.'; load(); return; }
         if (d && weekMap) d.weekStatus = weekMap;
-        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false'); if (el.classList) el.classList.remove('is-swapping');
         el.innerHTML = (notice ? '<p class="jp-day-notice" role="status">' + esc(notice) + '</p>' : '') + dayHtml(d, day, today);
         if (notice && root.history && root.history.replaceState) {
           try { root.history.replaceState(null, '', '?d=' + encodeURIComponent(day)); } catch (e) { /* ignore */ }
@@ -371,10 +375,31 @@
         if (root.JpathWriting && root.JpathWriting.bind) root.JpathWriting.bind(el);
         hydrateMeanings(el, d && d.items);
       }, function () {
-        if (el.setAttribute) el.setAttribute('aria-busy', 'false');
+        if (el.setAttribute) el.setAttribute('aria-busy', 'false'); if (el.classList) el.classList.remove('is-swapping');
         el.innerHTML = '<p class="jp-alert" role="alert">Chưa tải được ngày này. <button type="button" class="jp-btn" data-day-retry>Thử lại</button></p>';
         var retry = el.querySelector && el.querySelector('[data-day-retry]');
         if (retry) retry.addEventListener('click', load);
+      });
+    }
+    var startDay = day;
+    // owner 27/11: other days (Hôm trước / Hôm sau / week strip) load in place; Back/Forward still work
+    if (el.addEventListener && root.history && root.history.pushState) {
+      el.addEventListener('click', function (ev) {
+        var a = ev.target && ev.target.closest ? ev.target.closest('a[href]') : null;
+        if (!a || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.button === 1) return;
+        var dm = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(a.getAttribute('href') || '');
+        if (!dm) return;
+        ev.preventDefault();
+        if (dm[1] === day) return;
+        day = dm[1]; notice = '';
+        try { root.history.pushState({ jpDay: day }, '', a.getAttribute('href')); } catch (e) { /* ignore */ }
+        el.classList.add('is-swapping');
+        load();
+      });
+      root.addEventListener('popstate', function () {
+        var pm = /[?&]d=(\d{4}-\d{2}-\d{2})/.exec(String(root.location.search || ''));
+        var next = pm ? pm[1] : startDay;
+        if (next !== day) { day = next; notice = ''; el.classList.add('is-swapping'); load(); }
       });
     }
     load();

@@ -115,8 +115,8 @@
 .jp-slider__bounds { display: flex; justify-content: space-between; font-size: .85em; }
 .jp-path .jp-btn[disabled] { opacity: .55; cursor: not-allowed; }
 .jp-link-btn {
-  min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: var(--jp-primary); font: inherit;
-  font-weight: 600; text-decoration: underline; cursor: pointer; justify-self: start;
+  min-height: 36px; padding: 4px 0; border: 0; background: transparent; color: var(--jp-primary); font: inherit;
+  font-weight: 500; text-decoration: underline; cursor: pointer; justify-self: start;
 }
 .jp-link-btn:focus-visible { outline: 3px solid var(--jp-primary); outline-offset: 2px; }
 .jp-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -838,7 +838,10 @@ mark.jp-hl { padding: 0 2px; border-radius: 3px; background: transparent; color:
 }
 .jp-today__foot .jp-day { background: var(--jp-surface); }
 .jp-today__foot .jp-day--rest { background: transparent; }
-.jp-path .jp-level-cell { padding-bottom: 5px; }
+.jp-path .jp-level-cell { padding-bottom: 16px; }
+.jp-path .jp-level-cell .jp-step__body { display: grid; gap: 7px; min-width: 0; }
+.jp-path .jp-level-cell__summary { justify-self: start; margin: 0; }
+.jp-path .jp-level-cell__preview { justify-self: start; line-height: 1.5; }
 .jp-path .jp-path__side .jp-sidenav__link { min-height: 34px; padding-top: 5px; padding-bottom: 5px; }
 
 /* 04/11 today panel: the work (short rows) on the left, the stage stepper on its right; no week strip */
@@ -3917,7 +3920,8 @@ html.dark .cp-page {
 .jp-today__stamp { top: 14px; opacity: .45; }
 @keyframes jpStampIn2 { from { opacity: 0; transform: scale(1.7) rotate(-2deg); } to { opacity: .45; transform: rotate(-12deg); } }
 /* AI 1 #13: link to a passed level's summary under its cell */
-.jp-level-cell__summary { display: inline-block; margin-top: 2px; font-size: .72rem; font-weight: 700; color: var(--jp-primary); text-decoration: underline; text-underline-offset: 2px; }
+.jp-level-cell__summary { display: inline-block; margin-top: 2px; font-size: .76rem; font-weight: 500; color: var(--jp-primary); text-decoration: underline; text-underline-offset: 2px; }
+.jp-path .jp-level-cell__preview { font-weight: 500; }
 /* owner 10/11: the seal sits beside the title without covering anything; the "Xem ngày học hôm nay" button
    (shown once the day is done) is a soft secondary action */
 .jp-today__stamp { top: 0; width: 84px; height: 84px; margin: -8px 0 -8px 18px; mix-blend-mode: normal; }
@@ -4012,3 +4016,13 @@ html.dark .jp-today__stamp-bubble {
 @keyframes jpMapDrift { to { background-position: 0 0, 0 0, 0 48px, 48px 0; } }
 @media (max-width: 640px) { .jp-parts__watermark { font-size: 96px; top: 4%; } }
 @media (prefers-reduced-motion: reduce) { .jp-parts__mapgrid { animation: none; } }
+/* 27/11: level status and actions have distinct visual roles. */
+.jp-path .jp-hero__title { font-family: inherit; font-size: clamp(1.35rem, 2.2vw, 1.8rem); font-weight: 600; line-height: 1.35; letter-spacing: -.015em; }
+.jp-path .jp-level-cell .jp-step__body { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.jp-path .jp-level-cell__name { flex: 0 0 100%; font-family: inherit; font-size: 1.05rem; font-weight: 600; }
+.jp-level-cell__badge { flex: 0 0 100%; width: fit-content; font-size: .75rem; color: var(--jp-ok); font-weight: 500; }
+.jp-path .jp-level-cell__preview, .jp-path .jp-level-cell__summary { display: inline-flex; align-items: center; min-height: 32px; padding: 5px 9px; margin: 0; border: 0; border-radius: 7px; background: var(--jp-primary-soft); font-size: .76rem; line-height: 1.4; text-decoration: none; }
+.jp-path .jp-level-cell__summary { background: transparent; color: var(--jp-muted); }
+.jp-path .jp-level-cell__preview:hover, .jp-path .jp-level-cell__summary:hover { background: var(--jp-primary-soft); color: var(--jp-primary); }
+.jp-path .jp-level-cell__state, .jp-path .jp-level-cell__bar, .jp-path .jp-level-cell__note { flex-basis: 100%; }
+.jp-path .jp-level-cell__state { font-weight: 500; }

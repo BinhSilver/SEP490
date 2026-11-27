@@ -51,7 +51,12 @@
   function show(view, anchor) {
     [questionView, resultView, emptyView].forEach(function (item) { item.hidden = item !== view; });
     notice.hidden = true;
-    if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (anchor) {
+      // QA 27/11 ST7: keep the card below the site header so the sticky timer bar never covers the passage
+      var head = document.getElementById('jlabBaseHeader') || document.querySelector('header');
+      var gap = (head ? head.getBoundingClientRect().height : 64) + 12;
+      window.scrollTo({ top: Math.max(0, anchor.getBoundingClientRect().top + window.scrollY - gap), behavior: 'smooth' });
+    }
     else window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -325,7 +330,9 @@
     document.getElementById('overallLevel').textContent = result.estimatedOverallLevel || '—';
     renderPathIo();
     var overallBand = document.getElementById('overallBand');
-    overallBand.textContent = masteryStage(result.estimatedOverallLevel, overallPosition);
+    // QA 27/11 ST3: an early submit is a provisional guess — never call it "Thành thạo"
+    overallBand.textContent = result.partial || result.readinessLevel === 'PROVISIONAL'
+      ? 'Tạm tính' : masteryStage(result.estimatedOverallLevel, overallPosition);
     overallBand.hidden = false;
     document.getElementById('overallScope').textContent = testedSkills.length === 5
       ? 'Tổng hợp từ đầy đủ 5 kỹ năng.'
@@ -354,6 +361,9 @@
     renderReview(result.review);
     show(resultView);
     refreshPathActions();
+    // QA 27/11 ST3: the fresh result shows the same restart label as a reloaded one
+    var restartSpan = document.querySelector('#restartButton span');
+    if (restartSpan) restartSpan.textContent = 'Làm lại Smart Test';
   }
 
   function smartTestConfirmUrl() {
@@ -458,26 +468,23 @@
     existingPathUrl = null;
     pathLookupState = 'unknown';
     updatePathActions();
-    Promise.all([
-      fetch('/api/learning/jlpt/path', { headers: window.JlasAuth.authHeaders() }),
-      fetch('/api/learning/comm/path', { headers: window.JlasAuth.authHeaders() })
-    ]).then(function (responses) {
-      if (version !== pathLookupVersion) return;
-      if (responses[0].ok) existingPathUrl = '/learning';
-      else if (responses[1].ok) existingPathUrl = '/learning/comm/path';
-      else if (responses[0].status === 404 && responses[1].status === 404) {
-        return fetch('/api/learning/jlpt/entry-status', { headers: window.JlasAuth.authHeaders() })
-          .then(function (statusResponse) { return statusResponse.ok ? statusResponse.json() : null; })
-          .then(function (payload) {
-            if (version !== pathLookupVersion) return;
-            var status = payload && payload.data && payload.data.pathStatus;
-            if (status === 'ACTIVE' || status === 'PAUSED') existingPathUrl = '/learning';
-            else if (payload) pathLookupState = 'none';
-            updatePathActions();
-          });
-      }
-      updatePathActions();
-    }).catch(function () { /* Keep the current action until path state can be checked. */ });
+    fetch('/api/learning/jlpt/path', { headers: window.JlasAuth.authHeaders() })
+      .then(function (jlptRes) {
+        if (version !== pathLookupVersion) return;
+        if (jlptRes.ok) { existingPathUrl = '/learning'; updatePathActions(); return; }
+        if (jlptRes.status === 404) {
+          return fetch('/api/learning/jlpt/entry-status', { headers: window.JlasAuth.authHeaders() })
+            .then(function (statusResponse) { return statusResponse.ok ? statusResponse.json() : null; })
+            .then(function (payload) {
+              if (version !== pathLookupVersion) return;
+              var status = payload && payload.data && payload.data.pathStatus;
+              if (status === 'ACTIVE' || status === 'PAUSED') existingPathUrl = '/learning';
+              else if (payload) pathLookupState = 'none';
+              updatePathActions();
+            });
+        }
+        updatePathActions();
+      }).catch(function () { /* Keep the current action until path state can be checked. */ });
   }
 
   function renderFeedback(result) {

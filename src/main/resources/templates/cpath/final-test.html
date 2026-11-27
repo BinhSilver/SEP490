@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: standard('Bài kiểm tra cuối Giao tiếp - KotsuKotsu', null)}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài kiểm tra cuối Giao tiếp - KotsuKotsu</title>
+</head>
+<th:block th:replace="~{jlptpath/fragments/jpath :: assets('jpath-check')}"></th:block>
+<link rel="stylesheet" th:href="@{/css/pages/cpath.css(v=${jpathAssetVersion})}" />
+<body id="jlabBasePage" class="app-body jp-body">
+<div id="jlabBaseShellMount"></div>
+<main id="jlabBaseContent" class="jp-page cp-page">
+    <div class="jp-ws jp-ws--focus">
+        <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình giao tiếp', '/learning/comm/path')}"></th:block>
+        <div class="jp-ws__main">
+            <section class="cp-ft" aria-labelledby="cpFinalTitle">
+                <header class="cp-ft__hero">
+                    <div class="cp-ft__hero-text">
+                        <p class="cp-ft__eyebrow">Chặng cuối của lộ trình giao tiếp</p>
+                        <h1 id="cpFinalTitle">Bài kiểm tra cuối</h1>
+                        <p class="cp-ft__goal" id="cpFtGoal" hidden></p>
+                    </div>
+                    <img class="cp-ft__mascot" id="cpFtMascot" src="/images/mascots/kitsu/kitsu-preparing.webp" alt="" width="132" height="132">
+                </header>
+                <div id="cpathFinalRoot" class="cp-ft__body" aria-live="polite" role="status"><p class="cp-ft__loading">Đang tải bài kiểm tra…</p></div>
+            </section>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
+<th:block th:replace="~{jlptpath/fragments/jpath :: scripts}"></th:block>
+<script th:src="@{/js/cpath/cpath-final-test.js(v=${jpathAssetVersion})}"></script>
+<script th:src="@{/js/jlab-base-shell.js}"></script>
+<th:block th:replace="~{fragments/learning-fox :: fox}"></th:block>
+</body>
+</html>

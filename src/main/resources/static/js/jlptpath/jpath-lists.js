@@ -107,13 +107,16 @@
       + '">Luyện quiz</button>';
   }
 
+  // QA 27/11 C2: a backend page holds 50 rows; 20 per screen made every third page 10 rows (800 từ → 48 trang)
+  var ROWS = 25;
+
   function pagerHtml(page, localPage) {
     var p = page || {};
     var size = num(p.size) || 50;
-    var perBackendPage = Math.ceil(size / 20);
+    var perBackendPage = Math.ceil(size / ROWS);
     var fullBackendPages = Math.floor(num(p.total) / size);
     var lastItems = num(p.total) % size;
-    var pages = Math.max(1, fullBackendPages * perBackendPage + Math.ceil(lastItems / 20));
+    var pages = Math.max(1, fullBackendPages * perBackendPage + Math.ceil(lastItems / ROWS));
     var at = Math.min(Math.max(0, num(p.page) * perBackendPage + num(localPage)), pages - 1);
     // shared numbered pager (Đầu, Trước, 1 … n, Sau, Cuối) when the nav kit is on the page
     var N = root.JpathNav || (typeof require === 'function' ? require('./jpath-nav.js') : null);
@@ -237,7 +240,7 @@
       + '<div class="jp-table-wrap"><table class="jp-table"><thead><tr><th scope="col">Từ</th>'
       + '<th scope="col">Cách đọc</th><th scope="col">Nghĩa</th><th scope="col" class="jp-col-type">Loại từ</th>'
       + '<th scope="col">Trạng thái</th></tr></thead><tbody>'
-      + items.slice(num(localPage) * 20, (num(localPage) + 1) * 20).map(vocabRowHtml).join('')
+      + items.slice(num(localPage) * ROWS, (num(localPage) + 1) * ROWS).map(vocabRowHtml).join('')
       + '</tbody></table></div>' + pagerHtml(p, localPage);
   }
 
@@ -311,12 +314,12 @@
     var html = '<div class="jp-list-bar">' + printMenuHtml('KANJI', filter) + '</div>';
     if (!items.length) return html + '<p class="jp-muted jp-list-empty">Không có chữ Kanji nào khớp bộ lọc.</p>';
     if (view === 'GRID') {
-      html += '<ul class="jp-kanji-grid">' + items.slice(num(localPage) * 20, (num(localPage) + 1) * 20).map(kanjiCellHtml).join('') + '</ul>';
+      html += '<ul class="jp-kanji-grid">' + items.slice(num(localPage) * ROWS, (num(localPage) + 1) * ROWS).map(kanjiCellHtml).join('') + '</ul>';
     } else {
       html += '<div class="jp-table-wrap"><table class="jp-table jp-table--kanji"><thead><tr><th scope="col">Chữ</th>'
         + '<th scope="col">Hán Việt</th><th scope="col">Nghĩa</th><th scope="col">On</th><th scope="col">Kun</th>'
         + '<th scope="col">Nét</th></tr></thead><tbody>'
-        + items.slice(num(localPage) * 20, (num(localPage) + 1) * 20).map(kanjiRowHtml).join('') + '</tbody></table></div>';
+        + items.slice(num(localPage) * ROWS, (num(localPage) + 1) * ROWS).map(kanjiRowHtml).join('') + '</tbody></table></div>';
     }
     return html + pagerHtml(p, localPage);
   }
@@ -709,7 +712,7 @@
       return Promise.resolve();
     }
     if (name === 'page' && (st.key === 'vocab' || st.key === 'kanji')) {
-      var perBackendPage = Math.ceil((num(t.filter.backendSize) || 50) / 20);
+      var perBackendPage = Math.ceil((num(t.filter.backendSize) || 50) / ROWS);
       t.filter.page = Math.floor(num(value) / perBackendPage);
       t.filter.localPage = num(value) % perBackendPage;
     } else {

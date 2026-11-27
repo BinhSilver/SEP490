@@ -67,7 +67,12 @@
     var main = doc && doc.querySelector ? doc.querySelector('.jp-path__main') : null;
     if (!main || main.querySelector('.jp-modebar')) return null;
     var query = null;
-    try { query = new root.URLSearchParams(root.location.search).get('mode'); } catch (e) { query = null; }
+    try {
+      var qp = new root.URLSearchParams(root.location.search);
+      query = qp.get('mode');
+      // QA 27/11 A3: ?tab=vocab|kanji|grammar|skills only lives in "Tự chọn bài"; Back from a check landed on "Học hôm nay"
+      if (!valid(query) && /^(vocab|kanji|grammar|skills)$/.test(qp.get('tab') || '')) query = 'free';
+    } catch (e) { query = null; }
     var mode = pick(read(), query, inFree(doc, root.location && root.location.hash));
     // JLPT: under the page title (hero), communication: at the top of the main column
     var hero = main.querySelector(':scope > .jp-path__hero');

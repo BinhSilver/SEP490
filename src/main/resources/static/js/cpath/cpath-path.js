@@ -41,6 +41,17 @@
 
   function list(v) { return Array.isArray(v) ? v : []; }
 
+  function selectedGoal() {
+    var match = /(?:^|[?&])goal=([A-Z_]+)/.exec(String(root && root.location && root.location.search || ''));
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
+  function goalApiUrl(url) {
+    var goal = selectedGoal();
+    if (!goal || /(?:^|[?&])goal=/.test(url)) return url;
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'goal=' + encodeURIComponent(goal);
+  }
+
   // [JLAS-W0108] B2: spots drawn at 64px or less load the 128px copy
   function kitsuSmall(file) { return kitsuSrc(String(file).replace(/\.webp$/, '-128.webp')); }
   function kitsuSrc(file) {
@@ -50,6 +61,10 @@
   function pageUrl(page, params) {
     var base = '/learning/comm/' + page;
     var q = [];
+    var goal = selectedGoal();
+    if (goal && !(params && Object.prototype.hasOwnProperty.call(params, 'goal'))) {
+      q.push('goal=' + encodeURIComponent(goal));
+    }
     if (params) {
       Object.keys(params).forEach(function (k) {
         if (params[k] != null && params[k] !== '') q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
@@ -411,12 +426,12 @@
       ? pill(coreDone, 'Bài nền · ' + coreToday.count + ' từ và mẫu câu',
         (coreDone ? 'Đã thuộc ' + coreToday.done + '/' + coreToday.count : 'Học trước để dùng trong tình huống hôm nay')
           + ' · ' + esc(core.depthLabel || '') + ' ' + Number(core.done || 0) + '/' + Number(core.total || 0),
-        '/learning/comm/core', ' cp-today__item--core')
+        pageUrl('core'), ' cp-today__item--core')
       : '';
     if (coreItem && !coreDone) firstActive = { coreLesson: true };
     var check = core && core.knownCheck && core.knownCheck.open > 0
       ? '<p class="cp-today__check">Bạn đã có trình độ ' + esc(core.knownCheck.level) + ': ' + Number(core.knownCheck.open)
-        + ' mục dễ hơn được để riêng. <a class="jp-btn jp-btn--sm" href="/learning/comm/core?check=1">Làm bài Đã biết – ôn nhanh</a></p>'
+        + ' mục dễ hơn được để riêng. <a class="jp-btn jp-btn--sm" href="' + esc(pageUrl('core', { check: 1 })) + '">Làm bài Đã biết – ôn nhanh</a></p>'
       : '';
 
     var body;
@@ -453,6 +468,8 @@
         + '<span class="jp-today__weekly-countdown">hoặc khi học xong phần của tuần</span></div></div>');
     var actions = '<div class="cp-today__actions">'
       + extra
+      + (finished && !situations.length
+        ? '<button type="button" class="jp-btn jp-btn--primary" data-cp-show-map>Xem các tình huống đã học</button>' : '')
       // owner 17/11: no review button before anything is due (a new learner saw "Ôn tập hôm nay" on day one)
       + (typeof todayObj.reviewDue === 'number' && todayObj.reviewDue <= 0 ? ''
         : '<a class="jp-btn" href="' + esc(reviewHref) + '" title="Từ và mẫu câu đến lượt ôn (sau 1, 3, 7, 14, 30 ngày) và mục trong Sổ tay">Ôn tập hôm nay'
@@ -504,7 +521,7 @@
       + '</div>'
       + '<div class="jp-today__body"><div class="jp-today__main">'
       + (firstActive ? '<div class="jp-today__go"><a class="jp-btn jp-btn--primary jp-btn--lg" href="'
-        + esc(firstActive.coreLesson ? '/learning/comm/core' : pageUrl('situation', { id: firstActive.id })) + '">'
+        + esc(firstActive.coreLesson ? pageUrl('core') : pageUrl('situation', { id: firstActive.id })) + '">'
         + (doneCount > 0 || coreDone ? 'Học tiếp' : 'Học hôm nay') + '</a></div>' : '')
       + kanaTipHtml(d, st)
       + body
@@ -536,6 +553,7 @@
 
   // F68: the goal of the map being drawn (Du lịch shows its listen-and-speak step 1 in the node bubble)
   var mapGoal = null;
+  var mapReadOnly = false;
 
   /* 2. Bong bóng gắn nút (.jp-parts__popover) */
   function nodePopoverHtml(item, pos) {
@@ -562,7 +580,7 @@
         + '<li class="jp-parts__word-pill"><span class="jp-parts__pill-rd">Bước 4</span><strong class="jp-parts__pill-ja">Luyện nói</strong><span class="jp-parts__pill-mean">Chấm phát âm từng câu</span></li>'
         + '</ul>';
     } else if (item.type === 'TOPIC_TEST') {
-      actionHref = pageUrl('weekly') + '?mode=topic&code=' + encodeURIComponent(item.topicCode);
+      actionHref = pageUrl('weekly', { mode: 'topic', code: item.topicCode });
       actionLabel = isDone ? 'Luyện lại chủ đề' : 'Làm bài nhập vai chủ đề';
       stepsSummary = '<p class="jp-parts__pop-desc">Chủ đề đạt khi bài nhập vai từ <strong>80%</strong> và điểm nói trung bình của mọi tình huống từ <strong>70</strong>.</p>'
         + (item.missingRoleplay ? '<p class="jp-parts__pop-desc">Còn thiếu: bài nhập vai chủ đề từ 80%.</p>' : '')
@@ -574,8 +592,8 @@
         actionHref = item.certificateUrl;
         actionLabel = 'Xem chứng nhận';
       } else {
-        actionHref = retryLater ? pageUrl('path') : (item.aiAvailable ? item.url : (item.fallbackUrl || pageUrl('weekly') + '?mode=fallback'));
-        actionLabel = retryLater ? 'Thử lại sau 24 giờ' : (item.aiAvailable ? 'Vào Bài test với AI' : 'Làm bài nhập vai thay thế');
+        actionHref = '/learning/comm/final-test';
+        actionLabel = retryLater ? 'Xem kết quả bài kiểm tra cuối' : 'Đến bài kiểm tra cuối';
       }
       var weak = (item.weakTopics || []).filter(Boolean);
       stepsSummary = '<p class="jp-parts__pop-desc">Cuộc gọi theo kịch bản tổng hợp của toàn bộ mục tiêu. Đạt từ <strong>70 điểm</strong> để nhận chứng nhận hoàn thành lộ trình.</p>'
@@ -586,8 +604,14 @@
       if (item.certificateUrl) {
         stepsSummary += '<nav aria-label="Bước học tiếp"><p><a href="/learning/comm/survey">Chọn mục tiêu giao tiếp khác</a></p>'
           + (item.id === 'WORK' || item.id === 'BA' ? '<p><a href="/learning/comm/survey?goal=WORK">Chọn lĩnh vực Công việc khác</a></p>' : '')
-          + '<p><a href="/learning/jlpt/start">Bắt đầu lộ trình JLPT</a></p></nav>';
+          + '<p><a href="/learning?view=jlpt">Mở lộ trình JLPT</a></p></nav>';
       }
+    }
+
+    if (mapReadOnly && !isDone) {
+      stepsSummary = '<p class="jp-parts__pop-desc">Lộ trình này đang tạm dừng. Tiến độ được giữ nguyên; mở Lộ trình của tôi để học tiếp hoặc chọn lộ trình khác.</p>';
+      actionHref = '/learning/my';
+      actionLabel = 'Mở Lộ trình của tôi';
     }
 
     return '<div class="jp-parts__popover ' + sideCls + ' ' + toneCls + '" data-parts-popover role="dialog" aria-label="' + esc(item.titleVi) + '">'
@@ -740,6 +764,7 @@
     var focusedWeek = state.focusedWeek || currentWeek;
 
     mapGoal = p.goal || null;
+    mapReadOnly = !!(state && state.readOnly);
     var sceneKey = p.goal === 'DAILY_LIFE' ? 'grammar' : (p.goal === 'WORK' ? 'kanji' : 'vocab');
 
     var bannerHtml = '<header class="jp-parts__banner jp-parts__bar jp-parts__banner--' + sceneKey + '" aria-label="Biểu ngữ lộ trình giao tiếp">'
@@ -833,6 +858,15 @@
   /* Khối lộ trình chính / phụ ở thanh trái (owner 08/11: gọn, một hàng chọn nhịp, link chữ thay vì nút to) */
   function sideGoalHtml(pathData) {
     var p = pathData || {};
+    if (p.readOnly) {
+      var statusText = p.status === 'DONE' ? 'Lộ trình đã hoàn thành' : 'Lộ trình đang tạm dừng';
+      var progress = p.progress || {};
+      return '<div class="cp-goal-card cp-goal-card--readonly">'
+        + '<span class="cp-goal-card__tag">' + statusText + '</span>'
+        + '<strong class="cp-goal-card__name">' + esc(p.nameVi || 'Lộ trình giao tiếp') + '</strong>'
+        + '<span class="cp-goal-card__meta">Đã học ' + esc(progress.doneSituations || 0) + '/' + esc(progress.totalSituations || 0) + ' tình huống</span>'
+        + '<a class="cp-goal-card__link" href="/learning/my">Quản lý lộ trình</a></div>';
+    }
     var sec = p.secondary;
     var progress = p.progress || {};
     // walkthrough 25/11: the same count as the my-paths card ("Đã xong 2/7 tình huống", 29%), not passed topics
@@ -841,23 +875,28 @@
     var pct = total ? Math.round(100 * passed / total) : 0;
     var fin = p.finished;
     var others = list(p.finishedPaths);
+    var archivedFinished = !!(fin && ((p.role && p.role !== 'MAIN') || p.status === 'PAUSED'));
     return '<div class="cp-goal-card">'
-      + '<span class="cp-goal-card__tag">Lộ trình chính</span>' + (fin ? ' ' + doneChipHtml() : '')
+      + '<div class="cp-goal-card__primary">'
+      + '<span class="cp-goal-card__tag">' + (archivedFinished ? 'Lộ trình đã hoàn thành' : 'Lộ trình chính') + '</span>' + (fin ? ' ' + doneChipHtml() : '')
       + '<strong class="cp-goal-card__name">' + esc(p.nameVi || 'Lộ trình giao tiếp') + '</strong>'
       + '<span class="cp-goal-card__meta">' + esc(LEVEL_VI[p.selfLevel] || 'Sơ cấp')
       + (fin && fin.finishedAt ? ' · xong ' + esc(fmtFullDate(fin.finishedAt)) : '') + '</span>'
-      + '<a class="cp-goal-card__progress" href="' + esc(fin && fin.certificateUrl || '/learning/comm/certificate') + '" title="Xem chứng nhận">'
+      + '<a class="cp-goal-card__progress" href="' + esc(fin && fin.certificateUrl || pageUrl('certificate')) + '" title="Xem chứng nhận">'
       + '<span>Chứng nhận</span><span>' + passed + '/' + total + ' tình huống</span>'
       + '<span class="cp-goal-card__bar" aria-hidden="true"><span style="width:' + pct + '%"></span></span></a>'
-      + '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
-      + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
-      + '<span class="cp-goal-card__pace-options">'
-      + [1, 2, 3, 4].map(function (n) {
-        return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
-          + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
-      }).join('')
-      + '</span></div>'
-      + '<a class="cp-goal-card__link" data-tour="cp-goal" href="/learning/comm/settings">Cài đặt lộ trình</a>'
+      + (archivedFinished ? '<a class="cp-goal-card__link" href="/learning/my">Quản lý lộ trình</a>'
+        : '<div class="cp-goal-card__pace" data-tour="cp-pace" role="group" aria-label="Số tình huống mỗi ngày">'
+        + '<span class="cp-goal-card__pace-label">Tình huống mỗi ngày</span>'
+        + '<span class="cp-goal-card__pace-options">'
+        + [1, 2, 3, 4].map(function (n) {
+          return '<button type="button" class="cp-seg" data-cp-daily="' + n + '" aria-pressed="'
+            + (Number(p.dailySituations) === n ? 'true' : 'false') + '">' + n + '</button>';
+        }).join('')
+        + '</span></div>'
+        + '<a class="cp-goal-card__link" data-tour="cp-goal" href="' + esc(pageUrl('settings')) + '">Cài đặt lộ trình</a>')
+      + '</div>'
+      + (sec || others.length ? '<div class="cp-goal-card__related">' : '')
       + (sec
         ? '<div class="cp-goal-card__sec"><span class="cp-goal-card__tag">Học tự do · lộ trình phụ</span>'
           + '<strong class="cp-goal-card__name">' + esc(sec.nameVi) + '</strong>'
@@ -876,6 +915,7 @@
             + (o.score != null ? ' · ' + esc(o.score) + ' điểm' : '') + '</span>'
             + '<a class="cp-goal-card__link" href="' + esc(o.certificateUrl || '/learning/comm/certificate') + '">Chứng nhận</a></li>';
         }).join('') + '</ul></div>' : '')
+      + (sec || others.length ? '</div>' : '')
       + '</div>';
   }
 
@@ -961,7 +1001,7 @@
       var hRect = header.getBoundingClientRect();
       if (hRect.bottom > 0 && hRect.top <= 1) headerBottom = hRect.bottom;
     }
-    var minTop = Math.max(Math.min(vh * 0.42, bannerBottom + 10), headerBottom + 10);
+    var minTop = Math.max(Math.min(vh * 0.58, bannerBottom + 12), headerBottom + 12);
     var maxBottom = vh - 14;
     pop.style.maxHeight = Math.max(200, Math.floor(maxBottom - minTop)) + 'px';
     pop.style.overflowY = 'auto';
@@ -999,6 +1039,7 @@
     try { state.kanaTipHidden = root.localStorage.getItem(KANA_TIP_KEY) === '1'; } catch (e) { state.kanaTipHidden = false; }
     var pathData = null;
     var mapData = null;
+    var goal = selectedGoal();
     var FINISHED_KEY = 'cpath.finished.stay.';
     function readFlag(key) {
       try { return root.localStorage.getItem(key) === '1'; } catch (e) { return false; }
@@ -1068,19 +1109,62 @@
     // bug 108 (I4): today's plan is made by one POST; the GETs below only read. A failed plan never blocks the page.
     function planToday() {
       if (!root.JpathApi || !root.JpathApi.send) return Promise.resolve(null);
-      return Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/today/plan', {})).catch(function () { return null; });
+      return Promise.resolve(root.JpathApi.send('POST', goalApiUrl('/api/learning/comm/today/plan'), {})).catch(function () { return null; });
+    }
+
+    function readOnlyMessage() {
+      var isDone = pathData && pathData.status === 'DONE';
+      return '<section class="jp-band cp-path-readonly" data-notice-keep role="status"><strong>'
+        + (isDone ? 'Lộ trình này đã hoàn thành.' : 'Lộ trình này đang tạm dừng.')
+        + '</strong> Tiến độ được giữ nguyên. Mở Lộ trình của tôi để học tiếp hoặc chọn lộ trình khác.'
+        + ' <button type="button" class="jp-btn jp-btn--sm" data-cp-show-map>Xem bản đồ tình huống</button>'
+        + ' <a href="/learning/my">Quản lý lộ trình</a></section>';
+    }
+
+    function configureGoalNav() {
+      var links = rootEl.querySelectorAll('.jp-sidenav__link');
+      Array.prototype.forEach.call(links, function (link) {
+        var href = link.getAttribute('href') || '';
+        if (href === '/learning/comm/path') link.setAttribute('href', pageUrl('path'));
+        else if (href === '/learning/comm/path?tour=1') {
+          if (state.readOnly) link.hidden = true;
+          else link.setAttribute('href', pageUrl('path', { tour: 1 }));
+        } else if (state.readOnly && (href === '/learning/comm/settings' || href === '/learning/comm/notebook')) {
+          link.hidden = true;
+        }
+      });
+      if (state.readOnly) {
+        var switchButton = rootEl.querySelector('[data-cp-to-jlpt]');
+        if (switchButton) switchButton.hidden = true;
+      }
     }
 
     function renderAll() {
       rootEl.setAttribute('aria-busy', 'false');
+      configureGoalNav();
       if (sideSlot && pathData) sideSlot.innerHTML = sideGoalHtml(pathData);
       if (todaySlot && pathData) {
-        // F125: "Tiếp tục ôn lộ trình này" is remembered per finished goal in this browser (a convenience only)
-        state.finishedChoiceHidden = !!(pathData.finished && readFlag(FINISHED_KEY + pathData.goal));
-        todaySlot.innerHTML = finishedCardHtml(pathData, state) + todayBlockHtml(pathData, state) + mobileSecondaryHtml(pathData);
+        if (state.readOnly) {
+          todaySlot.innerHTML = readOnlyMessage();
+        } else {
+          // F125: "Tiếp tục ôn lộ trình này" is remembered per finished goal in this browser (a convenience only)
+          state.finishedChoiceHidden = !!(pathData.finished && readFlag(FINISHED_KEY + pathData.goal));
+          todaySlot.innerHTML = finishedCardHtml(pathData, state) + todayBlockHtml(pathData, state) + mobileSecondaryHtml(pathData);
+        }
       }
       if (mapSlot && pathData && mapData) {
         mapSlot.innerHTML = mapSectionHtml(pathData, mapData, state);
+        if (/(?:^|[?&])focus=goal-test(?:&|$)/.test(root.location && root.location.search || '')) {
+          var finalItem = list(mapData.weeks).flatMap(function (week) { return list(week.items); })
+            .find(function (item) { return item.type === 'GOAL_TEST'; });
+          if (finalItem && !finalItem.certificateUrl) {
+            var finalUrl = '/learning/comm/final-test';
+            mapSlot.insertAdjacentHTML('afterbegin', '<section class="jp-card cp-final-entry" aria-labelledby="cpFinalEntryTitle">'
+              + '<h2 id="cpFinalEntryTitle">Bài kiểm tra cuối lộ trình</h2>'
+              + '<p>Hội thoại với AI được chấm điểm. Đạt từ 70 điểm để hoàn thành lộ trình giao tiếp.</p>'
+              + '<a class="jp-btn jp-btn--primary" href="' + esc(finalUrl) + '">Bắt đầu bài kiểm tra cuối</a></section>');
+          }
+        }
         if (state.selectedId) adjustPopoverInViewport(mapSlot);
       }
     }
@@ -1100,6 +1184,16 @@
         try { root.localStorage.setItem(FINISHED_KEY + pathData.goal, '1'); } catch (e) { /* hidden for this visit only */ }
         state.finishedChoiceHidden = true;
         renderAll();
+        return;
+      }
+
+      if (t.closest('[data-cp-show-map]')) {
+        if (root.JpathMode && root.JpathMode.current && typeof root.JpathMode.current.set === 'function') {
+          root.JpathMode.current.set('free', false);
+        } else {
+          var freeBtn = doc.querySelector('[data-mode-btn="free"]');
+          if (freeBtn && typeof freeBtn.click === 'function') freeBtn.click();
+        }
         return;
       }
 
@@ -1151,9 +1245,9 @@
       var dailyBtn = t.closest('[data-cp-daily]');
       if (dailyBtn && root.JpathApi.send) {
         var n = Number(dailyBtn.getAttribute('data-cp-daily'));
-        Promise.resolve(root.JpathApi.send('PUT', '/api/learning/comm/path/daily', { dailySituations: n })).then(function () {
+        Promise.resolve(root.JpathApi.send('PUT', goalApiUrl('/api/learning/comm/path/daily'), { dailySituations: n })).then(function () {
           // today's plan and the map both change with the pace: reload both
-          return planToday().then(function () { return Promise.all([root.JpathApi.get('/api/learning/comm/path'), root.JpathApi.get('/api/learning/comm/map')]); })
+          return planToday().then(function () { return Promise.all([root.JpathApi.get(goalApiUrl('/api/learning/comm/path')), root.JpathApi.get(goalApiUrl('/api/learning/comm/map'))]); })
             .then(function (res) {
               pathData = res[0] || pathData;
               lastPathData = pathData;
@@ -1211,13 +1305,22 @@
       });
     }, { passive: true });
 
-    planToday().then(function () { return Promise.all([
-      root.JpathApi.get('/api/learning/comm/path'),
-      root.JpathApi.get('/api/learning/comm/map'),
-      root.JpathApi.get('/api/learning/comm/goal-test').catch(function () { return null; })
-    ]); }).then(function (res) {
+    root.JpathApi.get(goalApiUrl('/api/learning/comm/path')).then(function (initialPath) {
+      if (!initialPath) throw new Error('Không tải được lộ trình giao tiếp.');
+      pathData = initialPath;
+      if (sideSlot) sideSlot.innerHTML = sideGoalHtml(initialPath);
+      state.readOnly = initialPath.status !== 'ACTIVE' && !initialPath.finished;
+      var skipPlan = state.readOnly || !!initialPath.finished;
+      return (skipPlan ? Promise.resolve(null) : planToday()).then(function () { return Promise.all([
+        root.JpathApi.get(goalApiUrl('/api/learning/comm/path')),
+        root.JpathApi.get(goalApiUrl('/api/learning/comm/map')),
+        state.readOnly ? Promise.resolve(null)
+          : root.JpathApi.get(goalApiUrl('/api/learning/comm/goal-test')).catch(function () { return null; })
+      ]); });
+    }).then(function (res) {
       if (!res[0] || !res[1]) throw new Error('Dữ liệu lộ trình chưa đầy đủ.');
       pathData = res[0];
+      pathData.readOnly = state.readOnly;
       lastPathData = pathData;
       mapData = res[1];
       if (res[2] && Array.isArray(mapData.weeks)) {
@@ -1233,10 +1336,10 @@
       state.focusedWeek = (Number(mapData.currentWeek) || 0) + 1;
       renderAll();
       // F70: base lesson of the day (Đời sống / Công việc / BrSE) or the trip passport (Du lịch); both optional
-      if (pathData.goal === 'TRAVEL') {
-        Promise.resolve(root.JpathApi.get('/api/learning/comm/travel/stamps')).then(function (x) { state.stamps = x; renderAll(); }, function () { /* none */ });
-      } else {
-        Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (x) { state.core = x; renderAll(); }, function () { /* none */ });
+      if (!state.readOnly && pathData.goal === 'TRAVEL') {
+        Promise.resolve(root.JpathApi.get(goalApiUrl('/api/learning/comm/travel/stamps'))).then(function (x) { state.stamps = x; renderAll(); }, function () { /* none */ });
+      } else if (!state.readOnly) {
+        Promise.resolve(root.JpathApi.get(goalApiUrl('/api/learning/comm/core'))).then(function (x) { state.core = x; renderAll(); }, function () { /* none */ });
       }
       // owner 11/11: the communication path is Premium; a free learner sees an upgrade box above the path
       Promise.resolve(root.JpathApi.get('/api/learning/comm/premium-gate')).then(function (gate) {
@@ -1249,10 +1352,10 @@
       }, function () { /* the server still blocks the study calls */ });
       startTour();
       // a goal AI call taken since the last visit: read its score (kaiwa, read only) and redraw when it passed
-      if (root.JpathApi.send) {
-        Promise.resolve(root.JpathApi.send('POST', '/api/learning/comm/goal-test/check')).then(function (g) {
+      if (!state.readOnly && root.JpathApi.send) {
+        Promise.resolve(root.JpathApi.send('POST', goalApiUrl('/api/learning/comm/goal-test/check'))).then(function (g) {
           if (g && g.passed) {
-            return root.JpathApi.get('/api/learning/comm/map').then(function (m) { mapData = m || mapData; renderAll(); });
+            return root.JpathApi.get(goalApiUrl('/api/learning/comm/map')).then(function (m) { mapData = m || mapData; renderAll(); });
           }
           return null;
         }).catch(function () { /* no score yet */ });

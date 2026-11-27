@@ -67,7 +67,8 @@
     var seen = {};
     var rows = all.filter(function (l) {
       var key = String(l && l.url || '') + '|' + String(l && l.label || '');
-      if (!l || seen[key] || (l.url && skip.indexOf(l.url) >= 0)) return false;
+      // QA 27/11 G4: the comm menu links its own "Sổ tay" (another url); a label the menu already has is skipped too
+      if (!l || seen[key] || (l.url && skip.indexOf(l.url) >= 0) || (l.label && skip.indexOf('label:' + l.label) >= 0)) return false;
       seen[key] = true;
       return true;
     });
@@ -113,7 +114,9 @@
         var nav = h.closest ? h.closest('nav') : null;
         var skip = nav ? Array.prototype.map.call(nav.querySelectorAll('a.jp-sidenav__link[href]'), function (a) {
           return a.getAttribute('href');
-        }) : [];
+        }).concat(Array.prototype.map.call(nav.querySelectorAll('.jp-sidenav__link'), function (a) {
+          return 'label:' + String(a.textContent || '').trim();
+        })) : [];
         h.innerHTML = navMarkup(view, skip);
         rememberFold(h);
       } else {

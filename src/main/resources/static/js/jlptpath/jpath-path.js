@@ -174,8 +174,8 @@
     var t = today || {};
     var cards = list(t.heroCards).slice(0, 3);
     var tone = !p.examDate ? '' : (p.onTrack ? ' jp-hero__target--ok' : ' jp-hero__target--late');
-    var html = '<div class="jp-hero__text"><h1 class="jp-hero__title">Lộ trình của ' + esc(p.displayName || 'bạn') + '</h1>'
-      + '<p class="jp-hero__target' + tone + '">' + esc(targetLine(p)) + '</p>';
+    var html = '<div class="jp-hero__text"><h1 class="jp-hero__title">Lộ trình JLPT</h1>'
+      + (p.examDate ? '<p class="jp-hero__target' + tone + '">Kỳ thi: ' + esc(p.examDate) + '</p>' : '');
     if (t.resume && t.resume.total) {
       html += '<p class="jp-hero__resume">' + esc('Tiếp tục từ thẻ ' + t.resume.position + '/' + t.resume.total) + '</p>';
     }
@@ -219,7 +219,7 @@
     var mark = state === 'PASSED' ? icon('check') : (state === 'LOCKED' ? icon('lock') : '');
     var sub;
     if (state === 'PASSED') sub = '<button type="button" class="jp-level-cell__preview" data-action="view-level" data-view-level="'
-      + name + '">' + icon('check') + ' Đã vượt qua · ôn lại</button>'
+      + name + '">Ôn lại</button>'
       // AI 1 #13: a passed level also opens its level summary
       + '<a class="jp-level-cell__summary" href="/learning/jlpt/levels/' + encodeURIComponent(c.level) + '/summary">Xem tổng kết</a>';
     else if (state === 'OPEN') sub = '<span class="jp-level-cell__state">Đang học · ' + esc(Number(c.percent) || 0) + '%</span>'
@@ -230,17 +230,17 @@
       + name + '">Xem trước</button>';
     else sub = '<button type="button" class="jp-level-cell__preview" data-action="coming-soon" data-coming-soon="' + name
       + '">Sắp có</button>';
-    // the server note often repeats the state ("Đang học", "Sắp có"): show it only when it adds something
-    var said = state === 'OPEN' ? 'Đang học' : (state === 'COMING_SOON' ? 'Sắp có' : '');
+    // the server note often repeats the state ("Đang học", "Đã vượt qua", "Sắp có"): show it only when it adds something
+    var said = state === 'OPEN' ? 'Đang học' : (state === 'PASSED' ? 'Đã vượt qua' : (state === 'COMING_SOON' ? 'Sắp có' : ''));
     // a locked level already shows a "Xem trước" button: its note keeps only the condition ("Thi thử N5 để mở")
     var note = String(c.note || '').trim();
     if (state === 'LOCKED') note = note.replace(/^Xem trước\s*·\s*/, '');
     if (state === 'NEXT_AFTER_KANA') note = '';
-    if (note && note !== said) sub += '<span class="jp-level-cell__note">' + esc(note) + '</span>';
+    if (note && note !== said && !(state === 'PASSED' && /^Đã vượt qua\.?$/i.test(note))) sub += '<span class="jp-level-cell__note">' + esc(note) + '</span>';
     var tipAttr = (state === 'LOCKED' && note && note !== said) ? ' data-tip="' + esc(note) + '" title="' + esc(note) + '"' : '';
     return '<li class="jp-step jp-step--' + step + ' jp-level-cell jp-level-cell--' + esc(state.toLowerCase()) + '"' + (state === 'OPEN' ? ' aria-current="step"' : '') + tipAttr + '><span class="jp-step__mark" aria-hidden="true">' + mark
       + '</span><span class="jp-step__body"><span class="jp-level-cell__name">' + name
-      + '</span>' + sub + '</span></li>';
+      + '</span>' + (state === 'PASSED' ? '<span class="jp-level-cell__badge">Đã hoàn thành</span>' : '') + sub + '</span></li>';
   }
 
   // walkthrough 24/11: while kana is being learned the bar said "N5 · Đang học 0%" but 'Lộ trình của tôi' said
@@ -651,6 +651,14 @@
       setHtml(rootEl, 'levels', levelBand() + levelBarHtml(state.path));
       setHtml(rootEl, 'crumbs', crumbsHtml(state.path, state.tab, state.viewLevel));
       paintList();
+      // owner 27/11: "Ôn lại" on a passed level did nothing visible in "Học hôm nay" (the list lives in "Tự chọn bài");
+      // open the free part and bring the list into view
+      if (level) {
+        var modeCtl = root.JpathMode && root.JpathMode.current;
+        if (modeCtl && modeCtl.get && modeCtl.get() !== 'free') modeCtl.set('free', false);
+        var tabsEl = rootEl.querySelector && rootEl.querySelector('[data-region="tabs"]');
+        if (tabsEl && tabsEl.scrollIntoView) tabsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       if (rootEl.dispatchEvent && typeof root.CustomEvent === 'function') {
         rootEl.dispatchEvent(new root.CustomEvent('jpath:view-level', { detail: { level: level || state.path.openLevel,
           passed: !!level }, bubbles: true }));

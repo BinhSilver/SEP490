@@ -464,7 +464,7 @@
       var minutesLine = part('minutes-line');
       var done = pace && pace.levelFinish ? formatDate(pace.levelFinish) : '';
       minutesLine.textContent = pace && !state.pending
-        ? 'Khoảng ' + pace.estimatedMinutes + ' phút mỗi ngày' + (done ? ' · cả 3 phần ' + (state.openLevel || '') + ' xong ngày ' + done : '')
+        ? 'Khoảng ' + pace.estimatedMinutes + ' phút mỗi ngày' + (done ? ' · học hết 3 phần ' + (state.openLevel || '') + ' ngày ' + done : '')
         : '';
 
       var line = paceLine(pace);

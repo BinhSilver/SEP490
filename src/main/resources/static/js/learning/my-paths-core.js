@@ -69,6 +69,9 @@
   function todayLine(p) {
     if (p.status !== 'ACTIVE') return p.status === 'PAUSED' && p.pausedSince
       ? 'Tạm dừng từ ' + esc(dateVi(p.pausedSince)) + '. Tiến độ được giữ.' : (p.status === 'FINISHED' ? 'Đã học xong lộ trình này.' : 'Tiến độ được giữ.');
+    if (p.awaitingFinalTest) return p.role === 'SECONDARY'
+      ? 'Đã học hết tình huống · Nâng lên lộ trình chính để làm bài kiểm tra cuối'
+      : 'Đã học hết tình huống · Còn bài kiểm tra cuối để hoàn thành lộ trình';
     if (p.todayDone) return 'Hôm nay: đã xong';
     var left = num(p.todayMinutesLeft);
     // a missed day carries over (up to twice a normal day): say so instead of a figure that contradicts "phút/ngày"
@@ -107,12 +110,18 @@
     var key = esc(p.key);
     var meta = [];
     if (num(p.minutesPerDay) > 0) meta.push(num(p.minutesPerDay) + ' phút/ngày');
-    if (p.finishDate && p.status !== 'FINISHED') meta.push('dự kiến xong ' + esc(dateVi(p.finishDate)));
+    if (p.finishDate && p.status !== 'FINISHED' && !p.awaitingFinalTest) meta.push('dự kiến xong ' + esc(dateVi(p.finishDate)));
     if (p.focusTopic) meta.push('tuần này: ' + esc(p.focusTopic));
     var actions = [];
     if (p.status === 'ACTIVE') {
-      if (!p.todayDone && !single) actions.push('<a class="jp-btn jp-btn--primary" href="' + esc(safeUrl(p.todayUrl, safeUrl(p.url))) + '" data-mp-today="' + key + '">Học hôm nay</a>');
-      actions.push('<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Vào lộ trình</a>');
+      var todayHref = safeUrl(p.todayUrl, safeUrl(p.url));
+      var showToday = !p.todayDone && !single;
+      if (showToday) actions.push('<a class="jp-btn jp-btn--primary" href="' + esc(todayHref) + '" data-mp-today="' + key + '">Học hôm nay</a>');
+      if (p.awaitingFinalTest) actions.push(p.role === 'SECONDARY'
+        ? '<a class="jp-btn jp-btn--primary" href="' + esc(safeUrl(p.url)) + '">Nâng lên lộ trình chính</a>'
+        : '<a class="jp-btn jp-btn--primary" href="/learning/comm/final-test?goal=' + encodeURIComponent(p.goal || '') + '">Đến bài kiểm tra cuối</a>');
+      // QA 27/11 C5: "Học hôm nay" and "Vào lộ trình" side by side went to the same page; keep one
+      if (!showToday || todayHref !== safeUrl(p.url)) actions.push('<a class="jp-btn" href="' + esc(safeUrl(p.url)) + '">Vào lộ trình</a>');
       actions.push('<button type="button" class="mp-link mp-card__pause" data-mp-pause="' + key + '">Tạm dừng</button>');
     } else if (p.status === 'PAUSED') {
       actions.push('<button type="button" class="jp-btn jp-btn--primary" data-mp-resume="' + key + '">Học tiếp</button>');

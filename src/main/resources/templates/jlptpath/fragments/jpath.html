@@ -14,6 +14,9 @@
     <link rel="stylesheet" th:href="@{/css/pages/my-paths.css(v=${jpathAssetVersion})}" />
     <link th:if="${pageCss != null and !#strings.isEmpty(pageCss)}" rel="stylesheet"
           th:href="@{${'/css/pages/' + pageCss + '.css'}(v=${jpathAssetVersion})}" />
+    <!-- owner 27/11: paper-notebook look shared by every Learning page; loaded after the page CSS. -->
+    <link rel="stylesheet" th:href="@{/css/pages/learning-notebook.css(v=${jpathAssetVersion + '-' + #dates.format(#dates.createNow(), 'ddHHmm')})}" />
+    <script defer th:src="@{/js/jlptpath/learning-notebook.js(v=${jpathAssetVersion})}"></script>
 </th:block>
 
 <th:block th:fragment="scripts">
