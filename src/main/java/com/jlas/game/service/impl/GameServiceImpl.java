@@ -849,7 +849,7 @@ public class GameServiceImpl implements GameService {
                 throw new ApiException(ErrorCode.BAD_REQUEST, "Vẽ & Đoán cần hai người chơi");
             }
             String jlpt = GameRules.puzzleLevel(raw == null ? null : raw.jlpt());
-            return new GameSettings(null, jlpt, null, null, GameRules.normalize(type, mode, null), jlpt);
+            return new GameSettings(null, jlpt, null, null, GameRules.normalize(type, mode, raw == null ? null : raw.options()), jlpt);
         }
         if (raw == null || raw.setId() == null) {
             throw new ApiException(ErrorCode.VALIDATION_FAILED, "Chọn bộ flashcard");

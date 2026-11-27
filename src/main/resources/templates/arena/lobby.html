@@ -44,6 +44,16 @@
                     <div class="ar-setup-picker" data-level-picker hidden>
                         <ul class="ar-deck-list" id="ar-setup-jlpt" role="radiogroup"
                             aria-label="Cấp JLPT" data-level-list></ul>
+                        <!-- Solo riddle and picture games only: an optional clock per question. -->
+                        <label class="ar-setup-clock" data-solo-clock hidden>
+                            <span>Đồng hồ mỗi câu</span>
+                            <select data-jl-select data-solo-seconds aria-label="Đồng hồ mỗi câu">
+                                <option value="0">Không bấm giờ</option>
+                                <option value="20">20 giây</option>
+                                <option value="30">30 giây</option>
+                                <option value="45">45 giây</option>
+                            </select>
+                        </label>
                     </div>
                     <div class="ar-setup-actions">
                         <p class="ar-summary__problem" data-summary-problem role="status" hidden></p>
@@ -74,7 +84,7 @@
 <script th:src="@{/arena/js/arena-client.js(v='20261119-leave-fast')}"></script>
 <script th:src="@{/arena/js/arena-setup-kit.js?v=20261111-select}"></script>
 <script th:src="@{/arena/js/game-previews.js}"></script>
-<script th:src="@{/arena/js/lobby-page.js(v='20261111-two-steps')}"></script>
+<script th:src="@{/arena/js/lobby-page.js(v='20261127-solo-clock')}"></script>
 <script th:src="@{/js/jlab-base-shell.js(v=20261125-icons-vi)}"></script>
 <script defer src="/arena/js/standard-tabs.js?v=20261126-offset"></script>
 </body>

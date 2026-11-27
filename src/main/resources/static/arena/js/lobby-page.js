@@ -19,6 +19,8 @@
     mode: ['VERSUS', 'SOLO'].indexOf(params.get('mode')) >= 0 ? params.get('mode') : 'QUICK',
     deck: null,
     jlpt: params.get('jlpt'),
+    // Solo riddle / picture games: seconds per question, 0 = no clock.
+    soloSeconds: [0, 20, 30, 45].indexOf(Number(params.get('seconds'))) >= 0 ? Number(params.get('seconds')) : 0,
     detail: null,
     question: 'KANJI',
     answer: 'MEANING',
@@ -45,6 +47,8 @@
     deckPicker: document.querySelector('[data-deck-picker]'),
     levelPicker: document.querySelector('[data-level-picker]'),
     level: document.getElementById('ar-setup-jlpt'),
+    soloClock: document.querySelector('[data-solo-clock]'),
+    soloSeconds: document.querySelector('[data-solo-seconds]'),
     sourceHeading: document.querySelector('[data-source-heading]'),
     soloCopy: document.querySelector('[data-solo-copy]'),
     problem: document.querySelector('[data-summary-problem]'),
@@ -82,6 +86,7 @@
     next.set('mode', state.mode);
     if (state.deck) next.set('setId', state.deck.id);
     if (state.catalog && item().usesDeck === false && state.jlpt) next.set('jlpt', state.jlpt);
+    if (soloClockShown() && state.soloSeconds) next.set('seconds', String(state.soloSeconds));
     window.history.replaceState(window.history.state, '', window.location.pathname + '?' + next.toString());
   }
 
@@ -104,9 +109,18 @@
     });
   }
 
+  /** The clock choice applies to the solo riddle and picture games (Draw & Guess has no solo play). */
+  function soloClockShown() {
+    return !!state.catalog && item().usesDeck === false && item().supportsSolo !== false && state.mode === 'SOLO';
+  }
+
   function renderSource() {
     var game = item();
     var puzzle = game.usesDeck === false;
+    if (el.soloClock) {
+      el.soloClock.hidden = !soloClockShown();
+      el.soloSeconds.value = String(state.soloSeconds);
+    }
     el.deckPicker.hidden = puzzle;
     el.levelPicker.hidden = !puzzle;
     el.sourceHeading.textContent = puzzle ? 'Chọn cấp JLPT' : 'Chọn bộ flashcard';
@@ -292,7 +306,8 @@
     if (problem() || state.submitting || (mobile.matches && mobileStep !== 2)) return;
     state.submitting = true;
     renderSummary();
-    var settings = item().usesDeck === false ? { jlpt: state.jlpt } : {
+    var settings = item().usesDeck === false
+      ? { jlpt: state.jlpt, options: soloClockShown() ? { durationSeconds: state.soloSeconds } : null } : {
       setId: state.deck.id,
       questionField: state.question,
       answerField: state.answer,
@@ -416,6 +431,12 @@
 
   el.submits.forEach(function (button) { button.addEventListener('click', submit); });
   el.level.addEventListener('click', function (event) { selectLevel(event.target.closest('[data-jlpt]')); });
+  if (el.soloSeconds) {
+    el.soloSeconds.addEventListener('change', function () {
+      state.soloSeconds = Number(el.soloSeconds.value) || 0;
+      syncUrl();
+    });
+  }
   el.level.addEventListener('keydown', function (event) {
     var delta = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
     if (delta === undefined || state.submitting) return;

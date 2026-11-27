@@ -130,6 +130,11 @@ public abstract class GameSession {
         return launch.seats().stream().filter(seat -> seat.userId() == userId).findFirst();
     }
 
+    /** Normalised options the match was launched with (may be null for games without options). */
+    public com.jlas.game.dto.GameDtos.GameOptions getOptions() {
+        return launch.options();
+    }
+
     public boolean isVersus() {
         return launch.mode() == PlayMode.VERSUS;
     }

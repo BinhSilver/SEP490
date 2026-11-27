@@ -5,21 +5,22 @@
 <link rel="stylesheet" th:href="@{/arena/css/arena-standard.css(v='20261126-search')}">
 <link rel="stylesheet" th:href="@{/arena/css/voice.css}">
 <link rel="stylesheet" th:href="@{/flashcard/typing-slots.css(v='1')}">
-<link rel="stylesheet" th:href="@{/arena/css/puzzle.css(v='6')}">
+<link rel="stylesheet" th:href="@{/arena/css/puzzle.css(v='8')}">
+<link rel="stylesheet" href="/css/components/page-guide.css?v=20261117-bullets">
 
 <main id="jlabBaseContent" class="ar-page puzzle-page" th:attr="data-session-id=${sessionId},data-room-id=${puzzleSession.roomId},
         data-mode=${puzzleSession.mode},data-me-id=${puzzleSession.meUserId},data-game-slug=${puzzleSlug}">
     <div class="ar-shell puzzle-shell">
+        <!-- The game's picture (desert, night sky, drawing board) stays in this banner; the play area keeps a plain background. -->
         <header class="puzzle-header">
             <div class="puzzle-heading">
                 <h1 th:text="${gameName}">Trò chơi</h1>
                 <p class="puzzle-metadata"><span data-level th:text="${puzzleSession.deckTitle}"></span><span data-progress></span></p>
             </div>
-            <div class="puzzle-timer" data-timer hidden>
-                <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                <span data-timer-label></span> <strong data-timer-value></strong>
-            </div>
             <div class="puzzle-header-controls">
+                <button type="button" id="puzzle-guide-open" class="ar-btn ar-btn--sm puzzle-guide-button" disabled>
+                    <i class="fa-regular fa-circle-question" aria-hidden="true"></i> <span>Hướng dẫn</span>
+                </button>
                 <button type="button" class="ar-btn ar-btn--sm puzzle-sound" data-sound-toggle
                         aria-label="Âm thanh trò chơi" aria-pressed="false" title="Bật âm thanh trò chơi">
                     <i class="fa-solid fa-volume-xmark" aria-hidden="true"></i>
@@ -28,64 +29,66 @@
                 <div class="puzzle-voice" data-arena-voice-dock data-voice-compact></div>
             </div>
         </header>
-
         <p class="puzzle-connection" data-connection role="status" hidden></p>
         <div class="puzzle-error" data-error role="alert" hidden>
             <p data-error-message></p>
             <button class="ar-btn ar-btn--sm" type="button" data-retry>Tải lại</button>
         </div>
         <p data-loading role="status">Đang chuẩn bị lượt chơi…</p>
-
         <div class="puzzle-game" data-game hidden>
-            <ul class="puzzle-players" data-players aria-label="Người chơi" hidden></ul>
             <div class="puzzle-layout" data-layout>
                 <section class="puzzle-stage" aria-label="Lượt chơi">
                     <p class="puzzle-question" data-question lang="ja" hidden></p>
                     <p class="puzzle-rebus-instructions" th:if="${puzzleSlug == 'picture-rebus'}">Ghép ý của các hình để đoán từ tiếng Nhật.</p>
                     <ul class="puzzle-images" data-images aria-label="Manh mối hình ảnh" hidden></ul>
                     <div class="puzzle-hints" data-hints aria-live="polite" hidden></div>
-
+                    <p class="puzzle-hint-timer" data-hint-timer hidden></p>
                     <div class="puzzle-drawing" data-drawing hidden>
                         <p class="puzzle-role" data-role aria-live="polite"></p>
-                        <div class="puzzle-tools" role="group" aria-label="Công cụ vẽ" data-tools hidden>
-                            <div class="puzzle-tool">
-                                <button type="button" class="ar-btn ar-btn--sm" data-pen aria-expanded="false" aria-controls="puzzle-pen-options">
-                                    <i class="fa-solid fa-pen" aria-hidden="true"></i> Bút
+                        <p class="puzzle-secret" data-secret hidden>
+                            <small>Từ cần vẽ</small> <strong data-secret-word lang="ja"></strong>
+                            <span data-secret-detail></span>
+                        </p>
+                        <!-- Everything at hand: tool, colours and sizes are on the bar, not in a menu. -->
+                        <div class="puzzle-tools" role="toolbar" aria-label="Công cụ vẽ" data-tools hidden>
+                            <div class="puzzle-toolset" role="group" aria-label="Công cụ">
+                                <button type="button" class="ar-btn ar-btn--sm" data-tool="pen" aria-pressed="true" title="Bút">
+                                    <i class="fa-solid fa-pen" aria-hidden="true"></i><span>Bút</span>
                                 </button>
-                                <div class="puzzle-tool-options" id="puzzle-pen-options" data-pen-options hidden>
-                                    <strong>Màu bút</strong>
-                                    <div class="puzzle-colors" role="group" aria-label="Màu bút" data-colors></div>
-                                    <strong>Cỡ bút</strong>
-                                    <div class="puzzle-widths" role="group" aria-label="Cỡ bút" data-pen-widths></div>
-                                </div>
-                            </div>
-                            <div class="puzzle-tool">
-                                <button type="button" class="ar-btn ar-btn--sm" data-eraser aria-expanded="false" aria-controls="puzzle-eraser-options">
-                                    <i class="fa-solid fa-eraser" aria-hidden="true"></i> Tẩy
+                                <button type="button" class="ar-btn ar-btn--sm" data-tool="fill" aria-pressed="false" title="Đổ màu vùng kín">
+                                    <i class="fa-solid fa-fill-drip" aria-hidden="true"></i><span>Đổ màu</span>
                                 </button>
-                                <div class="puzzle-tool-options" id="puzzle-eraser-options" data-eraser-options hidden>
-                                    <strong>Cỡ tẩy</strong>
-                                    <div class="puzzle-widths" role="group" aria-label="Cỡ tẩy" data-eraser-widths></div>
-                                </div>
+                                <button type="button" class="ar-btn ar-btn--sm" data-tool="eraser" aria-pressed="false" title="Tẩy">
+                                    <i class="fa-solid fa-eraser" aria-hidden="true"></i><span>Tẩy</span>
+                                </button>
                             </div>
-                            <button type="button" class="ar-btn ar-btn--sm" data-undo aria-label="Hoàn tác" title="Hoàn tác (Ctrl+Z)" disabled>
-                                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="ar-btn ar-btn--sm" data-redo aria-label="Làm lại" title="Làm lại (Ctrl+Shift+Z)" disabled>
-                                <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="ar-btn ar-btn--sm" data-clear disabled>
-                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Xóa bảng
-                            </button>
+                            <div class="puzzle-colors" role="group" aria-label="Màu" data-colors></div>
+                            <div class="puzzle-widths" role="group" aria-label="Cỡ nét" data-widths></div>
+                            <div class="puzzle-toolset puzzle-toolset--edit" role="group" aria-label="Sửa bảng">
+                                <button type="button" class="ar-btn ar-btn--sm" data-undo aria-label="Hoàn tác" title="Hoàn tác (Ctrl+Z)" disabled>
+                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="ar-btn ar-btn--sm" data-redo aria-label="Làm lại" title="Làm lại (Ctrl+Shift+Z)" disabled>
+                                    <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+                                </button>
+                                <button type="button" class="ar-btn ar-btn--sm" data-clear aria-label="Xóa bảng" title="Xóa bảng" disabled>
+                                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
                         <canvas width="1200" height="800" data-canvas aria-label="Bảng vẽ"></canvas>
                     </div>
-
-                    <div class="puzzle-controls">
-                    <p class="puzzle-secret" data-secret hidden>
-                        <small>Từ cần vẽ</small> <strong data-secret-word lang="ja"></strong>
-                        <span data-secret-detail></span>
-                    </p>
+                    <section class="puzzle-reveal" data-reveal aria-label="Đáp án" hidden>
+                        <div><strong data-reveal-word lang="ja"></strong> <span data-reveal-reading lang="ja"></span></div>
+                        <p data-reveal-meaning></p>
+                        <p data-reveal-explanation hidden></p>
+                    </section>
+                    <p class="puzzle-feedback" id="puzzle-feedback" data-feedback role="status" hidden></p>
+                    <div class="puzzle-actions" data-actions hidden>
+                        <button class="ar-btn ar-btn--sm" type="button" data-skip hidden>Bỏ qua lượt</button>
+                        <button class="ar-btn ar-btn--primary" type="button" data-next hidden>Lượt tiếp theo</button>
+                    </div>
+                    <!-- On phones this bar stays at the bottom of the screen while the clue scrolls. -->
                     <form class="puzzle-answer" data-answer-form hidden>
                         <div id="typing-slots" class="sr-slots" role="button" tabindex="0"
                              aria-label="Chạm để nhập đáp án" aria-describedby="puzzle-typing-hint puzzle-feedback"></div>
@@ -94,38 +97,67 @@
                                maxlength="100" tabindex="-1" aria-label="Gõ Romaji hoặc tiếng Nhật"
                                aria-describedby="puzzle-typing-hint puzzle-feedback">
                         <div class="puzzle-answer-tools">
-                            <span id="puzzle-typing-hint">Nhấn Enter để kiểm tra đáp án.</span>
-                            <button type="button" class="ar-btn ar-btn--sm" data-clear-answer>
-                                <i class="fa-solid fa-delete-left" aria-hidden="true"></i> Xóa đáp án
+                            <span id="puzzle-typing-hint"><strong data-slot-count></strong> Gõ Romaji hoặc tiếng Nhật, Enter để kiểm tra.</span>
+                            <button type="button" class="ar-btn ar-btn--sm puzzle-icon-btn" data-clear-answer
+                                    aria-label="Xóa đáp án" title="Xóa đáp án">
+                                <i class="fa-solid fa-delete-left" aria-hidden="true"></i>
                             </button>
                         </div>
                     </form>
-                    <p class="puzzle-feedback" id="puzzle-feedback" data-feedback role="status" hidden></p>
-
-                    <section class="puzzle-reveal" data-reveal aria-label="Đáp án" hidden>
-                        <div><strong data-reveal-word lang="ja"></strong> <span data-reveal-reading lang="ja"></span></div>
-                        <p data-reveal-meaning></p>
-                        <p data-reveal-explanation hidden></p>
-                    </section>
-                    <div class="puzzle-actions" data-actions hidden>
-                        <button class="ar-btn ar-btn--sm" type="button" data-skip hidden>Bỏ qua lượt</button>
-                        <button class="ar-btn ar-btn--primary" type="button" data-next hidden>Lượt tiếp theo</button>
-                    </div>
-                    <section class="puzzle-finish" data-finish hidden>
-                        <h2 data-finish-title>Đã hoàn thành</h2>
-                        <a th:if="${puzzleSession.roomId != null}" class="ar-btn ar-btn--primary" th:href="${puzzleSession.backUrl}">Về phòng</a>
-                        <a th:if="${puzzleSession.roomId == null}" class="ar-btn ar-btn--primary"
-                           th:href="@{/games/lobby(game=${puzzleSession.gameType},mode='SOLO',jlpt=${puzzleSession.deckTitle})}">Chơi lại</a>
-                    </section>
-                    </div>
                 </section>
+                <aside class="puzzle-side" aria-label="Bảng điểm">
+                    <div class="puzzle-round">
+                        <ol class="puzzle-dots" data-round-dots aria-label="Tiến độ các lượt"></ol>
+                        <div class="puzzle-timer" data-timer hidden>
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                            <span data-timer-label></span> <strong data-timer-value></strong>
+                            <span class="puzzle-timer__bar" aria-hidden="true"><i data-timer-bar></i></span>
+                        </div>
+                    </div>
+                    <ul class="puzzle-players" data-players aria-label="Người chơi"></ul>
+                    <p class="puzzle-streak" data-streak hidden>
+                        <i class="fa-solid fa-fire" aria-hidden="true"></i>
+                        Chuỗi đúng <strong data-streak-value>0</strong>
+                        <span data-streak-best></span>
+                    </p>
+                    <section class="puzzle-guesses" data-guess-panel aria-labelledby="puzzle-guesses-title" hidden>
+                        <h2 id="puzzle-guesses-title">Lượt đoán</h2>
+                        <ol data-guess-log aria-live="polite"></ol>
+                        <p class="puzzle-guesses__empty" data-guess-empty>Chưa có lượt đoán nào.</p>
+                    </section>
+                </aside>
             </div>
+            <section class="puzzle-finish" data-finish aria-labelledby="puzzle-finish-title" hidden>
+                <h2 id="puzzle-finish-title" data-finish-title>Đã hoàn thành</h2>
+                <p class="puzzle-finish__subtitle" data-finish-subtitle></p>
+                <ol class="puzzle-podium" data-podium hidden></ol>
+                <dl class="puzzle-solo-summary" data-solo-summary hidden></dl>
+                <h3 class="puzzle-finish__words">Các từ vừa gặp</h3>
+                <div class="puzzle-rounds-wrap">
+                    <table class="puzzle-rounds">
+                        <thead data-rounds-head></thead>
+                        <tbody data-rounds-body></tbody>
+                    </table>
+                </div>
+                <div class="puzzle-finish__actions">
+                    <a th:if="${puzzleSession.roomId != null}" class="ar-btn ar-btn--primary" th:href="${puzzleSession.backUrl}">
+                        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Tái đấu
+                    </a>
+                    <a th:if="${puzzleSession.roomId == null}" class="ar-btn ar-btn--primary" data-replay
+                       th:href="@{/games/lobby(game=${puzzleSession.gameType},mode='SOLO',jlpt=${puzzleSession.deckTitle})}">
+                        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Chơi lại
+                    </a>
+                    <a class="ar-btn" th:href="@{/games}">Về sảnh trò chơi</a>
+                </div>
+            </section>
         </div>
     </div>
 </main>
 
 <script th:src="@{/arena/js/arena-client.js(v='20261125-puzzle-games')}"></script>
-<script th:src="@{/arena/js/voice-client.js(v='20261125-puzzle-compact')}"></script>
-<script type="module" th:src="@{/arena/js/puzzle-page.js(v='4')}"></script>
+<script th:src="@{/arena/js/voice-client.js(v='20261127-voice-on')}"></script>
+<script src="/js/components/page-guide.js?v=20261117-bullets"></script>
+<script src="/arena/js/puzzle-guide.js?v=1"></script>
+<script type="module" th:src="@{/arena/js/puzzle-page.js(v='7')}"></script>
 </body>
 </html>
