@@ -1,13 +1,17 @@
 package com.jlas.tutor;
 
+import com.jlas.auth.service.PremiumAccess;
 import com.jlas.common.exception.ApiException;
 import com.jlas.common.exception.ErrorCode;
+import com.jlas.common.security.ContentReviewAccess;
 import com.jlas.kaiwa.rag.RagPromptComposer;
 import com.jlas.kaiwa.rag.RagProperties;
 import com.jlas.kaiwa.rag.RagTutorService;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -34,24 +38,30 @@ public class TutorChatService {
     private static final Logger log = LoggerFactory.getLogger(TutorChatService.class);
     private static final int MAX_HISTORY_CHARS = 1_000;
     private static final Duration WINDOW = Duration.ofHours(1);
+    private static final ZoneId VIETNAM = ZoneId.of("Asia/Ho_Chi_Minh");
 
     private final RagTutorService tutor;
     private final RagProperties rag;
     private final TutorProperties limits;
+    private final PremiumAccess premium;
     private final Clock clock;
     private final Semaphore slots;
     private final Set<Long> inFlight = ConcurrentHashMap.newKeySet();
     private final Map<Long, Deque<Instant>> recent = new ConcurrentHashMap<>();
+    // ponytail: daily question counts reset when the server restarts.
+    private final Map<Long, DailyQuestions> dailyQuestions = new ConcurrentHashMap<>();
+    private record DailyQuestions(LocalDate day, int count) { }
 
     @Autowired
-    public TutorChatService(RagTutorService tutor, RagProperties rag, TutorProperties limits) {
-        this(tutor, rag, limits, Clock.systemUTC());
+    public TutorChatService(RagTutorService tutor, RagProperties rag, TutorProperties limits, PremiumAccess premium) {
+        this(tutor, rag, limits, premium, Clock.systemUTC());
     }
 
-    TutorChatService(RagTutorService tutor, RagProperties rag, TutorProperties limits, Clock clock) {
+    TutorChatService(RagTutorService tutor, RagProperties rag, TutorProperties limits, PremiumAccess premium, Clock clock) {
         this.tutor = tutor;
         this.rag = rag;
         this.limits = limits;
+        this.premium = premium;
         this.clock = clock;
         this.slots = new Semaphore(limits.maxConcurrent(), true);
     }
@@ -68,10 +78,21 @@ public class TutorChatService {
     private static final Duration DAY = Duration.ofDays(1);
     private final Map<Long, Deque<Instant>> aiFallbacks = new ConcurrentHashMap<>();
 
-    public record Status(boolean enabled, int maxQuestionChars) { }
+    public record Status(boolean enabled, int maxQuestionChars, Integer remainingToday) { }
 
-    public Status status() {
-        return new Status(rag.enabled(), limits.maxQuestionChars());
+    public Status status(Long userId) {
+        return new Status(rag.enabled(), limits.maxQuestionChars(), fullAccess(userId) ? null : remainingToday(userId));
+    }
+
+    private boolean fullAccess(Long userId) {
+        return userId != null && (ContentReviewAccess.allowed(userId) || premium.isActive(userId));
+    }
+
+    int remainingToday(Long userId) {
+        if (userId == null) return 0;
+        DailyQuestions used = dailyQuestions.get(userId);
+        LocalDate today = LocalDate.ofInstant(clock.instant(), VIETNAM);
+        return Math.max(0, limits.questionsPerDay() - (used != null && used.day().equals(today) ? used.count() : 0));
     }
 
     public Reply ask(long userId, String question, List<Message> history) {
@@ -158,7 +179,7 @@ public class TutorChatService {
         }
     }
 
-    private void takeHourlyQuota(long userId) {
+    void takeHourlyQuota(long userId) {
         Instant now = clock.instant();
         Deque<Instant> times = recent.computeIfAbsent(userId, id -> new ArrayDeque<>());
         synchronized (times) {
@@ -166,6 +187,16 @@ public class TutorChatService {
             if (times.size() >= limits.questionsPerHour()) {
                 throw new ApiException(ErrorCode.TOO_MANY_REQUESTS,
                         "Bạn đã hỏi " + limits.questionsPerHour() + " câu trong một giờ qua, nghỉ một chút rồi hỏi tiếp nhé.");
+            }
+            if (!fullAccess(userId)) {
+                LocalDate today = LocalDate.ofInstant(now, VIETNAM);
+                dailyQuestions.compute(userId, (id, used) -> {
+                    int count = used != null && used.day().equals(today) ? used.count() : 0;
+                    if (count >= limits.questionsPerDay())
+                        throw new ApiException(ErrorCode.TUTOR_DAILY_PREMIUM_REQUIRED,
+                                "Bạn đã hỏi đủ " + limits.questionsPerDay() + " câu miễn phí hôm nay. Nâng cấp Premium để hỏi tiếp.");
+                    return new DailyQuestions(today, count + 1);
+                });
             }
             times.addLast(now);
         }

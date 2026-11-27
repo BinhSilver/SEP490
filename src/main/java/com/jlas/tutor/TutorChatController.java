@@ -23,8 +23,8 @@ public class TutorChatController {
     private final TutorChatService tutor;
 
     @GetMapping("/status")
-    public ApiResponse<TutorChatService.Status> status() {
-        return ApiResponse.ok("Trạng thái gia sư", tutor.status());
+    public ApiResponse<TutorChatService.Status> status(@AuthenticationPrincipal UserPrincipal user) {
+        return ApiResponse.ok("Trạng thái gia sư", tutor.status(user == null ? null : user.userId()));
     }
 
     public record ChatRequest(String question, List<TutorChatService.Message> history) { }
@@ -62,7 +62,7 @@ public class TutorChatController {
                         request == null ? null : request.history(), delta -> send.accept(java.util.Map.of("delta", delta)));
                 send.accept(java.util.Map.of("done", true, "answer", reply.answer(), "sources", reply.sources(), "tier", reply.tier()));
             } catch (com.jlas.common.exception.ApiException e) {
-                send.accept(java.util.Map.of("error", e.getMessage()));
+                send.accept(java.util.Map.of("error", e.getMessage(), "code", e.getErrorCode().name()));
             } catch (java.io.UncheckedIOException e) {
                 // kết nối đã đóng, không còn ai để báo
             }
