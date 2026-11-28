@@ -1,4 +1,21 @@
 @import url("dark-palette.css?v=20261125-phase1");
+/* @import must stay the first rule of this file, or the browser drops it (and with it every --dark-* colour). */
+/* Klee One (the handwritten Japanese display face) has no Vietnamese letters, so text such as "vật ở gần người nói"
+   mixed two typefaces letter by letter and broke combining accents. Latin and Vietnamese characters in that face
+   come from the device's own sans-serif; kana and kanji still fall through to Klee One. */
+@font-face {
+  font-family: "JLAS Latin";
+  font-weight: 100 500;
+  src: local("Segoe UI"), local("SegoeUI"), local("Roboto"), local("Helvetica Neue"), local("HelveticaNeue"), local("Arial"), local("ArialMT");
+  unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF, U+2000-206F, U+20AB;
+}
+@font-face {
+  font-family: "JLAS Latin";
+  font-weight: 600 900;
+  src: local("Segoe UI Semibold"), local("SegoeUI-Semibold"), local("Roboto Medium"), local("Roboto-Medium"), local("Helvetica Neue Medium"), local("HelveticaNeue-Medium"), local("Arial Bold"), local("Arial-BoldMT");
+  unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF, U+2000-206F, U+20AB;
+}
+
 /* JLAS design tokens - Komorebi light palette (tím + xanh lá). */
 :root {
   color-scheme: light;
@@ -73,7 +90,7 @@
   --font-display: var(--font-body);
   --font-mono: var(--font-body);
   --font-jp: "Noto Sans JP", var(--font-body);
-  --font-jp-display: "Klee One", var(--font-jp);
+  --font-jp-display: "JLAS Latin", "Klee One", var(--font-jp);
   --font-size-base: 0.875rem;
   --font-weight-base: 400;
   --line-height-base: 1.25rem;
