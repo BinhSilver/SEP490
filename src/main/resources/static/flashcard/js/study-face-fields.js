@@ -97,7 +97,9 @@
 
   function text(card, fields, separator) {
     return normalize(fields).map(function (field) { return value(card, field); })
-      .filter(Boolean).join(separator == null ? '\n' : separator);
+      // Composed form (NFC): a meaning saved with separate accent marks ("gâ" + grave) otherwise shows the
+      // accent beside the letter instead of on it.
+      .filter(Boolean).join(separator == null ? '\n' : separator).normalize('NFC');
   }
 
   return { FIELDS: FIELDS, MAX_PER_FACE: MAX_PER_FACE, DEFAULTS: DEFAULTS, value: value, available: available,
