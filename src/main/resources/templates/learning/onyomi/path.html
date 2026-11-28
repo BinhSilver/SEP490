@@ -28,7 +28,6 @@
         <section th:each="stage : ${course.stages}" class="oy-stage" th:attr="aria-labelledby='stage-' + ${stage.unitId}">
             <header class="oy-stage__head">
                 <div>
-                    <span class="oy-eyebrow" th:text="'Giai đoạn ' + ${stage.order}">Giai đoạn 1</span>
                     <h2 th:id="'stage-' + ${stage.unitId}" th:text="${stage.title}">Âm đầu</h2>
                     <p th:text="${stage.description}">Mô tả</p>
                 </div>
