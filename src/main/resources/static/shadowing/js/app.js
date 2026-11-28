@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const playIcon = document.getElementById('play-icon');
     const translationToggleBtn = document.getElementById('translation-toggle-btn');
     const furiganaToggleBtn = document.getElementById('furigana-toggle-btn');
+    const subtitleToggleBtn = document.getElementById('subtitle-toggle-btn');
     const viewerJapanese = document.getElementById('viewer-japanese');
     const viewerTranslation = document.getElementById('viewer-translation');
     const speedToggleBtn = document.getElementById('speed-toggle-btn');
@@ -620,6 +621,25 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.classList.toggle('hide-furigana', !isFuriganaVisible);
         playerContainer.classList.toggle('show-furigana', isFuriganaVisible);
         fitSubtitleViewer();
+    });
+
+    // Live subtitle under the video: hidden to train listening; the choice is remembered on this device.
+    const SUBTITLE_KEY = 'jlas.shadowing.player.subtitleHidden';
+    function showLiveSubtitle(visible) {
+        playerContainer.classList.toggle('hide-live-subtitle', !visible);
+        if (!subtitleToggleBtn) return;
+        subtitleToggleBtn.classList.toggle('active', visible);
+        subtitleToggleBtn.setAttribute('aria-pressed', String(visible));
+        subtitleToggleBtn.title = visible ? 'Ẩn phụ đề' : 'Hiện phụ đề';
+    }
+    let subtitleHidden = false;
+    try { subtitleHidden = localStorage.getItem(SUBTITLE_KEY) === '1'; } catch (_) { /* Optional preference. */ }
+    showLiveSubtitle(!subtitleHidden);
+    subtitleToggleBtn?.addEventListener('click', () => {
+        subtitleHidden = !subtitleHidden;
+        showLiveSubtitle(!subtitleHidden);
+        try { localStorage.setItem(SUBTITLE_KEY, subtitleHidden ? '1' : '0'); } catch (_) { /* Optional preference. */ }
+        if (!subtitleHidden) fitSubtitleViewer();
     });
 
     translationToggleBtn.addEventListener('click', () => {

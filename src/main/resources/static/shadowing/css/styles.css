@@ -1718,6 +1718,21 @@ rt {
 #player-container.hide-translation .viewer-translation,
 #player-container.hide-translation .sub-tr { display: none !important; }
 
+/* "Phụ đề" off: the live subtitle under the video keeps its place, so nothing jumps, and says it is hidden. */
+#player-container.hide-live-subtitle #large-subtitle-viewer { position: relative; }
+#player-container.hide-live-subtitle #large-subtitle-viewer > * { visibility: hidden; }
+#player-container.hide-live-subtitle #large-subtitle-viewer::after {
+  content: 'Phụ đề đang ẩn · bấm "Phụ đề" để hiện lại';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  color: var(--color-on-surface-variant, #6b6478);
+  font-size: 14px;
+  text-align: center;
+}
+
 .dict-word {
     cursor: pointer;
     border-bottom: 1px dashed var(--color-primary);
