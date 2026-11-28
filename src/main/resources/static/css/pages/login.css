@@ -1256,3 +1256,36 @@ html[data-theme="dark"] .page-login #jlabBaseContent #submitBtn.needs-consent:ho
 .page-login .login-policy__actions .btn--primary:hover {
   background: var(--login-button-hover, var(--login-action-hover));
 }
+
+/* Terms as a sentence under the button (no tick box), each document opening the policy dialog. */
+.page-login .login-terms {
+  margin: 20px 0 0;
+  color: var(--login-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.page-login #jlabBaseContent .login-terms__link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--login-ink);
+  font: inherit;
+  /* The id in the selector beats the shared "#jlabBaseContent button { font-weight: 400 }". */
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.page-login .login-terms__link:hover {
+  color: var(--login-action);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.page-login .login-terms__link:focus-visible {
+  outline: 2px solid var(--login-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

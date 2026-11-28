@@ -43,15 +43,11 @@
   var emailInput = document.getElementById('email');
   var passwordInput = document.getElementById('password');
   var capsLockWarning = document.getElementById('capsLockWarning');
-  var consentInput = document.getElementById('loginConsent');
-  var policyLink = document.getElementById('loginPolicyLink');
+  // The terms are a line of text under the button: signing in (password or Google) means accepting them.
+  var policyLinks = Array.from(document.querySelectorAll('[data-login-policy]'));
   var policyDialog = document.getElementById('loginPolicyDialog');
-  var policyConsent = document.getElementById('loginPolicyConsent');
-  var policyAccept = document.getElementById('loginPolicyAccept');
   var googleSection = document.getElementById('googleSection');
   var googleContainer = document.getElementById('googleBtnContainer');
-  var consentError = document.getElementById('loginConsentError');
-  var consentRow = consentInput.closest('.login-consent');
   var FIELD_IDS = ['email', 'password'];
   var GOOGLE_LOAD_RETRIES = 20;
   var loginLockTimer = null;
@@ -70,56 +66,18 @@
 
   JLabAuth.setupPasswordToggles();
 
-  /** Pressing Đăng nhập or Google before agreeing says why nothing happens, next to the box to tick. */
-  function showConsentWarning() {
-    if (!consentError) return;
-    consentError.hidden = false;
-    consentRow.classList.remove('is-invalid');
-    void consentRow.offsetWidth; // restart the shake when pressed again
-    consentRow.classList.add('is-invalid');
-    consentInput.focus({ preventScroll: true });
-  }
-
+  /** Buttons are only held while a sign-in is running or the account is briefly locked. */
   function updateConsentState() {
-    // Not agreeing yet no longer disables the button: it still looks unavailable, and a press explains why.
     submitBtn.disabled = isLoginLocked() || loginInProgress;
-    submitBtn.classList.toggle('needs-consent', !consentInput.checked);
-    if (!submitBtn.classList.contains('is-rate-limited')) {
-      if (consentInput.checked) submitBtn.removeAttribute('aria-disabled');
-      else submitBtn.setAttribute('aria-disabled', 'true');
-    }
-    if (consentInput.checked && consentError) {
-      consentError.hidden = true;
-      consentRow.classList.remove('is-invalid');
-    }
-    consentInput.disabled = loginInProgress;
-    policyLink.disabled = loginInProgress;
+    policyLinks.forEach(function (link) { link.disabled = loginInProgress; });
     if (googleContainer) {
-      googleContainer.inert = !consentInput.checked || loginInProgress;
+      googleContainer.inert = loginInProgress;
       googleContainer.parentElement.setAttribute('aria-disabled', String(googleContainer.inert));
     }
   }
 
-  consentInput.addEventListener('change', updateConsentState);
-  // Google's real button is inert until the box is ticked, so a press lands on its wrapper.
-  if (googleContainer) {
-    googleContainer.parentElement.addEventListener('click', function () {
-      if (!consentInput.checked && !loginInProgress) showConsentWarning();
-    });
-  }
-  policyLink.addEventListener('click', function () {
-    policyConsent.checked = consentInput.checked;
-    policyAccept.disabled = !policyConsent.checked;
-    policyDialog.returnValue = '';
-    policyDialog.showModal();
-  });
-  policyConsent.addEventListener('change', function () {
-    policyAccept.disabled = !policyConsent.checked;
-  });
-  policyDialog.addEventListener('close', function () {
-    if (policyDialog.returnValue === 'accept') consentInput.checked = policyConsent.checked;
-    if (policyDialog.returnValue === 'decline') consentInput.checked = false;
-    updateConsentState();
+  policyLinks.forEach(function (link) {
+    link.addEventListener('click', function () { policyDialog.showModal(); });
   });
   window.addEventListener('pageshow', updateConsentState);
   updateConsentState();
@@ -299,7 +257,7 @@
     google.accounts.id.initialize({
       client_id: clientId,
       callback: function (response) {
-        if (!consentInput.checked || loginInProgress) return;
+        if (loginInProgress) return;
         if (response && response.credential) {
           return loginWithGoogleIdToken(response.credential);
         } else {
@@ -376,7 +334,6 @@
   form.addEventListener('submit', async function (event) {
     event.preventDefault();
     if (isLoginLocked() || submitBtn.disabled) return;
-    if (!consentInput.checked) { showConsentWarning(); return; }
     if (!validateForm()) return;
 
     loginInProgress = true;

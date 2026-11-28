@@ -59,15 +59,6 @@
                         </p>
                     </div>
 
-                    <div class="login-consent">
-                        <input id="loginConsent" type="checkbox" required autocomplete="off"
-                               aria-label="Đồng ý với Điều khoản sử dụng và Chính sách bảo mật">
-                        <span><button id="loginPolicyLink" type="button" class="login-consent__link"
-                                      aria-haspopup="dialog" aria-controls="loginPolicyDialog">Điều khoản sử dụng và Chính sách bảo mật</button></span>
-                        <!-- Shown when Đăng nhập or Google is pressed before agreeing; sits in the gap, so nothing moves. -->
-                        <p id="loginConsentError" class="login-consent__error" role="alert" hidden>Bạn cần đồng ý với Điều khoản để có thể đăng nhập.</p>
-                    </div>
-
                     <button id="submitBtn" type="submit" class="btn btn--primary btn--block" disabled>
                         <span class="btn__label">Đăng nhập</span>
                     </button>
@@ -87,6 +78,13 @@
                         <div id="googleBtnContainer" inert></div>
                     </div>
                 </div>
+                <!-- No tick box: signing in, by password or Google, means accepting the terms. Under both ways in. -->
+                <p class="login-terms">Bằng cách nhấn Đăng nhập<span
+                        th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}"> hoặc Đăng nhập bằng Google</span>, bạn chấp nhận
+                    <button type="button" class="login-terms__link" data-login-policy aria-haspopup="dialog"
+                            aria-controls="loginPolicyDialog">Điều khoản sử dụng</button> và
+                    <button type="button" class="login-terms__link" data-login-policy aria-haspopup="dialog"
+                            aria-controls="loginPolicyDialog">Chính sách bảo mật</button> của KotsuKotsu.</p>
             </div>
         </section>
 
@@ -103,7 +101,7 @@
         <h2 id="loginPolicyTitle" tabindex="-1" autofocus>ĐIỀU KHOẢN SỬ DỤNG VÀ CHÍNH SÁCH BẢO MẬT</h2>
     </header>
     <div class="login-policy__body" tabindex="0" role="region" aria-label="Nội dung chính sách">
-        <p>Chào mừng bạn đến với Kotsukotsu, nền tảng học tiếng Nhật trực tuyến. Vui lòng đọc kỹ các điều khoản dưới đây và bấm "Tôi đồng ý" để bắt đầu học.</p>
+        <p>Chào mừng bạn đến với Kotsukotsu, nền tảng học tiếng Nhật trực tuyến. Vui lòng đọc kỹ các điều khoản dưới đây. Khi đăng nhập, bạn đồng ý với các điều khoản này.</p>
         <section>
             <h3>1. Tài khoản</h3>
             <ul>
@@ -169,11 +167,7 @@
         <p>Liên hệ hỗ trợ: <a href="mailto:kotsukotsusupport@gmail.com">kotsukotsusupport@gmail.com</a></p>
     </div>
     <form method="dialog" class="login-policy__actions">
-        <label class="login-policy__consent"><input id="loginPolicyConsent" type="checkbox" autocomplete="off">
-            <span>Tôi đã đọc và đồng ý với Điều khoản sử dụng và Chính sách bảo mật của Kotsukotsu.</span>
-        </label>
-        <button type="submit" class="btn btn--secondary" value="decline">Từ chối</button>
-        <button id="loginPolicyAccept" type="submit" class="btn btn--primary" value="accept" disabled>Tôi đồng ý</button>
+        <button type="submit" class="btn btn--primary" value="close">Đóng</button>
     </form>
 </dialog>
 
@@ -182,6 +176,6 @@
 <script th:src="@{/js/pages/auth-common.js}"></script>
 <script th:if="${googleClientId != null and !#strings.isEmpty(googleClientId) and !#strings.contains(googleClientId, 'your-google-client-id')}"
         src="https://accounts.google.com/gsi/client" async defer></script>
-<script th:src="@{/js/pages/login.js(v='20261126-consent-warn')}"></script>
+<script th:src="@{/js/pages/login.js(v='20261128-terms-text')}"></script>
 </body>
 </html>
