@@ -173,35 +173,8 @@
 
   function finishLogin(data) {
     JLabAuth.saveSession(data);
-    if (window.matchMedia('(max-width: 900px)').matches) {
-      window.location.replace(loginRedirectTarget());
-      return;
-    }
-
-    var seconds = 3;
-    var getMessage = function (sec) {
-      return 'Đăng nhập thành công! Tự động chuyển hướng sau ' + sec + 's...';
-    };
-
-    var formatMessage = function (sec) {
-      return getMessage(sec).replace('! ', '!\n');
-    };
-
-    var toastEl = JlasUI.toast(formatMessage(seconds), 'success');
-    if (toastEl) toastEl.classList.add('toast--login-progress');
-    var textSpan = toastEl ? toastEl.querySelector('span:nth-child(2)') : null;
-
-    var timer = setInterval(function () {
-      seconds--;
-      if (seconds > 0) {
-        if (textSpan) {
-          textSpan.textContent = formatMessage(seconds);
-        }
-      } else {
-        clearInterval(timer);
-        window.location.href = JLabAuth.getSafeRedirect();
-      }
-    }, 1000);
+    // Straight in on every screen size; replace() keeps /login out of history, so Back does not return here.
+    window.location.replace(loginRedirectTarget());
   }
 
   async function loginWithGoogleIdToken(idToken) {
