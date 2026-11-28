@@ -168,8 +168,21 @@ public class CpathCoreService {
     }
 
     private Map<String, Object> mainPath(Long userId) {
-        List<Map<String, Object>> rows = db.queryForList("SELECT * FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' "
-                + "AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1", userId);
+        String goal = com.jlas.mypaths.MyPathsGoalFilter.currentGoal();
+        if (goal != null) {
+            List<Map<String, Object>> own = db.queryForList("SELECT * FROM cpath_user_path WHERE user_id = ? AND goal_code = ? "
+                    + "AND status = 'ACTIVE' ORDER BY role = 'MAIN' DESC, id DESC LIMIT 1", userId, goal);
+            if (!own.isEmpty()) return own.get(0);
+        }
+        List<Map<String, Object>> rows;
+        try {
+            rows = db.queryForList("SELECT * FROM cpath_user_path WHERE user_id = ? AND status = 'ACTIVE' "
+                    + "ORDER BY EXISTS (SELECT 1 FROM cpath_user_goal_test gt WHERE gt.path_id = cpath_user_path.id AND gt.passed = TRUE) ASC, "
+                    + "role = 'MAIN' DESC, id DESC LIMIT 1", userId);
+        } catch (DataAccessException e) {
+            rows = db.queryForList("SELECT * FROM cpath_user_path WHERE user_id = ? AND role = 'MAIN' "
+                    + "AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1", userId);
+        }
         if (rows.isEmpty()) throw new ApiException(ErrorCode.NOT_FOUND, "Bạn chưa có lộ trình giao tiếp.");
         return rows.get(0);
     }

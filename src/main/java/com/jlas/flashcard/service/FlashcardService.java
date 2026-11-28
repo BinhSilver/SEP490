@@ -26,7 +26,8 @@ public interface FlashcardService {
     List<EnrichResponse> enrichBatch(List<String> terms); CardDto enrichCard(Long cardId, Long userId);
     List<CardDto> enrichCards(BatchHanVietRequest request, Long userId);
     StudySessionDto study(Long setId, String mode, Long userId); StudySummaryDto review(ReviewRequest request, Long userId);
-    StudySummaryDto summary(Long setId, Long userId); StudySummaryDto complete(Long setId, Long userId); StudySummaryDto reset(Long setId, Long userId);
+    StudySummaryDto summary(Long setId, Long userId); StudySummaryDto complete(Long setId, Long userId);
+    StudySummaryDto complete(Long setId, String mode, Long userId); StudySummaryDto reset(Long setId, Long userId);
     Long startQuiz(StartQuizRequest request, Long userId); QuizQuestionDto nextQuiz(Long sessionId, Long userId);
     AnswerResultDto answer(AnswerRequest request, Long userId); QuizSummaryDto finishQuiz(Long sessionId, Long userId);
     PageResponse<CommentDto> comments(Long setId, int page, int size, Long userId);

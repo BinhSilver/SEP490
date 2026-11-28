@@ -9,7 +9,8 @@
 <div id="jlabBaseShellMount"></div>
 <main id="jlabBaseContent" class="jp-page jp-confirm" data-inline-dictionary data-jpath-confirm
       th:attr="data-source=${source},data-attempt-id=${assessmentAttemptId}">
-    <th:block th:replace="~{jlptpath/fragments/jpath :: crumbs('Tạo lộ trình')}"></th:block>
+    <th:block th:replace="~{jlptpath/fragments/jpath :: back('Lộ trình của tôi', '/learning/my')}"></th:block>
+    <!-- QA 27/11 A1: /learning?view=jlpt sends a learner without a path back here, so "Quay về" looped -->
     <header class="jp-confirm__header">
         <div class="jp-confirm__head-text">
             <h1 class="jp-confirm__title">Xác nhận lộ trình JLPT</h1>

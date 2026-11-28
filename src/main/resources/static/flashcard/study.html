@@ -17,10 +17,10 @@
   <link rel="stylesheet" href="/css/components/inputs.css" />
   <link rel="stylesheet" href="/css/components/forms.css" />
   <link rel="stylesheet" href="/css/components/toast.css" />
-  <link rel="stylesheet" href="/flashcard/styles.css?v=20261123-ui" />
-  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261123-ui" />
+  <link rel="stylesheet" href="/flashcard/styles.css?v=20261126-rem" />
+  <link rel="stylesheet" href="/flashcard/flashcard-ui.css?v=20261126-rem" />
   <link rel="icon" href="/images/jlab.png" type="image/png" />
-  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20261126-guide-meta" />
+  <link rel="stylesheet" href="/flashcard/study-theme.css?v=20261126-rem" />
   <link rel="stylesheet" href="/flashcard/stitch-learning-skin.css?v=20261116-quiz-fill" />
   <link rel="stylesheet" href="/css/jlab-base-shell.css?v=20261125-largescreen" />
     <link rel="stylesheet" href="/css/owned-mobile.css?v=20261009-compact-2">
@@ -69,6 +69,7 @@
             </button>
           </div>
         </section>
+        <p class="study-path-required" id="study-path-required" hidden role="note">Bộ thẻ này thuộc lộ trình học. Hãy hoàn tất chế độ Ghi nhớ để ghi nhận tiến độ.</p>
         <nav class="study-mode-nav" id="study-mode-nav" aria-label="Chế độ học">
           <button type="button" class="study-mode-tab" data-study-mode="BROWSE"><i class="fa-solid fa-clone"></i> Lướt thẻ</button>
           <button type="button" class="study-mode-tab" data-study-mode="RECALL"><i class="fa-solid fa-brain"></i> Ghi nhớ</button>
@@ -181,6 +182,8 @@
         </section>
 
         <section id="study-complete" class="study-complete" hidden>
+          <p class="study-path-complete-status" id="study-path-complete-status" hidden role="status"></p>
+          <button type="button" class="btn btn--secondary" id="btn-retry-path-complete" hidden>Thử lưu lại</button>
           <div class="complete-grid">
             <div class="complete-col complete-col--progress card">
               <!-- Danh ngôn JP — cùng box Tiến độ, phía trên -->

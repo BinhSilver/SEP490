@@ -375,7 +375,11 @@
         if (token) navigate(checkUrl(token, o.returnTo));
       }, function (e) {
         if (btn) btn.disabled = false;
-        showError(handle.el, 'quiz-error', messageOf(e));
+        // QA 27/11 B1: a bare "chưa sẵn sàng" left the learner guessing; say which choice to change
+        var none = e && (e.status === 409 || e.code === 'JPATH_CONTENT_NOT_LEARNABLE');
+        showError(handle.el, 'quiz-error', none && values.source === 'LEARNED'
+          ? 'Bạn chưa học mục nào ở đây. Chọn nguồn "Tất cả" để luyện ngay.'
+          : none && values.source === 'NOTEBOOK' ? 'Sổ tay chưa có mục nào. Chọn nguồn "Tất cả" để luyện ngay.' : messageOf(e));
       });
     });
     return handle;

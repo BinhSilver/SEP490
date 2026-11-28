@@ -407,7 +407,7 @@
     var list = base.querySelectorAll('.jp-band, [role="note"]');
     for (var i = 0; i < list.length; i++) {
       var el = list[i];
-      if (el.hasAttribute('data-notice-ready') || el.closest('[role="alert"], .jp-alert, [data-notice-keep]')) continue;
+      if (el.hasAttribute('data-notice-ready') || el.closest('[role="alert"], .jp-alert, [data-notice-keep], .cp-path-readonly, [data-learning-pace]')) continue;
       if (!(el.textContent || '').trim()) continue;
       el.setAttribute('data-notice-ready', '');
       var id = idOf(el);

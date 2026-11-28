@@ -296,6 +296,11 @@
         if (root.CpathAudio) root.CpathAudio.fromDisplay(data.display);
         render();
       }).catch(function (e) {
+        // QA 27/11 G1: a Free account got 403 and the skeleton stayed; say it is a Premium part
+        if (e && (e.status === 403 || e.code === 'CPATH_PREMIUM_REQUIRED')) { el.innerHTML = '<section class="jp-premium-box" role="note"><img src="/images/mascots/kitsu/kitsu-announcing.webp" alt="" width="56" height="56">'
+          + '<div><p class="jp-premium-box__title">Phần này dành cho tài khoản Premium</p>'
+          + '<p class="jp-premium-box__text">Nâng cấp Premium để luyện phần này, hoặc quay về lộ trình để học tiếp.</p></div>'
+          + '<a class="jp-btn jp-btn--primary" href="/premium">Nâng cấp Premium</a> <a class="jp-btn" href="/learning?view=comm">Về lộ trình</a></section>'; return; }
         el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(e && (e.code || e.status) && e.message || 'Chưa tải được trò chơi.') + '</p>';
       });
     }

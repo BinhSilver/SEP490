@@ -343,6 +343,12 @@
     if (k > 0) parts.push(k + ' kanji');
     if (g > 0) parts.push(g + ' mẫu');
     var line = parts.length ? ('Hôm nay học ' + parts.join(' · ')) : 'Hôm nay ôn tập các mục đến hạn';
+    // owner 27/11: levelled up today — today's counts belong to the old level, the map already shows the new one
+    if (t && t.planLevel && t.openLevel && t.planLevel !== t.openLevel) {
+      line = (parts.length ? 'Hôm nay đã học ' + parts.join(' · ') + ' ở ' + t.planLevel : 'Hôm nay đã ôn ở ' + t.planLevel)
+        + '. ' + t.openLevel + ' bắt đầu từ ngày mai, muốn học trước thì vào Tự chọn bài.';
+      return line;
+    }
     var mins = num(t && t.estimatedMinutes);
     if (mins > 0) line += ', ' + minutesWords(t, mins);
     return line;

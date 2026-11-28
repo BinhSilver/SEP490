@@ -24,12 +24,12 @@
   --font-headline: var(--font-body);
   font-family: var(--font-body);
   min-height: calc(100dvh - var(--header-height));
-  padding: 28px 0 72px;
+  padding: 1.75rem 0 4.5rem;
   color: var(--color-on-surface);
 }
 
 .oy-shell {
-  width: min(1120px, calc(100% - 32px));
+  width: min(70rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
@@ -70,7 +70,7 @@
 
 .oy-panel {
   background: var(--oy-paper);
-  border: 1px solid var(--oy-line);
+  border: 0.0625rem solid var(--oy-line);
   border-radius: var(--oy-radius);
   box-shadow: var(--shadow-1);
 }
@@ -80,9 +80,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 44px;
-  padding: 10px 20px;
-  border: 1px solid var(--oy-line);
+  min-height: 2.75rem;
+  padding: 0.625rem 1.25rem;
+  border: 0.0625rem solid var(--oy-line);
   border-radius: var(--radius-full);
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
@@ -123,8 +123,8 @@
 .oy-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
   border-radius: var(--radius-full);
   background: var(--color-surface-mid);
   color: var(--oy-muted);
@@ -146,8 +146,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-5);
-  padding: 12px 16px;
-  border: 1px solid var(--color-tertiary-fixed-dim);
+  padding: 0.75rem 1rem;
+  border: 0.0625rem solid var(--color-tertiary-fixed-dim);
   border-radius: var(--radius-lg);
   background: var(--oy-gold-soft);
   color: var(--color-on-tertiary-container);
@@ -155,7 +155,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-progress {
-  height: 8px;
+  height: 0.5rem;
   overflow: hidden;
   border-radius: var(--radius-full);
   background: var(--color-surface-high);
@@ -173,14 +173,14 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 1.875rem;
+  height: 1.875rem;
   padding: 0;
-  border: 1px solid var(--oy-line);
+  border: 0.0625rem solid var(--oy-line);
   border-radius: 50%;
   background: transparent;
   color: var(--oy-accent);
-  font-size: 12px;
+  font-size: 0.75rem;
   cursor: pointer;
 }
 
@@ -191,7 +191,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-section {
   margin-bottom: var(--space-7);
-  scroll-margin-top: calc(var(--header-height) + 16px);
+  scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
 .oy-section__head {
@@ -199,7 +199,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-section__head h2 {
-  margin: 0 0 4px;
+  margin: 0 0 0.25rem;
   font-family: var(--font-headline);
   font-size: var(--text-3xl);
   font-weight: 400;
@@ -223,11 +223,11 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   gap: var(--space-3);
   margin-bottom: var(--space-5);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--oy-line);
+  border-bottom: 0.0625rem solid var(--oy-line);
 }
 
 .oy-stage__head h2 {
-  margin: 4px 0;
+  margin: 0.25rem 0;
   font-family: var(--font-headline);
   font-size: var(--text-3xl);
   font-weight: 400;
@@ -238,14 +238,14 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   color: var(--oy-muted);
 }
 
-/* Only phones fold stages; see the 640px block below. */
+/* Only phones fold stages; see the 40rem block below. */
 .oy-stage__toggle {
   display: none;
 }
 
 .oy-lesson-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(15.625rem, 1fr));
   gap: var(--space-5);
   margin: 0;
   padding: 0;
@@ -268,7 +268,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 /* The lesson to study next: the one card on the path that carries the accent. */
 .oy-lesson-card.is-current {
   border-color: var(--oy-accent);
-  box-shadow: inset 0 0 0 1px var(--oy-accent), var(--shadow-1);
+  box-shadow: inset 0 0 0 0.0625rem var(--oy-accent), var(--shadow-1);
 }
 
 .oy-lesson-card.is-locked {
@@ -312,8 +312,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-sounds li {
-  padding: 4px 8px;
-  border: 1px solid var(--oy-line);
+  padding: 0.25rem 0.5rem;
+  border: 0.0625rem solid var(--oy-line);
   border-radius: var(--radius-sm);
   background: var(--color-surface-low);
   color: var(--color-on-surface);
@@ -391,7 +391,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-final-card h3 {
-  margin: 0 0 4px;
+  margin: 0 0 0.25rem;
   font-size: var(--text-lg);
   font-weight: 600;
 }
@@ -405,15 +405,15 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 /* ── Lesson ────────────────────────────────────────────────────────────── */
 .oy-lesson-layout {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: 15rem minmax(0, 1fr);
   gap: var(--space-6);
-  width: min(1180px, calc(100% - 32px));
+  width: min(73.75rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
 .oy-sidebar {
   position: sticky;
-  top: calc(var(--header-height) + 16px);
+  top: calc(var(--header-height) + 1rem);
   align-self: start;
   display: flex;
   flex-direction: column;
@@ -430,7 +430,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-sidebar nav ul {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.125rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -439,8 +439,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-sidebar nav a {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
   border-radius: var(--radius-md);
   color: var(--oy-muted);
   font-size: var(--text-sm);
@@ -456,7 +456,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 /* The other two links scroll within the page; practice opens its own page, so it reads as the action. */
 .oy-sidebar nav a.oy-sidebar__practice {
-  margin-top: 6px;
+  margin-top: 0.375rem;
   background: var(--oy-accent);
   color: var(--color-on-primary);
   box-shadow: none;
@@ -468,8 +468,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-sidebar nav a.oy-sidebar__practice:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
+  outline: 0.1875rem solid var(--color-focus);
+  outline-offset: 0.125rem;
 }
 
 .oy-sidebar__go {
@@ -486,7 +486,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-lesson-hero {
   margin-bottom: var(--space-7);
-  padding: clamp(24px, 4vw, 40px);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
 }
 
 .oy-lesson-hero h1 {
@@ -500,7 +500,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-lesson-hero p {
   margin: 0 0 var(--space-4);
   color: var(--oy-muted);
-  max-width: 640px;
+  max-width: 40rem;
 }
 
 .oy-facts {
@@ -518,7 +518,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-facts li {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .oy-facts i {
@@ -536,7 +536,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-5) var(--space-6);
-  padding: clamp(20px, 3vw, 32px);
+  padding: clamp(1.25rem, 3vw, 2rem);
 }
 
 .oy-rule__map {
@@ -550,8 +550,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 72px;
-  padding: 10px 14px;
+  min-width: 4.5rem;
+  padding: 0.625rem 0.875rem;
   border-radius: var(--radius-lg);
   background: var(--color-surface-low);
 }
@@ -596,7 +596,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-steps li {
   position: relative;
-  padding-left: 36px;
+  padding-left: 2.25rem;
   font-size: var(--text-sm);
   line-height: 1.55;
   counter-increment: oy-step;
@@ -609,12 +609,12 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   left: 0;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 50%;
   background: var(--oy-accent-soft);
   color: var(--oy-accent);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 
@@ -623,8 +623,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-tip {
-  padding: 12px 16px;
-  border: 1px solid var(--oy-gold);
+  padding: 0.75rem 1rem;
+  border: 0.0625rem solid var(--oy-gold);
   border-radius: var(--radius-sm);
   background: var(--oy-gold-soft);
   font-size: var(--text-sm);
@@ -645,7 +645,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-examples {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
   margin: 0 0 var(--space-4);
   padding: 0;
   list-style: none;
@@ -653,10 +653,10 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-example {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto 30px;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto 1.875rem;
   align-items: center;
   gap: var(--space-3);
-  padding: 8px 12px;
+  padding: 0.5rem 0.75rem;
   border-radius: var(--radius-md);
   background: var(--color-surface-low);
 }
@@ -702,7 +702,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-rule__link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   color: var(--oy-accent);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -715,7 +715,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
-  max-width: 460px;
+  max-width: 28.75rem;
   margin: 0 auto;
 }
 
@@ -737,13 +737,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-card__flip {
   display: block;
   width: 100%;
-  height: 320px;
+  height: 20rem;
   padding: 0;
   border: 0;
   background: none;
   color: inherit;
   font: inherit;
-  perspective: 1200px;
+  perspective: 75rem;
   cursor: pointer;
 }
 
@@ -768,8 +768,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 24px;
+  gap: 0.5rem;
+  padding: 1.5rem;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   text-align: center;
@@ -782,8 +782,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-card__label {
   position: absolute;
-  top: 16px;
-  left: 20px;
+  top: 1rem;
+  left: 1.25rem;
   color: var(--oy-muted);
   font-size: var(--text-xs);
   font-weight: 500;
@@ -817,7 +817,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-card__hint {
   position: absolute;
-  bottom: 14px;
+  bottom: 0.875rem;
   color: var(--oy-muted);
   font-size: var(--text-xs);
 }
@@ -829,12 +829,12 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-cards__controls .oy-button {
-  min-width: 64px;
-  padding: 0 8px;
+  min-width: 4rem;
+  padding: 0 0.5rem;
 }
 
 .oy-cards__counter {
-  min-width: 64px;
+  min-width: 4rem;
   color: var(--oy-muted);
   font-weight: 500;
   text-align: center;
@@ -851,7 +851,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 /* ── Practice page ─────────────────────────────────────────────────────── */
 .oy-practice {
-  width: min(840px, calc(100% - 32px));
+  width: min(52.5rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
@@ -879,18 +879,18 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 /* ── Quiz runner ───────────────────────────────────────────────────────── */
 .oy-quiz {
   container-type: inline-size;
-  max-width: 620px;
+  max-width: 38.75rem;
   margin: 0 auto;
 }
 
 /* while answering, the question list sits in its own column on the right */
 .oy-quiz.is-running {
-  max-width: 840px;
+  max-width: 52.5rem;
 }
 
 .oy-quiz__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 188px;
+  grid-template-columns: minmax(0, 1fr) 11.75rem;
   gap: var(--space-4);
 }
 
@@ -898,7 +898,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-quiz__card,
 .oy-quiz__result,
 .oy-quiz__state {
-  padding: clamp(22px, 4vw, 36px);
+  padding: clamp(1.375rem, 4vw, 2.25rem);
 }
 
 .oy-quiz__intro {
@@ -958,10 +958,10 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-quiz__option {
-  min-height: 56px;
-  padding: 12px 16px;
-  border: 2px solid var(--oy-line);
-  border-radius: 16px;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem;
+  border: 0.125rem solid var(--oy-line);
+  border-radius: 1rem;
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
   font-family: var(--oy-jp);
@@ -999,10 +999,10 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-quiz__input {
   flex: 1;
-  min-height: 52px;
-  padding: 10px 16px;
-  border: 2px solid var(--oy-line);
-  border-radius: 16px;
+  min-height: 3.25rem;
+  padding: 0.625rem 1rem;
+  border: 0.125rem solid var(--oy-line);
+  border-radius: 1rem;
   background: var(--color-surface-lowest);
   font-family: var(--oy-jp);
   font-size: var(--text-lg);
@@ -1027,7 +1027,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   flex: 1 0 auto;
   margin-top: var(--space-4);
   padding: var(--space-4);
-  border-radius: 16px;
+  border-radius: 1rem;
 }
 
 /* before the answer: where the explanation will appear */
@@ -1036,8 +1036,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 72px;
-  border: 1.5px dashed var(--oy-line);
+  min-height: 4.5rem;
+  border: 0.0938rem dashed var(--oy-line);
   color: var(--oy-muted);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -1048,7 +1048,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-quiz__feedback.is-wrong { background: var(--oy-bad-soft); }
 
 .oy-quiz__feedback h4 {
-  margin: 0 0 6px;
+  margin: 0 0 0.375rem;
   font-size: var(--text-md);
 }
 
@@ -1071,12 +1071,12 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 /* the question list: one number per question, back / forward, then what is left or the results button */
 .oy-quiz__side {
   position: sticky;
-  top: calc(var(--header-height) + 16px);
+  top: calc(var(--header-height) + 1rem);
   align-self: start;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 18px;
+  padding: 1.125rem;
 }
 
 .oy-quiz__side-title {
@@ -1089,9 +1089,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-quiz__steps {
   display: grid;
-  grid-template-columns: repeat(4, 32px);
+  grid-template-columns: repeat(4, 2rem);
   justify-content: space-between;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .oy-quiz__nav {
@@ -1099,18 +1099,18 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   flex-direction: column;
   gap: var(--space-2);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--oy-line);
+  border-top: 0.0625rem solid var(--oy-line);
 }
 
 .oy-quiz__nav .oy-button,
 .oy-quiz__finish {
   width: 100%;
-  padding-inline: 12px;
+  padding-inline: 0.75rem;
 }
 
 /* "Làm lại" stays quieter than back / forward: it throws the attempt away */
 .oy-quiz__nav .oy-quiz__restart {
-  min-height: 40px;
+  min-height: 2.5rem;
   border-color: transparent;
   background: transparent;
   color: var(--oy-muted);
@@ -1126,7 +1126,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-3);
-  border-radius: 14px;
+  border-radius: 0.875rem;
   background: var(--oy-accent-soft);
 }
 
@@ -1149,30 +1149,30 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
  * goals and Kana Connect demo panels in goals-mission.css, which these pages do not load. */
 .mission-demo {
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  right: 1rem;
+  bottom: 1rem;
   z-index: 1450;
-  width: min(300px, calc(100vw - 32px));
-  border-radius: 16px;
+  width: min(18.75rem, calc(100vw - 2rem));
+  border-radius: 1rem;
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
   box-shadow: var(--shadow-2);
   font-size: var(--text-sm);
 }
 .mission-demo summary {
-  padding: 12px 14px;
+  padding: 0.75rem 0.875rem;
   cursor: pointer;
   font-weight: 500;
   list-style: none;
 }
 .mission-demo summary::-webkit-details-marker { display: none; }
-.mission-demo__body { display: grid; gap: 8px; max-height: min(70vh, 560px); overflow-y: auto; padding: 0 14px 14px; }
-.mission-demo__group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.mission-demo__label { margin-top: 4px; color: var(--color-on-surface-variant); font-size: var(--text-xs); text-transform: none; }
+.mission-demo__body { display: grid; gap: 0.5rem; max-height: min(70vh, 35rem); overflow-y: auto; padding: 0 0.875rem 0.875rem; }
+.mission-demo__group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.375rem; }
+.mission-demo__label { margin-top: 0.25rem; color: var(--color-on-surface-variant); font-size: var(--text-xs); text-transform: none; }
 .mission-demo button {
-  padding: 8px 10px;
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 10px;
+  padding: 0.5rem 0.625rem;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 0.625rem;
   background: transparent;
   color: var(--color-on-surface);
   cursor: pointer;
@@ -1184,11 +1184,11 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .mission-demo__status { color: var(--color-on-surface-variant); font-size: var(--text-xs); }
 .mission-demo:not([open]) { width: auto; }
 /* phones: above the bottom navigation bar */
-@media (max-width: 640px) {
-  .mission-demo { bottom: calc(84px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 180px); overflow-y: auto; }
+@media (max-width: 40rem) {
+  .mission-demo { bottom: calc(5.25rem + env(safe-area-inset-bottom)); max-height: calc(100dvh - 11.25rem); overflow-y: auto; }
 }
 
-/* Only phones use the question-list popup and the results button under the question; see the 640px block. */
+/* Only phones use the question-list popup and the results button under the question; see the 40rem block. */
 .oy-quiz__popup-open,
 .oy-quiz__popup-close,
 .oy-quiz__backdrop,
@@ -1198,7 +1198,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 /* too narrow for two columns: the list goes under the question, ten numbers per row */
-@container (max-width: 620px) {
+@container (max-width: 38.75rem) {
   .oy-quiz__layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1211,8 +1211,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 6px;
-    max-width: calc(10 * 32px + 9 * 6px);
+    gap: 0.375rem;
+    max-width: calc(10 * 2rem + 9 * 0.375rem);
     margin-inline: auto;
   }
 
@@ -1245,11 +1245,11 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-quiz__step {
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
-  border: 1px solid var(--oy-line);
-  border-radius: 10px;
+  border: 0.0625rem solid var(--oy-line);
+  border-radius: 0.625rem;
   background: var(--color-surface-lowest);
   color: var(--oy-muted);
   font-family: inherit;
@@ -1278,12 +1278,12 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-quiz__step[aria-current="step"] {
   border-color: var(--oy-accent);
-  box-shadow: 0 0 0 1px var(--oy-accent);
+  box-shadow: 0 0 0 0.0625rem var(--oy-accent);
 }
 
 .oy-quiz__step:focus-visible {
-  outline: 2px solid var(--oy-accent);
-  outline-offset: 2px;
+  outline: 0.125rem solid var(--oy-accent);
+  outline-offset: 0.125rem;
 }
 
 .oy-quiz__result {
@@ -1325,14 +1325,14 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-quiz__review li {
   padding: var(--space-3) 0;
-  border-top: 1px solid var(--oy-line);
+  border-top: 0.0625rem solid var(--oy-line);
   font-size: var(--text-sm);
   line-height: 1.55;
 }
 
 .oy-quiz__review strong {
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 0.125rem;
 }
 
 .oy-quiz__state {
@@ -1342,9 +1342,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-spinner {
   display: inline-block;
-  width: 22px;
-  height: 22px;
-  border: 3px solid var(--oy-accent-soft);
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 0.1875rem solid var(--oy-accent-soft);
   border-top-color: var(--oy-accent);
   border-radius: 50%;
   animation: oy-spin 0.8s linear infinite;
@@ -1357,7 +1357,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 /* ── Rule and final pages ──────────────────────────────────────────────── */
 .oy-narrow {
-  width: min(900px, calc(100% - 32px));
+  width: min(56.25rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
@@ -1373,8 +1373,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-table th,
 .oy-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--oy-line);
+  padding: 0.625rem 0.75rem;
+  border-bottom: 0.0625rem solid var(--oy-line);
   text-align: left;
   vertical-align: middle;
 }
@@ -1391,13 +1391,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-final-box {
-  padding: clamp(24px, 4vw, 40px);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
 }
 
 /* Header and quiz share the box: a rule between them instead of two separate panels. */
 .oy-final-hero {
   padding-bottom: var(--space-5);
-  border-bottom: 1px solid var(--oy-line);
+  border-bottom: 0.0625rem solid var(--oy-line);
 }
 
 /* Start area under the stage header; the test itself runs on /final/test. */
@@ -1413,7 +1413,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-final-start p {
   margin: 0 auto var(--space-4);
-  max-width: 520px;
+  max-width: 32.5rem;
   color: var(--oy-muted);
 }
 
@@ -1459,13 +1459,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
-@media (min-width: 961px) {
+@media (min-width: 60.0625rem) {
   .oy-section--phone-practice {
     display: none;
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 60rem) {
   .oy-lesson-layout {
     grid-template-columns: 1fr;
   }
@@ -1480,7 +1480,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 /* Phones: each stage is a folded row; tapping anywhere on its header shows its lessons. */
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .oy-stage {
     margin-bottom: var(--space-4);
   }
@@ -1488,7 +1488,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   .oy-stage__head {
     position: relative;
     margin-bottom: 0;
-    padding-right: 40px;
+    padding-right: 2.5rem;
   }
 
   .oy-stage.is-open .oy-stage__head {
@@ -1550,7 +1550,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   .oy-quiz__popup-open {
     display: inline-flex;
     flex: none;
-    width: 44px;
+    width: 2.75rem;
     padding: 0;
     color: var(--oy-accent);
   }
@@ -1567,9 +1567,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   }
 
   .oy-quiz__next--page {
-    gap: 8px;
-    min-height: 48px;
-    padding-inline: 22px;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding-inline: 1.375rem;
   }
 
   .oy-quiz__backdrop.is-open {
@@ -1590,8 +1590,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
     left: 50%;
     z-index: 2001;
     display: flex;
-    width: min(340px, calc(100vw - 32px));
-    max-height: calc(100dvh - 48px);
+    width: min(21.25rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 3rem);
     padding: var(--space-4);
     overflow-y: auto;
     background: var(--color-surface-lowest);
@@ -1604,13 +1604,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
   .oy-quiz__popup-close {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 0.25rem;
+    right: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
     border: 0;
     border-radius: var(--radius-full);
     background: transparent;
@@ -1620,8 +1620,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   }
 
   .oy-quiz__side--popup .oy-quiz__side-title {
-    line-height: 20px;
-    padding-right: 40px;
+    line-height: 1.25rem;
+    padding-right: 2.5rem;
   }
 
   .oy-quiz__side--popup .oy-quiz__steps {
@@ -1630,7 +1630,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
   .oy-quiz__side--popup .oy-quiz__step {
     width: 100%;
-    height: 44px;
+    height: 2.75rem;
   }
 
   .oy-quiz__side--popup .oy-quiz__nav {
@@ -1641,7 +1641,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   .oy-quiz__side--popup .oy-quiz__nav .oy-button {
     flex: 1 1 0;
     width: auto;
-    min-height: 44px;
+    min-height: 2.75rem;
     padding-inline: 0;
   }
 
@@ -1660,18 +1660,18 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 @keyframes oy-stage-open {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-0.5rem);
   }
 }
 
 @keyframes oy-quiz-popup-open {
   from {
     opacity: 0;
-    transform: translate(-50%, calc(-50% + 12px));
+    transform: translate(-50%, calc(-50% + 0.75rem));
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 35rem) {
   .oy-quiz__options {
     grid-template-columns: 1fr;
   }
@@ -1681,29 +1681,29 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   }
 
   .oy-example {
-    grid-template-columns: 36px minmax(0, 1fr) auto 30px;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto 1.875rem;
     gap: var(--space-2);
   }
 
   .oy-card__flip {
-    height: 280px;
+    height: 17.5rem;
   }
 }
 
 
 /* ── Stage final test page (exam mode; design: stitch_j_las_onyomi_stage_assessment) ─────────────── */
 .oy-exam {
-  padding: 0 0 72px;
+  padding: 0 0 4.5rem;
 }
 
 .oy-exam__bar {
   background: var(--color-surface-low);
-  border-bottom: 1px solid var(--oy-line);
+  border-bottom: 0.0625rem solid var(--oy-line);
 }
 
 .oy-exam__bar-inner,
 .oy-exam__body {
-  width: min(1120px, calc(100% - 32px));
+  width: min(70rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
@@ -1712,13 +1712,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  padding: 12px 0;
+  padding: 0.75rem 0;
 }
 
 .oy-exam__id {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
   min-width: 0;
 }
 
@@ -1726,16 +1726,16 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   display: grid;
   flex: none;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 2.75rem;
+  height: 2.75rem;
   border-radius: 50%;
   background: var(--oy-accent-soft);
   color: var(--oy-accent);
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 
 .oy-exam__id h1 {
-  margin: 2px 0 0;
+  margin: 0.125rem 0 0;
   font-family: var(--font-headline);
   font-size: var(--text-2xl);
   font-weight: 600;
@@ -1744,7 +1744,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__tools {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -1754,9 +1754,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__exit {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 16px;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 1rem;
   border-radius: var(--radius-full);
   background: var(--color-surface-container, var(--color-surface-mid));
   color: var(--color-on-surface);
@@ -1815,13 +1815,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-exam .oy-panel {
-  border-radius: 16px;
+  border-radius: 1rem;
   box-shadow: var(--shadow-1);
 }
 
 /* Rules screen before the clock starts */
 .oy-exam__rules {
-  max-width: 680px;
+  max-width: 42.5rem;
   margin: 0 auto;
   text-align: left;
 }
@@ -1842,19 +1842,19 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-exam__rules li {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 1.375rem minmax(0, 1fr);
+  gap: 0.625rem;
   line-height: 1.55;
 }
 
 .oy-exam__rules li i {
-  margin-top: 4px;
+  margin-top: 0.25rem;
   color: var(--oy-accent);
 }
 
 /* Question layout: main column (8) + question list (4) */
 .oy-exam .oy-exam__layout {
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(17.5rem, 1fr);
   gap: var(--space-6);
   align-items: start;
 }
@@ -1868,8 +1868,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 
 .oy-exam__progress {
   display: grid;
-  gap: 12px;
-  padding: 18px 22px;
+  gap: 0.75rem;
+  padding: 1.125rem 1.375rem;
 }
 
 .oy-exam__progress-row {
@@ -1882,7 +1882,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__count {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   color: var(--oy-accent);
   font-weight: 500;
 }
@@ -1893,20 +1893,20 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-exam__progress .oy-progress {
-  height: 12px;
+  height: 0.75rem;
 }
 
 .oy-exam .oy-exam__card {
   align-items: center;
-  padding: clamp(24px, 4vw, 36px);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
   text-align: center;
 }
 
 .oy-exam__chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
   border-radius: var(--radius-full);
   background: var(--oy-accent-soft);
   color: var(--oy-accent);
@@ -1928,7 +1928,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-exam__sub {
-  margin: 6px 0 0;
+  margin: 0.375rem 0 0;
   color: var(--oy-muted);
   font-size: var(--text-sm);
 }
@@ -1936,8 +1936,8 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__pick {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 -8px;
+  gap: 0.5rem;
+  margin: 0 0 -0.5rem;
   color: var(--oy-muted);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -1950,10 +1950,10 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam .oy-quiz__option {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 64px;
-  padding: 12px 18px;
-  border-radius: 14px;
+  gap: 0.875rem;
+  min-height: 4rem;
+  padding: 0.75rem 1.125rem;
+  border-radius: 0.875rem;
   font-size: var(--text-xl);
   text-align: left;
 }
@@ -1962,9 +1962,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   display: grid;
   flex: none;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
   background: var(--color-surface-low);
   color: var(--oy-muted);
   font-family: var(--font-body);
@@ -1986,7 +1986,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__saved {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   margin: 0;
   color: var(--oy-muted);
   font-size: var(--text-sm);
@@ -2005,9 +2005,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 /* Review after submitting: every question with the choice, the right answer and why. */
 .oy-exam__review li {
   display: grid;
-  gap: 4px;
+  gap: 0.25rem;
   padding: var(--space-3) var(--space-3);
-  border-top: 1px solid var(--oy-line);
+  border-top: 0.0625rem solid var(--oy-line);
 }
 
 .oy-exam__review li.is-wrong { background: color-mix(in srgb, var(--oy-bad-soft) 45%, transparent); }
@@ -2015,13 +2015,13 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__mark {
   display: inline-grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
-  margin-right: 4px;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.25rem;
   border-radius: 50%;
   background: var(--oy-ok);
   color: var(--oy-ok);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .oy-exam__review li.is-wrong .oy-exam__mark { background: var(--oy-bad); }
@@ -2038,24 +2038,24 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 /* Question list */
 .oy-exam .oy-quiz__side {
   position: sticky;
-  top: 16px;
+  top: 1rem;
   gap: var(--space-4);
-  padding: 22px;
+  padding: 1.375rem;
 }
 
 .oy-exam__side-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 0.5rem;
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--oy-line);
+  border-bottom: 0.0625rem solid var(--oy-line);
 }
 
 .oy-exam .oy-quiz__side-title {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   color: var(--color-on-surface);
   font-size: var(--text-sm);
 }
@@ -2063,7 +2063,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam .oy-quiz__steps {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+  gap: 0.625rem;
   max-width: none;
 }
 
@@ -2071,23 +2071,23 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   width: auto;
   height: auto;
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   background: var(--color-surface-low);
   font-size: var(--text-sm);
 }
 
 .oy-exam .oy-quiz__step[aria-current="step"] {
-  border: 2px solid var(--oy-accent);
+  border: 0.125rem solid var(--oy-accent);
   box-shadow: none;
 }
 
 .oy-exam__legend {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 12px;
+  gap: 0.5rem 0.75rem;
   margin: 0;
   padding: var(--space-3) 0 0;
-  border-top: 1px solid var(--oy-line);
+  border-top: 0.0625rem solid var(--oy-line);
   color: var(--oy-muted);
   font-size: var(--text-xs);
   list-style: none;
@@ -2096,25 +2096,25 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__legend li {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .oy-exam__swatch {
-  width: 14px;
-  height: 14px;
-  border: 1px solid var(--oy-line);
-  border-radius: 4px;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 0.0625rem solid var(--oy-line);
+  border-radius: 0.25rem;
   background: var(--color-surface-low);
 }
 
 .oy-exam__swatch.is-correct { border-color: var(--oy-ok); background: var(--oy-ok); }
 .oy-exam__swatch.is-wrong { border-color: var(--oy-bad); background: var(--oy-bad); }
-.oy-exam__swatch.is-current { border: 2px solid var(--oy-accent); background: none; }
+.oy-exam__swatch.is-current { border: 0.125rem solid var(--oy-accent); background: none; }
 
 .oy-exam .oy-quiz__nav {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 0.625rem;
   padding-top: 0;
   border-top: 0;
 }
@@ -2130,9 +2130,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   z-index: 1200;
   display: grid;
   place-items: center;
-  padding: 16px;
+  padding: 1rem;
   background: var(--jl-scrim);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(0.1875rem);
 }
 
 .oy-exam__warning[hidden] {
@@ -2140,9 +2140,9 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 }
 
 .oy-exam__warning-box {
-  width: min(420px, 100%);
-  padding: 28px;
-  border-radius: 20px;
+  width: min(26.25rem, 100%);
+  padding: 1.75rem;
+  border-radius: 1.25rem;
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
   text-align: center;
@@ -2152,17 +2152,17 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__warning-icon {
   display: inline-grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 8px;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 0.5rem;
   border-radius: 50%;
   background: var(--oy-gold-soft);
   color: var(--oy-gold);
-  font-size: 22px;
+  font-size: 1.375rem;
 }
 
 .oy-exam__warning-box h2 {
-  margin: 0 0 8px;
+  margin: 0 0 0.5rem;
   font-size: var(--text-xl);
 }
 
@@ -2176,10 +2176,10 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
 .oy-exam__reason {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   margin: 0 0 var(--space-4);
-  padding: 8px 14px;
-  border-radius: 12px;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.75rem;
   background: var(--oy-gold-soft);
   color: var(--color-on-tertiary-container, var(--oy-gold));
   font-weight: 600;
@@ -2189,7 +2189,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px 20px;
+  gap: 0.5rem 1.25rem;
   margin: 0 0 var(--space-4);
   padding: 0;
   color: var(--oy-muted);
@@ -2197,7 +2197,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   list-style: none;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 60rem) {
   .oy-exam .oy-exam__layout {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2207,7 +2207,7 @@ a.oy-lesson-card__locked { color: var(--oy-gold); font-weight: 600; text-decorat
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 35rem) {
   .oy-exam__bar-inner {
     flex-wrap: wrap;
   }

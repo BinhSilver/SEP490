@@ -72,7 +72,9 @@
                 </ul>
             </div>
 
-            <div class="hero-actions" style="justify-content:center;margin-top:24px">
+            <div class="hero-actions" style="justify-content:center;margin-top:24px" th:with="goalTest=${scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-test-')}">
+                <a class="btn btn-primary" th:if="${goalTest}" th:href="@{/learning/comm/final-test(check=1, goal=${param.goal})}">Về bài kiểm tra cuối</a>
+                <th:block th:unless="${goalTest}">
                 <a class="btn btn-primary" th:href="@{/scenario/{id}/start(id=${scenario.id},stage=${chatSession.stageCode})}">
                     <i class="fa-solid fa-rotate-left"></i> Luyện lại
                 </a>
@@ -84,6 +86,7 @@
                 <a class="btn btn-ghost" th:href="@{/ai-call}">
                     <i class="fa-solid fa-house"></i> Trang chủ
                 </a>
+                </th:block>
             </div>
         </div>
     </section>

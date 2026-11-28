@@ -150,3 +150,15 @@
 .mp-switch { view-transition-name: mp-switch; }
 @view-transition { navigation: auto; }
 @media (prefers-reduced-motion: reduce) { .mp-switch__pill.is-moving { transition: none; } }
+/* 27/11: one navigation layer, with a quiet completion label. */
+.mp-switch { width: fit-content; max-width: 100%; padding: 0; border: 0; background: transparent; box-shadow: none; gap: 18px; }
+.mp-switch__tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; background: transparent; border: 0; border-radius: 0; }
+.mp-switch__pill { display: none; }
+.mp-switch__tab, .mp-switch__home { text-decoration: none; border: 0; box-shadow: none; padding: 9px 12px; font-weight: 500; }
+.mp-switch__tab.is-current, .mp-switch__tabs.has-pill .mp-switch__tab.is-current { background: var(--color-primary-container); color: var(--color-on-primary-container); box-shadow: none; border-radius: 9px; }
+.mp-switch__done { font-size: .72rem; font-weight: 400; margin-left: 6px; }
+.mp-io__lv { text-decoration: none; padding: 3px 7px; border-radius: 5px; }
+.mp-io__lv:hover { background: var(--color-surface-container); }
+@media(max-width:600px){ .mp-switch{gap:8px;flex-wrap:wrap}.mp-switch__home{padding:5px 0}.mp-switch__tab{padding:8px 10px}.mp-switch__done{display:block;margin:2px 0 0} }
+.mp-switch__tab.is-current, .mp-switch__tabs.has-pill .mp-switch__tab.is-current { background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); color: var(--color-primary); }
+.mp-switch__tab.is-current .mp-switch__done { color: var(--color-on-surface-variant); }

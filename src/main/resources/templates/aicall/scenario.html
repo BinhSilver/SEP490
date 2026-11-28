@@ -4,7 +4,7 @@
     <script src="/js/theme-init.js"></script>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title th:text="${selectedStageTitle != null ? selectedStageTitle : scenario.variantTitle} + ' · AI Call'">Trường hợp luyện tập</title>
+    <title th:text="${param.goalTest != null and scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-')} ? 'Bài kiểm tra cuối lộ trình giao tiếp · KotsuKotsu' : ${selectedStageTitle != null ? selectedStageTitle : scenario.variantTitle} + ' · AI Call'">Trường hợp luyện tập</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
     <link rel="stylesheet" th:href="@{/css/tokens.css(v=20261128-vi-font2)}"/>
@@ -85,7 +85,8 @@
                 <div class="case-practice-inner">
                     <div class="case-coach-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></div>
                     <p class="case-path-badge" th:if="${scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-')}"><i class="fa-solid fa-route" aria-hidden="true"></i> Kịch bản của Lộ trình Giao tiếp</p>
-                    <h2 id="case-practice-heading">Luyện trường hợp này</h2>
+                    <h2 id="case-practice-heading" th:text="${param.goalTest != null and scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-')} ? 'Bài kiểm tra cuối lộ trình' : 'Luyện trường hợp này'">Luyện trường hợp này</h2>
+                    <p th:if="${param.goalTest != null and scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-')}" class="case-selected-title">Hội thoại này được chấm điểm. Đạt từ 70 điểm để hoàn thành lộ trình giao tiếp.</p>
                     <p class="case-selected-title" data-stage-selected-title th:attr="data-scenario=${progression != null ? progression.scenario.id : scenario.id}" th:text="${selectedStageTitle != null ? selectedStageTitle : scenario.variantTitle}">Món muốn gọi đã hết</p>
                     <dl class="case-roles">
                         <div><dt><i class="fa-regular fa-user" aria-hidden="true"></i> Bạn đóng vai</dt><dd th:text="${scenario.userRole != null ? scenario.userRole.name : 'Người học'}">Khách dùng bữa</dd></div>
@@ -94,7 +95,7 @@
                             <dd th:each="actor : ${scenarioSpeakers}" th:text="${actor.name}">Nhân viên phục vụ</dd>
                         </div>
                     </dl>
-                    <a class="case-start" data-stage-start th:attr="data-scenario=${progression != null ? progression.scenario.id : scenario.id}" th:if="${selectedView == null or selectedView.status != 'locked'}" th:href="${selectedView != null and selectedView.resumeSession != null ? '/conversation/' + selectedView.resumeSession : '/scenario/' + (progression != null ? progression.scenario.id : scenario.id) + '/start' + (selectedStage != null ? '?stage=' + selectedStage : '')}"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <span data-stage-start-label th:text="${selectedView != null and selectedView.resumeSession != null ? 'Tiếp tục hội thoại' : 'Bắt đầu hội thoại'}">Bắt đầu hội thoại</span></a>
+                    <a class="case-start" data-stage-start th:attr="data-scenario=${progression != null ? progression.scenario.id : scenario.id}" th:if="${selectedView == null or selectedView.status != 'locked'}" th:href="${selectedView != null and selectedView.resumeSession != null ? '/conversation/' + selectedView.resumeSession : '/scenario/' + (progression != null ? progression.scenario.id : scenario.id) + '/start' + (selectedStage != null ? '?stage=' + selectedStage : '')}"><i class="fa-solid fa-microphone-lines" aria-hidden="true"></i> <span data-stage-start-label th:text="${param.goalTest != null and scenario.slug != null and #strings.startsWith(scenario.slug, 'cpath-')} ? 'Bắt đầu bài kiểm tra' : (${selectedView != null and selectedView.resumeSession != null ? 'Tiếp tục hội thoại' : 'Bắt đầu hội thoại'})">Bắt đầu hội thoại</span></a>
                     <a class="case-sample-open case-sample-direct" data-stage-sample th:if="${hasSample}" th:attr="data-scenario=${scenario.id}" th:href="@{/scenario/{id}/sample(id=${scenario.id},stage=${selectedStage})}"><i class="fa-solid fa-comments" aria-hidden="true"></i> <span>Xem hội thoại mẫu</span></a>
                     <p class="stage-locked-message" th:if="${selectedView != null and selectedView.status == 'locked'}"><i class="fa-solid fa-lock" aria-hidden="true"></i> Hoàn thành màn trước để mở khóa</p>
                 </div>

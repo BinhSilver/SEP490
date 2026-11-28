@@ -30,6 +30,19 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   }); }
+  function selectedGoal() {
+    var m = /(?:^|[?&])goal=([A-Z_]+)/.exec(String(root && root.location && root.location.search || ''));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  function goalApiUrl(url) {
+    var g = selectedGoal();
+    if (!g || /(?:^|[?&])goal=/.test(url)) return url;
+    return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'goal=' + encodeURIComponent(g);
+  }
+  function pathHref() {
+    var g = selectedGoal();
+    return '/learning/comm/path' + (g ? '?goal=' + encodeURIComponent(g) : '');
+  }
   function restartTextOk(text) {
     return String(text == null ? '' : text).trim().normalize('NFC').toLocaleUpperCase('vi') === RESTART_TEXT;
   }
@@ -91,7 +104,7 @@
       + note(notices.pace, notices.paceError)
       + '<div class="cp-settings__actions"><button type="button" class="cp-btn-primary" data-cp-save-pace>Lưu nhịp học</button>'
       + (canUndo ? '<button type="button" class="cp-btn-ghost" data-cp-undo-pace>Hoàn tác lần đổi vừa rồi</button>' : '')
-      + '<a class="cp-btn-ghost" href="/learning/comm/path">Về bản đồ</a></div></section>';
+      + '<a class="cp-btn-ghost" href="' + esc(pathHref()) + '">Về bản đồ</a></div></section>';
   }
 
   function displaySection(path, notices) {
@@ -191,6 +204,17 @@
   }
 
   function view(path, draft, notice, canUndo, notices, core) {
+    if (path && path.status === 'PAUSED') {
+      return '<header class="jp-page-head cp-settings__head">'
+        + '<h1 class="jp-page-head__title">Cài đặt lộ trình ' + esc(path.nameVi || 'Giao tiếp') + '</h1>'
+        + '<p class="jp-page-head__lede">Lộ trình này đang tạm dừng.</p></header>'
+        + '<section class="cp-state-card" role="status">'
+        + '<img class="cp-state-card__pic" src="/images/mascots/fox/kitsu-thinking-30-128.webp" alt="" width="112" height="112" loading="lazy">'
+        + '<h2 class="cp-state-card__title">Lộ trình đang tạm dừng</h2>'
+        + '<p class="cp-state-card__text">Tiến độ của ' + esc(path.nameVi || 'lộ trình này') + ' vẫn được giữ nguyên. Mở Lộ trình của tôi để học tiếp trước khi thay đổi cài đặt.</p>'
+        + '<div class="cp-settings__actions"><a class="cp-btn-primary" href="/learning/my">Mở Lộ trình của tôi</a>'
+        + '<a class="cp-btn-ghost" href="' + esc(pathHref()) + '">Về bản đồ</a></div></section>';
+    }
     var n = notices || {};
     if (notice && !n.pace) n = Object.assign({}, n, { pace: notice });
     return '<header class="jp-page-head cp-settings__head">'
@@ -215,14 +239,21 @@
     var go = d.go || function (url) { root.location.assign(url); };
     var path = null, draft = null, undo = null, notices = {}, busy = false, core = null;
     function render() {
-      var focusId = root.document && root.document.activeElement && root.document.activeElement.getAttribute
-        ? root.document.activeElement.getAttribute('data-cp-display') : null;
+      var activeEl = root.document && root.document.activeElement;
+      var focusSel = null;
+      if (activeEl && activeEl.getAttribute) {
+        var disp = activeEl.getAttribute('data-cp-display');
+        if (disp) focusSel = '[data-cp-display="' + disp + '"]';
+        else if (activeEl.hasAttribute && activeEl.hasAttribute('data-cp-finish')) focusSel = '[data-cp-finish]';
+        else if (activeEl.hasAttribute && activeEl.hasAttribute('data-cp-rest')) focusSel = '[data-cp-rest]';
+        else if (activeEl.getAttribute('name') === 'cp-daily' && activeEl.value) focusSel = 'input[name="cp-daily"][value="' + activeEl.value + '"]';
+      }
       el.innerHTML = view(path, draft, '', !!undo, notices, core);
       var goalsEl = el.querySelector && el.querySelector('[data-jpath-goals]');
       if (goalsEl && typeof window !== 'undefined' && window.JpathGoals) window.JpathGoals.mount(goalsEl);
-      if (focusId) {
-        var again = el.querySelector('[data-cp-display="' + focusId + '"]');
-        if (again) again.focus();
+      if (focusSel) {
+        var again = el.querySelector(focusSel);
+        if (again && again.focus) again.focus();
       }
     }
     function fail(e, fallback) { return e && (e.code || e.status) && e.message || fallback; }
@@ -342,8 +373,13 @@
           '/learning/comm/path');
       }
     });
-    Promise.resolve(root.JpathApi.get('/api/learning/comm/path')).then(function (p) {
+    if (root.document && typeof root.document.querySelector === 'function') {
+      var backEl = root.document.querySelector('.jp-back[href^="/learning/comm/path"]');
+      if (backEl && backEl.setAttribute && selectedGoal()) backEl.setAttribute('href', pathHref());
+    }
+    Promise.resolve(root.JpathApi.get(goalApiUrl('/api/learning/comm/path'))).then(function (p) {
       path = p; draft = payload(p); render();
+      if (p && p.status === 'PAUSED') return null;
       return Promise.resolve(root.JpathApi.get('/api/learning/comm/core')).then(function (c) { core = c; render(); }, function () { /* no base set */ });
     }).catch(function (e) { el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(fail(e, 'Chưa tải được cài đặt.')) + '</p>'; });
   }

@@ -176,7 +176,7 @@ public class JpathPathViewAssembler {
         JpathUserSettings userSettings = settings.findById(userId).orElse(null);
         return new JpathPathView(path.getId(), displayName(userId), open, path.getTargetLevel(),
                 JpathPaceService.usableExamDate(path.getExamDate(), p.today()), !pace.late(), level.getStage(),
-                levelCells(userId, open, p.counts()), List.copyOf(tabs), calendar.week(userId, p.today(), noNewLeft),
+                levelCells(userId, open, p.counts(), level.getStage() != null && "PASSED".equals(level.getStage().name())), List.copyOf(tabs), calendar.week(userId, p.today(), noNewLeft),
                 pace.tabFinish(), pace.levelFinish(), sliderView(path, level, p, appliesFromTomorrow), p.mode(),
                 path.getSuggestedMode(), path.getSuggestionReason(), path.isKanaTab(),
                 path.isKanaTab() && p.kanaCompleted(), JpathDays.codes(p.skillDays()), JpathDays.codes(p.restDays()),
@@ -231,7 +231,8 @@ public class JpathPathViewAssembler {
     }
 
     /** Level bar N5→N1 (policy #16, preflight C36: percent = level %, learned/total = vocabulary). */
-    private List<JpathLevelCell> levelCells(Long userId, String open, Map<JpathTab, JpathTabCount> openCounts) {
+    private List<JpathLevelCell> levelCells(Long userId, String open, Map<JpathTab, JpathTabCount> openCounts,
+                                            boolean openPassed) {
         List<JpathLevelCell> cells = new ArrayList<>(LEVELS.size());
         for (String level : LEVELS) {
             JpathLevelCellState state = cellState(level, open);
@@ -241,7 +242,10 @@ public class JpathPathViewAssembler {
                         ? cell(level, state, tabCounts.read(userId, level), "Đã vượt qua")
                         : new JpathLevelCell(level, state, 0, catalog.info(level).vocabCount(), 0, "Đã vượt qua"));
                 case LOCKED -> cells.add(new JpathLevelCell(level, state, 0, catalog.info(level).vocabCount(), 0,
-                        "Xem trước · Thi thử " + previous(level) + " để mở"));
+                        // QA 27/11 L1: the target level is already passed; its mock opens nothing more
+                        openPassed && open.equals(previous(level))
+                                ? "Xem trước · Đổi mục tiêu trong Cài đặt để học tiếp"
+                                : "Xem trước · Thi thử " + previous(level) + " để mở"));
                 case COMING_SOON -> cells.add(new JpathLevelCell(level, state, 0, catalog.info(level).vocabCount(),
                         0, "Sắp có"));
             }

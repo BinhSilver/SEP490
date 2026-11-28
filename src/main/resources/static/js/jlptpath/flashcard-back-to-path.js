@@ -2,11 +2,13 @@
  * Only back links inside /learning are kept (no open redirect). The link is remembered per set for this tab, so it
  * stays when the study page reloads itself with another mode.
  * Owner 24/11: a path's card set is personal, so it has no star rating. Opened from any path (from=jlpt or
- * from=comm, every comm goal) the set's rating button is hidden; every study mode stays as the Flashcard page has it.
+ * from=comm, every comm goal) social rating is hidden. The learning-path entry starts in required Recall; other modes
+ * remain available for extra practice.
  * The "from" flag is remembered per set like the back link. */
 (function (root, factory) {
   'use strict';
   var api = factory();
+  if (root) root.FlashcardPathBack = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (root && root.document) {
     var run = function () { api.mount(root.document, root.location, root.sessionStorage); };

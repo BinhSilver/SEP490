@@ -6,12 +6,12 @@
 
 .learning-quiz-page {
   min-height: calc(100dvh - var(--header-height));
-  padding: 28px 0 64px;
+  padding: 1.75rem 0 4rem;
   color: var(--color-on-surface);
 }
 
 .lq-page-shell {
-  width: min(820px, calc(100% - 48px));
+  width: min(51.25rem, calc(100% - 3rem));
   margin-inline: auto;
 }
 
@@ -36,15 +36,15 @@
 }
 
 .lq-breadcrumb .material-symbols-outlined {
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .lq-hero {
-  padding: clamp(24px, 4vw, 40px);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
   margin-bottom: var(--space-4);
   background: var(--lq-paper);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: 28px;
+  border: 0.0625rem solid var(--color-outline-variant);
+  border-radius: 1.75rem;
   box-shadow: var(--shadow-1);
 }
 
@@ -73,7 +73,7 @@
 }
 
 .lq-root {
-  min-height: 240px;
+  min-height: 15rem;
 }
 
 .lq-state {
@@ -82,7 +82,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  padding: 48px 24px;
+  padding: 3rem 1.5rem;
   text-align: center;
   color: var(--color-on-surface-variant);
 }
@@ -99,19 +99,19 @@
 .lq-state__icon {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 3rem;
+  height: 3rem;
   border-radius: var(--radius-full);
   background: var(--color-error-container);
   color: var(--color-error);
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 .lq-spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid var(--color-surface-container);
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0.1875rem solid var(--color-surface-container);
   border-top-color: var(--color-primary);
   border-radius: var(--radius-full);
   animation: lq-spin 0.8s linear infinite;
@@ -133,7 +133,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-outline-variant);
+  border-bottom: 0.0625rem solid var(--color-outline-variant);
 }
 
 .lq-quiz__title {
@@ -148,7 +148,7 @@
 }
 
 .lq-alert {
-  padding: 12px 16px;
+  padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
   background: var(--color-error-container);
   color: var(--color-error);
@@ -158,9 +158,9 @@
 
 .lq-question {
   margin: 0;
-  padding: 20px;
+  padding: 1.25rem;
   background: var(--lq-paper);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
@@ -175,8 +175,8 @@
 .lq-question__index {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 1.625rem;
+  height: 1.625rem;
   border-radius: var(--radius-full);
   background: var(--lq-accent-bg);
   color: var(--lq-accent);
@@ -194,8 +194,8 @@
 
 .lq-passage {
   margin-bottom: var(--space-3);
-  padding: 12px 16px;
-  border-left: 3px solid var(--lq-accent);
+  padding: 0.75rem 1rem;
+  border-left: 0.1875rem solid var(--lq-accent);
   background: var(--color-surface-low);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
@@ -212,7 +212,7 @@
   line-height: 1.6;
 }
 /* Từ cần hỏi trong đề (<u> của dữ liệu, lesson-quiz.js / learning-quiz.js questionHtml) */
-.lq-target { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; text-decoration-color: var(--color-primary); font-weight: 600; }
+.lq-target { text-decoration: underline; text-decoration-thickness: 0.125rem; text-underline-offset: 0.25rem; text-decoration-color: var(--color-primary); font-weight: 600; }
 
 .lq-options {
   display: flex;
@@ -224,8 +224,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: 12px 16px;
-  border: 1px solid var(--color-outline-variant);
+  padding: 0.75rem 1rem;
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -243,15 +243,15 @@
 
 .lq-option__marker {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--color-on-surface-variant);
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 0.125rem solid var(--color-on-surface-variant);
   border-radius: var(--radius-full);
 }
 
 .lq-option input:checked + .lq-option__marker {
   border-color: var(--lq-accent);
-  background: radial-gradient(circle, var(--lq-accent) 0 5px, transparent 6px);
+  background: radial-gradient(circle, var(--lq-accent) 0 0.3125rem, transparent 0.375rem);
 }
 
 .lq-option:has(input:checked) {
@@ -265,8 +265,8 @@
 
 .lq-input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--color-outline-variant);
+  padding: 0.75rem 1rem;
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-md);
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
@@ -274,8 +274,8 @@
 }
 
 .lq-input:focus {
-  outline: 2px solid var(--lq-accent);
-  outline-offset: 1px;
+  outline: 0.125rem solid var(--lq-accent);
+  outline-offset: 0.0625rem;
 }
 
 .lq-quiz__actions,
@@ -292,8 +292,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 12px 20px;
-  border: 1px solid var(--color-outline-variant);
+  padding: 0.75rem 1.25rem;
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-full);
   background: var(--color-surface-lowest);
   color: var(--color-on-surface);
@@ -319,7 +319,7 @@
 }
 
 .lq-button .material-symbols-outlined {
-  font-size: 20px;
+  font-size: 1.25rem;
 }
 
 .lq-result {
@@ -332,9 +332,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  padding: 24px;
+  padding: 1.5rem;
   background: var(--lq-paper);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
@@ -349,14 +349,14 @@
 }
 
 .lq-result__score small {
-  margin-left: 4px;
+  margin-left: 0.25rem;
   color: var(--color-on-surface-variant);
   font-size: var(--text-md);
   font-weight: 500;
 }
 
 .lq-result__summary h2 {
-  margin: 0 0 4px;
+  margin: 0 0 0.25rem;
   font-size: var(--text-lg);
 }
 
@@ -373,19 +373,19 @@
 }
 
 .lq-answer {
-  padding: 20px;
+  padding: 1.25rem;
   background: var(--lq-paper);
-  border: 1px solid var(--color-outline-variant);
+  border: 0.0625rem solid var(--color-outline-variant);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
 
 .lq-answer.is-correct {
-  border-left: 4px solid var(--color-success);
+  border-left: 0.25rem solid var(--color-success);
 }
 
 .lq-answer.is-wrong {
-  border-left: 4px solid var(--color-error);
+  border-left: 0.25rem solid var(--color-error);
 }
 
 .lq-answer__head {
@@ -406,15 +406,15 @@
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: 700;
 }
 
 .lq-badge .material-symbols-outlined {
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .lq-badge--correct {
@@ -431,7 +431,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-left: 4px;
+  padding-left: 0.25rem;
 }
 
 .lq-answer__row {
@@ -444,7 +444,7 @@
 
 .lq-answer__row span {
   color: var(--color-on-surface-variant);
-  min-width: 110px;
+  min-width: 6.875rem;
 }
 
 .lq-answer__row strong {
@@ -458,8 +458,8 @@
 }
 
 .lq-answer__explanation {
-  margin: 4px 0 0;
-  padding: 10px 14px;
+  margin: 0.25rem 0 0;
+  padding: 0.625rem 0.875rem;
   border-radius: var(--radius-sm);
   background: var(--color-surface-low);
   color: var(--color-on-surface-variant);

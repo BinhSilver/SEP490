@@ -242,7 +242,12 @@
         var check = root && root.JpathCheck;
         if (token && check && typeof check.mountInline === 'function' && mountEl) {
           el.disabled = false;
-          return check.mountInline(mountEl, token, {});
+          var shown = check.mountInline(mountEl, token, {});
+          // QA 27/11 B3: the questions open below the fold; without scrolling the button looked dead
+          Promise.resolve(shown).then(function () {
+            if (mountEl.scrollIntoView) mountEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+          return shown;
         }
         if (token) env.navigate(H().checkUrl(token, env.returnTo));
         return null;
@@ -303,24 +308,56 @@
       if (line && !t.closest('[data-action]')) { line.classList.toggle('is-shown'); return; }
       var btn = t && typeof t.closest === 'function' ? t.closest('[data-action]') : null;
       if (!btn || btn.disabled || !lesson) return;
+      // owner 27/11: prev / next / related pattern swaps the lesson in place (no full page reload)
+      if (btn.getAttribute('data-action') === 'open-grammar' && btn.getAttribute('data-code')
+          && !(ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.button === 1) && root.history && root.history.pushState) {
+        ev.preventDefault();
+        show(btn.getAttribute('data-code'), true);
+        return;
+      }
       lessonAction(btn, lesson, el, env);
     });
+    if (root.addEventListener && root.history && root.history.pushState) {
+      root.addEventListener('popstate', function (ev) {
+        var c = ev.state && ev.state.jpGrammar;
+        if (c && c !== code) show(c, false);
+      });
+      try { root.history.replaceState({ jpGrammar: code }, '', loc.pathname + loc.search); } catch (e) { /* keep url */ }
+    }
     var settings = Promise.resolve().then(function () { return apiClient.get(D().SETTINGS_URL); })
       .then(function (s) { return (s && s.display) || {}; }, function () { return {}; });
-    var view = Promise.resolve().then(function () { return apiClient.get(lessonUrl(code)); });
+    var first = true;
+    function show(nextCode, push) {
+      code = nextCode;
+      el.setAttribute('data-grammar-code', code);
+      if (!first) {
+        el.setAttribute('aria-busy', 'true');
+        el.classList.add('is-swapping');
+        if (push) { try { root.history.pushState({ jpGrammar: code }, '', '/learning/jlpt/grammar/' + encodeURIComponent(code) + (loc.search || '')); } catch (e) { /* ignore */ } }
+        env.returnTo = (loc.pathname || '/learning') + (loc.search || '');
+      }
+      first = false;
+      return render(Promise.resolve().then(function () { return apiClient.get(lessonUrl(code)); }));
+    }
+    function render(view) {
     return Promise.all([view, settings]).then(function (res) {
       lesson = res[0] || {};
       var display = res[1];
       try { D().applyDisplay(displayTarget(el), display); } catch (e) { /* defaults stay */ }
-      F().bindToggle(el, !!display.furiganaHiddenAll);
+      if (!el.__jpToggleBound) { el.__jpToggleBound = true; F().bindToggle(el, !!display.furiganaHiddenAll); }
       el.innerHTML = grammarLessonHtml(lesson);
       el.setAttribute('aria-busy', 'false');
       if (doc && has(lesson.pattern)) doc.title = lesson.pattern + ' - KotsuKotsu';
+      el.classList.remove('is-swapping');
+      if (el.getBoundingClientRect && el.getBoundingClientRect().top < 0 && root.scrollTo) root.scrollTo({ top: 0, behavior: 'smooth' });
       rendered(el);
     }, function (e) {
+      el.classList.remove('is-swapping');
       el.innerHTML = '<p class="jp-alert jp-alert--page" role="alert">' + esc(H().messageOf(e, 'Không tải được bài ngữ pháp.')) + '</p>';
       el.setAttribute('aria-busy', 'false');
     });
+    }
+    return show(code, false);
   }
 
   return { structureChips: structureChips, patternCores: patternCores, markPattern: markPattern,

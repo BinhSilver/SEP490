@@ -80,7 +80,7 @@ public class CpathFlashcardService {
             StudySummaryDto sum = flashcards.summary(setId, userId);
             out.put("remembered", sum.getRemembered());
             out.put("total", sum.getTotal());
-            out.put("url", "/flashcard/study.html?setId=" + setId + "&from=comm");
+            out.put("url", "/flashcard/study.html?setId=" + setId + "&from=comm&studyMode=RECALL&learningPath=1");
         }
         return out;
     }

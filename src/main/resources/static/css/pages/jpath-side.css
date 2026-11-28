@@ -97,34 +97,107 @@
    The page sits in .jp-ws (side navigation | main). Sections are flat: a heading and space, no frame.
    Rows of a list are separated by a hairline instead of each being a box. */
 .jp-side { max-width: 1440px; }
+.jp-side .jp-ws__main { display: grid; gap: 16px; align-content: start; }
 .jp-side .jp-page-head { margin-bottom: 4px; }
 .jp-side .jp-side__title { font-size: 2em; flex: none; }
-.jp-side-card { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; display: grid; gap: 14px; }
+.jp-side .jp-skills__ready { margin: 0 0 8px; font-size: .95rem; color: var(--jp-muted); line-height: 1.5; }
+.jp-side-card { margin: 0; padding: 0 0 18px; border: 0; border-radius: 0; background: none; display: grid; gap: 14px; }
 .jp-side-card h2 { margin: 0; font-size: 1.15em; }
 .jp-ws__main > .jp-side-card + .jp-side-card { padding-top: 8px; }
 /* segmented switch (range / item type) reads like tabs */
-.jp-side__range { gap: 0; margin: 0; border-bottom: 1px solid var(--jp-line); }
-.jp-side__range .jp-side-btn {
-  min-height: 44px; padding: 8px 18px; border: 0; border-bottom: 1px solid transparent; border-radius: 0; background: transparent;
-  color: var(--jp-muted); font-weight: 600;
+.jp-side__range, .jp-side__views { display: flex; flex-wrap: wrap; gap: 0; margin: 0; border-bottom: 1px solid var(--jp-line); }
+.jp-side__range .jp-side-btn, .jp-side__views .jp-side-btn {
+  min-height: 44px; padding: 8px 18px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent;
+  color: var(--jp-muted); font-weight: 500;
 }
-.jp-side__range .jp-side-btn[aria-pressed="true"] { border-bottom-color: var(--jp-primary); background: transparent; color: var(--jp-primary); }
+.jp-side__range .jp-side-btn[aria-pressed="true"], .jp-side__views .jp-side-btn[aria-pressed="true"] { border-bottom-color: var(--jp-primary); background: transparent; color: var(--jp-primary); font-weight: 600; }
+/* action button rows that reuse .jp-side__range (e.g. level-summary.html, confusables.html start row) */
+.jp-side__range:has(.jp-btn),
+.jp-side__range:has([data-role="start"]) {
+  gap: 12px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 0;
+}
+.jp-side__range:has([data-role="start"]) .jp-side-btn--primary {
+  padding: 8px 18px;
+  border: 1px solid var(--jp-primary);
+  border-radius: var(--jp-radius-interactive, 8px);
+  background: var(--jp-primary);
+  color: var(--jp-surface, #fff);
+  font-weight: 500;
+}
 /* list rows */
 .jp-bank, .jp-pairs, .jp-side-days { gap: 0; }
 .jp-bank-row, .jp-pair { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; padding: 14px 4px; }
 .jp-side-day__btn { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; padding: 14px 4px; }
 .jp-side-day__btn:hover, .jp-bank-row:hover { background: color-mix(in srgb, var(--jp-primary-soft) 55%, transparent); }
-.jp-side-tile { background: var(--jp-primary-soft); padding: 14px 16px; }
+.jp-side-tile { background: var(--jp-primary-soft); padding: 16px 18px; border-radius: 12px; }
 .jp-side-tile strong { font-size: 1.6em; }
 .jp-side-bars { min-height: 160px; }
 .jp-side__pager { gap: 8px; }
-.jp-side__pager [data-role="page"] { min-width: 6em; text-align: center; font-weight: 600; }
-.jp-side-tiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; max-width: 900px; }
+.jp-side__pager [data-role="page"] { min-width: 6em; text-align: center; font-weight: 500; }
+.jp-side-tiles { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; max-width: 900px; }
 .jp-side-tile { gap: 4px; }
+/* "Luyện thêm" block on side pages (/summary, /done) */
+.jp-side .jp-extra, .jp-done .jp-extra {
+  width: 100%;
+  margin-top: 4px;
+  border: 1px solid var(--jp-line);
+  border-radius: 12px;
+  background: var(--jp-surface);
+  overflow: hidden;
+}
+.jp-side .jp-extra__fold > summary, .jp-done .jp-extra__fold > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--jp-ink);
+  cursor: pointer;
+}
+.jp-side .jp-extra__fold > summary::-webkit-details-marker, .jp-done .jp-extra__fold > summary::-webkit-details-marker { display: none; }
+.jp-side .jp-extra__fold > summary::after, .jp-done .jp-extra__fold > summary::after {
+  content: "▾";
+  color: var(--jp-muted);
+  transition: transform .2s ease;
+}
+.jp-side .jp-extra__fold[open] > summary::after, .jp-done .jp-extra__fold[open] > summary::after {
+  transform: rotate(180deg);
+}
+.jp-side .jp-extra__list, .jp-done .jp-extra__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.jp-side .jp-extra__list--pages { display: none; }
+.jp-side .jp-extra__list li, .jp-done .jp-extra__list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--jp-line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--jp-primary-soft) 28%, var(--jp-surface));
+}
+.jp-side .jp-extra__link, .jp-done .jp-extra__link {
+  color: var(--jp-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+.jp-side .jp-extra__link:hover, .jp-done .jp-extra__link:hover { text-decoration: underline; }
+.jp-side .jp-extra__list small, .jp-done .jp-extra__list small { color: var(--jp-muted); font-size: .8rem; }
 
 /* Stats: four headline figures and one month of history. */
 .jp-side-tiles--summary { max-width: none; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 12px 0 28px; }
-.jp-side-tiles--summary .jp-side-tile { border-bottom: 1px solid var(--jp-line); border-radius: 0; background: none; padding: 8px 0 12px; }
+.jp-side-tiles--summary .jp-side-tile { border: 1px solid var(--jp-line); border-radius: 12px; background: var(--jp-surface); padding: 16px 18px; }
 .jp-side-month-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 .jp-side-month-controls { display: flex; align-items: center; gap: 8px; }
 .jp-side-month-controls [data-role="month-label"] { min-width: 7em; text-align: center; font-weight: 600; }
@@ -152,11 +225,12 @@
 
 /* 04/11 polish round 4: thống kê, lịch sử và sổ tay */
 .jp-side-summary { margin: 0; padding: 14px 0; border-bottom: 1px solid var(--jp-line); font-size: 1.45em; font-weight: 500; color: var(--jp-ink); }
-.jp-side-card { border: 0; border-bottom: 1px solid var(--jp-line); border-radius: 0; box-shadow: none; }
+.jp-side-card { margin: 0; padding: 0 0 18px; border: 0; border-radius: 0; background: none; display: grid; gap: 14px; }
 .jp-bank-row, .jp-side-day__btn { min-height: 56px; }
-.jp-side__range { flex-wrap: wrap; }
+.jp-side__range:not(:has(.jp-btn)):not(:has([data-role="start"])) { flex-wrap: wrap; }
 .jp-side__range .jp-side-btn { min-height: 44px; }
 .jp-side-tiles--summary { max-width: none; }
+.jp-side__range:has(.jp-btn), .jp-side__range:has([data-role="start"]) { justify-content: flex-start; gap: 12px; padding: 6px 0; border-bottom: 0; }
 @media (max-width: 640px) { .jp-side-summary { font-size: 1.2em; } }
 
 /* 06/11 day detail page (jpath-day.js) — Lượt 5: Phối màu hài hòa với tím (--jp-c-*) + Tối giản */

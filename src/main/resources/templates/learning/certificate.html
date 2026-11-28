@@ -1,59 +1,117 @@
 <!DOCTYPE html>
 <html id="jlabBaseDocument" lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: standard('Chứng chỉ thành tựu - KotsuKotsu', 'certificate')}"></head>
+<head th:replace="~{fragments/head :: standard('Chứng chỉ thành tựu - KotsuKotsu', null)}"></head>
 <body id="jlabBasePage" class="app-body certificate-body journey-ui">
 <div id="jlabBaseShellMount"></div>
 
 <main id="jlabBaseContent" class="certificate-page">
-    <section class="cert-card">
+    <section class="cert-card is-earned">
         <div class="cert-frame">
-            <p class="cert-eyebrow">KotsuKotsu · Chứng nhận thành tựu nội bộ</p>
-            <p class="cert-kanji" aria-hidden="true" th:text="${targetLevel}">N4</p>
-            <h1>Chứng chỉ hoàn thành lộ trình</h1>
-            <div class="cert-ribbon" aria-hidden="true"><span>修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH ·&nbsp;</span><span>修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH · 修了 · HOÀN THÀNH ·&nbsp;</span></div>
-            <p class="cert-level">Cấp độ đạt được: <strong th:text="${targetLevel}">N4</strong></p>
-            <p class="cert-date">
-                Ngày hoàn thành:
-                <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
-            </p>
-            <span class="cert-seal" aria-hidden="true">合格</span>
-            <p class="cert-disclaimer">
-                Đây là chứng nhận thành tựu học tập nội bộ của KotsuKotsu, không phải điểm số hay chứng chỉ
-                JLPT chính thức.
-            </p>
+            <div class="cert-band">
+                <div class="cert-brand"><span class="cert-mark" aria-hidden="true" lang="ja" th:text="${targetLevel}">N5</span><span>KotsuKotsu</span></div>
+                <img class="cert-mascot" th:src="${certificateMascot != null ? certificateMascot : '/images/mascots/fox/kitsu-celebrate-30.webp'}"
+                     src="/images/mascots/fox/kitsu-celebrate-30.webp"
+                     alt="Linh vật Kitsu chứng nhận lộ trình JLPT" width="220" height="220">
+                <span class="cert-band__caption" th:text="${'Lộ trình JLPT · ' + targetLevel}">Lộ trình JLPT · N5</span>
+            </div>
+            <div class="cert-content">
+                <p class="cert-eyebrow">Thành tựu học tập KotsuKotsu</p>
+                <h1>Chứng chỉ hoàn thành lộ trình</h1>
+                <p class="cert-intro">Trao cho người học</p>
+                <p class="cert-name" th:text="${learnerName != null ? learnerName : 'Người học'}">Người học</p>
+                <p class="cert-lead">đã hoàn thành lộ trình và vượt qua bài Thi thử JLPT</p>
+                <p class="cert-level">Cấp độ đạt được: <strong th:text="${'JLPT ' + targetLevel}">JLPT N5</strong>
+                    <span class="cert-score" th:if="${mockScore != null}" th:text="${' · Điểm thi thử ' + mockScore + '%'}"> · Điểm thi thử 100%</span>
+                </p>
+                <div class="cert-foot">
+                    <p class="cert-date">
+                        Ngày hoàn thành:
+                        <strong th:text="${#temporals.format(completedAt, 'dd/MM/yyyy')}">01/01/2026</strong>
+                    </p>
+                    <span class="cert-seal" aria-hidden="true" lang="ja">合格</span>
+                </div>
+                <p class="cert-disclaimer">
+                    Thành tựu học tập nội bộ của KotsuKotsu, ghi nhận hoàn thành lộ trình và bài thi thử nội bộ — không phải chứng chỉ JLPT chính thức.
+                </p>
+            </div>
         </div>
-        <button class="cert-print-button" type="button" onclick="window.print()">In / Lưu PDF</button>
+        <div class="cert-actions">
+            <button class="cert-print-button" type="button" onclick="window.print()">In / Lưu PDF</button>
+            <a class="cert-back" th:href="@{/learning/jlpt/levels/{lvl}/summary(lvl=${targetLevel})}">Xem tổng kết cấp</a>
+            <a class="cert-back" th:href="@{/learning(view='jlpt')}">Về lộ trình JLPT</a>
+        </div>
+        <nav class="cp-next-steps" aria-label="Bước học tiếp">
+            <h2>Gợi ý bước tiếp</h2>
+            <div class="cp-next-steps__list">
+                <a th:if="${nextLevel != null}" th:href="@{/learning(view='jlpt')}" th:text="${'Học tiếp cấp ' + nextLevel}">Học tiếp cấp tiếp theo</a>
+                <a th:href="@{/learning/jlpt/settings}">Đổi cấp mục tiêu trong Cài đặt</a>
+                <a th:href="@{/learning/comm/survey}">Khám phá lộ trình Giao tiếp</a>
+            </div>
+        </nav>
     </section>
 </main>
 <!-- F220: the team's shared site footer -->
 <th:block th:replace="~{fragments/site-footer :: footer}"></th:block>
 
 <style>
-    @media print {
-        #jlabBaseShellMount, .certificate-page nav, .cert-print-button { display: none !important; }
-        .cert-card, .cert-ribbon span { animation: none !important; }
-    }
-    .certificate-page { display: flex; justify-content: center; padding: 48px 16px; }
-    .cert-card { max-width: 680px; width: 100%; text-align: center; animation: certRise .7s ease-out both; }
-    .cert-frame { position: relative; padding: 44px 32px 36px; border: 2px solid var(--color-primary);
-        border-radius: 12px; outline: 1px solid var(--color-primary); outline-offset: -10px; overflow: hidden; }
-    .cert-eyebrow { letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.8rem; color: var(--color-on-surface-variant); }
-    .cert-kanji { margin: 8px 0 0; font-size: clamp(4rem, 14vw, 7rem); line-height: 1; font-weight: 800;
-        color: var(--color-primary); letter-spacing: 0.04em; }
-    .cert-frame h1 { margin: 12px 0 18px; letter-spacing: 0.06em; text-transform: uppercase; font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
-    .cert-ribbon { display: flex; width: max-content; margin: 0 -32px 20px; padding: 6px 0; white-space: nowrap;
-        background: var(--color-primary); color: var(--color-on-primary); font-size: .8rem; letter-spacing: .1em; }
-    .cert-ribbon span { animation: certMarquee 18s linear infinite; }
-    .cert-seal { position: absolute; right: 24px; bottom: 64px; width: 64px; height: 64px; display: grid; place-items: center;
-        border: 2px solid var(--color-primary); border-radius: 50%; color: var(--color-primary); font-weight: 700;
-        transform: rotate(-12deg); opacity: .85; }
-    .cert-disclaimer { margin-top: 24px; font-size: 0.85rem; color: var(--color-on-surface-variant); }
-    .cert-print-button { margin-top: 24px; padding: 12px 24px; border-radius: 999px; border: none;
+    .certificate-page { display: flex; justify-content: center; padding: 3rem 1rem; }
+    .cert-card { max-width: 60rem; width: 100%; animation: certRise .6s ease-out both; }
+    .cert-frame { display: grid; grid-template-columns: minmax(14rem, 30%) minmax(0, 1fr); min-height: 27rem;
+        background: var(--color-surface, #fff); color: var(--color-on-surface); border: 0.0625rem solid var(--color-outline-variant);
+        box-shadow: 0 1.25rem 3rem color-mix(in srgb, var(--color-on-surface) 12%, transparent); }
+    .cert-band { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column;
+        align-items: center; justify-content: space-between; gap: 1rem; padding: 1.75rem 1.25rem 2rem;
+        background: radial-gradient(circle at 62% 45%, rgb(255 255 255 / 13%), transparent 47%),
+            linear-gradient(155deg, #38207b 0%, #6331b8 55%, #8760cc 100%);
+        color: #fff; text-align: center; }
+    .cert-band::before { content: ''; position: absolute; z-index: -1; inset: .8rem;
+        border: .0625rem solid rgb(255 255 255 / 30%); pointer-events: none; }
+    .cert-band::after { content: ''; position: absolute; z-index: -1; width: 17rem; height: 17rem;
+        top: 50%; left: 50%; transform: translate(-50%, -48%); border: .0625rem solid rgb(255 255 255 / 25%);
+        border-radius: 50%; box-shadow: 0 0 0 1.3rem rgb(255 255 255 / 5%), 0 0 0 2.8rem rgb(255 255 255 / 4%);
+        pointer-events: none; }
+    .cert-brand { display: flex; align-items: center; gap: 0.5rem; align-self: flex-start; font-weight: 600; letter-spacing: .02em; }
+    .cert-mark { display: grid; place-items: center; width: 2.125rem; height: 2.125rem;
+        border: 0.0625rem solid currentColor; border-radius: 50%; font-size: .85rem; font-weight: 700; }
+    .cert-mascot { width: min(100%, 13rem); height: 13rem; object-fit: contain; filter: drop-shadow(0 .5rem .7rem rgb(0 0 0 / 15%)); }
+    .cert-band__caption { max-width: 16ch; font-size: .95rem; font-weight: 500; line-height: 1.45; }
+    .cert-content { display: flex; flex-direction: column; align-items: flex-start; padding: 2.25rem clamp(2rem, 5vw, 4.5rem) 1.5rem; }
+    .cert-eyebrow { margin: 0 0 1rem; color: var(--color-primary); font-size: .875rem; font-weight: 600; }
+    .cert-frame h1 { margin: 0 0 1.25rem; font-size: clamp(1.65rem, 3vw, 2.25rem); line-height: 1.2; font-weight: 600; }
+    .cert-intro, .cert-lead { margin: 0; color: var(--color-on-surface-variant); }
+    .cert-name { width: 100%; margin: 0.35rem 0 1rem; padding-bottom: 0.55rem; border-bottom: 0.0625rem solid var(--color-primary);
+        color: var(--color-on-surface); font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 600; overflow-wrap: anywhere; }
+    .cert-level { margin: 0.35rem 0 0; color: var(--color-primary); font-size: 1.3rem; font-weight: 600; }
+    .cert-score { font-size: 1.05rem; font-weight: 500; color: var(--color-on-surface-variant); }
+    .cert-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; margin-top: auto; padding-top: 1.5rem; }
+    .cert-date { margin: 0; line-height: 1.5; }
+    .cert-seal { flex: none; display: grid; place-items: center; width: 3.5rem; height: 3.5rem;
+        border: 0.125rem double var(--color-primary); border-radius: 50%; color: var(--color-primary); font-weight: 600; transform: rotate(-10deg); }
+    .cert-disclaimer { margin: 1.5rem 0 0; padding-top: 0.75rem; border-top: 0.0625rem solid var(--color-outline-variant);
+        color: var(--color-on-surface-variant); font-size: .75rem; line-height: 1.5; }
+    .cert-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; margin-top: 24px; }
+    .cert-print-button { padding: 12px 24px; border-radius: 999px; border: none;
         background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; cursor: pointer; }
-    @keyframes certMarquee { to { transform: translateX(-100%); } }
-    @keyframes certRise { from { opacity: 0; transform: translateY(16px); } }
-    @media (prefers-reduced-motion: reduce) { .cert-card, .cert-ribbon span { animation: none; } }
-    @media (max-width: 480px) { .cert-seal { position: static; margin: 12px auto 0; } }
+    .cert-back { padding: 11px 22px; border-radius: 999px; border: 1px solid var(--color-primary); color: var(--color-primary);
+        font-weight: 600; text-decoration: none; }
+    .cp-next-steps { margin-top: 32px; text-align: center; }
+    .cp-next-steps h2 { font-size: 1.1rem; margin: 0 0 12px; }
+    .cp-next-steps__list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .cp-next-steps__list a { padding: 8px 16px; border-radius: 999px; background: transparent; border: 1px solid var(--color-primary);
+        color: var(--color-primary); text-decoration: none; font-weight: 600; }
+    @keyframes certRise { from { opacity: 0; transform: translateY(12px); } }
+    @media (prefers-reduced-motion: reduce) { .cert-card { animation: none; } }
+    @media (max-width: 600px) { .cert-frame { grid-template-columns: minmax(0, 1fr); } .cert-band { flex-direction: row; padding: 1rem 1.25rem; }
+        .cert-brand { align-self: center; } .cert-mascot { width: 4.5rem; height: 4.5rem; } .cert-band__caption { display: none; }
+        .cert-content { padding: 2rem 1.5rem 1.5rem; } .cert-foot { padding-top: 2rem; } }
+    @page { size: A4 landscape; margin: 12mm; }
+    @media print {
+        html, body { width: 100%; min-height: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+        #jlabBasePage > :not(#jlabBaseContent):not(style), .cert-actions, .cp-next-steps { display: none !important; }
+        #jlabBaseContent.certificate-page { display: block; width: 100%; min-height: 0 !important; margin: 0 !important; padding: 0 !important; }
+        .cert-card { width: 100%; max-width: none; margin: 0; animation: none !important; }
+        .cert-frame { min-height: 0; height: 170mm; box-shadow: none; break-inside: avoid; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
 </style>
 </body>
 </html>
